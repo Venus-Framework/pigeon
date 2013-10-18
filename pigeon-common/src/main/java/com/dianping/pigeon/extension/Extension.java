@@ -4,7 +4,6 @@
  */
 package com.dianping.pigeon.extension;
 
-import org.w3c.dom.Element;
 
 public interface Extension {
 
@@ -13,8 +12,6 @@ public interface Extension {
 	ExtensionName getTargetComponentName();
 
 	String getExtensionPoint();
-
-	Element getElement();
 
 	Object[] getContributions();
 

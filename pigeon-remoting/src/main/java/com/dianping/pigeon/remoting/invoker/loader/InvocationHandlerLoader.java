@@ -15,7 +15,6 @@ import com.dianping.pigeon.remoting.common.component.context.InvocationContext;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
-import com.dianping.pigeon.remoting.invoker.config.SubscriberPluginDescriptor;
 import com.dianping.pigeon.remoting.invoker.filter.ContextPrepareInvokeFilter;
 import com.dianping.pigeon.remoting.invoker.filter.FailoverClusterInvokeFilter;
 import com.dianping.pigeon.remoting.invoker.filter.GatewayInvokeFilter;
@@ -28,7 +27,7 @@ import com.dianping.pigeon.remoting.invoker.filter.ServiceRouteInvokeFilter;
 public final class InvocationHandlerLoader extends DefaultExtension {
 
 	{
-		descriptorClass = SubscriberPluginDescriptor.class;
+		//descriptorClass = SubscriberPluginDescriptor.class;
 	}
 
 	private static Map<InvokePhase, List<InvocationInvokeFilter>> internalInvokeFilters = new LinkedHashMap<InvokePhase, List<InvocationInvokeFilter>>();

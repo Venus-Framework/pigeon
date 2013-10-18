@@ -4,18 +4,12 @@
  */
 package com.dianping.pigeon.config.spring;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
-
-import com.dianping.pigeon.config.ExtensionBean;
 
 /**
  * 
@@ -53,21 +47,21 @@ public class CommonBeanDefinitionParser implements BeanDefinitionParser {
 		beanDefinition.setLazyInit(false);
 		String id = element.getAttribute("id");
 
-		if (beanClass == ExtensionBean.class) {
-			beanDefinition.setBeanClass(ExtensionBean.class);
-			beanDefinition.setInitMethodName("init");
-
-			MutablePropertyValues properties = beanDefinition.getPropertyValues();
-			properties.addPropertyValue("point", element.getAttribute("point"));
-			String bean = element.getAttribute("bean");
-			if (StringUtils.isEmpty(bean) || !parserContext.getRegistry().containsBeanDefinition(bean)) {
-				throw new IllegalStateException("extension must have a reference to bean");
-			}
-			properties.addPropertyValue("bean", new RuntimeBeanReference(bean));
-
-			Element contentElement = DomUtils.getChildElementByTagName(element, "content");
-			properties.addPropertyValue("content", contentElement);
-		}
+//		if (beanClass == ExtensionBean.class) {
+//			beanDefinition.setBeanClass(ExtensionBean.class);
+//			beanDefinition.setInitMethodName("init");
+//
+//			MutablePropertyValues properties = beanDefinition.getPropertyValues();
+//			properties.addPropertyValue("point", element.getAttribute("point"));
+//			String bean = element.getAttribute("bean");
+//			if (StringUtils.isEmpty(bean) || !parserContext.getRegistry().containsBeanDefinition(bean)) {
+//				throw new IllegalStateException("extension must have a reference to bean");
+//			}
+//			properties.addPropertyValue("bean", new RuntimeBeanReference(bean));
+//
+//			Element contentElement = DomUtils.getChildElementByTagName(element, "content");
+//			properties.addPropertyValue("content", contentElement);
+//		}
 
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
 

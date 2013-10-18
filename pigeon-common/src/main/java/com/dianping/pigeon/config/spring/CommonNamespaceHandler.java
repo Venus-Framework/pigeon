@@ -10,13 +10,12 @@ import java.util.Map;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
-import com.dianping.pigeon.config.ExtensionBean;
 import com.dianping.pigeon.extension.ExtensionLoader;
 
 public class CommonNamespaceHandler extends NamespaceHandlerSupport {
 
 	public void init() {
-		registerBeanDefinitionParser("extension", new CommonBeanDefinitionParser(ExtensionBean.class, false));
+		//registerBeanDefinitionParser("extension", new CommonBeanDefinitionParser(ExtensionBean.class, false));
 		List<BeanDefinitionParserLoader> loaders = ExtensionLoader.getExtensionList(BeanDefinitionParserLoader.class);
 		if (loaders != null) {
 			for (BeanDefinitionParserLoader loader : loaders) {
