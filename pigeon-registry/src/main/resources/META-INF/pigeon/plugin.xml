@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugins>
+	<plugin phase="one"
+		component="com.dianping.pigeon.registry.component.RegistryConfigComponent"
+		point="init" >
+	</plugin>
+</plugins>

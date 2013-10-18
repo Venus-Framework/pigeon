@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
+		<param name="threshold" value="error" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd hh:mm:ss}:%p %t %c - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="SERVICE-DIGEST-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/data/applogs/pigeon/service_digest.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="GBK" />
+		<param name="threshold" value="info" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="JVM-DIGEST-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/data/applogs/pigeon/jvm_digest.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="GBK" />
+		<param name="threshold" value="info" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="NETTY-DIGEST-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/data/applogs/pigeon/netty_digest.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="GBK" />
+		<param name="threshold" value="info" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="ERROR-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/data/applogs/pigeon/common_error.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="GBK" />
+		<param name="threshold" value="error" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="COMMON-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/data/applogs/pigeon/pigeon_common.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="GBK" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMax" value="ERROR" />
+			<param name="LevelMin" value="ALL" />
+			<param name="AcceptOnMatch" value="true" />
+		</filter>
+	</appender>
+
+	<appender name="CONFIG-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/data/applogs/pigeon/pigeon_config.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="GBK" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMax" value="WARN" />
+			<param name="LevelMin" value="DEBUG" />
+		</filter>
+	</appender>
+
+	<appender name="pigeon_server" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/data/applogs/pigeon/pigeon_server.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="GBK" />
+		<param name="threshold" value="info" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="pigeon_service" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/data/applogs/pigeon/pigeon_service.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="GBK" />
+		<param name="threshold" value="info" />
+		<param name="MaxFileSize" value="100MB" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="CoalescingStatistics"
+		class="org.perf4j.log4j.AsyncCoalescingStatisticsAppender">
+		<!-- The TimeSlice option means timing logs are aggregated every 10 secs. -->
+		<param name="TimeSlice" value="10000" />
+		<appender-ref ref="fileAppender" />
+	</appender>
+
+	<appender name="fileAppender" class="org.apache.log4j.FileAppender">
+		<param name="File" value="/data/applogs/pigeon/common-perf.log" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%m%n" />
+		</layout>
+	</appender>
+
+	<logger name="org.perf4j.TimingLogger" additivity="false">
+		<level value="INFO" />
+		<appender-ref ref="CoalescingStatistics" />
+	</logger>
+
+	<logger name="pigeon_server" additivity="true">
+		<appender-ref ref="pigeon_server" />
+		<priority value="info" />
+	</logger>
+	<logger name="pigeon_service" additivity="true">
+		<appender-ref ref="pigeon_service" />
+		<priority value="info" />
+	</logger>
+
+	<logger name="pigeon_jvm_digest" additivity="true">
+		<appender-ref ref="JVM-DIGEST-APPENDER" />
+		<priority value="info" />
+	</logger>
+
+	<logger name="pigeon_SERVICE_digest" additivity="true">
+		<appender-ref ref="SERVICE-DIGEST-APPENDER" />
+		<priority value="info" />
+	</logger>
+
+	<logger name="pigeon_netty_digest" additivity="true">
+		<appender-ref ref="NETTY-DIGEST-APPENDER" />
+		<priority value="info" />
+	</logger>
+
+	<logger name="com.dianping.pigeon" additivity="true">
+		<appender-ref ref="COMMON-APPENDER" />
+		<priority value="debug" />
+	</logger>
+
+	<logger name="com.dianping.lion" additivity="true">
+		<appender-ref ref="CONFIG-APPENDER" />
+		<priority value="debug" />
+	</logger>
+
+	<root>
+		<priority value="ALL" />
+		<appender-ref ref="COMMON-APPENDER" />
+		<appender-ref ref="ERROR-APPENDER" />
+		<appender-ref ref="ConsoleAppender" />
+	</root>
+</log4j:configuration>
+
