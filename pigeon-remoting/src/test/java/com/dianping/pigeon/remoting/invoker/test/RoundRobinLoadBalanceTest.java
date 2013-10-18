@@ -1,6 +1,7 @@
 package com.dianping.pigeon.remoting.invoker.test;
 
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.dianping.pigeon.remoting.invoker.route.balance.RoundRobinLoadBalance;
@@ -19,6 +20,6 @@ public class RoundRobinLoadBalanceTest extends LoadBalanceBaseTest {
 			sb.append(client[(wrr.roundRobin(weights))]);
 		}
 		logger.info(sb.toString());
-		assertEquals(expect, sb.toString());
+		Assert.assertEquals(expect, sb.toString());
 	}
 }
