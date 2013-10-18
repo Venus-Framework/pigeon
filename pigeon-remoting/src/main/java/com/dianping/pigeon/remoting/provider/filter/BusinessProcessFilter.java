@@ -1,0 +1,83 @@
+/**
+s * Dianping.com Inc.
+ * Copyright (c) 2003-${year} All Rights Reserved.
+ */
+package com.dianping.pigeon.remoting.provider.filter;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import org.apache.log4j.Logger;
+
+import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.exception.PigeonRuntimeException;
+import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
+import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
+import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.ResponseUtils;
+import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
+import com.dianping.pigeon.remoting.provider.service.method.ServiceMethod;
+import com.dianping.pigeon.remoting.provider.service.method.ServiceMethodFactory;
+import com.dianping.pigeon.util.ContextUtils;
+
+/**
+ * 
+ * 
+ * @author jianhuihuang
+ * @version $Id: BusinessProcessFilter.java, v 0.1 2013-6-30 下午8:33:49
+ *          jianhuihuang Exp $
+ */
+public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderContext> {
+
+	private static final Logger logger = Logger.getLogger(BusinessProcessFilter.class);
+
+	@Override
+	public DPSFResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
+			throws Throwable {
+		if (logger.isInfoEnabled()) {
+			logger.info("invoke the BusinessProcessFilter, invocationContext:" + invocationContext);
+		}
+		DPSFRequest request = invocationContext.getRequest();
+		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+			ContextUtils.putLocalContext(Constants.REQUEST_CREATE_TIME, request.getCreateMillisTime());
+			ContextUtils.putLocalContext(Constants.REQUEST_TIMEOUT, request.getTimeout());
+
+			DPSFResponse response = null;
+			ServiceMethod method = ServiceMethodFactory.getMethod(request.getServiceName(), request.getMethodName(),
+					request.getParamClassName());
+			Method method_ = method.getMethod();
+			try {
+
+				long currentTime = System.nanoTime();
+
+				Object returnObj = method_.invoke(method.getService(), request.getParameters());
+
+				if (logger.isDebugEnabled()) {
+					logger.debug("service:" + request.getServiceName() + "_" + request.getMethodName());
+					logger.debug("execute time:" + (System.nanoTime() - currentTime) / 1000);
+					logger.debug("RequestId:" + request.getSequence());
+				}
+				if (request.getCallType() == Constants.CALLTYPE_REPLY) {
+					response = ResponseUtils.createSuccessResponse(request, returnObj);
+				}
+			} catch (InvocationTargetException e) {
+				Throwable e2 = e.getTargetException();
+				if (e2 != null) {
+					logger.error(e2.getMessage(), e2);
+				}
+				if (request.getCallType() == Constants.CALLTYPE_REPLY) {
+					response = ResponseUtils.createServiceExceptionResponse(request, e2);
+				}
+				invocationContext.setServiceError(e2);
+			} catch (Exception e) {
+				invocationContext.setServiceError(e);
+				throw e;
+			}
+
+			return response;
+		}
+		throw new PigeonRuntimeException("Message type[" + request.getMessageType() + "] is not supported!");
+	}
+
+}

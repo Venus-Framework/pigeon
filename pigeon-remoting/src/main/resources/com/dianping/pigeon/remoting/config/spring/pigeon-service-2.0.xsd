@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://code.dianping.com/schema/pigeon"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:beans="http://www.springframework.org/schema/beans"
+	targetNamespace="http://code.dianping.com/schema/pigeon"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+	<xsd:import namespace="http://www.springframework.org/schema/beans" />
+
+	<xsd:element name="reference">
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="beans:identifiedType">
+					<xsd:attribute name="name" type="xsd:string" />
+					<xsd:attribute name="interface" type="xsd:string"
+						use="required" />
+					<xsd:attribute name="serialize" type="xsd:string"
+						default="hessian" />
+					<xsd:attribute name="callMethod" type="xsd:string"
+						default="sync" />
+					<xsd:attribute name="timeout" type="xsd:string"
+						default="5000" />
+					<xsd:attribute name="loadbalance" type="xsd:string"
+						default="leastActive" />
+					<xsd:attribute name="cluster" type="xsd:string"
+						default="failFast" />
+					<xsd:attribute name="retries" type="xsd:string"
+						default="1" />
+					<xsd:attribute name="timeoutRetry" type="xsd:string"
+						default="false" />
+					<xsd:attribute name="callback" type="xsd:string" />
+					<xsd:attribute name="group" type="xsd:string" />
+					<xsd:attribute name="vip" type="xsd:string" />
+					<xsd:attribute name="testVip" type="xsd:string" />
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="service">
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="beans:identifiedType">
+					<xsd:attribute name="name" type="xsd:string" />
+					<xsd:attribute name="interface" type="xsd:string"
+						use="required" />
+					<xsd:attribute name="ref" type="xsd:string" use="required" />
+					<xsd:attribute name="group" type="xsd:string" />
+					<xsd:attribute name="port" type="xsd:string" />
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

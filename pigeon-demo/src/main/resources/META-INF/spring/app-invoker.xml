@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:pigeon="http://code.dianping.com/schema/pigeon"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+				http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+                http://code.dianping.com/schema/pigeon http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd">
+
+	<pigeon:reference id="echoService"
+		interface="com.dianping.pigeon.demo.EchoService" group="${pigeon-demo.group}"
+		vip="${pigeon-demo.vip}" testVip="${pigeon-demo.test_vip}" />
+
+	<bean id="echoServiceCallback" class="com.dianping.pigeon.demo.invoker.EchoServiceCallback" />
+
+	<pigeon:reference id="echoService_callback"
+		interface="com.dianping.pigeon.demo.EchoService" callMethod="callback"
+		callback="echoServiceCallback" group="${pigeon-demo.group}" />
+
+	<pigeon:reference id="echoService_oneway"
+		interface="com.dianping.pigeon.demo.EchoService" callMethod="oneway"
+		group="${pigeon-demo.group}" />
+
+	<pigeon:reference id="echoService_future"
+		interface="com.dianping.pigeon.demo.EchoService" callMethod="future"
+		group="${pigeon-demo.group}" />
+
+	<pigeon:reference id="echoService_java"
+		interface="com.dianping.pigeon.demo.EchoService" serialize="java"
+		group="${pigeon-demo.group}" vip="${pigeon-demo.vip}" testVip="${pigeon-demo.test_vip}" />
+
+	<!-- 原配置 -->
+	<!-- <bean id="echoService" class="com.dianping.dpsf.spring.ProxyBeanFactory" 
+		init-method="init"> <property name="serviceName" value="http://service.dianping.com/testService/echoService_1.0.0" 
+		/> <property name="iface" value="com.dianping.pigeon.demo.EchoService" /> 
+		<property name="serialize" value="hessian" /> <property name="callMethod" 
+		value="sync" /> <property name="timeout" value="5000" /> </bean> -->
+</beans>

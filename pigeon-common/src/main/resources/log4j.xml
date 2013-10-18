@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
+		<param name="threshold" value="info" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd hh:mm:ss}:%p %t %c - %m%n" />
+		</layout>
+	</appender>
+
+<!-- 
+	<appender name="pigeon_service" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/data/applogs/pigeon/pigeon_service.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="GBK" />
+		<param name="threshold" value="info" />
+		<param name="MaxFileSize" value="100MB" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="CoalescingStatistics"
+		class="org.perf4j.log4j.AsyncCoalescingStatisticsAppender">
+		<param name="TimeSlice" value="10000" />
+		<appender-ref ref="fileAppender" />
+	</appender>
+
+	<appender name="fileAppender" class="org.apache.log4j.FileAppender">
+		<param name="File" value="/data/applogs/pigeon/common-perf.log" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%m%n" />
+		</layout>
+	</appender>
+
+	<logger name="org.perf4j.TimingLogger" additivity="false">
+		<level value="INFO" />
+		<appender-ref ref="CoalescingStatistics" />
+	</logger>
+
+	<logger name="pigeon_server" additivity="true">
+		<appender-ref ref="pigeon_server" />
+		<priority value="info" />
+	</logger>
+	<logger name="pigeon_service" additivity="true">
+		<appender-ref ref="pigeon_service" />
+		<priority value="info" />
+	</logger>
+ -->
+	<root>
+		<priority value="ALL" />
+		<appender-ref ref="ConsoleAppender" />
+	</root>
+</log4j:configuration>
+

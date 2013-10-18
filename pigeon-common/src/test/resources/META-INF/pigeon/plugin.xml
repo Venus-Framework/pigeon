@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugins>
+	<plugin phase="one" component="PigeonTestPlugin" point="serviceInvoke"
+		descriptor="com.dianping.pigeon.service.core.plugin.PigeonTestPlugin">
+		<content>
+			<pigeonTestPlugin code="BeforeCall" plugin="catTestFilter" />
+		</content>
+	</plugin>
+	<!-- <plugin phase="one" component="com.dianping.pigeon.admin.PigeonConsoleAdmin" 
+		point="init"> </plugin> -->
+</plugins>

@@ -1,0 +1,2 @@
+com.dianping.pigeon.remoting.invoker.config.spring.InvokerBeanDefinitionParserLoader
+com.dianping.pigeon.remoting.provider.config.spring.ProviderBeanDefinitionParserLoader

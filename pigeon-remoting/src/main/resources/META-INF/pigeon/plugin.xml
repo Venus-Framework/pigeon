@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugins> 
+	<plugin phase="one"
+		component="com.dianping.pigeon.remoting.invoker.route.component.ServiceRouteComponent"
+		point="init" >
+		<!-- 
+		descriptor="com.dianping.pigeon.service.api.plugin.ComponentDescription">
+		<content>
+			<componentDescription eventCode="BeforeCall"
+				plugin="catTestFilter" />
+		</content>
+		 -->
+	</plugin>
+</plugins>

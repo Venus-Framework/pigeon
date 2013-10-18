@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:pigeon="http://code.dianping.com/schema/pigeon"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+				http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+				http://code.dianping.com/schema/pigeon http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd"
+	default-autowire="byName">
+
+	<bean id="echoServiceImpl" class="com.dianping.pigeon.demo.provider.EchoServiceImpl" />
+
+	<pigeon:service id="echoService"
+		interface="com.dianping.pigeon.demo.EchoService" ref="echoServiceImpl"
+		group="www" port="4625"/>
+
+<!-- <bean id="sayHelloServiceImpl" class="com.dianping.pigeon.demo.provider.SayHelloServiceImpl" 
+		/> <pigeon:service id="sayHelloService" name="http://service.dianping.com/testService/sayHelloService_1.0.0" 
+		interface="com.dianping.pigeon.demo.SayHelloService" ref="sayHelloServiceImpl" 
+		/> -->
+</beans>
