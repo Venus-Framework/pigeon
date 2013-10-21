@@ -15,4 +15,6 @@ public interface ServerFactory {
 	final int DEFAULT_PORT = 4625;
 
 	Server createServer(int port);
+	
+	int getPort();
 }

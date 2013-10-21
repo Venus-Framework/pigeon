@@ -15,9 +15,17 @@ import com.dianping.pigeon.remoting.provider.ServerFactory;
  */
 public class NettyServerFactory implements ServerFactory {
 
+	private int port;
+	
 	@Override
 	public Server createServer(int port) {
+		this.port = port;
 		return new NettyServer(port);
+	}
+
+	@Override
+	public int getPort() {
+		return port;
 	}
 
 }
