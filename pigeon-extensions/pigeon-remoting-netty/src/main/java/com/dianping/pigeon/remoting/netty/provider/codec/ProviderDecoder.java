@@ -7,8 +7,8 @@ package com.dianping.pigeon.remoting.netty.provider.codec;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.Channels;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.netty.codec.AbstractDecoder;
 
 public class ProviderDecoder extends AbstractDecoder {
@@ -18,7 +18,7 @@ public class ProviderDecoder extends AbstractDecoder {
 		if (message == null) {
 			return null;
 		}
-		DPSFRequest request = (DPSFRequest) message;
+		InvocationRequest request = (InvocationRequest) message;
 		if (request.getCreateMillisTime() == 0) {
 			request.setCreateMillisTime(System.currentTimeMillis());
 		}
@@ -26,7 +26,7 @@ public class ProviderDecoder extends AbstractDecoder {
 	}
 
 	@Override
-	public void doFailResponse(Channel channel, DPSFResponse response) {
+	public void doFailResponse(Channel channel, InvocationResponse response) {
 		Channels.write(channel, response);
 	}
 

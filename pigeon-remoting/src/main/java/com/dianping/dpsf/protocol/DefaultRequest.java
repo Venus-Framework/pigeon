@@ -10,7 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 
 /**
  * 不能修改packagename，修改属性需要注意，确保和之前的dpsf兼容。
@@ -19,7 +19,7 @@ import com.dianping.dpsf.component.DPSFRequest;
  * @version $Id: DefaultRequest.java, v 0.1 2013-7-5 上午8:25:42 jianhuihuang Exp
  *          $
  */
-public class DefaultRequest implements DPSFRequest {
+public class DefaultRequest implements InvocationRequest {
 
 	/**
 	 * 不能随意修改！

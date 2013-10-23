@@ -10,13 +10,13 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.dpsf.exception.NetException;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.phase.Disposable;
 import com.dianping.pigeon.registry.cache.WeightCache;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
-import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
@@ -46,7 +46,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		LoadBalanceManager.register(ConsistentHashLoadBalance.NAME, null, ConsistentHashLoadBalance.instance);
 	}
 
-	public Client route(List<Client> clientList, InvokerMetaData metaData, DPSFRequest request) throws NetworkException {
+	public Client route(List<Client> clientList, InvokerMetaData metaData, InvocationRequest request) {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Routing from: ");
@@ -76,7 +76,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		}
 
 		if (!selectedClient.isConnected()) {
-			throw new NetworkException("no available server exists for service metaData[" + metaData + "] .");
+			throw new NetException("no available server exists for service metaData[" + metaData + "] .");
 		}
 		return selectedClient;
 	}
@@ -94,7 +94,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 			Boolean isWriteBufferLimit) {
 		Set<String> clientsInGroup = WeightCache.getInstance().getClientsOfGroup(metaData.getGroup());
 		if (clientsInGroup == null || clientsInGroup.isEmpty()) {
-			throw new NetworkException("no group named[" + metaData.getGroup() + "].");
+			throw new NetException("no group named[" + metaData.getGroup() + "].");
 		}
 		List<Client> filteredClients = new ArrayList<Client>(clientList.size());
 		boolean existClientBuffToLimit = false;
@@ -110,7 +110,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 			}
 		}
 		if (filteredClients.isEmpty()) {
-			throw new NetworkException("no available server exists for service[" + metaData.getServiceName()
+			throw new NetException("no available server exists for service[" + metaData.getServiceName()
 					+ "] and group[" + metaData.getGroup() + "]"
 					+ (existClientBuffToLimit ? ", and exists some server's write buffer reach limit" : "") + ".");
 		}
@@ -119,11 +119,11 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 
 	private void checkClientNotNull(Client client, InvokerMetaData metaData) {
 		if (client == null) {
-			throw new NetworkException("no available server exists for service[" + metaData + "]");
+			throw new NetException("no available server exists for service[" + metaData + "]");
 		}
 	}
 
-	private Client select(List<Client> availableClients, InvokerMetaData metaData, DPSFRequest request) {
+	private Client select(List<Client> availableClients, InvokerMetaData metaData, InvocationRequest request) {
 		LoadBalance loadBalance = null;
 		if (request.getCallType() == Constants.CALLTYPE_NOREPLY) {
 			loadBalance = RandomLoadBalance.instance;

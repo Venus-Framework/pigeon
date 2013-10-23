@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.filter;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
@@ -25,7 +25,7 @@ public class GatewayInvokeFilter extends InvocationInvokeFilter {
 	private static final Logger logger = Logger.getLogger(GatewayInvokeFilter.class);
 
 	@Override
-	public DPSFResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
+	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
 
 		InvokerMetaData metaData = invocationContext.getMetaData();

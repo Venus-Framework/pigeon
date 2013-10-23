@@ -17,10 +17,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.component.HostInfo;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.registry.cache.WeightCache;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
@@ -69,7 +69,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 								sendHeartBeatRequest(client);
 							} else {
 								HeartBeatStat heartBeatStat = heartBeatStats.get(connect);
-								DPSFRequest heartRequest = heartBeatStat.currentHeartRequest;
+								InvocationRequest heartRequest = heartBeatStat.currentHeartRequest;
 								if (isHeartRequestTimeout(heartRequest, heartBeatTimeout)) {
 									heartBeatStat.incrFailed();
 									notifyHeartBeatStatChanged(client);
@@ -99,7 +99,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 		return heartBeatStat != null && heartBeatStat.currentHeartRequest != null;
 	}
 
-	private boolean isHeartRequestTimeout(DPSFRequest heartRequest, long heartBeatTimeout) {
+	private boolean isHeartRequestTimeout(InvocationRequest heartRequest, long heartBeatTimeout) {
 		return System.currentTimeMillis() - heartRequest.getCreateMillisTime() >= heartBeatTimeout;
 	}
 
@@ -107,7 +107,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 		try {
 			HeartBeatStat heartStat = getHeartBeatStatWithCreate(client.getAddress());
 			heartStat.currentHeartRequest = null; // 在write之前需要先置空currentHeartRequest
-			DPSFRequest heartRequest = createHeartRequest(client);
+			InvocationRequest heartRequest = createHeartRequest(client);
 			client.write(heartRequest);
 			heartStat.currentHeartRequest = heartRequest;
 		} catch (Exception e) {
@@ -127,8 +127,8 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 		return heartBeatStat;
 	}
 
-	private DPSFRequest createHeartRequest(Client client) {
-		DPSFRequest request = new DefaultRequest(HEART_TASK_SERVICE, HEART_TASK_METHOD, null,
+	private InvocationRequest createHeartRequest(Client client) {
+		InvocationRequest request = new DefaultRequest(HEART_TASK_SERVICE, HEART_TASK_METHOD, null,
 				SerializerFactory.SERIALIZE_HESSIAN, Constants.MESSAGE_TYPE_HEART, 30000, null);
 		request.setSequence(generateHeartSeq(client));
 		request.setCreateMillisTime(System.currentTimeMillis());
@@ -147,7 +147,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	public void removeConnect(Client client) {
 	}
 
-	public void processResponse(DPSFResponse response, Client client) {
+	public void processResponse(InvocationResponse response, Client client) {
 		if (logger.isInfoEnabled()) {
 			logger.info("response is" + response);
 			logger.info("client is" + client);
@@ -258,7 +258,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 	class HeartBeatStat {
 		String address;
-		DPSFRequest currentHeartRequest;
+		InvocationRequest currentHeartRequest;
 		AtomicLong succeedCounter = new AtomicLong(); // 连续成功计数器
 		AtomicLong failedCounter = new AtomicLong(); // 连续失败计数器
 

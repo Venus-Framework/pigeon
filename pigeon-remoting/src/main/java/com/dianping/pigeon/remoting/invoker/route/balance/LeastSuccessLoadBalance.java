@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.route.balance;
 
 import java.util.List;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.route.stat.AddressStatPoolServiceImpl;
 import com.dianping.pigeon.remoting.invoker.route.stat.DpsfAddressStatPool;
@@ -29,7 +29,7 @@ public class LeastSuccessLoadBalance extends AbstractLoadBalance {
 	DpsfAddressStatPoolService dpsfAddressStatPoolService = AddressStatPoolServiceImpl.getInstance();
 
 	@Override
-	protected Client doSelect(List<Client> clients, DPSFRequest request, int[] weights) {
+	protected Client doSelect(List<Client> clients, InvocationRequest request, int[] weights) {
 
 		String serviceName = request.getServiceName();
 		DpsfAddressStatPool addressStatPool = dpsfAddressStatPoolService.getAddressStatPool(serviceName);

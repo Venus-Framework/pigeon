@@ -6,8 +6,8 @@ package com.dianping.pigeon.remoting.provider.filter;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -26,13 +26,13 @@ public class ExceptionProcessFilter implements ServiceInvocationFilter<ProviderC
 	private static final Logger logger = Logger.getLogger(ExceptionProcessFilter.class);
 
 	@Override
-	public DPSFResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
+	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
 		if (logger.isInfoEnabled()) {
 			logger.info("invoke the ExceptionProcessFilter, invocationContext:" + invocationContext);
 		}
-		DPSFRequest request = invocationContext.getRequest();
-		DPSFResponse response = null;
+		InvocationRequest request = invocationContext.getRequest();
+		InvocationResponse response = null;
 		try {
 			response = handler.handle(invocationContext);
 		} catch (Exception e) {

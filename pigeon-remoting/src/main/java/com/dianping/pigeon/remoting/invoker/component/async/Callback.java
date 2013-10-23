@@ -4,13 +4,13 @@
  */
 package com.dianping.pigeon.remoting.invoker.component.async;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 
 public interface Callback extends Runnable, Call {
 
-	void callback(DPSFResponse response);
+	void callback(InvocationResponse response);
 
-	void setRequest(DPSFRequest request);
+	void setRequest(InvocationRequest request);
 
 }

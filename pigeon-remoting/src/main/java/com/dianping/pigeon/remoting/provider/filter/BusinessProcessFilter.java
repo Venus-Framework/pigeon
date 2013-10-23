@@ -9,9 +9,8 @@ import java.lang.reflect.Method;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
-import com.dianping.pigeon.exception.PigeonRuntimeException;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -33,17 +32,17 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 	private static final Logger logger = Logger.getLogger(BusinessProcessFilter.class);
 
 	@Override
-	public DPSFResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
+	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
 		if (logger.isInfoEnabled()) {
 			logger.info("invoke the BusinessProcessFilter, invocationContext:" + invocationContext);
 		}
-		DPSFRequest request = invocationContext.getRequest();
+		InvocationRequest request = invocationContext.getRequest();
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 			ContextUtils.putLocalContext(Constants.REQUEST_CREATE_TIME, request.getCreateMillisTime());
 			ContextUtils.putLocalContext(Constants.REQUEST_TIMEOUT, request.getTimeout());
 
-			DPSFResponse response = null;
+			InvocationResponse response = null;
 			ServiceMethod method = ServiceMethodFactory.getMethod(request.getServiceName(), request.getMethodName(),
 					request.getParamClassName());
 			Method method_ = method.getMethod();
@@ -77,7 +76,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 
 			return response;
 		}
-		throw new PigeonRuntimeException("Message type[" + request.getMessageType() + "] is not supported!");
+		throw new RuntimeException("Message type[" + request.getMessageType() + "] is not supported!");
 	}
 
 }

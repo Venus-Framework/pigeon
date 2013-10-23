@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFResponse;
 import com.dianping.dpsf.protocol.DefaultRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
@@ -34,7 +34,7 @@ public abstract class ClusterInvokeFilter extends InvocationInvokeFilter {
 
 	public abstract String name();
 
-	public DPSFResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
+	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
 
 		try {
@@ -46,7 +46,7 @@ public abstract class ClusterInvokeFilter extends InvocationInvokeFilter {
 		}
 	}
 
-	public abstract DPSFResponse _invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
+	public abstract InvocationResponse _invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable;
 
 	protected DefaultRequest createRemoteCallRequest(InvokerContext invocationContext, InvokerMetaData metaData) {

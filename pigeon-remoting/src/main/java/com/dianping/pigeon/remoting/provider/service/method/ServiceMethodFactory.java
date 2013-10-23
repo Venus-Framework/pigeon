@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.component.QueryString;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.remoting.common.exception.ServiceException;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 
 public final class ServiceMethodFactory {

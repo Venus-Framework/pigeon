@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.filter;
 
 import java.lang.reflect.Method;
 
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
@@ -23,7 +23,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 	private Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 
 	@Override
-	public DPSFResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
+	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
 		MonitorLogger logger = null;
 		MonitorTransaction transaction = null;

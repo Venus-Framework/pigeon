@@ -9,14 +9,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.dpsf.protocol.DefaultResponse;
-import com.dianping.pigeon.exception.PigeonRuntimeException;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.component.RequestError;
-import com.dianping.pigeon.remoting.common.exception.NetworkException;
-import com.dianping.pigeon.remoting.common.exception.NetworkTimeoutException;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.util.ContextUtils;
@@ -31,7 +30,7 @@ public class CallbackFuture implements Callback, CallFuture {
 
 	private static final Logger logger = Logger.getLogger(CallbackFuture.class);
 
-	private DPSFResponse response;
+	private InvocationResponse response;
 
 	private CallFuture future;
 
@@ -41,7 +40,7 @@ public class CallbackFuture implements Callback, CallFuture {
 
 	private RequestError error;
 
-	private DPSFRequest request;
+	private InvocationRequest request;
 
 	private Client client;
 
@@ -57,32 +56,46 @@ public class CallbackFuture implements Callback, CallFuture {
 		}
 	}
 
-	public void callback(DPSFResponse response) {
+	public void callback(InvocationResponse response) {
 		this.response = response;
 	}
 
-	public DPSFResponse get() throws InterruptedException, NetworkException {
+	public InvocationResponse get() throws InterruptedException {
 		return get(Long.MAX_VALUE);
 	}
 
-	public DPSFResponse get(long timeoutMillis) throws InterruptedException, NetworkException {
+	public InvocationResponse get(long timeoutMillis)
+			throws InterruptedException {
 		synchronized (this) {
 			long start = request.getCreateMillisTime();
 			while (!this.done) {
-				long timeoutMillis_ = timeoutMillis - (System.currentTimeMillis() - start);
+				long timeoutMillis_ = timeoutMillis
+						- (System.currentTimeMillis() - start);
 				if (timeoutMillis_ <= 0) {
 					this.error = RequestError.TIMEOUT;
 					StringBuffer sb = new StringBuffer();
-					sb.append(this.error.getMsg()).append("\r\n seq:").append(request.getSequence())
-							.append("\r\n callType:").append(request.getCallType()).append("\r\n serviceName:")
-							.append(request.getServiceName()).append("\r\n methodName:")
-							.append(request.getMethodName()).append("\r\n host:").append(client.getHost()).append(":")
-							.append(client.getPort()).append("\r\n timeout:" + request.getTimeout())
-							.append("\r\n Parameters:" + request.getParameters());
+					sb.append(this.error.getMsg())
+							.append("\r\n seq:")
+							.append(request.getSequence())
+							.append("\r\n callType:")
+							.append(request.getCallType())
+							.append("\r\n serviceName:")
+							.append(request.getServiceName())
+							.append("\r\n methodName:")
+							.append(request.getMethodName())
+							.append("\r\n host:")
+							.append(client.getHost())
+							.append(":")
+							.append(client.getPort())
+							.append("\r\n timeout:" + request.getTimeout())
+							.append("\r\n Parameters:"
+									+ request.getParameters());
 
-					RpcEventUtils.clientTimeOutEvent(request, client.getAddress());
+					RpcEventUtils.clientTimeOutEvent(request,
+							client.getAddress());
 
-					NetworkTimeoutException netTimeoutException = new NetworkTimeoutException(sb.toString());
+					NetTimeoutException netTimeoutException = new NetTimeoutException(
+							sb.toString());
 					throw netTimeoutException;
 				} else {
 					this.wait(timeoutMillis_);
@@ -91,7 +104,8 @@ public class CallbackFuture implements Callback, CallFuture {
 
 			Object context = ContextUtils.getContext();
 			if (context != null) {
-				Integer order = ContextUtils.getOrder(this.response.getContext());
+				Integer order = ContextUtils.getOrder(this.response
+						.getContext());
 				if (order != null && order > 0) {
 					ContextUtils.setOrder(context, order);
 				}
@@ -107,20 +121,24 @@ public class CallbackFuture implements Callback, CallFuture {
 			if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION
 					|| response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 				Throwable cause = null;
-				logger.error("response is" + response);
 				if (response instanceof DefaultResponse) {
-					cause = (Throwable) response.getReturn();
-				} else {
-					cause = new PigeonRuntimeException(response.getCause());
+					cause = InvocationUtils.toInvocationThrowable(response
+							.getReturn());
+				}
+				if (cause == null) {
+					cause = new RuntimeException(response.getCause());
 				}
 				StringBuffer sb = new StringBuffer();
 				sb.append(cause.getMessage()).append("\r\n");
 				sb.append("Remote Service Exception Info *************\r\n")
 						// .append(" token:").append(ContextUtil.getToken(this.response.getContext())).append("\r\n")
-						.append(" seq:").append(request.getSequence()).append(" callType:")
-						.append(request.getCallType()).append("\r\n serviceName:").append(request.getServiceName())
-						.append(" methodName:").append(request.getMethodName()).append("\r\n host:")
-						.append(client.getHost()).append(":").append(client.getPort())
+						.append(" seq:").append(request.getSequence())
+						.append(" callType:").append(request.getCallType())
+						.append("\r\n serviceName:")
+						.append(request.getServiceName())
+						.append(" methodName:").append(request.getMethodName())
+						.append("\r\n host:").append(client.getHost())
+						.append(":").append(client.getPort())
 						.append("\r\n timeout:" + request.getTimeout());
 				Field field;
 				try {
@@ -136,7 +154,8 @@ public class CallbackFuture implements Callback, CallFuture {
 		}
 	}
 
-	public DPSFResponse get(long timeout, TimeUnit unit) throws InterruptedException, NetworkException {
+	public InvocationResponse get(long timeout, TimeUnit unit)
+			throws InterruptedException {
 		return get(unit.toMillis(timeout));
 	}
 
@@ -176,7 +195,7 @@ public class CallbackFuture implements Callback, CallFuture {
 
 	}
 
-	public void setRequest(DPSFRequest request) {
+	public void setRequest(InvocationRequest request) {
 		this.request = request;
 	}
 

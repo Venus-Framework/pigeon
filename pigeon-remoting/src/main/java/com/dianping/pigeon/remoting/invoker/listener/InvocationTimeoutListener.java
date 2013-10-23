@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.component.RemoteInvocationBean;
 import com.dianping.pigeon.remoting.invoker.component.async.Callback;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
@@ -31,7 +31,7 @@ public class InvocationTimeoutListener implements Runnable {
 				for (Long sequence : invocations.keySet()) {
 					RemoteInvocationBean invocationBean = invocations.get(sequence);
 					if (invocationBean != null) {
-						DPSFRequest request = invocationBean.request;
+						InvocationRequest request = invocationBean.request;
 						if (request.getCreateMillisTime() + request.getTimeout() < currentTime) {
 							Callback callback = invocationBean.callback;
 							if (callback != null && callback.getClient() != null) {

@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.route.balance;
 
 import java.util.List;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
 
 /**
@@ -26,7 +26,7 @@ public class RandomLoadBalance extends AbstractLoadBalance {
 	public static final LoadBalance instance = new RandomLoadBalance();
 
 	@Override
-	public Client doSelect(List<Client> clients, DPSFRequest request, int[] weights) {
+	public Client doSelect(List<Client> clients, InvocationRequest request, int[] weights) {
 
 		int clientSize = clients.size();
 		int totalWeight = 0;

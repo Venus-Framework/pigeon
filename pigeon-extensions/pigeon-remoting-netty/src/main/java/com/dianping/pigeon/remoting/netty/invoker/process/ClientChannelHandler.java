@@ -17,8 +17,8 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
@@ -51,8 +51,8 @@ public class ClientChannelHandler extends SimpleChannelUpstreamHandler {
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 
-		List<DPSFResponse> messages = (List<DPSFResponse>) e.getMessage();
-		for (final DPSFResponse response : messages) {
+		List<InvocationResponse> messages = (List<InvocationResponse>) e.getMessage();
+		for (final InvocationResponse response : messages) {
 			Runnable task = new Runnable() {
 				public void run() {
 					client.doResponse(response);
@@ -92,22 +92,22 @@ public class ClientChannelHandler extends SimpleChannelUpstreamHandler {
 	}
 
 	private void flowOutexceptionCaughtRequest(final Object attachment) {
-		DPSFRequest request = getRequest(attachment);
+		InvocationRequest request = getRequest(attachment);
 		if (request != null) {
 			RpcEventUtils.channelExceptionCaughtEvent(request, client.getAddress());
 		}
 	}
 
-	private DPSFRequest getRequest(Object attachment) {
+	private InvocationRequest getRequest(Object attachment) {
 		if (attachment instanceof Object[]) {
 			Object[] msg = (Object[]) attachment;
 			for (Object ele : msg) {
-				if (ele instanceof DPSFRequest) {
-					return (DPSFRequest) ele;
+				if (ele instanceof InvocationRequest) {
+					return (InvocationRequest) ele;
 				}
 			}
-		} else if (attachment instanceof DPSFRequest) {
-			return (DPSFRequest) attachment;
+		} else if (attachment instanceof InvocationRequest) {
+			return (InvocationRequest) attachment;
 		}
 		return null;
 	}

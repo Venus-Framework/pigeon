@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.monitor;
 
-import com.dianping.pigeon.component.InvocationContext;
+import com.dianping.pigeon.component.invocation.InvocationContext;
 
 /**
  * @author xiangwu

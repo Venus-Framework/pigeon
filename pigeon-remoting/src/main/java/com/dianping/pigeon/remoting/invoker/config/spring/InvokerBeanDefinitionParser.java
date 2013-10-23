@@ -20,7 +20,6 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.registry.cache.RegistryCache;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.remoting.invoker.config.ReferenceBean;
 import com.dianping.pigeon.remoting.invoker.loader.InvokerBootStrapLoader;
 
 /**

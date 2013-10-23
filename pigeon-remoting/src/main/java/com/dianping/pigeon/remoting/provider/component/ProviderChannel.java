@@ -6,13 +6,13 @@ package com.dianping.pigeon.remoting.provider.component;
 
 import java.net.InetSocketAddress;
 
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 
 public interface ProviderChannel {
 
 	<C> C getChannel(C c);
 
-	void write(DPSFResponse response);
+	void write(InvocationResponse response);
 
 	InetSocketAddress getRemoteAddress();
 

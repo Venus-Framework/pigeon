@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.extension.DefaultExtension;
 import com.dianping.pigeon.remoting.common.component.context.InvocationContext;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
@@ -80,7 +80,7 @@ public final class InvocationHandlerLoader extends DefaultExtension {
 			last = new ServiceInvocationHandler() {
 				@SuppressWarnings("unchecked")
 				@Override
-				public DPSFResponse handle(InvocationContext invocationContext) throws Throwable {
+				public InvocationResponse handle(InvocationContext invocationContext) throws Throwable {
 					return filter.invoke(next, invocationContext);
 				}
 			};

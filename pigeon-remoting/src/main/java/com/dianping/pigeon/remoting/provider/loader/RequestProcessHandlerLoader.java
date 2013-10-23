@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.component.context.InvocationContext;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
@@ -86,7 +86,7 @@ public final class RequestProcessHandlerLoader {
 			last = new ServiceInvocationHandler() {
 				@SuppressWarnings("unchecked")
 				@Override
-				public DPSFResponse handle(InvocationContext invocationContext) throws Throwable {
+				public InvocationResponse handle(InvocationContext invocationContext) throws Throwable {
 					return filter.invoke(next, invocationContext);
 				}
 			};

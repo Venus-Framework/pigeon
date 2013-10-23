@@ -7,8 +7,8 @@ package com.dianping.pigeon.remoting.invoker.service;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.RemoteInvocationBean;
 import com.dianping.pigeon.remoting.invoker.component.async.Callback;
@@ -38,11 +38,11 @@ public class ServiceInvocationRepository {
 		invocations.remove(sequence);
 	}
 
-	public void receiveResponse(DPSFResponse response) {
+	public void receiveResponse(InvocationResponse response) {
 
 		RemoteInvocationBean invocationBean = invocations.get(response.getSequence());
 		if (invocationBean != null) {
-			DPSFRequest request = invocationBean.request;
+			InvocationRequest request = invocationBean.request;
 			try {
 				Callback callback = invocationBean.callback;
 				if (callback != null) {

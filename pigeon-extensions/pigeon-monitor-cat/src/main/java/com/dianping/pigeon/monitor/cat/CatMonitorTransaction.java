@@ -10,9 +10,9 @@ import com.dianping.cat.message.MessageProducer;
 import com.dianping.cat.message.Transaction;
 import com.dianping.cat.message.internal.DefaultMessageManager;
 import com.dianping.cat.message.spi.MessageTree;
-import com.dianping.dpsf.component.DPSFRequest;
 import com.dianping.phoenix.environment.PhoenixContext;
-import com.dianping.pigeon.component.InvocationContext;
+import com.dianping.pigeon.component.invocation.InvocationContext;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.util.ContextUtils;
@@ -108,7 +108,7 @@ public class CatMonitorTransaction implements MonitorTransaction {
 	@Override
 	public void writeMonitorContext() {
 		InvocationContext invocationContext = getInvocationContext();
-		DPSFRequest request = invocationContext.getRequest();
+		InvocationRequest request = invocationContext.getRequest();
 		Object context = request.getContext();
 		String rootMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_ROOT_MESSAGE_ID);
 		String serverMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_CURRENT_MESSAGE_ID);

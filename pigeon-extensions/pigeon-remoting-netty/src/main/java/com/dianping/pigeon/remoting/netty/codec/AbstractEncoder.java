@@ -16,8 +16,8 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
-import com.dianping.dpsf.component.DPSFResponse;
-import com.dianping.dpsf.component.DPSFSerializable;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.component.invocation.InvocationSerializable;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
@@ -28,8 +28,8 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 	private static final Logger log = Logger.getLogger(AbstractEncoder.class);
 
 	public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
-		if (msg instanceof DPSFSerializable) {
-			DPSFSerializable message = (DPSFSerializable) msg;
+		if (msg instanceof InvocationSerializable) {
+			InvocationSerializable message = (InvocationSerializable) msg;
 			try {
 				ChannelBuffer buffer = (ChannelBuffer) _encode(message.getSerializ(), ctx, channel, message.getObject());
 				buffer.setBytes(0, Constants.MESSAGE_HEAD);
@@ -53,7 +53,7 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 		}
 	}
 
-	public abstract void doFailResponse(Channel channel, DPSFResponse response);
+	public abstract void doFailResponse(Channel channel, InvocationResponse response);
 
 	private final int estimatedLength = 512;
 
@@ -99,8 +99,8 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 
 	private long getSeq(Object msg) {
 		long seq = 0;
-		if (msg instanceof DPSFSerializable) {
-			DPSFSerializable msg_ = (DPSFSerializable) msg;
+		if (msg instanceof InvocationSerializable) {
+			InvocationSerializable msg_ = (InvocationSerializable) msg;
 			seq = msg_.getSequence();
 		}
 		return seq;

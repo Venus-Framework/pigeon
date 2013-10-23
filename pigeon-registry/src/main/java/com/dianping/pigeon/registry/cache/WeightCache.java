@@ -7,8 +7,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.exception.PigeonRuntimeException;
-
 public class WeightCache {
 
 	private Map<String, List<Integer>> weightCache = new ConcurrentHashMap<String, List<Integer>>();
@@ -111,7 +109,7 @@ public class WeightCache {
 		// DPSFRuntimeException("the same service and the same host can not have many weight :"+weight+"-->>"+value);
 		// }
 		if (weight > 10) {
-			throw new PigeonRuntimeException("weight must be not over 10");
+			throw new RuntimeException("weight must be not over 10");
 		}
 	}
 

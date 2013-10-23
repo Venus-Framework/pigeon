@@ -9,11 +9,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
-import com.dianping.pigeon.exception.PigeonRuntimeException;
-import com.dianping.pigeon.remoting.common.exception.NetworkException;
-import com.dianping.pigeon.remoting.common.exception.NetworkTimeoutException;
+import com.dianping.dpsf.exception.NetException;
+import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
@@ -34,7 +33,7 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 	private static final Logger logger = Logger.getLogger(ClusterInvokeFilter.class);
 
 	@Override
-	public DPSFResponse _invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
+	public InvocationResponse _invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
 
 		InvokerMetaData metaData = invocationContext.getMetaData();
@@ -49,20 +48,20 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 		boolean nextInvokeErrorExit = false;
 		int invokeTimes = 0;
 		for (int index = 0; index < maxInvokeTimes; index++) {
-			DPSFRequest request = createRemoteCallRequest(invocationContext, metaData);
+			InvocationRequest request = createRemoteCallRequest(invocationContext, metaData);
 			Client clientSelected = null;
 			try {
 				clientSelected = clientManager.getClient(metaData, request, selectedClients);
-			} catch (NetworkException e) {
+			} catch (NetException e) {
 				if (index > 0) {
-					throw new NetworkException("After " + (index + 1) + " times invocation: " + e.getMessage());
+					throw new NetException("After " + (index + 1) + " times invocation: " + e.getMessage());
 				}
 			}
 			selectedClients.add(clientSelected);
 			try {
 				invokeTimes++;
 				invocationContext.setClient(clientSelected);
-				DPSFResponse response = handler.handle(invocationContext);
+				InvocationResponse response = handler.handle(invocationContext);
 				if (lastError != null) {
 					logger.warn(
 							"Retry method[" + invocationContext.getMethod().getName() + "] on service["
@@ -80,7 +79,7 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 				if (nextInvokeErrorExit) {
 					break;
 				}
-				if (e instanceof NetworkTimeoutException) {
+				if (e instanceof NetTimeoutException) {
 					if (!timeoutRetry) {
 						throw e;
 					} else {
@@ -89,7 +88,7 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 				}
 			}
 		}
-		throw new PigeonRuntimeException("Invoke method[" + invocationContext.getMethod().getName() + "] on service["
+		throw new RuntimeException("Invoke method[" + invocationContext.getMethod().getName() + "] on service["
 				+ metaData.getServiceName() + "] failed with " + invokeTimes + " times, last error: "
 				+ (lastError != null ? lastError.getMessage() : ""),
 				lastError != null && lastError.getCause() != null ? lastError.getCause() : lastError);

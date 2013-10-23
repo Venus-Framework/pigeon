@@ -4,8 +4,8 @@
  */
 package com.dianping.pigeon.remoting.invoker;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.component.async.CallFuture;
 import com.dianping.pigeon.remoting.invoker.component.async.Callback;
@@ -24,13 +24,13 @@ public interface Client {
 
 	void connect();
 
-	CallFuture write(DPSFRequest message, Callback callback);
+	CallFuture write(InvocationRequest message, Callback callback);
 
-	void write(DPSFRequest message);
+	void write(InvocationRequest message);
 
 	void connectionException(Object attachment, Throwable e);
 
-	void doResponse(DPSFResponse response);
+	void doResponse(InvocationResponse response);
 
 	boolean isConnected();
 

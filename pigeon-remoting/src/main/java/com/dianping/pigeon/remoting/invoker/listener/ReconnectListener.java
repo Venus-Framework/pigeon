@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.remoting.common.exception.NetworkException;
+import com.dianping.dpsf.exception.NetException;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfigurer;
@@ -39,7 +39,7 @@ public class ReconnectListener implements Runnable, ClusterListener {
 					if (!client.isConnected()) {
 						try {
 							client.connect();
-						} catch (NetworkException e) {
+						} catch (NetException e) {
 							logger.error("Connect server[" + client.getAddress() + "] failed, detail[" + e.getMessage()
 									+ "].", e);
 						}

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 
 public class RpcInvokeInfo implements Serializable {
 
@@ -14,13 +14,13 @@ public class RpcInvokeInfo implements Serializable {
 	private long duration;
 	private String serviceName;
 	private String addressIp;
-	private DPSFRequest request;
+	private InvocationRequest request;
 
-	public DPSFRequest getRequest() {
+	public InvocationRequest getRequest() {
 		return request;
 	}
 
-	public void setRequest(DPSFRequest request) {
+	public void setRequest(InvocationRequest request) {
 		this.request = request;
 	}
 

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.remoting.common.exception.ServiceException;
+import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 
 public class ServiceMethodCache {

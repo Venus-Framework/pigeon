@@ -6,8 +6,8 @@ package com.dianping.pigeon.remoting.provider.filter;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -27,15 +27,15 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 	private static final Logger logger = Logger.getLogger(WriteResponseProcessFilter.class);
 
 	@Override
-	public DPSFResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
+	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
 		if (logger.isInfoEnabled()) {
 			logger.info("invoke the WriteResponseProcessFilter, invocationContext:" + invocationContext);
 		}
 		try {
 			ProviderChannel channel = invocationContext.getChannel();
-			DPSFRequest request = invocationContext.getRequest();
-			DPSFResponse response = handler.handle(invocationContext);
+			InvocationRequest request = invocationContext.getRequest();
+			InvocationResponse response = handler.handle(invocationContext);
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 				channel.write(response);
 			}

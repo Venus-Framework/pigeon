@@ -7,18 +7,18 @@ package com.dianping.pigeon.remoting.common.component.context;
 import java.io.Serializable;
 import java.util.Map;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 
 public interface InvocationContext {
 
-	DPSFRequest getRequest();
+	InvocationRequest getRequest();
 
-	void setRequest(DPSFRequest request);
+	void setRequest(InvocationRequest request);
 
-	DPSFResponse getResponse();
+	InvocationResponse getResponse();
 
-	void setResponse(DPSFResponse response);
+	void setResponse(InvocationResponse response);
 
 	/**
 	 * 在整个调用流程中公用，会随着调用被传播，如被修改，会随着调用流被同步

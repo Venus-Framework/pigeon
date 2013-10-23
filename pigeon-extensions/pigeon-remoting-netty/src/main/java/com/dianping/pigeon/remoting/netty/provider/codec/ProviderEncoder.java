@@ -8,7 +8,7 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.Channels;
 
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.netty.codec.AbstractEncoder;
 
 public class ProviderEncoder extends AbstractEncoder {
@@ -22,7 +22,7 @@ public class ProviderEncoder extends AbstractEncoder {
 	}
 
 	@Override
-	public void doFailResponse(Channel channel, DPSFResponse response) {
+	public void doFailResponse(Channel channel, InvocationResponse response) {
 		Channels.write(channel, response);
 	}
 

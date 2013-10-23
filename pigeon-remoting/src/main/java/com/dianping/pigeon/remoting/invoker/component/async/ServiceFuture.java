@@ -6,8 +6,6 @@ package com.dianping.pigeon.remoting.invoker.component.async;
 
 import java.util.concurrent.TimeUnit;
 
-import com.dianping.pigeon.exception.PigeonRuntimeException;
-
 public interface ServiceFuture {
 
 	/**
@@ -17,7 +15,7 @@ public interface ServiceFuture {
 	 * @throws InterruptedException
 	 * @throws PigeonRuntimeException
 	 */
-	Object _get() throws InterruptedException, PigeonRuntimeException;
+	Object _get() throws InterruptedException;
 
 	/**
 	 * @param timeoutMillis
@@ -26,7 +24,7 @@ public interface ServiceFuture {
 	 * @throws InterruptedException
 	 * @throws PigeonRuntimeException
 	 */
-	Object _get(long timeoutMillis) throws InterruptedException, PigeonRuntimeException;
+	Object _get(long timeoutMillis) throws InterruptedException;
 
 	/**
 	 * @param timeout
@@ -36,7 +34,7 @@ public interface ServiceFuture {
 	 * @throws InterruptedException
 	 * @throws PigeonRuntimeException
 	 */
-	Object _get(long timeout, TimeUnit unit) throws InterruptedException, PigeonRuntimeException;
+	Object _get(long timeout, TimeUnit unit) throws InterruptedException;
 
 	/**
 	 * @return 是否完成

@@ -7,7 +7,7 @@ package com.dianping.dpsf.protocol;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 
 /**
  * 不能修改packagename，修改属性需要注意，确保和之前的dpsf兼容。
@@ -16,7 +16,7 @@ import com.dianping.dpsf.component.DPSFResponse;
  * @version $Id: DefaultResponse.java, v 0.1 2013-7-5 上午8:25:48 jianhuihuang Exp
  *          $
  */
-public class DefaultResponse implements DPSFResponse {
+public class DefaultResponse implements InvocationResponse {
 
 	/**
 	 * 不能随意修改！

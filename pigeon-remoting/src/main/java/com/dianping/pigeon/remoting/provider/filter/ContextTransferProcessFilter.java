@@ -9,8 +9,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
@@ -28,14 +28,14 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 	private static final Logger logger = Logger.getLogger(ContextTransferProcessFilter.class);
 
 	@Override
-	public DPSFResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
+	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
 		if (logger.isInfoEnabled()) {
 			logger.info("invoke the ContextTransferProcessFilter, invocationContext:" + invocationContext);
 		}
-		DPSFRequest request = invocationContext.getRequest();
+		InvocationRequest request = invocationContext.getRequest();
 		transferContextValueToProcessor(invocationContext, request);
-		DPSFResponse response = null;
+		InvocationResponse response = null;
 		try {
 			response = handler.handle(invocationContext);
 			return response;
@@ -52,7 +52,7 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 
 	@SuppressWarnings("unchecked")
 	private void transferContextValueToProcessor(final ProviderContext processContext,
-			final DPSFRequest request) {
+			final InvocationRequest request) {
 		Object contextHolder = request.getContext();
 		Map<String, Serializable> ctx = null;
 		if (contextHolder instanceof Map) {
@@ -71,7 +71,7 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 	}
 
 	private void transferContextValueToResponse(final ProviderContext processContext,
-			final DPSFResponse response) {
+			final InvocationResponse response) {
 		Object contextHolder = ContextUtils.getContext();
 
 		Map<String, Serializable> contextValues = processContext.getContextValues();

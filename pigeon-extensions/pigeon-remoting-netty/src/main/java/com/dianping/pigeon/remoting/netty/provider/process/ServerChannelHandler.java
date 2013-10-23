@@ -16,7 +16,7 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -62,8 +62,8 @@ public class ServerChannelHandler extends SimpleChannelUpstreamHandler {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent message) {
-		List<DPSFRequest> messages = (List<DPSFRequest>) (message.getMessage());
-		for (DPSFRequest request : messages) {
+		List<InvocationRequest> messages = (List<InvocationRequest>) (message.getMessage());
+		for (InvocationRequest request : messages) {
 			try {
 				this.processor.addRequest(request, ctx.getChannel());
 			} catch (Exception e) {

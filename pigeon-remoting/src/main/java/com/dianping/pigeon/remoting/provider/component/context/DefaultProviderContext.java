@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.remoting.provider.component.context;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.common.component.context.AbstractInvocationContext;
 import com.dianping.pigeon.remoting.provider.component.ProviderChannel;
 
@@ -20,7 +20,7 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 	private Throwable serviceError;
 	private ProviderChannel channel;
 
-	public DefaultProviderContext(DPSFRequest request, ProviderChannel channel) {
+	public DefaultProviderContext(InvocationRequest request, ProviderChannel channel) {
 		super(request);
 		this.channel = channel;
 	}

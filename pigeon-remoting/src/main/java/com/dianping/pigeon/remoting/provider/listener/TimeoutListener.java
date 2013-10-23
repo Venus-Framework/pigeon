@@ -9,10 +9,10 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
-import com.dianping.pigeon.remoting.common.exception.NetworkTimeoutException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.component.context.RequestContext;
 import com.dianping.pigeon.util.ContextUtils;
@@ -28,9 +28,9 @@ public class TimeoutListener implements Runnable {
 
 	private static final Logger logger = Logger.getLogger(TimeoutListener.class);
 	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(MonitorLogger.class);
-	private Map<DPSFRequest, RequestContext> contexts;
+	private Map<InvocationRequest, RequestContext> contexts;
 
-	public TimeoutListener(Map<DPSFRequest, RequestContext> contexts) {
+	public TimeoutListener(Map<InvocationRequest, RequestContext> contexts) {
 
 		this.contexts = contexts;
 	}
@@ -39,7 +39,7 @@ public class TimeoutListener implements Runnable {
 		while (true) {
 			try {
 				long currentTime = System.currentTimeMillis();
-				for (DPSFRequest request : contexts.keySet()) {
+				for (InvocationRequest request : contexts.keySet()) {
 					if (request.getCreateMillisTime() + request.getTimeout() < currentTime) {
 						try {
 							RequestContext rc = contexts.get(request);
@@ -53,7 +53,7 @@ public class TimeoutListener implements Runnable {
 								// 记录超时堆栈
 								// TODO, 需要加强日志，把参数也打印出来？如果是一些敏感信息，是否涉及安全？
 								// 打印一个cat的messageid？
-								NetworkTimeoutException te;
+								NetTimeoutException te;
 								StringBuffer msg = new StringBuffer();
 								msg.append("DPSF RequestExecutor timeout seq:").append(request.getSequence());
 								msg.append("  ip:").append(rc.getHost()).append("  timeout:" + request.getTimeout())
@@ -70,9 +70,9 @@ public class TimeoutListener implements Runnable {
 								if (t == null) {
 									msg.append(" and task has been not executed by threadPool");
 
-									te = new NetworkTimeoutException(msg.toString());
+									te = new NetTimeoutException(msg.toString());
 								} else {
-									te = new NetworkTimeoutException(msg.toString());
+									te = new NetTimeoutException(msg.toString());
 									te.setStackTrace(t.getStackTrace());
 								}
 								ContextUtils.setContext(request.getContext());

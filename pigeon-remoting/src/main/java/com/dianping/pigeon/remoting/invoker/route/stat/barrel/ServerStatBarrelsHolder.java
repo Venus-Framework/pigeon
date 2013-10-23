@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 
 public final class ServerStatBarrelsHolder {
@@ -30,7 +30,7 @@ public final class ServerStatBarrelsHolder {
 		return barrel;
 	}
 
-	public static void flowIn(DPSFRequest request, String toServer) {
+	public static void flowIn(InvocationRequest request, String toServer) {
 		if (checkRequestNeedStat(request)) {
 			ServiceBarrel barrel = getServerBarrel(toServer);
 			if (barrel != null) {
@@ -41,7 +41,7 @@ public final class ServerStatBarrelsHolder {
 		}
 	}
 
-	public static void flowOut(DPSFRequest request, String fromServer) {
+	public static void flowOut(InvocationRequest request, String fromServer) {
 		if (checkRequestNeedStat(request)) {
 			ServiceBarrel barrel = getServerBarrel(fromServer);
 			if (barrel != null) {
@@ -52,7 +52,7 @@ public final class ServerStatBarrelsHolder {
 		}
 	}
 
-	private static boolean checkRequestNeedStat(DPSFRequest request) {
+	private static boolean checkRequestNeedStat(InvocationRequest request) {
 		return request != null && request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE;
 	}
 }

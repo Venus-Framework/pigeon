@@ -6,15 +6,15 @@ package com.dianping.pigeon.remoting.invoker.component.async;
 
 import java.util.concurrent.TimeUnit;
 
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 
 public interface CallFuture extends Call {
 
-	DPSFResponse get() throws InterruptedException;
+	InvocationResponse get() throws InterruptedException;
 
-	DPSFResponse get(long timeoutMillis) throws InterruptedException;
+	InvocationResponse get(long timeoutMillis) throws InterruptedException;
 
-	DPSFResponse get(long timeout, TimeUnit unit) throws InterruptedException;
+	InvocationResponse get(long timeout, TimeUnit unit) throws InterruptedException;
 
 	boolean cancel();
 

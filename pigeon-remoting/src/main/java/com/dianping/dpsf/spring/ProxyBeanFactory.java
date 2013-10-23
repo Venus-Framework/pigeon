@@ -13,7 +13,6 @@ import org.springframework.beans.factory.FactoryBean;
 
 import com.dianping.pigeon.component.QueryString;
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.exception.PigeonRuntimeException;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -231,7 +230,7 @@ public class ProxyBeanFactory implements FactoryBean {
 				|| Constants.SERIALIZE_HESSIAN.equalsIgnoreCase(this.serialize)) {
 			generatorServiceInvokeProxy();
 		} else {
-			throw new PigeonRuntimeException("Only hessian and java serialize type supported now!");
+			throw new RuntimeException("Only hessian and java serialize type supported now!");
 		}
 		configLoadBalance();
 		if (logger.isInfoEnabled()) {

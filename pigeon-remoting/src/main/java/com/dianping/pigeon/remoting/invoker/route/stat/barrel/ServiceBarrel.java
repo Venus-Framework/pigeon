@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 
 @SuppressWarnings("serial")
@@ -41,7 +41,7 @@ public class ServiceBarrel implements Serializable {
 		preFillData(); // 为了更优地计算每秒请求数, 使用预填数据代替同步数据结构
 	}
 
-	public void flowIn(DPSFRequest request) {
+	public void flowIn(InvocationRequest request) {
 		Calendar now = Calendar.getInstance();
 		totalRequest.incrementAndGet();
 		if (request.getCallType() == Constants.CALLTYPE_NOREPLY) {
@@ -59,7 +59,7 @@ public class ServiceBarrel implements Serializable {
 		}
 	}
 
-	public void flowOut(DPSFRequest request) {
+	public void flowOut(InvocationRequest request) {
 		if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 			flowOut(request.getSequence(), (Float) request.getAttachment(Constants.REQ_ATTACH_FLOW));
 		}

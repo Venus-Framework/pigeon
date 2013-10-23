@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.route.balance;
 
 import java.util.List;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
 
 /**
@@ -17,5 +17,5 @@ import com.dianping.pigeon.remoting.invoker.Client;
  */
 public interface LoadBalance {
 
-	Client select(List<Client> clients, DPSFRequest request);
+	Client select(List<Client> clients, InvocationRequest request);
 }

@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.provider.filter;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -25,7 +25,7 @@ public class HeartbeatProcessFilter implements ServiceInvocationFilter<ProviderC
 	private static final Logger logger = Logger.getLogger(HeartbeatProcessFilter.class);
 
 	@Override
-	public DPSFResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
+	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
 		if (logger.isInfoEnabled()) {
 			logger.info("invoke the HeartbeatProcessFilter, invocationContext:" + invocationContext);

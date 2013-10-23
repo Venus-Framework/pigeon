@@ -18,8 +18,8 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.event.RuntimeServiceEvent;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
@@ -105,7 +105,7 @@ public class NettyClient implements Client {
 		this.channel = future.getChannel();
 	}
 
-	public CallFuture write(DPSFRequest request, Callback callback) {
+	public CallFuture write(InvocationRequest request, Callback callback) {
 
 		Object[] msg = new Object[] { request, callback };
 		ChannelFuture future = null;
@@ -158,7 +158,7 @@ public class NettyClient implements Client {
 		// }
 	}
 
-	public void write(DPSFRequest message) {
+	public void write(InvocationRequest message) {
 		write(message, null);
 	}
 
@@ -173,11 +173,11 @@ public class NettyClient implements Client {
 			return;
 		}
 		Object[] msg = (Object[]) attachment;
-		if (msg[0] instanceof DPSFRequest && ((DPSFRequest) msg[0]).getMessageType() == Constants.MESSAGE_TYPE_SERVICE
+		if (msg[0] instanceof InvocationRequest && ((InvocationRequest) msg[0]).getMessageType() == Constants.MESSAGE_TYPE_SERVICE
 				&& msg[1] != null) {
 
 			try {
-				DPSFRequest request = (DPSFRequest) msg[0];
+				InvocationRequest request = (InvocationRequest) msg[0];
 				Callback callback = (Callback) msg[2];
 				if (client != null) {
 					error(request, client);
@@ -192,7 +192,7 @@ public class NettyClient implements Client {
 		}
 	}
 
-	private void error(DPSFRequest request, Client client) {
+	private void error(InvocationRequest request, Client client) {
 
 		RpcInvokeInfo rpcInvokeInfo = new RpcInvokeInfo();
 		rpcInvokeInfo.setServiceName(request.getServiceName());
@@ -204,7 +204,7 @@ public class NettyClient implements Client {
 		EventManager.getInstance().publishEvent(event);
 	}
 
-	public void doResponse(DPSFResponse response) {
+	public void doResponse(InvocationResponse response) {
 		try {
 			this.clientManager.processResponse(response, this);
 		} catch (ServiceException e) {
@@ -284,9 +284,9 @@ public class NettyClient implements Client {
 
 	public class MsgWriteListener implements ChannelFutureListener {
 
-		private DPSFRequest request;
+		private InvocationRequest request;
 
-		public MsgWriteListener(DPSFRequest request) {
+		public MsgWriteListener(InvocationRequest request) {
 			this.request = request;
 		}
 
@@ -301,7 +301,7 @@ public class NettyClient implements Client {
 			}
 
 			RpcEventUtils.channelOperationComplete(request, NettyClient.this.address);
-			DPSFResponse response = ResponseUtils.createFailResponse(request, future.getCause());
+			InvocationResponse response = ResponseUtils.createFailResponse(request, future.getCause());
 			doResponse(response);
 		}
 

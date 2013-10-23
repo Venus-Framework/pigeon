@@ -4,8 +4,8 @@
  */
 package com.dianping.pigeon.remoting.invoker.filter;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
@@ -21,10 +21,10 @@ public class ServiceRouteInvokeFilter extends ClusterInvokeFilter {
 	public static final String NAME = "service-route";
 
 	@Override
-	public DPSFResponse _invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
+	public InvocationResponse _invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
 		InvokerMetaData metaData = invocationContext.getMetaData();
-		DPSFRequest request = createRemoteCallRequest(invocationContext, metaData);
+		InvocationRequest request = createRemoteCallRequest(invocationContext, metaData);
 		Client remoteClient = clientManager.getClient(metaData, request, null);
 		invocationContext.setClient(remoteClient);
 		return handler.handle(invocationContext);

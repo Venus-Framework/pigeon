@@ -4,37 +4,42 @@
  */
 package com.dianping.pigeon.remoting.provider.loader;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 
 public final class ProviderBootStrapLoader {
 
-	private static volatile boolean isStartup = false;
+	private static volatile Map<Integer, Server> servers = new ConcurrentHashMap<Integer, Server>();
 
-	private static Server server = null;
-	
 	public static void startup(int port) {
-		if (!isStartup) {
+		if (servers.get(port) == null) {
 			synchronized (ProviderBootStrapLoader.class) {
-				if (!isStartup) {
+				if (servers.get(port) == null) {
 					RequestProcessHandlerLoader.init();
-					server = ExtensionLoader.getExtension(ServerFactory.class).createServer(port);
+					Server server = ExtensionLoader.getExtension(
+							ServerFactory.class).createServer(port);
 					if (server != null) {
 						server.start();
 					}
-					isStartup = true;
+					servers.put(port, server);
 				}
 			}
 		}
 	}
 
-	public static void shutdown() {
+	public static void shutdown(int port) {
 		RequestProcessHandlerLoader.clearServerInternalFilters();
-		if (server != null) {
-			server.stop();
+		synchronized (ProviderBootStrapLoader.class) {
+			Server server = servers.get(port);
+			if (server != null) {
+				server.stop();
+				servers.remove(port);
+			}
 		}
-		isStartup = false;
 	}
 
 }

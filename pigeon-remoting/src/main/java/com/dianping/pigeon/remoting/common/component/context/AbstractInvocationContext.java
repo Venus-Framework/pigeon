@@ -8,36 +8,36 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 
 public abstract class AbstractInvocationContext implements InvocationContext {
 
-	protected DPSFRequest request;
-	protected DPSFResponse response;
+	protected InvocationRequest request;
+	protected InvocationResponse response;
 	private Map<String, Serializable> contextValues;
 	// 不会通过request传递到服务端，可用于filter之间传递参数
 	private Map<String, Object> transientContextValues;
 
-	public AbstractInvocationContext(DPSFRequest request) {
+	public AbstractInvocationContext(InvocationRequest request) {
 		this.request = request;
 	}
 
 	@Override
-	public DPSFRequest getRequest() {
+	public InvocationRequest getRequest() {
 		return request;
 	}
 
-	public void setRequest(DPSFRequest request) {
+	public void setRequest(InvocationRequest request) {
 		this.request = request;
 	}
 
 	@Override
-	public DPSFResponse getResponse() {
+	public InvocationResponse getResponse() {
 		return response;
 	}
 
-	public void setResponse(DPSFResponse response) {
+	public void setResponse(InvocationResponse response) {
 		this.response = response;
 	}
 

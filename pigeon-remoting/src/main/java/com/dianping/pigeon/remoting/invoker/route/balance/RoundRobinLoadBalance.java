@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
 
 public class RoundRobinLoadBalance extends AbstractLoadBalance {
@@ -21,7 +21,7 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
 	 * 
 	 */
 	@Override
-	protected Client doSelect(List<Client> clients, DPSFRequest request, int[] weights) {
+	protected Client doSelect(List<Client> clients, InvocationRequest request, int[] weights) {
 		assert (clients != null && clients.size() > 1);
 
 		int[] _weights = new int[weights.length - 1];

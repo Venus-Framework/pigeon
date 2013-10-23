@@ -7,9 +7,9 @@ package com.dianping.pigeon.remoting.common.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
 import com.dianping.dpsf.protocol.DefaultResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.component.RemoteServiceError;
 import com.dianping.pigeon.serialize.SerializerFactory;
 
@@ -18,9 +18,9 @@ public final class ResponseUtils {
 	private ResponseUtils() {
 	}
 
-	public static DPSFResponse createThrowableResponse(long seq, byte serialization, Throwable e) {
+	public static InvocationResponse createThrowableResponse(long seq, byte serialization, Throwable e) {
 
-		DPSFResponse response = null;
+		InvocationResponse response = null;
 		switch (serialization) {
 		case SerializerFactory.SERIALIZE_JAVA:
 			response = new DefaultResponse(serialization, seq, Constants.MESSAGE_TYPE_EXCEPTION, e);
@@ -32,8 +32,8 @@ public final class ResponseUtils {
 		return response;
 	}
 
-	public static DPSFResponse createFailResponse(DPSFRequest request, Throwable e) {
-		DPSFResponse response = null;
+	public static InvocationResponse createFailResponse(InvocationRequest request, Throwable e) {
+		InvocationResponse response = null;
 		byte serialization = request.getSerializ();
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
 			response = new DefaultResponse(serialization, request.getSequence(), Constants.MESSAGE_TYPE_HEART, e);
@@ -43,8 +43,8 @@ public final class ResponseUtils {
 		return response;
 	}
 
-	public static DPSFResponse createServiceExceptionResponse(DPSFRequest request, Throwable e) {
-		DPSFResponse response = null;
+	public static InvocationResponse createServiceExceptionResponse(InvocationRequest request, Throwable e) {
+		InvocationResponse response = null;
 		byte serialization = request.getSerializ();
 		switch (serialization) {
 		case SerializerFactory.SERIALIZE_JAVA:
@@ -67,8 +67,8 @@ public final class ResponseUtils {
 		return response;
 	}
 
-	public static DPSFResponse createSuccessResponse(DPSFRequest request, Object returnObj) {
-		DPSFResponse response = null;
+	public static InvocationResponse createSuccessResponse(InvocationRequest request, Object returnObj) {
+		InvocationResponse response = null;
 		byte serialization = request.getSerializ();
 		switch (serialization) {
 		case SerializerFactory.SERIALIZE_JAVA:
@@ -84,8 +84,8 @@ public final class ResponseUtils {
 		return response;
 	}
 
-	public static DPSFResponse createHeartResponse(DPSFRequest request) {
-		DPSFResponse response = new DefaultResponse(Constants.MESSAGE_TYPE_HEART, request.getSerializ());
+	public static InvocationResponse createHeartResponse(InvocationRequest request) {
+		InvocationResponse response = new DefaultResponse(Constants.MESSAGE_TYPE_HEART, request.getSerializ());
 		response.setSequence(request.getSequence());
 		response.setReturn(Constants.VERSION_150);
 		return response;
@@ -99,7 +99,7 @@ public final class ResponseUtils {
 		return me.toString();
 	}
 
-	public static boolean isHeartErrorResponse(DPSFResponse response) {
+	public static boolean isHeartErrorResponse(InvocationResponse response) {
 		try {
 			return response != null && response.getMessageType() == Constants.MESSAGE_TYPE_HEART
 					&& response.getCause() != null;

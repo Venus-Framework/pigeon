@@ -2,7 +2,7 @@ package com.dianping.pigeon.remoting.invoker.route.balance;
 
 import java.util.List;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
 
 public class ConsistentHashLoadBalance extends AbstractLoadBalance {
@@ -16,7 +16,7 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
 	private static final int NumberOfReplicas = 200;
 
 	@Override
-	protected synchronized Client doSelect(List<Client> clients, DPSFRequest request, int[] weights) {
+	protected synchronized Client doSelect(List<Client> clients, InvocationRequest request, int[] weights) {
 		if (!clients.equals(clientsList)) {
 			updateClients(clients);
 		}

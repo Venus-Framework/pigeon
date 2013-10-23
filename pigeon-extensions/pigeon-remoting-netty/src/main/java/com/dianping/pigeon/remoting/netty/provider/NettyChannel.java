@@ -8,7 +8,7 @@ import java.net.InetSocketAddress;
 
 import org.jboss.netty.channel.Channel;
 
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.provider.component.ProviderChannel;
 
 /**
@@ -34,7 +34,7 @@ public class NettyChannel implements ProviderChannel {
 	}
 
 	@Override
-	public void write(DPSFResponse response) {
+	public void write(InvocationResponse response) {
 		this.channel.write(response);
 	}
 

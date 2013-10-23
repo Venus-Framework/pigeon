@@ -20,7 +20,6 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.registry.cache.RegistryCache;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
-import com.dianping.pigeon.remoting.provider.config.ServiceBean;
 
 /**
  * 

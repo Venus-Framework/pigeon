@@ -15,7 +15,7 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.netty.provider.NettyChannel;
 import com.dianping.pigeon.remoting.provider.component.ProviderChannel;
@@ -39,7 +39,7 @@ public class RequestProcessor {
 
 	private ChannelGroup serverChannels;
 
-	private Map<DPSFRequest, RequestContext> contexts;
+	private Map<InvocationRequest, RequestContext> contexts;
 
 	/**
 	 * 
@@ -52,7 +52,7 @@ public class RequestProcessor {
 	 */
 	public RequestProcessor() {
 		this.serverChannels = new DefaultChannelGroup("Pigeon-Server-Channels");
-		this.contexts = new ConcurrentHashMap<DPSFRequest, RequestContext>();
+		this.contexts = new ConcurrentHashMap<InvocationRequest, RequestContext>();
 		timeCheckThreadPool.execute(new TimeoutListener(contexts));
 	}
 
@@ -67,7 +67,7 @@ public class RequestProcessor {
 	 * @param request
 	 * @param channel
 	 */
-	public void addRequest(final DPSFRequest request, final Channel channel) {
+	public void addRequest(final InvocationRequest request, final Channel channel) {
 		RequestContext context = new RequestContext(((InetSocketAddress) channel.getRemoteAddress()).getHostName());
 		// 必须新放入context，不然线程执行时找不到此context
 		this.contexts.put(request, context);

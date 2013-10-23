@@ -1,11 +1,11 @@
 package com.dianping.pigeon.remoting.invoker.component;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.component.async.Callback;
 
 public class RemoteInvocationBean {
 
-	public DPSFRequest request;
+	public InvocationRequest request;
 	public Callback callback;
 
 }

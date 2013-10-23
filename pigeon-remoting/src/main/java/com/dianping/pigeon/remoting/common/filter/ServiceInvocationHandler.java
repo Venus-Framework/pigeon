@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.remoting.common.filter;
 
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.component.context.InvocationContext;
 
 public interface ServiceInvocationHandler {
@@ -16,6 +16,6 @@ public interface ServiceInvocationHandler {
 	 * @return
 	 * @throws Throwable
 	 */
-	DPSFResponse handle(InvocationContext invocationContext) throws Throwable;
+	InvocationResponse handle(InvocationContext invocationContext) throws Throwable;
 
 }

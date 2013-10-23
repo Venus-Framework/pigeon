@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.dpsf.component;
+package com.dianping.pigeon.component.invocation;
 
 import java.io.Serializable;
 
@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @version $Id: DPSFSerializable.java, v 0.1 2013-7-5 上午8:25:21 jianhuihuang
  *          Exp $
  */
-public interface DPSFSerializable extends Serializable {
+public interface InvocationSerializable extends Serializable {
 
 	byte getSerializ();
 

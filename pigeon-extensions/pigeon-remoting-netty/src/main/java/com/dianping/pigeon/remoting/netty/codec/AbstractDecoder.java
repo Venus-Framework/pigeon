@@ -19,7 +19,7 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.serialize.SerializerFactory;
@@ -120,7 +120,7 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 
 	public abstract Object doInitMsg(Object message);
 
-	public abstract void doFailResponse(Channel channel, DPSFResponse response);
+	public abstract void doFailResponse(Channel channel, InvocationResponse response);
 
 	public Object _decode(byte serializerType, ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 		ChannelBuffer buffer = (ChannelBuffer) msg;

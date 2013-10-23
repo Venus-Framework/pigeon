@@ -10,9 +10,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
-import com.dianping.pigeon.remoting.common.exception.NetworkTimeoutException;
+import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -26,7 +26,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 	private static final Logger logger = Logger.getLogger(ContextPrepareInvokeFilter.class);
 
 	@Override
-	public DPSFResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
+	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
 
 		initRequest(invocationContext.getRequest());
@@ -37,7 +37,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 	}
 
 	// 初始化Request的createTime和timeout，以便统一这两个值
-	private void initRequest(DPSFRequest request) {
+	private void initRequest(InvocationRequest request) {
 		Object createTime = ContextUtils.getLocalContext(Constants.REQUEST_CREATE_TIME);
 		Object timeout = ContextUtils.getLocalContext(Constants.REQUEST_TIMEOUT);
 		if (createTime != null) {
@@ -51,7 +51,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 				long now = System.currentTimeMillis();
 				timeout_ = timeout_ - (int) (now - createTime_);
 				if (timeout_ <= 0) {
-					throw new NetworkTimeoutException("method has been timeout for first call (startTime:"
+					throw new NetTimeoutException("method has been timeout for first call (startTime:"
 							+ new Date(createTime_) + " timeout:" + timeout_ + ")");
 				}
 				request.setCreateMillisTime(now);
@@ -65,7 +65,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 	}
 
 	private void transferContextValueToRequest(final InvokerContext invocationContext,
-			final DPSFRequest request) {
+			final InvocationRequest request) {
 		InvokerMetaData metaData = invocationContext.getMetaData();
 		Client client = invocationContext.getClient();
 		Object contextHolder = ContextUtils.createContext(metaData.getServiceName(), invocationContext.getMethod()

@@ -10,7 +10,6 @@ import java.util.Map;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 
 import com.dianping.pigeon.config.spring.BeanDefinitionParserLoader;
-import com.dianping.pigeon.remoting.invoker.config.ReferenceBean;
 
 /**
  * 

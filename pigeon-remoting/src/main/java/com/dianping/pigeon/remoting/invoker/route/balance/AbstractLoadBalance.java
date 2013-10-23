@@ -9,9 +9,9 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.dpsf.exception.NetException;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.registry.cache.WeightCache;
-import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.route.context.ClientContext;
@@ -23,8 +23,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 	protected Random random = new Random();
 
 	@Override
-	public Client select(List<Client> clients, DPSFRequest request) {
-
+	public Client select(List<Client> clients, InvocationRequest request) {
 		if (clients == null || clients.isEmpty()) {
 			return null;
 		}
@@ -39,7 +38,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 				}
 			}
 			if (selectedClient == null) {
-				throw new NetworkException("Force used server[" + forceAddress + "] is not connected for service["
+				throw new NetException("Force used server[" + forceAddress + "] is not connected for service["
 						+ request.getServiceName() + "].");
 			}
 		} else {
@@ -87,6 +86,6 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 		return weights;
 	}
 
-	protected abstract Client doSelect(List<Client> clients, DPSFRequest request, int[] weights);
+	protected abstract Client doSelect(List<Client> clients, InvocationRequest request, int[] weights);
 
 }

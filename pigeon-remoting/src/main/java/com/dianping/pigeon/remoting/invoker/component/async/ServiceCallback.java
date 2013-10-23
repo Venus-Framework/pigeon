@@ -4,7 +4,6 @@
  */
 package com.dianping.pigeon.remoting.invoker.component.async;
 
-import com.dianping.pigeon.exception.PigeonRuntimeException;
 
 public interface ServiceCallback {
 
@@ -27,5 +26,5 @@ public interface ServiceCallback {
 	 * 
 	 * @param e
 	 */
-	void frameworkException(PigeonRuntimeException e);
+	void frameworkException(RuntimeException e);
 }

@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.remoting.invoker.filter;
 
-import com.dianping.dpsf.component.DPSFRequest;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.event.RuntimeServiceEvent;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
@@ -18,7 +18,7 @@ public abstract class InvocationInvokeFilter implements ServiceInvocationFilter<
 		Call, Before_Call, Cluster, Before_Cluster, Error_Handle, Finalize;
 	}
 
-	public void beforeInvoke(DPSFRequest request, String addressIp) {
+	public void beforeInvoke(InvocationRequest request, String addressIp) {
 
 		RpcInvokeInfo rpcInvokeInfo = new RpcInvokeInfo();
 		rpcInvokeInfo.setServiceName(request.getServiceName());
@@ -30,7 +30,7 @@ public abstract class InvocationInvokeFilter implements ServiceInvocationFilter<
 		EventManager.getInstance().publishEvent(event);
 	}
 
-	public void afterInvoke(DPSFRequest request, Client client) {
+	public void afterInvoke(InvocationRequest request, Client client) {
 
 		RpcInvokeInfo rpcInvokeInfo = new RpcInvokeInfo();
 		rpcInvokeInfo.setServiceName(request.getServiceName());

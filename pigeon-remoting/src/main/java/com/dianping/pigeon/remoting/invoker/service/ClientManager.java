@@ -13,9 +13,10 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.component.HostInfo;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.component.phase.Disposable;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -25,8 +26,6 @@ import com.dianping.pigeon.registry.cache.WeightCache;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
-import com.dianping.pigeon.remoting.common.exception.NetworkException;
-import com.dianping.pigeon.remoting.common.exception.ServiceException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
@@ -108,8 +107,7 @@ public class ClientManager implements Disposable {
 		}
 	}
 
-	public Client getClient(InvokerMetaData metaData, DPSFRequest request, List<Client> excludeClients)
-			throws NetworkException {
+	public Client getClient(InvokerMetaData metaData, InvocationRequest request, List<Client> excludeClients) {
 
 		List<Client> clientList = clusterListener.getClientList(metaData.getServiceName());
 		List<Client> clientsToRoute = new ArrayList<Client>(clientList);
@@ -119,7 +117,7 @@ public class ClientManager implements Disposable {
 		return routerManager.route(clientsToRoute, metaData, request);
 	}
 
-	public void processResponse(DPSFResponse response, Client client) throws ServiceException {
+	public void processResponse(InvocationResponse response, Client client) throws ServiceException {
 		if (response.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
 			this.heartBeatTask.processResponse(response, client);
 		} else {

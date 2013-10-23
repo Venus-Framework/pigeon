@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.exception.PigeonRuntimeException;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfigurer;
 
@@ -94,7 +93,7 @@ public class LoadBalanceManager {
 		} else {
 			if (loadBalance instanceof String) {
 				if (!loadBalanceMap.containsKey(loadBalance)) {
-					throw new PigeonRuntimeException("Loadbalance[" + loadBalance + "] registered by service["
+					throw new RuntimeException("Loadbalance[" + loadBalance + "] registered by service["
 							+ serviceId + "] is not supported.");
 				}
 				loadBlanceObj = loadBalanceMap.get(loadBalance);
@@ -103,7 +102,7 @@ public class LoadBalanceManager {
 				try {
 					loadBlanceObj = loadBalanceClass.newInstance();
 				} catch (Exception e) {
-					throw new PigeonRuntimeException("Register loadbalance[service=" + serviceId + ", class="
+					throw new RuntimeException("Register loadbalance[service=" + serviceId + ", class="
 							+ loadBalance + "] failed.", e);
 				}
 			}

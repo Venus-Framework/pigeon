@@ -8,8 +8,8 @@ import java.net.InetSocketAddress;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
@@ -27,7 +27,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 	private Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 
 	@Override
-	public DPSFResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
+	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
 		if (logger.isInfoEnabled()) {
 			logger.info("invoke the MonitorProcessFilter, invocationContext:" + invocationContext);
@@ -38,7 +38,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			monitorLogger = monitor.createLogger();
 		}
 		if (monitorLogger != null) {
-			DPSFRequest request = invocationContext.getRequest();
+			InvocationRequest request = invocationContext.getRequest();
 			ProviderChannel channel = invocationContext.getChannel();
 			try {
 				transaction = monitorLogger.createTransaction("PigeonService", InvocationUtils.getRemoteCallFullName(

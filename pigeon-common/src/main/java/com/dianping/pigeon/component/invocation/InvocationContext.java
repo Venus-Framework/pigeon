@@ -2,23 +2,20 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.component;
+package com.dianping.pigeon.component.invocation;
 
 import java.io.Serializable;
 import java.util.Map;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
-
 public interface InvocationContext {
 
-	DPSFRequest getRequest();
+	InvocationRequest getRequest();
 
-	void setRequest(DPSFRequest request);
+	void setRequest(InvocationRequest request);
 
-	DPSFResponse getResponse();
+	InvocationResponse getResponse();
 
-	void setResponse(DPSFResponse response);
+	void setResponse(InvocationResponse response);
 
 	/**
 	 * 在整个调用流程中公用，会随着调用被传播，如被修改，会随着调用流被同步

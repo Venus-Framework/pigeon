@@ -4,10 +4,9 @@
  */
 package com.dianping.pigeon.remoting.invoker.filter;
 
-import com.dianping.dpsf.component.DPSFRequest;
-import com.dianping.dpsf.component.DPSFResponse;
-import com.dianping.pigeon.exception.PigeonRuntimeException;
-import com.dianping.pigeon.remoting.common.exception.NetworkException;
+import com.dianping.dpsf.exception.NetException;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -28,18 +27,18 @@ import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 
 	private static ServiceInvocationRepository invocationRepository = ServiceInvocationRepository.getInstance();
-	private static final DPSFResponse NO_RETURN_RESPONSE = new NoReturnResponse();
+	private static final InvocationResponse NO_RETURN_RESPONSE = new NoReturnResponse();
 
 	@Override
-	public DPSFResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
+	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
 
 		Client client = invocationContext.getClient();
-		DPSFRequest request = invocationContext.getRequest();
+		InvocationRequest request = invocationContext.getRequest();
 		InvokerMetaData metaData = invocationContext.getMetaData();
 		String callMethod = metaData.getCallMethod();
 		beforeInvoke(request, client.getAddress());
-		DPSFResponse response = null;
+		InvocationResponse response = null;
 		if (Constants.CALL_SYNC.equalsIgnoreCase(callMethod)) {
 			CallbackFuture future = new CallbackFuture();
 			sendRequest(client, request, future);
@@ -56,13 +55,13 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 			sendRequest(client, request, null);
 			response = NO_RETURN_RESPONSE;
 		} else {
-			throw new PigeonRuntimeException("Call method[" + callMethod + "] is not supported!");
+			throw new RuntimeException("Call method[" + callMethod + "] is not supported!");
 		}
 		afterInvoke(request, client);
 		return response;
 	}
 
-	private void sendRequest(Client client, DPSFRequest request, Callback callback) {
+	private void sendRequest(Client client, InvocationRequest request, Callback callback) {
 		if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 			RemoteInvocationBean invocationBean = new RemoteInvocationBean();
 			invocationBean.request = request;
@@ -78,7 +77,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 			// 记录当前外围服务调用情况分析
 		} catch (RuntimeException e) {
 			invocationRepository.remove(request.getSequence());
-			throw new NetworkException("Send request to service provider failed.", e);
+			throw new NetException("Send request to service provider failed.", e);
 		}
 	}
 
@@ -110,7 +109,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 	//
 	// }
 
-	static class NoReturnResponse implements DPSFResponse {
+	static class NoReturnResponse implements InvocationResponse {
 
 		/**
 		 * serialVersionUID
@@ -155,7 +154,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 		}
 
 		@Override
-		public Object getObject() throws NetworkException {
+		public Object getObject() {
 			return null;
 		}
 

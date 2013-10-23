@@ -8,8 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.component.DPSFResponse;
-import com.dianping.pigeon.exception.PigeonRuntimeException;
+import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -35,38 +34,38 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 	}
 
 	@Override
-	public Object _get() throws InterruptedException, PigeonRuntimeException {
+	public Object _get() throws InterruptedException {
 		return _get(this.timeout);
 	}
 
 	@Override
-	public Object _get(long timeoutMillis) throws InterruptedException, PigeonRuntimeException {
+	public Object _get(long timeoutMillis) throws InterruptedException {
 		try {
-			DPSFResponse res = super.get(timeoutMillis);
+			InvocationResponse res = super.get(timeoutMillis);
 			if (res.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 				return res.getReturn();
 			} else if (res.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 				logger.error(res.getCause());
-				PigeonRuntimeException dpsfE = new PigeonRuntimeException(res.getCause());
+				RuntimeException dpsfE = new RuntimeException(res.getCause());
 				monitorLogger.logError(dpsfE);
 				throw dpsfE;
 			} else if (res.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-				PigeonRuntimeException dpsfE = new PigeonRuntimeException((Throwable) res.getReturn());
+				RuntimeException dpsfE = new RuntimeException((Throwable) res.getReturn());
 				monitorLogger.logError(dpsfE);
 				throw dpsfE;
 			} else {
-				throw new PigeonRuntimeException("error messageType:" + res.getMessageType());
+				throw new RuntimeException("error messageType:" + res.getMessageType());
 			}
 
 		} catch (Exception e) {
-			PigeonRuntimeException dpsfE = new PigeonRuntimeException(e);
+			RuntimeException dpsfE = new RuntimeException(e);
 			monitorLogger.logError(dpsfE);
 			throw dpsfE;
 		}
 	}
 
 	@Override
-	public Object _get(long timeout, TimeUnit unit) throws InterruptedException, PigeonRuntimeException {
+	public Object _get(long timeout, TimeUnit unit) throws InterruptedException {
 		return _get(unit.toMillis(timeout));
 	}
 
