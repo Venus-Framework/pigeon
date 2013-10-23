@@ -81,34 +81,6 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 		}
 	}
 
-	/**
-	 * TODO 请继续完善....
-	 * 
-	 * @param client
-	 * @param request
-	 * @return
-	 */
-	// private UniformContextHeaders setupUniformContext(Client client,
-	// DPSFRequest request) {
-	//
-	// //serviceinvokeid必须保持一致...查询出来
-	// UniformContextHeaders uniformContextHeaders =
-	// ContextLifeManager.checkAPIQuery();
-	// if (uniformContextHeaders == null) {
-	// uniformContextHeaders =
-	// ContextLifeManager.checkEntrance(null);//恭喜你，第一个入口
-	// }
-	// uniformContextHeaders.getCaller().setIp("ip");//从配置文件中获得
-	// uniformContextHeaders.getCaller().setAppName("appName");//从配置文件中获得
-	// uniformContextHeaders.getCaller().setRequestTime(ContextUtils.getCurrentTime());
-	// uniformContextHeaders.getCallee().setAppName(client.getHost());//当前还没有构建好下来的appname
-	// uniformContextHeaders.getCallee().setIp(client.getAddress());
-	// uniformContextHeaders.setVersion("2.0.0");//从配置文件中获得，或者version类里面得到
-	//
-	// return uniformContextHeaders;
-	//
-	// }
-
 	static class NoReturnResponse implements InvocationResponse {
 
 		/**

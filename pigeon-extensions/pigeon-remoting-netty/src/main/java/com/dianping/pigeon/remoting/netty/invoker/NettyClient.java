@@ -18,12 +18,11 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
+import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.event.RuntimeServiceEvent;
-import com.dianping.pigeon.remoting.common.exception.NetworkException;
-import com.dianping.pigeon.remoting.common.exception.ServiceException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -86,7 +85,7 @@ public class NettyClient implements Client {
 		this.bootstrap.setPipelineFactory(new ClientChannelPipelineFactory(this));
 	}
 
-	public synchronized void connect() throws NetworkException {
+	public synchronized void connect() {
 
 		if (this.connected || this.closed) {
 			return;
@@ -185,7 +184,7 @@ public class NettyClient implements Client {
 				} else {
 					logger.error("no client for use to " + request.getServiceName());
 				}
-			} catch (NetworkException ne) {
+			} catch (Exception ne) {
 				logger.error(ne.getMessage(), ne);
 			}
 			logger.error(e.getMessage(), e);

@@ -43,15 +43,15 @@ public class ServiceCallbackWrapper implements Callback {
 				}
 			}
 			if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				sb.append("Service Exception Info *************\r\n")
 						// .append(" token:").append(ContextUtil.getToken(this.response.getContext())).append("\r\n")
 						.append(" seq:").append(request.getSequence()).append(" callType:")
 						.append(request.getCallType()).append("\r\n serviceName:").append(request.getServiceName())
 						.append(" methodName:").append(request.getMethodName()).append("\r\n host:")
 						.append(client.getHost()).append(":").append(client.getPort());
-				response.setReturn(new DPSFException(request.getServiceName(), client.getHost() + ":"
-						+ client.getPort(), sb.toString(), InvocationUtils.toInvocationThrowable(response.getReturn())));
+				
+				response.setReturn(new RuntimeException(sb.toString(), InvocationUtils.toInvocationThrowable(response.getReturn())));
 			}
 			try {
 				if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {

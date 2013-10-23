@@ -18,7 +18,6 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.component.invocation.InvocationSerializable;
-import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.serialize.SerializerFactory;
@@ -49,7 +48,7 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 			cb.writeBytes(msgBytes);
 			return cb;
 		} else {
-			throw new NetworkException("message to encode must be instanceof DPSFSerializable");
+			throw new IllegalArgumentException("invalid message format");
 		}
 	}
 
