@@ -10,7 +10,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.NetException;
+import com.dianping.dpsf.exception.NoConnectionException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.phase.Disposable;
 import com.dianping.pigeon.registry.cache.WeightCache;
@@ -76,7 +76,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		}
 
 		if (!selectedClient.isConnected()) {
-			throw new NetException("no available server exists for service metaData[" + metaData + "] .");
+			throw new NoConnectionException("no available server exists for service metaData[" + metaData + "] .");
 		}
 		return selectedClient;
 	}
@@ -94,7 +94,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 			Boolean isWriteBufferLimit) {
 		Set<String> clientsInGroup = WeightCache.getInstance().getClientsOfGroup(metaData.getGroup());
 		if (clientsInGroup == null || clientsInGroup.isEmpty()) {
-			throw new NetException("no group named[" + metaData.getGroup() + "].");
+			throw new NoConnectionException("no group named[" + metaData.getGroup() + "].");
 		}
 		List<Client> filteredClients = new ArrayList<Client>(clientList.size());
 		boolean existClientBuffToLimit = false;
@@ -110,7 +110,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 			}
 		}
 		if (filteredClients.isEmpty()) {
-			throw new NetException("no available server exists for service[" + metaData.getServiceName()
+			throw new NoConnectionException("no available server exists for service[" + metaData.getServiceName()
 					+ "] and group[" + metaData.getGroup() + "]"
 					+ (existClientBuffToLimit ? ", and exists some server's write buffer reach limit" : "") + ".");
 		}
@@ -119,7 +119,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 
 	private void checkClientNotNull(Client client, InvokerMetaData metaData) {
 		if (client == null) {
-			throw new NetException("no available server exists for service[" + metaData + "]");
+			throw new NoConnectionException("no available server exists for service[" + metaData + "]");
 		}
 	}
 

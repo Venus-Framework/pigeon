@@ -9,7 +9,7 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.NetException;
+import com.dianping.dpsf.exception.NoConnectionException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.registry.cache.WeightCache;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -38,7 +38,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 				}
 			}
 			if (selectedClient == null) {
-				throw new NetException("Force used server[" + forceAddress + "] is not connected for service["
+				throw new NoConnectionException("Force used server[" + forceAddress + "] is not connected for service["
 						+ request.getServiceName() + "].");
 			}
 		} else {

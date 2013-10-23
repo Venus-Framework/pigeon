@@ -8,8 +8,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.dianping.pigeon.test.PigeonAutoTest;
 import com.dianping.pigeon.test.AnnotationBaseInvokerTest;
+import com.dianping.pigeon.test.PigeonAutoTest;
 import com.dianping.pigeon.test.service.EchoService;
 
 public class DefaultEchoServiceTest extends AnnotationBaseInvokerTest {
@@ -18,31 +18,30 @@ public class DefaultEchoServiceTest extends AnnotationBaseInvokerTest {
 	public EchoService echoService;
 
 	@Test
-	public void test() {
+	public void test() throws Exception {
 		String msg = System.currentTimeMillis() + "";
 		System.out.println(msg);
 		String echo = echoService.echo(msg);
 		System.out.println(echo);
 		Assert.assertEquals("Echo: " + msg, echo);
 	}
-	
-	@Test
-	public void testException() {
+
+	@Test(expected = Exception.class)
+	public void testException() throws Exception {
 		String msg = System.currentTimeMillis() + "";
 		System.out.println(msg);
-		Exception exception = null;
 		try {
 			echoService.echoWithException(msg);
-		} catch(Exception e) {
-			exception = e;
+		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		}
-		Assert.assertNotNull(exception);
 	}
 
 	@Test
 	public void testXml() {
-		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("META-INF/spring/app-invoker.xml");
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+				"META-INF/spring/app-invoker.xml");
 		EchoService service = (EchoService) context.getBean("echoServiceXml");
 		String echo = service.echo("dianping");
 		Assert.assertEquals("Echo: dianping", echo);

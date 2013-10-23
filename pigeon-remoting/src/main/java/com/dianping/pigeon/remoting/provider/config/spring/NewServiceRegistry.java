@@ -6,6 +6,7 @@ package com.dianping.pigeon.remoting.provider.config.spring;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
@@ -13,11 +14,12 @@ import com.dianping.pigeon.remoting.provider.loader.ProviderBootStrapLoader;
 
 public class NewServiceRegistry {
 
-	private static final Logger logger = Logger.getLogger(NewServiceRegistry.class);
+	private static final Logger logger = Logger
+			.getLogger(NewServiceRegistry.class);
 
 	private String serviceName;
 	private Object serviceImpl;
-	private int port  = ServerFactory.DEFAULT_PORT;
+	private int port = ServerFactory.DEFAULT_PORT;
 
 	public int getPort() {
 		return port;
@@ -45,12 +47,15 @@ public class NewServiceRegistry {
 
 	/**
 	 * 要确保只是启动一次！，调用Pigeon启动器，通过事件的机制来并行初始化，确保快速的启动。
+	 * 
+	 * @throws ServiceException
 	 */
-	public void init() {
+	public void init() throws ServiceException {
 		if (serviceName == null) {
 			serviceName = serviceImpl.getClass().getInterfaces()[0].getName();
 		}
-		ExtensionLoader.getExtension(ServiceFactory.class).addService(serviceName, serviceImpl, port);
+		ExtensionLoader.getExtension(ServiceFactory.class).addService(
+				serviceName, serviceImpl, port);
 		ProviderBootStrapLoader.startup(port);
 	}
 }

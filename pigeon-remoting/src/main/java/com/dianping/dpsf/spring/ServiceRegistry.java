@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
@@ -58,10 +59,11 @@ public final class ServiceRegistry {
 
 	/**
 	 * 要确保只是启动一次！，调用Pigeon启动器，通过事件的机制来并行初始化，确保快速的启动。
+	 * @throws ServiceException 
 	 * 
 	 * @throws ClassNotFoundException
 	 */
-	public void init() {
+	public void init() throws ServiceException {
 		int iPort = ServerFactory.DEFAULT_PORT;
 		if (StringUtils.isBlank(port)) {
 			iPort = Integer.parseInt(port);

@@ -7,8 +7,8 @@ package com.dianping.pigeon.test.compatibility.call;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.dianping.pigeon.test.PigeonAutoTest;
 import com.dianping.pigeon.test.AnnotationBaseInvokerTest;
+import com.dianping.pigeon.test.PigeonAutoTest;
 import com.dianping.pigeon.test.service.EchoService;
 
 public class DefaultEchoServiceTest extends AnnotationBaseInvokerTest {
@@ -29,4 +29,15 @@ public class DefaultEchoServiceTest extends AnnotationBaseInvokerTest {
 		Assert.assertEquals("Echo: " + msg, echo);
 	}
 
+	@Test(expected = Exception.class)
+	public void testException() throws Exception {
+		String msg = System.currentTimeMillis() + "";
+		System.out.println(msg);
+		try {
+			echoService.echoWithException(msg);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 }

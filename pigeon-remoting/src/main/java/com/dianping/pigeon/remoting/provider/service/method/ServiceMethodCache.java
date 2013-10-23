@@ -81,7 +81,6 @@ public class ServiceMethodCache {
 	}
 
 	private ServiceMethod getBestMatchMethod(String methodName, ServiceParam paramNames) throws ServiceException {
-
 		Map<Integer, List<ServiceMethod>> methodMap = this.methods.get(methodName);
 		if (methodMap == null) {
 			throw new ServiceException("Service  serviceName:" + this.service + " is not this method for name:"
