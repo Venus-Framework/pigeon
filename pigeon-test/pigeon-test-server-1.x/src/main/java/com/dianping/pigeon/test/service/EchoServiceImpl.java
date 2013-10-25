@@ -8,15 +8,21 @@ package com.dianping.pigeon.test.service;
 public class EchoServiceImpl implements EchoService {
 
 	@Override
-    public String echo(String input) {
-        System.out.println("Received: " + input);
-        //throw new RuntimeException("error while receive msg:" + input);
-        return "Echo: " + input;
-    }
+	public String echo(String input) {
+		System.out.println("received: " + input);
+		return "echo:" + input;
+	}
 
 	@Override
-	public String echoWithException(String input) {
+	public String echoWithException1(String input) {
 		System.out.println("received: " + input);
-		throw new EchoException("error while receive msg:" + input);
+		throw new EchoException1("error while receive msg:" + input);
 	}
+
+	@Override
+	public String echoWithException2(String input) {
+		System.out.println("received: " + input);
+		throw new EchoException2("error while receive msg:" + input);
+	}
+
 }

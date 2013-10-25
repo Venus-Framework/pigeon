@@ -7,5 +7,8 @@ package com.dianping.pigeon.test.service;
 public interface EchoService {
 	String echo(String input);
 	
-	String echoWithException(String input);
+	String echoWithException1(String input);
+	
+	String echoWithException2(String input);
+	
 }

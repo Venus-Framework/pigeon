@@ -4,12 +4,15 @@
  */
 package com.dianping.pigeon.test.server;
 
-import com.dianping.pigeon.test.loader.SpringLoader;
+import com.dianping.lion.client.ConfigCache;
+import com.dianping.pigeon.test.loader.SpringContainer;
 
 public class SingleServer3 {
 
 	public static void main(String[] args) throws Exception {
-		SpringLoader.startupProvider(4627);
+		ConfigCache.getInstance("dev.lion.dp:2181");
+		new SpringContainer("classpath*:META-INF/spring/app-provider3.xml")
+				.start();
 		Thread.currentThread().join();
 	}
 

@@ -62,7 +62,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		<dependency>
 			<groupId>com.dianping.dpsf</groupId>
 			<artifactId>dpsf-net</artifactId>
-			<version>1.9.1-SNAPSHOT</version><!--$NO-MVN-MAN-VER$-->
+			<version>1.7.3</version><!--$NO-MVN-MAN-VER$--><!-- 1.9.1-SNAPSHOT -->
 		</dependency>
 	</dependencies>
 </project>

@@ -22,7 +22,7 @@ public class EchoServiceCallbackImpl implements ServiceCallback {
 
 	@Override
 	public void callback(Object result) {
-		System.out.println("Callback: " + result);
+		System.out.println("Callback:" + result);
 		Assert.assertEquals(expectedResult, result);
 	}
 
