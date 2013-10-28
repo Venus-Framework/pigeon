@@ -39,7 +39,7 @@ public class LionConfigManager extends AbstractConfigManager {
 			} else {
 				logger.error("config[key=" + key + "] not found in config server[lion].");
 			}
-		} catch (LionException e) {
+		} catch (Exception e) {
 			logger.error("error while reading property[" + key + "]:" + e.getMessage());
 		}
 		if(localCache.containsKey(key)) {

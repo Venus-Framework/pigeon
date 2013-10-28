@@ -119,42 +119,7 @@ public class NettyClient implements Client {
 			}
 
 		}
-		// String invokeId = null;
-		// String result = "";
-		// String caller_appname = "";
-		// String caller_host = "";
-		// String caller_ip = "";
-		// String caller_rqtime = "";
-		// String protocol = "dpsf";
-		// // String uniqueName = "";
-		// String interfaze = request.getServiceName();
-		// String methodName = request.getMethodName();
-		// long durationMs = System.currentTimeMillis() -
-		// request.getCreateMillisTime();
-		//
-		// if (request.getUniformContextHeaders() != null) {
-		// Caller caller = request.getUniformContextHeaders().getCaller();
-		// invokeId = request.getUniformContextHeaders().getInvokeId();
-		// caller_appname = caller.getAppName();
-		// caller_host = caller.getHostName();
-		// caller_ip = caller.getIp();
-		// caller_rqtime = caller.getRequestTime();
-		// }
-		//
-		// String invokeType = request.getCallType() + "";
-		// String targetUrl = "";
-		// String client_name = "";
-		// ExtensionLoader.getExtension(ServiceLogMonitor.class).invokeLog(invokeId,
-		// result, protocol, targetUrl,
-		// client_name, interfaze, methodName, invokeType, caller_appname,
-		// caller_host, caller_ip, caller_rqtime,
-		// durationMs, false);
-
-		// if (callback != null) {
-		// return callback.getFuture(future);
-		// } else {
 		return null;
-		// }
 	}
 
 	public void write(InvocationRequest message) {
