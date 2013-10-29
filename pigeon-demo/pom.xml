@@ -41,6 +41,10 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			<artifactId>pigeon-config-lion</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>pigeon-monitor-cat</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.dianping.cat</groupId>
 			<artifactId>cat-core</artifactId>
 			<version>0.6.2</version>

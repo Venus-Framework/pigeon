@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.component.context;
 
 import java.lang.reflect.Method;
 
-import com.dianping.pigeon.remoting.common.component.context.InvocationContext;
+import com.dianping.pigeon.component.invocation.InvocationContext;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
 

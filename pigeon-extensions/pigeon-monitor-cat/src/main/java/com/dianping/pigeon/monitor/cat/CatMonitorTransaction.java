@@ -31,9 +31,10 @@ public class CatMonitorTransaction implements MonitorTransaction {
 	public static final String REQUEST_ID = "requestId";
 	public static final String REFER_REQUEST_ID = "referRequestId";
 
-	public CatMonitorTransaction(CatLogger logger, Transaction transaction) {
+	public CatMonitorTransaction(CatLogger logger, Transaction transaction, InvocationContext invocationContext) {
 		this.logger = logger;
 		this.transaction = transaction;
+		this.invocationContext = invocationContext;
 	}
 
 	public Transaction getTransaction() {
@@ -64,7 +65,10 @@ public class CatMonitorTransaction implements MonitorTransaction {
 		this.transaction.addData(name, data);
 	}
 
-	@Override
+	public void setInvocationContext(InvocationContext invocationContext) {
+		this.invocationContext = invocationContext;
+	}
+
 	public InvocationContext getInvocationContext() {
 		return invocationContext;
 	}
@@ -108,28 +112,30 @@ public class CatMonitorTransaction implements MonitorTransaction {
 	@Override
 	public void writeMonitorContext() {
 		InvocationContext invocationContext = getInvocationContext();
-		InvocationRequest request = invocationContext.getRequest();
-		Object context = request.getContext();
-		String rootMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_ROOT_MESSAGE_ID);
-		String serverMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_CURRENT_MESSAGE_ID);
-		String currentMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_SERVER_MESSAGE_ID);
-		String metricType = ContextUtils.getContextValue(context, "metricType");
-		// Set requestId & referRequestId
-		String requestId = ContextUtils.getContextValue(context, REQUEST_ID);
-		String referRequestId = ContextUtils.getContextValue(context, REFER_REQUEST_ID);
-		PhoenixContext.getInstance().setRequestId(requestId);
-		PhoenixContext.getInstance().setReferRequestId(referRequestId);
+		if (invocationContext != null) {
+			InvocationRequest request = invocationContext.getRequest();
+			Object context = request.getContext();
+			String rootMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_ROOT_MESSAGE_ID);
+			String serverMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_CURRENT_MESSAGE_ID);
+			String currentMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_SERVER_MESSAGE_ID);
+			String metricType = ContextUtils.getContextValue(context, "metricType");
+			// Set requestId & referRequestId
+			String requestId = ContextUtils.getContextValue(context, REQUEST_ID);
+			String referRequestId = ContextUtils.getContextValue(context, REFER_REQUEST_ID);
+			PhoenixContext.getInstance().setRequestId(requestId);
+			PhoenixContext.getInstance().setReferRequestId(referRequestId);
 
-		DefaultMessageManager messageManager = (DefaultMessageManager) Cat.getManager();
-		MessageTree tree = messageManager.getThreadLocalMessageTree();
-		if (tree == null) {
-			Cat.setup(null);
-			tree = Cat.getManager().getThreadLocalMessageTree();
+			DefaultMessageManager messageManager = (DefaultMessageManager) Cat.getManager();
+			MessageTree tree = messageManager.getThreadLocalMessageTree();
+			if (tree == null) {
+				Cat.setup(null);
+				tree = Cat.getManager().getThreadLocalMessageTree();
+			}
+			messageManager.setMetricType(metricType);
+			tree.setRootMessageId(rootMessageId);
+			tree.setParentMessageId(serverMessageId);
+			tree.setMessageId(currentMessageId);
 		}
-		messageManager.setMetricType(metricType);
-		tree.setRootMessageId(rootMessageId);
-		tree.setParentMessageId(serverMessageId);
-		tree.setMessageId(currentMessageId);
 	}
 
 }

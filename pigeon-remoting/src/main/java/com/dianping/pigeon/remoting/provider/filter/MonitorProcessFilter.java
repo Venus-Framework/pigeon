@@ -42,7 +42,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			ProviderChannel channel = invocationContext.getChannel();
 			try {
 				transaction = monitorLogger.createTransaction("PigeonService", InvocationUtils.getRemoteCallFullName(
-						request.getServiceName(), request.getMethodName(), request.getParamClassName()));
+						request.getServiceName(), request.getMethodName(), request.getParamClassName()), invocationContext);
 				if (transaction != null) {
 					InetSocketAddress address = channel.getRemoteAddress();
 					String parameters = Stringizers.forJson().from(request.getParameters(), 1000, 50);

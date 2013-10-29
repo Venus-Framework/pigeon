@@ -4,7 +4,6 @@
  */
 package com.dianping.pigeon.monitor;
 
-import com.dianping.pigeon.component.invocation.InvocationContext;
 
 /**
  * @author xiangwu
@@ -20,8 +19,6 @@ public interface MonitorTransaction {
 	public void setStatusOk();
 
 	public void addData(String name, Object data);
-
-	public InvocationContext getInvocationContext();
 
 	public MonitorLogger getLogger();
 

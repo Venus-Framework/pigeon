@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.remoting.provider.component.context;
 
-import com.dianping.pigeon.remoting.common.component.context.InvocationContext;
+import com.dianping.pigeon.component.invocation.InvocationContext;
 import com.dianping.pigeon.remoting.provider.component.ProviderChannel;
 
 /**

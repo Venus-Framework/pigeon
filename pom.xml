@@ -63,24 +63,9 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.google.code.gson</groupId>
-				<artifactId>gson</artifactId>
-				<version>2.2.2</version>
-			</dependency>
-			<dependency>
 				<groupId>com.caucho</groupId>
 				<artifactId>hessian</artifactId>
 				<version>3.1.5</version>
-			</dependency>
-			<dependency>
-				<groupId>cglib</groupId>
-				<artifactId>cglib</artifactId>
-				<version>2.2</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-beanutils</groupId>
-				<artifactId>commons-beanutils</artifactId>
-				<version>1.6.1</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
@@ -91,16 +76,6 @@
 				<groupId>commons-lang</groupId>
 				<artifactId>commons-lang</artifactId>
 				<version>2.3</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-collections</groupId>
-				<artifactId>commons-collections</artifactId>
-				<version>3.2</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-logging</groupId>
-				<artifactId>commons-logging</artifactId>
-				<version>1.1.1</version>
 			</dependency>
 			<dependency>
 				<groupId>log4j</groupId>
@@ -118,29 +93,14 @@
 				<version>1.6.6</version>
 			</dependency>
 			<dependency>
-				<groupId>dom4j</groupId>
-				<artifactId>dom4j</artifactId>
-				<version>1.6.1</version>
-			</dependency>
-			<dependency>
 				<groupId>org.jboss.netty</groupId>
 				<artifactId>netty</artifactId>
 				<version>3.2.1.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
-				<artifactId>spring-beans</artifactId>
-				<version>2.5.6</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
 				<version>2.5.6</version>
-			</dependency>
-			<dependency>
-				<groupId>org.javassist</groupId>
-				<artifactId>javassist</artifactId>
-				<version>3.15.0-GA</version>
 			</dependency>
 			<dependency>
 				<groupId>org.jboss.netty</groupId>
@@ -153,30 +113,9 @@
 				<version>3.3.2</version>
 			</dependency>
 			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-beans</artifactId>
-				<optional>true</optional>
-				<version>2.5.6</version>
-			</dependency>
-			<dependency>
 				<groupId>com.site.common</groupId>
 				<artifactId>lookup</artifactId>
 				<version>1.1.4</version>
-			</dependency>
-			<dependency>
-				<groupId>com.netflix.curator</groupId>
-				<artifactId>curator-framework</artifactId>
-				<version>1.0.1</version>
-			</dependency>
-			<dependency>
-				<groupId>org.perf4j</groupId>
-				<artifactId>perf4j</artifactId>
-				<version>0.9.16</version>
-			</dependency>
-			<dependency>
-				<groupId>org.aspectj</groupId>
-				<artifactId>aspectjrt</artifactId>
-				<version>1.6.11</version>
 			</dependency>
 			<dependency>
 				<groupId>com.dianping.lion</groupId>

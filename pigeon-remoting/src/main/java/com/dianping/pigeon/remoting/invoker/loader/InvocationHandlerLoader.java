@@ -9,9 +9,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.dianping.pigeon.component.invocation.InvocationContext;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.extension.DefaultExtension;
-import com.dianping.pigeon.remoting.common.component.context.InvocationContext;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;

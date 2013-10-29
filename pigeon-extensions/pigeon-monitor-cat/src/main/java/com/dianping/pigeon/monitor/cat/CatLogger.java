@@ -10,6 +10,7 @@ import com.dianping.cat.Cat;
 import com.dianping.cat.message.Event;
 import com.dianping.cat.message.MessageProducer;
 import com.dianping.cat.message.Transaction;
+import com.dianping.pigeon.component.invocation.InvocationContext;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 
@@ -36,10 +37,10 @@ public class CatLogger implements MonitorLogger {
 	}
 
 	@Override
-	public MonitorTransaction createTransaction(String name, String uri) {
+	public MonitorTransaction createTransaction(String name, String uri, InvocationContext invocationContext) {
 		if (producer != null) {
 			Transaction transaction = producer.newTransaction(name, uri);
-			return new CatMonitorTransaction(this, transaction);
+			return new CatMonitorTransaction(this, transaction, invocationContext);
 		}
 		return null;
 	}

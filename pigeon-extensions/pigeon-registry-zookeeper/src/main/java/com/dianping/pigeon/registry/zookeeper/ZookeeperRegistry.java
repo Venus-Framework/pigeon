@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -23,7 +24,6 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs.Ids;
-import org.springframework.util.StringUtils;
 
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
@@ -198,7 +198,7 @@ public class ZookeeperRegistry implements Registry {
 		return null;
 	}
 
-	// serviceAddress 规范为1.1.1.1:8080,2.2.2.2:8080,
+	// serviceAddress ���������1.1.1.1:8080,2.2.2.2:8080,
 	public List<String[]> getServiceIpPortWeight(String serviceAddress) {
 		List<String[]> result = new ArrayList<String[]>();
 		if (serviceAddress != null && serviceAddress.length() > 0) {
@@ -443,14 +443,14 @@ public class ZookeeperRegistry implements Registry {
 				String[] addressArray = addressValue.split(",");
 				List<String> addressList = new ArrayList<String>();
 				for (String ad : addressArray) {
-					if (StringUtils.hasLength(ad) && !addressList.contains(ad)) {
+					if (StringUtils.isNotBlank(ad) && !addressList.contains(ad)) {
 						addressList.add(ad);
 					}
 				}
 				if (!addressList.contains(serviceAddress)) {
 					addressList.add(serviceAddress);
 					Collections.sort(addressList);
-					zk.updateData(path, StringUtils.collectionToDelimitedString(addressList, ","));
+					zk.updateData(path, StringUtils.join(addressList, ","));
 				}
 			} else {
 				zk.updateData(path, serviceAddress);
