@@ -52,7 +52,7 @@ public class ConcurrencyIsolationAddressStatPoolStrategy implements DpsfAddressS
 		// addressStatPool.setInsulateIps(getStrategyName(), tempInsulateIps);
 		addressStatPool.setInsulateIps(getStrategyName(), new ArrayList<String>());
 		if (tempInsulateIps.size() > 0) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append("[").append(getStrategyName()).append(",").append(factorValue).append(",")
 					.append(addressStatPool.getAppName()).append(",").append(tempInsulateIps.size()).append("/")
 					.append(addressStatPool.getAddressStats().size()).append("][(");

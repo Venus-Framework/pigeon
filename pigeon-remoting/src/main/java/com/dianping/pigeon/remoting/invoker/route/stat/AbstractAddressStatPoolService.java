@@ -92,7 +92,7 @@ public abstract class AbstractAddressStatPoolService implements DpsfAddressStatP
 
 			DpsfAddressStatPoolStrategy statStrategy = strategies.get(policy);
 			if (statStrategy == null) {
-				StringBuffer buffer = new StringBuffer();
+				StringBuilder buffer = new StringBuilder();
 				buffer.append("未找到").append(policy).append("动态的路由策略，请检查相关配置");
 				logger.error(buffer.toString());
 				return;

@@ -93,7 +93,7 @@ public final class ContextUtils {
 
 	public static Object createContext(String serviceName, String methodName, String host, int port) {
 		if (flag) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(serviceName).append(".").append(methodName).append("@").append(host).append(":").append(port);
 			try {
 				return createContextMethod.invoke(null, new Object[] { sb.toString() });

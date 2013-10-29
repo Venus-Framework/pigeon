@@ -16,7 +16,7 @@ public class ServiceParam {
 	public ServiceParam(String[] paramNames) {
 		this.paramNames = paramNames;
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (String paramName : paramNames) {
 			sb.append(paramName).append("@");
 		}

@@ -18,7 +18,7 @@ import com.dianping.pigeon.test.service.EchoService;
 
 public class DefaultEchoServiceTest extends AnnotationBaseInvokerTest {
 
-	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 500000)
+	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
 	public EchoService echoService;
 
 	@Test

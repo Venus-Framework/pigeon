@@ -26,7 +26,6 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.springframework.util.StringUtils;
 
 import com.dianping.pigeon.registry.Registry;
-import com.dianping.pigeon.registry.cache.RegistryCache;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.listener.ConfigChangeListener;
 import com.dianping.pigeon.registry.listener.DefaultServiceChangeListener;
@@ -35,13 +34,12 @@ import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.util.NumberUtils;
 import com.dianping.pigeon.registry.zookeeper.watcher.PigeonHostWatcher;
 import com.dianping.pigeon.registry.zookeeper.watcher.PigeonServiceWatcher;
-import com.dianping.pigeon.util.IpUtils;
 
 public class ZookeeperRegistry implements Registry {
 
 	private static Logger logger = Logger.getLogger(ZookeeperRegistry.class);
 	Map<String, Integer> serviceAddressWeightMap;
-	Map<String, String> service;
+	Map<String, String> serviceAddressCache;
 	private ZooKeeperWrapper zk;
 
 	private ServiceChangeListener serviceChangeListener = new DefaultServiceChangeListener();
@@ -139,7 +137,7 @@ public class ZookeeperRegistry implements Registry {
 		_init();
 
 		serviceAddressWeightMap = new HashMap<String, Integer>();
-		service = new ConcurrentHashMap<String, String>();// TODO, FIXBUG
+		serviceAddressCache = new ConcurrentHashMap<String, String>();// TODO, FIXBUG
 		pigeonHostWatcher = new PigeonHostWatcher(this);
 		pigeonServiceWatcher = new PigeonServiceWatcher(this);
 
@@ -396,7 +394,7 @@ public class ZookeeperRegistry implements Registry {
 	 * @return the service
 	 */
 	public Map<String, String> getService() {
-		return service;
+		return serviceAddressCache;
 	}
 
 	private String replaceServiceName(String temp) {
@@ -407,23 +405,23 @@ public class ZookeeperRegistry implements Registry {
 	public String getServiceAddress(String serviceName) throws RegistryException {
 		String keyReplace = this.replaceServiceName(serviceName);
 		// TODO,ignore
-		String value = RegistryCache.getProperty(keyReplace);
-		if (value != null) {
-			if (logger.isInfoEnabled()) {
-				logger.info("get service address from zookeeper, service name:" + serviceName + ", address:" + value);
-			}
-			return value;
-		}
-		if (service.containsKey(keyReplace)) {
+//		String value = RegistryCache.getProperty(keyReplace);
+//		if (value != null) {
+//			if (logger.isInfoEnabled()) {
+//				logger.info("get service address from zookeeper, service name:" + serviceName + ", address:" + value);
+//			}
+//			return value;
+//		}
+		if (serviceAddressCache.containsKey(keyReplace)) {
 			if (logger.isInfoEnabled()) {
 				logger.info("get service address from zookeeper, service name:" + serviceName + "  address:"
-						+ service.get(keyReplace));
+						+ serviceAddressCache.get(keyReplace));
 			}
-			return service.get(keyReplace);
+			return serviceAddressCache.get(keyReplace);
 		} else {
 			String result = this.getServiceValue(keyReplace);
 			if (result != null) {
-				service.put(keyReplace, result);
+				serviceAddressCache.put(keyReplace, result);
 			}
 			return result;
 		}
@@ -433,7 +431,7 @@ public class ZookeeperRegistry implements Registry {
 	public void publishServiceAddress(String serviceName, String serviceAddress) throws RegistryException {
 		String keyReplace = this.replaceServiceName(serviceName);
 		String result = publishServiceAddress2Zookeeper(keyReplace, serviceAddress);
-		service.put(keyReplace, result);
+		serviceAddressCache.put(keyReplace, result);
 		logger.info("published service to registry:" + serviceName);
 	}
 

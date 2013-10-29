@@ -66,7 +66,7 @@ public class FastConnectionAddressStatPoolStrategy implements DpsfAddressStatPoo
 			}
 		}
 		addressStatPool.setStableIps(getStrategyName(), tempStableIps);
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("[").append(getStrategyName()).append(",").append(factorValue).append(",")
 				.append(addressStatPool.getAppName()).append(",").append(tempStableIps.size()).append("/")
 				.append(addressStatPool.getAddressStats().size()).append("][");

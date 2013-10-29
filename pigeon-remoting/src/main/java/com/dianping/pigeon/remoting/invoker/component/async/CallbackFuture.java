@@ -73,7 +73,7 @@ public class CallbackFuture implements Callback, CallFuture {
 						- (System.currentTimeMillis() - start);
 				if (timeoutMillis_ <= 0) {
 					this.error = RequestError.TIMEOUT;
-					StringBuffer sb = new StringBuffer();
+					StringBuilder sb = new StringBuilder();
 					sb.append(this.error.getMsg())
 							.append("\r\n seq:")
 							.append(request.getSequence())
@@ -128,7 +128,7 @@ public class CallbackFuture implements Callback, CallFuture {
 				if (cause == null) {
 					cause = new RuntimeException(response.getCause());
 				}
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				sb.append(cause.getMessage()).append("\r\n");
 				sb.append("Remote Service Exception Info *************\r\n")
 						// .append(" token:").append(ContextUtil.getToken(this.response.getContext())).append("\r\n")

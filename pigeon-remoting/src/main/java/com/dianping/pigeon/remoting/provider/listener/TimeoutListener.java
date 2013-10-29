@@ -54,7 +54,7 @@ public class TimeoutListener implements Runnable {
 								// TODO, 需要加强日志，把参数也打印出来？如果是一些敏感信息，是否涉及安全？
 								// 打印一个cat的messageid？
 								NetTimeoutException te;
-								StringBuffer msg = new StringBuffer();
+								StringBuilder msg = new StringBuilder();
 								msg.append("DPSF RequestExecutor timeout seq:").append(request.getSequence());
 								msg.append("  ip:").append(rc.getHost()).append("  timeout:" + request.getTimeout())
 										.append("  createTime:").append(request.getCreateMillisTime()).append("\r\n")
