@@ -12,24 +12,21 @@ public class EchoServiceImpl implements EchoService {
 
 	@Override
 	public String echo(String input) {
-		System.out.println("server port:"
-				+ ExtensionLoader.getExtension(ServerFactory.class).getPort()
-				+ ", received: " + input);
+//		System.out.println("server port:" + ExtensionLoader.getExtension(ServerFactory.class).getPort()
+//				+ ", received: " + input);
 		return "echo:" + input;
 	}
 
 	@Override
 	public String echoWithException1(String input) {
-		System.out.println("server port:"
-				+ ExtensionLoader.getExtension(ServerFactory.class).getPort()
+		System.out.println("server port:" + ExtensionLoader.getExtension(ServerFactory.class).getPort()
 				+ ", received: " + input);
 		throw new EchoException1("error while receive msg:" + input);
 	}
 
 	@Override
 	public String echoWithException2(String input) {
-		System.out.println("server port:"
-				+ ExtensionLoader.getExtension(ServerFactory.class).getPort()
+		System.out.println("server port:" + ExtensionLoader.getExtension(ServerFactory.class).getPort()
 				+ ", received: " + input);
 		throw new EchoException2("error while receive msg:" + input);
 	}
@@ -38,7 +35,7 @@ public class EchoServiceImpl implements EchoService {
 	public String echoWithServerInfo(String input) {
 		String serverInfo = "server:" + IpUtils.getFirstLocalIp() + ":"
 				+ ExtensionLoader.getExtension(ServerFactory.class).getPort();
-		System.out.println("reveived: " + input);
+		// System.out.println("reveived: " + input);
 		return serverInfo + ", echo:" + input;
 	}
 }

@@ -10,7 +10,7 @@ import com.dianping.pigeon.test.loader.SpringContainer;
 public class SingleServer3 {
 
 	public static void main(String[] args) throws Exception {
-		ConfigCache.getInstance("dev.lion.dp:2181");
+		ConfigCache.getInstance("127.0.0.1:2181");
 		new SpringContainer("classpath*:META-INF/spring/app-provider3.xml")
 				.start();
 		Thread.currentThread().join();

@@ -80,7 +80,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 				}
 			}
 		} else {
-			contextHolder = contextValues;
+			//contextHolder = contextValues;
 		}
 
 		request.setContext(contextHolder);

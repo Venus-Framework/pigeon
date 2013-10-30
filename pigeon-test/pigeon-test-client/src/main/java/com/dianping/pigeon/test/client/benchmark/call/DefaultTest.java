@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Test;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.test.client.AnnotationBaseInvokerTest;
 import com.dianping.pigeon.test.client.PigeonAutoTest;
 import com.dianping.pigeon.test.service.EchoService;
@@ -23,10 +25,12 @@ public class DefaultTest extends AnnotationBaseInvokerTest {
 
 	static AtomicLong counter = new AtomicLong(0);
 	String startTime = System.currentTimeMillis() + "";
+	ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	@Test
 	public void test() throws Throwable {
-		int threads = 100;
+		int threads = Integer.valueOf(configManager.getProperty("pigeon.test.threads", "50"));
+		System.out.println("threads:" + threads);
 
 		for (int i = 0; i < threads; i++) {
 			ClientThread thread = new ClientThread(echoService);
@@ -35,8 +39,10 @@ public class DefaultTest extends AnnotationBaseInvokerTest {
 		Thread.currentThread().join();
 	}
 
-	public static void main(String[] args) throws Exception {
-
+	public static void main(String[] args) throws Throwable {
+		DefaultTest test = new DefaultTest();
+		test.start();
+		test.test();
 	}
 
 	class ClientThread extends Thread {
@@ -51,10 +57,9 @@ public class DefaultTest extends AnnotationBaseInvokerTest {
 			while (true) {
 				String msg = null;
 				try {
-					msg = System.currentTimeMillis() + ""
-							+ Math.abs(RandomUtils.nextLong());
-					String echo = service.echoWithServerInfo(msg);
-					//System.out.println(echo);
+					msg = System.currentTimeMillis() + "" + Math.abs(RandomUtils.nextLong());
+					String echo = service.echo(msg);
+					// System.out.println(echo);
 					// Assert.assertEquals("echo:" + msg, echo);
 					long count = counter.addAndGet(1);
 					int size = 10000;
@@ -62,9 +67,8 @@ public class DefaultTest extends AnnotationBaseInvokerTest {
 						long now = System.currentTimeMillis();
 						long cost = now - Long.valueOf(startTime);
 						float tps = size * 1000 / cost;
-						System.out.println("start time:" + startTime + ",now:"
-								+ now + ",cost:" + cost + ",all count:" + count
-								+ ",size:" + size + ",tps:" + tps);
+						System.out.println("start time:" + startTime + ",now:" + now + ",cost:" + cost + ",all count:"
+								+ count + ",size:" + size + ",tps:" + tps);
 						startTime = now + "";
 					}
 				} catch (Throwable e) {
