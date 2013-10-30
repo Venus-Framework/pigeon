@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.service;
+package com.dianping.pigeon.remoting.invoker;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,7 +27,6 @@ import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListenerManager;
@@ -35,6 +34,7 @@ import com.dianping.pigeon.remoting.invoker.listener.DefaultClusterListener;
 import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;
 import com.dianping.pigeon.remoting.invoker.listener.ReconnectListener;
 import com.dianping.pigeon.remoting.invoker.route.RouteManager;
+import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
 

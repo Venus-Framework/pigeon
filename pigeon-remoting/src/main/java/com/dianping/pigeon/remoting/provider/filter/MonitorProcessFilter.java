@@ -78,7 +78,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					monitorLogger.logMonitorError(e);
 				}
 			}
-			if (monitorLogger != null) {
+			if (invocationContext.getServiceError() != null && monitorLogger != null) {
 				monitorLogger.logError(invocationContext.getServiceError());
 			}
 		}

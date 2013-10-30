@@ -16,6 +16,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfigurer;
@@ -23,7 +24,6 @@ import com.dianping.pigeon.remoting.invoker.loader.InvocationHandlerLoader;
 import com.dianping.pigeon.remoting.invoker.loader.InvokerBootStrapLoader;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
-import com.dianping.pigeon.remoting.invoker.service.ClientManager;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationProxy;
 
 /**

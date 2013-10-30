@@ -25,9 +25,9 @@ import com.dianping.pigeon.registry.cache.WeightCache;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfigurer;
-import com.dianping.pigeon.remoting.invoker.service.ClientManager;
 import com.dianping.pigeon.serialize.SerializerFactory;
 
 public class HeartBeatListener implements Runnable, ClusterListener {

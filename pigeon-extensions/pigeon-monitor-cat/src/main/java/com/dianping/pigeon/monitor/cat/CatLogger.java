@@ -53,15 +53,17 @@ public class CatLogger implements MonitorLogger {
 	 */
 	@Override
 	public void logError(Throwable t) {
-		try {
-			if (producer == null) {
-				producer = Cat.getProducer();
+		if(t != null) {
+			try {
+				if (producer == null) {
+					producer = Cat.getProducer();
+				}
+				if (producer != null && t != null) {
+					producer.logError(t);
+				}
+			} catch (Exception e) {
+				logMonitorError(e);
 			}
-			if (producer != null && t != null) {
-				producer.logError(t);
-			}
-		} catch (Exception e) {
-			logMonitorError(e);
 		}
 	}
 

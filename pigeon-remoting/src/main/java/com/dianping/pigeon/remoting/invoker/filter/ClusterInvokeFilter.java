@@ -12,9 +12,9 @@ import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
 import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
-import com.dianping.pigeon.remoting.invoker.service.ClientManager;
 
 /**
  * 

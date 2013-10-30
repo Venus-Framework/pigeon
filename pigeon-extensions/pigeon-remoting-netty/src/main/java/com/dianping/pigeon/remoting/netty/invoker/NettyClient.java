@@ -26,12 +26,12 @@ import com.dianping.pigeon.event.RuntimeServiceEvent;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.component.RpcInvokeInfo;
 import com.dianping.pigeon.remoting.invoker.component.async.CallFuture;
 import com.dianping.pigeon.remoting.invoker.component.async.Callback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfigurer;
-import com.dianping.pigeon.remoting.invoker.service.ClientManager;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 

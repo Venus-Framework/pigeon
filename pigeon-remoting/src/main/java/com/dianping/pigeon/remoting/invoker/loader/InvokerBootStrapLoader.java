@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.loader;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.remoting.invoker.service.ClientManager;
+import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 
 public final class InvokerBootStrapLoader {
