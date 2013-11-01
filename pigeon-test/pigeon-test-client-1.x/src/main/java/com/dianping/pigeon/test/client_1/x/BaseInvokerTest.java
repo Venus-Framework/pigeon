@@ -16,8 +16,8 @@ import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
-import com.dianping.pigeon.test.loader.ConfigLoader;
-import com.dianping.pigeon.test.loader.SpringLoader;
+import com.dianping.pigeon.test.client_1.x.loader.ConfigLoader;
+import com.dianping.pigeon.test.client_1.x.loader.SpringLoader;
 
 public class BaseInvokerTest {
 

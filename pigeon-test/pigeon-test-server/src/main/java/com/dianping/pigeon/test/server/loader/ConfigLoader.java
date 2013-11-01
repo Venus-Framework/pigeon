@@ -1,4 +1,4 @@
-package com.dianping.pigeon.test.loader;
+package com.dianping.pigeon.test.server.loader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,14 +17,14 @@ public class ConfigLoader {
 
 	public static void initClient() {
 		Properties properties = new Properties();
-		InputStream input = ConfigLoader.class.getResourceAsStream(PROPERTIES_PATH);
-		if (input != null) {
-			try {
+		try {
+			InputStream input = ConfigLoader.class.getResourceAsStream(PROPERTIES_PATH);
+			if (input != null) {
 				properties.load(input);
 				input.close();
-			} catch (IOException e) {
-				logger.error("", e);
 			}
+		} catch (Exception e) {
+			logger.error("", e);
 		}
 		try {
 			ExtensionLoader.getExtension(ConfigManager.class).init(properties);

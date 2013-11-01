@@ -91,7 +91,7 @@ public class ZookeeperRegistry implements Registry {
 				t.start();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-				throw new RuntimeException("init zookeeper registry failed", e);
+				throw new RuntimeException("init zookeeper registry failed:" + zookeeperAddress, e);
 			}
 			this.isInit = true;
 		}

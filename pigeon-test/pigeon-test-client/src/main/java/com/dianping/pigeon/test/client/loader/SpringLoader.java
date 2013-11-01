@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.test.loader;
+package com.dianping.pigeon.test.client.loader;
 
 import java.util.HashMap;
 import java.util.Map;
