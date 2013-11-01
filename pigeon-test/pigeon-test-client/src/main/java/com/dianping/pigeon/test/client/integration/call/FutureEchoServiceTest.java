@@ -8,11 +8,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.dianping.pigeon.test.client.AnnotationBaseInvokerTest;
+import com.dianping.pigeon.test.client.BaseInvokerTest;
 import com.dianping.pigeon.test.client.PigeonAutoTest;
 import com.dianping.pigeon.test.service.EchoService;
 
-public class FutureEchoServiceTest extends AnnotationBaseInvokerTest {
+public class FutureEchoServiceTest extends BaseInvokerTest {
 
 	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", serialize = "java", callMethod = "future")
 	public EchoService echoService;

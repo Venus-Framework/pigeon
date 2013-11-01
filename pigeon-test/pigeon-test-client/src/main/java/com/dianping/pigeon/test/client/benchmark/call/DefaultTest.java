@@ -7,10 +7,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Test;
+import org.springframework.util.Assert;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.test.client.AnnotationBaseInvokerTest;
+import com.dianping.pigeon.test.client.BaseInvokerTest;
 import com.dianping.pigeon.test.client.PigeonAutoTest;
 import com.dianping.pigeon.test.service.EchoService;
 
@@ -18,7 +19,7 @@ import com.dianping.pigeon.test.service.EchoService;
  * @author xiangwu
  * 
  */
-public class DefaultTest extends AnnotationBaseInvokerTest {
+public class DefaultTest extends BaseInvokerTest {
 
 	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
 	public EchoService echoService;
@@ -32,6 +33,8 @@ public class DefaultTest extends AnnotationBaseInvokerTest {
 		int threads = Integer.valueOf(configManager.getProperty("pigeon.test.threads", "50"));
 		System.out.println("threads:" + threads);
 
+		Assert.notNull(echoService);
+		
 		for (int i = 0; i < threads; i++) {
 			ClientThread thread = new ClientThread(echoService);
 			thread.start();
@@ -67,8 +70,7 @@ public class DefaultTest extends AnnotationBaseInvokerTest {
 						long now = System.currentTimeMillis();
 						long cost = now - Long.valueOf(startTime);
 						float tps = size * 1000 / cost;
-						System.out.println("start time:" + startTime + ",now:" + now + ",cost:" + cost + ",all count:"
-								+ count + ",size:" + size + ",tps:" + tps);
+						System.out.println("pigeon2,tps:" + tps);
 						startTime = now + "";
 					}
 				} catch (Throwable e) {

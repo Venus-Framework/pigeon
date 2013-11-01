@@ -9,12 +9,12 @@ import java.lang.reflect.UndeclaredThrowableException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.dianping.pigeon.test.client_1.x.AnnotationBaseInvokerTest;
+import com.dianping.pigeon.test.client_1.x.BaseInvokerTest;
 import com.dianping.pigeon.test.client_1.x.PigeonAutoTest;
 import com.dianping.pigeon.test.service.EchoException2;
 import com.dianping.pigeon.test.service.EchoService;
 
-public class DefaultEchoServiceTest extends AnnotationBaseInvokerTest {
+public class DefaultEchoServiceTest extends BaseInvokerTest {
 
 	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
 	public EchoService echoService;

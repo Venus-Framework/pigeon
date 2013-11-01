@@ -11,12 +11,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.dianping.pigeon.test.client.AnnotationBaseInvokerTest;
+import com.dianping.pigeon.test.client.BaseInvokerTest;
 import com.dianping.pigeon.test.client.PigeonAutoTest;
 import com.dianping.pigeon.test.service.EchoException2;
 import com.dianping.pigeon.test.service.EchoService;
 
-public class DefaultEchoServiceTest extends AnnotationBaseInvokerTest {
+public class DefaultEchoServiceTest extends BaseInvokerTest {
 
 	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
 	public EchoService echoService;

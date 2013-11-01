@@ -83,6 +83,8 @@ public class NettyClient implements Client {
 		this.bootstrap.setOption("writeBufferHighWaterMark", InvokerConfigurer.getWriteBufferHighWater());
 		this.bootstrap.setOption("writeBufferLowWaterMark", InvokerConfigurer.getWriteBufferLowWater());
 		this.bootstrap.setPipelineFactory(new ClientChannelPipelineFactory(this));
+		this.bootstrap.setOption("tcpNoDelay", true);
+		this.bootstrap.setOption("keepAlive", true);
 	}
 
 	public synchronized void connect() {

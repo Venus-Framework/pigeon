@@ -10,11 +10,11 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.dianping.pigeon.test.client_1.x.AnnotationBaseInvokerTest;
+import com.dianping.pigeon.test.client_1.x.BaseInvokerTest;
 import com.dianping.pigeon.test.client_1.x.PigeonAutoTest;
 import com.dianping.pigeon.test.service.EchoService;
 
-public class RandomLoadbalanceEchoServiceTest extends AnnotationBaseInvokerTest {
+public class RandomLoadbalanceEchoServiceTest extends BaseInvokerTest {
 
     @PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", loadbalance = "random")
     public EchoService echoService;

@@ -4,16 +4,21 @@
  */
 package com.dianping.pigeon.test.service;
 
+import org.apache.log4j.Logger;
+
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.util.IpUtils;
 
 public class EchoServiceImpl implements EchoService {
 
+	Logger logger = Logger.getLogger(EchoServiceImpl.class);
+	
 	@Override
 	public String echo(String input) {
-//		System.out.println("server port:" + ExtensionLoader.getExtension(ServerFactory.class).getPort()
-//				+ ", received: " + input);
+		if(logger.isInfoEnabled()) {
+			logger.info("received:" + input);
+		}
 		return "echo:" + input;
 	}
 

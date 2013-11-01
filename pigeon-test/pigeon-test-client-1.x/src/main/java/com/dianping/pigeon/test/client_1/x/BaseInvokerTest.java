@@ -5,22 +5,27 @@
 package com.dianping.pigeon.test.client_1.x;
 
 import java.lang.reflect.Field;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.codehaus.plexus.util.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.spring.ProxyBeanFactory;
+import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
+import com.dianping.pigeon.test.loader.ConfigLoader;
 import com.dianping.pigeon.test.loader.SpringLoader;
 
-public class AnnotationBaseInvokerTest {
+public class BaseInvokerTest {
 
-	private static final Logger logger = Logger
-			.getLogger(AnnotationBaseInvokerTest.class);
+	private static final Logger logger = Logger.getLogger(BaseInvokerTest.class);
 
 	protected ServiceCallback callback = null;
+
+	protected String registryAddress = null;
 
 	public String getSpringPath() {
 		return null;
@@ -28,12 +33,14 @@ public class AnnotationBaseInvokerTest {
 
 	@Before
 	public void start() throws Exception {
-		ConfigCache.getInstance("127.0.0.1:2181");
-		try {
-			initClient();
-		} catch (Exception e) {
-			logger.error("", e);
+		Properties properties = ConfigLoader.getLocalProperties();
+		registryAddress = properties.getProperty("pigeon.registry.address");
+		if (StringUtils.isBlank(registryAddress)) {
+			registryAddress = EnvZooKeeperConfig.getZKAddress();
 		}
+		System.out.println("registry address:" + registryAddress);
+		ConfigCache.getInstance(registryAddress);
+		initClient();
 	}
 
 	@After
@@ -62,8 +69,7 @@ public class AnnotationBaseInvokerTest {
 				factory.setTimeout(test.timeout());
 
 				if (!test.callback().equals("null")) {
-					callback = (ServiceCallback) Class.forName(test.callback())
-							.newInstance();
+					callback = (ServiceCallback) Class.forName(test.callback()).newInstance();
 					factory.setCallback(callback);
 				}
 				factory.init();

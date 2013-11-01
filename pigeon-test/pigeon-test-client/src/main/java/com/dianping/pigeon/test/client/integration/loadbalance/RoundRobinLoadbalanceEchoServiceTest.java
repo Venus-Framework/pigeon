@@ -10,11 +10,11 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.dianping.pigeon.test.client.AnnotationBaseInvokerTest;
+import com.dianping.pigeon.test.client.BaseInvokerTest;
 import com.dianping.pigeon.test.client.PigeonAutoTest;
 import com.dianping.pigeon.test.service.EchoService;
 
-public class RoundRobinLoadbalanceEchoServiceTest extends AnnotationBaseInvokerTest {
+public class RoundRobinLoadbalanceEchoServiceTest extends BaseInvokerTest {
 
     @PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", loadbalance = "roundRobin")
     public EchoService echoService;

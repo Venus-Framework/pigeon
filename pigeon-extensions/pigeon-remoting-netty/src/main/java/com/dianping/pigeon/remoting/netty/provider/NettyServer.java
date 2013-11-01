@@ -60,6 +60,8 @@ public class NettyServer implements Server, Disposable {
 		RequestProcessor requestProcessor = new RequestProcessor();
 
 		this.bootstrap.setPipelineFactory(new ServerChannelPipelineFactory(channelGroup, requestProcessor));
+		this.bootstrap.setOption("child.tcpNoDelay", true);
+		this.bootstrap.setOption("child.keepAlive", true);
 	}
 
 	public void start() {

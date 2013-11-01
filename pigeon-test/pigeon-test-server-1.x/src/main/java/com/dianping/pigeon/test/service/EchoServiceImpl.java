@@ -4,12 +4,17 @@
  */
 package com.dianping.pigeon.test.service;
 
+import org.apache.log4j.Logger;
 
 public class EchoServiceImpl implements EchoService {
 
+	Logger logger = Logger.getLogger(EchoServiceImpl.class);
+
 	@Override
 	public String echo(String input) {
-		//System.out.println("received: " + input);
+		if (logger.isInfoEnabled()) {
+			logger.info("received:" + input);
+		}
 		return "echo:" + input;
 	}
 

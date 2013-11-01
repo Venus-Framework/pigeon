@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.dianping.pigeon.test.client.AnnotationBaseInvokerTest;
+import com.dianping.pigeon.test.client.BaseInvokerTest;
 import com.dianping.pigeon.test.client.PigeonAutoTest;
 import com.dianping.pigeon.test.service.EchoService;
 import com.dianping.pigeon.test.service.EchoServiceCallbackImpl;
@@ -20,7 +20,7 @@ import com.dianping.pigeon.test.service.EchoServiceCallbackImpl;
  * @version $Id: EchoServiceCallbackTest.java, v 0.1 2013-7-26 上午10:42:47
  *          jianhuihuang Exp $
  */
-public class CallbackEchoServiceTest extends AnnotationBaseInvokerTest {
+public class CallbackEchoServiceTest extends BaseInvokerTest {
 
 	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", serialize = "java", callMethod = "callback", callback = "com.dianping.pigeon.test.service.EchoServiceCallbackImpl")
 	public EchoService echoService;

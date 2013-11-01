@@ -6,8 +6,6 @@ package com.dianping.pigeon.test.client;
 
 import java.lang.reflect.Field;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
@@ -20,9 +18,9 @@ import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.test.loader.ConfigLoader;
 import com.dianping.pigeon.test.loader.SpringLoader;
 
-public class AnnotationBaseInvokerTest {
+public class BaseInvokerTest {
 
-	private static final Logger logger = Logger.getLogger(AnnotationBaseInvokerTest.class);
+	private static final Logger logger = Logger.getLogger(BaseInvokerTest.class);
 
 	protected ServiceCallback callback = null;
 

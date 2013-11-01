@@ -29,31 +29,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.dianping</groupId>
-			<artifactId>pigeon-common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.dianping</groupId>
-			<artifactId>pigeon-remoting</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.dianping</groupId>
-			<artifactId>pigeon-registry</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.dianping</groupId>
-			<artifactId>pigeon-registry-zookeeper</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.dianping</groupId>
-			<artifactId>pigeon-remoting-netty</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.dianping</groupId>
-			<artifactId>pigeon-config-lion</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.dianping</groupId>
-			<artifactId>pigeon-monitor-cat</artifactId>
+			<artifactId>pigeon</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.dianping.cat</groupId>

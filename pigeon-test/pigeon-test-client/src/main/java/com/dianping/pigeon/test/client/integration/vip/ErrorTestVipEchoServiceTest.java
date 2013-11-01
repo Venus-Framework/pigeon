@@ -7,11 +7,11 @@ package com.dianping.pigeon.test.client.integration.vip;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.dianping.pigeon.test.client.AnnotationBaseInvokerTest;
+import com.dianping.pigeon.test.client.BaseInvokerTest;
 import com.dianping.pigeon.test.client.PigeonAutoTest;
 import com.dianping.pigeon.test.service.EchoService;
 
-public class ErrorTestVipEchoServiceTest extends AnnotationBaseInvokerTest {
+public class ErrorTestVipEchoServiceTest extends BaseInvokerTest {
 
 	@PigeonAutoTest(callMethod = "sync", testVip = "127.0.0.2:4625")
 	public EchoService echoService;
