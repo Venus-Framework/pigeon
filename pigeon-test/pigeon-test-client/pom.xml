@@ -65,7 +65,7 @@
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>lib</outputDirectory>
+							<outputDirectory>../pigeon-benchmark/pigeon-benchmark-2/lib</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>

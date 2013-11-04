@@ -7,4 +7,4 @@ do
 done
 export CLASSPATH=$CLASSPATH
 
-nohup java -server -Xms128m -Xmx256m  -classpath $CLASSPATH  com.dianping.pigeon.test.server.SingleServer3  > ./provider3.log &
+nohup java -server -Xms128m -Xmx256m  -classpath $CLASSPATH  com.dianping.pigeon.test.server_1.x.SingleServer3  > ./provider3.log &
