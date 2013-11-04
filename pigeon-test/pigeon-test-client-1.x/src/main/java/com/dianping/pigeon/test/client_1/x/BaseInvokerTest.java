@@ -35,6 +35,7 @@ public class BaseInvokerTest {
 	public void start() throws Exception {
 		Properties properties = ConfigLoader.getLocalProperties();
 		registryAddress = properties.getProperty("pigeon.registry.address");
+		System.out.println("registry address:" + registryAddress);
 		if (StringUtils.isBlank(registryAddress)) {
 			registryAddress = EnvZooKeeperConfig.getZKAddress();
 		}

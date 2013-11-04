@@ -81,7 +81,11 @@ public final class InvocationHandlerLoader extends DefaultExtension {
 				@SuppressWarnings("unchecked")
 				@Override
 				public InvocationResponse handle(InvocationContext invocationContext) throws Throwable {
-					return filter.invoke(next, invocationContext);
+					//String start = System.currentTimeMillis() + "";
+					InvocationResponse resp = filter.invoke(next, invocationContext);
+					//long cost = System.currentTimeMillis() - Long.valueOf(start);
+					//System.out.println(filter + " cost:" + cost);
+					return resp;
 				}
 			};
 		}
