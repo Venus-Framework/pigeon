@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<artifactId>pigeon-test</artifactId>
 		<groupId>com.dianping</groupId>
@@ -11,7 +11,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	<artifactId>pigeon-test-client-1.x</artifactId>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -32,27 +32,27 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		<dependency>
 			<groupId>com.dianping.cat</groupId>
 			<artifactId>cat-core</artifactId>
-			<version>0.6.2</version><!--$NO-MVN-MAN-VER$-->
+			<version>0.6.2</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
 		<dependency>
 			<groupId>com.dianping.lion</groupId>
 			<artifactId>lion-client</artifactId>
-			<version>0.3.1-SNAPSHOT</version><!--$NO-MVN-MAN-VER$-->
+			<version>0.3.1-SNAPSHOT</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
 		<dependency>
 			<groupId>com.dianping.lion</groupId>
 			<artifactId>lion-dev</artifactId>
-			<version>1.0.0</version><!--$NO-MVN-MAN-VER$-->
+			<version>1.0.0</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
 		<dependency>
 			<groupId>com.dianping</groupId>
 			<artifactId>avatar-tracker</artifactId>
-			<version>2.1.9</version><!--$NO-MVN-MAN-VER$-->
+			<version>2.1.9</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
 		<dependency>
 			<groupId>com.dianping.dpsf</groupId>
 			<artifactId>dpsf-net</artifactId>
-			<version>1.9.1-SNAPSHOT</version><!--$NO-MVN-MAN-VER$--><!-- 1.7.3 -->
+			<version>1.9.1-SNAPSHOT</version><!--$NO-MVN-MAN-VER$ --><!-- 1.7.3 -->
 		</dependency>
 	</dependencies>
 	<build>
@@ -76,7 +76,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		</plugins>
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -111,5 +112,17 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 				</plugin>
 			</plugins>
 		</pluginManagement>
+		<!-- <resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/*.*</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.properties</exclude>
+				</excludes>
+			</resource>
+		</resources> -->
 	</build>
 </project>

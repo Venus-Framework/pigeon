@@ -15,6 +15,7 @@ public class EchoServiceImpl implements EchoService {
 		if (logger.isInfoEnabled()) {
 			logger.info("received:" + input);
 		}
+		System.out.println("received: " + input);
 		return "echo:" + input;
 	}
 

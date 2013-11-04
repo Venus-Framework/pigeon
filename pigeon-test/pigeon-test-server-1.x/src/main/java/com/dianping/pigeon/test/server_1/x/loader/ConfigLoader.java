@@ -1,6 +1,5 @@
-package com.dianping.pigeon.test.loader;
+package com.dianping.pigeon.test.server_1.x.loader;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -18,14 +17,14 @@ public class ConfigLoader {
 
 	public static void initServer() throws Exception {
 		Properties properties = new Properties();
-		InputStream input = ConfigLoader.class.getResourceAsStream(PROPERTIES_PATH);
-		if (input != null) {
-			try {
+		try {
+			InputStream input = ConfigLoader.class.getResourceAsStream(PROPERTIES_PATH);
+			if (input != null) {
 				properties.load(input);
 				input.close();
-			} catch (IOException e) {
-				logger.error("", e);
 			}
+		} catch (Exception e) {
+			logger.error("", e);
 		}
 		String registryAddress = properties.getProperty("pigeon.registry.address");
 		if (StringUtils.isBlank(registryAddress)) {

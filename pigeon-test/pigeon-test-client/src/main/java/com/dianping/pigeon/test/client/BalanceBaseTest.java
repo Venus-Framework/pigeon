@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
-import com.dianping.pigeon.test.loader.SpringLoader;
+import com.dianping.pigeon.test.client.loader.SpringLoader;
 
 public class BalanceBaseTest {
 

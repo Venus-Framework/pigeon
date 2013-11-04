@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.test.server;
 
-import com.dianping.pigeon.test.loader.SpringLoader;
+import com.dianping.pigeon.test.server.loader.SpringLoader;
 
 public class SingleServer3 {
 

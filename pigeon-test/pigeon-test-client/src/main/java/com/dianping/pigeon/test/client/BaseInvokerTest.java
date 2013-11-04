@@ -15,8 +15,8 @@ import com.dianping.pigeon.component.QueryString;
 import com.dianping.pigeon.registry.cache.RegistryCache;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
-import com.dianping.pigeon.test.loader.ConfigLoader;
-import com.dianping.pigeon.test.loader.SpringLoader;
+import com.dianping.pigeon.test.client.loader.ConfigLoader;
+import com.dianping.pigeon.test.client.loader.SpringLoader;
 
 public class BaseInvokerTest {
 

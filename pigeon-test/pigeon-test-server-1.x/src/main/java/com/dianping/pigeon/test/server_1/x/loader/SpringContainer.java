@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.test.loader;
+package com.dianping.pigeon.test.server_1.x.loader;
 
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
