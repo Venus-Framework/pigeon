@@ -47,7 +47,6 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	}
 
 	public Client route(List<Client> clientList, InvokerMetaData metaData, InvocationRequest request) {
-
 		if (logger.isDebugEnabled()) {
 			logger.debug("Routing from: ");
 			for (Client client : clientList) {

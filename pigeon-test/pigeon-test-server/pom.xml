@@ -81,7 +81,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		</dependency>
 	</dependencies>
 	<build>
-		<!-- <resources>
+		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
@@ -92,6 +92,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 					<exclude>**/*.properties</exclude>
 				</excludes>
 			</resource>
-		</resources> -->
+		</resources>
 	</build>
 </project>

@@ -66,7 +66,7 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<!-- <resources>
+		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
@@ -77,6 +77,6 @@
 					<exclude>**/*.properties</exclude>
 				</excludes>
 			</resource>
-		</resources> -->
+		</resources>
 	</build>
 </project>
