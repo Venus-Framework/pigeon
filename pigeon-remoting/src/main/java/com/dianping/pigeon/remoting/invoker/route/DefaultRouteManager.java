@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.dianping.dpsf.exception.NoConnectionException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.phase.Disposable;
-import com.dianping.pigeon.registry.cache.WeightCache;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
@@ -92,16 +92,12 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	 */
 	public List<Client> filterWithGroupAndWeight(List<Client> clientList, InvokerMetaData metaData,
 			Boolean isWriteBufferLimit) {
-		Set<String> clientsInGroup = WeightCache.getInstance().getClientsOfGroup(metaData.getGroup());
-		if (clientsInGroup == null || clientsInGroup.isEmpty()) {
-			throw new NoConnectionException("no group named[" + metaData.getGroup() + "].");
-		}
 		List<Client> filteredClients = new ArrayList<Client>(clientList.size());
 		boolean existClientBuffToLimit = false;
 		for (Client client : clientList) {
 			String address = client.getAddress();
-			if (client.isActive() && clientsInGroup.contains(address)
-					&& WeightCache.getInstance().getWeightWithDefault(metaData.getServiceName(), address) > 0) {
+			if (client.isActive() 
+					&& RegistryManager.getInstance().getServiceWeight(address) > 0) {
 				if (!isWriteBufferLimit || client.isWritable()) {
 					filteredClients.add(client);
 				} else {
@@ -146,18 +142,18 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	class InnerServiceProviderChangeListener implements ServiceProviderChangeListener {
 		@Override
 		public void hostWeightChanged(ServiceProviderChangeEvent event) {
-			WeightCache.getInstance().setWeight(event.getConnect(), event.getWeight());
+			RegistryManager.getInstance().setServiceWeight(event.getConnect(), event.getWeight());
 		}
 
 		@Override
 		public void providerAdded(ServiceProviderChangeEvent event) {
-			WeightCache.getInstance().setWeight(event.getConnect(), event.getWeight());
+			RegistryManager.getInstance().setServiceWeight(event.getConnect(), event.getWeight());
 			// todo
 		}
 
 		@Override
 		public void providerRemoved(ServiceProviderChangeEvent event) {
-			WeightCache.getInstance().setWeight(event.getConnect(), 0);
+			RegistryManager.getInstance().setServiceWeight(event.getConnect(), 0);
 			// todo
 		}
 	}

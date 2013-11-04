@@ -17,7 +17,7 @@ import org.w3c.dom.Element;
 import com.dianping.pigeon.component.QueryString;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.registry.cache.RegistryCache;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 
@@ -94,24 +94,24 @@ public class ProviderBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static String getServiceNameWithZoneAndGroup(Element element) {
 		String serviceName = element.getAttribute(element.hasAttribute("name") ? "name" : "interface");
-		try {
-			QueryString parameters = new QueryString();
-			RegistryCache.getInstance();
-			String zone = RegistryCache.getProperty("zoneName");
-			if (zone != null) {
-				parameters.addParameter("zone", zone);
-			}
-			if (element.hasAttribute("group")) {
-				String group = resolveReference(element, "group");
-				parameters.addParameter("group", group);
-			}
-			if (!parameters.isEmpty()) {
-				serviceName += QueryString.PREFIX + parameters;
-			}
-		} catch (Exception e) {
-			logger.error("", e);
-			throw new RuntimeException("", e);
-		}
+//		try {
+//			QueryString parameters = new QueryString();
+//			RegistryManager.getInstance();
+//			String zone = RegistryManager.getProperty("zoneName");
+//			if (zone != null) {
+//				parameters.addParameter("zone", zone);
+//			}
+//			if (element.hasAttribute("group")) {
+//				String group = resolveReference(element, "group");
+//				parameters.addParameter("group", group);
+//			}
+//			if (!parameters.isEmpty()) {
+//				serviceName += QueryString.PREFIX + parameters;
+//			}
+//		} catch (Exception e) {
+//			logger.error("", e);
+//			throw new RuntimeException("", e);
+//		}
 		return serviceName;
 	}
 

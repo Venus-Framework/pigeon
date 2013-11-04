@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.phase.Disposable;
-import com.dianping.pigeon.registry.cache.ServiceCache;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
@@ -89,7 +89,6 @@ public class ClusterListenerManager implements Disposable {
 			}
 			ConnectInfo cmd = connectMetaDataMap.get(connect);
 			if (cmd != null) {
-				ServiceCache.serviceNameAndWeights.remove(cmd.getServiceName());
 				connectMetaDataMap.remove(connect);
 			}
 			for (ClusterListener listener : listeners) {

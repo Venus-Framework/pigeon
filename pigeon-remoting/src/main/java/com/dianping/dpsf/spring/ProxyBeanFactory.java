@@ -224,7 +224,8 @@ public class ProxyBeanFactory implements FactoryBean {
 
 		checkParameters();
 		if (this.group == null) {
-			this.group = this.iface + "_" + groupId.incrementAndGet();
+			// TODO Get group configed in /data/webapps/appenv
+			this.group = configManager.getProperty(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
 		}
 		if (Constants.SERIALIZE_JAVA.equalsIgnoreCase(this.serialize)
 				|| Constants.SERIALIZE_HESSIAN.equalsIgnoreCase(this.serialize)) {

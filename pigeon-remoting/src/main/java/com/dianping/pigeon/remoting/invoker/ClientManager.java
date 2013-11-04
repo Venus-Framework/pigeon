@@ -20,9 +20,7 @@ import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.component.phase.Disposable;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.registry.cache.RegistryCache;
-import com.dianping.pigeon.registry.cache.ServiceCache;
-import com.dianping.pigeon.registry.cache.WeightCache;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
@@ -87,24 +85,12 @@ public class ClientManager implements Disposable {
 
 	}
 
-	public synchronized void registerClient(String serviceName, String group, String connect, int weight) {
+	public synchronized void registerClient(String serviceName, String connect, int weight) {
 
 		this.clusterListenerManager.addConnect(new ConnectInfo(serviceName, connect, weight));
 
-		// TODO
-		ServiceCache.serviceNameAndWeights.put(serviceName, weight);
-
-		WeightCache.getInstance().registerWeight(serviceName, group, connect, weight);
-		ServiceCache.serviceNameToGroup.put(serviceName, group);
-		Set<HostInfo> hpSet = ServiceCache.serviceNameToHostInfos.get(serviceName);
-		HostInfo hostInfo = new HostInfo(connect, weight);
-		if (hpSet == null) {
-			hpSet = new HashSet<HostInfo>();
-			hpSet.add(hostInfo);
-			ServiceCache.serviceNameToHostInfos.put(serviceName, hpSet);
-		} else {
-			hpSet.add(hostInfo);
-		}
+		RegistryManager.getInstance().addServiceServer(serviceName, connect, weight);
+		
 	}
 
 	public Client getClient(InvokerMetaData metaData, InvocationRequest request, List<Client> excludeClients) {
@@ -141,19 +127,14 @@ public class ClientManager implements Disposable {
 	 * 用Lion从ZK中获取serviceName对应的服务地址，并注册这些服务地址
 	 */
 	public synchronized void findAndRegisterClientFor(String serviceName, String group, String vip) {
-		if (logger.isInfoEnabled()) {
-			logger.info("try to find the address form zookeeper，serviceName:" + serviceName + ",group:" + group);
-		}
-		String addressStr = null;
+		String serviceAddress = null;
 		try {
-			// TODO, 想要删除....
-			// ConfigCache.getInstance();
 			if (!StringUtils.isBlank(vip) && "dev".equals(configManager.getEnv())) {
-				addressStr = vip;
+				serviceAddress = vip;
 			} else {
-				addressStr = RegistryCache.getInstance().getServiceAddress(serviceName);
-				if (addressStr == null && !StringUtils.isBlank(vip)) {
-					addressStr = vip;
+				serviceAddress = RegistryManager.getInstance().getServiceAddress(serviceName, group);
+				if (serviceAddress == null && !StringUtils.isBlank(vip)) {
+					serviceAddress = vip;
 				}
 			}
 		} catch (Exception e) {
@@ -163,42 +144,40 @@ public class ClientManager implements Disposable {
 			} else {
 				logger.error("cannot get service client info for serviceName=" + serviceName + " use failover vip= "
 						+ vip + " instead", e);
-				addressStr = vip;
+				serviceAddress = vip;
 			}
 		}
-		if (StringUtils.isBlank(addressStr)) {
+		
+		if (StringUtils.isBlank(serviceAddress)) {
 			throw new RuntimeException("no service address found for service:" + serviceName + ",group:" + group
 					+ ",vip:" + vip);
 		}
+		
 		if (logger.isInfoEnabled()) {
-			logger.info("selected service address is:" + addressStr + " with service:" + serviceName + ",group:"
+			logger.info("selected service address is:" + serviceAddress + " with service:" + serviceName + ",group:"
 					+ group + ",vip:" + vip);
 		}
-		ServiceCache.serviceNameToGroup.put(serviceName, group);
-		addressStr = addressStr.trim();
-		String[] addressList = addressStr.split(",");
+		
+		serviceAddress = serviceAddress.trim();
+		String[] addressList = serviceAddress.split(",");
 		for (int i = 0; i < addressList.length; i++) {
 			if (StringUtils.isNotBlank(addressList[i])) {
 				String[] parts = addressList[i].split(":");
 				String host = parts[0];
 
-				Integer weight = WeightCache.getInstance().getWeight(serviceName, addressList[i]);
-
-				if (weight == null) {
-					try {
-						weight = RegistryCache.getInstance().getServiceWeigth(addressList[i]);
-					} catch (Exception e) {
-						throw new RuntimeException("error while getting service weight:" + addressList[i], e);
-					}
+				try {
+					int weight = RegistryManager.getInstance().getServiceWeight(addressList[i]);
+					int port = Integer.parseInt(parts[1]);
+					RegistryEventListener.providerAdded(serviceName, host, port, weight);
+				} catch (Exception e) {
+					throw new RuntimeException("error while getting service weight:" + addressList[i], e);
 				}
-				int port = Integer.parseInt(parts[1]);
-				RegistryEventListener.providerAdded(serviceName, host, port, weight);
 			}
 		}
 	}
 
 	public Map<String, Set<HostInfo>> getServiceHostInfos() {
-		return ServiceCache.serviceNameToHostInfos;
+		return RegistryManager.getInstance().getAllServiceServers();
 	}
 
 	/**
@@ -222,23 +201,16 @@ public class ClientManager implements Disposable {
 	class InnerServiceProviderChangeListener implements ServiceProviderChangeListener {
 		@Override
 		public void providerAdded(ServiceProviderChangeEvent event) {
-			String group = ServiceCache.serviceNameToGroup.get(event.getServiceName());
-			if (group == null) {
-				logger.error("can not map serviceName=" + event.getServiceName() + " to group");
-				return;
-			}
 			if (logger.isInfoEnabled()) {
 				logger.info("add " + event.getHost() + ":" + event.getPort() + " to " + event.getServiceName());
 			}
-			registerClient(event.getServiceName(), group, event.getHost() + ":" + event.getPort(), event.getWeight());
+			registerClient(event.getServiceName(), event.getHost() + ":" + event.getPort(), event.getWeight());
 		}
 
 		@Override
 		public void providerRemoved(ServiceProviderChangeEvent event) {
-			Set<HostInfo> hostInfoSet = ServiceCache.serviceNameToHostInfos.get(event.getServiceName());
-			if (hostInfoSet != null) {
-				hostInfoSet.remove(new HostInfo(event.getHost(), event.getPort(), event.getWeight()));
-			}
+			HostInfo hostInfo = new HostInfo(event.getHost(), event.getPort(), event.getWeight());
+			RegistryManager.getInstance().removeServiceServer(event.getServiceName(), hostInfo);
 		}
 
 		@Override

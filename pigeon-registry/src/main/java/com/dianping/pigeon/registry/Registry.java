@@ -3,7 +3,6 @@ package com.dianping.pigeon.registry;
 import java.util.Properties;
 
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.registry.listener.ConfigChangeListener;
 
 public interface Registry {
 
@@ -11,14 +10,18 @@ public interface Registry {
 
 	String getName();
 
-	String getValue(String key) throws RegistryException;
-
-	void addConfigChangeListener(ConfigChangeListener configChangeListener);
-
+	String getValue(String key);
+	
 	String getServiceAddress(String serviceName) throws RegistryException;
+	
+	String getServiceAddress(String serviceName, String group) throws RegistryException;
 
-	void publishServiceAddress(String serviceName, String serviceAddress) throws RegistryException;
+	void publishService(String serviceName, String serviceAddress) throws RegistryException;
 
-	Integer getServiceWeigth(String serviceAddress) throws RegistryException;
+	void publishService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException;
 
+	int getServiceWeigth(String serviceAddress) throws RegistryException;
+
+	RegistryMeta getRegistryMeta(String serviceAddress) throws RegistryException;
+	
 }

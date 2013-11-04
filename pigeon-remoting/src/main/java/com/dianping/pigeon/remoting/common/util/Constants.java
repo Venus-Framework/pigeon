@@ -90,4 +90,14 @@ public final class Constants {
 	// TODO remove me!
 	public static final String CONTEXT_REQUEST_SIZE = "Context-Request-Size";
 	public static final String CONTEXT_RESPONSE_SIZE = "Context-Response-Size";
+	
+	// Config keys in /data/webapps/appenv
+	public static final String KEY_GROUP = "swimlane";
+	public static final String KEY_WEIGHT = "weight";
+	public static final String KEY_AUTO_REGISTER = "auto.register";
+	// Deafult value for the above keys
+	public static final String DEFAULT_GROUP = "";
+	public static final String DEFAULT_WEIGHT = "1";
+	public static final int DEFAULT_WEIGHT_INT = 1;
+	public static final String DEFAULT_AUTO_REGISTER = "false";
 }

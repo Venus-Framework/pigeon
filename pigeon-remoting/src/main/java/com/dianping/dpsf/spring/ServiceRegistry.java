@@ -10,8 +10,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
+import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
+import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.ServiceConfigLoader;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.loader.ProviderBootStrapLoader;
 
@@ -37,24 +40,14 @@ public final class ServiceRegistry {
 
 	private Map<String, Object> services;
 
-	private String groupId;
+	private int port = ServerFactory.DEFAULT_PORT;
 
-	private String port;
-
-	public String getPort() {
+	public int getPort() {
 		return port;
 	}
 
-	public void setPort(String port) {
+	public void setPort(int port) {
 		this.port = port;
-	}
-
-	public String getGroupId() {
-		return groupId;
-	}
-
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
 	}
 
 	/**
@@ -64,12 +57,9 @@ public final class ServiceRegistry {
 	 * @throws ClassNotFoundException
 	 */
 	public void init() throws ServiceException {
-		int iPort = ServerFactory.DEFAULT_PORT;
-		if (StringUtils.isBlank(port)) {
-			iPort = Integer.parseInt(port);
-		}
-		ExtensionLoader.getExtension(ServiceFactory.class).addServices(services, iPort);
-		ProviderBootStrapLoader.startup(iPort);
+		ProviderBootStrapLoader.startup(port);
+		
+		ExtensionLoader.getExtension(ServiceFactory.class).addServices(services, port);
 	}
 
 	/**
