@@ -38,10 +38,6 @@
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.dianping</groupId>
 			<artifactId>pigeon-common</artifactId>
 		</dependency>
