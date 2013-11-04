@@ -12,6 +12,7 @@ import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.registry.Registry;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.util.IpUtils;
@@ -48,7 +49,7 @@ public final class DefaultServiceFactory implements ServiceFactory {
 					String group = configManager.getProperty(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
 					String weight = configManager.getProperty(Constants.KEY_WEIGHT, Constants.DEFAULT_WEIGHT);
 					int intWeight = Integer.parseInt(weight);
-					registry.publishService(serviceName, group, serviceAddress, intWeight);
+					RegistryManager.getInstance().publishService(serviceName, group, serviceAddress, intWeight);
 				}
 			} catch (Exception e) {
 				throw new ServiceException("", e);

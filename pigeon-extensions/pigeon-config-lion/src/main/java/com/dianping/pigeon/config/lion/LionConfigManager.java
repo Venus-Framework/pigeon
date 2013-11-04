@@ -32,6 +32,12 @@ public class LionConfigManager extends AbstractConfigManager {
 	 */
 	@Override
 	public String getProperty(String key) {
+		if(localCache.containsKey(key)) {
+			if(logger.isInfoEnabled()) {
+				logger.info("read from local cache with key[" + key + "]");
+			}
+			return "" + localCache.get(key);
+		}
 		try {
 			String configVal = ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress()).getProperty(key);
 			if (configVal != null) {
@@ -41,12 +47,6 @@ public class LionConfigManager extends AbstractConfigManager {
 			}
 		} catch (Exception e) {
 			logger.error("error while reading property[" + key + "]:" + e.getMessage());
-		}
-		if(localCache.containsKey(key)) {
-			if(logger.isInfoEnabled()) {
-				logger.info("read from local cache with key[" + key + "]");
-			}
-			return "" + localCache.get(key);
 		}
 		return null;
 	}

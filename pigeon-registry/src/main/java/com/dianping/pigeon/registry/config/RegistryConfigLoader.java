@@ -1,4 +1,4 @@
-package com.dianping.pigeon.remoting.common.util;
+package com.dianping.pigeon.registry.config;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,10 +10,14 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.registry.RegistryMeta;
+import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.registry.util.Constants;
 
-public class ServiceConfigLoader {
+public class RegistryConfigLoader {
 	
-	private static final Logger logger = Logger.getLogger(ServiceConfigLoader.class);
+	private static final Logger logger = Logger.getLogger(RegistryConfigLoader.class);
 	
 	private static final String ENV_FILE = "/data/webapps/appenv";
 	
@@ -27,10 +31,18 @@ public class ServiceConfigLoader {
 	public static void init() {
 		Properties props = null;
 		
-		props = loadFromFile();
+		try {
+			props = loadFromFile();
+		} catch (IOException e) {
+			logger.error("Failed to load config from " + ENV_FILE, e);
+		}
 		
 		if(!configLoaded(props)) {
-			props = loadFromRegistry();
+			try {
+				props = loadFromRegistry();
+			} catch (RegistryException e) {
+				logger.error("Failed to load config from registry", e);
+			}
 		}
 		
 		if(!configLoaded(props)) {
@@ -60,12 +72,16 @@ public class ServiceConfigLoader {
 		return props;
 	}
 
-	private static Properties loadFromRegistry() {
-		// TODO Load service config from Registry Center
-		return null;
+	private static Properties loadFromRegistry() throws RegistryException {
+		RegistryMeta meta = RegistryManager.getInstance().getRegistryMeta();
+		Properties props = new Properties();
+		props.put(Constants.KEY_GROUP, meta.getGroup());
+		props.put(Constants.KEY_WEIGHT, "" + meta.getWeight());
+		props.put(Constants.KEY_AUTO_REGISTER, "" + meta.isAutoRegister());
+		return props;
 	}
 
-	private static Properties loadFromFile() {
+	private static Properties loadFromFile() throws IOException {
 		Properties props = new Properties();
 		InputStream in = null;
 		
@@ -74,14 +90,9 @@ public class ServiceConfigLoader {
 			props.load(in);
 		} catch (FileNotFoundException e) {
 			logger.info(ENV_FILE + "does not exist");
-		} catch (IOException e) {
-			logger.error("Failed to load config from " + ENV_FILE, e);
 		} finally {
 			if(in != null)
-				try {
-					in.close();
-				} catch (IOException e) {
-				}
+				in.close();
 		}
 		return props;
 	}

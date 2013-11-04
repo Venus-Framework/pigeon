@@ -12,9 +12,9 @@ import org.apache.log4j.Logger;
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.ServiceConfigLoader;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.loader.ProviderBootStrapLoader;
 

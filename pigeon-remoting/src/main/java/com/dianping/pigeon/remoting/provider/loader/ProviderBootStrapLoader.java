@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.remoting.common.util.ServiceConfigLoader;
+import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 
@@ -20,7 +20,7 @@ public final class ProviderBootStrapLoader {
 		if (servers.get(port) == null) {
 			synchronized (ProviderBootStrapLoader.class) {
 				if (servers.get(port) == null) {
-					ServiceConfigLoader.init();
+					RegistryConfigLoader.init();
 					RequestProcessHandlerLoader.init();
 					Server server = ExtensionLoader.getExtension(
 							ServerFactory.class).createServer(port);

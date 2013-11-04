@@ -19,6 +19,7 @@ import com.dianping.pigeon.registry.config.RegistryConfigManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.util.Utils;
+import com.dianping.pigeon.util.IpUtils;
 
 
 public class RegistryManager {
@@ -136,6 +137,12 @@ public class RegistryManager {
 		}
 	}
 	
+	public void publishService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
+		if (registry != null) {
+			registry.publishService(serviceName, group, serviceAddress, weight);
+		}
+	}
+	
 	public void addServiceServer(String serviceName, String connect, int weight) {
 		Utils.validateWeight(weight);
 		
@@ -177,6 +184,13 @@ public class RegistryManager {
 	
 	public Map<String, Set<HostInfo>> getAllServiceServers() {
 		return serviceNameToHostInfos;
+	}
+
+	public RegistryMeta getRegistryMeta() throws RegistryException {
+		if(registry != null) {
+			return registry.getRegistryMeta(IpUtils.getFirstLocalIp());
+		}
+		return null;
 	}
 
 }
