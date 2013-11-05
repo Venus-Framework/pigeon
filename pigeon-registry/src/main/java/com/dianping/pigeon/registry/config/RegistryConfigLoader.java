@@ -52,6 +52,7 @@ public class RegistryConfigLoader {
 		}
 		
 		ExtensionLoader.getExtension(ConfigManager.class).init(props);
+		RegistryManager.getInstance().init(props);
 	}
 
 	private static Properties normalizeConfig(Properties props) {

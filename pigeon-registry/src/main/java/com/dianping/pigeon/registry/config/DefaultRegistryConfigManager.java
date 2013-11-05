@@ -27,16 +27,16 @@ public class DefaultRegistryConfigManager implements RegistryConfigManager {
 		
 		String registryType = configManager.getProperty(Constants.KEY_REGISTRY_TYPE, Constants.DEFAULT_REGISTRY_TYPE);
 		String registryAddr = configManager.getProperty(Constants.KEY_REGISTRY_ADDRESS, configManager.getAddress());
-		String group = configManager.getProperty(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
-		String weight = configManager.getProperty(Constants.KEY_WEIGHT, ""+Constants.DEFAULT_WEIGHT);
-		String autoRegister = configManager.getProperty(Constants.KEY_AUTO_REGISTER, ""+Constants.DEFAULT_AUTO_REGISTER);
+//		String group = configManager.getProperty(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
+//		String weight = configManager.getProperty(Constants.KEY_WEIGHT, ""+Constants.DEFAULT_WEIGHT);
+//		String autoRegister = configManager.getProperty(Constants.KEY_AUTO_REGISTER, ""+Constants.DEFAULT_AUTO_REGISTER);
 		
 		Properties properties = new Properties();
 		properties.put(Constants.KEY_REGISTRY_TYPE, registryType);
 		properties.put(Constants.KEY_REGISTRY_ADDRESS, registryAddr);
-		properties.put(Constants.KEY_GROUP, group);
-		properties.put(Constants.KEY_WEIGHT, weight);
-		properties.put(Constants.KEY_AUTO_REGISTER, autoRegister);
+//		properties.put(Constants.KEY_GROUP, group);
+//		properties.put(Constants.KEY_WEIGHT, weight);
+//		properties.put(Constants.KEY_AUTO_REGISTER, autoRegister);
 
 		return properties;
 	}

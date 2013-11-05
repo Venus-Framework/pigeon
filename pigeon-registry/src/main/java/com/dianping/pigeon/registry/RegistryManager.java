@@ -26,7 +26,7 @@ public class RegistryManager {
 
 	private static final Logger logger = Logger.getLogger(RegistryManager.class);
 
-	private static Properties defaultPts = new Properties();
+	private static Properties props = new Properties();
 
 	private static boolean isInit = false;
 
@@ -52,9 +52,9 @@ public class RegistryManager {
 	}
 
 	public void init(Properties properties) {
-		instance.setPts(properties);
+		instance.setProperties(properties);
 		String registryType = properties.getProperty(Constants.KEY_REGISTRY_TYPE);
-		if (!"local".equalsIgnoreCase(registryType)) {
+		if (!Constants.REGISTRY_TYPE_LOCAL.equalsIgnoreCase(registryType)) {
 			if (registry != null) {
 				registry.init(properties);
 			}
@@ -63,35 +63,27 @@ public class RegistryManager {
 	}
 
 	public static String getProperty(String key) throws RegistryException {
-		String v = defaultPts.getProperty(key);
+		String v = props.getProperty(key);
 		return v;
 	}
 
-	/**
-	 * @param pts
-	 *            the pts to set
-	 */
-	public static void update(String key, String value) {
+	public static void setProperty(String key, String value) {
 		// 如果是dev环境，可以把当前配置加载进去
-		defaultPts.put(key, value);
+		props.put(key, value);
 	}
 
-	/**
-	 * @param pts
-	 *            the pts to set
-	 */
-	public void setPts(Properties pts) {
-		defaultPts.putAll(pts);
+	public void setProperties(Properties props) {
+		props.putAll(props);
 	}
 
 	public String getServiceAddress(String serviceName, String group) throws RegistryException {
 		String serviceKey = getServiceKey(serviceName, group);
-		if (defaultPts.containsKey(serviceKey)) {
+		if (props.containsKey(serviceKey)) {
 			if (logger.isInfoEnabled()) {
 				logger.info("get service address from local properties, service name:" + serviceName + "  address:"
-						+ defaultPts.getProperty(serviceKey));
+						+ props.getProperty(serviceKey));
 			}
-			return defaultPts.getProperty(serviceKey);
+			return props.getProperty(serviceKey);
 		}
 		if (registry != null) {
 			return registry.getServiceAddress(serviceName, group);
@@ -120,7 +112,9 @@ public class RegistryManager {
 		return weight;
 	}
 	
-
+	/*
+	 * Update service weight in local cache. Will not update to registry center.
+	 */
 	public void setServiceWeight(String serviceAddress, int weight) {
 		HostInfo hostInfo = serviceAddrToHostInfo.get(serviceAddress);
 		if(hostInfo == null) {
@@ -169,9 +163,21 @@ public class RegistryManager {
 			return;
 		}
 		hostInfos.remove(hostInfo);
-		
-		// TODO May need to remove server from serviceAddrToHostInfo
 		logger.info("Remove server " + hostInfo + " from service " + serviceName);
+
+		// If server is not referencd any more, remove from server list
+		if(!isServerReferenced(hostInfo)) {
+			serviceAddrToHostInfo.remove(hostInfo);
+			logger.info("Remove server from server list");
+		}
+	}
+	
+	private boolean isServerReferenced(HostInfo hostInfo) {
+		for(Set<HostInfo> hostInfos : serviceNameToHostInfos.values()) {
+			if(hostInfos.contains(hostInfo))
+				return true;
+		}
+		return false;
 	}
 	
 	public Set<HostInfo> getServiceServers(String serviceName) {

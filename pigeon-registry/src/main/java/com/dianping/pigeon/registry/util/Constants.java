@@ -16,18 +16,21 @@ public final class Constants {
 	public static final String REGISTRY_PATH = "/DP/REGISTRY";
 	public static final String PATH_SEPARATOR = "/";
 	public static final String PLACEHOLDER = "^";
+
 	public static final String KEY_GROUP = "swimlane";
 	public static final String DEFAULT_GROUP = "";
 	public static final String KEY_WEIGHT = "weight";
 	public static final String DEFAULT_WEIGHT = "1";
 	public static final int MIN_WEIGHT = 0;
 	public static final int MAX_WEIGHT = 100;
-	public static final int DEFAULT_WEIGHT_INT = 1;
+	public static final int DEFAULT_WEIGHT_INT = Integer.parseInt(DEFAULT_WEIGHT);
 	public static final String KEY_AUTO_REGISTER = "auto.register";
 	public static final String DEFAULT_AUTO_REGISTER = "false";
-	public static final boolean DEFAULT_AUTO_REGISTER_BOOL = false;
+	public static final boolean DEFAULT_AUTO_REGISTER_BOOL = Boolean.parseBoolean(DEFAULT_AUTO_REGISTER);
 	
 	public static final String KEY_REGISTRY_ADDRESS = "pigeon.registry.address";
 	public static final String KEY_REGISTRY_TYPE = "pigeon.registry.type";
-	public static final String DEFAULT_REGISTRY_TYPE = "zookeeper";
+	public static final String REGISTRY_TYPE_ZOOKEEPER = "zookeeper";
+	public static final String REGISTRY_TYPE_LOCAL = "local";
+	public static final String DEFAULT_REGISTRY_TYPE = REGISTRY_TYPE_ZOOKEEPER;
 }

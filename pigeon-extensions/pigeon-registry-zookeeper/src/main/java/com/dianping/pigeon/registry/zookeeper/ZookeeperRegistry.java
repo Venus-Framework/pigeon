@@ -89,11 +89,11 @@ public class ZookeeperRegistry implements Registry {
 
 	public String getZkValue(String path) throws RegistryException {
 		try {
-			if (this.zkClient.exists(path, false) != null) {
-				String value = new String(this.zkClient.getData(path, zkWatcher, null), Constants.CHARSET);
+			if (this.zkClient.exists(path, zkWatcher) != null) {
+				String value = new String(this.zkClient.getData(path, false, null), Constants.CHARSET);
 				if (logger.isInfoEnabled()) {
-					logger.info("Get value from zookeeper.\n\t" + 
-				                "Path: " + path + "  Value: " + value);
+					logger.info("Get value from zookeeper " + 
+				                "path: " + path + "  value: " + value);
 				}
 				return value;
 			}
