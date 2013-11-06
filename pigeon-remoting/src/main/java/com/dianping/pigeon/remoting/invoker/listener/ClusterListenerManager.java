@@ -6,13 +6,10 @@ package com.dianping.pigeon.remoting.invoker.listener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.phase.Disposable;
-import com.dianping.pigeon.registry.cache.ServiceCache;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
@@ -24,8 +21,6 @@ public class ClusterListenerManager implements Disposable {
 	private static final Logger logger = Logger.getLogger(ClusterListenerManager.class);
 
 	public static final String PLACEHOLDER = ":";
-
-	private Map<String, ConnectInfo> connectMetaDataMap = new ConcurrentHashMap<String, ConnectInfo>();
 
 	private List<ClusterListener> listeners = new ArrayList<ClusterListener>();
 
@@ -87,11 +82,7 @@ public class ClusterListenerManager implements Disposable {
 			if (logger.isInfoEnabled()) {
 				logger.info("remove " + connect + " from " + event.getServiceName());
 			}
-			ConnectInfo cmd = connectMetaDataMap.get(connect);
-			if (cmd != null) {
-				ServiceCache.serviceNameAndWeights.remove(cmd.getServiceName());
-				connectMetaDataMap.remove(connect);
-			}
+			
 			for (ClusterListener listener : listeners) {
 				listener.doNotUse(event.getServiceName(), event.getHost(), event.getPort());
 			}

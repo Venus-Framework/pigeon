@@ -11,7 +11,8 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NoConnectionException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
-import com.dianping.pigeon.registry.cache.WeightCache;
+import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.route.context.ClientContext;
@@ -55,8 +56,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 			}
 		}
 		if (selectedClient != null) {
-			int weight = WeightCache.getInstance().getWeightWithDefault(request.getServiceName(),
-					selectedClient.getAddress());
+			int weight = RegistryManager.getInstance().getServiceWeight(selectedClient.getAddress());
 			request.setAttachment(Constants.REQ_ATTACH_FLOW, 1.0f / (weight > 0 ? weight : 1));
 		}
 		return selectedClient;
@@ -76,7 +76,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 		int maxWeightIdx = 0;
 		int maxWeight = Integer.MIN_VALUE;
 		for (int i = 0; i < clientSize; i++) {
-			weights[i] = WeightCache.getInstance().getWeightWithDefault(serviceName, clients.get(i).getAddress());
+			weights[i] = RegistryManager.getInstance().getServiceWeight(clients.get(i).getAddress());
 			if (weights[i] > maxWeight) {
 				maxWeight = weights[i];
 				maxWeightIdx = i;

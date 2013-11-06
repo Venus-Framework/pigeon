@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.registry.util;
 
-public final class NumberUtils {
+public final class Utils {
 
 	public static long getLong(final byte[] b) {
 
@@ -19,6 +19,12 @@ public final class NumberUtils {
 		assert b.length == 4 : "Invalid number of bytes for integer conversion";
 		return ((b[0] << 24) & 0xFF000000) + ((b[1] << 16) & 0x00FF0000) + ((b[2] << 8) & 0x0000FF00)
 				+ (b[3] & 0x000000FF);
+	}
+
+	public static void validateWeight(int weight) {
+		if(weight < Constants.MIN_WEIGHT || weight > Constants.MAX_WEIGHT)
+			throw new IllegalArgumentException("weight should be in range [" + 
+					Constants.MIN_WEIGHT + "-" + Constants.MAX_WEIGHT + "]");
 	}
 
 }

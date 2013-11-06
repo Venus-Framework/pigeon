@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.servlet.ServletException;
@@ -18,8 +19,9 @@ import org.apache.velocity.app.VelocityEngine;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
+import com.dianping.pigeon.component.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.registry.cache.WeightCache;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 
 /**
@@ -88,7 +90,7 @@ public class RequestHandler extends AbstractHandler {
 	}
 
 	private void addWeight() {
-		Map<String, Map<String, Integer>> weights = WeightCache.getInstance().getWeights();
+		Map<String, Set<HostInfo>> weights = RegistryManager.getInstance().getAllServiceServers();
 		context.put("weights", weights);
 	}
 

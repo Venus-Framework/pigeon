@@ -8,9 +8,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.HostInfo;
-import com.dianping.pigeon.registry.cache.RegistryCache;
-import com.dianping.pigeon.registry.cache.ServiceCache;
-import com.dianping.pigeon.registry.cache.WeightCache;
+import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.registry.util.Constants;
 
 public class DefaultServiceChangeListener implements ServiceChangeListener {
 
@@ -26,7 +25,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 	public synchronized void onServiceHostChange(String serviceName, List<String[]> hostList) {
 		try {
 			Set<HostInfo> newHpSet = parseHostPortList(serviceName, hostList);
-			Set<HostInfo> oldHpSet = ServiceCache.serviceNameToHostInfos.get(serviceName);
+			Set<HostInfo> oldHpSet = RegistryManager.getInstance().getServiceServers(serviceName);
 			Set<HostInfo> toAddHpSet = Collections.emptySet();
 			Set<HostInfo> toRemoveHpSet = Collections.emptySet();
 			if (oldHpSet == null) {
@@ -56,14 +55,12 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 				String host = parts[0];
 				String port = parts[1];
 				String serviceAddress = host + ":" + port;
-				Integer weight = WeightCache.getInstance().getWeight(serviceName, serviceAddress);
-				if (weight == null) {
-					try {
-						weight = RegistryCache.getInstance().getServiceWeigth(serviceAddress);
-					} catch (Exception e) {
-						logger.error("error get weight from PigeonClient for host " + host + ", use default weight", e);
-						weight = WEIGHT_DEFAULT;
-					}
+
+				int weight = Constants.DEFAULT_WEIGHT_INT;
+				try {
+					weight = RegistryManager.getInstance().getServiceWeight(serviceAddress);
+				} catch (Exception e) {
+					logger.error("error get weight from PigeonClient for host " + host + ", use default weight", e);
 				}
 				hpSet.add(new HostInfo(host, Integer.parseInt(port), weight));
 			}

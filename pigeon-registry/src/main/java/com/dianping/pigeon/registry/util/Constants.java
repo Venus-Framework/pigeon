@@ -4,8 +4,6 @@
  */
 package com.dianping.pigeon.registry.util;
 
-import java.util.HashSet;
-import java.util.Set;
 
 public final class Constants {
 
@@ -15,41 +13,24 @@ public final class Constants {
 	public static final String CONFIG_TIMESTAMP = "TIMESTAMP";
 	public static final String SERVICE_PATH = "/DP/SERVER";
 	public static final String WEIGHT_PATH = "/DP/WEIGHT";
-	public static final String PLACEHOLD = "^";
-	public static final Set<String> avatarBizKeySet = new HashSet<String>();
-	static {
-		avatarBizKeySet.add("main.master.jdbc.url");
-		avatarBizKeySet.add("main.master.jdbc.username");
-		avatarBizKeySet.add("main.master.jdbc.password");
-		avatarBizKeySet.add("main.master.jdbc.driverClassName");
-		avatarBizKeySet.add("main.master.c3p0.minSize");
-		avatarBizKeySet.add("main.master.c3p0.maxSize");
-		avatarBizKeySet.add("main.master.c3p0.initialSize");
-		avatarBizKeySet.add("main.slave.jdbc.url");
-		avatarBizKeySet.add("main.slave.jdbc.username");
-		avatarBizKeySet.add("main.slave.jdbc.password");
-		avatarBizKeySet.add("main.slave.jdbc.driverClassName");
-		avatarBizKeySet.add("main.slave.c3p0.minSize");
-		avatarBizKeySet.add("main.slave.c3p0.maxSize");
-		avatarBizKeySet.add("main.slave.c3p0.initialSize");
-		avatarBizKeySet.add("sqlserver.jdbc.url");
-		avatarBizKeySet.add("sqlserver.jdbc.username");
-		avatarBizKeySet.add("sqlserver.jdbc.password");
-		avatarBizKeySet.add("sqlserver.jdbc.driverClassName");
-		avatarBizKeySet.add("sqlserver.c3p0.minSize");
-		avatarBizKeySet.add("sqlserver.c3p0.maxSize");
-		avatarBizKeySet.add("sqlserver.c3p0.initialSize");
-		avatarBizKeySet.add("mail.fromname");
-		avatarBizKeySet.add("mail.host");
-		avatarBizKeySet.add("mail.username");
-		avatarBizKeySet.add("mail.password");
-		avatarBizKeySet.add("mail.error.sender");
-		avatarBizKeySet.add("mail.error.receiver");
-		avatarBizKeySet.add("cache.jms.url");
-		avatarBizKeySet.add("cache.jms.topic.name");
-		avatarBizKeySet.add("cache.jms.username");
-		avatarBizKeySet.add("cache.jms.password");
-		avatarBizKeySet.add("remoteServer.cacheService");
-		avatarBizKeySet.add("Environment");
-	}
+	public static final String REGISTRY_PATH = "/DP/REGISTRY";
+	public static final String PATH_SEPARATOR = "/";
+	public static final String PLACEHOLDER = "^";
+
+	public static final String KEY_GROUP = "swimlane";
+	public static final String DEFAULT_GROUP = "";
+	public static final String KEY_WEIGHT = "weight";
+	public static final String DEFAULT_WEIGHT = "1";
+	public static final int MIN_WEIGHT = 0;
+	public static final int MAX_WEIGHT = 100;
+	public static final int DEFAULT_WEIGHT_INT = Integer.parseInt(DEFAULT_WEIGHT);
+	public static final String KEY_AUTO_REGISTER = "auto.register";
+	public static final String DEFAULT_AUTO_REGISTER = "false";
+	public static final boolean DEFAULT_AUTO_REGISTER_BOOL = Boolean.parseBoolean(DEFAULT_AUTO_REGISTER);
+	
+	public static final String KEY_REGISTRY_ADDRESS = "pigeon.registry.address";
+	public static final String KEY_REGISTRY_TYPE = "pigeon.registry.type";
+	public static final String REGISTRY_TYPE_ZOOKEEPER = "zookeeper";
+	public static final String REGISTRY_TYPE_LOCAL = "local";
+	public static final String DEFAULT_REGISTRY_TYPE = REGISTRY_TYPE_ZOOKEEPER;
 }

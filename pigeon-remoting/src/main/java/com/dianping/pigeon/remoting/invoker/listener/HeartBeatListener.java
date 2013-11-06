@@ -21,7 +21,7 @@ import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.component.HostInfo;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
-import com.dianping.pigeon.registry.cache.WeightCache;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -227,8 +227,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 				int working = 0;
 				if (workingClients_ != null) {
 					for (Client workingClient : workingClients_) {
-						int weight = WeightCache.getInstance().getWeightWithDefault(serviceName,
-								workingClient.getAddress());
+						int weight = RegistryManager.getInstance().getServiceWeight(workingClient.getAddress());
 						if (workingClient.isActive() && weight > 0) {
 							working++;
 						}
