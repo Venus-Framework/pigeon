@@ -7,8 +7,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
 
-import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 
@@ -16,17 +15,13 @@ public class ZookeeperWatcher implements Watcher {
 
 	private static Logger logger = Logger.getLogger(ZookeeperWatcher.class);
 	
-	private static final int UNKNOWN = 0;
 	private static final int ADDRESS = 1;
 	private static final int WEIGHT = 2;
 	
 	private ZookeeperRegistry zookeeperRegistry;
-	private String currentGroup;
 
 	public ZookeeperWatcher(ZookeeperRegistry zookeeperRegistry) {
 		this.zookeeperRegistry = zookeeperRegistry;
-		currentGroup = ExtensionLoader.getExtension(ConfigManager.class).getProperty(Constants.KEY_GROUP);
-		currentGroup = Utils.normalizeGroup(currentGroup);
 	}
 
 	@Override
@@ -70,10 +65,15 @@ public class ZookeeperWatcher implements Watcher {
 			logger.info("Service address changed, path " + pathInfo.path + " value " + newValue);
 			List<String[]> hostDetail = zookeeperRegistry.getServiceIpPortWeight(newValue);
 			zookeeperRegistry.getServiceChangeListener().onServiceHostChange(pathInfo.serviceName, hostDetail);
+		} else {
+			// Watch again
+			zookeeperRegistry.watchZkPath(pathInfo.path);
 		}
 	}
 
 	private boolean shouldNotify(PathInfo pathInfo) throws Exception {
+		String currentGroup = RegistryManager.getProperty(Constants.KEY_GROUP);
+		currentGroup = Utils.normalizeGroup(currentGroup);
 		if(currentGroup.equals(pathInfo.group))
 			return true;
 		if(Utils.isEmpty(currentGroup) && !Utils.isEmpty(pathInfo.group))

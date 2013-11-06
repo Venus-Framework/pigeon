@@ -146,14 +146,10 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 
 		@Override
 		public void providerAdded(ServiceProviderChangeEvent event) {
-			RegistryManager.getInstance().setServiceWeight(event.getConnect(), event.getWeight());
-			// todo
 		}
 
 		@Override
 		public void providerRemoved(ServiceProviderChangeEvent event) {
-			RegistryManager.getInstance().setServiceWeight(event.getConnect(), 0);
-			// todo
 		}
 	}
 

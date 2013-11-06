@@ -73,7 +73,7 @@ public class RegistryManager {
 	}
 
 	public void setProperties(Properties props) {
-		props.putAll(props);
+		this.props.putAll(props);
 	}
 
 	public String getServiceAddress(String serviceName, String group) throws RegistryException {
@@ -122,6 +122,7 @@ public class RegistryManager {
 			return;
 		}
 		hostInfo.setWeight(weight);
+		//TODO deal with weight 0
 		logger.info("Set " + serviceAddress + " weight to " + weight);
 	}
 
@@ -137,6 +138,7 @@ public class RegistryManager {
 		}
 	}
 	
+	// TODO multi thread support
 	public void addServiceServer(String serviceName, String connect, int weight) {
 		Utils.validateWeight(weight);
 		

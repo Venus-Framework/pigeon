@@ -6,11 +6,8 @@ package com.dianping.pigeon.registry.zookeeper;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -30,9 +27,6 @@ import com.dianping.pigeon.registry.util.Constants;
 public class ZookeeperRegistry implements Registry {
 
 	private static Logger logger = Logger.getLogger(ZookeeperRegistry.class);
-	
-	private Map<String, Integer> serviceWeightCache;
-	private Map<String, String> serviceAddressCache;
 	
 	private ZooKeeperWrapper zkClient;
 	private ZookeeperWatcher zkWatcher;
@@ -65,6 +59,9 @@ public class ZookeeperRegistry implements Registry {
 				if (this.zkClient.exists(Constants.WEIGHT_PATH, false) == null) {
 					this.zkClient.create(Constants.WEIGHT_PATH, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 				}
+				if (this.zkClient.exists(Constants.REGISTRY_PATH, false) == null) {
+					this.zkClient.create(Constants.REGISTRY_PATH, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+				}
 				this.zkWatcher = new ZookeeperWatcher(this);
 			} catch (Exception e) {
 				logger.error("", e);
@@ -76,11 +73,7 @@ public class ZookeeperRegistry implements Registry {
 
 	public void init(Properties properties) {
 		this.properties = properties;
-		
 		_init();
-
-		serviceWeightCache = new HashMap<String, Integer>();
-		serviceAddressCache = new ConcurrentHashMap<String, String>();
 	}
 
 	public ServiceChangeListener getServiceChangeListener() {
@@ -120,21 +113,6 @@ public class ZookeeperRegistry implements Registry {
 		return result;
 	}
 
-	public Integer getCachedServiceWeigth(String serviceAddress) {
-		Integer weight = serviceWeightCache.get(serviceAddress);
-		return weight;
-	}
-	
-	public String getCachedServiceAddress(String serviceName) {
-		return getCachedServiceAddress(serviceName, Constants.DEFAULT_GROUP);
-	}
-	
-	public String getCachedServiceAddress(String serviceName, String group) {
-		String path = Utils.getServicePath(serviceName, group);
-		String address = serviceAddressCache.get(path);
-		return address;
-	}
-
 	public ZooKeeperWrapper getZkClient() {
 		return zkClient;
 	}
@@ -152,32 +130,31 @@ public class ZookeeperRegistry implements Registry {
 	@Override
 	public String getServiceAddress(String serviceName, String group) throws RegistryException {
 		String path = Utils.getServicePath(serviceName, group);
-		if(serviceAddressCache.containsKey(path)) {
-			if (logger.isInfoEnabled()) {
-				logger.info("get service address from local cache, service name:" + path + "  address:"
-						+ serviceAddressCache.get(path));
-			}
-			return serviceAddressCache.get(path);
-		} else {
-			if(!Utils.isEmpty(group) && !zkExists(path)) {
-				logger.info(path + " does not exist. Fallback to default group");
-				path = Utils.getServicePath(serviceName, Constants.DEFAULT_GROUP);
-			}
-			String address = getZkValue(path);
-			if(address != null) {
-				if (logger.isInfoEnabled()) {
-					logger.info("get service address from zookeeper, service name:" + path + "  address:"
-							+ serviceAddressCache.get(path));
-				}
-				serviceAddressCache.put(path, address);
-			}
-			return address;
+		if(!Utils.isEmpty(group) && !zkExists(path)) {
+			logger.info(path + " does not exist. Fallback to default group");
+			path = Utils.getServicePath(serviceName, Constants.DEFAULT_GROUP);
 		}
+		String address = getZkValue(path);
+		if(address != null) {
+			if (logger.isInfoEnabled()) {
+				logger.info("get service address from zookeeper, service name:"
+						+ path + "  address:" + address);
+			}
+		}
+		return address;
 	}
 	
 	private boolean zkExists(String path) throws RegistryException {
 		try {
 			return zkClient.exists(path, false) != null;
+		} catch (Exception e) {
+			throw new RegistryException(e);
+		}
+	}
+	
+	public void watchZkPath(String path) throws RegistryException {
+		try {
+			zkClient.exists(path, zkWatcher);
 		} catch (Exception e) {
 			throw new RegistryException(e);
 		}
@@ -192,8 +169,7 @@ public class ZookeeperRegistry implements Registry {
 	public void publishService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
 		String result = publishService2Zookeeper(serviceName, group, serviceAddress, weight);
 		String path = Utils.getServicePath(serviceName, group);
-		serviceAddressCache.put(path, result);
-		logger.info("published service to registry:" + path);
+		logger.info("published service to registry path: " + path + " value: " + result);
 	}
 	
 	private String publishService2Zookeeper(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
@@ -229,20 +205,13 @@ public class ZookeeperRegistry implements Registry {
 
 	@Override
 	public int getServiceWeigth(String serviceAddress) throws RegistryException {
-		if (serviceWeightCache.containsKey(serviceAddress)) {
-			logger.info("get service weight from zookeeper, service address:" + serviceAddress + "  weight:"
-					+ serviceWeightCache.get(serviceAddress));
-			return serviceWeightCache.get(serviceAddress);
-		} else {
-			String path = Utils.getWeightPath(serviceAddress);
-			String strWeight = getZkValue(path);
-			Integer result = 1;
-			if (strWeight != null) {
-				result = Integer.parseInt(strWeight);
-			}
-			serviceWeightCache.put(serviceAddress, result);
-			return result;
+		String path = Utils.getWeightPath(serviceAddress);
+		String strWeight = getZkValue(path);
+		Integer result = 1;
+		if (strWeight != null) {
+			result = Integer.parseInt(strWeight);
 		}
+		return result;
 	}
 
 	@Override
