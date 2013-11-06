@@ -37,12 +37,11 @@ public final class ServiceMethodFactory {
 
 	public static ServiceMethod getMethod(String serviceName, String methodName, String[] paramClassNames)
 			throws ServiceException {
-		Map<String, Object> services = serviceFactory.getAllServices();
 		ServiceMethodCache serviceMethods = methods.get(serviceName);
 		if (serviceMethods == null) {
 			serviceMethods = methods.get(serviceName);
-
 			if (serviceMethods == null) {
+				Map<String, Object> services = serviceFactory.getAllServices();
 				Object service = services.get(serviceName);
 
 				if (service == null) {

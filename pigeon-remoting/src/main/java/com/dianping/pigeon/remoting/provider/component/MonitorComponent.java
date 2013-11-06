@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.extension.plugin.Component;
-import com.dianping.pigeon.remoting.provider.listener.SystemMonitorListener;
 
 public class MonitorComponent implements Component {
 
@@ -18,10 +17,10 @@ public class MonitorComponent implements Component {
 
 	@Override
 	public void init() {
-		if (logger.isInfoEnabled()) {
-			logger.info("初始化，开始注册事件监听器");
-		}
-		eventManager.addServiceListener(new SystemMonitorListener());
+//		if (logger.isInfoEnabled()) {
+//			logger.info("初始化，开始注册事件监听器");
+//		}
+		//eventManager.addServiceListener(new SystemMonitorListener());
 		// RequestProcessHandlerFactory.registerBizProcessFilter(ProcessPhase.Before_Write,
 		// new MonitorProcessFilter());
 

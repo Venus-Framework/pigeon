@@ -7,4 +7,4 @@ do
 done
 export CLASSPATH=$CLASSPATH
 
-nohup java -server -Xms128m -Xmx256m  -classpath $CLASSPATH  com.dianping.pigeon.test.client.benchmark.call.DefaultTest  > ./invoker.log &
+nohup java -server -Xms128m -Xmx512m  -classpath $CLASSPATH  com.dianping.pigeon.test.client.benchmark.call.DefaultTest  > ./invoker.log &

@@ -50,14 +50,10 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private void transferContextValueToProcessor(final ProviderContext processContext,
-			final InvocationRequest request) {
+	private void transferContextValueToProcessor(final ProviderContext processContext, final InvocationRequest request) {
 		Object contextHolder = request.getContext();
 		Map<String, Serializable> ctx = null;
-		if (contextHolder instanceof Map) {
-			ctx = (Map<String, Serializable>) contextHolder;
-		} else {
+		if (contextHolder != null) {
 			ContextUtils.setContext(contextHolder);
 			ctx = ContextUtils.getContextValues(contextHolder);
 		}
@@ -67,16 +63,14 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 				processContext.putContextValue(entry.getKey(), entry.getValue());
 			}
 		}
-
 	}
 
-	private void transferContextValueToResponse(final ProviderContext processContext,
-			final InvocationResponse response) {
+	private void transferContextValueToResponse(final ProviderContext processContext, final InvocationResponse response) {
 		Object contextHolder = ContextUtils.getContext();
 
 		Map<String, Serializable> contextValues = processContext.getContextValues();
 		if (contextHolder == null) {
-			//response.setContext(contextValues);
+			// response.setContext(contextValues);
 		} else {
 			if (contextValues != null) {
 				for (Map.Entry<String, Serializable> entry : contextValues.entrySet()) {
