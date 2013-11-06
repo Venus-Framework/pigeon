@@ -16,13 +16,14 @@ public final class ProviderBootStrapLoader {
 
 	private static volatile Map<Integer, Server> servers = new ConcurrentHashMap<Integer, Server>();
 
-	public static void startup(int port) {
-		if (servers.get(port) == null) {
+	public static Server startup(int port) {
+		Server server = servers.get(port);
+		if (server == null) {
 			synchronized (ProviderBootStrapLoader.class) {
 				if (servers.get(port) == null) {
 					RegistryConfigLoader.init();
 					RequestProcessHandlerLoader.init();
-					Server server = ExtensionLoader.getExtension(
+					server = ExtensionLoader.getExtension(
 							ServerFactory.class).createServer(port);
 					if (server != null) {
 						server.start();
@@ -31,6 +32,7 @@ public final class ProviderBootStrapLoader {
 				}
 			}
 		}
+		return server;
 	}
 
 	public static void shutdown(int port) {
@@ -43,5 +45,5 @@ public final class ProviderBootStrapLoader {
 			}
 		}
 	}
-
+	
 }

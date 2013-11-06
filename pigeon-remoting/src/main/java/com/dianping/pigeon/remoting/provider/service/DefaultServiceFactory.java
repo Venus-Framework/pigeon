@@ -32,19 +32,20 @@ public final class DefaultServiceFactory implements ServiceFactory {
 	public DefaultServiceFactory() {
 	}
 
-	public void addServices(Map<String, Object> services, int port) throws ServiceException {
+	public void addServices(Map<String, Object> services, String ip, int port) throws ServiceException {
 		for (String serviceName : services.keySet()) {
-			addService(serviceName, services.get(serviceName), port);
+			addService(serviceName, services.get(serviceName), ip, port);
 		}
 	}
 	
-	public void addService(String serviceName, Object service, int port)
+	public void addService(String serviceName, Object service, String ip, int port)
 			throws ServiceException {
 		if (!services.containsKey(serviceName)) {
 			try {
 				String autoRegister = configManager.getProperty(Constants.KEY_AUTO_REGISTER, Constants.DEFAULT_AUTO_REGISTER);
 				if("true".equalsIgnoreCase(autoRegister)) {
-					String ip = IpUtils.getFirstLocalIp();
+					if(ip==null)
+						ip = IpUtils.getFirstLocalIp();
 					String serviceAddress = ip + ":" + port;
 					String group = configManager.getProperty(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
 					String weight = configManager.getProperty(Constants.KEY_WEIGHT, Constants.DEFAULT_WEIGHT);

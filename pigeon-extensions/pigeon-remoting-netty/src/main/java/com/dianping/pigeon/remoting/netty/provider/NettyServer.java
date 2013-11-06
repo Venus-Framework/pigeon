@@ -5,6 +5,7 @@
 package com.dianping.pigeon.remoting.netty.provider;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,7 +40,7 @@ public class NettyServer implements Server, Disposable {
 
 	private Channel channel;
 
-	private boolean started = false;
+	private volatile boolean started = false;
 
 	public static final int DEFAULT_IO_THREADS = Runtime.getRuntime().availableProcessors() + 1;
 
@@ -128,6 +129,16 @@ public class NettyServer implements Server, Disposable {
 	@Override
 	public void destroy() {
 		this.stop();
+	}
+
+	@Override
+	public SocketAddress getAddress() {
+		return channel == null ? null : channel.getLocalAddress();
+	}
+
+	@Override
+	public boolean isStarted() {
+		return started;
 	}
 
 }

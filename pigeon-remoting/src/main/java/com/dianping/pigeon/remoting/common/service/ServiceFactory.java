@@ -19,10 +19,10 @@ public interface ServiceFactory {
 
 	Object getService(String serviceName);
 
-	void addService(String serviceName, Object serviceTarget, int port)
+	void addService(String serviceName, Object serviceTarget, String ip, int port)
 			throws ServiceException;
 
-	void addServices(Map<String, Object> services, int port)
+	void addServices(Map<String, Object> services, String ip, int port)
 			throws ServiceException;
 
 	Map<String, Object> getAllServices();

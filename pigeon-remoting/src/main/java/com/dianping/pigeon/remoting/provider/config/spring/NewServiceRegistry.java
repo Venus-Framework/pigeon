@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.remoting.provider.config.spring;
 
+import java.net.InetSocketAddress;
+
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
@@ -12,6 +14,7 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.loader.ProviderBootStrapLoader;
 
@@ -63,12 +66,17 @@ public class NewServiceRegistry {
 	 * @throws ServiceException
 	 */
 	public void init() throws ServiceException {
-		ProviderBootStrapLoader.startup(port);
+		Server server = ProviderBootStrapLoader.startup(port);
 		
 		if (serviceName == null) {
 			serviceName = serviceImpl.getClass().getInterfaces()[0].getName();
 		}
+		
+		String localip = null;
+		if(server.isStarted()) {
+			localip = ((InetSocketAddress)server.getAddress()).getAddress().getHostAddress();
+		}
 		ExtensionLoader.getExtension(ServiceFactory.class).addService(
-				serviceName, serviceImpl, port);
+				serviceName, serviceImpl, localip, port);
 	}
 }

@@ -101,6 +101,8 @@ public class RegistryConfigLoader {
 	private static boolean configLoaded(Properties props) {
 		if(props == null || props.size()==0)
 			return false;
-		return props.containsKey(Constants.KEY_GROUP);
+		return props.containsKey(Constants.KEY_GROUP) ||
+			   props.containsKey(Constants.KEY_WEIGHT) ||
+			   props.containsKey(Constants.KEY_AUTO_REGISTER);
 	}
 }
