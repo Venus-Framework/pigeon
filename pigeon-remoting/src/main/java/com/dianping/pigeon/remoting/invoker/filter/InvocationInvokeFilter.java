@@ -19,7 +19,6 @@ public abstract class InvocationInvokeFilter implements ServiceInvocationFilter<
 	}
 
 	public void beforeInvoke(InvocationRequest request, String addressIp) {
-
 		RpcInvokeInfo rpcInvokeInfo = new RpcInvokeInfo();
 		rpcInvokeInfo.setServiceName(request.getServiceName());
 		rpcInvokeInfo.setAddressIp(addressIp);
@@ -31,7 +30,6 @@ public abstract class InvocationInvokeFilter implements ServiceInvocationFilter<
 	}
 
 	public void afterInvoke(InvocationRequest request, Client client) {
-
 		RpcInvokeInfo rpcInvokeInfo = new RpcInvokeInfo();
 		rpcInvokeInfo.setServiceName(request.getServiceName());
 		long duration = System.currentTimeMillis() - request.getCreateMillisTime();

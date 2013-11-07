@@ -69,6 +69,7 @@ public class LoadBalanceManager {
 		if (balanceConfigFromLion != null) {
 			LoadBalance balanceFromLion = loadBalanceMap.get(balanceConfigFromLion);
 			if (balanceFromLion != null) {
+				loadBalanceMap.put(metaData.getLoadbalance(), balanceFromLion);
 				return balanceFromLion;
 			} else {
 				logError("Loadbalance[" + balanceConfigFromLion + "] set in lion is invalid, only support "

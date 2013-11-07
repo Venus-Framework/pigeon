@@ -21,9 +21,14 @@ public class ConfigLoader {
 		if (input != null) {
 			try {
 				properties.load(input);
-				input.close();
 			} catch (IOException e) {
 				logger.error("", e);
+			}
+		}
+		if (input != null) {
+			try {
+				input.close();
+			} catch (IOException e1) {
 			}
 		}
 		try {
