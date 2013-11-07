@@ -29,32 +29,27 @@ public class RegistryConfigLoader {
 	 * ConfigManager to get service configs.
 	 */
 	public static void init() {
-		Properties props = null;
+		Properties config = loadDefaultConfig();
 		
 		try {
-			props = loadFromFile();
+			Properties props = loadFromRegistry();
+			config.putAll(props);
+		} catch (RegistryException e) {
+			logger.error("Failed to load config from registry", e);
+		}
+		
+		try {
+			Properties props = loadFromFile();
+			config.putAll(props);
 		} catch (IOException e) {
 			logger.error("Failed to load config from " + ENV_FILE, e);
 		}
 		
-		if(!configLoaded(props)) {
-			try {
-				props = loadFromRegistry();
-			} catch (RegistryException e) {
-				logger.error("Failed to load config from registry", e);
-			}
-		}
-		
-		if(!configLoaded(props)) {
-			props = loadDefaultConfig();
-		} else {
-			props = normalizeConfig(props);
-		}
-		
-		ExtensionLoader.getExtension(ConfigManager.class).init(props);
-		RegistryManager.getInstance().init(props);
+		config = normalizeConfig(config);
+		ExtensionLoader.getExtension(ConfigManager.class).init(config);
+		RegistryManager.getInstance().init(config);
 	}
-
+	
 	private static Properties normalizeConfig(Properties props) {
 		// Strip trailing whitespace in property values
 		Properties newProps = new Properties();
