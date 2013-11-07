@@ -95,6 +95,7 @@ public final class Constants {
 	public static final String KEY_GROUP = "swimlane";
 	public static final String KEY_WEIGHT = "weight";
 	public static final String KEY_AUTO_REGISTER = "auto.register";
+	public static final String KEY_LOCAL_IP = "local.ip";
 	// Deafult value for the above keys
 	public static final String DEFAULT_GROUP = "";
 	public static final String DEFAULT_WEIGHT = "1";

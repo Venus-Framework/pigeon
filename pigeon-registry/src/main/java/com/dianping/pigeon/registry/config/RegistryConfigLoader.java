@@ -103,6 +103,7 @@ public class RegistryConfigLoader {
 			return false;
 		return props.containsKey(Constants.KEY_GROUP) ||
 			   props.containsKey(Constants.KEY_WEIGHT) ||
-			   props.containsKey(Constants.KEY_AUTO_REGISTER);
+			   props.containsKey(Constants.KEY_AUTO_REGISTER) ||
+			   props.containsKey(Constants.KEY_LOCAL_IP);
 	}
 }

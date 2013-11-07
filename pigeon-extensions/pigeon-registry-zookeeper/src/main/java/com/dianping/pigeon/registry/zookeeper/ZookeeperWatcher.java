@@ -72,7 +72,7 @@ public class ZookeeperWatcher implements Watcher {
 	}
 
 	private boolean shouldNotify(PathInfo pathInfo) throws Exception {
-		String currentGroup = RegistryManager.getProperty(Constants.KEY_GROUP);
+		String currentGroup = RegistryManager.getInstance().getProperty(Constants.KEY_GROUP);
 		currentGroup = Utils.normalizeGroup(currentGroup);
 		if(currentGroup.equals(pathInfo.group))
 			return true;

@@ -26,19 +26,19 @@ public class RegistryManager {
 
 	private static final Logger logger = Logger.getLogger(RegistryManager.class);
 
-	private static Properties props = new Properties();
+	private Properties props = new Properties();
 
 	private static boolean isInit = false;
 
-	private static Registry registry = ExtensionLoader.getExtension(Registry.class);
-
-	private static RegistryConfigManager registryConfigManager = new DefaultRegistryConfigManager();
-
 	private static RegistryManager instance = new RegistryManager();
 
-	private static Map<String, Set<HostInfo>> serviceNameToHostInfos = new ConcurrentHashMap<String, Set<HostInfo>>();
+	private static RegistryConfigManager registryConfigManager = new DefaultRegistryConfigManager();
 	
-	private static Map<String, HostInfo> serviceAddrToHostInfo = new ConcurrentHashMap<String, HostInfo>();
+	private Registry registry = ExtensionLoader.getExtension(Registry.class);
+
+	private Map<String, Set<HostInfo>> serviceNameToHostInfos = new ConcurrentHashMap<String, Set<HostInfo>>();
+	
+	private Map<String, HostInfo> serviceAddrToHostInfo = new ConcurrentHashMap<String, HostInfo>();
 	
 	private RegistryManager() {
 	}
@@ -62,12 +62,12 @@ public class RegistryManager {
 		}
 	}
 
-	public static String getProperty(String key) throws RegistryException {
+	public String getProperty(String key) {
 		String v = props.getProperty(key);
 		return v;
 	}
 
-	public static void setProperty(String key, String value) {
+	public void setProperty(String key, String value) {
 		// 如果是dev环境，可以把当前配置加载进去
 		props.put(key, value);
 	}

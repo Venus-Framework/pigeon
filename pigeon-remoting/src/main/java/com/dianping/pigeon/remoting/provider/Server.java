@@ -4,7 +4,6 @@
  */
 package com.dianping.pigeon.remoting.provider;
 
-import java.net.SocketAddress;
 
 /**
  * 
@@ -17,9 +16,5 @@ public interface Server {
 	void start();
 
 	void stop();
-	
-	SocketAddress getAddress();
-
-	boolean isStarted();
 	
 }

@@ -78,7 +78,7 @@ public class BaseInvokerTest {
 				factory.setLoadbalance(test.loadbalance());
 				factory.setVip(test.vip());
 				factory.setTestVip(test.testVip());
-				RegistryManager.setProperty("env", test.env());
+				RegistryManager.getInstance().setProperty("env", test.env());
 				if (!test.callback().equals("null")) {
 					callback = (ServiceCallback) Class.forName(test.callback()).newInstance();
 					factory.setCallback(callback);
