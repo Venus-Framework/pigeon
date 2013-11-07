@@ -98,6 +98,6 @@ public final class Constants {
 	// Deafult value for the above keys
 	public static final String DEFAULT_GROUP = "";
 	public static final String DEFAULT_WEIGHT = "1";
-	public static final int DEFAULT_WEIGHT_INT = 1;
-	public static final String DEFAULT_AUTO_REGISTER = "false";
+	public static final int DEFAULT_WEIGHT_INT = Integer.parseInt(DEFAULT_WEIGHT);
+	public static final String DEFAULT_AUTO_REGISTER = "true";
 }

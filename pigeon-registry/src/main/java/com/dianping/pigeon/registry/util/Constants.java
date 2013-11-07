@@ -25,7 +25,7 @@ public final class Constants {
 	public static final int MAX_WEIGHT = 100;
 	public static final int DEFAULT_WEIGHT_INT = Integer.parseInt(DEFAULT_WEIGHT);
 	public static final String KEY_AUTO_REGISTER = "auto.register";
-	public static final String DEFAULT_AUTO_REGISTER = "false";
+	public static final String DEFAULT_AUTO_REGISTER = "true";
 	public static final boolean DEFAULT_AUTO_REGISTER_BOOL = Boolean.parseBoolean(DEFAULT_AUTO_REGISTER);
 	
 	public static final String KEY_REGISTRY_ADDRESS = "pigeon.registry.address";
