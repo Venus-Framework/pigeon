@@ -9,13 +9,14 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.invoker.component.RemoteInvocationBean;
 import com.dianping.pigeon.remoting.invoker.component.async.Callback;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 
 public class InvocationTimeoutListener implements Runnable {
 
-	private static final Logger logger = Logger.getLogger(InvocationTimeoutListener.class);
+	private static final Logger logger = Log4jLoader.getLogger(InvocationTimeoutListener.class);
 
 	private Map<Long, RemoteInvocationBean> invocations;
 

@@ -8,12 +8,13 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.spring.ProxyBeanFactory;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 import com.dianping.pigeon.test.client.loader.SpringLoader;
 
 public class BalanceBaseTest {
 
-	private static final Logger logger = Logger.getLogger(BalanceBaseTest.class);
+	private static final Logger logger = Log4jLoader.getLogger(BalanceBaseTest.class);
 
 	protected static final int CLIENT_NUM = 10;
 	protected CountDownLatch clientLatch = new CountDownLatch(CLIENT_NUM);

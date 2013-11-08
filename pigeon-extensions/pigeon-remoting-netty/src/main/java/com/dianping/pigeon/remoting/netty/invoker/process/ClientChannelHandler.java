@@ -19,6 +19,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
@@ -28,7 +29,7 @@ import com.dianping.pigeon.threadpool.ThreadPool;
 
 public class ClientChannelHandler extends SimpleChannelUpstreamHandler {
 
-	private static final Logger log = Logger.getLogger(ClientChannelHandler.class);
+	private static final Logger log = Log4jLoader.getLogger(ClientChannelHandler.class);
 
 	private Client client;
 

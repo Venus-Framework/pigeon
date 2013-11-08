@@ -7,12 +7,13 @@ package com.dianping.pigeon.test.service;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.util.IpUtils;
 
 public class EchoServiceImpl implements EchoService {
 
-	Logger logger = Logger.getLogger(EchoServiceImpl.class);
+	Logger logger = Log4jLoader.getLogger(EchoServiceImpl.class);
 	
 	@Override
 	public String echo(String input) {

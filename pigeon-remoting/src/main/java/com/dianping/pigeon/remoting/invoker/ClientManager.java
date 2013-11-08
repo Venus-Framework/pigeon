@@ -5,7 +5,6 @@
 package com.dianping.pigeon.remoting.invoker;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +19,7 @@ import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.component.phase.Disposable;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
@@ -38,7 +38,7 @@ import com.dianping.pigeon.threadpool.ThreadPool;
 
 public class ClientManager implements Disposable {
 
-	private static final Logger logger = Logger.getLogger(ClientManager.class);
+	private static final Logger logger = Log4jLoader.getLogger(ClientManager.class);
 
 	private ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 

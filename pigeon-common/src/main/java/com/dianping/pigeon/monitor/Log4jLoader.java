@@ -10,6 +10,7 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Appender;
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Hierarchy;
 import org.apache.log4j.Level;
@@ -34,9 +35,9 @@ public class Log4jLoader {
 	private Log4jLoader() {
 	}
 
-	private static final String LOGGER_NAME = "pigeon";
+	private static final String LOGGER_NAME = "com.dianping.pigeon";
 	public static final Log log = LogFactory.getLog(LOGGER_NAME);
-	public static final Logger rootLogger = new RootLogger(Level.DEBUG);
+	public static final Logger rootLogger = new RootLogger(Level.WARN);
 	private static LoggerRepository loggerRepository = null;
 	private static Level level = Level.WARN;
 	private static volatile boolean initOK = false;
@@ -45,14 +46,13 @@ public class Log4jLoader {
 		if (initOK) {
 			return;
 		}
-
 		Properties logPro = new Properties();
 		String logLevel = "warn";
 		String logSuffix = "default";
 		try {
 			logPro.load(Log4jLoader.class.getClassLoader().getResourceAsStream("config/applicationContext.properties"));
-			logLevel = logPro.get("pigeon.logLevel") == null ? null : logPro.get("pigeon.logLevel").toString();
-			logSuffix = logPro.get("pigeon.logSuffix").toString();
+			logLevel = logPro.getProperty("pigeon.logLevel") == null ? null : logPro.getProperty("pigeon.logLevel");
+			logSuffix = logPro.getProperty("pigeon.logSuffix");
 		} catch (Exception e) {
 			log.warn("no pigeon log config found in config/applicationContext.properties");
 		}
@@ -73,19 +73,16 @@ public class Log4jLoader {
 		} else if (logLevel != null && logLevel.equalsIgnoreCase("error")) {
 			level = Level.ERROR;
 		}
-
 		LoggerRepository lr = new Hierarchy(rootLogger);
-
 		new DOMConfigurator().doConfigure(Log4jLoader.class.getClassLoader().getResource("pigeon_log4j.xml"), lr);
-
+		rootLogger.setLevel(level);
+		
 		String osName = System.getProperty("os.name");
 		String bizLogDir = null;
 		if (osName != null && osName.toLowerCase().indexOf("windows") > -1) {
 			bizLogDir = "d:/";
 		}
-		FileAppender fileAppender = null;
-		for (Enumeration<?> appenders = lr.getLogger(LOGGER_NAME).getAllAppenders(); (null == fileAppender)
-				&& appenders.hasMoreElements();) {
+		for (Enumeration<?> appenders = lr.getLogger(LOGGER_NAME).getAllAppenders(); appenders.hasMoreElements();) {
 			Appender appender = (Appender) appenders.nextElement();
 			if (FileAppender.class.isInstance(appender)) {
 				FileAppender logFileAppender = (FileAppender) appender;
@@ -96,7 +93,6 @@ public class Log4jLoader {
 					logFileName = logFileName.replace(".log", "." + logSuffix + ".log");
 				}
 				if (bizLogDir != null) {
-
 					File logFile = new File(bizLogDir, logFileName);
 					logFileName = logFile.getAbsolutePath();
 				}
@@ -108,6 +104,9 @@ public class Log4jLoader {
 					}
 					log.warn(logFileAppender.getFile() + "的输出路径改变为:" + logFileName);
 				}
+			} else if (ConsoleAppender.class.isInstance(appender)) {
+				ConsoleAppender consoleAppender = (ConsoleAppender) appender;
+				consoleAppender.setThreshold(level);
 			}
 		}
 

@@ -7,9 +7,11 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.monitor.Log4jLoader;
+
 public class ServiceBarrelExpiredRequestChecker extends Thread {
 
-	private static final Logger logger = Logger.getLogger(ServiceBarrelExpiredRequestChecker.class);
+	private static final Logger logger = Log4jLoader.getLogger(ServiceBarrelExpiredRequestChecker.class);
 	private static int nextThreadNumber = 0;
 
 	public ServiceBarrelExpiredRequestChecker() {

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.FactoryBean;
 import com.dianping.pigeon.component.QueryString;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -42,7 +43,7 @@ import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationProxy;
  */
 public class ProxyBeanFactory implements FactoryBean {
 
-	private static final Logger logger = Logger.getLogger("pigeon_service");
+	private static final Logger logger = Log4jLoader.getLogger("pigeon_service");
 
 	private static AtomicInteger groupId = new AtomicInteger(0);
 

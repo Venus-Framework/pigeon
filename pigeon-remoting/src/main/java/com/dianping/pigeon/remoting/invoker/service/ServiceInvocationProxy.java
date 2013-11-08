@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
@@ -18,7 +19,7 @@ import com.dianping.pigeon.remoting.invoker.component.context.DefaultInvokerCont
 
 public class ServiceInvocationProxy implements InvocationHandler {
 
-	private static final Logger logger = Logger.getLogger(ServiceInvocationProxy.class);
+	private static final Logger logger = Log4jLoader.getLogger(ServiceInvocationProxy.class);
 	private InvokerMetaData metaData;
 	private ServiceInvocationHandler handler;
 

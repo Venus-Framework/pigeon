@@ -8,12 +8,13 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.HostInfo;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.util.Constants;
 
 public class DefaultServiceChangeListener implements ServiceChangeListener {
 
-	private static final Logger logger = Logger.getLogger(DefaultServiceChangeListener.class);
+	private static final Logger logger = Log4jLoader.getLogger(DefaultServiceChangeListener.class);
 
 	private final static int WEIGHT_DEFAULT = 1;
 

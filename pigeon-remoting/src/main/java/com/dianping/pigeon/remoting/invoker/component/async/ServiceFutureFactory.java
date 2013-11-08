@@ -6,9 +6,11 @@ package com.dianping.pigeon.remoting.invoker.component.async;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.monitor.Log4jLoader;
+
 public final class ServiceFutureFactory {
 
-	private static final Logger log = Logger.getLogger(ServiceFutureFactory.class);
+	private static final Logger log = Log4jLoader.getLogger(ServiceFutureFactory.class);
 
 	private static ThreadLocal<ServiceFuture> threadFuture = new ThreadLocal<ServiceFuture>();
 

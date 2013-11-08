@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.registry.config.DefaultRegistryConfigManager;
 import com.dianping.pigeon.registry.config.RegistryConfigManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
@@ -24,7 +25,7 @@ import com.dianping.pigeon.util.IpUtils;
 
 public class RegistryManager {
 
-	private static final Logger logger = Logger.getLogger(RegistryManager.class);
+	private static final Logger logger = Log4jLoader.getLogger(RegistryManager.class);
 
 	private Properties props = new Properties();
 

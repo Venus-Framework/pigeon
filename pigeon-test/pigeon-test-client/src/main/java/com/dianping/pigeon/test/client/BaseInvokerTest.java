@@ -12,6 +12,7 @@ import org.junit.Before;
 
 import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.component.QueryString;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.test.client.loader.ConfigLoader;
@@ -19,7 +20,7 @@ import com.dianping.pigeon.test.client.loader.SpringLoader;
 
 public class BaseInvokerTest {
 
-	private static final Logger logger = Logger.getLogger(BaseInvokerTest.class);
+	private static final Logger logger = Log4jLoader.getLogger(BaseInvokerTest.class);
 
 	protected ServiceCallback callback = null;
 

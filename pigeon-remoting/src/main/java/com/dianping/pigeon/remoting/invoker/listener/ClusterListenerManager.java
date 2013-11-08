@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.phase.Disposable;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
@@ -18,7 +19,7 @@ import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
 
 public class ClusterListenerManager implements Disposable {
 
-	private static final Logger logger = Logger.getLogger(ClusterListenerManager.class);
+	private static final Logger logger = Log4jLoader.getLogger(ClusterListenerManager.class);
 
 	public static final String PLACEHOLDER = ":";
 

@@ -11,6 +11,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.monitor.Log4jLoader;
+
 /**
  * 
  * 
@@ -24,7 +26,7 @@ public final class ContextUtils {
 
 	}
 
-	private static final Logger logger = Logger.getLogger(ContextUtils.class);
+	private static final Logger logger = Log4jLoader.getLogger(ContextUtils.class);
 
 	public static final String TRAC_ORDER = "tracker_order";
 

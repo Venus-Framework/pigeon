@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationContext;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
@@ -28,7 +29,7 @@ import com.dianping.pigeon.remoting.provider.filter.WriteResponseProcessFilter;
 
 public final class RequestProcessHandlerLoader {
 
-	private static final Logger logger = Logger.getLogger(RequestProcessHandlerLoader.class);
+	private static final Logger logger = Log4jLoader.getLogger(RequestProcessHandlerLoader.class);
 
 	private static Map<ProcessPhase, List<ServiceInvocationFilter<ProviderContext>>> bizProcessFilters = new LinkedHashMap<ProcessPhase, List<ServiceInvocationFilter<ProviderContext>>>();
 

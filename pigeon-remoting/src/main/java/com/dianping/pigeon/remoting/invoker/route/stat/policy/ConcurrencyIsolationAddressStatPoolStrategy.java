@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.invoker.route.stat.DpsfAddressStatPool;
 import com.dianping.pigeon.remoting.invoker.route.stat.DpsfAddressStatPool.AddressStat;
 import com.dianping.pigeon.remoting.invoker.route.stat.support.AddressConstant;
@@ -25,7 +26,7 @@ public class ConcurrencyIsolationAddressStatPoolStrategy implements DpsfAddressS
 
 	protected Object lockObj = new Object();
 
-	private static final Logger logger = Logger.getLogger(ConcurrencyIsolationAddressStatPoolStrategy.class.getName());
+	private static final Logger logger = Log4jLoader.getLogger(ConcurrencyIsolationAddressStatPoolStrategy.class.getName());
 
 	// TODO 这个参数需要配置在loin里面去。
 	private static final float factorValue = 3; // 最大的并发不能大于平均数的3倍。

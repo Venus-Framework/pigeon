@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -29,7 +30,7 @@ import com.dianping.pigeon.util.ContextUtils;
  */
 public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
-	private static final Logger logger = Logger.getLogger(BusinessProcessFilter.class);
+	private static final Logger logger = Log4jLoader.getLogger(BusinessProcessFilter.class);
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)

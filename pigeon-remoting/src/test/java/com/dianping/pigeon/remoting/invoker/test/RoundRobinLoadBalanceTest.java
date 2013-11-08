@@ -4,10 +4,11 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.invoker.route.balance.RoundRobinLoadBalance;
 
 public class RoundRobinLoadBalanceTest extends LoadBalanceBaseTest {
-	Logger logger = Logger.getLogger(RoundRobinLoadBalanceTest.class);
+	Logger logger = Log4jLoader.getLogger(RoundRobinLoadBalanceTest.class);
 
 	@Test
 	public void test() {

@@ -6,13 +6,13 @@ package com.dianping.pigeon.remoting.invoker.route;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NoConnectionException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.phase.Disposable;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
@@ -31,7 +31,7 @@ import com.dianping.pigeon.remoting.invoker.route.balance.RoundRobinLoadBalance;
 
 public class DefaultRouteManager implements RouteManager, Disposable {
 
-	private static final Logger logger = Logger.getLogger(DefaultRouteManager.class);
+	private static final Logger logger = Log4jLoader.getLogger(DefaultRouteManager.class);
 
 	private static final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 

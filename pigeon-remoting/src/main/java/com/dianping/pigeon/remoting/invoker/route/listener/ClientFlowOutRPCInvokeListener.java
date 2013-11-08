@@ -21,7 +21,7 @@ import com.dianping.pigeon.remoting.invoker.route.stat.barrel.ServerStatBarrelsH
 public class ClientFlowOutRPCInvokeListener extends AbstractRPCInvokeListener {
 
 	// private static final Logger logger =
-	// Logger.getLogger(ClientFlowOutRPCInvokeListener.class
+	// Log4jLoader.getLogger(ClientFlowOutRPCInvokeListener.class
 	// .getName());
 
 	private static Set<Type> eventNames = new HashSet<Type>();

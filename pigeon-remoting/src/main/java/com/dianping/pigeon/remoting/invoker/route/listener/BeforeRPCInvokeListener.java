@@ -18,7 +18,7 @@ import com.dianping.pigeon.remoting.invoker.route.stat.barrel.ServerStatBarrelsH
 public class BeforeRPCInvokeListener extends AbstractRPCInvokeListener {
 
 	// private static final Logger logger =
-	// Logger.getLogger(BeforeRPCInvokeListener.class.getName());
+	// Log4jLoader.getLogger(BeforeRPCInvokeListener.class.getName());
 
 	public void handleEvent(RuntimeServiceEvent event) {
 

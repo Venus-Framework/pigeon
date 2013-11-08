@@ -20,13 +20,14 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 
 import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.serialize.SerializerFactory;
 
 public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder {
 
-	private static final Logger logger = Logger.getLogger(AbstractDecoder.class);
+	private static final Logger logger = Log4jLoader.getLogger(AbstractDecoder.class);
 
 	public Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws IOException,
 			ClassNotFoundException {

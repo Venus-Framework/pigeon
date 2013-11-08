@@ -16,6 +16,7 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import com.dianping.pigeon.component.phase.Disposable;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.netty.provider.process.RequestProcessor;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.threadpool.NamedThreadFactory;
@@ -28,7 +29,7 @@ import com.dianping.pigeon.threadpool.NamedThreadFactory;
  */
 public class NettyServer implements Server, Disposable {
 
-	private static final Logger logger = Logger.getLogger(NettyServer.class);
+	private static final Logger logger = Log4jLoader.getLogger(NettyServer.class);
 
 	private String ip = null;
 

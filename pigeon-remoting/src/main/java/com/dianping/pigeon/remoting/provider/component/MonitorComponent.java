@@ -8,10 +8,11 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.extension.plugin.Component;
+import com.dianping.pigeon.monitor.Log4jLoader;
 
 public class MonitorComponent implements Component {
 
-	private static final Logger logger = Logger.getLogger(MonitorComponent.class);
+	private static final Logger logger = Log4jLoader.getLogger(MonitorComponent.class);
 
 	private static EventManager eventManager = EventManager.getInstance();
 

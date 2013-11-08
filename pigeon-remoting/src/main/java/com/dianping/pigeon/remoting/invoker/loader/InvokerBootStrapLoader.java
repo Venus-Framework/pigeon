@@ -6,13 +6,14 @@ package com.dianping.pigeon.remoting.invoker.loader;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 
 public final class InvokerBootStrapLoader {
 
-	private static final Logger logger = Logger.getLogger(InvokerBootStrapLoader.class);
+	private static final Logger logger = Log4jLoader.getLogger(InvokerBootStrapLoader.class);
 
 	private static volatile boolean isStartup = false;
 

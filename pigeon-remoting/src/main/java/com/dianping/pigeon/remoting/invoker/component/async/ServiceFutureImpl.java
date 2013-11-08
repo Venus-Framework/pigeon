@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.util.Constants;
 
@@ -22,7 +23,7 @@ import com.dianping.pigeon.remoting.common.util.Constants;
  */
 public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 
-	private static final Logger logger = Logger.getLogger(ServiceFutureImpl.class);
+	private static final Logger logger = Log4jLoader.getLogger(ServiceFutureImpl.class);
 
 	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(MonitorLogger.class);
 

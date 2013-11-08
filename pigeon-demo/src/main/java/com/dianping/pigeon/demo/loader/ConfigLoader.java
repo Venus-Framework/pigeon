@@ -8,12 +8,13 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.monitor.Log4jLoader;
 
 public class ConfigLoader {
 
 	private static final String PROPERTIES_PATH = "config/applicationContext.properties";
 
-	private static final Logger logger = Logger.getLogger(ConfigLoader.class);
+	private static final Logger logger = Log4jLoader.getLogger(ConfigLoader.class);
 
 	public static void init() {
 		Properties properties = new Properties();

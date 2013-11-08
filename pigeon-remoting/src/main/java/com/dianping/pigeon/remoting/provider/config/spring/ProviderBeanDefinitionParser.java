@@ -14,10 +14,9 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import com.dianping.pigeon.component.QueryString;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 
@@ -35,7 +34,7 @@ public class ProviderBeanDefinitionParser implements BeanDefinitionParser {
 	/** Default placeholder suffix: "}" */
 	public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
 
-	private static final Logger logger = Logger.getLogger(ProviderBeanDefinitionParser.class);
+	private static final Logger logger = Log4jLoader.getLogger(ProviderBeanDefinitionParser.class);
 
 	private final Class<?> beanClass;
 

@@ -6,11 +6,12 @@ import java.util.concurrent.ConcurrentMap;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 
 public final class ServerStatBarrelsHolder {
 
-	private static final Logger logger = Logger.getLogger(ServerStatBarrelsHolder.class);
+	private static final Logger logger = Log4jLoader.getLogger(ServerStatBarrelsHolder.class);
 	public static ConcurrentMap<String, ServiceBarrel> serverStatBarrels = new ConcurrentHashMap<String, ServiceBarrel>();
 
 	public static float getCapacity(String server) {

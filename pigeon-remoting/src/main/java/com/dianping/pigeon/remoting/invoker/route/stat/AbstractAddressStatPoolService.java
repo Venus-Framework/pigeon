@@ -15,6 +15,7 @@ import java.util.concurrent.ThreadFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.invoker.route.stat.DpsfAddressStatPool.AddressStat;
 import com.dianping.pigeon.remoting.invoker.route.stat.policy.DpsfAddressStatPoolStrategy;
 
@@ -34,7 +35,7 @@ public abstract class AbstractAddressStatPoolService implements DpsfAddressStatP
 
 	private SchedulerThreadPool analysisScheduler = new SchedulerThreadPool(5);
 
-	private static final Logger logger = Logger.getLogger(AbstractAddressStatPoolService.class.getName());
+	private static final Logger logger = Log4jLoader.getLogger(AbstractAddressStatPoolService.class.getName());
 
 	public Map<String, DpsfAddressStatPool> getAddressStatPools() {
 		return this.addressStatPools;

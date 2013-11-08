@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -17,7 +18,7 @@ import com.dianping.pigeon.util.IpUtils;
 
 public class NewServiceRegistry {
 
-	private static final Logger logger = Logger.getLogger(NewServiceRegistry.class);
+	private static final Logger logger = Log4jLoader.getLogger(NewServiceRegistry.class);
 
 	private String serviceName;
 	private Object serviceImpl;

@@ -7,6 +7,7 @@ package com.dianping.pigeon.remoting.invoker.route.listener;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.event.RuntimeServiceEvent;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.invoker.component.RpcInvokeInfo;
 import com.dianping.pigeon.remoting.invoker.route.stat.barrel.ServerStatBarrelsHolder;
 
@@ -18,7 +19,7 @@ import com.dianping.pigeon.remoting.invoker.route.stat.barrel.ServerStatBarrelsH
  */
 public class ConnectExceptionInRPCInvokeListener extends AbstractRPCInvokeListener {
 
-	private static final Logger logger = Logger.getLogger(ConnectExceptionInRPCInvokeListener.class.getName());
+	private static final Logger logger = Log4jLoader.getLogger(ConnectExceptionInRPCInvokeListener.class.getName());
 
 	public void handleEvent(RuntimeServiceEvent event) {
 

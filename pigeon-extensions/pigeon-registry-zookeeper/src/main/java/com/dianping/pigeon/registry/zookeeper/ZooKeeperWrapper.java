@@ -20,9 +20,11 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
 
+import com.dianping.pigeon.monitor.Log4jLoader;
+
 public class ZooKeeperWrapper {
 
-	private static Logger logger = Logger.getLogger(ZooKeeperWrapper.class);
+	private static Logger logger = Log4jLoader.getLogger(ZooKeeperWrapper.class);
 	private ZooKeeper zk;
 
 	private String addresses;

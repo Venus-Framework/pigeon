@@ -13,6 +13,7 @@ import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.common.component.RequestError;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
@@ -28,7 +29,7 @@ import com.dianping.pigeon.util.ContextUtils;
  */
 public class CallbackFuture implements Callback, CallFuture {
 
-	private static final Logger logger = Logger.getLogger(CallbackFuture.class);
+	private static final Logger logger = Log4jLoader.getLogger(CallbackFuture.class);
 
 	private InvocationResponse response;
 

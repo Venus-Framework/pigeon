@@ -19,7 +19,7 @@ import com.dianping.pigeon.remoting.invoker.Client;
 public class RandomLoadBalance extends AbstractLoadBalance {
 
 	// private static final Logger logger =
-	// Logger.getLogger(RandomLoadBalance.class);
+	// Log4jLoader.getLogger(RandomLoadBalance.class);
 
 	public static final String NAME = "random";
 

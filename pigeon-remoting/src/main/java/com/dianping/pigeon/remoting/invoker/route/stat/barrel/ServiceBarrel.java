@@ -15,11 +15,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 
 @SuppressWarnings("serial")
 public class ServiceBarrel implements Serializable {
-	private static final Logger logger = Logger.getLogger(ServiceBarrel.class);
+	private static final Logger logger = Log4jLoader.getLogger(ServiceBarrel.class);
 
 	private String address;
 	private volatile float capacity = 0f;

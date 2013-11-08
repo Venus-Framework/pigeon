@@ -11,11 +11,12 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadAutoawareLoadBalance;
 
 public class RemotingConfigurer {
 
-	private static final Logger logger = Logger.getLogger(RemotingConfigurer.class);
+	private static final Logger logger = Log4jLoader.getLogger(RemotingConfigurer.class);
 
 	private static final ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 

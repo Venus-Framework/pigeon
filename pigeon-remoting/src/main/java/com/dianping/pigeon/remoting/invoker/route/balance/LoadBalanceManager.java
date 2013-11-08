@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
 
@@ -21,7 +22,7 @@ import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
  */
 public class LoadBalanceManager {
 
-	private static final Logger logger = Logger.getLogger(LoadBalanceManager.class);
+	private static final Logger logger = Log4jLoader.getLogger(LoadBalanceManager.class);
 
 	private static Map<String, LoadBalance> loadBalanceMap = new HashMap<String, LoadBalance>();
 

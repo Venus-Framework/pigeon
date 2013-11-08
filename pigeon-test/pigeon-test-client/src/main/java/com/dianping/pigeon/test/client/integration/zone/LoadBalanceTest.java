@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.test.client.BalanceBaseTest;
 import com.dianping.pigeon.test.client.PigeonAutoTest;
 import com.dianping.pigeon.test.service.EchoService;
@@ -18,7 +19,7 @@ public class LoadBalanceTest extends BalanceBaseTest {
 	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService_dpsf/echoService_1.0.0")
 	public EchoService echoService2;
 
-	private static Logger logger = Logger.getLogger(LoadBalanceTest.class);
+	private static Logger logger = Log4jLoader.getLogger(LoadBalanceTest.class);
 
 	public List<Integer> getPorts() {
 		List<Integer> ports = new ArrayList<Integer>();

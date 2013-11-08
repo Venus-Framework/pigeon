@@ -11,6 +11,7 @@ import com.dianping.cat.message.Event;
 import com.dianping.cat.message.MessageProducer;
 import com.dianping.cat.message.Transaction;
 import com.dianping.pigeon.component.invocation.InvocationContext;
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 
@@ -21,7 +22,7 @@ import com.dianping.pigeon.monitor.MonitorTransaction;
  */
 public class CatLogger implements MonitorLogger {
 
-	private static final Logger logger = Logger.getLogger(CatLogger.class);
+	private static final Logger logger = Log4jLoader.getLogger(CatLogger.class);
 	private volatile long errorCounter = 0L;
 	private MessageProducer producer = null;
 

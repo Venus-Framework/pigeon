@@ -12,6 +12,7 @@ import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
 import com.dianping.lion.client.LionException;
 import com.dianping.pigeon.config.AbstractConfigManager;
+import com.dianping.pigeon.monitor.Log4jLoader;
 
 /**
  * @author xiangwu
@@ -20,7 +21,7 @@ import com.dianping.pigeon.config.AbstractConfigManager;
  */
 public class LionConfigManager extends AbstractConfigManager {
 
-	private static Logger logger = Logger.getLogger(LionConfigManager.class);
+	private static Logger logger = Log4jLoader.getLogger(LionConfigManager.class);
 	
 	Properties localCache = new Properties();
 

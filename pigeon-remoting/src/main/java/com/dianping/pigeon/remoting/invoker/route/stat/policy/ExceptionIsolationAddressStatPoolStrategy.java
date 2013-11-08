@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.monitor.Log4jLoader;
 import com.dianping.pigeon.remoting.invoker.route.stat.DpsfAddressStatPool;
 import com.dianping.pigeon.remoting.invoker.route.stat.DpsfAddressStatPool.AddressStat;
 import com.dianping.pigeon.remoting.invoker.route.stat.support.AddressConstant;
@@ -26,7 +27,7 @@ public class ExceptionIsolationAddressStatPoolStrategy implements DpsfAddressSta
 
 	protected Object lockObj = new Object();
 
-	private static final Logger logger = Logger.getLogger(ExceptionIsolationAddressStatPoolStrategy.class
+	private static final Logger logger = Log4jLoader.getLogger(ExceptionIsolationAddressStatPoolStrategy.class
 
 	.getName());
 
