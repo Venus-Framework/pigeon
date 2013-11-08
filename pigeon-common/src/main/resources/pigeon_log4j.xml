@@ -9,7 +9,7 @@
 	</appender>
 
 	<appender name="FileAppender" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="file" value="/data/applogs/dpsflog/dpsf.log" />
+		<param name="file" value="/data/applogs/dpsflog/pigeon.log" />
 		<param name="append" value="true" />
 		<param name="encoding" value="GBK" />
 		<param name="threshold" value="warn" />
