@@ -14,12 +14,12 @@ import org.springframework.beans.factory.FactoryBean;
 import com.dianping.pigeon.component.QueryString;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
-import com.dianping.pigeon.remoting.invoker.config.InvokerConfigurer;
 import com.dianping.pigeon.remoting.invoker.loader.InvocationHandlerLoader;
 import com.dianping.pigeon.remoting.invoker.loader.InvokerBootStrapLoader;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
@@ -210,7 +210,7 @@ public class ProxyBeanFactory implements FactoryBean {
 	/**
 	 * 是否对写Buffer限制大小(对于channel使用到的queue buffer的大小限制, 避免OutOfMemoryError)
 	 */
-	private boolean writeBufferLimit = InvokerConfigurer.getDefaultWriteBufferLimit();
+	private boolean writeBufferLimit = RemotingConfigurer.getDefaultWriteBufferLimit();
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 

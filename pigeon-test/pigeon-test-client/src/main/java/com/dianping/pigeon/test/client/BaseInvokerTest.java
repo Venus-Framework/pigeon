@@ -12,7 +12,6 @@ import org.junit.Before;
 
 import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.component.QueryString;
-import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.test.client.loader.ConfigLoader;
@@ -78,7 +77,6 @@ public class BaseInvokerTest {
 				factory.setLoadbalance(test.loadbalance());
 				factory.setVip(test.vip());
 				factory.setTestVip(test.testVip());
-				RegistryManager.getInstance().setProperty("env", test.env());
 				if (!test.callback().equals("null")) {
 					callback = (ServiceCallback) Class.forName(test.callback()).newInstance();
 					factory.setCallback(callback);

@@ -23,6 +23,7 @@ import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.event.RuntimeServiceEvent;
+import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -31,7 +32,6 @@ import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.component.RpcInvokeInfo;
 import com.dianping.pigeon.remoting.invoker.component.async.CallFuture;
 import com.dianping.pigeon.remoting.invoker.component.async.Callback;
-import com.dianping.pigeon.remoting.invoker.config.InvokerConfigurer;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 
@@ -80,8 +80,8 @@ public class NettyClient implements Client {
 				Constants.THREADNAME_CLIENT_NETTY_WORKER_EXECUTOR));
 
 		this.bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(bossExecutor, workExecutor));
-		this.bootstrap.setOption("writeBufferHighWaterMark", InvokerConfigurer.getWriteBufferHighWater());
-		this.bootstrap.setOption("writeBufferLowWaterMark", InvokerConfigurer.getWriteBufferLowWater());
+		this.bootstrap.setOption("writeBufferHighWaterMark", RemotingConfigurer.getWriteBufferHighWater());
+		this.bootstrap.setOption("writeBufferLowWaterMark", RemotingConfigurer.getWriteBufferLowWater());
 		this.bootstrap.setPipelineFactory(new ClientChannelPipelineFactory(this));
 		this.bootstrap.setOption("tcpNoDelay", true);
 		this.bootstrap.setOption("keepAlive", true);

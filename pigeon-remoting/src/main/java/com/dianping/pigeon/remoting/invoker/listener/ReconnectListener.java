@@ -5,6 +5,7 @@
 package com.dianping.pigeon.remoting.invoker.listener;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,9 +14,9 @@ import java.util.concurrent.ConcurrentMap;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetException;
+import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
-import com.dianping.pigeon.remoting.invoker.config.InvokerConfigurer;
 
 public class ReconnectListener implements Runnable, ClusterListener {
 
@@ -25,15 +26,20 @@ public class ReconnectListener implements Runnable, ClusterListener {
 
 	private final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
+	private Map<String, List<Client>> workingClients;
+
 	@Override
 	public void run() {
-		long sleepTime = InvokerConfigurer.getReconnectInterval();
+		long sleepTime = RemotingConfigurer.getReconnectInterval();
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				Thread.sleep(sleepTime);
 				long now = System.currentTimeMillis();
 				// 连接已经断开的Clients， TODO， 这个循环写的。。。
 				Set<String> toRemovedConnect = new HashSet<String>();
+				if (logger.isDebugEnabled()) {
+					logger.debug("[reconnect] clients:" + closedClients);
+				}
 				for (String connect : closedClients.keySet()) {
 					Client client = closedClients.get(connect);
 					if (!client.isConnected()) {
@@ -53,7 +59,7 @@ public class ReconnectListener implements Runnable, ClusterListener {
 				for (String connect : toRemovedConnect) {
 					closedClients.remove(connect);
 				}
-				sleepTime = InvokerConfigurer.getReconnectInterval() - (System.currentTimeMillis() - now);
+				sleepTime = RemotingConfigurer.getReconnectInterval() - (System.currentTimeMillis() - now);
 			} catch (Exception e) {
 				logger.error("Do reconnect task failed, detail[" + e.getMessage() + "].", e);
 			} finally {
@@ -74,16 +80,37 @@ public class ReconnectListener implements Runnable, ClusterListener {
 
 	@Override
 	public void removeConnect(Client client) {
+		if (logger.isInfoEnabled()) {
+			logger.info("[reconnect] remove client:" + client);
+		}
 		String connect = client.getConnectInfo().getConnect();
 		closedClients.putIfAbsent(connect, client);
 	}
 
 	@Override
 	public void doNotUse(String serviceName, String host, int port) {
+		String connect = host + ":" + port;
+		if (logger.isInfoEnabled()) {
+			logger.info("[reconnect] do not use client:" + connect + " for service:" + serviceName);
+		}
+		Client client = closedClients.get(connect);
+		boolean isClientInUse = false;
+		for (List<Client> clientList : workingClients.values()) {
+			if (clientList.contains(client)) {
+				isClientInUse = true;
+			}
+		}
+		if (!isClientInUse) {
+			closedClients.remove(connect);
+		}
 	}
 
 	public Map<String, Client> getClosedClients() {
 		return closedClients;
+	}
+
+	public void setWorkingClients(Map<String, List<Client>> workingClients) {
+		this.workingClients = workingClients;
 	}
 
 }

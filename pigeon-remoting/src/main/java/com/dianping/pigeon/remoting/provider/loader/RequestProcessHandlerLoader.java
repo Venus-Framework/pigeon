@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationContext;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -55,7 +56,9 @@ public final class RequestProcessHandlerLoader {
 	}
 
 	public static void init() {
-		registerBizProcessFilter(ProcessPhase.Before_Write, new MonitorProcessFilter());
+		if (RemotingConfigurer.isMonitorEnabled()) {
+			registerBizProcessFilter(ProcessPhase.Before_Write, new MonitorProcessFilter());
+		}
 		registerBizProcessFilter(ProcessPhase.Write, new WriteResponseProcessFilter());
 		registerBizProcessFilter(ProcessPhase.Before_Execute, new ContextTransferProcessFilter());
 		registerBizProcessFilter(ProcessPhase.Before_Execute, new ExceptionProcessFilter());
@@ -66,9 +69,11 @@ public final class RequestProcessHandlerLoader {
 		registerHeartBeatProcessFilter(ProcessPhase.Before_Execute, new HeartbeatProcessFilter());
 		heartBeatInvocationHandler = createInvocationHandler(heartBeatProcessFilters);
 
-		//registerEchoProcessFilter(ProcessPhase.Write, new WriteResponseProcessFilter());
-		//registerEchoProcessFilter(ProcessPhase.Before_Execute, new EchoProcessFilter());
-		//echoInvocationHandler = createInvocationHandler(echoProcessFilters);
+		// registerEchoProcessFilter(ProcessPhase.Write, new
+		// WriteResponseProcessFilter());
+		// registerEchoProcessFilter(ProcessPhase.Before_Execute, new
+		// EchoProcessFilter());
+		// echoInvocationHandler = createInvocationHandler(echoProcessFilters);
 	}
 
 	@SuppressWarnings({ "rawtypes" })

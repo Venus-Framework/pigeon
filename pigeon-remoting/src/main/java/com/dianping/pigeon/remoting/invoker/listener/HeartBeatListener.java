@@ -22,12 +22,12 @@ import com.dianping.pigeon.component.HostInfo;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
-import com.dianping.pigeon.remoting.invoker.config.InvokerConfigurer;
 import com.dianping.pigeon.serialize.SerializerFactory;
 
 public class HeartBeatListener implements Runnable, ClusterListener {
@@ -47,12 +47,12 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	private final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
 	public void run() {
-		long sleepTime = InvokerConfigurer.getHeartBeatInterval();
+		long sleepTime = RemotingConfigurer.getHeartBeatInterval();
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				Thread.sleep(sleepTime);
 				long now = System.currentTimeMillis();
-				long heartBeatTimeout = InvokerConfigurer.getHeartBeatTimeout();
+				long heartBeatTimeout = RemotingConfigurer.getHeartBeatTimeout();
 				// 检查正在工作的Clients是否完好
 				if (this.workingClients != null) {
 					Set<Client> clientSet = new HashSet<Client>();
@@ -61,6 +61,9 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 						if (clientList != null) {
 							clientSet.addAll(clientList);
 						}
+					}
+					if(logger.isDebugEnabled()) {
+						logger.debug("[heartbeat] clients:" + clientSet);
 					}
 					for (Client client : clientSet) {
 						if (client.isConnected()) {
@@ -83,7 +86,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 						}
 					}
 				}
-				sleepTime = InvokerConfigurer.getHeartBeatInterval() - (System.currentTimeMillis() - now);
+				sleepTime = RemotingConfigurer.getHeartBeatInterval() - (System.currentTimeMillis() - now);
 			} catch (Exception e) {
 				logger.error("Do heartbeat task failed, detail[" + e.getMessage() + "].", e);
 			} finally {
@@ -145,6 +148,15 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	}
 
 	public void removeConnect(Client client) {
+		if(logger.isInfoEnabled()) {
+			logger.info("[heartbeat] remove client:" + client);
+		}
+		for (Iterator<Entry<String, List<Client>>> iter = workingClients.entrySet().iterator(); iter.hasNext();) {
+			Entry<String, List<Client>> entry = iter.next();
+			if (entry.getValue() != null && entry.getValue().contains(client)) {
+				entry.getValue().remove(client);
+			}
+		}
 	}
 
 	public void processResponse(InvocationResponse response, Client client) {
@@ -171,15 +183,15 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	private void notifyHeartBeatStatChanged(Client client) {
 		try {
 			HeartBeatStat heartStat = heartBeatStats.get(client.getAddress());
-			if (heartStat.succeedCounter.longValue() >= InvokerConfigurer.getHeartBeatHealthCount()) {
+			if (heartStat.succeedCounter.longValue() >= RemotingConfigurer.getHeartBeatHealthCount()) {
 				if (!client.isActive()) {
 					client.setActive(true);
 					logger.error("@service-activate:" + client.getAddress() + ", servicename:" + getServiceName(client));
 				}
 				heartStat.resetCounter();
-			} else if (heartStat.failedCounter.longValue() >= InvokerConfigurer.getHeartBeatDeadCount()) {
+			} else if (heartStat.failedCounter.longValue() >= RemotingConfigurer.getHeartBeatDeadCount()) {
 				if (client.isActive()) {
-					if (InvokerConfigurer.isHeartBeatAutoPickOff() && canPickOff(client)) {
+					if (RemotingConfigurer.isHeartBeatAutoPickOff() && canPickOff(client)) {
 						client.setActive(false);
 						logger.error("@service-deactivate:" + client.getAddress());
 					} else {
@@ -198,7 +210,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 		for (Iterator<Entry<String, List<Client>>> iter = workingClients.entrySet().iterator(); iter.hasNext();) {
 			Entry<String, List<Client>> entry = iter.next();
 			if (entry.getValue() != null && entry.getValue().contains(client)) {
-				return StringUtils.substringBetween(entry.getKey(), InvokerConfigurer.getServiceNameSpace(), "/");
+				return StringUtils.substringBetween(entry.getKey(), RemotingConfigurer.getServiceNameSpace(), "/");
 			}
 		}
 		return "unknown";

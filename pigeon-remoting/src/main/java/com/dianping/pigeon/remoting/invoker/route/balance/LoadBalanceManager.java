@@ -9,8 +9,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
-import com.dianping.pigeon.remoting.invoker.config.InvokerConfigurer;
 
 /**
  * 
@@ -65,7 +65,7 @@ public class LoadBalanceManager {
 			return loadBalance;
 		}
 
-		String balanceConfigFromLion = InvokerConfigurer.getLoadBalance();
+		String balanceConfigFromLion = RemotingConfigurer.getLoadBalance();
 		if (balanceConfigFromLion != null) {
 			LoadBalance balanceFromLion = loadBalanceMap.get(balanceConfigFromLion);
 			if (balanceFromLion != null) {

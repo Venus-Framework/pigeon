@@ -45,6 +45,7 @@ public class DefaultClusterListener implements ClusterListener {
 			ReconnectListener reconnectTask) {
 		this.heartTask = heartTask;
 		this.reconnectTask = reconnectTask;
+		this.reconnectTask.setWorkingClients(this.serviceClients);
 		this.heartTask.setWorkingClients(this.serviceClients);
 	}
 

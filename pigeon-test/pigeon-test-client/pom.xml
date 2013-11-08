@@ -112,14 +112,14 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-                <targetPath>lib</targetPath>
+				<targetPath>lib</targetPath>
 				<filtering>true</filtering>
 				<includes>
 					<include>**/*.*</include>
 				</includes>
-<!-- 				<excludes> -->
-<!-- 					<exclude>**/*.properties</exclude> -->
-<!-- 				</excludes> -->
+				<excludes>
+					<exclude>**/*.properties</exclude>
+				</excludes>
 			</resource>
 		</resources>
 	</build>

@@ -12,6 +12,7 @@ import java.util.Map;
 import com.dianping.pigeon.component.invocation.InvocationContext;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.extension.DefaultExtension;
+import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
@@ -27,7 +28,7 @@ import com.dianping.pigeon.remoting.invoker.filter.ServiceRouteInvokeFilter;
 public final class InvocationHandlerLoader extends DefaultExtension {
 
 	{
-		//descriptorClass = SubscriberPluginDescriptor.class;
+		// descriptorClass = SubscriberPluginDescriptor.class;
 	}
 
 	private static Map<InvokePhase, List<InvocationInvokeFilter>> internalInvokeFilters = new LinkedHashMap<InvokePhase, List<InvocationInvokeFilter>>();
@@ -42,7 +43,9 @@ public final class InvocationHandlerLoader extends DefaultExtension {
 		// 怎么确保顺序?
 		registerInternalInvokeFilter(InvokePhase.Finalize, new GatewayInvokeFilter());
 		registerInternalInvokeFilter(InvokePhase.Cluster, new ServiceRouteInvokeFilter());
-		registerInternalInvokeFilter(InvokePhase.Before_Call, new RemoteCallMonitorInvokeFilter());
+		if (RemotingConfigurer.isMonitorEnabled()) {
+			registerInternalInvokeFilter(InvokePhase.Before_Call, new RemoteCallMonitorInvokeFilter());
+		}
 		registerInternalInvokeFilter(InvokePhase.Call, new ContextPrepareInvokeFilter());
 		registerInternalInvokeFilter(InvokePhase.Call, new RemoteCallInvokeFilter());
 		bizInvocationHandler = createInvocationHandler(internalInvokeFilters);
@@ -52,7 +55,9 @@ public final class InvocationHandlerLoader extends DefaultExtension {
 		// TODO FIXME! 是否需要fail over可以让service invoke方配置决定
 		registerFailoverInvokeFilter(InvokePhase.Cluster, new FailoverClusterInvokeFilter());
 		/** TODO 重构：监控组件可配置 **/
-		registerFailoverInvokeFilter(InvokePhase.Before_Call, new RemoteCallMonitorInvokeFilter());
+		if (RemotingConfigurer.isMonitorEnabled()) {
+			registerFailoverInvokeFilter(InvokePhase.Before_Call, new RemoteCallMonitorInvokeFilter());
+		}
 		registerFailoverInvokeFilter(InvokePhase.Call, new ContextPrepareInvokeFilter());
 		registerFailoverInvokeFilter(InvokePhase.Call, new RemoteCallInvokeFilter());
 		failOverInvocationHandler = createInvocationHandler(failoverInvokeFilters);
@@ -81,10 +86,11 @@ public final class InvocationHandlerLoader extends DefaultExtension {
 				@SuppressWarnings("unchecked")
 				@Override
 				public InvocationResponse handle(InvocationContext invocationContext) throws Throwable {
-					//String start = System.currentTimeMillis() + "";
+					// String start = System.currentTimeMillis() + "";
 					InvocationResponse resp = filter.invoke(next, invocationContext);
-					//long cost = System.currentTimeMillis() - Long.valueOf(start);
-					//System.out.println(filter + " cost:" + cost);
+					// long cost = System.currentTimeMillis() -
+					// Long.valueOf(start);
+					// System.out.println(filter + " cost:" + cost);
 					return resp;
 				}
 			};

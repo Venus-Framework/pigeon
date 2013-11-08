@@ -36,6 +36,10 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 				toAddHpSet = new HashSet<HostInfo>(newHpSet);
 				toAddHpSet.removeAll(oldHpSet);
 			}
+			if(logger.isInfoEnabled()) {
+				logger.info("service hosts changed, to added hosts:" + toAddHpSet);
+				logger.info("service hosts changed, to removed hosts:" + toRemoveHpSet);
+			}
 			for (HostInfo hostPort : toAddHpSet) {
 				RegistryEventListener.providerAdded(serviceName, hostPort.getHost(), hostPort.getPort(),
 						hostPort.getWeight());

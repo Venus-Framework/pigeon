@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.config;
+package com.dianping.pigeon.remoting.common.config;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,13 +13,13 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadAutoawareLoadBalance;
 
-public class InvokerConfigurer {
+public class RemotingConfigurer {
 
-	private static final Logger logger = Logger.getLogger(InvokerConfigurer.class);
+	private static final Logger logger = Logger.getLogger(RemotingConfigurer.class);
 
 	private static final ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	private static volatile InvokerConfigurer INSTANCE;
+	private static volatile RemotingConfigurer INSTANCE;
 
 	private static final String KEY_LOADBALANCE = "pigeon.loadbalance";
 	private static final String KEY_RECONNECT_INTERVAL = "pigeon.reconnect.interval";
@@ -32,6 +32,7 @@ public class InvokerConfigurer {
 	private static final String KEY_WRITE_BUFFER_HIGH_WATER = "pigeon.channel.writebuff.high";
 	private static final String KEY_WRITE_BUFFER_LOW_WATER = "pigeon.channel.writebuff.low";
 	private static final String KEY_DEFAULT_WRITE_BUFF_LIMIT = "pigeon.channel.writebuff.defaultlimit";
+	private static final String KEY_MONITOR_ENABLED = "pigeon.monitor.enabled";
 
 	private static final long DEFAULT_RECONNECT_INTERVAL = 3000;
 	private static final long DEFAULT_HEARTBEAT_INTERVAL = 3000;
@@ -44,17 +45,18 @@ public class InvokerConfigurer {
 	private static final int DEFAULT_WRITE_BUFFER_HIGH_WATER = 35 * 1024 * 1024;
 	private static final int DEFAULT_WRITE_BUFFER_LOW_WATER = 25 * 1024 * 1024;
 	private static final boolean DEFAULT_WRITE_BUFF_LIMIT = false;
+	private static final boolean DEFAULT_MONITOR_ENABLED = true;
 
 	private static Map<String, Object> configCache = new HashMap<String, Object>();
 
-	private InvokerConfigurer() {
+	private RemotingConfigurer() {
 	}
 
-	public static InvokerConfigurer getInstance() {
+	public static RemotingConfigurer getInstance() {
 		if (INSTANCE == null) {
-			synchronized (InvokerConfigurer.class) {
+			synchronized (RemotingConfigurer.class) {
 				if (INSTANCE == null) {
-					INSTANCE = new InvokerConfigurer();
+					INSTANCE = new RemotingConfigurer();
 				}
 			}
 		}
@@ -125,6 +127,10 @@ public class InvokerConfigurer {
 
 	public static int getWriteBufferLowWater() {
 		return getIntValue(KEY_WRITE_BUFFER_LOW_WATER, DEFAULT_WRITE_BUFFER_LOW_WATER);
+	}
+	
+	public static boolean isMonitorEnabled() {
+		return getBooleanValue(KEY_MONITOR_ENABLED, DEFAULT_MONITOR_ENABLED);
 	}
 
 	public static String getStringValue(String key, String defaultValue) {
