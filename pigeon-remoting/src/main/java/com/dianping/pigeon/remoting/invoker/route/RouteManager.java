@@ -8,10 +8,10 @@ import java.util.List;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
+import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 
 public interface RouteManager {
 
-	public Client route(List<Client> clientList, InvokerMetaData metaData, InvocationRequest request);
+	public Client route(List<Client> clientList, InvokerConfig metaData, InvocationRequest request);
 
 }

@@ -9,14 +9,10 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
-import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.Log4jLoader;
-import com.dianping.pigeon.registry.RegistryManager;
-import com.dianping.pigeon.remoting.common.service.ServiceFactory;
-import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.loader.ProviderBootStrapLoader;
-import com.dianping.pigeon.util.IpUtils;
+import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 
 /**
  * @deprecated 后续请使用spring的xml配置方式。务必！！新功能不再支持该方式了。
@@ -34,7 +30,7 @@ import com.dianping.pigeon.util.IpUtils;
  */
 public final class ServiceRegistry {
 
-	private static final Logger logger = Log4jLoader.getLogger(ServiceRegistry.class);
+	private static final Logger logger = LoggerLoader.getLogger(ServiceRegistry.class);
 
 	private boolean publish = true;
 
@@ -58,12 +54,7 @@ public final class ServiceRegistry {
 	 */
 	public void init() throws ServiceException {
 		ProviderBootStrapLoader.startup(port);
-		
-		String localip = RegistryManager.getInstance().getProperty(Constants.KEY_LOCAL_IP);
-		if(localip == null || localip.length() == 0) {
-			localip = IpUtils.getFirstLocalIp();
-		}
-		ExtensionLoader.getExtension(ServiceFactory.class).addServices(services, localip, port);
+		ServiceProviderFactory.addServices(services, port);
 	}
 
 	/**

@@ -12,14 +12,14 @@ import org.apache.log4j.Logger;
 import com.dianping.dpsf.exception.NoConnectionException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.phase.Disposable;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
+import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListenerManager;
 import com.dianping.pigeon.remoting.invoker.route.balance.ConsistentHashLoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LeastSuccessLoadBalance;
@@ -31,7 +31,7 @@ import com.dianping.pigeon.remoting.invoker.route.balance.RoundRobinLoadBalance;
 
 public class DefaultRouteManager implements RouteManager, Disposable {
 
-	private static final Logger logger = Log4jLoader.getLogger(DefaultRouteManager.class);
+	private static final Logger logger = LoggerLoader.getLogger(DefaultRouteManager.class);
 
 	private static final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
@@ -46,7 +46,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		LoadBalanceManager.register(ConsistentHashLoadBalance.NAME, null, ConsistentHashLoadBalance.instance);
 	}
 
-	public Client route(List<Client> clientList, InvokerMetaData metaData, InvocationRequest request) {
+	public Client route(List<Client> clientList, InvokerConfig metaData, InvocationRequest request) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Routing from: ");
 			for (Client client : clientList) {
@@ -89,7 +89,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	 * @param isWriteBufferLimit
 	 * @return
 	 */
-	public List<Client> filterWithGroupAndWeight(List<Client> clientList, InvokerMetaData metaData,
+	public List<Client> filterWithGroupAndWeight(List<Client> clientList, InvokerConfig metaData,
 			Boolean isWriteBufferLimit) {
 		List<Client> filteredClients = new ArrayList<Client>(clientList.size());
 		boolean existClientBuffToLimit = false;
@@ -112,13 +112,13 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		return filteredClients;
 	}
 
-	private void checkClientNotNull(Client client, InvokerMetaData metaData) {
+	private void checkClientNotNull(Client client, InvokerConfig metaData) {
 		if (client == null) {
 			throw new NoConnectionException("no available server exists for service[" + metaData + "]");
 		}
 	}
 
-	private Client select(List<Client> availableClients, InvokerMetaData metaData, InvocationRequest request) {
+	private Client select(List<Client> availableClients, InvokerConfig metaData, InvocationRequest request) {
 		LoadBalance loadBalance = null;
 		if (request.getCallType() == Constants.CALLTYPE_NOREPLY) {
 			loadBalance = RandomLoadBalance.instance;

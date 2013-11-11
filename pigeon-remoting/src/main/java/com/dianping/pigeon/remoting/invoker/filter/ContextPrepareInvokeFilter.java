@@ -11,18 +11,18 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
+import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.route.context.ClientContext;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
-	private static final Logger logger = Log4jLoader.getLogger(ContextPrepareInvokeFilter.class);
+	private static final Logger logger = LoggerLoader.getLogger(ContextPrepareInvokeFilter.class);
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
@@ -77,7 +77,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 	}
 
 	private void transferContextValueToRequest(final InvokerContext invocationContext, final InvocationRequest request) {
-		InvokerMetaData metaData = invocationContext.getMetaData();
+		InvokerConfig metaData = invocationContext.getInvokerConfig();
 		Client client = invocationContext.getClient();
 		Object contextHolder = ContextUtils.createContext(metaData.getServiceName(), invocationContext.getMethod()
 				.getName(), client.getHost(), client.getPort());

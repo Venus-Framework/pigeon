@@ -16,7 +16,7 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.netty.provider.NettyChannel;
 import com.dianping.pigeon.remoting.provider.component.ProviderChannel;
@@ -31,7 +31,7 @@ import com.dianping.pigeon.threadpool.ThreadPool;
 
 public class RequestProcessor {
 
-	private static final Logger logger = Log4jLoader.getLogger(RequestProcessor.class);
+	private static final Logger logger = LoggerLoader.getLogger(RequestProcessor.class);
 
 	private static ThreadPool timeCheckThreadPool = new DefaultThreadPool("pigeon-provider-timeout-checker");
 

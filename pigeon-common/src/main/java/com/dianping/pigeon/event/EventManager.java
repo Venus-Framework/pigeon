@@ -13,7 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 
 /**
  * 默认的事件分发服务，支持同步和异步的模式。
@@ -23,7 +23,7 @@ import com.dianping.pigeon.monitor.Log4jLoader;
  */
 public class EventManager {
 
-	private static final Logger log = Log4jLoader.getLogger(EventManager.class);
+	private static final Logger log = LoggerLoader.getLogger(EventManager.class);
 
 	private final Collection<RuntimeServiceListener> listeners = Collections
 			.synchronizedCollection(new ArrayList<RuntimeServiceListener>());

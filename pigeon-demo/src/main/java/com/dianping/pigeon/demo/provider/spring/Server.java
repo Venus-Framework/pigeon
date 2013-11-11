@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.demo.provider;
+package com.dianping.pigeon.demo.provider.spring;
 
 import com.dianping.pigeon.demo.loader.BootstrapLoader;
 

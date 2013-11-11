@@ -18,14 +18,14 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.component.invocation.InvocationSerializable;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.serialize.SerializerFactory;
 
 public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder {
 
-	private static final Logger log = Log4jLoader.getLogger(AbstractEncoder.class);
+	private static final Logger log = LoggerLoader.getLogger(AbstractEncoder.class);
 
 	public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 		if (msg instanceof InvocationSerializable) {

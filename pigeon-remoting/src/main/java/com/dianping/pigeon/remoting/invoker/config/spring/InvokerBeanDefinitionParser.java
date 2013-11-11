@@ -17,7 +17,7 @@ import org.w3c.dom.Element;
 import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.invoker.loader.InvokerBootStrapLoader;
 
@@ -35,7 +35,7 @@ public class InvokerBeanDefinitionParser implements BeanDefinitionParser {
 	/** Default placeholder suffix: "}" */
 	public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
 
-	private static final Logger logger = Log4jLoader.getLogger(InvokerBeanDefinitionParser.class);
+	private static final Logger logger = LoggerLoader.getLogger(InvokerBeanDefinitionParser.class);
 
 	private final Class<?> beanClass;
 

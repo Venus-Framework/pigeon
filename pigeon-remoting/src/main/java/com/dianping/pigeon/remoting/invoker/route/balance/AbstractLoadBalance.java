@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NoConnectionException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -19,7 +19,7 @@ import com.dianping.pigeon.remoting.invoker.route.context.ClientContext;
 
 public abstract class AbstractLoadBalance implements LoadBalance {
 
-	private static final Logger logger = Log4jLoader.getLogger(AbstractLoadBalance.class);
+	private static final Logger logger = LoggerLoader.getLogger(AbstractLoadBalance.class);
 
 	protected Random random = new Random();
 

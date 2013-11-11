@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.Client;
 
 public class RoundRobinLoadBalance extends AbstractLoadBalance {
@@ -16,7 +16,7 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
 	private static int lastSelected = -1;
 	private static int currentWeight = 0;
 
-	private static Logger logger = Log4jLoader.getLogger(RoundRobinLoadBalance.class);
+	private static Logger logger = LoggerLoader.getLogger(RoundRobinLoadBalance.class);
 
 	/**
 	 * 

@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -24,7 +24,7 @@ import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
  */
 public class ExceptionProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
-	private static final Logger logger = Log4jLoader.getLogger(ExceptionProcessFilter.class);
+	private static final Logger logger = LoggerLoader.getLogger(ExceptionProcessFilter.class);
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)

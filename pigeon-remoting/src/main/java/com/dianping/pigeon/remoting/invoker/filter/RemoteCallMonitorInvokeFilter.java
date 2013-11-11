@@ -14,7 +14,7 @@ import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
+import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
 import com.site.helper.Stringizers;
 
@@ -28,7 +28,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		MonitorLogger logger = null;
 		MonitorTransaction transaction = null;
 		if (monitor != null) {
-			InvokerMetaData metaData = invocationContext.getMetaData();
+			InvokerConfig metaData = invocationContext.getInvokerConfig();
 			Method method = invocationContext.getMethod();
 			logger = monitor.createLogger();
 			if (logger != null) {

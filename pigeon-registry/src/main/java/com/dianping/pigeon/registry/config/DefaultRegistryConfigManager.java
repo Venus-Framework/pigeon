@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.util.Constants;
 
 /**
@@ -20,7 +20,7 @@ import com.dianping.pigeon.registry.util.Constants;
  */
 public class DefaultRegistryConfigManager implements RegistryConfigManager {
 
-	private static Logger logger = Log4jLoader.getLogger(DefaultRegistryConfigManager.class);
+	private static Logger logger = LoggerLoader.getLogger(DefaultRegistryConfigManager.class);
 
 	@Override
 	public Properties getRegistryConfig() {

@@ -13,10 +13,10 @@ import com.dianping.dpsf.exception.NetException;
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
+import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.route.context.ClientContext;
 
@@ -31,13 +31,13 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 
 	public static final String NAME = "fail-over";
 
-	private static final Logger logger = Log4jLoader.getLogger(ClusterInvokeFilter.class);
+	private static final Logger logger = LoggerLoader.getLogger(ClusterInvokeFilter.class);
 
 	@Override
 	public InvocationResponse _invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
 
-		InvokerMetaData metaData = invocationContext.getMetaData();
+		InvokerConfig metaData = invocationContext.getInvokerConfig();
 
 		List<Client> selectedClients = new ArrayList<Client>();
 		Throwable lastError = null;

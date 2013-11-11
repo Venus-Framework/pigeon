@@ -8,23 +8,23 @@ import java.lang.reflect.Method;
 
 import com.dianping.pigeon.remoting.common.component.context.AbstractInvocationContext;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
+import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 
 public class DefaultInvokerContext extends AbstractInvocationContext implements InvokerContext {
 
-	private InvokerMetaData metaData;
+	private InvokerConfig metaData;
 	private Method method;
 	private Object[] arguments;
 	private Client client;
 
-	public DefaultInvokerContext(InvokerMetaData metaData, Method method, Object[] arguments) {
+	public DefaultInvokerContext(InvokerConfig metaData, Method method, Object[] arguments) {
 		super(null);
 		this.metaData = metaData;
 		this.method = method;
 		this.arguments = arguments;
 	}
 
-	public InvokerMetaData getMetaData() {
+	public InvokerConfig getInvokerConfig() {
 		return metaData;
 	}
 

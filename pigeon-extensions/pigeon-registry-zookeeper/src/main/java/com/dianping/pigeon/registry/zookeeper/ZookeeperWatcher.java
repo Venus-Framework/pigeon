@@ -7,14 +7,14 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
 
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 
 public class ZookeeperWatcher implements Watcher {
 
-	private static Logger logger = Log4jLoader.getLogger(ZookeeperWatcher.class);
+	private static Logger logger = LoggerLoader.getLogger(ZookeeperWatcher.class);
 	
 	private static final int ADDRESS = 1;
 	private static final int WEIGHT = 2;

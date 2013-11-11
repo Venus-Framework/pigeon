@@ -4,32 +4,84 @@
  */
 package com.dianping.pigeon.remoting.invoker.component;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 import com.dianping.pigeon.serialize.SerializerFactory;
 
-public class InvokerMetaData {
+public class InvokerConfig<T> {
+	public static final String CALL_SYNC = Constants.CALL_SYNC;
+	public static final String CALL_CALLBACK = Constants.CALL_CALLBACK;
+	public static final String CALL_ONEWAY = Constants.CALL_ONEWAY;
+	public static final String CALL_FUTURE = Constants.CALL_FUTURE;
+
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	private Class<T> serviceInterface;
 
 	private String serviceName;
 
-	private String callMethod;
+	private String serviceVersion;
 
-	private byte serialize;
+	private String callMethod = Constants.CALL_SYNC;
 
-	private int timeout;
+	private byte serialize = SerializerFactory.SERIALIZE_HESSIAN;
+
+	private int timeout = 2000;
 
 	private ServiceCallback callback;
 
-	private String group;
+	private String group = configManager.getProperty(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
 
-	private boolean writeBufferLimit;
+	private boolean writeBufferLimit = RemotingConfigurer.getDefaultWriteBufferLimit();
 
-	private String loadbalance;
+	private String loadbalance = "autoaware";
 
-	private boolean timeoutRetry;
+	private boolean timeoutRetry = false;
+
+	private String cluster = "failFast";
+
+	private int retries = 1;
+
+	private String vip;
+
+	public String getServiceVersion() {
+		return serviceVersion;
+	}
+
+	public void setServiceVersion(String serviceVersion) {
+		this.serviceVersion = serviceVersion;
+	}
+
+	public String getVip() {
+		return vip;
+	}
+
+	public void setVip(String vip) {
+		if (!StringUtils.isBlank(vip)) {
+			this.vip = vip.trim();
+		}
+	}
+
+	public Class<T> getServiceInterface() {
+		return serviceInterface;
+	}
+
+	public void setServiceInterface(Class<T> serviceInterface) {
+		this.serviceInterface = serviceInterface;
+	}
+
+	public void setWriteBufferLimit(boolean writeBufferLimit) {
+		this.writeBufferLimit = writeBufferLimit;
+	}
 
 	public boolean isTimeoutRetry() {
 		return timeoutRetry;
@@ -44,7 +96,9 @@ public class InvokerMetaData {
 	}
 
 	public void setLoadbalance(String loadbalance) {
-		this.loadbalance = loadbalance;
+		if (!StringUtils.isBlank(loadbalance)) {
+			this.loadbalance = loadbalance.trim();
+		}
 	}
 
 	public String getCluster() {
@@ -52,7 +106,9 @@ public class InvokerMetaData {
 	}
 
 	public void setCluster(String cluster) {
-		this.cluster = cluster;
+		if (!StringUtils.isBlank(cluster)) {
+			this.cluster = cluster.trim();
+		}
 	}
 
 	public int getRetries() {
@@ -63,29 +119,40 @@ public class InvokerMetaData {
 		this.retries = retries;
 	}
 
-	private String cluster;
-	private int retries;
-
-	public InvokerMetaData(String serviceName, int timeout, String callMethod, String serialize,
-			ServiceCallback callback, String group, boolean writeBufferLimit, String loadbalance, String cluster,
-			int retries, boolean timeoutRetry) {
-
-		this.serviceName = serviceName;
-		this.timeout = timeout;
-		this.callMethod = callMethod;
-		this.callback = callback;
-		this.group = group;
-		this.writeBufferLimit = writeBufferLimit;
-		this.cluster = cluster;
-		this.loadbalance = loadbalance;
-		this.retries = retries;
-		this.timeoutRetry = timeoutRetry;
-		if (Constants.SERIALIZE_JAVA.equalsIgnoreCase(serialize)) {
-			this.serialize = SerializerFactory.SERIALIZE_JAVA;
-		} else if (Constants.SERIALIZE_HESSIAN.equalsIgnoreCase(serialize)) {
-			this.serialize = SerializerFactory.SERIALIZE_HESSIAN;
+	public InvokerConfig(Class<T> serviceInterface, String serviceName, int timeout, String callMethod,
+			String serialize, ServiceCallback callback, String group, boolean writeBufferLimit, String loadbalance,
+			String cluster, int retries, boolean timeoutRetry, String vip) {
+		this.setServiceInterface(serviceInterface);
+		if (StringUtils.isBlank(serviceName) && serviceInterface != null) {
+			this.setServiceName(serviceInterface.getCanonicalName());
+		} else {
+			this.setServiceName(serviceName);
 		}
+		this.setTimeout(timeout);
+		this.setCallMethod(callMethod);
+		this.setCallback(callback);
+		this.setGroup(group);
+		this.setWriteBufferLimit(writeBufferLimit);
+		this.setCluster(cluster);
+		this.setLoadbalance(loadbalance);
+		this.setRetries(retries);
+		this.setTimeoutRetry(timeoutRetry);
+		this.setSerialize(serialize);
+		this.setVip(vip);
+	}
 
+	public InvokerConfig(String serviceName, Class<T> serviceClass) {
+		this.setServiceInterface(serviceClass);
+		if (StringUtils.isBlank(serviceName) && serviceClass != null) {
+			this.setServiceName(serviceClass.getCanonicalName());
+		} else {
+			this.setServiceName(serviceName);
+		}
+	}
+
+	public InvokerConfig(Class<T> serviceClass) {
+		this.setServiceInterface(serviceClass);
+		this.setServiceName(serviceClass.getCanonicalName());
 	}
 
 	/**
@@ -100,6 +167,9 @@ public class InvokerMetaData {
 	 *            the serviceName to set
 	 */
 	public void setServiceName(String serviceName) {
+		if (serviceName != null) {
+			serviceName = serviceName.trim();
+		}
 		this.serviceName = serviceName;
 	}
 
@@ -130,7 +200,16 @@ public class InvokerMetaData {
 	 *            the callMethod to set
 	 */
 	public void setCallMethod(String callMethod) {
-		this.callMethod = callMethod;
+		if (!Constants.CALL_SYNC.equalsIgnoreCase(callMethod) && !Constants.CALL_CALLBACK.equalsIgnoreCase(callMethod)
+				&& !Constants.CALL_FUTURE.equalsIgnoreCase(callMethod)
+				&& !Constants.CALL_ONEWAY.equalsIgnoreCase(callMethod)) {
+
+			throw new IllegalArgumentException("Pigeon call method only support[" + Constants.CALL_SYNC + ", "
+					+ Constants.CALL_CALLBACK + ", " + Constants.CALL_FUTURE + ", " + Constants.CALL_ONEWAY + "].");
+		}
+		if (!StringUtils.isBlank(callMethod)) {
+			this.callMethod = callMethod.trim();
+		}
 	}
 
 	/**
@@ -144,8 +223,17 @@ public class InvokerMetaData {
 	 * @param serialize
 	 *            the serialize to set
 	 */
-	public void setSerialize(byte serialize) {
-		this.serialize = serialize;
+	public void setSerialize(String serialize) {
+		if (serialize != null) {
+			serialize = serialize.trim();
+		}
+		if (Constants.SERIALIZE_JAVA.equalsIgnoreCase(serialize)) {
+			this.serialize = SerializerFactory.SERIALIZE_JAVA;
+		} else if (Constants.SERIALIZE_HESSIAN.equalsIgnoreCase(serialize)) {
+			this.serialize = SerializerFactory.SERIALIZE_HESSIAN;
+		} else {
+			throw new IllegalArgumentException("Only hessian and java serialize type supported now!");
+		}
 	}
 
 	/**
@@ -161,6 +249,9 @@ public class InvokerMetaData {
 	 */
 	public void setCallback(ServiceCallback callback) {
 		this.callback = callback;
+		if (callback != null) {
+			setCallMethod(InvokerConfig.CALL_CALLBACK);
+		}
 	}
 
 	/**
@@ -175,11 +266,21 @@ public class InvokerMetaData {
 	 *            the group to set
 	 */
 	public void setGroup(String group) {
-		this.group = group;
+		if (!StringUtils.isBlank(group)) {
+			this.group = group.trim();
+		}
 	}
 
 	public boolean isWriteBufferLimit() {
 		return writeBufferLimit;
+	}
+
+	public boolean equals(Object obj) {
+		return EqualsBuilder.reflectionEquals(this, obj);
+	}
+
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
 	}
 
 	@Override

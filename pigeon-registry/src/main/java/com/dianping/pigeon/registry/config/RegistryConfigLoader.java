@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.RegistryMeta;
 import com.dianping.pigeon.registry.exception.RegistryException;
@@ -18,7 +18,7 @@ import com.dianping.pigeon.registry.util.Constants;
 
 public class RegistryConfigLoader {
 	
-	private static final Logger logger = Log4jLoader.getLogger(RegistryConfigLoader.class);
+	private static final Logger logger = LoggerLoader.getLogger(RegistryConfigLoader.class);
 	
 	private static final String ENV_FILE = "/data/webapps/appenv";
 	

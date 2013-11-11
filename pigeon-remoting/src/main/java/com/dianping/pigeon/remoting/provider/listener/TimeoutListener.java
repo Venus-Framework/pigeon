@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.component.context.RequestContext;
@@ -27,7 +27,7 @@ import com.dianping.pigeon.util.ContextUtils;
  */
 public class TimeoutListener implements Runnable {
 
-	private static final Logger logger = Log4jLoader.getLogger(TimeoutListener.class);
+	private static final Logger logger = LoggerLoader.getLogger(TimeoutListener.class);
 	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(MonitorLogger.class);
 	private Map<InvocationRequest, RequestContext> contexts;
 

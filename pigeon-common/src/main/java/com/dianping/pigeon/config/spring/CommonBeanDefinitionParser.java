@@ -11,7 +11,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 
 /**
  * 
@@ -27,7 +27,7 @@ public class CommonBeanDefinitionParser implements BeanDefinitionParser {
 	/** Default placeholder suffix: "}" */
 	public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
 
-	private static final Logger logger = Log4jLoader.getLogger(CommonBeanDefinitionParser.class);
+	private static final Logger logger = LoggerLoader.getLogger(CommonBeanDefinitionParser.class);
 
 	private final Class<?> beanClass;
 

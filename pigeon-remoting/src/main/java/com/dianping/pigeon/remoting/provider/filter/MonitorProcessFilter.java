@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
@@ -23,7 +23,7 @@ import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
 
 public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
-	private static final Logger logger = Log4jLoader.getLogger(MonitorProcessFilter.class);
+	private static final Logger logger = LoggerLoader.getLogger(MonitorProcessFilter.class);
 	private Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 
 	@Override

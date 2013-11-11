@@ -14,14 +14,14 @@ import java.util.concurrent.ConcurrentMap;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetException;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
 
 public class ReconnectListener implements Runnable, ClusterListener {
 
-	private static Logger logger = Log4jLoader.getLogger(ReconnectListener.class);
+	private static Logger logger = LoggerLoader.getLogger(ReconnectListener.class);
 
 	private static ConcurrentMap<String, Client> closedClients = new ConcurrentHashMap<String, Client>();
 

@@ -14,12 +14,11 @@ import org.springframework.beans.factory.FactoryBean;
 import com.dianping.pigeon.component.QueryString;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
-import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
-import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
+import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 import com.dianping.pigeon.remoting.invoker.loader.InvocationHandlerLoader;
 import com.dianping.pigeon.remoting.invoker.loader.InvokerBootStrapLoader;
@@ -43,7 +42,7 @@ import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationProxy;
  */
 public class ProxyBeanFactory implements FactoryBean {
 
-	private static final Logger logger = Log4jLoader.getLogger("pigeon_service");
+	private static final Logger logger = LoggerLoader.getLogger("pigeon_service");
 
 	private static AtomicInteger groupId = new AtomicInteger(0);
 
@@ -217,57 +216,19 @@ public class ProxyBeanFactory implements FactoryBean {
 
 	public void init() throws ClassNotFoundException {
 		InvokerBootStrapLoader.startup();
-
-		this.serviceName = this.serviceName.trim();
-		this.serialize = this.serialize.trim();
-		this.iface = this.iface.trim();
-		this.callMethod = this.callMethod.trim();
-
-		checkParameters();
-		if (this.group == null) {
-			// TODO Get group configed in /data/webapps/appenv
-			this.group = configManager.getProperty(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
-		}
-		if (Constants.SERIALIZE_JAVA.equalsIgnoreCase(this.serialize)
-				|| Constants.SERIALIZE_HESSIAN.equalsIgnoreCase(this.serialize)) {
-			generatorServiceInvokeProxy();
-		} else {
-			throw new RuntimeException("Only hessian and java serialize type supported now!");
-		}
+		InvokerConfig invokerMetaData = generatorServiceInvokeProxy();
 		configLoadBalance();
-		if (logger.isInfoEnabled()) {
-			logger.info("host list is not set, try to fetch from ZK");
-		}
-		String vip = "";
-		// ConfigCache.getInstance();
-		if (this.testVip != null && "dev".equals(configManager.getEnv())) {
-			vip = this.testVip;
-		} else if (this.vip != null) {
-			vip = this.vip;
-		}
-
 		if (zone != null && !zone.isEmpty()) {
 			String[] parts = serviceName.split(QueryString.PREFIX_REGEXP);
 			QueryString qs = parts.length > 1 ? new QueryString(parts[1]) : new QueryString();
 			qs.addParameter("zone", zone);
 			serviceName = parts[0] + QueryString.PREFIX + qs;
 		}
-		ClientManager.getInstance().findAndRegisterClientFor(serviceName, group, vip);
-	}
-
-	private void checkParameters() {
-
-		if (!Constants.CALL_SYNC.equalsIgnoreCase(callMethod) && !Constants.CALL_CALLBACK.equalsIgnoreCase(callMethod)
-				&& !Constants.CALL_FUTURE.equalsIgnoreCase(callMethod)
-				&& !Constants.CALL_ONEWAY.equalsIgnoreCase(callMethod)) {
-
-			throw new IllegalArgumentException("Pigeon call method only support[" + Constants.CALL_SYNC + ", "
-					+ Constants.CALL_CALLBACK + ", " + Constants.CALL_FUTURE + ", " + Constants.CALL_ONEWAY + "].");
-		}
+		ClientManager.getInstance().findAndRegisterClientFor(invokerMetaData.getServiceName(),
+				invokerMetaData.getGroup(), invokerMetaData.getVip());
 	}
 
 	private void configLoadBalance() {
-
 		Object loadBalanceToSet = loadBalanceObj != null ? loadBalanceObj
 				: (loadBalanceClass != null ? loadBalanceClass : (loadBalance != null ? loadBalance : null));
 		if (loadBalanceToSet != null) {
@@ -280,36 +241,19 @@ public class ProxyBeanFactory implements FactoryBean {
 	 * 
 	 * @throws ClassNotFoundException
 	 */
-	private void generatorServiceInvokeProxy() throws ClassNotFoundException {
-		this.objType = Class.forName(this.iface);
-		if (isInJvm()) {
-			// 是否需要走一些Netty服务器? 需要重新考虑
-			if (logger.isInfoEnabled()) {
-				logger.info("in one jvm........serviceName is" + serviceName);
-			}
-			logger.error("fuck......");
-			Object serviceObject = ExtensionLoader.getExtension(ServiceFactory.class).getService(serviceName);
-			this.obj = serviceObject;
-		} else {
+	private InvokerConfig generatorServiceInvokeProxy() throws ClassNotFoundException {
+		this.objType = Class.forName(this.iface.trim());
+		InvokerConfig invokerMetaData = new InvokerConfig(this.objType, this.serviceName, this.timeout,
+				this.callMethod, this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadbalance,
+				this.cluster, this.retries, this.timeoutRetry, this.vip);
 
-			InvokerMetaData metadata = new InvokerMetaData(this.serviceName, this.timeout, this.callMethod,
-					this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadbalance, this.cluster,
-					this.retries, this.timeoutRetry);
+		this.obj = Proxy.newProxyInstance(
+				ProxyBeanFactory.class.getClassLoader(),
+				new Class[] { this.objType },
+				new ServiceInvocationProxy(invokerMetaData, InvocationHandlerLoader
+						.createInvokeHandler(invokerMetaData)));
 
-			this.obj = Proxy.newProxyInstance(ProxyBeanFactory.class.getClassLoader(), new Class[] { this.objType },
-					new ServiceInvocationProxy(metadata, InvocationHandlerLoader.createInvokeHandler(metadata)));
-		}
-	}
-
-	/**
-	 * TODO....
-	 * 
-	 * @return
-	 */
-	private boolean isInJvm() {
-
-		return false;
-		// return ManagerLoadFactory.serviceManager.exits(serviceName);
+		return invokerMetaData;
 	}
 
 	public Object getObject() {
@@ -420,9 +364,6 @@ public class ProxyBeanFactory implements FactoryBean {
 
 	public void setWriteBufferLimit(boolean writeBufferLimit) {
 		this.writeBufferLimit = writeBufferLimit;
-	}
-
-	public void setClusterConfig(Map<String, String> clusterConfig) {
 	}
 
 }

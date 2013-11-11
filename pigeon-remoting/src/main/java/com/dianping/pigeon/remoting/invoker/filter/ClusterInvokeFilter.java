@@ -10,11 +10,11 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
-import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
+import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
 
 /**
@@ -26,7 +26,7 @@ import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
  */
 public abstract class ClusterInvokeFilter extends InvocationInvokeFilter {
 
-	private static final Logger logger = Log4jLoader.getLogger(ClusterInvokeFilter.class);
+	private static final Logger logger = LoggerLoader.getLogger(ClusterInvokeFilter.class);
 
 	protected static ClientManager clientManager = ClientManager.getInstance();
 
@@ -50,7 +50,7 @@ public abstract class ClusterInvokeFilter extends InvocationInvokeFilter {
 	public abstract InvocationResponse _invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable;
 
-	protected DefaultRequest createRemoteCallRequest(InvokerContext invocationContext, InvokerMetaData metaData) {
+	protected DefaultRequest createRemoteCallRequest(InvokerContext invocationContext, InvokerConfig metaData) {
 		DefaultRequest request = new DefaultRequest(metaData.getServiceName(), invocationContext.getMethod().getName(),
 				invocationContext.getArguments(), metaData.getSerialize(), Constants.MESSAGE_TYPE_SERVICE,
 				metaData.getTimeout(), invocationContext.getMethod().getParameterTypes());

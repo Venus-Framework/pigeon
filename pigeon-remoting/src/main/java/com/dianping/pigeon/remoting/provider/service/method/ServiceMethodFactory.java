@@ -13,15 +13,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.component.QueryString;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.remoting.common.service.ServiceFactory;
+import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 
 public final class ServiceMethodFactory {
 
 	private static Map<String, ServiceMethodCache> methods = new ConcurrentHashMap<String, ServiceMethodCache>();
 
 	private static Set<String> ingoreMethods = new HashSet<String>();
-
-	private static ServiceFactory serviceFactory = ExtensionLoader.getExtension(ServiceFactory.class);
 
 	static {
 		Method[] objectMethodArray = Object.class.getMethods();
@@ -41,7 +39,7 @@ public final class ServiceMethodFactory {
 		if (serviceMethods == null) {
 			serviceMethods = methods.get(serviceName);
 			if (serviceMethods == null) {
-				Map<String, Object> services = serviceFactory.getAllServices();
+				Map<String, Object> services = ServiceProviderFactory.getAllServices();
 				Object service = services.get(serviceName);
 
 				if (service == null) {

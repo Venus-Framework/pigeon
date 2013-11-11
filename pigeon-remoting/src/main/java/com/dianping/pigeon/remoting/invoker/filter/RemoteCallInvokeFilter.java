@@ -10,7 +10,7 @@ import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
+import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.RemoteInvocationBean;
 import com.dianping.pigeon.remoting.invoker.component.async.Callback;
 import com.dianping.pigeon.remoting.invoker.component.async.CallbackFuture;
@@ -35,19 +35,19 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 
 		Client client = invocationContext.getClient();
 		InvocationRequest request = invocationContext.getRequest();
-		InvokerMetaData metaData = invocationContext.getMetaData();
-		String callMethod = metaData.getCallMethod();
+		InvokerConfig invokerConfig = invocationContext.getInvokerConfig();
+		String callMethod = invokerConfig.getCallMethod();
 		beforeInvoke(request, client.getAddress());
 		InvocationResponse response = null;
 		if (Constants.CALL_SYNC.equalsIgnoreCase(callMethod)) {
 			CallbackFuture future = new CallbackFuture();
 			sendRequest(client, request, future);
-			response = future.get(metaData.getTimeout());
+			response = future.get(invokerConfig.getTimeout());
 		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callMethod)) {
-			sendRequest(client, request, new ServiceCallbackWrapper(metaData.getCallback()));
+			sendRequest(client, request, new ServiceCallbackWrapper(invokerConfig.getCallback()));
 			response = NO_RETURN_RESPONSE;
 		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callMethod)) {
-			CallbackFuture future = new ServiceFutureImpl(metaData.getTimeout());
+			CallbackFuture future = new ServiceFutureImpl(invokerConfig.getTimeout());
 			sendRequest(client, request, future);
 			invocationContext.putTransientContextValue(Constants.CONTEXT_FUTURE, future);
 			response = NO_RETURN_RESPONSE;

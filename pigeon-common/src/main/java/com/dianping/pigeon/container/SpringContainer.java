@@ -8,11 +8,11 @@ import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 
 public final class SpringContainer {
 
-	private static final Logger logger = Log4jLoader.getLogger(SpringContainer.class);
+	private static final Logger logger = LoggerLoader.getLogger(SpringContainer.class);
 
 	public String DEFAULT_SPRING_CONFIG = "classpath*:META-INF/spring/*.xml";
 

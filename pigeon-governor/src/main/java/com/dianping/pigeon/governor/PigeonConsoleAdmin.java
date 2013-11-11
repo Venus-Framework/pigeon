@@ -8,13 +8,13 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import com.dianping.pigeon.extension.plugin.Component;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 
 public final class PigeonConsoleAdmin implements Component {
 
 	private static final int CONSOLE_ADMIN_PORT = 9191;
 
-	private static final Logger logger = Log4jLoader.getLogger(PigeonConsoleAdmin.class);
+	private static final Logger logger = LoggerLoader.getLogger(PigeonConsoleAdmin.class);
 	private static String SHUTDOWN_HOOK_KEY = "true";
 	private static boolean running = false;
 

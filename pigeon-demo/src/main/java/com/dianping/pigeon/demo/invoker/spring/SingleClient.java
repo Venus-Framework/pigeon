@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.demo.invoker;
+package com.dianping.pigeon.demo.invoker.spring;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,7 +30,7 @@ public class SingleClient {
 		AtomicInteger atomicInteger = new AtomicInteger();
 		try {
 			EchoService service = (EchoService) context.getBean("echoService");
-			String input = "echoService_hession-"
+			String input = "echoService_"
 					+ atomicInteger.incrementAndGet();
 			System.out.println("input:" + input);
 			String echo = service.echoWithException(input);

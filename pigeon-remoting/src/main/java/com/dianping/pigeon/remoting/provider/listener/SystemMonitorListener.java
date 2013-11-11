@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.event.RuntimeServiceEvent;
 import com.dianping.pigeon.event.RuntimeServiceListener;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 
 /**
  * 
@@ -26,7 +26,7 @@ import com.dianping.pigeon.monitor.Log4jLoader;
 public class SystemMonitorListener implements RuntimeServiceListener {
 
 	final static String name = "provider-system-monitor";
-	private static final Logger logger = Log4jLoader.getLogger(name);
+	private static final Logger logger = LoggerLoader.getLogger(name);
 	private static final String SPLITTER = ",";
 	private static final DecimalFormat decimalformat = new DecimalFormat("#.##");
 	private static final MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();

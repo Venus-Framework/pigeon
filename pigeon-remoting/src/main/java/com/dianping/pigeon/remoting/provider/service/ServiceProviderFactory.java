@@ -12,36 +12,40 @@ import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.registry.RegistryManager;
-import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.util.IpUtils;
 
 /**
  * @author xiangwu
  * @Sep 30, 2013
  * 
  */
-public final class DefaultServiceFactory implements ServiceFactory {
+public final class ServiceProviderFactory {
 
 	private static ConcurrentHashMap<String, Object> services = new ConcurrentHashMap<String, Object>();
-	
+
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	public DefaultServiceFactory() {
+	public ServiceProviderFactory() {
 	}
 
-	public void addServices(Map<String, Object> services, String ip, int port) throws ServiceException {
+	public static void addServices(Map<String, Object> services, int port) throws ServiceException {
 		for (String serviceName : services.keySet()) {
-			addService(serviceName, services.get(serviceName), ip, port);
+			addService(serviceName, services.get(serviceName), port);
 		}
 	}
-	
-	public void addService(String serviceName, Object service, String ip, int port)
-			throws ServiceException {
+
+	public static void addService(String serviceName, Object service, int port) throws ServiceException {
 		if (!services.containsKey(serviceName)) {
 			try {
-				String autoRegister = configManager.getProperty(Constants.KEY_AUTO_REGISTER, Constants.DEFAULT_AUTO_REGISTER);
-				if("true".equalsIgnoreCase(autoRegister)) {
-					String serviceAddress = ip + ":" + port;
+				String autoRegister = configManager.getProperty(Constants.KEY_AUTO_REGISTER,
+						Constants.DEFAULT_AUTO_REGISTER);
+				if ("true".equalsIgnoreCase(autoRegister)) {
+					String localip = RegistryManager.getInstance().getProperty(Constants.KEY_LOCAL_IP);
+					if (localip == null || localip.length() == 0) {
+						localip = IpUtils.getFirstLocalIp();
+					}
+					String serviceAddress = localip + ":" + port;
 					String group = configManager.getProperty(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
 					String weight = configManager.getProperty(Constants.KEY_WEIGHT, Constants.DEFAULT_WEIGHT);
 					int intWeight = Integer.parseInt(weight);
@@ -53,22 +57,20 @@ public final class DefaultServiceFactory implements ServiceFactory {
 			services.putIfAbsent(serviceName, service);
 		}
 	}
-	
-	public Object getService(String serviceName) {
+
+	public static Object getService(String serviceName) {
 		return services.get(serviceName);
 	}
 
-	public Collection<String> getServiceNames() {
+	public static Collection<String> getServiceNames() {
 		return services.keySet();
 	}
 
-	@Override
-	public boolean exits(String serviceName) {
+	public static boolean exists(String serviceName) {
 		return services.containsKey(serviceName);
 	}
 
-	@Override
-	public Map<String, Object> getAllServices() {
+	public static Map<String, Object> getAllServices() {
 		return services;
 	}
 

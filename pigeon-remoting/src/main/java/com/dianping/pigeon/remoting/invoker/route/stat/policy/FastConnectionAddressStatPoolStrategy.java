@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.route.stat.DpsfAddressStatPool;
 import com.dianping.pigeon.remoting.invoker.route.stat.DpsfAddressStatPool.AddressStat;
 import com.dianping.pigeon.remoting.invoker.route.stat.support.AddressConstant;
@@ -33,7 +33,7 @@ public class FastConnectionAddressStatPoolStrategy implements DpsfAddressStatPoo
 
 	private static final float factorValue = 2; // 链接的时间必须是小于2倍的平均时间
 
-	private static final Logger logger = Log4jLoader.getLogger(FastConnectionAddressStatPoolStrategy.class.getName());
+	private static final Logger logger = LoggerLoader.getLogger(FastConnectionAddressStatPoolStrategy.class.getName());
 
 	public void analysis(DpsfAddressStatPool addressStatPool, Map<String, AddressStat> copyAddressStats) {
 		if (copyAddressStats.size() == 0)

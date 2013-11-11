@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.demo.invoker;
+package com.dianping.pigeon.demo.invoker.spring;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,7 +42,7 @@ class CallbackClientThread extends Thread {
 				} catch (InterruptedException e) {
 				}
 				EchoService service = (EchoService) context.getBean("echoService_callback");
-				String input = "echoService_callback-" + atomicInteger.incrementAndGet();
+				String input = "echoService_callback_" + atomicInteger.incrementAndGet();
 				System.out.println("input:" + input);
 				String echo = service.echo(input);
 				System.out.println("result:" + echo);

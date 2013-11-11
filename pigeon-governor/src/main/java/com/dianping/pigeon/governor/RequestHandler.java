@@ -21,9 +21,9 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 
 import com.dianping.pigeon.component.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
-import com.dianping.pigeon.remoting.common.service.ServiceFactory;
+import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 
 /**
  * 
@@ -34,7 +34,7 @@ import com.dianping.pigeon.remoting.common.service.ServiceFactory;
  */
 public class RequestHandler extends AbstractHandler {
 
-	private static final Logger logger = Log4jLoader.getLogger(RequestHandler.class);
+	private static final Logger logger = LoggerLoader.getLogger(RequestHandler.class);
 	private VelocityContext context;
 	private Template template;
 	private static VelocityEngine ve = new VelocityEngine();
@@ -96,8 +96,7 @@ public class RequestHandler extends AbstractHandler {
 	}
 
 	private void addServices() {
-		ServiceFactory serviceManager = ExtensionLoader.getExtension(ServiceFactory.class);
-		Map<String, Object> services = serviceManager.getAllServices();
+		Map<String, Object> services = ServiceProviderFactory.getAllServices();
 		context.put("allServices", services);
 	}
 

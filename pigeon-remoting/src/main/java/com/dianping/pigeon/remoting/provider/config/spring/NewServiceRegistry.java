@@ -8,17 +8,14 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.Log4jLoader;
-import com.dianping.pigeon.registry.RegistryManager;
-import com.dianping.pigeon.remoting.common.service.ServiceFactory;
-import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.loader.ProviderBootStrapLoader;
-import com.dianping.pigeon.util.IpUtils;
+import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 
 public class NewServiceRegistry {
 
-	private static final Logger logger = Log4jLoader.getLogger(NewServiceRegistry.class);
+	private static final Logger logger = LoggerLoader.getLogger(NewServiceRegistry.class);
 
 	private String serviceName;
 	private Object serviceImpl;
@@ -55,17 +52,9 @@ public class NewServiceRegistry {
 	 */
 	public void init() throws ServiceException {
 		ProviderBootStrapLoader.startup(port);
-		
 		if (serviceName == null) {
 			serviceName = serviceImpl.getClass().getInterfaces()[0].getName();
 		}
-		
-		String localip = RegistryManager.getInstance().getProperty(Constants.KEY_LOCAL_IP);
-		if(localip==null || localip.length()==0) {
-			localip = IpUtils.getFirstLocalIp();
-		}
-		
-		ExtensionLoader.getExtension(ServiceFactory.class).addService(
-				serviceName, serviceImpl, localip, port);
+		ServiceProviderFactory.addService(serviceName, serviceImpl, port);
 	}
 }

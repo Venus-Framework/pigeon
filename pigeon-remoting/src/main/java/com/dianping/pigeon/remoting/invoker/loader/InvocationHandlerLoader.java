@@ -15,7 +15,7 @@ import com.dianping.pigeon.extension.DefaultExtension;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
-import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
+import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.filter.ContextPrepareInvokeFilter;
 import com.dianping.pigeon.remoting.invoker.filter.FailoverClusterInvokeFilter;
 import com.dianping.pigeon.remoting.invoker.filter.GatewayInvokeFilter;
@@ -63,7 +63,7 @@ public final class InvocationHandlerLoader extends DefaultExtension {
 		failOverInvocationHandler = createInvocationHandler(failoverInvokeFilters);
 	}
 
-	public static ServiceInvocationHandler createInvokeHandler(InvokerMetaData metadata) {
+	public static ServiceInvocationHandler createInvokeHandler(InvokerConfig metadata) {
 		if ("failover".equalsIgnoreCase(metadata.getCluster())) {
 			return failOverInvocationHandler;
 		}

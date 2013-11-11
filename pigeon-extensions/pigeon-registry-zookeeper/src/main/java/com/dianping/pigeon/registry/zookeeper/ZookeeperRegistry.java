@@ -17,7 +17,7 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs.Ids;
 
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryMeta;
 import com.dianping.pigeon.registry.exception.RegistryException;
@@ -27,7 +27,7 @@ import com.dianping.pigeon.registry.util.Constants;
 
 public class ZookeeperRegistry implements Registry {
 
-	private static Logger logger = Log4jLoader.getLogger(ZookeeperRegistry.class);
+	private static Logger logger = LoggerLoader.getLogger(ZookeeperRegistry.class);
 	
 	private ZooKeeperWrapper zkClient;
 	private ZookeeperWatcher zkWatcher;

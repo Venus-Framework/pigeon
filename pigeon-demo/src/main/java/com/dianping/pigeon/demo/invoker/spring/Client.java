@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.demo.invoker;
+package com.dianping.pigeon.demo.invoker.spring;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,14 +42,9 @@ class ClientThread extends Thread {
 				} catch (InterruptedException e) {
 				}
 				EchoService service = (EchoService) context.getBean("echoService");
-				String input = "echoService_hession-" + atomicInteger.incrementAndGet();
+				String input = "echoService_" + atomicInteger.incrementAndGet();
 				System.out.println("input:" + input);
 				String echo = service.echo(input);
-				System.out.println("result:" + echo);
-				service = (EchoService) context.getBean("echoService_java");
-				input = "echoService_java-" + atomicInteger.incrementAndGet();
-				System.out.println("input:" + input);
-				echo = service.echo(input);
 				System.out.println("result:" + echo);
 			} catch (Throwable e) {
 				e.printStackTrace();

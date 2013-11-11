@@ -23,7 +23,7 @@ import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.event.RuntimeServiceEvent;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
@@ -38,7 +38,7 @@ import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 
 public class NettyClient implements Client {
 
-	private static final Logger logger = Log4jLoader.getLogger(NettyClient.class);
+	private static final Logger logger = LoggerLoader.getLogger(NettyClient.class);
 
 	private ClientBootstrap bootstrap;
 

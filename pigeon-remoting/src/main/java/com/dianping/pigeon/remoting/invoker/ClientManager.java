@@ -19,14 +19,14 @@ import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.component.phase.Disposable;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
-import com.dianping.pigeon.remoting.invoker.component.InvokerMetaData;
+import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListenerManager;
 import com.dianping.pigeon.remoting.invoker.listener.DefaultClusterListener;
 import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;
@@ -38,7 +38,7 @@ import com.dianping.pigeon.threadpool.ThreadPool;
 
 public class ClientManager implements Disposable {
 
-	private static final Logger logger = Log4jLoader.getLogger(ClientManager.class);
+	private static final Logger logger = LoggerLoader.getLogger(ClientManager.class);
 
 	private ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
@@ -93,7 +93,7 @@ public class ClientManager implements Disposable {
 		
 	}
 
-	public Client getClient(InvokerMetaData metaData, InvocationRequest request, List<Client> excludeClients) {
+	public Client getClient(InvokerConfig metaData, InvocationRequest request, List<Client> excludeClients) {
 
 		List<Client> clientList = clusterListener.getClientList(metaData.getServiceName());
 		List<Client> clientsToRoute = new ArrayList<Client>(clientList);

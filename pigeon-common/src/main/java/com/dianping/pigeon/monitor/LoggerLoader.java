@@ -19,6 +19,9 @@ import org.apache.log4j.spi.LoggerRepository;
 import org.apache.log4j.spi.RootLogger;
 import org.apache.log4j.xml.DOMConfigurator;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
+
 /**
  * <p>
  * Title: pigeonLog.java
@@ -31,8 +34,8 @@ import org.apache.log4j.xml.DOMConfigurator;
  * @version 1.0
  * @created 2010-9-2 下午05:58:39
  */
-public class Log4jLoader {
-	private Log4jLoader() {
+public class LoggerLoader {
+	private LoggerLoader() {
 	}
 
 	private static final String LOGGER_NAME = "com.dianping.pigeon";
@@ -41,6 +44,7 @@ public class Log4jLoader {
 	private static LoggerRepository loggerRepository = null;
 	private static Level level = Level.WARN;
 	private static volatile boolean initOK = false;
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	public static synchronized void initLogger(String className) {
 		if (initOK) {
@@ -49,8 +53,12 @@ public class Log4jLoader {
 		Properties logPro = new Properties();
 		String logLevel = "warn";
 		String logSuffix = "default";
+		if(configManager != null) {
+			logLevel = configManager.getProperty("pigeon.log.defaultlevel", logLevel);
+		}
+		
 		try {
-			logPro.load(Log4jLoader.class.getClassLoader().getResourceAsStream("config/applicationContext.properties"));
+			logPro.load(LoggerLoader.class.getClassLoader().getResourceAsStream("config/applicationContext.properties"));
 			logLevel = logPro.getProperty("pigeon.logLevel") == null ? null : logPro.getProperty("pigeon.logLevel");
 			logSuffix = logPro.getProperty("pigeon.logSuffix");
 		} catch (Exception e) {
@@ -74,7 +82,7 @@ public class Log4jLoader {
 			level = Level.ERROR;
 		}
 		LoggerRepository lr = new Hierarchy(rootLogger);
-		new DOMConfigurator().doConfigure(Log4jLoader.class.getClassLoader().getResource("pigeon_log4j.xml"), lr);
+		new DOMConfigurator().doConfigure(LoggerLoader.class.getClassLoader().getResource("pigeon_log4j.xml"), lr);
 		rootLogger.setLevel(level);
 		
 		String osName = System.getProperty("os.name");

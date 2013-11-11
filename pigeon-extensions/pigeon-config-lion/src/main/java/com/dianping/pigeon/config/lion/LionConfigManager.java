@@ -12,7 +12,7 @@ import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
 import com.dianping.lion.client.LionException;
 import com.dianping.pigeon.config.AbstractConfigManager;
-import com.dianping.pigeon.monitor.Log4jLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 
 /**
  * @author xiangwu
@@ -21,7 +21,7 @@ import com.dianping.pigeon.monitor.Log4jLoader;
  */
 public class LionConfigManager extends AbstractConfigManager {
 
-	private static Logger logger = Log4jLoader.getLogger(LionConfigManager.class);
+	private static Logger logger = LoggerLoader.getLogger(LionConfigManager.class);
 	
 	Properties localCache = new Properties();
 
@@ -63,10 +63,10 @@ public class LionConfigManager extends AbstractConfigManager {
 	@Override
 	public void init(Properties properties) {
 		localCache.putAll(properties);
-		try {
-			ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress()).setPts(properties);
-		} catch (LionException e) {
-			throw new RuntimeException("init lion config manager failed", e);
-		}
+//		try {
+//			ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress()).setPts(properties);
+//		} catch (LionException e) {
+//			throw new RuntimeException("init lion config manager failed", e);
+//		}
 	}
 }
