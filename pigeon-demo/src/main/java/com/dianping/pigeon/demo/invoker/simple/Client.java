@@ -33,7 +33,7 @@ public class Client {
 				String echo = service.echo(input);
 				System.out.println("result:" + echo);
 
-				String input2 = "echoServiceCallback_" + atomicInteger.incrementAndGet();
+				String input2 = "echoServiceWithCallback_" + atomicInteger.incrementAndGet();
 				System.out.println("input:" + input2);
 				String echo2 = serviceWithCallback.echo(input);
 				System.out.println("result:" + echo2);

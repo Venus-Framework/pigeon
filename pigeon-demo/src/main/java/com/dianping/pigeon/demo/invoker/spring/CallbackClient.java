@@ -41,8 +41,8 @@ class CallbackClientThread extends Thread {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
 				}
-				EchoService service = (EchoService) context.getBean("echoService_callback");
-				String input = "echoService_callback_" + atomicInteger.incrementAndGet();
+				EchoService service = (EchoService) context.getBean("echoServiceWithCallback");
+				String input = "echoServiceWithCallback_" + atomicInteger.incrementAndGet();
 				System.out.println("input:" + input);
 				String echo = service.echo(input);
 				System.out.println("result:" + echo);

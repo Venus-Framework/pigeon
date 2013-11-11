@@ -12,8 +12,7 @@
 	<bean id="echoServiceImpl" class="com.dianping.pigeon.demo.provider.EchoServiceImpl" />
 
 	<pigeon:service id="echoService"
-		interface="com.dianping.pigeon.demo.EchoService" ref="echoServiceImpl"
-		group="www" port="4625"/>
+		interface="com.dianping.pigeon.demo.EchoService" ref="echoServiceImpl" />
 
 <!-- <bean id="sayHelloServiceImpl" class="com.dianping.pigeon.demo.provider.SayHelloServiceImpl" 
 		/> <pigeon:service id="sayHelloService" name="http://service.dianping.com/testService/sayHelloService_1.0.0" 

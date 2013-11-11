@@ -56,9 +56,10 @@ public class ServiceCallbackWrapper implements Callback {
 			}
 			try {
 				if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-					logger.error("----------response is:" + response);
-					logger.error("----------callback is:" + callback);
-
+					if(logger.isDebugEnabled()) {
+						logger.debug("response:" + response);
+						logger.debug("callback:" + callback);
+					}
 					this.callback.callback(response.getReturn());
 				} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 					logger.error(response.getCause());
