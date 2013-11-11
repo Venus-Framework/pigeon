@@ -38,4 +38,6 @@
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 	</dependencies>
+	<groupId>com.dianping</groupId>
+	<version>2.0.0-SNAPSHOT</version>
 </project>

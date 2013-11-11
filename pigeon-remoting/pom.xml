@@ -46,4 +46,6 @@
 			<artifactId>pigeon-registry</artifactId>
 		</dependency>
 	</dependencies>
+	<version>2.0.0-SNAPSHOT</version>
+	<groupId>com.dianping</groupId>
 </project>
