@@ -21,34 +21,17 @@ public class CallbackClient {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		BootstrapLoader.startupInvoker();
-		for (int i = 0; i < 1; i++) {
-			CallbackClientThread thread = new CallbackClientThread();
-			thread.start();
-		}
-	}
-
-}
-
-class CallbackClientThread extends Thread {
-
-	public void run() {
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("META-INF/spring/app-invoker.xml");
-		try {
-			AtomicInteger atomicInteger = new AtomicInteger();
-			for (;;) {
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-				}
+		AtomicInteger atomicInteger = new AtomicInteger();
+		for (;;) {
+			try {
 				EchoService service = (EchoService) context.getBean("echoServiceWithCallback");
 				String input = "echoServiceWithCallback_" + atomicInteger.incrementAndGet();
 				System.out.println("input:" + input);
-				String echo = service.echo(input);
-				System.out.println("result:" + echo);
+				service.echo(input);
+			} catch (Throwable e) {
+				e.printStackTrace();
 			}
-		} catch (Throwable e) {
-			e.printStackTrace();
 		}
 	}
 }

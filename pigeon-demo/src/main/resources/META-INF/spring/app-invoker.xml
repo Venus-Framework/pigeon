@@ -17,10 +17,4 @@
 		interface="com.dianping.pigeon.demo.EchoService" callMethod="callback"
 		callback="echoServiceCallback" />
 
-	<!-- 原配置 -->
-	<!-- <bean id="echoService" class="com.dianping.dpsf.spring.ProxyBeanFactory" 
-		init-method="init"> <property name="serviceName" value="http://service.dianping.com/testService/echoService_1.0.0" 
-		/> <property name="iface" value="com.dianping.pigeon.demo.EchoService" /> 
-		<property name="serialize" value="hessian" /> <property name="callMethod" 
-		value="sync" /> <property name="timeout" value="5000" /> </bean> -->
 </beans>

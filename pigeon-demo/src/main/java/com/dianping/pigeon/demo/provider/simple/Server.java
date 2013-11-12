@@ -16,7 +16,7 @@ public class Server {
 
 		ServiceFactory.publishService(EchoService.class, new EchoServiceImpl());
 
-		Thread.currentThread().join();
+		System.in.read();
 	}
 
 }

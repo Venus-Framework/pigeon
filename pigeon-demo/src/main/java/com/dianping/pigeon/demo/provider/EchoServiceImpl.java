@@ -5,8 +5,6 @@
 package com.dianping.pigeon.demo.provider;
 
 import com.dianping.pigeon.demo.EchoService;
-import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.remoting.provider.ServerFactory;
 
 /**
  * 
@@ -17,22 +15,16 @@ import com.dianping.pigeon.remoting.provider.ServerFactory;
  */
 public class EchoServiceImpl implements EchoService {
 
-	// private SayHelloService sayHelloService;
-
 	@Override
 	public String echo(String input) {
-		System.out.println("server port:"
-				+ ExtensionLoader.getExtension(ServerFactory.class).getPort()
-				+ ", received: " + input);
+		System.out.println("received: " + input);
 		return "Echo: " + input;
 	}
 
 	@Override
 	public String echoWithException(String input) {
-		System.out.println("server port:"
-				+ ExtensionLoader.getExtension(ServerFactory.class).getPort()
-				+ ", received: " + input);
-		throw new EchoException("error while receive msg:" + input);
+		System.out.println("received: " + input);
+		throw new EchoException("error while receiving msg:" + input);
 	}
 
 }

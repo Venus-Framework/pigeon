@@ -45,9 +45,23 @@ public class ServiceFactory {
 		return getService(null, serviceInterface);
 	}
 
+	public static <T> T getService(Class<T> serviceInterface, int timeout) throws RpcException {
+		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(serviceInterface);
+		invokerConfig.setTimeout(timeout);
+		return getService(invokerConfig);
+	}
+
 	public static <T> T getService(Class<T> serviceInterface, ServiceCallback callback) throws RpcException {
 		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(serviceInterface);
 		invokerConfig.setCallback(callback);
+		return getService(invokerConfig);
+	}
+
+	public static <T> T getService(Class<T> serviceInterface, ServiceCallback callback, int timeout)
+			throws RpcException {
+		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(serviceInterface);
+		invokerConfig.setCallback(callback);
+		invokerConfig.setTimeout(timeout);
 		return getService(invokerConfig);
 	}
 

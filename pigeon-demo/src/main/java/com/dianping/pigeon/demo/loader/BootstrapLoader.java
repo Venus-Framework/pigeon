@@ -29,11 +29,6 @@ public final class BootstrapLoader {
 	public static void startupProvider() {
 		ConfigLoader.init();
 		providerSpringContainer.start();
-		try {
-			Thread.currentThread().join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		// ProviderBootStrapLoader.startup();
 	}
 

@@ -24,10 +24,6 @@ public class Client {
 		AtomicInteger atomicInteger = new AtomicInteger();
 		for (;;) {
 			try {
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-				}
 				String input = "echoService_" + atomicInteger.incrementAndGet();
 				System.out.println("input:" + input);
 				String echo = service.echo(input);
