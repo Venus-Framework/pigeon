@@ -12,27 +12,26 @@
 		/> </bean> -->
 
 	<pigeon:reference id="echoServiceXml"
-		name="http://service.dianping.com/testService/echoServiceXml_1.0.0"
+		url="http://service.dianping.com/testService/echoServiceXml_1.0.0"
 		interface="com.dianping.pigeon.test.service.EchoService" />
 
 	<pigeon:reference id="echoServiceXmlForVip"
-		name="http://service.dianping.com/testService/echoServiceXml_1.0.0_ForVip"
-		interface="com.dianping.pigeon.test.service.EchoService" testVip="127.0.0.1:4625"
-		vip="127.0.0.1:4625" />
+		url="http://service.dianping.com/testService/echoServiceXml_1.0.0_ForVip"
+		interface="com.dianping.pigeon.test.service.EchoService" vip="127.0.0.1:4625" />
 
 	<bean id="echoServiceServiceCallback"
 		class="com.dianping.pigeon.test.service.EchoServiceCallbackImpl" />
 	<pigeon:reference id="echoServiceXml_callback"
-		name="http://service.dianping.com/testService/echoServiceXml_1.0.0"
+		url="http://service.dianping.com/testService/echoServiceXml_1.0.0"
 		interface="com.dianping.pigeon.test.service.EchoService" callMethod="callback"
 		callback="echoServiceServiceCallback" />
 
 	<pigeon:reference id="echoServiceXml_oneway"
-		name="http://service.dianping.com/testService/echoServiceXml_1.0.0"
+		url="http://service.dianping.com/testService/echoServiceXml_1.0.0"
 		interface="com.dianping.pigeon.test.service.EchoService" callMethod="oneway" />
 
 	<pigeon:reference id="echoServiceXml_future"
-		name="http://service.dianping.com/testService/echoServiceXml_1.0.0"
+		url="http://service.dianping.com/testService/echoServiceXml_1.0.0"
 		interface="com.dianping.pigeon.test.service.EchoService" callMethod="future" />
 
 </beans>

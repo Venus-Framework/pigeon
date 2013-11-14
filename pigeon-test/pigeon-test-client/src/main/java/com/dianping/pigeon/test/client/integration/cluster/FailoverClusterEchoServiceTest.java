@@ -13,7 +13,7 @@ import com.dianping.pigeon.test.service.EchoService;
 
 public class FailoverClusterEchoServiceTest extends BaseInvokerTest {
 
-    @PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", cluster = "failover")
+    @PigeonAutoTest(url = "http://service.dianping.com/testService/echoService_1.0.0", cluster = "failover")
     public EchoService echoService;
 
     @Test

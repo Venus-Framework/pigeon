@@ -37,9 +37,7 @@ public abstract class ClusterInvokeFilter extends InvocationInvokeFilter {
 
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
-
 		try {
-
 			return _invoke(handler, invocationContext);
 		} catch (Exception e) {
 			logger.error("Invoke remote call failed.", e);
@@ -51,7 +49,7 @@ public abstract class ClusterInvokeFilter extends InvocationInvokeFilter {
 			throws Throwable;
 
 	protected DefaultRequest createRemoteCallRequest(InvokerContext invocationContext, InvokerConfig metaData) {
-		DefaultRequest request = new DefaultRequest(metaData.getServiceName(), invocationContext.getMethod().getName(),
+		DefaultRequest request = new DefaultRequest(metaData.getUrl(), invocationContext.getMethod().getName(),
 				invocationContext.getArguments(), metaData.getSerialize(), Constants.MESSAGE_TYPE_SERVICE,
 				metaData.getTimeout(), invocationContext.getMethod().getParameterTypes());
 		request.setSequence(requestSequenceMaker.incrementAndGet() * -1); // (*

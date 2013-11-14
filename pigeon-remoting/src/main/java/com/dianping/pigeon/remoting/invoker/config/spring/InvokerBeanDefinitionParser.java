@@ -65,7 +65,7 @@ public class InvokerBeanDefinitionParser implements BeanDefinitionParser {
 			InvokerBootStrapLoader.startup();
 
 			MutablePropertyValues properties = beanDefinition.getPropertyValues();
-			properties.addPropertyValue("serviceName", getServiceNameWithZoneAndGroup(element));
+			properties.addPropertyValue("serviceName", element.getAttribute("url"));
 			properties.addPropertyValue("iface", element.getAttribute("interface"));
 			properties.addPropertyValue("serialize", element.getAttribute("serialize"));
 			properties.addPropertyValue("callMethod", element.getAttribute("callMethod"));
@@ -74,6 +74,7 @@ public class InvokerBeanDefinitionParser implements BeanDefinitionParser {
 			properties.addPropertyValue("cluster", element.getAttribute("cluster"));
 			properties.addPropertyValue("retries", element.getAttribute("retries"));
 			properties.addPropertyValue("timeoutRetry", element.getAttribute("timeoutRetry"));
+			properties.addPropertyValue("version", element.getAttribute("version"));
 
 			String callback = element.getAttribute("callback");
 			if (StringUtils.isNotEmpty(callback)) {
@@ -87,9 +88,6 @@ public class InvokerBeanDefinitionParser implements BeanDefinitionParser {
 				if (element.hasAttribute("vip")) {
 					properties.addPropertyValue("vip", resolveReference(element, "vip"));
 				}
-				if (element.hasAttribute("testVip")) {
-					properties.addPropertyValue("testVip", resolveReference(element, "testVip"));
-				}
 			} catch (RegistryException e) {
 				logger.error("", e);
 			}
@@ -99,28 +97,6 @@ public class InvokerBeanDefinitionParser implements BeanDefinitionParser {
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
 
 		return beanDefinition;
-	}
-
-	private static String getServiceNameWithZoneAndGroup(Element element) {
-		String serviceName = element.getAttribute(element.hasAttribute("name") ? "name" : "interface");
-//		try {
-//			QueryString parameters = new QueryString();
-//			RegistryManager.getInstance();
-//			String zone = RegistryManager.getProperty("zoneName");
-//			if (zone != null) {
-//				parameters.addParameter("zone", zone);
-//			}
-//			if (element.hasAttribute("group")) {
-//				String group = resolveReference(element, "group");
-//				parameters.addParameter("group", group);
-//			}
-//			if (!parameters.isEmpty()) {
-//				serviceName += QueryString.PREFIX + parameters;
-//			}
-//		} catch (RegistryException e) {
-//			logger.error("", e);
-//		}
-		return serviceName;
 	}
 
 	private static String resolveReference(Element element, String attribute) throws RegistryException {

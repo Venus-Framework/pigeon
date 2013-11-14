@@ -20,7 +20,7 @@ import com.dianping.pigeon.test.service.EchoService;
  */
 public class DefaultTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
+	@PigeonAutoTest(callMethod="oneway", serviceName = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
 	public EchoService echoService;
 
 	static AtomicLong counter = new AtomicLong(0);
@@ -66,6 +66,7 @@ public class DefaultTest extends BaseInvokerTest {
 			while (true) {
 				String msg = null;
 				try {
+					//Thread.sleep(1000);
 					msg = System.currentTimeMillis() + "" + Math.abs(RandomUtils.nextLong());
 					String echo = service.echo(msg);
 					// System.out.println(echo);

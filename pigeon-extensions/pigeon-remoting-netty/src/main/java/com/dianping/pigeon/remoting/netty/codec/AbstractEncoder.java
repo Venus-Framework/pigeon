@@ -26,15 +26,20 @@ import com.dianping.pigeon.serialize.SerializerFactory;
 public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder {
 
 	private static final Logger log = LoggerLoader.getLogger(AbstractEncoder.class);
-
+	
 	public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 		if (msg instanceof InvocationSerializable) {
 			InvocationSerializable message = (InvocationSerializable) msg;
+//			String s = System.currentTimeMillis() + "";
 			try {
 				ChannelBuffer buffer = (ChannelBuffer) _encode(message.getSerializ(), ctx, channel, message.getObject());
 				buffer.setBytes(0, Constants.MESSAGE_HEAD);
 				buffer.setByte(2, message.getSerializ());
 				buffer.readerIndex(0);
+//				long cost = System.currentTimeMillis() - Long.valueOf(s);
+//				if(cost > 300) {
+//					System.out.println("cost:" + cost + ",size:" + buffer.readableBytes());
+//				}
 				return buffer;
 			} catch (Exception e) {
 				doFailResponse(channel,

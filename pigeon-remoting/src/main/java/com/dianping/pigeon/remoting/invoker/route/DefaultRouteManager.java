@@ -105,7 +105,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 			}
 		}
 		if (filteredClients.isEmpty()) {
-			throw new NoConnectionException("no available server exists for service[" + metaData.getServiceName()
+			throw new NoConnectionException("no available server exists for service[" + metaData.getUrl()
 					+ "] and group[" + metaData.getGroup() + "]"
 					+ (existClientBuffToLimit ? ", and exists some server's write buffer reach limit" : "") + ".");
 		}

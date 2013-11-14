@@ -13,9 +13,9 @@ public class ProviderConfig<T> {
 
 	private Class<T> serviceInterface;
 
-	private String serviceName;
+	private String url;
 
-	private String serviceVersion;
+	private String version;
 
 	private T service;
 
@@ -29,12 +29,12 @@ public class ProviderConfig<T> {
 		this.port = port;
 	}
 
-	public String getServiceVersion() {
-		return serviceVersion;
+	public String getVersion() {
+		return version;
 	}
 
-	public void setServiceVersion(String serviceVersion) {
-		this.serviceVersion = serviceVersion;
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 	public Class<T> getServiceInterface() {
@@ -46,21 +46,21 @@ public class ProviderConfig<T> {
 	}
 
 	/**
-	 * @return the serviceName
+	 * @return the url
 	 */
-	public String getServiceName() {
-		return serviceName;
+	public String getUrl() {
+		return url;
 	}
 
 	/**
-	 * @param serviceName
-	 *            the serviceName to set
+	 * @param url
+	 *            the url to set
 	 */
-	public void setServiceName(String serviceName) {
-		if (serviceName != null) {
-			serviceName = serviceName.trim();
+	public void setUrl(String url) {
+		if (url != null) {
+			url = url.trim();
 		}
-		this.serviceName = serviceName;
+		this.url = url;
 	}
 
 	public T getService() {

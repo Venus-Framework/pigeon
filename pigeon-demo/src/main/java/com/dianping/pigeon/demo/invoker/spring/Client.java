@@ -32,8 +32,8 @@ public class Client {
 				EchoService service = (EchoService) context.getBean("echoService");
 				String input = "echoService_" + atomicInteger.incrementAndGet();
 				System.out.println("input:" + input);
-				String echo = service.echoWithException(input);
-				System.out.println("result:" + echo);
+				//String echo = service.echoWithException(input);
+				//System.out.println("result:" + echo);
 			} catch (Throwable e) {
 				Assert.assertEquals(EchoException.class, e.getClass());
 			}

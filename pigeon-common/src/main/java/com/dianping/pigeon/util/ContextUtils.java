@@ -244,5 +244,6 @@ public final class ContextUtils {
 		if (context != null) {
 			context.clear();
 		}
+		localContext.remove();
 	}
 }

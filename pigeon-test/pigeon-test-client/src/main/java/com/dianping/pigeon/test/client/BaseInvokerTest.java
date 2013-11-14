@@ -14,9 +14,7 @@ import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.component.QueryString;
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
-import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.test.client.loader.ConfigLoader;
-import com.dianping.pigeon.test.client.loader.SpringLoader;
 
 public class BaseInvokerTest {
 
@@ -30,9 +28,8 @@ public class BaseInvokerTest {
 
 	@Before
 	public void start() throws Exception {
-		//SpringLoader.startupProvider(ServerFactory.DEFAULT_PORT);
-
-		ConfigLoader.initClient();
+		// SpringLoader.startupProvider(ServerFactory.DEFAULT_PORT);
+		ConfigLoader.init();
 		try {
 			initClient();
 		} catch (Exception e) {
@@ -42,22 +39,20 @@ public class BaseInvokerTest {
 
 	@After
 	public void stop() throws Exception {
-		SpringLoader.stopProvider(ServerFactory.DEFAULT_PORT);
 	}
 
-	private void initClient() throws IllegalArgumentException, IllegalAccessException, InstantiationException,
-			ClassNotFoundException {
+	private void initClient() throws Exception {
 		for (Field field : getClass().getFields()) {
 			if (field.isAnnotationPresent(PigeonAutoTest.class)) {
 				ProxyBeanFactory factory = new ProxyBeanFactory();
 				PigeonAutoTest test = field.getAnnotation(PigeonAutoTest.class);
 
 				String serviceName = null;
-				if (test.serviceName().isEmpty()) {
+				if (test.url().isEmpty()) {
 					serviceName = field.getType().getName();
 
 				} else {
-					serviceName = test.serviceName();
+					serviceName = test.url();
 				}
 
 				if (test.group().isEmpty()) {
@@ -77,7 +72,6 @@ public class BaseInvokerTest {
 				factory.setRetries(test.retries());
 				factory.setLoadbalance(test.loadbalance());
 				factory.setVip(test.vip());
-				factory.setTestVip(test.testVip());
 				if (!test.callback().equals("null")) {
 					callback = (ServiceCallback) Class.forName(test.callback()).newInstance();
 					factory.setCallback(callback);

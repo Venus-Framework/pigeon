@@ -71,10 +71,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 			invocationRepository.put(request.getSequence(), invocationBean);
 		}
 		try {
-			// request.setUniformContextHeaders(setupUniformContext(client,
-			// request));//构建统一上下文
 			client.write(request, callback);
-			// 记录当前外围服务调用情况分析
 		} catch (RuntimeException e) {
 			invocationRepository.remove(request.getSequence());
 			throw new NetException("Send request to service provider failed.", e);

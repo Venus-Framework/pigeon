@@ -16,7 +16,7 @@ public class ConfigLoader {
 
 	private static final Logger logger = LoggerLoader.getLogger(ConfigLoader.class);
 
-	public static void initClient() {
+	public static void init() {
 		Properties properties = new Properties();
 		InputStream input = ConfigLoader.class.getResourceAsStream(PROPERTIES_PATH);
 		if (input != null) {
@@ -32,25 +32,6 @@ public class ConfigLoader {
 			} catch (IOException e1) {
 			}
 		}
-		try {
-			ExtensionLoader.getExtension(ConfigManager.class).init(properties);
-		} catch (Exception e) {
-			logger.error("", e);
-		}
-	}
-
-	public static void initServer(int port) {
-		Properties properties = new Properties();
-		InputStream input = ConfigLoader.class.getResourceAsStream(PROPERTIES_PATH);
-		if (input != null) {
-			try {
-				properties.load(input);
-				input.close();
-			} catch (IOException e) {
-				logger.error("", e);
-			}
-		}
-		properties.put("port", port);
 		try {
 			ExtensionLoader.getExtension(ConfigManager.class).init(properties);
 		} catch (Exception e) {

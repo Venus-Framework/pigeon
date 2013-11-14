@@ -13,7 +13,7 @@ import com.dianping.pigeon.test.service.EchoService;
 
 public class ZoneServiceTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService__ForMultiServer/echoService_1.0.0", zone = "pre")
+	@PigeonAutoTest(url = "http://service.dianping.com/testService__ForMultiServer/echoService_1.0.0", zone = "pre")
 	public EchoService echoService;
 
 	@Test

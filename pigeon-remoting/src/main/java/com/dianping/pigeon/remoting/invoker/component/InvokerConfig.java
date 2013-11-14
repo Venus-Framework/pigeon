@@ -27,9 +27,9 @@ public class InvokerConfig<T> {
 
 	private Class<T> serviceInterface;
 
-	private String serviceName;
+	private String url;
 
-	private String serviceVersion;
+	private String version;
 
 	private String callMethod = Constants.CALL_SYNC;
 
@@ -53,12 +53,12 @@ public class InvokerConfig<T> {
 
 	private String vip;
 
-	public String getServiceVersion() {
-		return serviceVersion;
+	public String getVersion() {
+		return version;
 	}
 
-	public void setServiceVersion(String serviceVersion) {
-		this.serviceVersion = serviceVersion;
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 	public String getVip() {
@@ -119,15 +119,11 @@ public class InvokerConfig<T> {
 		this.retries = retries;
 	}
 
-	public InvokerConfig(Class<T> serviceInterface, String serviceName, int timeout, String callMethod,
-			String serialize, ServiceCallback callback, String group, boolean writeBufferLimit, String loadbalance,
-			String cluster, int retries, boolean timeoutRetry, String vip) {
+	public InvokerConfig(Class<T> serviceInterface, String url, int timeout, String callMethod, String serialize,
+			ServiceCallback callback, String group, boolean writeBufferLimit, String loadbalance, String cluster,
+			int retries, boolean timeoutRetry, String vip, String version) {
 		this.setServiceInterface(serviceInterface);
-		if (StringUtils.isBlank(serviceName) && serviceInterface != null) {
-			this.setServiceName(serviceInterface.getCanonicalName());
-		} else {
-			this.setServiceName(serviceName);
-		}
+		this.setUrl(url);
 		this.setTimeout(timeout);
 		this.setCallMethod(callMethod);
 		this.setCallback(callback);
@@ -139,38 +135,34 @@ public class InvokerConfig<T> {
 		this.setTimeoutRetry(timeoutRetry);
 		this.setSerialize(serialize);
 		this.setVip(vip);
+		this.setVersion(version);
 	}
 
-	public InvokerConfig(String serviceName, Class<T> serviceClass) {
-		this.setServiceInterface(serviceClass);
-		if (StringUtils.isBlank(serviceName) && serviceClass != null) {
-			this.setServiceName(serviceClass.getCanonicalName());
-		} else {
-			this.setServiceName(serviceName);
-		}
+	public InvokerConfig(String serviceName, Class<T> serviceInterface) {
+		this.setServiceInterface(serviceInterface);
+		this.setUrl(serviceName);
 	}
 
-	public InvokerConfig(Class<T> serviceClass) {
-		this.setServiceInterface(serviceClass);
-		this.setServiceName(serviceClass.getCanonicalName());
+	public InvokerConfig(Class<T> serviceInterface) {
+		this.setServiceInterface(serviceInterface);
 	}
 
 	/**
-	 * @return the serviceName
+	 * @return the url
 	 */
-	public String getServiceName() {
-		return serviceName;
+	public String getUrl() {
+		return url;
 	}
 
 	/**
-	 * @param serviceName
-	 *            the serviceName to set
+	 * @param url
+	 *            the url to set
 	 */
-	public void setServiceName(String serviceName) {
-		if (serviceName != null) {
-			serviceName = serviceName.trim();
+	public void setUrl(String url) {
+		if (url != null) {
+			url = url.trim();
 		}
-		this.serviceName = serviceName;
+		this.url = url;
 	}
 
 	/**

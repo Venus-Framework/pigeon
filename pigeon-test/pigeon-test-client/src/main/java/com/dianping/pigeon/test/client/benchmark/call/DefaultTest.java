@@ -21,7 +21,7 @@ import com.dianping.pigeon.test.service.EchoService;
  */
 public class DefaultTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
+	@PigeonAutoTest(callMethod = "oneway", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
 	public EchoService echoService;
 
 	static AtomicLong counter = new AtomicLong(0);
@@ -34,7 +34,7 @@ public class DefaultTest extends BaseInvokerTest {
 		System.out.println("threads:" + threads);
 
 		Assert.notNull(echoService);
-		
+
 		for (int i = 0; i < threads; i++) {
 			ClientThread thread = new ClientThread(echoService);
 			thread.start();
@@ -60,9 +60,10 @@ public class DefaultTest extends BaseInvokerTest {
 			while (true) {
 				String msg = null;
 				try {
+					// Thread.sleep(1000);
 					msg = System.currentTimeMillis() + "" + Math.abs(RandomUtils.nextLong());
 					String echo = service.echo(msg);
-					//System.out.println(echo);
+					// System.out.println(echo);
 					// Assert.assertEquals("echo:" + msg, echo);
 					long count = counter.addAndGet(1);
 					int size = 10000;

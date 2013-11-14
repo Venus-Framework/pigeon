@@ -95,7 +95,7 @@ public class ClientManager implements Disposable {
 
 	public Client getClient(InvokerConfig metaData, InvocationRequest request, List<Client> excludeClients) {
 
-		List<Client> clientList = clusterListener.getClientList(metaData.getServiceName());
+		List<Client> clientList = clusterListener.getClientList(metaData.getUrl());
 		List<Client> clientsToRoute = new ArrayList<Client>(clientList);
 		if (excludeClients != null) {
 			clientsToRoute.removeAll(excludeClients);

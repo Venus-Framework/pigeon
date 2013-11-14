@@ -12,32 +12,38 @@
 	<bean id="echoServiceImpl" class="com.dianping.pigeon.test.service.EchoServiceImpl" />
 
 	<pigeon:service id="echoServiceNoServiceName2"
-		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl" port="${port}" />
+		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl"
+		port="${port}" />
 
 	<pigeon:service id="echoServiceGroupForMobile"
-		name="http://service.dianping.com/testService/echoService_1.0.0"
+		url="http://service.dianping.com/testService/echoService_1.0.0"
 		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl"
 		group="Mobile" port="${port}" />
 
 	<pigeon:service id="echoServiceNoServiceName"
-		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl" port="${port}" />
+		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl"
+		port="${port}" />
 
 	<pigeon:service id="echoService"
-		name="http://service.dianping.com/testService/echoService_1.0.0"
-		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl" port="${port}" />
+		url="http://service.dianping.com/testService/echoService_1.0.0"
+		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl"
+		port="${port}" />
 
 
 
 	<pigeon:service id="echoService2"
-		name="http://service.dianping.com/testService_dpsf/echoService_1.0.0"
-		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl" port="${port}" />
+		url="http://service.dianping.com/testService_dpsf/echoService_1.0.0"
+		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl"
+		port="${port}" />
 
 	<pigeon:service id="echoService_ForMultiServer"
-		name="http://service.dianping.com/testService__ForMultiServer/echoService_1.0.0"
-		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl" port="${port}" />
+		url="http://service.dianping.com/testService__ForMultiServer/echoService_1.0.0"
+		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl"
+		port="${port}" />
 
 	<pigeon:service id="echoServiceXml"
-		name="http://service.dianping.com/testService/echoServiceXml_1.0.0"
-		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl" port="${port}" />
+		url="http://service.dianping.com/testService/echoServiceXml_1.0.0"
+		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl"
+		port="${port}" />
 
 </beans>

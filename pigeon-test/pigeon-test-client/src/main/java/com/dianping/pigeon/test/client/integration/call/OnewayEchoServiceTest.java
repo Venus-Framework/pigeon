@@ -14,7 +14,7 @@ import com.dianping.pigeon.test.service.EchoService;
 
 public class OnewayEchoServiceTest extends BaseInvokerTest {
 	
-	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", serialize = "java", callMethod = "oneway")
+	@PigeonAutoTest(url = "http://service.dianping.com/testService/echoService_1.0.0", serialize = "java", callMethod = "oneway")
 	public EchoService echoService;
 
 	@Test

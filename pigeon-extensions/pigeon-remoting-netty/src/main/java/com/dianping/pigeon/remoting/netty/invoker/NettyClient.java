@@ -120,7 +120,6 @@ public class NettyClient implements Client {
 					|| request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
 				future.addListener(new MsgWriteListener(request));
 			}
-
 		}
 		return null;
 	}

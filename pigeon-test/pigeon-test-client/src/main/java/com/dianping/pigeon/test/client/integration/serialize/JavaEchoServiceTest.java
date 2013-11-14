@@ -14,7 +14,7 @@ import com.dianping.pigeon.test.service.EchoService;
 
 public class JavaEchoServiceTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", serialize = "java")
+	@PigeonAutoTest(url = "http://service.dianping.com/testService/echoService_1.0.0", serialize = "java")
 	public EchoService echoService;
 
 	@Test

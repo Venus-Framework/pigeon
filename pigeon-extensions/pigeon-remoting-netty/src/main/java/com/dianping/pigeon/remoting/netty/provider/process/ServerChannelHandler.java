@@ -64,7 +64,7 @@ public class ServerChannelHandler extends SimpleChannelUpstreamHandler {
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent message) {
 		List<InvocationRequest> messages = (List<InvocationRequest>) (message.getMessage());
-		System.out.println("messages:" + messages.size());
+		// System.out.println("messages:" + messages.size());
 		for (InvocationRequest request : messages) {
 			try {
 				this.processor.addRequest(request, ctx.getChannel());

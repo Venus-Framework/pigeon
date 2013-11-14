@@ -39,12 +39,12 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 		ChannelBuffer cb = (ChannelBuffer) NettyCodecUtils.getAttachment(ctx, Constants.ATTACHMENT_BYTEBUFFER);
 
 		ChannelBuffer cb_ = (ChannelBuffer) msg;
+		//System.out.println("decode size:" + cb_.readableBytes());
 		if (cb == null) {
 			cb = cb_;
 		} else {
 			cb.writeBytes(cb_);
 		}
-
 		List<Object> messages = null;
 		int lastReadIndex = cb.readerIndex();
 		while (cb.readable()) {

@@ -49,8 +49,7 @@ public class DefaultClusterListener implements ClusterListener {
 		this.heartTask.setWorkingClients(this.serviceClients);
 	}
 
-	public void clear() {
-
+	public synchronized void clear() {
 		serviceClients = new ConcurrentHashMap<String, List<Client>>();
 		allClients = new ConcurrentHashMap<ConnectInfo, Client>();
 	}
@@ -68,7 +67,7 @@ public class DefaultClusterListener implements ClusterListener {
 		addConnect(cmd, this.allClients.get(cmd));
 	}
 
-	public void addConnect(ConnectInfo cmd, Client client) {
+	public synchronized void addConnect(ConnectInfo cmd, Client client) {
 		if (clientExisted(cmd)) {
 			if (client != null) {
 				for (List<Client> clientList : serviceClients.values()) {

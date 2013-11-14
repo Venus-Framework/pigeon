@@ -14,7 +14,7 @@
 	<pigeon:service id="echoService"
 		interface="com.dianping.pigeon.demo.EchoService" ref="echoServiceImpl" />
 
-	<!-- <pigeon:service id="echoService" name="http://service.dianping.com/demoService/echoService_1.0.0" 
+	<!-- <pigeon:service id="echoService" url="http://service.dianping.com/demoService/echoService_1.0.0" 
 		interface="com.dianping.pigeon.demo.EchoService" port="4625" ref="echoServiceImpl" 
 		/> -->
 

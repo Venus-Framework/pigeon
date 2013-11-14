@@ -9,7 +9,7 @@ import com.dianping.pigeon.test.service.EchoService;
 
 public class EchoServiceGroupTest extends BaseInvokerTest {
 
-    @PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", group="Mobile")
+    @PigeonAutoTest(url = "http://service.dianping.com/testService/echoService_1.0.0", group="Mobile")
     public EchoService echoService;
 
     @Test

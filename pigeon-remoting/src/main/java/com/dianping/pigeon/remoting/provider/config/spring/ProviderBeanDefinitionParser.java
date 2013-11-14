@@ -67,9 +67,15 @@ public class ProviderBeanDefinitionParser implements BeanDefinitionParser {
 				throw new IllegalStateException("service must have a reference to impl bean");
 			}
 			MutablePropertyValues properties = beanDefinition.getPropertyValues();
-			properties.addPropertyValue("serviceName", getServiceNameWithZoneAndGroup(element));
+			if (element.hasAttribute("url")) {
+				properties.addPropertyValue("url", element.getAttribute("url"));
+			}
+			if (element.hasAttribute("interface")) {
+				properties.addPropertyValue("interfaceName", element.getAttribute("interface"));
+			}
 			properties.addPropertyValue("serviceImpl", new RuntimeBeanReference(ref));
 			properties.addPropertyValue("port", getPort(element));
+			properties.addPropertyValue("version", element.getAttribute("version"));
 		}
 
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
@@ -89,29 +95,6 @@ public class ProviderBeanDefinitionParser implements BeanDefinitionParser {
 			logger.error("", e);
 			throw new RuntimeException("", e);
 		}
-	}
-
-	private static String getServiceNameWithZoneAndGroup(Element element) {
-		String serviceName = element.getAttribute(element.hasAttribute("name") ? "name" : "interface");
-//		try {
-//			QueryString parameters = new QueryString();
-//			RegistryManager.getInstance();
-//			String zone = RegistryManager.getProperty("zoneName");
-//			if (zone != null) {
-//				parameters.addParameter("zone", zone);
-//			}
-//			if (element.hasAttribute("group")) {
-//				String group = resolveReference(element, "group");
-//				parameters.addParameter("group", group);
-//			}
-//			if (!parameters.isEmpty()) {
-//				serviceName += QueryString.PREFIX + parameters;
-//			}
-//		} catch (Exception e) {
-//			logger.error("", e);
-//			throw new RuntimeException("", e);
-//		}
-		return serviceName;
 	}
 
 	private static String resolveReference(Element element, String attribute) throws RegistryException {

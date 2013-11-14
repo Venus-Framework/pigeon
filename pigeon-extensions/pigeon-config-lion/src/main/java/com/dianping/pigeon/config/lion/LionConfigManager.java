@@ -39,6 +39,9 @@ public class LionConfigManager extends AbstractConfigManager {
 			}
 			return "" + localCache.get(key);
 		}
+		if(logger.isDebugEnabled()) {
+			logger.debug("read from lion with key[" + key + "]");
+		}
 		try {
 			String configVal = ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress()).getProperty(key);
 			if (configVal != null) {

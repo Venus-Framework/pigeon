@@ -17,13 +17,11 @@ public @interface PigeonAutoTest {
 
     String vip() default "";
 
-    String testVip() default "";
-    
     String registry() default "zookeeper";
     
     String registryServer() default "127.0.0.1:2181";
     
-    String serviceName() default "";
+    String url() default "";
 
     String serialize() default "hessian";
 

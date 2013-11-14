@@ -66,7 +66,7 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 				if (lastError != null) {
 					logger.warn(
 							"Retry method[" + invocationContext.getMethod().getName() + "] on service["
-									+ metaData.getServiceName() + "] succeed after " + invokeTimes
+									+ metaData.getUrl() + "] succeed after " + invokeTimes
 									+ " times, last failed invoke's error: " + lastError.getMessage(), lastError);
 				}
 				return response;
@@ -90,7 +90,7 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 			}
 		}
 		throw new RuntimeException("Invoke method[" + invocationContext.getMethod().getName() + "] on service["
-				+ metaData.getServiceName() + "] failed with " + invokeTimes + " times, last error: "
+				+ metaData.getUrl() + "] failed with " + invokeTimes + " times, last error: "
 				+ (lastError != null ? lastError.getMessage() : ""),
 				lastError != null && lastError.getCause() != null ? lastError.getCause() : lastError);
 	}

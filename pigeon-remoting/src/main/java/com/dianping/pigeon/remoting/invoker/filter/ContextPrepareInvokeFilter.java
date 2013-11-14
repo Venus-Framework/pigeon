@@ -79,7 +79,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 	private void transferContextValueToRequest(final InvokerContext invocationContext, final InvocationRequest request) {
 		InvokerConfig metaData = invocationContext.getInvokerConfig();
 		Client client = invocationContext.getClient();
-		Object contextHolder = ContextUtils.createContext(metaData.getServiceName(), invocationContext.getMethod()
+		Object contextHolder = ContextUtils.createContext(metaData.getUrl(), invocationContext.getMethod()
 				.getName(), client.getHost(), client.getPort());
 		if (contextHolder != null) {
 			Map<String, Serializable> contextValues = invocationContext.getContextValues();

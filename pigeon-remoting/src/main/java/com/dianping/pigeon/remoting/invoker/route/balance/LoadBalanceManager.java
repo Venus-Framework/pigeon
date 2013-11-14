@@ -57,7 +57,7 @@ public class LoadBalanceManager {
 			return loadBalance;
 		}
 
-		String serviceId = metaData.getServiceName();
+		String serviceId = metaData.getUrl();
 		if (metaData.getGroup() != null) {
 			serviceId = serviceId + ":" + metaData.getGroup();
 		}

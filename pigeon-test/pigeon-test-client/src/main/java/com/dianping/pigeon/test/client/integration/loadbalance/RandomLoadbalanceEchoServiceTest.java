@@ -16,7 +16,7 @@ import com.dianping.pigeon.test.service.EchoService;
 
 public class RandomLoadbalanceEchoServiceTest extends BaseInvokerTest {
 
-    @PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", loadbalance = "random")
+    @PigeonAutoTest(url = "http://service.dianping.com/testService/echoService_1.0.0", loadbalance = "random")
     public EchoService echoService;
 
     public List<Integer> getPorts() {

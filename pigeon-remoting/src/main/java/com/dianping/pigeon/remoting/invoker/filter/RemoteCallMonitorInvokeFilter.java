@@ -35,7 +35,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 				try {
 					transaction = logger.createTransaction(
 							"PigeonCall",
-							InvocationUtils.getRemoteCallFullName(metaData.getServiceName(), method.getName(),
+							InvocationUtils.getRemoteCallFullName(metaData.getUrl(), method.getName(),
 									method.getParameterTypes()), invocationContext);
 					if (transaction != null) {
 						transaction.setStatusOk();

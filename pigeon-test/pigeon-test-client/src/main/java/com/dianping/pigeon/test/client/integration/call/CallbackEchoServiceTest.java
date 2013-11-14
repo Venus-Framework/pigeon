@@ -22,7 +22,7 @@ import com.dianping.pigeon.test.service.EchoServiceCallbackImpl;
  */
 public class CallbackEchoServiceTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", serialize = "java", callMethod = "callback", callback = "com.dianping.pigeon.test.service.EchoServiceCallbackImpl")
+	@PigeonAutoTest(url = "http://service.dianping.com/testService/echoService_1.0.0", serialize = "java", callMethod = "callback", callback = "com.dianping.pigeon.test.service.EchoServiceCallbackImpl")
 	public EchoService echoService;
 
 	@Test

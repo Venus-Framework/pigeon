@@ -16,7 +16,7 @@ import com.dianping.pigeon.test.service.EchoService;
 
 public class ConsistentHashLoadbalanceEchoServiceTest extends BaseInvokerTest {
 
-    @PigeonAutoTest(serviceName = "http://service.dianping.com/testService/echoService_1.0.0", loadbalance = "consistentHash")
+    @PigeonAutoTest(url = "http://service.dianping.com/testService/echoService_1.0.0", loadbalance = "consistentHash")
     public EchoService echoService;
 
     public List<Integer> getPorts() {

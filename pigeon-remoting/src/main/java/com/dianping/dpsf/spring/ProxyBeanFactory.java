@@ -4,27 +4,17 @@
  */
 package com.dianping.dpsf.spring;
 
-import java.lang.reflect.Proxy;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.springframework.beans.factory.FactoryBean;
 
-import com.dianping.pigeon.component.QueryString;
-import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
+import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
-import com.dianping.pigeon.remoting.invoker.loader.InvocationHandlerLoader;
-import com.dianping.pigeon.remoting.invoker.loader.InvokerBootStrapLoader;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
-import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationProxy;
 
 /**
  * 
@@ -42,12 +32,8 @@ import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationProxy;
  */
 public class ProxyBeanFactory implements FactoryBean {
 
-	private static final Logger logger = LoggerLoader.getLogger("pigeon_service");
-
-	private static AtomicInteger groupId = new AtomicInteger(0);
-
 	/**
-	 * @deprecated 兼容pigein1.x，后续不在支持开发配置，默认使用appname+interfacename
+	 * @deprecated 兼容pigein1.x
 	 */
 	private String serviceName;
 
@@ -75,14 +61,6 @@ public class ProxyBeanFactory implements FactoryBean {
 	 */
 	private String loadbalance = "autoaware";
 
-	public String getLoadbalance() {
-		return loadbalance;
-	}
-
-	public void setLoadbalance(String loadbalance) {
-		this.loadbalance = loadbalance;
-	}
-
 	/**
 	 * server 端和client端都有该逻辑。 1. Failover:失败自动切换，当出现失败，重试其它服务器。(缺省),
 	 * 重试几次，使用retries参数 2. Failfast:快速失败，只发起一次调用，失败立即报错 3.
@@ -92,76 +70,19 @@ public class ProxyBeanFactory implements FactoryBean {
 	 */
 	private String cluster = "failFast";
 
-	public String getCluster() {
-		return cluster;
-	}
-
-	public void setCluster(String cluster) {
-		this.cluster = cluster;
-	}
-
 	/**
 	 * 用于支持P2P调用的服务IP地址，也作为注册中心无法访问时的备用地址
 	 */
 	private String vip;
-
-	public String getVip() {
-		return vip;
-	}
-
-	public void setVip(String vip) {
-		this.vip = vip;
-	}
-
-	/**
-	 * 用于支持P2P调用的服务IP地址，测试环境用（env=dev）
-	 */
-	private String testVip;
-
-	public String getTestVip() {
-		return testVip;
-	}
-
-	public void setTestVip(String testVip) {
-		this.testVip = testVip;
-	}
 
 	/**
 	 * zone配置，仅用于测试
 	 */
 	private String zone;
 
-	public String getZone() {
-		return zone;
-	}
-
-	public void setZone(String zone) {
-		this.zone = zone;
-	}
-
-	public String getLoadBalance() {
-		return loadBalance;
-	}
-
 	private int retries = 1;
 
-	public int getRetries() {
-		return retries;
-	}
-
-	public void setRetries(int retries) {
-		this.retries = retries;
-	}
-
 	private boolean timeoutRetry;
-
-	public boolean isTimeoutRetry() {
-		return timeoutRetry;
-	}
-
-	public void setTimeoutRetry(boolean timeoutRetry) {
-		this.timeoutRetry = timeoutRetry;
-	}
 
 	/**
 	 * @deprecated 后续不在支持调用配置
@@ -183,6 +104,12 @@ public class ProxyBeanFactory implements FactoryBean {
 	private Class<?> objType;
 
 	private ServiceCallback callback;
+
+	private String version;
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
 
 	/**
 	 * @deprecated
@@ -212,48 +139,56 @@ public class ProxyBeanFactory implements FactoryBean {
 	 */
 	private boolean writeBufferLimit = RemotingConfigurer.getDefaultWriteBufferLimit();
 
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
-
-	public void init() throws ClassNotFoundException {
-		InvokerBootStrapLoader.startup();
-		InvokerConfig invokerMetaData = generatorServiceInvokeProxy();
-		configLoadBalance();
-		if (zone != null && !zone.isEmpty()) {
-			String[] parts = serviceName.split(QueryString.PREFIX_REGEXP);
-			QueryString qs = parts.length > 1 ? new QueryString(parts[1]) : new QueryString();
-			qs.addParameter("zone", zone);
-			serviceName = parts[0] + QueryString.PREFIX + qs;
-		}
-		ClientManager.getInstance().findAndRegisterClientFor(invokerMetaData.getServiceName(),
-				invokerMetaData.getGroup(), invokerMetaData.getVip());
+	public String getLoadbalance() {
+		return loadbalance;
 	}
 
-	private void configLoadBalance() {
-		Object loadBalanceToSet = loadBalanceObj != null ? loadBalanceObj
-				: (loadBalanceClass != null ? loadBalanceClass : (loadBalance != null ? loadBalance : null));
-		if (loadBalanceToSet != null) {
-			LoadBalanceManager.register(serviceName, group, loadBalanceToSet);
-		}
+	public void setLoadbalance(String loadbalance) {
+		this.loadbalance = loadbalance;
 	}
 
-	/**
-	 * 生成本地服务ref的代理对象
-	 * 
-	 * @throws ClassNotFoundException
-	 */
-	private InvokerConfig generatorServiceInvokeProxy() throws ClassNotFoundException {
-		this.objType = Class.forName(this.iface.trim());
-		InvokerConfig invokerMetaData = new InvokerConfig(this.objType, this.serviceName, this.timeout,
-				this.callMethod, this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadbalance,
-				this.cluster, this.retries, this.timeoutRetry, this.vip);
+	public String getCluster() {
+		return cluster;
+	}
 
-		this.obj = Proxy.newProxyInstance(
-				ProxyBeanFactory.class.getClassLoader(),
-				new Class[] { this.objType },
-				new ServiceInvocationProxy(invokerMetaData, InvocationHandlerLoader
-						.createInvokeHandler(invokerMetaData)));
+	public void setCluster(String cluster) {
+		this.cluster = cluster;
+	}
 
-		return invokerMetaData;
+	public String getVip() {
+		return vip;
+	}
+
+	public void setVip(String vip) {
+		this.vip = vip;
+	}
+
+	public String getZone() {
+		return zone;
+	}
+
+	public void setZone(String zone) {
+		this.zone = zone;
+	}
+
+	public String getLoadBalance() {
+		return loadBalance;
+	}
+
+	public int getRetries() {
+		return retries;
+	}
+
+	public void setRetries(int retries) {
+		this.retries = retries;
+	}
+
+	public boolean isTimeoutRetry() {
+		return timeoutRetry;
+	}
+
+	public void setTimeoutRetry(boolean timeoutRetry) {
+		this.timeoutRetry = timeoutRetry;
 	}
 
 	public Object getObject() {
@@ -366,4 +301,26 @@ public class ProxyBeanFactory implements FactoryBean {
 		this.writeBufferLimit = writeBufferLimit;
 	}
 
+	public void init() throws Exception {
+		this.objType = Class.forName(this.iface.trim());
+		InvokerConfig invokerConfig = new InvokerConfig(this.objType, this.serviceName, this.timeout, this.callMethod,
+				this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadbalance, this.cluster,
+				this.retries, this.timeoutRetry, this.vip, this.version);
+
+		this.obj = ServiceFactory.getService(invokerConfig);
+		configLoadBalance();
+	}
+
+	private void configLoadBalance() {
+		Object loadBalanceToSet = loadBalanceObj != null ? loadBalanceObj
+				: (loadBalanceClass != null ? loadBalanceClass : (loadBalance != null ? loadBalance : null));
+		if (loadBalanceToSet != null) {
+			LoadBalanceManager.register(serviceName, group, loadBalanceToSet);
+		}
+	}
+
+	@Override
+	public String toString() {
+		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
 }

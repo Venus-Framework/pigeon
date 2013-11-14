@@ -30,13 +30,13 @@ public final class ServiceProviderFactory {
 	}
 
 	public static void addServices(Map<String, Object> services, int port) throws ServiceException {
-		for (String serviceName : services.keySet()) {
-			addService(serviceName, services.get(serviceName), port);
+		for (String url : services.keySet()) {
+			addService(url, services.get(url), port);
 		}
 	}
 
-	public static void addService(String serviceName, Object service, int port) throws ServiceException {
-		if (!services.containsKey(serviceName)) {
+	public static void addService(String url, Object service, int port) throws ServiceException {
+		if (!services.containsKey(url)) {
 			try {
 				String autoRegister = configManager.getProperty(Constants.KEY_AUTO_REGISTER,
 						Constants.DEFAULT_AUTO_REGISTER);
@@ -49,25 +49,25 @@ public final class ServiceProviderFactory {
 					String group = configManager.getProperty(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
 					String weight = configManager.getProperty(Constants.KEY_WEIGHT, Constants.DEFAULT_WEIGHT);
 					int intWeight = Integer.parseInt(weight);
-					RegistryManager.getInstance().publishService(serviceName, group, serviceAddress, intWeight);
+					RegistryManager.getInstance().publishService(url, group, serviceAddress, intWeight);
 				}
 			} catch (Exception e) {
 				throw new ServiceException("", e);
 			}
-			services.putIfAbsent(serviceName, service);
+			services.putIfAbsent(url, service);
 		}
 	}
 
-	public static Object getService(String serviceName) {
-		return services.get(serviceName);
+	public static Object getService(String url) {
+		return services.get(url);
 	}
 
 	public static Collection<String> getServiceNames() {
 		return services.keySet();
 	}
 
-	public static boolean exists(String serviceName) {
-		return services.containsKey(serviceName);
+	public static boolean exists(String url) {
+		return services.containsKey(url);
 	}
 
 	public static Map<String, Object> getAllServices() {
