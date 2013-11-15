@@ -37,5 +37,7 @@ public interface InvocationRequest extends InvocationSerializable {
 	void setAttachment(String name, Object attachment);
 
 	Object getAttachment(String name);
+	
+	String getVersion();
 
 }

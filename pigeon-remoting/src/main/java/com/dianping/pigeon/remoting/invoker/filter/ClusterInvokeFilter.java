@@ -48,10 +48,11 @@ public abstract class ClusterInvokeFilter extends InvocationInvokeFilter {
 	public abstract InvocationResponse _invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable;
 
-	protected DefaultRequest createRemoteCallRequest(InvokerContext invocationContext, InvokerConfig metaData) {
-		DefaultRequest request = new DefaultRequest(metaData.getUrl(), invocationContext.getMethod().getName(),
-				invocationContext.getArguments(), metaData.getSerialize(), Constants.MESSAGE_TYPE_SERVICE,
-				metaData.getTimeout(), invocationContext.getMethod().getParameterTypes());
+	protected DefaultRequest createRemoteCallRequest(InvokerContext invocationContext, InvokerConfig invokerConfig) {
+		DefaultRequest request = new DefaultRequest(invokerConfig.getUrl(), invocationContext.getMethod().getName(),
+				invocationContext.getArguments(), invokerConfig.getSerialize(), Constants.MESSAGE_TYPE_SERVICE,
+				invokerConfig.getTimeout(), invocationContext.getMethod().getParameterTypes());
+		request.setVersion(invokerConfig.getVersion());
 		request.setSequence(requestSequenceMaker.incrementAndGet() * -1); // (*
 																			// -1):
 																			// in
@@ -61,8 +62,8 @@ public abstract class ClusterInvokeFilter extends InvocationInvokeFilter {
 																			// from
 																			// old
 																			// logic
-		request.setAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT, metaData.isWriteBufferLimit());
-		if (Constants.CALL_ONEWAY.equalsIgnoreCase(metaData.getCallMethod())) {
+		request.setAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT, invokerConfig.isWriteBufferLimit());
+		if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallMethod())) {
 			request.setCallType(Constants.CALLTYPE_NOREPLY);
 		} else {
 			request.setCallType(Constants.CALLTYPE_REPLY);

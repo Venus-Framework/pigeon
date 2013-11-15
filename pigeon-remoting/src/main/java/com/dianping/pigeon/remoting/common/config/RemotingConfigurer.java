@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
-import com.dianping.pigeon.remoting.invoker.route.balance.LoadAutoawareLoadBalance;
+import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 
 public class RemotingConfigurer {
 
@@ -41,7 +41,6 @@ public class RemotingConfigurer {
 	private static final long DEFAULT_HEARTBEAT_DEADCOUNT = 5;
 	private static final long DEFAULT_HEARTBEAT_HEALTHCOUNT = 5;
 	private static final boolean DEFAULT_HEARTBEAT_AUTOPICKOFF = true;
-	private static final String DEFAULT_LOADBALANCE = LoadAutoawareLoadBalance.NAME;
 	private static final String DEFAULT_SERVICE_NAMESPACE = "http://service.dianping.com/";
 	private static final int DEFAULT_WRITE_BUFFER_HIGH_WATER = 35 * 1024 * 1024;
 	private static final int DEFAULT_WRITE_BUFFER_LOW_WATER = 25 * 1024 * 1024;
@@ -65,7 +64,7 @@ public class RemotingConfigurer {
 	}
 
 	public static String getLoadBalance() {
-		return getStringValue(KEY_LOADBALANCE, DEFAULT_LOADBALANCE);
+		return getStringValue(KEY_LOADBALANCE, LoadBalanceManager.DEFAULT_LOADBALANCE);
 	}
 
 	public static boolean isHeartBeatAutoPickOff() {

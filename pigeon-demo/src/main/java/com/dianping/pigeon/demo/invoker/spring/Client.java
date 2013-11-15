@@ -27,15 +27,16 @@ public class Client {
 		BootstrapLoader.startupInvoker();
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("META-INF/spring/app-invoker.xml");
 		AtomicInteger atomicInteger = new AtomicInteger();
+		EchoService service1 = (EchoService) context.getBean("echoService1");
+		EchoService service2 = (EchoService) context.getBean("echoService2");
 		for (;;) {
 			try {
-				EchoService service = (EchoService) context.getBean("echoService");
 				String input = "echoService_" + atomicInteger.incrementAndGet();
 				System.out.println("input:" + input);
-				//String echo = service.echoWithException(input);
-				//System.out.println("result:" + echo);
+				System.out.println(service1.echo(input));
+				System.out.println(service2.echo(input));
 			} catch (Throwable e) {
-				Assert.assertEquals(EchoException.class, e.getClass());
+				e.printStackTrace();
 			}
 		}
 	}

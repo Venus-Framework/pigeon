@@ -9,10 +9,16 @@
 				http://code.dianping.com/schema/pigeon http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd"
 	default-autowire="byName">
 
-	<bean id="echoServiceImpl" class="com.dianping.pigeon.demo.provider.EchoServiceImpl" />
+	<bean id="echoServiceImpl1" class="com.dianping.pigeon.demo.provider.EchoServiceImpl1" />
+	
+	<bean id="echoServiceImpl2" class="com.dianping.pigeon.demo.provider.EchoServiceImpl2" />
 
-	<pigeon:service id="echoService"
-		interface="com.dianping.pigeon.demo.EchoService" ref="echoServiceImpl" />
+	<pigeon:service id="echoService1"
+		interface="com.dianping.pigeon.demo.EchoService" ref="echoServiceImpl1" />
+
+	<pigeon:service id="echoService2"
+		interface="com.dianping.pigeon.demo.EchoService" ref="echoServiceImpl2"
+		version="2.0.0" />
 
 	<!-- <pigeon:service id="echoService" url="http://service.dianping.com/demoService/echoService_1.0.0" 
 		interface="com.dianping.pigeon.demo.EchoService" port="4625" ref="echoServiceImpl" 

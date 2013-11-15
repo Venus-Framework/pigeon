@@ -46,6 +46,8 @@ public class DefaultRequest implements InvocationRequest {
 
 	private Object context;
 
+	private String version;
+
 	private transient Class<?>[] parameterClasses;
 
 	private transient Map<String, Object> attachments = new HashMap<String, Object>();
@@ -59,6 +61,14 @@ public class DefaultRequest implements InvocationRequest {
 		this.messageType = messageType;
 		this.timeout = timeout;
 		this.parameterClasses = parameterClasses;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 	/**

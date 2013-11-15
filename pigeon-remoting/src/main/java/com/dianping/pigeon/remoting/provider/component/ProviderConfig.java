@@ -21,6 +21,11 @@ public class ProviderConfig<T> {
 
 	private int port = ServerFactory.DEFAULT_PORT;
 
+	public ProviderConfig(Class<T> serviceInterface, T service) {
+		this.setServiceInterface(serviceInterface);
+		this.setService(service);
+	}
+
 	public int getPort() {
 		return port;
 	}

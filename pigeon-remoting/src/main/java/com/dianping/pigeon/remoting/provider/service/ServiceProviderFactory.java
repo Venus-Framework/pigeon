@@ -4,15 +4,17 @@
  */
 package com.dianping.pigeon.remoting.provider.service;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
 import com.dianping.pigeon.util.IpUtils;
 
 /**
@@ -31,12 +33,25 @@ public final class ServiceProviderFactory {
 
 	public static void addServices(Map<String, Object> services, int port) throws ServiceException {
 		for (String url : services.keySet()) {
-			addService(url, services.get(url), port);
+			addService(url, services.get(url), port, null);
 		}
 	}
 
-	public static void addService(String url, Object service, int port) throws ServiceException {
-		if (!services.containsKey(url)) {
+	public static <T> void addService(ProviderConfig<T> providerConfig) throws ServiceException {
+		addService(providerConfig.getUrl(), providerConfig.getService(), providerConfig.getPort(), providerConfig.getVersion());
+	}
+	
+	public static String getServiceUrlWithVersion(String url, String version) {
+		String newUrl = url;
+		if(!StringUtils.isBlank(version)) {
+			newUrl = url + "_" + version;
+		}
+		return newUrl;
+	}
+
+	public static void addService(String url, Object service, int port, String version) throws ServiceException {
+		String key = getServiceUrlWithVersion(url, version);
+		if (!services.containsKey(key)) {
 			try {
 				String autoRegister = configManager.getProperty(Constants.KEY_AUTO_REGISTER,
 						Constants.DEFAULT_AUTO_REGISTER);
@@ -54,20 +69,8 @@ public final class ServiceProviderFactory {
 			} catch (Exception e) {
 				throw new ServiceException("", e);
 			}
-			services.putIfAbsent(url, service);
+			services.putIfAbsent(key, service);
 		}
-	}
-
-	public static Object getService(String url) {
-		return services.get(url);
-	}
-
-	public static Collection<String> getServiceNames() {
-		return services.keySet();
-	}
-
-	public static boolean exists(String url) {
-		return services.containsKey(url);
 	}
 
 	public static Map<String, Object> getAllServices() {

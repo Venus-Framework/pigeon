@@ -11,8 +11,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dianping.dpsf.exception.ServiceException;
-import com.dianping.pigeon.component.QueryString;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 
 public final class ServiceMethodFactory {
@@ -33,50 +32,40 @@ public final class ServiceMethodFactory {
 		}
 	}
 
-	public static ServiceMethod getMethod(String serviceName, String methodName, String[] paramClassNames)
-			throws ServiceException {
-		ServiceMethodCache serviceMethods = methods.get(serviceName);
-		if (serviceMethods == null) {
-			serviceMethods = methods.get(serviceName);
-			if (serviceMethods == null) {
-				Map<String, Object> services = ServiceProviderFactory.getAllServices();
-				Object service = services.get(serviceName);
+	public static ServiceMethod getMethod(InvocationRequest request) throws ServiceException {
+		String serviceName = request.getServiceName();
+		String methodName = request.getMethodName();
+		String[] paramClassNames = request.getParamClassName();
+		String version = request.getVersion();
+		String newUrl = ServiceProviderFactory.getServiceUrlWithVersion(serviceName, version);
+		ServiceMethodCache serviceMethodCache = getServiceMethodCache(newUrl);
+		if (serviceMethodCache == null) {
+			serviceMethodCache = getServiceMethodCache(serviceName);
+		}
+		if (serviceMethodCache == null) {
+			throw new ServiceException("cannot find serivce for request:" + request);
+		}
+		return serviceMethodCache.getMethod(methodName, new ServiceParam(paramClassNames));
+	}
 
-				if (service == null) {
-					// 处理zone和group
-					String[] parts = serviceName.split(QueryString.PREFIX_REGEXP, 2);
-					if (parts.length > 1) {
-						QueryString qs = new QueryString(parts[1]);
-						String zone = qs.getParameter("zone");
-						String group = qs.getParameter("group");
-						if (zone != null && group != null) {
-							// TODO 先缺省zone还是先缺省group?
-							service = services.get(parts[0] + QueryString.PREFIX
-									+ new QueryString().addParameter("zone", zone));
-							if (service == null)
-								service = services.get(parts[0] + QueryString.PREFIX
-										+ new QueryString().addParameter("group", group));
-						}
-						if (service == null) {
-							service = services.get(parts[0]);
-						}
-					}
-					if (service == null) {
-						throw new ServiceException("cannot find serivce for serviceName:" + serviceName);
-					}
-				}
+	private static ServiceMethodCache getServiceMethodCache(String url) throws ServiceException {
+		ServiceMethodCache serviceMethodCache = methods.get(url);
+		if (serviceMethodCache == null) {
+			Map<String, Object> services = ServiceProviderFactory.getAllServices();
+			Object service = services.get(url);
+			if (service != null) {
 				Method[] methodArray = service.getClass().getMethods();
-				serviceMethods = new ServiceMethodCache(serviceName, service);
+				serviceMethodCache = new ServiceMethodCache(url, service);
 				for (Method method : methodArray) {
 					if (!ingoreMethods.contains(method.getName())) {
 						method.setAccessible(true);
-						serviceMethods.addMethod(method.getName(), new ServiceMethod(service, method));
+						serviceMethodCache.addMethod(method.getName(), new ServiceMethod(service, method));
 					}
 				}
-				methods.put(serviceName, serviceMethods);
+				methods.put(url, serviceMethodCache);
 			}
 		}
-		return serviceMethods.getMethod(methodName, new ServiceParam(paramClassNames));
+		return serviceMethodCache;
 	}
 
 }

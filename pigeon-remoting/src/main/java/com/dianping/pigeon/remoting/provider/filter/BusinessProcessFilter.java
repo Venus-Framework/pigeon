@@ -41,8 +41,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			ContextUtils.putLocalContext(Constants.REQUEST_TIMEOUT, request.getTimeout());
 
 			InvocationResponse response = null;
-			ServiceMethod method = ServiceMethodFactory.getMethod(request.getServiceName(), request.getMethodName(),
-					request.getParamClassName());
+			ServiceMethod method = ServiceMethodFactory.getMethod(request);
 			Method method_ = method.getMethod();
 			try {
 				// long currentTime = 0;

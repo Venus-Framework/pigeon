@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.monitor.LoggerLoader;
-import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
@@ -75,15 +74,13 @@ public class NewServiceRegistry {
 		if (serviceImpl == null) {
 			throw new IllegalArgumentException("service not found:" + this);
 		}
-		ProviderConfig providerConfig = new ProviderConfig();
-		providerConfig.setPort(port);
-		providerConfig.setService(serviceImpl);
 		if (StringUtils.isBlank(interfaceName)) {
-			interfaceName = serviceImpl.getClass().getInterfaces()[0].getName();
+			interfaceName = serviceImpl.getClass().getInterfaces()[0].getCanonicalName();
 		}
+		ProviderConfig providerConfig = new ProviderConfig(Class.forName(interfaceName), serviceImpl);
+		providerConfig.setPort(port);
 		providerConfig.setVersion(version);
 		providerConfig.setUrl(url);
-		providerConfig.setServiceInterface(Class.forName(interfaceName));
 		ServiceFactory.publishService(providerConfig);
 	}
 

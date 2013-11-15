@@ -59,7 +59,7 @@ public class ProxyBeanFactory implements FactoryBean {
 	 * 5. LeastSuccess LoadBalance，
 	 * 当前调用成功率最高的优先分配（为了避免负载不均与，成功率前80%再按照LeastActive的方式选择）
 	 */
-	private String loadbalance = "autoaware";
+	private String loadbalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
 
 	/**
 	 * server 端和client端都有该逻辑。 1. Failover:失败自动切换，当出现失败，重试其它服务器。(缺省),

@@ -135,11 +135,9 @@ public class ServiceFactory {
 
 	public static <T> void publishService(String url, Class<T> serviceInterface, T service, int port)
 			throws RpcException {
-		ProviderConfig<T> providerConfig = new ProviderConfig<T>();
+		ProviderConfig<T> providerConfig = new ProviderConfig<T>(serviceInterface, service);
 		providerConfig.setPort(port);
 		providerConfig.setUrl(url);
-		providerConfig.setService(service);
-		providerConfig.setServiceInterface(serviceInterface);
 		publishService(providerConfig);
 	}
 
@@ -149,8 +147,7 @@ public class ServiceFactory {
 		}
 		try {
 			ProviderBootStrapLoader.startup(providerConfig.getPort());
-			ServiceProviderFactory.addService(providerConfig.getUrl(), providerConfig.getService(),
-					providerConfig.getPort());
+			ServiceProviderFactory.addService(providerConfig);
 		} catch (Throwable t) {
 			throw new RpcException("error while publishing service:" + providerConfig, t);
 		}

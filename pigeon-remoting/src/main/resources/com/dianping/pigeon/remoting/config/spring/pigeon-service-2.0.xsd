@@ -47,6 +47,7 @@
 					<xsd:attribute name="group" type="xsd:string" />
 					<xsd:attribute name="port" type="xsd:string" />
 					<xsd:attribute name="version" type="xsd:string" />
+					<xsd:attribute name="autoRegister" type="xsd:boolean" />
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>

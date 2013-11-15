@@ -13,12 +13,12 @@ import com.dianping.pigeon.demo.EchoService;
  * @version $Id: EchoServiceImpl.java, v 0.1 2013-6-22 下午7:05:18 jianhuihuang
  *          Exp $
  */
-public class EchoServiceImpl1 implements EchoService {
+public class EchoServiceImpl2 implements EchoService {
 
 	@Override
 	public String echo(String input) {
 		System.out.println("received: " + input);
-		return "echo:" + input;
+		return "version 2.0.0, echo:" + input;
 	}
 
 	@Override

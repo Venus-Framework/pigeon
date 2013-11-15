@@ -15,6 +15,7 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
+import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.serialize.SerializerFactory;
 
 public class InvokerConfig<T> {
@@ -43,7 +44,7 @@ public class InvokerConfig<T> {
 
 	private boolean writeBufferLimit = RemotingConfigurer.getDefaultWriteBufferLimit();
 
-	private String loadbalance = "autoaware";
+	private String loadbalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
 
 	private boolean timeoutRetry = false;
 
@@ -138,9 +139,9 @@ public class InvokerConfig<T> {
 		this.setVersion(version);
 	}
 
-	public InvokerConfig(String serviceName, Class<T> serviceInterface) {
+	public InvokerConfig(String url, Class<T> serviceInterface) {
 		this.setServiceInterface(serviceInterface);
-		this.setUrl(serviceName);
+		this.setUrl(url);
 	}
 
 	public InvokerConfig(Class<T> serviceInterface) {

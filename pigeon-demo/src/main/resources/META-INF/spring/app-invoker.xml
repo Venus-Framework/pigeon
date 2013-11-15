@@ -8,8 +8,11 @@
 				http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
                 http://code.dianping.com/schema/pigeon http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd">
 
-	<pigeon:reference id="echoService"
+	<pigeon:reference id="echoService1"
 		interface="com.dianping.pigeon.demo.EchoService" />
+
+	<pigeon:reference id="echoService2"
+		interface="com.dianping.pigeon.demo.EchoService" version="2.0.0" />
 
 	<bean id="echoServiceCallback" class="com.dianping.pigeon.demo.invoker.EchoServiceCallback" />
 
