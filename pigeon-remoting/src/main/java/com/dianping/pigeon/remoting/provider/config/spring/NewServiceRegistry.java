@@ -74,10 +74,12 @@ public class NewServiceRegistry {
 		if (serviceImpl == null) {
 			throw new IllegalArgumentException("service not found:" + this);
 		}
+		ProviderConfig providerConfig = null;
 		if (StringUtils.isBlank(interfaceName)) {
-			interfaceName = serviceImpl.getClass().getInterfaces()[0].getCanonicalName();
+			providerConfig = new ProviderConfig(serviceImpl);
+		} else {
+			providerConfig = new ProviderConfig(Class.forName(interfaceName), serviceImpl);
 		}
-		ProviderConfig providerConfig = new ProviderConfig(Class.forName(interfaceName), serviceImpl);
 		providerConfig.setPort(port);
 		providerConfig.setVersion(version);
 		providerConfig.setUrl(url);

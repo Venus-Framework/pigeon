@@ -26,6 +26,12 @@ public class ProviderConfig<T> {
 		this.setService(service);
 	}
 
+	public ProviderConfig(T service) {
+		Class interfaceClass = service.getClass().getInterfaces()[0];
+		this.setService(service);
+		this.setServiceInterface(interfaceClass);
+	}
+
 	public int getPort() {
 		return port;
 	}

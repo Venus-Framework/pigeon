@@ -31,7 +31,7 @@ import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 public class ServiceFactory {
 
 	static boolean isCacheService = true;
-	static Map<InvokerConfig, Object> services = new ConcurrentHashMap<InvokerConfig, Object>();
+	static Map<InvokerConfig<?>, Object> services = new ConcurrentHashMap<InvokerConfig<?>, Object>();
 
 	public static boolean isCacheService() {
 		return isCacheService;

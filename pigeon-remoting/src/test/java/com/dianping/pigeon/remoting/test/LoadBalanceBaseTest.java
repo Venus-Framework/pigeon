@@ -1,4 +1,4 @@
-package com.dianping.pigeon.remoting.invoker.test;
+package com.dianping.pigeon.remoting.test;
 
 
 public class LoadBalanceBaseTest {

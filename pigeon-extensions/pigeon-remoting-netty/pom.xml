@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>pigeon-extensions</artifactId>
-        <groupId>com.dianping</groupId>
-        <version>2.0.0-SNAPSHOT</version>
-    </parent>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>pigeon-extensions</artifactId>
+		<groupId>com.dianping</groupId>
+		<version>2.0.0-SNAPSHOT</version>
+	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<name>pigeon-remoting-netty</name>
 	<artifactId>pigeon-remoting-netty</artifactId>
@@ -34,7 +34,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			<artifactId>pigeon-remoting</artifactId>
 		</dependency>
 	</dependencies>
-	
+
 	<groupId>com.dianping</groupId>
 	<version>2.0.0-SNAPSHOT</version>
 </project>

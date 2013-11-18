@@ -31,15 +31,12 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 
 	public Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws IOException,
 			ClassNotFoundException {
-
 		if (!(msg instanceof ChannelBuffer)) {
 			return msg;
 		}
 
 		ChannelBuffer cb = (ChannelBuffer) NettyCodecUtils.getAttachment(ctx, Constants.ATTACHMENT_BYTEBUFFER);
-
 		ChannelBuffer cb_ = (ChannelBuffer) msg;
-		//System.out.println("decode size:" + cb_.readableBytes());
 		if (cb == null) {
 			cb = cb_;
 		} else {
@@ -54,14 +51,13 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 			}
 			byte head = cb.readByte();
 			if (!(head == Constants.MESSAGE_HEAD_FIRST)) {
-
-				logger.error("error message head: " + head);
-				continue;
+				throw new IllegalArgumentException("decode error with invalid message head:" + head + ", message:"
+						+ msg);
 			}
 			head = cb.readByte();
 			if (!(head == Constants.MESSAGE_HEAD_SECOND)) {
-				logger.error("error message head: " + head);
-				continue;
+				throw new IllegalArgumentException("decode error with invalid message head:" + head + ", message:"
+						+ msg);
 			}
 
 			byte serializable = cb.readByte();

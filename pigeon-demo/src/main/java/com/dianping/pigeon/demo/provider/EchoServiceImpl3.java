@@ -6,12 +6,12 @@ package com.dianping.pigeon.demo.provider;
 
 import com.dianping.pigeon.demo.EchoService;
 
-public class EchoServiceImpl1 implements EchoService {
+public class EchoServiceImpl3 implements EchoService {
 
 	@Override
 	public String echo(String input) {
 		System.out.println("received: " + input);
-		return "default version, echo:" + input;
+		return "version 3.0.0, echo:" + input;
 	}
 
 }

@@ -33,7 +33,7 @@ public class RequestProcessor {
 
 	private static final Logger logger = LoggerLoader.getLogger(RequestProcessor.class);
 
-	private static ThreadPool timeCheckThreadPool = new DefaultThreadPool("pigeon-provider-timeout-checker");
+	//private static ThreadPool timeCheckThreadPool = new DefaultThreadPool("pigeon-provider-timeout-checker");
 
 	private static final ExecutorService executorService = Executors.newCachedThreadPool(new NamedThreadFactory(
 			"pigeon-provider-request-processor", true));
@@ -54,7 +54,7 @@ public class RequestProcessor {
 	public RequestProcessor() {
 		this.serverChannels = new DefaultChannelGroup("Pigeon-Server-Channels");
 		this.contexts = new ConcurrentHashMap<InvocationRequest, RequestContext>();
-		timeCheckThreadPool.execute(new TimeoutListener(contexts));
+		//timeCheckThreadPool.execute(new TimeoutListener(contexts));
 	}
 
 	public void addChannel(ProviderChannel channel) {

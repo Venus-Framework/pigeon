@@ -5,8 +5,7 @@
 package com.dianping.pigeon.demo;
 
 public interface EchoService {
+
 	String echo(String input);
-	
-	String echoWithException(String input);
-	
+
 }

@@ -96,8 +96,6 @@ public class RequestHandler extends AbstractHandler {
 	}
 
 	private void addServices() {
-		Map<String, Object> services = ServiceProviderFactory.getAllServices();
-		context.put("allServices", services);
 	}
 
 	private void addThread() {

@@ -6,18 +6,11 @@ package com.dianping.pigeon.demo.invoker.spring;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.Assert;
-
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.loader.BootstrapLoader;
-import com.dianping.pigeon.demo.provider.EchoException;
 
-/**
- * @author jianhuihuang
- * @version $Id: Client.java, v 0.1 2013-6-22 下午7:04:30 jianhuihuang Exp $
- */
 public class Client {
 	/**
 	 * @param args

@@ -60,7 +60,7 @@ public class DefaultTest extends BaseInvokerTest {
 			while (true) {
 				String msg = null;
 				try {
-					// Thread.sleep(1000);
+					//Thread.sleep(2);
 					msg = System.currentTimeMillis() + "" + Math.abs(RandomUtils.nextLong());
 					String echo = service.echo(msg);
 					// System.out.println(echo);
@@ -73,6 +73,9 @@ public class DefaultTest extends BaseInvokerTest {
 						float tps = size * 1000 / cost;
 						System.out.println("" + tps);
 						startTime = now + "";
+						if(tps < 10000) {
+							Thread.sleep(5);
+						}
 					}
 				} catch (Throwable e) {
 					e.printStackTrace();
