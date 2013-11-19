@@ -5,12 +5,16 @@
 package com.dianping.pigeon.remoting.common.service;
 
 import java.lang.reflect.Proxy;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
+import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.dpsf.spring.ProxyBeanFactory;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
@@ -18,6 +22,7 @@ import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 import com.dianping.pigeon.remoting.invoker.loader.InvocationHandlerLoader;
 import com.dianping.pigeon.remoting.invoker.loader.InvokerBootStrapLoader;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationProxy;
+import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.loader.ProviderBootStrapLoader;
@@ -30,6 +35,7 @@ import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
  */
 public class ServiceFactory {
 
+	static Logger logger = LoggerLoader.getLogger(ServiceFactory.class);
 	static boolean isCacheService = true;
 	static Map<InvokerConfig<?>, Object> services = new ConcurrentHashMap<InvokerConfig<?>, Object>();
 
@@ -39,6 +45,11 @@ public class ServiceFactory {
 
 	public static synchronized void setCacheService(boolean isCacheService) {
 		ServiceFactory.isCacheService = isCacheService;
+	}
+
+	public static <T> String getServiceUrl(Class<T> serviceInterface) {
+		String url = serviceInterface.getCanonicalName();
+		return url;
 	}
 
 	public static <T> String getServiceUrl(InvokerConfig<T> invokerConfig) {
@@ -142,14 +153,63 @@ public class ServiceFactory {
 	}
 
 	public static <T> void publishService(ProviderConfig<T> providerConfig) throws RpcException {
+		if (logger.isInfoEnabled()) {
+			logger.info("publish service:" + providerConfig);
+		}
 		if (StringUtils.isBlank(providerConfig.getUrl())) {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
 		}
 		try {
-			ProviderBootStrapLoader.startup(providerConfig.getPort());
+			Server server = ProviderBootStrapLoader.startup(providerConfig.getPort());
+			providerConfig.setPort(server.getPort());
 			ServiceProviderFactory.addService(providerConfig);
-		} catch (Throwable t) {
+		} catch (ServiceException t) {
 			throw new RpcException("error while publishing service:" + providerConfig, t);
+		}
+	}
+
+	public static void publishServices(List<ProviderConfig<?>> providerConfigList, int port) throws RpcException {
+		if (logger.isInfoEnabled()) {
+			logger.info("publish services:" + providerConfigList + ", port:" + port);
+		}
+		try {
+			Server server = ProviderBootStrapLoader.startup(port);
+			for (ProviderConfig<?> providerConfig : providerConfigList) {
+				if (StringUtils.isBlank(providerConfig.getUrl())) {
+					providerConfig.setUrl(getServiceUrl(providerConfig));
+				}
+				providerConfig.setPort(server.getPort());
+				ServiceProviderFactory.addService(providerConfig);
+			}
+		} catch (ServiceException t) {
+			throw new RpcException("error while publishing services:" + providerConfigList, t);
+		}
+	}
+
+	public static <T> void unpublishService(String url) throws RpcException {
+		if (logger.isInfoEnabled()) {
+			logger.info("unpublish service:" + url);
+		}
+		try {
+			ServiceProviderFactory.removeService(url);
+		} catch (ServiceException e) {
+			throw new RpcException("error while unpublishing service:" + url, e);
+		}
+	}
+
+	public static <T> void unpublishService(Class<T> serviceInterface) throws RpcException {
+		String url = getServiceUrl(serviceInterface);
+		unpublishService(url);
+	}
+
+	public static <T> void unpublishAllServices() throws RpcException {
+		if (logger.isInfoEnabled()) {
+			logger.info("unpublish all services");
+		}
+		try {
+			ServiceProviderFactory.removeAllServices();
+		} catch (ServiceException e) {
+			throw new RpcException("error while unpublishing all services", e);
 		}
 	}
 }

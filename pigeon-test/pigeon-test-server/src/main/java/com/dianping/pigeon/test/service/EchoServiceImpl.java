@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
-import com.dianping.pigeon.util.IpUtils;
+import com.dianping.pigeon.util.NetUtils;
 
 public class EchoServiceImpl implements EchoService {
 
@@ -37,7 +37,7 @@ public class EchoServiceImpl implements EchoService {
 
 	@Override
 	public String echoWithServerInfo(String input) {
-		String serverInfo = "server:" + IpUtils.getFirstLocalIp() + ":"
+		String serverInfo = "server:" + NetUtils.getFirstLocalIp() + ":"
 				+ ExtensionLoader.getExtension(ServerFactory.class).getPort();
 		// System.out.println("reveived: " + input);
 		return serverInfo + ", echo:" + input;

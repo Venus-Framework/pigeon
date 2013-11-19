@@ -162,12 +162,15 @@ public class ZookeeperRegistry implements Registry {
 	}
 	
 	@Override
-	public void publishService(String serviceName, String serviceAddress) throws RegistryException {
-		publishService(serviceName, Constants.DEFAULT_GROUP, serviceAddress, Constants.DEFAULT_WEIGHT_INT);
+	public void registerService(String serviceName, String serviceAddress) throws RegistryException {
+		registerService(serviceName, Constants.DEFAULT_GROUP, serviceAddress, Constants.DEFAULT_WEIGHT_INT);
 	}
 
 	@Override
-	public void publishService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
+	public void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
+		if(StringUtils.isBlank(group)) {
+			group = Constants.DEFAULT_GROUP;
+		}
 		String result = publishService2Zookeeper(serviceName, group, serviceAddress, weight);
 		String path = Utils.getServicePath(serviceName, group);
 		logger.info("published service to registry path: " + path + " value: " + result);
@@ -277,6 +280,22 @@ public class ZookeeperRegistry implements Registry {
 				return;
 			}
 		}
+	}
+
+	@Override
+	public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
+		unregisterService(serviceName, Constants.DEFAULT_GROUP, serviceAddress);		
+	}
+
+	@Override
+	public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
+		if(logger.isInfoEnabled()) {
+			logger.info("unregister [" + serviceAddress + "] from service:" + serviceName);
+		}
+		if(StringUtils.isBlank(group)) {
+			group = Constants.DEFAULT_GROUP;
+		}
+		// TODO Auto-generated method stub
 	}
 
 }

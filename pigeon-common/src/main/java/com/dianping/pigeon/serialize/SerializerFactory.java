@@ -34,11 +34,12 @@ public final class SerializerFactory {
 	}
 
 	public static Serializer getSerializer(byte serializerType) {
-		if (serializers.containsKey(serializerType)) {
-			return serializers.get(serializerType);
+		Serializer serializer = serializers.get(serializerType);
+		if(serializer == null) {
+			throw new RuntimeException("no serializer found for type:" + serializerType);
+		} else {
+			return serializer;
 		}
-
-		throw new RuntimeException("no serializer found for type:" + serializerType);
 	}
 
 }

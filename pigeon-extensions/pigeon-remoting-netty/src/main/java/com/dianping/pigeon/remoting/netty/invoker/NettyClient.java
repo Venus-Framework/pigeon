@@ -139,8 +139,8 @@ public class NettyClient implements Client {
 			return;
 		}
 		Object[] msg = (Object[]) attachment;
-		if (msg[0] instanceof InvocationRequest && ((InvocationRequest) msg[0]).getMessageType() == Constants.MESSAGE_TYPE_SERVICE
-				&& msg[1] != null) {
+		if (msg[0] instanceof InvocationRequest
+				&& ((InvocationRequest) msg[0]).getMessageType() == Constants.MESSAGE_TYPE_SERVICE && msg[1] != null) {
 
 			try {
 				InvocationRequest request = (InvocationRequest) msg[0];
@@ -159,15 +159,15 @@ public class NettyClient implements Client {
 	}
 
 	private void error(InvocationRequest request, Client client) {
-
-		RpcInvokeInfo rpcInvokeInfo = new RpcInvokeInfo();
-		rpcInvokeInfo.setServiceName(request.getServiceName());
-		rpcInvokeInfo.setAddressIp(client.getAddress());
-		rpcInvokeInfo.setRequest(request);
-		RuntimeServiceEvent event = new RuntimeServiceEvent(
-				RuntimeServiceEvent.Type.RUNTIME_RPC_INVOKE_CONNECT_EXCEPTION, rpcInvokeInfo);
-
-		EventManager.getInstance().publishEvent(event);
+		if (RemotingConfigurer.isEventEnabled()) {
+			RpcInvokeInfo rpcInvokeInfo = new RpcInvokeInfo();
+			rpcInvokeInfo.setServiceName(request.getServiceName());
+			rpcInvokeInfo.setAddressIp(client.getAddress());
+			rpcInvokeInfo.setRequest(request);
+			RuntimeServiceEvent event = new RuntimeServiceEvent(
+					RuntimeServiceEvent.Type.RUNTIME_RPC_INVOKE_CONNECT_EXCEPTION, rpcInvokeInfo);
+			EventManager.getInstance().publishEvent(event);
+		}
 	}
 
 	public void doResponse(InvocationResponse response) {

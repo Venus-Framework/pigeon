@@ -17,4 +17,5 @@ public interface Server {
 
 	void stop();
 	
+	int getPort();
 }

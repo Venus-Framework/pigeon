@@ -20,7 +20,7 @@ import com.dianping.pigeon.registry.config.RegistryConfigManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.util.Utils;
-import com.dianping.pigeon.util.IpUtils;
+import com.dianping.pigeon.util.NetUtils;
 
 
 public class RegistryManager {
@@ -127,15 +127,27 @@ public class RegistryManager {
 		logger.info("Set " + serviceAddress + " weight to " + weight);
 	}
 
-	public void publishService(String serviceName, String serviceAddress) throws RegistryException {
+	public void registerService(String serviceName, String serviceAddress) throws RegistryException {
 		if (registry != null) {
-			registry.publishService(serviceName, serviceAddress);
+			registry.registerService(serviceName, serviceAddress);
 		}
 	}
 	
-	public void publishService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
+	public void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
 		if (registry != null) {
-			registry.publishService(serviceName, group, serviceAddress, weight);
+			registry.registerService(serviceName, group, serviceAddress, weight);
+		}
+	}
+	
+	public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
+		if (registry != null) {
+			registry.unregisterService(serviceName, serviceAddress);
+		}
+	}
+	
+	public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
+		if (registry != null) {
+			registry.unregisterService(serviceName, group, serviceAddress);
 		}
 	}
 	
@@ -197,7 +209,7 @@ public class RegistryManager {
 
 	public RegistryMeta getRegistryMeta() throws RegistryException {
 		if(registry != null) {
-			return registry.getRegistryMeta(IpUtils.getFirstLocalIp());
+			return registry.getRegistryMeta(NetUtils.getFirstLocalIp());
 		}
 		return null;
 	}

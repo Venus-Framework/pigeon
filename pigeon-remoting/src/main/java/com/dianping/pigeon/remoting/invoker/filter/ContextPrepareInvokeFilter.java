@@ -17,7 +17,6 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
-import com.dianping.pigeon.remoting.invoker.route.context.ClientContext;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
@@ -27,10 +26,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
-
 		initRequest(invocationContext.getRequest());
-		Client client = invocationContext.getClient();
-		ClientContext.setUsedClientAddress(client.getAddress());
 		transferContextValueToRequest(invocationContext, invocationContext.getRequest());
 		return handler.handle(invocationContext);
 	}
@@ -79,8 +75,8 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 	private void transferContextValueToRequest(final InvokerContext invocationContext, final InvocationRequest request) {
 		InvokerConfig metaData = invocationContext.getInvokerConfig();
 		Client client = invocationContext.getClient();
-		Object contextHolder = ContextUtils.createContext(metaData.getUrl(), invocationContext.getMethod()
-				.getName(), client.getHost(), client.getPort());
+		Object contextHolder = ContextUtils.createContext(metaData.getUrl(), invocationContext.getMethod().getName(),
+				client.getHost(), client.getPort());
 		if (contextHolder != null) {
 			Map<String, Serializable> contextValues = invocationContext.getContextValues();
 			if (contextValues != null) {

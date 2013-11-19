@@ -90,6 +90,10 @@ public final class ResponseUtils {
 		response.setReturn(Constants.VERSION_150);
 		return response;
 	}
+	
+	public static InvocationResponse createNoReturnResponse() {
+		return new NoReturnResponse();
+	}
 
 	private static String extractStackTrace(Throwable t) {
 		StringWriter me = new StringWriter();
@@ -108,4 +112,62 @@ public final class ResponseUtils {
 		}
 	}
 
+	static class NoReturnResponse implements InvocationResponse {
+
+		/**
+		 * serialVersionUID
+		 */
+		private static final long serialVersionUID = 4348389641787057819L;
+
+		@Override
+		public void setMessageType(int messageType) {
+		}
+
+		@Override
+		public int getMessageType() {
+			return 0;
+		}
+
+		@Override
+		public String getCause() {
+			return null;
+		}
+
+		@Override
+		public Object getReturn() {
+			return null;
+		}
+
+		@Override
+		public void setReturn(Object obj) {
+		}
+
+		@Override
+		public byte getSerializ() {
+			return 0;
+		}
+
+		@Override
+		public void setSequence(long seq) {
+		}
+
+		@Override
+		public long getSequence() {
+			return 0;
+		}
+
+		@Override
+		public Object getObject() {
+			return null;
+		}
+
+		@Override
+		public Object getContext() {
+			return null;
+		}
+
+		@Override
+		public void setContext(Object context) {
+		}
+	}
 }

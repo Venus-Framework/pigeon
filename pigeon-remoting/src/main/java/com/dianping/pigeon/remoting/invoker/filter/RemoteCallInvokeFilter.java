@@ -9,6 +9,7 @@ import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.RemoteInvocationBean;
@@ -27,7 +28,7 @@ import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 
 	private static ServiceInvocationRepository invocationRepository = ServiceInvocationRepository.getInstance();
-	private static final InvocationResponse NO_RETURN_RESPONSE = new NoReturnResponse();
+	private static final InvocationResponse NO_RETURN_RESPONSE = ResponseUtils.createNoReturnResponse();
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
@@ -75,65 +76,6 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 		} catch (RuntimeException e) {
 			invocationRepository.remove(request.getSequence());
 			throw new NetException("Send request to service provider failed.", e);
-		}
-	}
-
-	static class NoReturnResponse implements InvocationResponse {
-
-		/**
-		 * serialVersionUID
-		 */
-		private static final long serialVersionUID = 4348389641787057819L;
-
-		@Override
-		public void setMessageType(int messageType) {
-		}
-
-		@Override
-		public int getMessageType() {
-			return 0;
-		}
-
-		@Override
-		public String getCause() {
-			return null;
-		}
-
-		@Override
-		public Object getReturn() {
-			return null;
-		}
-
-		@Override
-		public void setReturn(Object obj) {
-		}
-
-		@Override
-		public byte getSerializ() {
-			return 0;
-		}
-
-		@Override
-		public void setSequence(long seq) {
-		}
-
-		@Override
-		public long getSequence() {
-			return 0;
-		}
-
-		@Override
-		public Object getObject() {
-			return null;
-		}
-
-		@Override
-		public Object getContext() {
-			return null;
-		}
-
-		@Override
-		public void setContext(Object context) {
 		}
 	}
 

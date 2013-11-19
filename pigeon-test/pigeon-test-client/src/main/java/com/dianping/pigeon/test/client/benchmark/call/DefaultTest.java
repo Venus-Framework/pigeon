@@ -21,7 +21,7 @@ import com.dianping.pigeon.test.service.EchoService;
  */
 public class DefaultTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(callMethod = "oneway", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
+	@PigeonAutoTest(callMethod = "sync", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
 	public EchoService echoService;
 
 	static AtomicLong counter = new AtomicLong(0);
@@ -73,9 +73,6 @@ public class DefaultTest extends BaseInvokerTest {
 						float tps = size * 1000 / cost;
 						System.out.println("" + tps);
 						startTime = now + "";
-						if(tps < 10000) {
-							Thread.sleep(5);
-						}
 					}
 				} catch (Throwable e) {
 					e.printStackTrace();

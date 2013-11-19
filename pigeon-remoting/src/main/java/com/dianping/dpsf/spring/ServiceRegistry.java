@@ -4,15 +4,18 @@
  */
 package com.dianping.dpsf.spring;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.remoting.common.exception.RpcException;
+import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
-import com.dianping.pigeon.remoting.provider.loader.ProviderBootStrapLoader;
-import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
 
 /**
  * @deprecated 后续请使用spring的xml配置方式。务必！！新功能不再支持该方式了。
@@ -48,13 +51,24 @@ public final class ServiceRegistry {
 
 	/**
 	 * 要确保只是启动一次！，调用Pigeon启动器，通过事件的机制来并行初始化，确保快速的启动。
-	 * @throws ServiceException 
+	 * 
+	 * @throws ServiceException
 	 * 
 	 * @throws ClassNotFoundException
 	 */
 	public void init() throws ServiceException {
-		ProviderBootStrapLoader.startup(port);
-		ServiceProviderFactory.addServices(services, port);
+		List<ProviderConfig<?>> providerConfigList = new ArrayList<ProviderConfig<?>>();
+		for (String url : services.keySet()) {
+			ProviderConfig providerConfig = new ProviderConfig(services.get(url));
+			providerConfig.setUrl(url);
+			providerConfig.setPort(port);
+			providerConfigList.add(providerConfig);
+		}
+		try {
+			ServiceFactory.publishServices(providerConfigList, port);
+		} catch (RpcException e) {
+			throw new ServiceException("", e);
+		}
 	}
 
 	/**

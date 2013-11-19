@@ -4,19 +4,24 @@
  */
 package com.dianping.pigeon.remoting.provider.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.VersionUtils;
 import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
-import com.dianping.pigeon.util.IpUtils;
+import com.dianping.pigeon.util.NetUtils;
 
 /**
  * @author xiangwu
@@ -25,22 +30,15 @@ import com.dianping.pigeon.util.IpUtils;
  */
 public final class ServiceProviderFactory {
 
+	private static Logger logger = LoggerLoader.getLogger(ServiceProviderFactory.class);
+
 	private static ConcurrentHashMap<String, ProviderConfig> serviceCache = new ConcurrentHashMap<String, ProviderConfig>();
 
-	private static ConcurrentHashMap<String, Boolean> serviceRegisterStatus = new ConcurrentHashMap<String, Boolean>();
+	private static ConcurrentHashMap<String, Boolean> registerStatusCache = new ConcurrentHashMap<String, Boolean>();
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	public ServiceProviderFactory() {
-	}
-
-	public static void addServices(Map<String, Object> services, int port) throws ServiceException {
-		for (String url : services.keySet()) {
-			ProviderConfig providerConfig = new ProviderConfig(services.get(url));
-			providerConfig.setUrl(url);
-			providerConfig.setPort(port);
-			addService(providerConfig);
-		}
 	}
 
 	public static String getServiceUrlWithVersion(String url, String version) {
@@ -52,6 +50,9 @@ public final class ServiceProviderFactory {
 	}
 
 	public static <T> void addService(ProviderConfig<T> providerConfig) throws ServiceException {
+		if (logger.isInfoEnabled()) {
+			logger.info("add service:" + providerConfig);
+		}
 		String version = providerConfig.getVersion();
 		String url = providerConfig.getUrl();
 		if (StringUtils.isBlank(version)) {// default version
@@ -79,28 +80,71 @@ public final class ServiceProviderFactory {
 	}
 
 	private static <T> void publishServiceToRegistry(ProviderConfig<T> providerConfig) throws ServiceException {
-		if (!serviceRegisterStatus.contains(providerConfig.getUrl())) {
+		if (logger.isInfoEnabled()) {
+			logger.info("publish service:" + providerConfig);
+		}
+		if (!registerStatusCache.contains(providerConfig.getUrl())) {
 			try {
 				String autoRegister = configManager.getProperty(Constants.KEY_AUTO_REGISTER,
 						Constants.DEFAULT_AUTO_REGISTER);
 				if ("true".equalsIgnoreCase(autoRegister)) {
 					String localip = RegistryManager.getInstance().getProperty(Constants.KEY_LOCAL_IP);
 					if (localip == null || localip.length() == 0) {
-						localip = IpUtils.getFirstLocalIp();
+						localip = NetUtils.getFirstLocalIp();
 					}
 					String serviceAddress = localip + ":" + providerConfig.getPort();
 					String group = configManager.getProperty(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
+					providerConfig.setGroup(group);
 					String weight = configManager.getProperty(Constants.KEY_WEIGHT, Constants.DEFAULT_WEIGHT);
 					int intWeight = Integer.parseInt(weight);
-					RegistryManager.getInstance().publishService(providerConfig.getUrl(), group, serviceAddress,
+					RegistryManager.getInstance().registerService(providerConfig.getUrl(), group, serviceAddress,
 							intWeight);
-					serviceRegisterStatus.put(providerConfig.getUrl(), true);
+					registerStatusCache.put(providerConfig.getUrl(), true);
 				} else {
-					serviceRegisterStatus.put(providerConfig.getUrl(), false);
+					registerStatusCache.put(providerConfig.getUrl(), false);
 				}
 			} catch (Exception e) {
 				throw new ServiceException("", e);
 			}
+		}
+	}
+
+	public static void removeService(String url) throws ServiceException {
+		if (logger.isInfoEnabled()) {
+			logger.info("remove service:" + url);
+		}
+		ProviderConfig providerConfig = serviceCache.get(url);
+		if (providerConfig != null) {
+			String localip = RegistryManager.getInstance().getProperty(Constants.KEY_LOCAL_IP);
+			if (localip == null || localip.length() == 0) {
+				localip = NetUtils.getFirstLocalIp();
+			}
+			String serviceAddress = localip + ":" + providerConfig.getPort();
+			try {
+				RegistryManager.getInstance().unregisterService(url, providerConfig.getGroup(), serviceAddress);
+			} catch (RegistryException e) {
+				throw new ServiceException("", e);
+			}
+			List<String> toRemovedUrls = new ArrayList<String>();
+			for (String key : serviceCache.keySet()) {
+				ProviderConfig pc = serviceCache.get(key);
+				if (pc.getUrl().equals(url)) {
+					toRemovedUrls.add(key);
+				}
+			}
+			for (String key : toRemovedUrls) {
+				serviceCache.remove(key);
+			}
+			registerStatusCache.remove(url);
+		}
+	}
+
+	public static void removeAllServices() throws ServiceException {
+		if (logger.isInfoEnabled()) {
+			logger.info("remove all services");
+		}
+		for (String url : serviceCache.keySet()) {
+			removeService(url);
 		}
 	}
 

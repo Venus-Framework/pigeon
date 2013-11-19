@@ -39,6 +39,7 @@ public class BaseInvokerTest {
 		if (StringUtils.isBlank(registryAddress)) {
 			registryAddress = EnvZooKeeperConfig.getZKAddress();
 		}
+		//registryAddress = "127.0.0.1:2181";
 		System.out.println("registry address:" + registryAddress);
 		ConfigCache.getInstance(registryAddress);
 		initClient();

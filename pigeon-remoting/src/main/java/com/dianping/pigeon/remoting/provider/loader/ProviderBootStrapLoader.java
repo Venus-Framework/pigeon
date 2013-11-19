@@ -4,46 +4,42 @@
  */
 package com.dianping.pigeon.remoting.provider.loader;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
+import com.dianping.pigeon.remoting.provider.listener.ShutdownHookListener;
+import com.dianping.pigeon.util.NetUtils;
 
 public final class ProviderBootStrapLoader {
 
-	private static volatile Map<Integer, Server> servers = new ConcurrentHashMap<Integer, Server>();
+	static volatile Server server = null;
 
 	public static Server startup(int port) {
-		Server server = servers.get(port);
 		if (server == null) {
 			synchronized (ProviderBootStrapLoader.class) {
-				if (servers.get(port) == null) {
+				if (server == null) {
+					int availablePort = NetUtils.getAvailablePort(port);
 					RegistryConfigLoader.init();
 					RequestProcessHandlerLoader.init();
-					server = ExtensionLoader.getExtension(
-							ServerFactory.class).createServer(port);
+					server = ExtensionLoader.getExtension(ServerFactory.class).createServer(availablePort);
 					if (server != null) {
 						server.start();
+						Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookListener(server)));
 					}
-					servers.put(port, server);
 				}
 			}
 		}
 		return server;
 	}
 
-	public static void shutdown(int port) {
+	public static void shutdown() {
 		RequestProcessHandlerLoader.clearServerInternalFilters();
 		synchronized (ProviderBootStrapLoader.class) {
-			Server server = servers.get(port);
 			if (server != null) {
 				server.stop();
-				servers.remove(port);
 			}
 		}
 	}
-	
+
 }

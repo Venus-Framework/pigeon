@@ -34,7 +34,7 @@ public class ConfigLoader {
 		}
 	}
 
-	public static void initServer(int port) {
+	public static void initServer() {
 		Properties properties = new Properties();
 		InputStream input = ConfigLoader.class.getResourceAsStream(PROPERTIES_PATH);
 		if (input != null) {
@@ -45,7 +45,6 @@ public class ConfigLoader {
 				logger.error("", e);
 			}
 		}
-		properties.put("port", port);
 		try {
 			ExtensionLoader.getExtension(ConfigManager.class).init(properties);
 		} catch (Exception e) {

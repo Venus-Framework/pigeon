@@ -83,12 +83,14 @@ public class NettyServer implements Server, Disposable {
 	}
 
 	public void stop() {
-
 		if (this.started) {
 			// this.channelGroup.close().awaitUninterruptibly();
 			// this.bootstrap.releaseExternalResources();
 			doClose();
 			this.started = false;
+			if (logger.isInfoEnabled()) {
+				logger.info("Pigeon server shutdown at port:" + this.port);
+			}
 		}
 	}
 
@@ -129,6 +131,11 @@ public class NettyServer implements Server, Disposable {
 	@Override
 	public void destroy() {
 		this.stop();
+	}
+
+	@Override
+	public int getPort() {
+		return this.port;
 	}
 
 }

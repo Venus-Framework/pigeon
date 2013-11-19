@@ -54,6 +54,16 @@ public class InvokerConfig<T> {
 
 	private String vip;
 
+	private int maxRequests = RemotingConfigurer.getInvokerMaxRequests();
+
+	public int getMaxRequests() {
+		return maxRequests;
+	}
+
+	public void setMaxRequests(int maxRequests) {
+		this.maxRequests = maxRequests;
+	}
+
 	public String getVersion() {
 		return version;
 	}

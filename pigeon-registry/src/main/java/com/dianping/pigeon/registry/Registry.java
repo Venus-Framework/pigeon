@@ -16,9 +16,13 @@ public interface Registry {
 	
 	String getServiceAddress(String serviceName, String group) throws RegistryException;
 
-	void publishService(String serviceName, String serviceAddress) throws RegistryException;
+	void registerService(String serviceName, String serviceAddress) throws RegistryException;
 
-	void publishService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException;
+	void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException;
+
+	void unregisterService(String serviceName, String serviceAddress) throws RegistryException;
+
+	void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException;
 
 	int getServiceWeigth(String serviceAddress) throws RegistryException;
 

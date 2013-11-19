@@ -53,7 +53,6 @@ public class EventManager {
 				RuntimeServiceEvent event = null;
 				try {
 					event = eventQueue.take();
-
 					synchronized (monitor) {
 						// FIXME java.util.ConcurrentModificationException
 						List<RuntimeServiceListener> arrayList = new ArrayList<RuntimeServiceListener>();
@@ -75,18 +74,14 @@ public class EventManager {
 					log.error("ִ执行异步事件" + event + "出现错误", e);
 				}
 			}
-
 		}
-
 	}
 
 	public void publishEvent(RuntimeServiceEvent event) {
-
 		if (log.isDebugEnabled()) {
 			log.debug("运行时事件 - " + event);
 		}
 		synchronized (monitor) {
-
 			for (RuntimeServiceListener listener : listeners) {
 				if (listener.support(event)) {
 					listener.handleEvent(event);
@@ -106,16 +101,12 @@ public class EventManager {
 	}
 
 	public void removeServiceListener(RuntimeServiceListener serviceListener) {
-
-		// Assert.notNull(serviceListener, "删除监听器不能为空");
-
 		synchronized (monitor) {
 			this.listeners.remove(serviceListener);
 		}
 	}
 
 	public void addServiceListener(RuntimeServiceListener serviceListener) {
-		// Assert.notNull(serviceListener, "注册监听器不能为空");
 		synchronized (monitor) {
 			this.listeners.add(serviceListener);
 		}

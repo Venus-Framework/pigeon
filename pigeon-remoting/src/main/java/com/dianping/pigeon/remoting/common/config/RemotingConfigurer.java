@@ -34,6 +34,8 @@ public class RemotingConfigurer {
 	private static final String KEY_WRITE_BUFFER_LOW_WATER = "pigeon.channel.writebuff.low";
 	private static final String KEY_DEFAULT_WRITE_BUFF_LIMIT = "pigeon.channel.writebuff.defaultlimit";
 	private static final String KEY_MONITOR_ENABLED = "pigeon.monitor.enabled";
+	private static final String KEY_EVENT_ENABLED = "pigeon.event.enabled";
+	private static final String KEY_INVOKER_MAXREQUESTS = "pigeon.invoker.maxrequests";
 
 	private static final long DEFAULT_RECONNECT_INTERVAL = 3000;
 	private static final long DEFAULT_HEARTBEAT_INTERVAL = 3000;
@@ -45,7 +47,6 @@ public class RemotingConfigurer {
 	private static final int DEFAULT_WRITE_BUFFER_HIGH_WATER = 35 * 1024 * 1024;
 	private static final int DEFAULT_WRITE_BUFFER_LOW_WATER = 25 * 1024 * 1024;
 	private static final boolean DEFAULT_WRITE_BUFF_LIMIT = false;
-	private static final boolean DEFAULT_MONITOR_ENABLED = true;
 
 	private static Map<String, Object> configCache = new HashMap<String, Object>();
 
@@ -128,9 +129,17 @@ public class RemotingConfigurer {
 	public static int getWriteBufferLowWater() {
 		return getIntValue(KEY_WRITE_BUFFER_LOW_WATER, DEFAULT_WRITE_BUFFER_LOW_WATER);
 	}
-	
+
 	public static boolean isMonitorEnabled() {
-		return getBooleanValue(KEY_MONITOR_ENABLED, DEFAULT_MONITOR_ENABLED);
+		return getBooleanValue(KEY_MONITOR_ENABLED, true);
+	}
+
+	public static boolean isEventEnabled() {
+		return getBooleanValue(KEY_EVENT_ENABLED, false);
+	}
+
+	public static int getInvokerMaxRequests() {
+		return getIntValue(KEY_INVOKER_MAXREQUESTS, 0);
 	}
 
 	public static String getStringValue(String key, String defaultValue) {
