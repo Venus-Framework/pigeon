@@ -16,6 +16,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs.Ids;
+import org.apache.zookeeper.data.Stat;
 
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
@@ -28,7 +29,7 @@ import com.dianping.pigeon.registry.util.Constants;
 public class ZookeeperRegistry implements Registry {
 
 	private static Logger logger = LoggerLoader.getLogger(ZookeeperRegistry.class);
-	
+
 	private ZooKeeperWrapper zkClient;
 	private ZookeeperWatcher zkWatcher;
 
@@ -55,13 +56,16 @@ public class ZookeeperRegistry implements Registry {
 					this.zkClient.create(Constants.DP_PATH, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 				}
 				if (this.zkClient.exists(Constants.SERVICE_PATH, false) == null) {
-					this.zkClient.create(Constants.SERVICE_PATH, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+					this.zkClient.create(Constants.SERVICE_PATH, new byte[0], Ids.OPEN_ACL_UNSAFE,
+							CreateMode.PERSISTENT);
 				}
 				if (this.zkClient.exists(Constants.WEIGHT_PATH, false) == null) {
-					this.zkClient.create(Constants.WEIGHT_PATH, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+					this.zkClient
+							.create(Constants.WEIGHT_PATH, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 				}
 				if (this.zkClient.exists(Constants.REGISTRY_PATH, false) == null) {
-					this.zkClient.create(Constants.REGISTRY_PATH, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+					this.zkClient.create(Constants.REGISTRY_PATH, new byte[0], Ids.OPEN_ACL_UNSAFE,
+							CreateMode.PERSISTENT);
 				}
 				this.zkWatcher = new ZookeeperWatcher(this);
 			} catch (Exception e) {
@@ -86,8 +90,7 @@ public class ZookeeperRegistry implements Registry {
 			if (this.zkClient.exists(path, zkWatcher) != null) {
 				String value = new String(this.zkClient.getData(path, false, null), Constants.CHARSET);
 				if (logger.isInfoEnabled()) {
-					logger.info("Get value from zookeeper " + 
-				                "path: " + path + "  value: " + value);
+					logger.info("Get value from zookeeper " + "path: " + path + "  value: " + value);
 				}
 				return value;
 			}
@@ -117,34 +120,33 @@ public class ZookeeperRegistry implements Registry {
 	public ZooKeeperWrapper getZkClient() {
 		return zkClient;
 	}
-	
+
 	@Override
 	public String getValue(String key) {
 		return properties.getProperty(key);
 	}
-	
+
 	@Override
 	public String getServiceAddress(String serviceName) throws RegistryException {
 		return getServiceAddress(serviceName, Constants.DEFAULT_GROUP);
 	}
-	
+
 	@Override
 	public String getServiceAddress(String serviceName, String group) throws RegistryException {
 		String path = Utils.getServicePath(serviceName, group);
-		if(!Utils.isEmpty(group) && !zkExists(path)) {
+		if (!Utils.isEmpty(group) && !zkExists(path)) {
 			logger.info(path + " does not exist. Fallback to default group");
 			path = Utils.getServicePath(serviceName, Constants.DEFAULT_GROUP);
 		}
 		String address = getZkValue(path);
-		if(address != null) {
+		if (address != null) {
 			if (logger.isInfoEnabled()) {
-				logger.info("get service address from zookeeper, service name:"
-						+ path + "  address:" + address);
+				logger.info("get service address from zookeeper, service name:" + path + "  address:" + address);
 			}
 		}
 		return address;
 	}
-	
+
 	private boolean zkExists(String path) throws RegistryException {
 		try {
 			return zkClient.exists(path, false) != null;
@@ -152,7 +154,7 @@ public class ZookeeperRegistry implements Registry {
 			throw new RegistryException(e);
 		}
 	}
-	
+
 	public void watchZkPath(String path) throws RegistryException {
 		try {
 			zkClient.exists(path, zkWatcher);
@@ -160,28 +162,32 @@ public class ZookeeperRegistry implements Registry {
 			throw new RegistryException(e);
 		}
 	}
-	
+
 	@Override
 	public void registerService(String serviceName, String serviceAddress) throws RegistryException {
 		registerService(serviceName, Constants.DEFAULT_GROUP, serviceAddress, Constants.DEFAULT_WEIGHT_INT);
 	}
 
 	@Override
-	public void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
-		if(StringUtils.isBlank(group)) {
+	public void registerService(String serviceName, String group, String serviceAddress, int weight)
+			throws RegistryException {
+		if (StringUtils.isBlank(group)) {
 			group = Constants.DEFAULT_GROUP;
 		}
-		String result = publishService2Zookeeper(serviceName, group, serviceAddress, weight);
-		String path = Utils.getServicePath(serviceName, group);
-		logger.info("published service to registry path: " + path + " value: " + result);
+		registerServiceToZookeeper(serviceName, group, serviceAddress, weight);
+		if (logger.isInfoEnabled()) {
+			String path = Utils.getServicePath(serviceName, group);
+			logger.info("registered service to registry path: " + path);
+		}
 	}
-	
-	private String publishService2Zookeeper(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
+
+	private void registerServiceToZookeeper(String serviceName, String group, String serviceAddress, int weight)
+			throws RegistryException {
 		String weightPath = Utils.getWeightPath(serviceAddress);
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
 			// 1. Register weight
-			zkClient.updateData(weightPath, ""+weight);
+			zkClient.updateData(weightPath, "" + weight);
 			// 2. Register address
 			if (zkClient.exists(servicePath, false) != null) {
 				String addressValue = new String(zkClient.getData(servicePath, false, null), Constants.CHARSET);
@@ -200,9 +206,8 @@ public class ZookeeperRegistry implements Registry {
 			} else {
 				zkClient.updateData(servicePath, serviceAddress);
 			}
-			return serviceAddress;
 		} catch (Exception e) {
-			logger.error("error while publishing service to registry:" + serviceName, e);
+			logger.error("error while registering service to registry:" + serviceName, e);
 			throw new RegistryException(e);
 		}
 	}
@@ -222,35 +227,34 @@ public class ZookeeperRegistry implements Registry {
 	public RegistryMeta getRegistryMeta(String serviceAddress) throws RegistryException {
 		try {
 			String path = Utils.getRegistryPath(serviceAddress);
-			if(zkClient.exists(path, false) == null) {
+			if (zkClient.exists(path, false) == null) {
 				return RegistryMeta.DEFAULT_REGISTRY_META;
 			}
-			
+
 			RegistryMeta registryMeta = new RegistryMeta();
 			path = Utils.getRegistryPath(serviceAddress, Constants.KEY_GROUP);
 			String value = new String(zkClient.getData(path, false, null), Constants.CHARSET);
-			if(!Utils.isEmpty(value))
+			if (!Utils.isEmpty(value))
 				registryMeta.setGroup(value);
 			else
 				registryMeta.setGroup(Constants.DEFAULT_GROUP);
-			
+
 			path = Utils.getRegistryPath(serviceAddress, Constants.KEY_WEIGHT);
 			value = new String(zkClient.getData(path, false, null), Constants.CHARSET);
-			if(!Utils.isEmpty(value)) {
+			if (!Utils.isEmpty(value)) {
 				int weight = Integer.parseInt(value);
 				registryMeta.setWeight(weight);
-			} else 
+			} else
 				registryMeta.setWeight(Constants.DEFAULT_WEIGHT_INT);
-			
+
 			path = Utils.getRegistryPath(serviceAddress, Constants.KEY_AUTO_REGISTER);
 			value = new String(zkClient.getData(path, false, null), Constants.CHARSET);
-			if(!Utils.isEmpty(value)) {
+			if (!Utils.isEmpty(value)) {
 				boolean autoRegister = Boolean.parseBoolean(value);
 				registryMeta.setAutoRegister(autoRegister);
-			}
-			else 
+			} else
 				registryMeta.setAutoRegister(Constants.DEFAULT_AUTO_REGISTER_BOOL);
-			
+
 			logger.info("Registry meta for " + serviceAddress + " is " + registryMeta);
 			return registryMeta;
 		} catch (Exception e) {
@@ -258,7 +262,7 @@ public class ZookeeperRegistry implements Registry {
 			throw new RegistryException(e);
 		}
 	}
-	
+
 	@Override
 	public String getName() {
 		return "zookeeper";
@@ -284,18 +288,54 @@ public class ZookeeperRegistry implements Registry {
 
 	@Override
 	public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
-		unregisterService(serviceName, Constants.DEFAULT_GROUP, serviceAddress);		
+		unregisterService(serviceName, Constants.DEFAULT_GROUP, serviceAddress);
 	}
 
 	@Override
 	public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
-		if(logger.isInfoEnabled()) {
-			logger.info("unregister [" + serviceAddress + "] from service:" + serviceName);
-		}
-		if(StringUtils.isBlank(group)) {
+		if (StringUtils.isBlank(group)) {
 			group = Constants.DEFAULT_GROUP;
 		}
-		// TODO Auto-generated method stub
+		unregisterServiceFromZookeeper(serviceName, group, serviceAddress);
+		if (logger.isInfoEnabled()) {
+			logger.info("unregistered [" + serviceAddress + "] from service:" + serviceName);
+		}
 	}
 
+	private void unregisterServiceFromZookeeper(String serviceName, String group, String serviceAddress)
+			throws RegistryException {
+		String weightPath = Utils.getWeightPath(serviceAddress);
+		String servicePath = Utils.getServicePath(serviceName, group);
+		try {
+			// 1. Register weight
+			Stat statWeight = zkClient.exists(weightPath, false);
+			if (statWeight != null) {
+				zkClient.delete(weightPath, statWeight.getVersion());
+			}
+			// 2. Register address
+			Stat statService = zkClient.exists(servicePath, false);
+			if (statService != null) {
+				String addressValue = new String(zkClient.getData(servicePath, false, null), Constants.CHARSET);
+				String[] addressArray = addressValue.split(",");
+				List<String> addressList = new ArrayList<String>();
+				for (String addr : addressArray) {
+					if (StringUtils.isNotBlank(addr) && !addressList.contains(addr)) {
+						addressList.add(addr);
+					}
+				}
+				if (addressList.contains(serviceAddress)) {
+					addressList.remove(serviceAddress);
+					if (!addressList.isEmpty()) {
+						Collections.sort(addressList);
+						zkClient.updateData(servicePath, StringUtils.join(addressList, ","));
+					} else {
+						zkClient.delete(servicePath, statService.getVersion());
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("error while unregistering service from registry:" + serviceName, e);
+			throw new RegistryException(e);
+		}
+	}
 }
