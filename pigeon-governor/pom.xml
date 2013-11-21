@@ -5,6 +5,7 @@
 	<name>pigeon-governor</name>
 	<groupId>com.dianping</groupId>
 	<artifactId>pigeon-governor</artifactId>
+	<version>1.0.0</version>
 	<url>http://maven.apache.org</url>
 	<packaging>war</packaging>
 	<dependencies>
