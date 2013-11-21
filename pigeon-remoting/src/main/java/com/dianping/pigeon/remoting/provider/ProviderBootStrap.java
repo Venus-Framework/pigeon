@@ -4,14 +4,20 @@
  */
 package com.dianping.pigeon.remoting.provider;
 
+import org.apache.log4j.Logger;
+
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.provider.listener.ShutdownHookListener;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessHandlerFactory;
+import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 import com.dianping.pigeon.util.NetUtils;
+import com.dianping.pigeon.util.VersionUtils;
 
 public final class ProviderBootStrap {
 
+	private static Logger logger = LoggerLoader.getLogger(ServiceProviderFactory.class);
 	static volatile Server server = null;
 
 	public static Server startup(int port) {
@@ -25,6 +31,10 @@ public final class ProviderBootStrap {
 					if (server != null) {
 						server.start();
 						Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookListener(server)));
+						if (logger.isInfoEnabled()) {
+							logger.info("pigeon server[version:" + VersionUtils.VERSION + "] has been started at port:"
+									+ server.getPort());
+						}
 					}
 				}
 			}
@@ -37,6 +47,9 @@ public final class ProviderBootStrap {
 		synchronized (ProviderBootStrap.class) {
 			if (server != null) {
 				server.stop();
+				if (logger.isInfoEnabled()) {
+					logger.info("pigeon server[version:" + VersionUtils.VERSION + "] has been shutdown");
+				}
 			}
 		}
 	}

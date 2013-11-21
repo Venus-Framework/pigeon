@@ -19,9 +19,9 @@ import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.VersionUtils;
 import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
 import com.dianping.pigeon.util.NetUtils;
+import com.dianping.pigeon.util.VersionUtils;
 
 /**
  * @author xiangwu

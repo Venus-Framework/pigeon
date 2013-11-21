@@ -10,6 +10,7 @@ import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.invoker.process.InvocationHandlerFactory;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
+import com.dianping.pigeon.util.VersionUtils;
 
 public final class InvokerBootStrap {
 
@@ -28,6 +29,9 @@ public final class InvokerBootStrap {
 					ServiceInvocationRepository.getInstance().init();
 					InvocationHandlerFactory.init();
 					isStartup = true;
+					if (logger.isInfoEnabled()) {
+						logger.info("pigeon client[version:" + VersionUtils.VERSION + "] has been started");
+					}
 				}
 			}
 		}
@@ -40,6 +44,9 @@ public final class InvokerBootStrap {
 					InvocationHandlerFactory.clearClientInternalFilters();
 					ClientManager.getInstance().clear();
 					isStartup = false;
+					if (logger.isInfoEnabled()) {
+						logger.info("pigeon client[version:" + VersionUtils.VERSION + "] has been shutdown");
+					}
 				}
 			}
 		}

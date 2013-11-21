@@ -61,9 +61,6 @@ public class NettyServer extends AbstractServer implements Disposable {
 			channel = this.bootstrap.bind(address);
 			this.started = true;
 		}
-		if (logger.isInfoEnabled()) {
-			logger.info("Pigeon server startup at port:" + this.port);
-		}
 	}
 
 	public void stop() {
@@ -72,9 +69,6 @@ public class NettyServer extends AbstractServer implements Disposable {
 			// this.bootstrap.releaseExternalResources();
 			doClose();
 			this.started = false;
-			if (logger.isInfoEnabled()) {
-				logger.info("Pigeon server shutdown at port:" + this.port);
-			}
 		}
 	}
 
