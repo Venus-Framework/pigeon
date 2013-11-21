@@ -3,7 +3,7 @@ package com.dianping.pigeon.remoting.test;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.dianping.pigeon.remoting.common.util.VersionUtils;
+import com.dianping.pigeon.util.VersionUtils;
 
 public class VersionUtilsTest {
 
