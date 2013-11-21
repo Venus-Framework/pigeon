@@ -17,15 +17,15 @@ import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
+import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
 import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
-import com.dianping.pigeon.remoting.invoker.loader.InvocationHandlerLoader;
-import com.dianping.pigeon.remoting.invoker.loader.InvokerBootStrapLoader;
+import com.dianping.pigeon.remoting.invoker.process.InvocationHandlerFactory;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationProxy;
+import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
-import com.dianping.pigeon.remoting.provider.loader.ProviderBootStrapLoader;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 
 /**
@@ -118,11 +118,11 @@ public class ServiceFactory {
 		}
 		if (service == null) {
 			try {
-				InvokerBootStrapLoader.startup();
+				InvokerBootStrap.startup();
 				service = Proxy.newProxyInstance(
 						ProxyBeanFactory.class.getClassLoader(),
 						new Class[] { invokerConfig.getServiceInterface() },
-						new ServiceInvocationProxy(invokerConfig, InvocationHandlerLoader
+						new ServiceInvocationProxy(invokerConfig, InvocationHandlerFactory
 								.createInvokeHandler(invokerConfig)));
 				ClientManager.getInstance().findAndRegisterClientFor(invokerConfig.getUrl(), invokerConfig.getGroup(),
 						invokerConfig.getVip());
@@ -160,7 +160,7 @@ public class ServiceFactory {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
 		}
 		try {
-			Server server = ProviderBootStrapLoader.startup(providerConfig.getPort());
+			Server server = ProviderBootStrap.startup(providerConfig.getPort());
 			providerConfig.setPort(server.getPort());
 			ServiceProviderFactory.addService(providerConfig);
 		} catch (ServiceException t) {
@@ -173,7 +173,7 @@ public class ServiceFactory {
 			logger.info("publish services:" + providerConfigList + ", port:" + port);
 		}
 		try {
-			Server server = ProviderBootStrapLoader.startup(port);
+			Server server = ProviderBootStrap.startup(port);
 			for (ProviderConfig<?> providerConfig : providerConfigList) {
 				if (StringUtils.isBlank(providerConfig.getUrl())) {
 					providerConfig.setUrl(getServiceUrl(providerConfig));

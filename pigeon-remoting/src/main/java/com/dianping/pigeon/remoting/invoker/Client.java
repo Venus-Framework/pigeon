@@ -30,7 +30,7 @@ public interface Client {
 
 	void connectionException(Object attachment, Throwable e);
 
-	void doResponse(InvocationResponse response);
+	void processResponse(InvocationResponse response);
 
 	boolean isConnected();
 

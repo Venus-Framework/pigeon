@@ -17,8 +17,7 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import com.dianping.pigeon.component.phase.Disposable;
 import com.dianping.pigeon.monitor.LoggerLoader;
-import com.dianping.pigeon.remoting.netty.provider.process.RequestProcessor;
-import com.dianping.pigeon.remoting.provider.Server;
+import com.dianping.pigeon.remoting.provider.AbstractServer;
 import com.dianping.pigeon.threadpool.NamedThreadFactory;
 
 /**
@@ -27,46 +26,31 @@ import com.dianping.pigeon.threadpool.NamedThreadFactory;
  * @author jianhuihuang
  * @version $Id: NettyServer.java, v 0.1 2013-6-18 下午12:14:43 jianhuihuang Exp $
  */
-public class NettyServer implements Server, Disposable {
+public class NettyServer extends AbstractServer implements Disposable {
 
 	private static final Logger logger = LoggerLoader.getLogger(NettyServer.class);
 
 	private String ip = null;
-
 	private int port = 4625;
-
 	private ServerBootstrap bootstrap;
 	private ChannelGroup channelGroup = new DefaultChannelGroup();
-
 	private Channel channel;
-
 	private volatile boolean started = false;
-
 	public static final int DEFAULT_IO_THREADS = Runtime.getRuntime().availableProcessors() + 1;
 
 	public NettyServer(int port) {
 		this.port = port;
-		// Executor boss =
-		// ManagerLoadFactory.threadManager.getServerBossProcessThreadPool();
-		// Executor worker =
-		// ManagerLoadFactory.threadManager.getServerWorkProcessThreadPool();
-
 		ExecutorService boss = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-NettyServerBoss", true));
 		ExecutorService worker = Executors
 				.newCachedThreadPool(new NamedThreadFactory("Pigeon-NettyServerWorker", true));
 
-		// logger.error("DEFAULT_IO_THREADS......" + DEFAULT_IO_THREADS);
 		this.bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(boss, worker, DEFAULT_IO_THREADS));
-
-		RequestProcessor requestProcessor = new RequestProcessor();
-
-		this.bootstrap.setPipelineFactory(new ServerChannelPipelineFactory(channelGroup, requestProcessor));
+		this.bootstrap.setPipelineFactory(new NettyServerPipelineFactory(this));
 		this.bootstrap.setOption("child.tcpNoDelay", true);
 		this.bootstrap.setOption("child.keepAlive", true);
 	}
 
 	public void start() {
-
 		if (!started) {
 			InetSocketAddress address = null;
 			if (this.ip == null) {
@@ -95,7 +79,6 @@ public class NettyServer implements Server, Disposable {
 	}
 
 	protected void doClose() {
-
 		try {
 			if (channelGroup != null) {
 				// unbind.
@@ -105,12 +88,9 @@ public class NettyServer implements Server, Disposable {
 		} catch (Throwable e) {
 			logger.warn(e.getMessage(), e);
 		}
-
 		if (channel != null) {
 			channel.unbind();
-
 		}
-
 		try {
 			if (bootstrap != null) {
 				// release external resource.
@@ -136,6 +116,10 @@ public class NettyServer implements Server, Disposable {
 	@Override
 	public int getPort() {
 		return this.port;
+	}
+
+	public ChannelGroup getChannelGroup() {
+		return channelGroup;
 	}
 
 }

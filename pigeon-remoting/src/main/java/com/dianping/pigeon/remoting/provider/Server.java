@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.remoting.provider;
 
+import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
 
 /**
  * 
@@ -16,6 +18,9 @@ public interface Server {
 	void start();
 
 	void stop();
-	
+
 	int getPort();
+
+	public void processRequest(final InvocationRequest request, final ProviderContext providerContext);
+
 }

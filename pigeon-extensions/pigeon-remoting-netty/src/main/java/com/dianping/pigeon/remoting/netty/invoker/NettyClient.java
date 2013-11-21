@@ -18,7 +18,6 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
-import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.event.EventManager;
@@ -27,8 +26,8 @@ import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
+import com.dianping.pigeon.remoting.invoker.AbstractClient;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.component.RpcInvokeInfo;
 import com.dianping.pigeon.remoting.invoker.component.async.CallFuture;
@@ -36,13 +35,11 @@ import com.dianping.pigeon.remoting.invoker.component.async.Callback;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 
-public class NettyClient implements Client {
+public class NettyClient extends AbstractClient {
 
 	private static final Logger logger = LoggerLoader.getLogger(NettyClient.class);
 
 	private ClientBootstrap bootstrap;
-
-	private ClientManager clientManager = ClientManager.getInstance();
 
 	private String serviceName;
 
@@ -83,13 +80,12 @@ public class NettyClient implements Client {
 		this.bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(bossExecutor, workExecutor));
 		this.bootstrap.setOption("writeBufferHighWaterMark", RemotingConfigurer.getWriteBufferHighWater());
 		this.bootstrap.setOption("writeBufferLowWaterMark", RemotingConfigurer.getWriteBufferLowWater());
-		this.bootstrap.setPipelineFactory(new ClientChannelPipelineFactory(this));
+		this.bootstrap.setPipelineFactory(new NettyClientPipelineFactory(this));
 		this.bootstrap.setOption("tcpNoDelay", true);
 		this.bootstrap.setOption("keepAlive", true);
 	}
 
 	public synchronized void connect() {
-
 		if (this.connected || this.closed) {
 			return;
 		}
@@ -100,18 +96,14 @@ public class NettyClient implements Client {
 				this.connected = true;
 			} else {
 				logger.error("Client is not connected to " + this.host + ":" + this.port);
-				// logger.error("eeeee", new Exception("just for test"));
-
 			}
 		}
 		this.channel = future.getChannel();
 	}
 
 	public CallFuture write(InvocationRequest request, Callback callback) {
-
 		Object[] msg = new Object[] { request, callback };
 		ChannelFuture future = null;
-
 		if (channel == null) {
 			logger.error("channel:" + null + " ^^^^^^^^^^^^^^");
 		} else {
@@ -134,7 +126,6 @@ public class NettyClient implements Client {
 	}
 
 	private void connectionException(Client client, Object attachment, Throwable e) {
-
 		if (attachment == null) {
 			return;
 		}
@@ -144,7 +135,7 @@ public class NettyClient implements Client {
 
 			try {
 				InvocationRequest request = (InvocationRequest) msg[0];
-				Callback callback = (Callback) msg[2];
+				Callback callback = (Callback) msg[1];
 				if (client != null) {
 					error(request, client);
 					client.write(request, callback);
@@ -167,14 +158,6 @@ public class NettyClient implements Client {
 			RuntimeServiceEvent event = new RuntimeServiceEvent(
 					RuntimeServiceEvent.Type.RUNTIME_RPC_INVOKE_CONNECT_EXCEPTION, rpcInvokeInfo);
 			EventManager.getInstance().publishEvent(event);
-		}
-	}
-
-	public void doResponse(InvocationResponse response) {
-		try {
-			this.clientManager.processResponse(response, this);
-		} catch (ServiceException e) {
-			logger.error("doResponse", e);
 		}
 	}
 
@@ -268,7 +251,7 @@ public class NettyClient implements Client {
 
 			RpcEventUtils.channelOperationComplete(request, NettyClient.this.address);
 			InvocationResponse response = ResponseUtils.createFailResponse(request, future.getCause());
-			doResponse(response);
+			processResponse(response);
 		}
 
 	}

@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.provider.loader;
+package com.dianping.pigeon.remoting.provider.process;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -20,16 +20,16 @@ import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.component.ProcessPhase;
 import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
-import com.dianping.pigeon.remoting.provider.filter.BusinessProcessFilter;
-import com.dianping.pigeon.remoting.provider.filter.ContextTransferProcessFilter;
-import com.dianping.pigeon.remoting.provider.filter.ExceptionProcessFilter;
-import com.dianping.pigeon.remoting.provider.filter.HeartbeatProcessFilter;
-import com.dianping.pigeon.remoting.provider.filter.MonitorProcessFilter;
-import com.dianping.pigeon.remoting.provider.filter.WriteResponseProcessFilter;
+import com.dianping.pigeon.remoting.provider.process.filter.BusinessProcessFilter;
+import com.dianping.pigeon.remoting.provider.process.filter.ContextTransferProcessFilter;
+import com.dianping.pigeon.remoting.provider.process.filter.ExceptionProcessFilter;
+import com.dianping.pigeon.remoting.provider.process.filter.HeartbeatProcessFilter;
+import com.dianping.pigeon.remoting.provider.process.filter.MonitorProcessFilter;
+import com.dianping.pigeon.remoting.provider.process.filter.WriteResponseProcessFilter;
 
-public final class RequestProcessHandlerLoader {
+public final class RequestProcessHandlerFactory {
 
-	private static final Logger logger = LoggerLoader.getLogger(RequestProcessHandlerLoader.class);
+	private static final Logger logger = LoggerLoader.getLogger(RequestProcessHandlerFactory.class);
 
 	private static Map<ProcessPhase, List<ServiceInvocationFilter<ProviderContext>>> bizProcessFilters = new LinkedHashMap<ProcessPhase, List<ServiceInvocationFilter<ProviderContext>>>();
 

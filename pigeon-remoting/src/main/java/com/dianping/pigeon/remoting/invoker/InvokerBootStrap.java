@@ -2,18 +2,18 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.loader;
+package com.dianping.pigeon.remoting.invoker;
 
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
-import com.dianping.pigeon.remoting.invoker.ClientManager;
+import com.dianping.pigeon.remoting.invoker.process.InvocationHandlerFactory;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 
-public final class InvokerBootStrapLoader {
+public final class InvokerBootStrap {
 
-	private static final Logger logger = LoggerLoader.getLogger(InvokerBootStrapLoader.class);
+	private static final Logger logger = LoggerLoader.getLogger(InvokerBootStrap.class);
 
 	private static volatile boolean isStartup = false;
 
@@ -22,11 +22,11 @@ public final class InvokerBootStrapLoader {
 	 */
 	public static void startup() {
 		if (!isStartup) {
-			synchronized (InvokerBootStrapLoader.class) {
+			synchronized (InvokerBootStrap.class) {
 				if (!isStartup) {
 					RegistryConfigLoader.init();
 					ServiceInvocationRepository.getInstance().init();
-					InvocationHandlerLoader.init();
+					InvocationHandlerFactory.init();
 					isStartup = true;
 				}
 			}
@@ -35,9 +35,9 @@ public final class InvokerBootStrapLoader {
 
 	public static void shutdown() {
 		if (isStartup) {
-			synchronized (InvokerBootStrapLoader.class) {
+			synchronized (InvokerBootStrap.class) {
 				if (isStartup) {
-					InvocationHandlerLoader.clearClientInternalFilters();
+					InvocationHandlerFactory.clearClientInternalFilters();
 					ClientManager.getInstance().clear();
 					isStartup = false;
 				}

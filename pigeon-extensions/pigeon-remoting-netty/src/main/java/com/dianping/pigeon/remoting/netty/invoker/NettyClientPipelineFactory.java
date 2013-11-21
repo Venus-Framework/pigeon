@@ -12,31 +12,22 @@ import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
 
-import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.netty.invoker.codec.InvokerDecoder;
 import com.dianping.pigeon.remoting.netty.invoker.codec.InvokerEncoder;
-import com.dianping.pigeon.remoting.netty.invoker.process.ClientChannelHandler;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: DPClientChannelPipelineFactory.java, v 0.1 2013-7-19
- *          下午3:13:16 jianhuihuang Exp $
- */
-public class ClientChannelPipelineFactory implements ChannelPipelineFactory {
+public class NettyClientPipelineFactory implements ChannelPipelineFactory {
 
-	private Client client;
+	private NettyClient client;
 	private ChannelHandler decoder;
 	private ChannelHandler encoder;
 	private ChannelHandler handler;
 	Timer timer = new HashedWheelTimer();
 
-	public ClientChannelPipelineFactory(Client client) {
+	public NettyClientPipelineFactory(NettyClient client) {
 		this.client = client;
 		this.decoder = new InvokerDecoder();
 		this.encoder = new InvokerEncoder();
-		this.handler = new ClientChannelHandler(this.client);
+		this.handler = new NettyClientHandler(this.client);
 	}
 
 	public ChannelPipeline getPipeline() throws Exception {

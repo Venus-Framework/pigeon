@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.filter;
+package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import com.dianping.dpsf.exception.NetException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
@@ -33,7 +33,6 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
-
 		Client client = invocationContext.getClient();
 		InvocationRequest request = invocationContext.getRequest();
 		InvokerConfig invokerConfig = invocationContext.getInvokerConfig();

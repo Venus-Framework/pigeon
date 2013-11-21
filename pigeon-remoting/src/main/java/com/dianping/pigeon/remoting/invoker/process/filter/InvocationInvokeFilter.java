@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.filter;
+package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.event.EventManager;

@@ -16,7 +16,7 @@ import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
-import com.dianping.pigeon.remoting.provider.filter.ContextTransferProcessFilter;
+import com.dianping.pigeon.remoting.provider.process.filter.ContextTransferProcessFilter;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 
 public final class ServiceMethodFactory {

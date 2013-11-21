@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.loader;
+package com.dianping.pigeon.remoting.invoker.process;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -16,20 +16,16 @@ import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
-import com.dianping.pigeon.remoting.invoker.filter.ContextPrepareInvokeFilter;
-import com.dianping.pigeon.remoting.invoker.filter.FailoverClusterInvokeFilter;
-import com.dianping.pigeon.remoting.invoker.filter.GatewayInvokeFilter;
-import com.dianping.pigeon.remoting.invoker.filter.InvocationInvokeFilter;
-import com.dianping.pigeon.remoting.invoker.filter.InvocationInvokeFilter.InvokePhase;
-import com.dianping.pigeon.remoting.invoker.filter.RemoteCallInvokeFilter;
-import com.dianping.pigeon.remoting.invoker.filter.RemoteCallMonitorInvokeFilter;
-import com.dianping.pigeon.remoting.invoker.filter.ServiceRouteInvokeFilter;
+import com.dianping.pigeon.remoting.invoker.process.filter.ContextPrepareInvokeFilter;
+import com.dianping.pigeon.remoting.invoker.process.filter.FailoverClusterInvokeFilter;
+import com.dianping.pigeon.remoting.invoker.process.filter.GatewayInvokeFilter;
+import com.dianping.pigeon.remoting.invoker.process.filter.InvocationInvokeFilter;
+import com.dianping.pigeon.remoting.invoker.process.filter.InvocationInvokeFilter.InvokePhase;
+import com.dianping.pigeon.remoting.invoker.process.filter.RemoteCallInvokeFilter;
+import com.dianping.pigeon.remoting.invoker.process.filter.RemoteCallMonitorInvokeFilter;
+import com.dianping.pigeon.remoting.invoker.process.filter.ServiceRouteInvokeFilter;
 
-public final class InvocationHandlerLoader extends DefaultExtension {
-
-	{
-		// descriptorClass = SubscriberPluginDescriptor.class;
-	}
+public final class InvocationHandlerFactory extends DefaultExtension {
 
 	private static Map<InvokePhase, List<InvocationInvokeFilter>> internalInvokeFilters = new LinkedHashMap<InvokePhase, List<InvocationInvokeFilter>>();
 
@@ -86,11 +82,7 @@ public final class InvocationHandlerLoader extends DefaultExtension {
 				@SuppressWarnings("unchecked")
 				@Override
 				public InvocationResponse handle(InvocationContext invocationContext) throws Throwable {
-					// String start = System.currentTimeMillis() + "";
 					InvocationResponse resp = filter.invoke(next, invocationContext);
-					// long cost = System.currentTimeMillis() -
-					// Long.valueOf(start);
-					// System.out.println(filter + " cost:" + cost);
 					return resp;
 				}
 			};
@@ -124,7 +116,6 @@ public final class InvocationHandlerLoader extends DefaultExtension {
 
 	@Override
 	public void registerContribution(Object contribution, String extensionPoint) {
-		// TODO 注册贡献者
 		System.out.println("register contribution: " + contribution + "@" + extensionPoint);
 	}
 }

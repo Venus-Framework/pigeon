@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.netty.invoker.process;
+package com.dianping.pigeon.remoting.netty.invoker;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,25 +21,22 @@ import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.remoting.netty.codec.NettyCodecUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
 
-public class ClientChannelHandler extends SimpleChannelUpstreamHandler {
+public class NettyClientHandler extends SimpleChannelUpstreamHandler {
 
-	private static final Logger log = LoggerLoader.getLogger(ClientChannelHandler.class);
+	private static final Logger logger = LoggerLoader.getLogger(NettyClientHandler.class);
 
-	private Client client;
+	private static ThreadPool exceptionProcessThreadPool = new DefaultThreadPool("exception-process-threadpool", 2,
+			100, new LinkedBlockingQueue<Runnable>(50), new CallerRunsPolicy());
 
-	private static ThreadPool clientProcessThreadPool = new DefaultThreadPool(
-			Constants.THREADNAME_CLIENT_PRESPONSE_PROCESSOR, 20, 300, new LinkedBlockingQueue<Runnable>(50),
-			new CallerRunsPolicy());
+	private NettyClient client;
 
-	public ClientChannelHandler(Client client) {
+	public NettyClientHandler(NettyClient client) {
 		this.client = client;
-
 	}
 
 	@Override
@@ -51,25 +48,10 @@ public class ClientChannelHandler extends SimpleChannelUpstreamHandler {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
-
 		List<InvocationResponse> messages = (List<InvocationResponse>) e.getMessage();
 		for (final InvocationResponse response : messages) {
-			Runnable task = new Runnable() {
-				public void run() {
-					client.doResponse(response);
-				}
-			};
-			try {
-				// TODO [v1.7.0, danson.liu]对于callback调用, 防止callback阻塞response
-				// handler thread pool线程池, 影响其他正常响应无法处理
-				clientProcessThreadPool.execute(task);
-			} catch (Exception ex) {
-				String msg = "Response execute fail:seq--" + response.getSequence() + "\r\n";
-				log.error(msg + ex.getMessage(), ex);
-			}
-
+			client.processResponse(response);
 		}
-
 	}
 
 	@Override
@@ -88,7 +70,7 @@ public class ClientChannelHandler extends SimpleChannelUpstreamHandler {
 					client.connectionException(attachment, e_.getCause());
 				}
 			};
-			clientProcessThreadPool.execute(task);
+			exceptionProcessThreadPool.execute(task);
 		}
 	}
 

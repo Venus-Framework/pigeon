@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-${year} All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.provider.filter;
+package com.dianping.pigeon.remoting.provider.process.filter;
 
 import java.net.InetSocketAddress;
 

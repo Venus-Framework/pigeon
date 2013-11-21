@@ -19,7 +19,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.remoting.invoker.loader.InvokerBootStrapLoader;
+import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
 
 /**
  * 
@@ -62,7 +62,7 @@ public class InvokerBeanDefinitionParser implements BeanDefinitionParser {
 		if (beanClass == ReferenceBean.class) {
 			beanDefinition.setBeanClass(ProxyBeanFactory.class);
 			beanDefinition.setInitMethodName("init");
-			InvokerBootStrapLoader.startup();
+			InvokerBootStrap.startup();
 
 			MutablePropertyValues properties = beanDefinition.getPropertyValues();
 			properties.addPropertyValue("serviceName", element.getAttribute("url"));

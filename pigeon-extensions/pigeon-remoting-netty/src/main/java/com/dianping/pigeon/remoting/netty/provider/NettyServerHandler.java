@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-${year} All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.netty.provider.process;
+package com.dianping.pigeon.remoting.netty.provider;
 
 import java.util.List;
 
@@ -14,7 +14,6 @@ import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -22,26 +21,18 @@ import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
-import com.dianping.pigeon.remoting.netty.provider.NettyChannel;
+import com.dianping.pigeon.remoting.provider.component.context.DefaultProviderContext;
+import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
 
-/**
- * 该类是继承了netty的SimpleChannelUpstreamHandler类。
- * 
- * @author jianhuihuang
- * @version $Id: DPServerHandler.java, v 0.1 2013-6-20 下午5:46:55 jianhuihuang
- *          Exp $
- */
-public class ServerChannelHandler extends SimpleChannelUpstreamHandler {
+public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 
-	private static final Logger log = LoggerLoader.getLogger(ServerChannelHandler.class);
+	private static final Logger log = LoggerLoader.getLogger(NettyServerHandler.class);
 	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(MonitorLogger.class);
 
-	private RequestProcessor processor;
-	private ChannelGroup channelGroup;
+	private NettyServer server;
 
-	public ServerChannelHandler(ChannelGroup channelGroup, RequestProcessor processor) {
-		this.channelGroup = channelGroup;
-		this.processor = processor;
+	public NettyServerHandler(NettyServer server) {
+		this.server = server;
 	}
 
 	@Override
@@ -66,8 +57,9 @@ public class ServerChannelHandler extends SimpleChannelUpstreamHandler {
 		List<InvocationRequest> messages = (List<InvocationRequest>) (message.getMessage());
 		// System.out.println("messages:" + messages.size());
 		for (InvocationRequest request : messages) {
+			ProviderContext invocationContext = new DefaultProviderContext(request, new NettyChannel(ctx.getChannel()));
 			try {
-				this.processor.addRequest(request, ctx.getChannel());
+				this.server.processRequest(request, invocationContext);
 			} catch (Exception e) {
 				String msg = "process request failed, seq--" + request.getSequence() + "\r\n";
 				// 心跳消息只返回正常的, 异常不返回
@@ -78,9 +70,7 @@ public class ServerChannelHandler extends SimpleChannelUpstreamHandler {
 				log.error(msg + "****SEQ:" + request.getSequence() + "****callType:" + request.getCallType(), e);
 				monitorLogger.logError(e);
 			}
-
 		}
-
 	}
 
 	@Override
@@ -92,8 +82,7 @@ public class ServerChannelHandler extends SimpleChannelUpstreamHandler {
 
 	@Override
 	public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
-		this.channelGroup.add(e.getChannel());
-		this.processor.addChannel(new NettyChannel(e.getChannel()));
+		this.server.getChannelGroup().add(e.getChannel());
 	}
 
 	@Override
