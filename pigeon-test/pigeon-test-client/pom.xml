@@ -10,6 +10,7 @@
 	<name>pigeon-test-client</name>
 	<artifactId>pigeon-test-client</artifactId>
 	<url>http://maven.apache.org</url>
+	<packaging>jar</packaging>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
