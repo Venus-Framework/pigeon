@@ -69,7 +69,7 @@
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>src/main/web/WEB-INF/lib</outputDirectory>
+							<outputDirectory>src/main/webapp/WEB-INF/lib</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
@@ -79,7 +79,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
 					<warName>${artifactId}-${env}-${version}</warName>
-					<warSourceDirectory>src/main/web</warSourceDirectory>
+					<warSourceDirectory>src/main/webapp</warSourceDirectory>
 				</configuration>
 			</plugin>
 		</plugins>
