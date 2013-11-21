@@ -161,9 +161,9 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	}
 
 	public void processResponse(InvocationResponse response, Client client) {
-		if (logger.isInfoEnabled()) {
-			logger.info("response is" + response);
-			logger.info("client is" + client);
+		if (logger.isDebugEnabled()) {
+			logger.debug("response:" + response);
+			logger.debug("client:" + client);
 		}
 		// 兼容老版本
 		if (!ResponseUtils.isHeartErrorResponse(response)) {
