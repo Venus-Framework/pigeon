@@ -69,12 +69,6 @@ public final class RequestProcessHandlerFactory {
 		registerHeartBeatProcessFilter(ProcessPhase.Write, new WriteResponseProcessFilter());
 		registerHeartBeatProcessFilter(ProcessPhase.Before_Execute, new HeartbeatProcessFilter());
 		heartBeatInvocationHandler = createInvocationHandler(heartBeatProcessFilters);
-
-		// registerEchoProcessFilter(ProcessPhase.Write, new
-		// WriteResponseProcessFilter());
-		// registerEchoProcessFilter(ProcessPhase.Before_Execute, new
-		// EchoProcessFilter());
-		// echoInvocationHandler = createInvocationHandler(echoProcessFilters);
 	}
 
 	@SuppressWarnings({ "rawtypes" })

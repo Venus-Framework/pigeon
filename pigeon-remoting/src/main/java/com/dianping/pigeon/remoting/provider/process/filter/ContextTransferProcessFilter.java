@@ -31,8 +31,8 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
-		if (logger.isInfoEnabled()) {
-			logger.info("invoke the ContextTransferProcessFilter, invocationContext:" + invocationContext);
+		if (logger.isDebugEnabled()) {
+			logger.debug("invoke the ContextTransferProcessFilter, invocationContext:" + invocationContext);
 		}
 		InvocationRequest request = invocationContext.getRequest();
 		transferContextValueToProcessor(invocationContext, request);
@@ -58,7 +58,6 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 			ContextUtils.setContext(contextHolder);
 			ctx = ContextUtils.getContextValues(contextHolder);
 		}
-
 		if (ctx != null) {
 			for (Map.Entry<String, Serializable> entry : ctx.entrySet()) {
 				processContext.putContextValue(entry.getKey(), entry.getValue());
@@ -68,7 +67,6 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 
 	private void transferContextValueToResponse(final ProviderContext processContext, final InvocationResponse response) {
 		Object contextHolder = ContextUtils.getContext();
-
 		Map<String, Serializable> contextValues = processContext.getContextValues();
 		if (contextHolder == null) {
 			// response.setContext(contextValues);
@@ -80,7 +78,6 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 			}
 			response.setContext(contextHolder);
 		}
-
 	}
 
 }

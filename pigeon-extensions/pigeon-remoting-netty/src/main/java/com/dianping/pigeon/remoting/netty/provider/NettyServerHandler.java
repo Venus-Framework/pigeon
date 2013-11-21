@@ -76,7 +76,7 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 	@Override
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) {
 		if (log.isInfoEnabled()) {
-			log.info("DP Server channel connected....");
+			log.info("pigeon server channel connected....");
 		}
 	}
 

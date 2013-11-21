@@ -37,27 +37,13 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			throws Throwable {
 		InvocationRequest request = invocationContext.getRequest();
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-			//ContextUtils.putLocalContext(Constants.REQUEST_CREATE_TIME, System.currentTimeMillis());
 			ContextUtils.putLocalContext(Constants.REQUEST_TIMEOUT, request.getTimeout());
 
 			InvocationResponse response = null;
 			ServiceMethod method = ServiceMethodFactory.getMethod(request);
 			Method method_ = method.getMethod();
 			try {
-				// long currentTime = 0;
-				// if (logger.isDebugEnabled()) {
-				// currentTime = System.nanoTime();
-				// }
-
 				Object returnObj = method_.invoke(method.getService(), request.getParameters());
-
-				// if (logger.isDebugEnabled()) {
-				// logger.debug("service:" + request.getServiceName() + "_" +
-				// request.getMethodName());
-				// logger.debug("execute time:" + (System.nanoTime() -
-				// currentTime) / 1000);
-				// logger.debug("RequestId:" + request.getSequence());
-				// }
 				if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 					response = ResponseUtils.createSuccessResponse(request, returnObj);
 				}

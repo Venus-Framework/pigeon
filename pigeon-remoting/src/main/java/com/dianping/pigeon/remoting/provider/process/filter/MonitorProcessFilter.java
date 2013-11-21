@@ -20,6 +20,7 @@ import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.provider.component.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
+import com.site.helper.Stringizers;
 
 public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
@@ -29,8 +30,8 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
-		if (logger.isInfoEnabled()) {
-			logger.info("invoke the MonitorProcessFilter, invocationContext:" + invocationContext);
+		if (logger.isDebugEnabled()) {
+			logger.debug("invoke the MonitorProcessFilter, invocationContext:" + invocationContext);
 		}
 		MonitorTransaction transaction = null;
 		MonitorLogger monitorLogger = null;
@@ -46,13 +47,10 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 						invocationContext);
 				if (transaction != null) {
 					InetSocketAddress address = channel.getRemoteAddress();
-					//String parameters = Stringizers.forJson().from(request.getParameters(), 1000, 50);
-					String parameters = request.getParameters() + "";
+					String parameters = Stringizers.forJson().from(request.getParameters(), 1000, 50);
 					monitorLogger.logEvent("PigeonService.client", address.getAddress().getHostAddress() + ":"
 							+ address.getPort(), parameters);
-
 					transaction.writeMonitorContext();
-
 					transaction.setStatusOk();
 				}
 			} catch (Exception e) {

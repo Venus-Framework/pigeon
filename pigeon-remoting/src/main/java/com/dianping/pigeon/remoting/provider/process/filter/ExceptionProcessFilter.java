@@ -29,8 +29,8 @@ public class ExceptionProcessFilter implements ServiceInvocationFilter<ProviderC
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
-		if (logger.isInfoEnabled()) {
-			logger.info("invoke the ExceptionProcessFilter, invocationContext:" + invocationContext);
+		if (logger.isDebugEnabled()) {
+			logger.debug("invoke the ExceptionProcessFilter, invocationContext:" + invocationContext);
 		}
 		InvocationRequest request = invocationContext.getRequest();
 		InvocationResponse response = null;
@@ -38,7 +38,8 @@ public class ExceptionProcessFilter implements ServiceInvocationFilter<ProviderC
 			response = handler.handle(invocationContext);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			if (request.getCallType() == Constants.CALLTYPE_REPLY && request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
+			if (request.getCallType() == Constants.CALLTYPE_REPLY
+					&& request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
 				response = ResponseUtils.createFailResponse(request, e);
 			}
 		}

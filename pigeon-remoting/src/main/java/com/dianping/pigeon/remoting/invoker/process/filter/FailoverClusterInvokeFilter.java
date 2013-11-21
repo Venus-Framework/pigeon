@@ -36,23 +36,21 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 	@Override
 	public InvocationResponse _invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
-
-		InvokerConfig metaData = invocationContext.getInvokerConfig();
-
+		InvokerConfig invokerConfig = invocationContext.getInvokerConfig();
 		List<Client> selectedClients = new ArrayList<Client>();
 		Throwable lastError = null;
-		int retry = metaData.getRetries();
+		int retry = invokerConfig.getRetries();
 
 		int maxInvokeTimes = retry;
-		boolean timeoutRetry = metaData.isTimeoutRetry();
+		boolean timeoutRetry = invokerConfig.isTimeoutRetry();
 
 		boolean nextInvokeErrorExit = false;
 		int invokeTimes = 0;
 		for (int index = 0; index < maxInvokeTimes; index++) {
-			InvocationRequest request = createRemoteCallRequest(invocationContext, metaData);
+			InvocationRequest request = createRemoteCallRequest(invocationContext, invokerConfig);
 			Client clientSelected = null;
 			try {
-				clientSelected = clientManager.getClient(metaData, request, selectedClients);
+				clientSelected = clientManager.getClient(invokerConfig, request, selectedClients);
 			} catch (NetException e) {
 				if (index > 0) {
 					throw new NetException("After " + (index + 1) + " times invocation: " + e.getMessage());
@@ -66,7 +64,7 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 				if (lastError != null) {
 					logger.warn(
 							"Retry method[" + invocationContext.getMethod().getName() + "] on service["
-									+ metaData.getUrl() + "] succeed after " + invokeTimes
+									+ invokerConfig.getUrl() + "] succeed after " + invokeTimes
 									+ " times, last failed invoke's error: " + lastError.getMessage(), lastError);
 				}
 				return response;
@@ -90,7 +88,7 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 			}
 		}
 		throw new RuntimeException("Invoke method[" + invocationContext.getMethod().getName() + "] on service["
-				+ metaData.getUrl() + "] failed with " + invokeTimes + " times, last error: "
+				+ invokerConfig.getUrl() + "] failed with " + invokeTimes + " times, last error: "
 				+ (lastError != null ? lastError.getMessage() : ""),
 				lastError != null && lastError.getCause() != null ? lastError.getCause() : lastError);
 	}

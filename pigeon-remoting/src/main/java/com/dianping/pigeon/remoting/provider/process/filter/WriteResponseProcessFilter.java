@@ -30,8 +30,8 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
-		if (logger.isInfoEnabled()) {
-			logger.info("invoke the WriteResponseProcessFilter, invocationContext:" + invocationContext);
+		if (logger.isDebugEnabled()) {
+			logger.debug("invoke the WriteResponseProcessFilter, invocationContext:" + invocationContext);
 		}
 		try {
 			ProviderChannel channel = invocationContext.getChannel();

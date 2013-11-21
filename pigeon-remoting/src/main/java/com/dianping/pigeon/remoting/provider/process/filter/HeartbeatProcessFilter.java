@@ -28,8 +28,8 @@ public class HeartbeatProcessFilter implements ServiceInvocationFilter<ProviderC
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
-		if (logger.isInfoEnabled()) {
-			logger.info("invoke the HeartbeatProcessFilter, invocationContext:" + invocationContext);
+		if (logger.isDebugEnabled()) {
+			logger.debug("invoke the HeartbeatProcessFilter, invocationContext:" + invocationContext);
 		}
 		if (invocationContext.getRequest().getMessageType() == Constants.MESSAGE_TYPE_HEART) {
 			return ResponseUtils.createHeartResponse(invocationContext.getRequest());

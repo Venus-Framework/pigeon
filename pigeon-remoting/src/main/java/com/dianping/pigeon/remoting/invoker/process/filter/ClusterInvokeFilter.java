@@ -53,15 +53,7 @@ public abstract class ClusterInvokeFilter extends InvocationInvokeFilter {
 				invocationContext.getArguments(), invokerConfig.getSerialize(), Constants.MESSAGE_TYPE_SERVICE,
 				invokerConfig.getTimeout(), invocationContext.getMethod().getParameterTypes());
 		request.setVersion(invokerConfig.getVersion());
-		request.setSequence(requestSequenceMaker.incrementAndGet() * -1); // (*
-																			// -1):
-																			// in
-																			// order
-																			// to
-																			// distinguish
-																			// from
-																			// old
-																			// logic
+		request.setSequence(requestSequenceMaker.incrementAndGet() * -1);
 		request.setAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT, invokerConfig.isWriteBufferLimit());
 		if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallMethod())) {
 			request.setCallType(Constants.CALLTYPE_NOREPLY);

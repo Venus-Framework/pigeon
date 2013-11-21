@@ -22,12 +22,6 @@ public class RequestProcessor {
 	private static final ExecutorService executorService = Executors.newCachedThreadPool(new NamedThreadFactory(
 			"pigeon-provider-request-processor", true));
 
-	/**
-	 * server 处理业务请求
-	 * 
-	 * @param request
-	 * @param channel
-	 */
 	public void processRequest(final InvocationRequest request, final ProviderContext providerContext) {
 		Runnable requestExecutor = new Runnable() {
 			@Override
