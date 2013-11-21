@@ -406,12 +406,12 @@
 	</reporting>
 	<distributionManagement>
 		<repository>
-			<id>dianping-internal-releases</id>
+			<id>dianping.repo</id>
 			<name>Dian Ping internal repository for released artifacts</name>
 			<url>http://mvn.dianpingoa.com/dianping-releases</url>
 		</repository>
 		<snapshotRepository>
-			<id>dianping-internal-snapshots</id>
+			<id>dianping.repo.snapshots</id>
 			<name>Dian Ping internal repository for snapshots artifacts</name>
 			<url>http://mvn.dianpingoa.com/dianping-snapshots</url>
 		</snapshotRepository>

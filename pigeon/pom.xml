@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>pigeon</artifactId>
 	<packaging>jar</packaging>
-	<name>${project.artifactId}</name>
+	<name>pigeon</name>
 	<properties>
 		<skip_maven_deploy>false</skip_maven_deploy>
 	</properties>
