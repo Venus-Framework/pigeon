@@ -13,7 +13,13 @@ public class Server {
 
 	public static void main(String[] args) throws Exception {
 		ConfigLoader.init();
-
+		
+//		ServiceRegistry sr = new ServiceRegistry();
+//		Map<String, Object> services = new HashMap<String, Object>();
+//		services.put("com.dianping.pigeon.demo.EchoService", new EchoServiceImpl1());
+//		sr.setServices(services);
+//		sr.init();
+		
 		ServiceFactory.publishService(EchoService.class, new EchoServiceImpl1());
 		
 		System.in.read();

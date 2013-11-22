@@ -10,7 +10,6 @@ import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.invoker.EchoServiceCallback;
 import com.dianping.pigeon.demo.loader.ConfigLoader;
 import com.dianping.pigeon.remoting.common.service.ServiceFactory;
-import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 
 public class Client {
@@ -18,6 +17,11 @@ public class Client {
 	public static void main(String[] args) throws Exception {
 		ConfigLoader.init();
 
+//		ProxyFactory pf = new ProxyFactory();
+//		pf.setIface(EchoService.class);
+//		pf.init();
+//		EchoService service = (EchoService)pf.getProxy();
+		
 		EchoService service = ServiceFactory.getService(EchoService.class);
 
 		ServiceCallback callback = new EchoServiceCallback();
