@@ -7,8 +7,8 @@ package com.dianping.pigeon.remoting.provider.listener;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
-import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 

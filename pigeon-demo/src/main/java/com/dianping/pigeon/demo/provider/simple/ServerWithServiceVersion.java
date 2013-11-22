@@ -9,7 +9,7 @@ import com.dianping.pigeon.demo.loader.ConfigLoader;
 import com.dianping.pigeon.demo.provider.EchoServiceImpl1;
 import com.dianping.pigeon.demo.provider.EchoServiceImpl2;
 import com.dianping.pigeon.demo.provider.EchoServiceImpl3;
-import com.dianping.pigeon.remoting.common.service.ServiceFactory;
+import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
 
 public class ServerWithServiceVersion {

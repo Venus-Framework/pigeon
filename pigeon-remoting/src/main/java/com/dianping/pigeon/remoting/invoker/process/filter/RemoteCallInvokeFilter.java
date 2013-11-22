@@ -7,7 +7,7 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 import com.dianping.dpsf.exception.NetException;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
-import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
+import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;

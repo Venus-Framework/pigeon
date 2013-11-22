@@ -7,21 +7,44 @@ package com.dianping.pigeon.remoting.provider.component;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 
 public class ProviderConfig<T> {
 
 	private Class<T> serviceInterface;
-
 	private String url;
-
 	private String version;
-
 	private T service;
-
 	private int port = ServerFactory.DEFAULT_PORT;
-
 	private String group;
+	private int corePoolSize = RemotingConfigurer.getProviderCorePoolSize();
+	private int maxPoolSize = RemotingConfigurer.getProviderMaxPoolSize();
+	private int workQueueSize = RemotingConfigurer.getProviderWorkQueueSize();
+
+	public int getCorePoolSize() {
+		return corePoolSize;
+	}
+
+	public void setCorePoolSize(int corePoolSize) {
+		this.corePoolSize = corePoolSize;
+	}
+
+	public int getMaxPoolSize() {
+		return maxPoolSize;
+	}
+
+	public void setMaxPoolSize(int maxPoolSize) {
+		this.maxPoolSize = maxPoolSize;
+	}
+
+	public int getWorkQueueSize() {
+		return workQueueSize;
+	}
+
+	public void setWorkQueueSize(int workQueueSize) {
+		this.workQueueSize = workQueueSize;
+	}
 
 	public String getGroup() {
 		return group;

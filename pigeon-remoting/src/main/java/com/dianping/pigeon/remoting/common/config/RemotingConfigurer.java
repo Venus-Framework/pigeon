@@ -36,6 +36,9 @@ public class RemotingConfigurer {
 	private static final String KEY_MONITOR_ENABLED = "pigeon.monitor.enabled";
 	private static final String KEY_EVENT_ENABLED = "pigeon.event.enabled";
 	private static final String KEY_INVOKER_MAXREQUESTS = "pigeon.invoker.maxrequests";
+	private static final String KEY_PROVIDER_COREPOOLSIZE = "pigeon.provider.corePoolSize";
+	private static final String KEY_PROVIDER_MAXPOOLSIZE = "pigeon.provider.maxPoolSize";
+	private static final String KEY_PROVIDER_WORKQUEUESIZE = "pigeon.provider.workQueueSize";
 
 	private static final long DEFAULT_RECONNECT_INTERVAL = 3000;
 	private static final long DEFAULT_HEARTBEAT_INTERVAL = 3000;
@@ -140,6 +143,18 @@ public class RemotingConfigurer {
 
 	public static int getInvokerMaxRequests() {
 		return getIntValue(KEY_INVOKER_MAXREQUESTS, 0);
+	}
+
+	public static int getProviderCorePoolSize() {
+		return getIntValue(KEY_PROVIDER_COREPOOLSIZE, 100);
+	}
+
+	public static int getProviderMaxPoolSize() {
+		return getIntValue(KEY_PROVIDER_MAXPOOLSIZE, 300);
+	}
+
+	public static int getProviderWorkQueueSize() {
+		return getIntValue(KEY_PROVIDER_WORKQUEUESIZE, 100);
 	}
 
 	public static String getStringValue(String key, String defaultValue) {

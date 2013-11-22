@@ -6,8 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
-import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;

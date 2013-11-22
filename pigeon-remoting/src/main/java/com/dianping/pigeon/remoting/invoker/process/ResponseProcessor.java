@@ -23,7 +23,7 @@ public class ResponseProcessor {
 	private static final Logger logger = LoggerLoader.getLogger(ResponseProcessor.class);
 
 	private static ThreadPool responseProcessThreadPool = new DefaultThreadPool(
-			Constants.THREADNAME_CLIENT_PRESPONSE_PROCESSOR, 20, 300, new LinkedBlockingQueue<Runnable>(50),
+			"Pigeon-Client-Response-Processor", 20, 300, new LinkedBlockingQueue<Runnable>(50),
 			new CallerRunsPolicy());
 
 	private ClientManager clientManager = ClientManager.getInstance();

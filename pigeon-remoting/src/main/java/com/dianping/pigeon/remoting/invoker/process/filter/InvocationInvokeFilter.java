@@ -8,7 +8,7 @@ import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.event.RuntimeServiceEvent;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
-import com.dianping.pigeon.remoting.common.filter.ServiceInvocationFilter;
+import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.RpcInvokeInfo;
 import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;

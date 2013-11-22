@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.common.service;
+package com.dianping.pigeon.remoting;
 
 import java.lang.reflect.Proxy;
 import java.util.List;
@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.util.CollectionUtils;
 
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.dpsf.spring.ProxyBeanFactory;
@@ -160,7 +161,7 @@ public class ServiceFactory {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
 		}
 		try {
-			Server server = ProviderBootStrap.startup(providerConfig.getPort());
+			Server server = ProviderBootStrap.startup(providerConfig);
 			providerConfig.setPort(server.getPort());
 			ServiceProviderFactory.addService(providerConfig);
 		} catch (ServiceException t) {
@@ -172,17 +173,19 @@ public class ServiceFactory {
 		if (logger.isInfoEnabled()) {
 			logger.info("publish services:" + providerConfigList + ", port:" + port);
 		}
-		try {
-			Server server = ProviderBootStrap.startup(port);
-			for (ProviderConfig<?> providerConfig : providerConfigList) {
-				if (StringUtils.isBlank(providerConfig.getUrl())) {
-					providerConfig.setUrl(getServiceUrl(providerConfig));
+		if (!CollectionUtils.isEmpty(providerConfigList)) {
+			try {
+				Server server = ProviderBootStrap.startup(providerConfigList.get(0));
+				for (ProviderConfig<?> providerConfig : providerConfigList) {
+					if (StringUtils.isBlank(providerConfig.getUrl())) {
+						providerConfig.setUrl(getServiceUrl(providerConfig));
+					}
+					providerConfig.setPort(server.getPort());
+					ServiceProviderFactory.addService(providerConfig);
 				}
-				providerConfig.setPort(server.getPort());
-				ServiceProviderFactory.addService(providerConfig);
+			} catch (ServiceException t) {
+				throw new RpcException("error while publishing services:" + providerConfigList, t);
 			}
-		} catch (ServiceException t) {
-			throw new RpcException("error while publishing services:" + providerConfigList, t);
 		}
 	}
 

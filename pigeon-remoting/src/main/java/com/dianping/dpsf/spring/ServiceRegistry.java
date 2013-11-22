@@ -12,8 +12,9 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
-import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
 
@@ -36,10 +37,35 @@ public final class ServiceRegistry {
 	private static final Logger logger = LoggerLoader.getLogger(ServiceRegistry.class);
 
 	private boolean publish = true;
-
 	private Map<String, Object> services;
-
 	private int port = ServerFactory.DEFAULT_PORT;
+	private int corePoolSize = RemotingConfigurer.getProviderCorePoolSize();
+	private int maxPoolSize = RemotingConfigurer.getProviderMaxPoolSize();
+	private int workQueueSize = RemotingConfigurer.getProviderWorkQueueSize();
+
+	public int getCorePoolSize() {
+		return corePoolSize;
+	}
+
+	public void setCorePoolSize(int corePoolSize) {
+		this.corePoolSize = corePoolSize;
+	}
+
+	public int getMaxPoolSize() {
+		return maxPoolSize;
+	}
+
+	public void setMaxPoolSize(int maxPoolSize) {
+		this.maxPoolSize = maxPoolSize;
+	}
+
+	public int getWorkQueueSize() {
+		return workQueueSize;
+	}
+
+	public void setWorkQueueSize(int workQueueSize) {
+		this.workQueueSize = workQueueSize;
+	}
 
 	public int getPort() {
 		return port;
@@ -62,6 +88,9 @@ public final class ServiceRegistry {
 			ProviderConfig providerConfig = new ProviderConfig(services.get(url));
 			providerConfig.setUrl(url);
 			providerConfig.setPort(port);
+			providerConfig.setCorePoolSize(corePoolSize);
+			providerConfig.setMaxPoolSize(maxPoolSize);
+			providerConfig.setWorkQueueSize(workQueueSize);
 			providerConfigList.add(providerConfig);
 		}
 		try {

@@ -12,8 +12,9 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
-import com.dianping.pigeon.remoting.common.service.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
 
 /**
@@ -33,14 +34,11 @@ public class ServiceRegistry {
 	private static Logger logger = LoggerLoader.getLogger(ProxyFactory.class);
 
 	private Map<String, Object> services;
-
 	private int port = 20000;
-
 	public static boolean isInit = false;
-
-	private int corePoolSize = 100;
-	private int maxPoolSize = 2000;
-	private int workQueueSize = 100;
+	private int corePoolSize = RemotingConfigurer.getProviderCorePoolSize();
+	private int maxPoolSize = RemotingConfigurer.getProviderMaxPoolSize();
+	private int workQueueSize = RemotingConfigurer.getProviderWorkQueueSize();
 
 	public ServiceRegistry() {
 
@@ -56,6 +54,9 @@ public class ServiceRegistry {
 			ProviderConfig providerConfig = new ProviderConfig(services.get(url));
 			providerConfig.setUrl(url);
 			providerConfig.setPort(port);
+			providerConfig.setCorePoolSize(corePoolSize);
+			providerConfig.setMaxPoolSize(maxPoolSize);
+			providerConfig.setWorkQueueSize(workQueueSize);
 			providerConfigList.add(providerConfig);
 		}
 		try {

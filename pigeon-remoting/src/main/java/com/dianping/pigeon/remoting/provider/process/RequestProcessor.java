@@ -4,23 +4,25 @@
  */
 package com.dianping.pigeon.remoting.provider.process;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
 
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.monitor.LoggerLoader;
-import com.dianping.pigeon.remoting.common.filter.ServiceInvocationHandler;
+import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
-import com.dianping.pigeon.threadpool.NamedThreadFactory;
+import com.dianping.pigeon.threadpool.DefaultThreadPool;
+import com.dianping.pigeon.threadpool.ThreadPool;
 
 public class RequestProcessor {
 
 	private static final Logger logger = LoggerLoader.getLogger(RequestProcessor.class);
-
-	private static final ExecutorService executorService = Executors.newCachedThreadPool(new NamedThreadFactory(
-			"pigeon-provider-request-processor", true));
+	
+	private static ThreadPool requestProcessThreadPool = new DefaultThreadPool(
+			"Pigeon-Server-Request-Processor", 100, 300, new LinkedBlockingQueue<Runnable>(100),
+			new AbortPolicy());
 
 	public void processRequest(final InvocationRequest request, final ProviderContext providerContext) {
 		Runnable requestExecutor = new Runnable() {
@@ -37,7 +39,7 @@ public class RequestProcessor {
 				}
 			}
 		};
-		executorService.submit(requestExecutor);
+		requestProcessThreadPool.submit(requestExecutor);
 	}
 
 }

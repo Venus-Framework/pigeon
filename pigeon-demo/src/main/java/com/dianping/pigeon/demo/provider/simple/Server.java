@@ -7,7 +7,7 @@ package com.dianping.pigeon.demo.provider.simple;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.loader.ConfigLoader;
 import com.dianping.pigeon.demo.provider.EchoServiceImpl1;
-import com.dianping.pigeon.remoting.common.service.ServiceFactory;
+import com.dianping.pigeon.remoting.ServiceFactory;
 
 public class Server {
 
