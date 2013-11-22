@@ -52,15 +52,6 @@
 	<build>
 		<plugins>
 			<plugin>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>none</phase>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<executions>
                     <execution>
