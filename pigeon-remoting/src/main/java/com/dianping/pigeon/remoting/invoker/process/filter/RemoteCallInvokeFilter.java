@@ -11,13 +11,13 @@ import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.RemoteInvocationBean;
 import com.dianping.pigeon.remoting.invoker.component.async.Callback;
 import com.dianping.pigeon.remoting.invoker.component.async.CallbackFuture;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallbackWrapper;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceFutureImpl;
 import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 
 /**

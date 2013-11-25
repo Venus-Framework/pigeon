@@ -12,16 +12,14 @@ import org.apache.log4j.Logger;
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.provider.ServerFactory;
-import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 
-public class NewServiceRegistry {
+public class ServiceBean {
 
-	private static final Logger logger = LoggerLoader.getLogger(NewServiceRegistry.class);
+	private static final Logger logger = LoggerLoader.getLogger(ServiceBean.class);
 
 	private String url;
 	private Object serviceImpl;
-	private int port = ServerFactory.DEFAULT_PORT;
 	private String version;
 	private String interfaceName;
 
@@ -39,14 +37,6 @@ public class NewServiceRegistry {
 
 	public void setVersion(String version) {
 		this.version = version;
-	}
-
-	public int getPort() {
-		return port;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
 	}
 
 	public String getUrl() {
@@ -80,7 +70,6 @@ public class NewServiceRegistry {
 		} else {
 			providerConfig = new ProviderConfig(Class.forName(interfaceName), serviceImpl);
 		}
-		providerConfig.setPort(port);
 		providerConfig.setVersion(version);
 		providerConfig.setUrl(url);
 		ServiceFactory.publishService(providerConfig);

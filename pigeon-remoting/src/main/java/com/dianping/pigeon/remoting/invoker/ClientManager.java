@@ -23,7 +23,7 @@ import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
-import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListenerManager;
 import com.dianping.pigeon.remoting.invoker.listener.DefaultClusterListener;
 import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;

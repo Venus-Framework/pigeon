@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 
 import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
-import com.dianping.lion.client.LionException;
 import com.dianping.pigeon.config.AbstractConfigManager;
 import com.dianping.pigeon.monitor.LoggerLoader;
 
@@ -39,8 +38,8 @@ public class LionConfigManager extends AbstractConfigManager {
 			}
 			return "" + localCache.get(key);
 		}
-		if(logger.isDebugEnabled()) {
-			logger.debug("read from lion with key[" + key + "]");
+		if(logger.isInfoEnabled()) {
+			logger.info("try to read from lion with key[" + key + "]");
 		}
 		try {
 			String configVal = ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress()).getProperty(key);

@@ -6,7 +6,10 @@ package com.dianping.pigeon.remoting.invoker.route.balance;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.Client;
 
 /**
@@ -18,16 +21,12 @@ import com.dianping.pigeon.remoting.invoker.Client;
  */
 public class RandomLoadBalance extends AbstractLoadBalance {
 
-	// private static final Logger logger =
-	// Log4jLoader.getLogger(RandomLoadBalance.class);
-
+	private static final Logger logger = LoggerLoader.getLogger(RandomLoadBalance.class);
 	public static final String NAME = "random";
-
 	public static final LoadBalance instance = new RandomLoadBalance();
 
 	@Override
 	public Client doSelect(List<Client> clients, InvocationRequest request, int[] weights) {
-
 		int clientSize = clients.size();
 		int totalWeight = 0;
 		boolean weightAllSame = true;
@@ -47,7 +46,11 @@ public class RandomLoadBalance extends AbstractLoadBalance {
 				}
 			}
 		}
-		return clients.get(random.nextInt(clientSize));
+		Client client = clients.get(random.nextInt(clientSize));
+		if (logger.isDebugEnabled()) {
+			logger.debug("select address:" + client.getAddress());
+		}
+		return client;
 	}
 
 }

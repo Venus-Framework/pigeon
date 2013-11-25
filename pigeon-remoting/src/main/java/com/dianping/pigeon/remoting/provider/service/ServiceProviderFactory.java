@@ -19,7 +19,7 @@ import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.util.NetUtils;
 import com.dianping.pigeon.util.VersionUtils;
 
@@ -92,9 +92,9 @@ public final class ServiceProviderFactory {
 					if (localip == null || localip.length() == 0) {
 						localip = NetUtils.getFirstLocalIp();
 					}
-					String serviceAddress = localip + ":" + providerConfig.getPort();
+					String serviceAddress = localip + ":" + providerConfig.getServerConfig().getPort();
 					String group = configManager.getProperty(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
-					providerConfig.setGroup(group);
+					providerConfig.getServerConfig().setGroup(group);
 					String weight = configManager.getProperty(Constants.KEY_WEIGHT, Constants.DEFAULT_WEIGHT);
 					int intWeight = Integer.parseInt(weight);
 					RegistryManager.getInstance().registerService(providerConfig.getUrl(), group, serviceAddress,
@@ -119,9 +119,10 @@ public final class ServiceProviderFactory {
 			if (localip == null || localip.length() == 0) {
 				localip = NetUtils.getFirstLocalIp();
 			}
-			String serviceAddress = localip + ":" + providerConfig.getPort();
+			String serviceAddress = localip + ":" + providerConfig.getServerConfig().getPort();
 			try {
-				RegistryManager.getInstance().unregisterService(url, providerConfig.getGroup(), serviceAddress);
+				RegistryManager.getInstance().unregisterService(url, providerConfig.getServerConfig().getGroup(),
+						serviceAddress);
 			} catch (RegistryException e) {
 				throw new ServiceException("", e);
 			}

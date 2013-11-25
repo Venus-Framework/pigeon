@@ -40,9 +40,9 @@ public class LoggerLoader {
 
 	private static final String LOGGER_NAME = "com.dianping.pigeon";
 	public static final Log log = LogFactory.getLog(LOGGER_NAME);
-	public static final Logger rootLogger = new RootLogger(Level.WARN);
+	public static final Logger rootLogger = new RootLogger(Level.INFO);
 	private static LoggerRepository loggerRepository = null;
-	private static Level level = Level.WARN;
+	private static Level level = Level.INFO;
 	private static volatile boolean initOK = false;
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
@@ -51,7 +51,7 @@ public class LoggerLoader {
 			return;
 		}
 		Properties logPro = new Properties();
-		String logLevel = "warn";
+		String logLevel = "info";
 		String logSuffix = "default";
 		if(configManager != null) {
 			logLevel = configManager.getProperty("pigeon.log.defaultlevel", logLevel);

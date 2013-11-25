@@ -14,8 +14,8 @@ import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.site.helper.Stringizers;
 
 public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {

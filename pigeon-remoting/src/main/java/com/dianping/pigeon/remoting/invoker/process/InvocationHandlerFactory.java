@@ -15,7 +15,7 @@ import com.dianping.pigeon.extension.DefaultExtension;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
-import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.process.filter.ContextPrepareInvokeFilter;
 import com.dianping.pigeon.remoting.invoker.process.filter.FailoverClusterInvokeFilter;
 import com.dianping.pigeon.remoting.invoker.process.filter.GatewayInvokeFilter;
@@ -36,7 +36,6 @@ public final class InvocationHandlerFactory extends DefaultExtension {
 	private static ServiceInvocationHandler failOverInvocationHandler = null;
 
 	public static void init() {
-		// 怎么确保顺序?
 		registerInternalInvokeFilter(InvokePhase.Finalize, new GatewayInvokeFilter());
 		registerInternalInvokeFilter(InvokePhase.Cluster, new ServiceRouteInvokeFilter());
 		if (RemotingConfigurer.isMonitorEnabled()) {

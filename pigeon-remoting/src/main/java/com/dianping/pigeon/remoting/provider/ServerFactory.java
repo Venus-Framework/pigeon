@@ -4,7 +4,6 @@
  */
 package com.dianping.pigeon.remoting.provider;
 
-import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
 
 /**
  * 
@@ -16,7 +15,7 @@ public interface ServerFactory {
 
 	final int DEFAULT_PORT = 4625;
 
-	Server createServer(ProviderConfig providerConfig);
+	Server createServer(int port);
 	
 	int getPort();
 }

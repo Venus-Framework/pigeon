@@ -8,14 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import com.dianping.dpsf.exception.ServiceException;
-import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
-import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
 /**
  * <p>
@@ -30,8 +28,6 @@ import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
  * @created 2010-8-26 上午10:43:19
  */
 public class ServiceRegistry {
-
-	private static Logger logger = LoggerLoader.getLogger(ProxyFactory.class);
 
 	private Map<String, Object> services;
 	private int port = 20000;
@@ -49,18 +45,23 @@ public class ServiceRegistry {
 	}
 
 	public void init() throws Exception {
+		ServerConfig serverConfig = new ServerConfig();
+		serverConfig.setPort(port);
+		serverConfig.setCorePoolSize(corePoolSize);
+		serverConfig.setMaxPoolSize(maxPoolSize);
+		serverConfig.setWorkQueueSize(workQueueSize);
+
 		List<ProviderConfig<?>> providerConfigList = new ArrayList<ProviderConfig<?>>();
 		for (String url : services.keySet()) {
 			ProviderConfig providerConfig = new ProviderConfig(services.get(url));
 			providerConfig.setUrl(url);
-			providerConfig.setPort(port);
-			providerConfig.setCorePoolSize(corePoolSize);
-			providerConfig.setMaxPoolSize(maxPoolSize);
-			providerConfig.setWorkQueueSize(workQueueSize);
+			providerConfig.setServerConfig(serverConfig);
 			providerConfigList.add(providerConfig);
 		}
+
 		try {
-			ServiceFactory.publishServices(providerConfigList, port);
+			ServiceFactory.registerServerConfig(serverConfig);
+			ServiceFactory.publishServices(providerConfigList);
 		} catch (RpcException e) {
 			throw new ServiceException("", e);
 		}

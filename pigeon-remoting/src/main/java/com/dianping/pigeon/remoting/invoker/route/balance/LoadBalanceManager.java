@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
-import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 /**
  * 

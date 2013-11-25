@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 public interface RouteManager {
 

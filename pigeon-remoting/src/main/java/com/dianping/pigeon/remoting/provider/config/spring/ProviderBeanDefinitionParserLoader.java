@@ -20,7 +20,8 @@ public class ProviderBeanDefinitionParserLoader implements BeanDefinitionParserL
 	@Override
 	public Map<String, BeanDefinitionParser> loadBeanDefinitionParsers() {
 		Map<String, BeanDefinitionParser> parsers = new HashMap<String, BeanDefinitionParser>();
-		parsers.put("service", new ProviderBeanDefinitionParser(ServiceBean.class, true));
+		parsers.put("service", new ServiceBeanDefinitionParser(ServiceBean.class, true));
+		parsers.put("server", new ServerBeanDefinitionParser(ServerBean.class, false));
 		return parsers;
 	}
 

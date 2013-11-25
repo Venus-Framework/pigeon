@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.component;
+package com.dianping.pigeon.remoting.invoker.config;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -36,7 +36,7 @@ public class InvokerConfig<T> {
 
 	private byte serialize = SerializerFactory.SERIALIZE_HESSIAN;
 
-	private int timeout = 2000;
+	private int timeout = RemotingConfigurer.getInvokerTimeout();
 
 	private ServiceCallback callback;
 

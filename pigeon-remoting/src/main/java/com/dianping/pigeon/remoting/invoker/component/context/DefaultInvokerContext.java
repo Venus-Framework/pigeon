@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 
 import com.dianping.pigeon.remoting.common.component.context.AbstractInvocationContext;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 public class DefaultInvokerContext extends AbstractInvocationContext implements InvokerContext {
 

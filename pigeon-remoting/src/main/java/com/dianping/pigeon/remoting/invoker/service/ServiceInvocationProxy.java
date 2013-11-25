@@ -14,8 +14,8 @@ import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
-import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.context.DefaultInvokerContext;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 public class ServiceInvocationProxy implements InvocationHandler {
 

@@ -6,6 +6,7 @@ package com.dianping.pigeon.remoting.provider;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
+import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
 /**
  * 
@@ -15,11 +16,11 @@ import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
  */
 public interface Server {
 
-	void start();
+	void start(ServerConfig serverConfig);
 
 	void stop();
 
-	int getPort();
+	ServerConfig getServerConfig();
 
 	public void processRequest(final InvocationRequest request, final ProviderContext providerContext);
 

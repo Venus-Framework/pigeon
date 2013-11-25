@@ -2,13 +2,10 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.provider.component;
+package com.dianping.pigeon.remoting.provider.config;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
-import com.dianping.pigeon.remoting.provider.ServerFactory;
 
 public class ProviderConfig<T> {
 
@@ -16,42 +13,16 @@ public class ProviderConfig<T> {
 	private String url;
 	private String version;
 	private T service;
-	private int port = ServerFactory.DEFAULT_PORT;
-	private String group;
-	private int corePoolSize = RemotingConfigurer.getProviderCorePoolSize();
-	private int maxPoolSize = RemotingConfigurer.getProviderMaxPoolSize();
-	private int workQueueSize = RemotingConfigurer.getProviderWorkQueueSize();
+	private ServerConfig serverConfig = new ServerConfig();
 
-	public int getCorePoolSize() {
-		return corePoolSize;
+	public ServerConfig getServerConfig() {
+		return serverConfig;
 	}
 
-	public void setCorePoolSize(int corePoolSize) {
-		this.corePoolSize = corePoolSize;
-	}
-
-	public int getMaxPoolSize() {
-		return maxPoolSize;
-	}
-
-	public void setMaxPoolSize(int maxPoolSize) {
-		this.maxPoolSize = maxPoolSize;
-	}
-
-	public int getWorkQueueSize() {
-		return workQueueSize;
-	}
-
-	public void setWorkQueueSize(int workQueueSize) {
-		this.workQueueSize = workQueueSize;
-	}
-
-	public String getGroup() {
-		return group;
-	}
-
-	public void setGroup(String group) {
-		this.group = group;
+	public void setServerConfig(ServerConfig serverConfig) {
+		if (serverConfig != null) {
+			this.serverConfig = serverConfig;
+		}
 	}
 
 	public ProviderConfig(Class<T> serviceInterface, T service) {
@@ -63,14 +34,6 @@ public class ProviderConfig<T> {
 		Class interfaceClass = service.getClass().getInterfaces()[0];
 		this.setService(service);
 		this.setServiceInterface(interfaceClass);
-	}
-
-	public int getPort() {
-		return port;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
 	}
 
 	public String getVersion() {

@@ -11,8 +11,8 @@ import org.springframework.beans.factory.FactoryBean;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 
@@ -97,7 +97,7 @@ public class ProxyBeanFactory implements FactoryBean {
 	@SuppressWarnings("unused")
 	private String weight;
 
-	private int timeout = 2000;
+	private int timeout = RemotingConfigurer.getInvokerTimeout();
 
 	private Object obj;
 

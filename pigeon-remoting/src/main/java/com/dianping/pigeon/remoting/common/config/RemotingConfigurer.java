@@ -20,8 +20,6 @@ public class RemotingConfigurer {
 
 	private static final ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	private static volatile RemotingConfigurer INSTANCE;
-
 	private static final String KEY_LOADBALANCE = "pigeon.loadbalance";
 	private static final String KEY_RECONNECT_INTERVAL = "pigeon.reconnect.interval";
 	private static final String KEY_HEARTBEAT_INTERVAL = "pigeon.heartbeat.interval";
@@ -39,6 +37,8 @@ public class RemotingConfigurer {
 	private static final String KEY_PROVIDER_COREPOOLSIZE = "pigeon.provider.corePoolSize";
 	private static final String KEY_PROVIDER_MAXPOOLSIZE = "pigeon.provider.maxPoolSize";
 	private static final String KEY_PROVIDER_WORKQUEUESIZE = "pigeon.provider.workQueueSize";
+	private static final String KEY_INVOKER_MAXPOOLSIZE = "pigeon.invoker.maxPoolSize";
+	private static final String KEY_INVOKER_TIMEOUT = "pigeon.invoker.timeout";
 
 	private static final long DEFAULT_RECONNECT_INTERVAL = 3000;
 	private static final long DEFAULT_HEARTBEAT_INTERVAL = 3000;
@@ -52,20 +52,6 @@ public class RemotingConfigurer {
 	private static final boolean DEFAULT_WRITE_BUFF_LIMIT = false;
 
 	private static Map<String, Object> configCache = new HashMap<String, Object>();
-
-	private RemotingConfigurer() {
-	}
-
-	public static RemotingConfigurer getInstance() {
-		if (INSTANCE == null) {
-			synchronized (RemotingConfigurer.class) {
-				if (INSTANCE == null) {
-					INSTANCE = new RemotingConfigurer();
-				}
-			}
-		}
-		return INSTANCE;
-	}
 
 	public static String getLoadBalance() {
 		return getStringValue(KEY_LOADBALANCE, LoadBalanceManager.DEFAULT_LOADBALANCE);
@@ -150,11 +136,19 @@ public class RemotingConfigurer {
 	}
 
 	public static int getProviderMaxPoolSize() {
-		return getIntValue(KEY_PROVIDER_MAXPOOLSIZE, 300);
+		return getIntValue(KEY_PROVIDER_MAXPOOLSIZE, 256);
 	}
 
 	public static int getProviderWorkQueueSize() {
 		return getIntValue(KEY_PROVIDER_WORKQUEUESIZE, 100);
+	}
+
+	public static int getInvokerMaxPoolSize() {
+		return getIntValue(KEY_INVOKER_MAXPOOLSIZE, 256);
+	}
+
+	public static int getInvokerTimeout() {
+		return getIntValue(KEY_INVOKER_TIMEOUT, 2000);
 	}
 
 	public static String getStringValue(String key, String defaultValue) {

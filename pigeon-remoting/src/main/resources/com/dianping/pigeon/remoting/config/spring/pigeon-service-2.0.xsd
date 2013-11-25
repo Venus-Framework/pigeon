@@ -17,15 +17,13 @@
 						default="hessian" />
 					<xsd:attribute name="callMethod" type="xsd:string"
 						default="sync" />
-					<xsd:attribute name="timeout" type="xsd:string"
-						default="5000" />
+					<xsd:attribute name="timeout" type="xsd:int" default="2000" />
 					<xsd:attribute name="loadbalance" type="xsd:string"
-						default="leastActive" />
+						default="roundRobin" />
 					<xsd:attribute name="cluster" type="xsd:string"
 						default="failFast" />
-					<xsd:attribute name="retries" type="xsd:string"
-						default="1" />
-					<xsd:attribute name="timeoutRetry" type="xsd:string"
+					<xsd:attribute name="retries" type="xsd:int" default="1" />
+					<xsd:attribute name="timeoutRetry" type="xsd:boolean"
 						default="false" />
 					<xsd:attribute name="callback" type="xsd:string" />
 					<xsd:attribute name="group" type="xsd:string" />
@@ -44,10 +42,23 @@
 					<xsd:attribute name="interface" type="xsd:string"
 						use="required" />
 					<xsd:attribute name="ref" type="xsd:string" use="required" />
-					<xsd:attribute name="group" type="xsd:string" />
-					<xsd:attribute name="port" type="xsd:string" />
+					<xsd:attribute name="port" type="xsd:int" />
 					<xsd:attribute name="version" type="xsd:string" />
 					<xsd:attribute name="autoRegister" type="xsd:boolean" />
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="server">
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="beans:identifiedType">
+					<xsd:attribute name="group" type="xsd:string" />
+					<xsd:attribute name="port" type="xsd:int" />
+					<xsd:attribute name="corePoolSize" type="xsd:int" />
+					<xsd:attribute name="maxPoolSize" type="xsd:int" />
+					<xsd:attribute name="workQueueSize" type="xsd:int" />
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>

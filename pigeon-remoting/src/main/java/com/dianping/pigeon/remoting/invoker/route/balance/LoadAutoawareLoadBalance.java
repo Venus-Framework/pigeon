@@ -6,7 +6,10 @@ package com.dianping.pigeon.remoting.invoker.route.balance;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.route.stat.barrel.ServerStatBarrelsHolder;
 
@@ -18,8 +21,8 @@ import com.dianping.pigeon.remoting.invoker.route.stat.barrel.ServerStatBarrelsH
  */
 public class LoadAutoawareLoadBalance extends AbstractLoadBalance {
 
+	private static final Logger logger = LoggerLoader.getLogger(LeastSuccessLoadBalance.class);
 	public static final String NAME = "autoaware";
-
 	public static final LoadBalance instance = new LoadAutoawareLoadBalance();
 
 	@Override
@@ -40,7 +43,11 @@ public class LoadAutoawareLoadBalance extends AbstractLoadBalance {
 				candidates[candidateIdx++] = client;
 			}
 		}
-		return candidateIdx == 1 ? candidates[0] : candidates[random.nextInt(candidateIdx)];
+		Client client = candidateIdx == 1 ? candidates[0] : candidates[random.nextInt(candidateIdx)];
+		if (logger.isDebugEnabled()) {
+			logger.debug("select address:" + client.getAddress());
+		}
+		return client;
 	}
 
 }

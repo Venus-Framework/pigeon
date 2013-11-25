@@ -8,7 +8,6 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.log4j.Logger;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.group.ChannelGroup;
@@ -16,8 +15,8 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import com.dianping.pigeon.component.phase.Disposable;
-import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.provider.AbstractServer;
+import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.threadpool.NamedThreadFactory;
 
 /**
@@ -27,8 +26,6 @@ import com.dianping.pigeon.threadpool.NamedThreadFactory;
  * @version $Id: NettyServer.java, v 0.1 2013-6-18 下午12:14:43 jianhuihuang Exp $
  */
 public class NettyServer extends AbstractServer implements Disposable {
-
-	private static final Logger logger = LoggerLoader.getLogger(NettyServer.class);
 
 	private String ip = null;
 	private int port = 4625;
@@ -50,7 +47,8 @@ public class NettyServer extends AbstractServer implements Disposable {
 		this.bootstrap.setOption("child.keepAlive", true);
 	}
 
-	public void start() {
+	@Override
+	public void doStart(ServerConfig serverConfig) {
 		if (!started) {
 			InetSocketAddress address = null;
 			if (this.ip == null) {
@@ -63,7 +61,8 @@ public class NettyServer extends AbstractServer implements Disposable {
 		}
 	}
 
-	public void stop() {
+	@Override
+	public void doStop() {
 		if (this.started) {
 			// this.channelGroup.close().awaitUninterruptibly();
 			// this.bootstrap.releaseExternalResources();
@@ -105,11 +104,6 @@ public class NettyServer extends AbstractServer implements Disposable {
 	@Override
 	public void destroy() {
 		this.stop();
-	}
-
-	@Override
-	public int getPort() {
-		return this.port;
 	}
 
 	public ChannelGroup getChannelGroup() {

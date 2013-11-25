@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.remoting.provider.config.spring;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -16,6 +17,8 @@ import org.w3c.dom.Element;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.remoting.provider.ServerFactory;
 
 /**
  * 
@@ -24,14 +27,14 @@ import com.dianping.pigeon.monitor.LoggerLoader;
  * @version $Id: PigeonBeanDefinitionParser.java, v 0.1 2013-6-24 下午9:58:37
  *          jianhuihuang Exp $
  */
-public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
+public class ServerBeanDefinitionParser implements BeanDefinitionParser {
 
 	/** Default placeholder prefix: "${" */
 	public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
 	/** Default placeholder suffix: "}" */
 	public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
 
-	private static final Logger logger = LoggerLoader.getLogger(ServiceBeanDefinitionParser.class);
+	private static final Logger logger = LoggerLoader.getLogger(ServerBeanDefinitionParser.class);
 
 	private final Class<?> beanClass;
 
@@ -39,7 +42,7 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	public ServiceBeanDefinitionParser(Class<?> beanClass, boolean required) {
+	public ServerBeanDefinitionParser(Class<?> beanClass, boolean required) {
 		this.beanClass = beanClass;
 		this.required = required;
 	}
@@ -53,26 +56,24 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 		RootBeanDefinition beanDefinition = new RootBeanDefinition();
 		beanDefinition.setLazyInit(false);
 		String id = element.getAttribute("id");
-		beanDefinition.setBeanClass(ServiceBean.class);
+		beanDefinition.setBeanClass(ServerBean.class);
 		beanDefinition.setInitMethodName("init");
 
 		MutablePropertyValues properties = beanDefinition.getPropertyValues();
-		String ref = element.getAttribute("ref");
-		if (!parserContext.getRegistry().containsBeanDefinition(ref)) {
-			throw new IllegalStateException("service must have a reference to impl bean");
-		}
-		properties.addPropertyValue("serviceImpl", new RuntimeBeanReference(ref));
-		if (element.hasAttribute("url")) {
-			properties.addPropertyValue("url", resolveReference(element, "url"));
-		}
-		if (element.hasAttribute("interface")) {
-			properties.addPropertyValue("interfaceName", resolveReference(element, "interface"));
+		if (element.hasAttribute("group")) {
+			properties.addPropertyValue("group", resolveReference(element, "group"));
 		}
 		if (element.hasAttribute("port")) {
 			properties.addPropertyValue("port", resolveReference(element, "port"));
 		}
-		if (element.hasAttribute("version")) {
-			properties.addPropertyValue("version", resolveReference(element, "version"));
+		if (element.hasAttribute("corePoolSize")) {
+			properties.addPropertyValue("corePoolSize", resolveReference(element, "corePoolSize"));
+		}
+		if (element.hasAttribute("maxPoolSize")) {
+			properties.addPropertyValue("maxPoolSize", resolveReference(element, "maxPoolSize"));
+		}
+		if (element.hasAttribute("workQueueSize")) {
+			properties.addPropertyValue("workQueueSize", resolveReference(element, "workQueueSize"));
 		}
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
 
@@ -91,5 +92,4 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		return value;
 	}
-
 }

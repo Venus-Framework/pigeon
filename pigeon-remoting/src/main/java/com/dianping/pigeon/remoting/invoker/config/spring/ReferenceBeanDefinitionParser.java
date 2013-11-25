@@ -18,7 +18,6 @@ import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
-import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
 
 /**
@@ -28,14 +27,14 @@ import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
  * @version $Id: PigeonBeanDefinitionParser.java, v 0.1 2013-6-24 下午9:58:37
  *          jianhuihuang Exp $
  */
-public class InvokerBeanDefinitionParser implements BeanDefinitionParser {
+public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 
 	/** Default placeholder prefix: "${" */
 	public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
 	/** Default placeholder suffix: "}" */
 	public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
 
-	private static final Logger logger = LoggerLoader.getLogger(InvokerBeanDefinitionParser.class);
+	private static final Logger logger = LoggerLoader.getLogger(ReferenceBeanDefinitionParser.class);
 
 	private final Class<?> beanClass;
 
@@ -43,7 +42,7 @@ public class InvokerBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	public InvokerBeanDefinitionParser(Class<?> beanClass, boolean required) {
+	public ReferenceBeanDefinitionParser(Class<?> beanClass, boolean required) {
 		this.beanClass = beanClass;
 		this.required = required;
 	}
@@ -55,43 +54,53 @@ public class InvokerBeanDefinitionParser implements BeanDefinitionParser {
 	private static BeanDefinition parse(Element element, ParserContext parserContext, Class<?> beanClass,
 			boolean required) {
 		RootBeanDefinition beanDefinition = new RootBeanDefinition();
-		// beanDefinition.setBeanClass(beanClass);
 		beanDefinition.setLazyInit(false);
 		String id = element.getAttribute("id");
 
-		if (beanClass == ReferenceBean.class) {
-			beanDefinition.setBeanClass(ProxyBeanFactory.class);
-			beanDefinition.setInitMethodName("init");
-			InvokerBootStrap.startup();
+		beanDefinition.setBeanClass(ProxyBeanFactory.class);
+		beanDefinition.setInitMethodName("init");
+		InvokerBootStrap.startup();
 
-			MutablePropertyValues properties = beanDefinition.getPropertyValues();
-			properties.addPropertyValue("serviceName", element.getAttribute("url"));
-			properties.addPropertyValue("iface", element.getAttribute("interface"));
-			properties.addPropertyValue("serialize", element.getAttribute("serialize"));
-			properties.addPropertyValue("callMethod", element.getAttribute("callMethod"));
-			properties.addPropertyValue("timeout", element.getAttribute("timeout"));
-			properties.addPropertyValue("loadbalance", element.getAttribute("loadbalance"));
-			properties.addPropertyValue("cluster", element.getAttribute("cluster"));
-			properties.addPropertyValue("retries", element.getAttribute("retries"));
-			properties.addPropertyValue("timeoutRetry", element.getAttribute("timeoutRetry"));
-			properties.addPropertyValue("version", element.getAttribute("version"));
-
-			String callback = element.getAttribute("callback");
-			if (StringUtils.isNotEmpty(callback)) {
-				if (!parserContext.getRegistry().containsBeanDefinition(callback)) {
-					throw new IllegalStateException("callback reference must have a reference to callback bean");
-				}
-				properties.addPropertyValue("callback", new RuntimeBeanReference(callback));
+		MutablePropertyValues properties = beanDefinition.getPropertyValues();
+		if (element.hasAttribute("url")) {
+			properties.addPropertyValue("serviceName", resolveReference(element, "url"));
+		}
+		if (element.hasAttribute("interface")) {
+			properties.addPropertyValue("iface", resolveReference(element, "interface"));
+		}
+		if (element.hasAttribute("serialize")) {
+			properties.addPropertyValue("serialize", resolveReference(element, "serialize"));
+		}
+		if (element.hasAttribute("callMethod")) {
+			properties.addPropertyValue("callMethod", resolveReference(element, "callMethod"));
+		}
+		if (element.hasAttribute("timeout")) {
+			properties.addPropertyValue("timeout", resolveReference(element, "timeout"));
+		}
+		if (element.hasAttribute("loadbalance")) {
+			properties.addPropertyValue("loadbalance", resolveReference(element, "loadbalance"));
+		}
+		if (element.hasAttribute("cluster")) {
+			properties.addPropertyValue("cluster", resolveReference(element, "cluster"));
+		}
+		if (element.hasAttribute("retries")) {
+			properties.addPropertyValue("retries", resolveReference(element, "retries"));
+		}
+		if (element.hasAttribute("timeoutRetry")) {
+			properties.addPropertyValue("timeoutRetry", resolveReference(element, "timeoutRetry"));
+		}
+		if (element.hasAttribute("version")) {
+			properties.addPropertyValue("version", resolveReference(element, "version"));
+		}
+		if (element.hasAttribute("vip")) {
+			properties.addPropertyValue("vip", resolveReference(element, "vip"));
+		}
+		String callback = element.getAttribute("callback");
+		if (StringUtils.isNotEmpty(callback)) {
+			if (!parserContext.getRegistry().containsBeanDefinition(callback)) {
+				throw new IllegalStateException("callback reference must have a reference to callback bean");
 			}
-
-			try {
-				if (element.hasAttribute("vip")) {
-					properties.addPropertyValue("vip", resolveReference(element, "vip"));
-				}
-			} catch (RegistryException e) {
-				logger.error("", e);
-			}
-
+			properties.addPropertyValue("callback", new RuntimeBeanReference(callback));
 		}
 
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
@@ -99,14 +108,10 @@ public class InvokerBeanDefinitionParser implements BeanDefinitionParser {
 		return beanDefinition;
 	}
 
-	private static String resolveReference(Element element, String attribute) throws RegistryException {
+	private static String resolveReference(Element element, String attribute) {
 		String value = element.getAttribute(attribute);
 		if (value.startsWith(DEFAULT_PLACEHOLDER_PREFIX) && value.endsWith(DEFAULT_PLACEHOLDER_SUFFIX)) {
 			String valueInCache = configManager.getProperty(value.substring(2, value.length() - 1));
-			// RegistryCache.getInstance();
-			// String valueInCache =
-			// RegistryCache.getProperty(value.substring(2, value.length() -
-			// 1));
 			if (valueInCache == null) {
 				throw new IllegalStateException("引用了properties中不存在的变量：" + element.getAttribute(attribute));
 			} else {

@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
-import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.listener.ShutdownHookListener;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessHandlerFactory;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
@@ -21,25 +21,31 @@ public final class ProviderBootStrap {
 	private static Logger logger = LoggerLoader.getLogger(ServiceProviderFactory.class);
 	static volatile Server server = null;
 
-	public static Server startup(ProviderConfig providerConfig) {
+	public static Server startup(ServerConfig serverConfig) {
 		if (server == null) {
 			synchronized (ProviderBootStrap.class) {
 				if (server == null) {
-					int availablePort = NetUtils.getAvailablePort(providerConfig.getPort());
-					providerConfig.setPort(availablePort);
+					int availablePort = NetUtils.getAvailablePort(serverConfig.getPort());
+					serverConfig.setPort(availablePort);
 					RegistryConfigLoader.init();
 					RequestProcessHandlerFactory.init();
-					server = ExtensionLoader.getExtension(ServerFactory.class).createServer(providerConfig);
+					server = ExtensionLoader.getExtension(ServerFactory.class).createServer(availablePort);
 					if (server != null) {
-						server.start();
+						server.start(serverConfig);
 						Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookListener(server)));
 						if (logger.isInfoEnabled()) {
 							logger.info("pigeon server[version:" + VersionUtils.VERSION + "] has been started at port:"
-									+ server.getPort());
+									+ availablePort);
 						}
 					}
+				} else {
+					logger.warn("pigeon server[version:" + VersionUtils.VERSION + "] has already been started at port:"
+							+ server.getServerConfig().getPort());
 				}
 			}
+		} else {
+			logger.warn("pigeon server[version:" + VersionUtils.VERSION + "] has already been started at port:"
+					+ server.getServerConfig().getPort());
 		}
 		return server;
 	}

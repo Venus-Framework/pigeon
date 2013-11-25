@@ -16,7 +16,8 @@ import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
-import com.dianping.pigeon.remoting.provider.component.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
 /**
  * @deprecated 后续请使用spring的xml配置方式。务必！！新功能不再支持该方式了。
@@ -83,18 +84,23 @@ public final class ServiceRegistry {
 	 * @throws ClassNotFoundException
 	 */
 	public void init() throws ServiceException {
+		ServerConfig serverConfig = new ServerConfig();
+		serverConfig.setPort(port);
+		serverConfig.setCorePoolSize(corePoolSize);
+		serverConfig.setMaxPoolSize(maxPoolSize);
+		serverConfig.setWorkQueueSize(workQueueSize);
+		
 		List<ProviderConfig<?>> providerConfigList = new ArrayList<ProviderConfig<?>>();
 		for (String url : services.keySet()) {
 			ProviderConfig providerConfig = new ProviderConfig(services.get(url));
 			providerConfig.setUrl(url);
-			providerConfig.setPort(port);
-			providerConfig.setCorePoolSize(corePoolSize);
-			providerConfig.setMaxPoolSize(maxPoolSize);
-			providerConfig.setWorkQueueSize(workQueueSize);
+			providerConfig.setServerConfig(serverConfig);
 			providerConfigList.add(providerConfig);
 		}
+		
 		try {
-			ServiceFactory.publishServices(providerConfigList, port);
+			ServiceFactory.registerServerConfig(serverConfig);
+			ServiceFactory.publishServices(providerConfigList);
 		} catch (RpcException e) {
 			throw new ServiceException("", e);
 		}

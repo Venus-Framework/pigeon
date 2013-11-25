@@ -10,8 +10,8 @@ import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.invoker.EchoServiceCallback;
 import com.dianping.pigeon.demo.loader.ConfigLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.invoker.component.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 public class ClientWithServiceVersion {
 
