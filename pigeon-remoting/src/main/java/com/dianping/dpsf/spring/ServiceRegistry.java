@@ -11,24 +11,18 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
 /**
- * @deprecated 后续请使用spring的xml配置方式。务必！！新功能不再支持该方式了。
- *             pigeon的服务发布的spring配置入口。example: <bean
- *             class="com.dianping.dpsf.spring.ServiceRegistry"
- *             init-method="init"> <property name="port" value="6666" />
- *             <property name="services"> <map> <entry
- *             key="http://service.dianping.com/testService/echoService_1.0.0"
- *             value-ref="echoServiceImpl" /> </map> </property> </bean> <bean
- *             id="echoServiceImpl"
- *             class="com.dianping.pigeon.test.EchoServiceImpl"/>
+ * 
  * @author jianhuihuang
  * @version $Id: ServiceRegistry.java, v 0.1 2013-6-17 下午6:11:08 jianhuihuang
  *          Exp $
@@ -40,9 +34,13 @@ public final class ServiceRegistry {
 	private boolean publish = true;
 	private Map<String, Object> services;
 	private int port = ServerFactory.DEFAULT_PORT;
-	private int corePoolSize = RemotingConfigurer.getProviderCorePoolSize();
-	private int maxPoolSize = RemotingConfigurer.getProviderMaxPoolSize();
-	private int workQueueSize = RemotingConfigurer.getProviderWorkQueueSize();
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
+			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
+	private int maxPoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_MAXPOOLSIZE,
+			Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
+	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
+			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
 
 	public int getCorePoolSize() {
 		return corePoolSize;
@@ -89,7 +87,7 @@ public final class ServiceRegistry {
 		serverConfig.setCorePoolSize(corePoolSize);
 		serverConfig.setMaxPoolSize(maxPoolSize);
 		serverConfig.setWorkQueueSize(workQueueSize);
-		
+
 		List<ProviderConfig<?>> providerConfigList = new ArrayList<ProviderConfig<?>>();
 		for (String url : services.keySet()) {
 			ProviderConfig providerConfig = new ProviderConfig(services.get(url));
@@ -97,9 +95,9 @@ public final class ServiceRegistry {
 			providerConfig.setServerConfig(serverConfig);
 			providerConfigList.add(providerConfig);
 		}
-		
+
 		try {
-			ServiceFactory.registerServerConfig(serverConfig);
+			ServiceFactory.startupServer(serverConfig);
 			ServiceFactory.publishServices(providerConfigList);
 		} catch (RpcException e) {
 			throw new ServiceException("", e);

@@ -11,7 +11,7 @@
 
 	<bean id="echoServiceImpl" class="com.dianping.pigeon.test.service.EchoServiceImpl" />
 
-	<pigeon:server id="pigeonServer" port="3001"
+	<pigeon:server id="pigeonServer" port="4625"
 		corePoolSize="200" maxPoolSize="256" workQueueSize="200" />
 
 	<pigeon:service id="echoServiceNoUrl"

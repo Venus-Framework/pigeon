@@ -11,6 +11,8 @@ package com.dianping.pigeon.monitor;
  */
 public interface Monitor {
 
-	MonitorLogger createLogger();
+	void init();
+
+	public MonitorLogger getLogger();
 
 }

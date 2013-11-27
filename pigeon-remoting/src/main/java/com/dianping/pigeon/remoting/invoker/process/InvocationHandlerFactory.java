@@ -11,10 +11,12 @@ import java.util.Map;
 
 import com.dianping.pigeon.component.invocation.InvocationContext;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.DefaultExtension;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.process.filter.ContextPrepareInvokeFilter;
 import com.dianping.pigeon.remoting.invoker.process.filter.FailoverClusterInvokeFilter;
@@ -34,11 +36,15 @@ public final class InvocationHandlerFactory extends DefaultExtension {
 	private static ServiceInvocationHandler bizInvocationHandler = null;
 
 	private static ServiceInvocationHandler failOverInvocationHandler = null;
+	
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
+	private static boolean isMonitorEnabled = configManager.getBooleanValue(Constants.KEY_MONITOR_ENABLED, true);
+	
 	public static void init() {
 		registerInternalInvokeFilter(InvokePhase.Finalize, new GatewayInvokeFilter());
 		registerInternalInvokeFilter(InvokePhase.Cluster, new ServiceRouteInvokeFilter());
-		if (RemotingConfigurer.isMonitorEnabled()) {
+		if (isMonitorEnabled) {
 			registerInternalInvokeFilter(InvokePhase.Before_Call, new RemoteCallMonitorInvokeFilter());
 		}
 		registerInternalInvokeFilter(InvokePhase.Call, new ContextPrepareInvokeFilter());
@@ -50,7 +56,7 @@ public final class InvocationHandlerFactory extends DefaultExtension {
 		// TODO FIXME! 是否需要fail over可以让service invoke方配置决定
 		registerFailoverInvokeFilter(InvokePhase.Cluster, new FailoverClusterInvokeFilter());
 		/** TODO 重构：监控组件可配置 **/
-		if (RemotingConfigurer.isMonitorEnabled()) {
+		if (isMonitorEnabled) {
 			registerFailoverInvokeFilter(InvokePhase.Before_Call, new RemoteCallMonitorInvokeFilter());
 		}
 		registerFailoverInvokeFilter(InvokePhase.Call, new ContextPrepareInvokeFilter());

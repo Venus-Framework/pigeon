@@ -54,7 +54,7 @@ public class LoggerLoader {
 		String logLevel = "info";
 		String logSuffix = "default";
 		if(configManager != null) {
-			logLevel = configManager.getProperty("pigeon.log.defaultlevel", logLevel);
+			logLevel = configManager.getStringValue("pigeon.log.defaultlevel", logLevel);
 		}
 		
 		try {

@@ -15,12 +15,30 @@ public interface ConfigManager {
 
 	public String getEnv();
 
-	public String getAddress();
+	public String getConfigServerAddress();
 
-	public String getProperty(String key);
+	public String getStringValue(String key);
 
-	public String getProperty(String key, String defaultValue);
+	public String getStringValue(String key, String defaultValue);
+
+	public Integer getIntValue(String key);
+
+	public int getIntValue(String key, int defaultValue);
+
+	public Long getLongValue(String key);
+
+	public long getLongValue(String key, long defaultValue);
+
+	public Boolean getBooleanValue(String key);
+
+	public boolean getBooleanValue(String key, boolean defaultValue);
 
 	public void init(Properties properties);
+
+	public String getAppName();
+
+	public String getLocalIp();
+
+	public String getGroup();
 
 }

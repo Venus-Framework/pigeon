@@ -13,6 +13,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
 
 /**
@@ -27,7 +29,6 @@ public class EventManager {
 
 	private final Collection<RuntimeServiceListener> listeners = Collections
 			.synchronizedCollection(new ArrayList<RuntimeServiceListener>());
-	// 框架事件监听器
 
 	private final Object monitor = new Object();
 
@@ -36,6 +37,10 @@ public class EventManager {
 	private Thread asynchronizeEventProcessor;
 
 	private static EventManager instance = new EventManager();
+
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	public static boolean IS_EVENT_ENABLED = configManager.getBooleanValue("pigeon.event.enabled", true);
 
 	private EventManager() {
 		asynchronizeEventProcessor = new Thread(new AsynchronizeEventProcessor(), "Pigeon-Asynchronize-Event-Processor");

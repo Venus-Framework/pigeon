@@ -1,13 +1,13 @@
 package com.dianping.dpsf.api;
 
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
@@ -17,6 +17,8 @@ import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 public class ProxyFactory<IFACE> {
 
 	private static Logger logger = LoggerLoader.getLogger(ProxyFactory.class);
+
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	private String serviceName;
 
@@ -43,7 +45,8 @@ public class ProxyFactory<IFACE> {
 	/**
 	 * 是否对写Buffer限制大小(对于channel使用到的queue buffer的大小限制, 避免OutOfMemoryError)
 	 */
-	private boolean writeBufferLimit = RemotingConfigurer.getDefaultWriteBufferLimit();
+	private boolean writeBufferLimit = configManager.getBooleanValue(Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT,
+			Constants.DEFAULT_WRITE_BUFF_LIMIT);
 
 	private String loadBalance;
 

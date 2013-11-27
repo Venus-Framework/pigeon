@@ -7,8 +7,10 @@ package com.dianping.pigeon.remoting.invoker.process;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.process.event.ResponseEvent;
 import com.lmax.disruptor.BatchEventProcessor;
@@ -24,10 +26,13 @@ public class ResponseProcessor {
 	private SequenceBarrier sequenceBarrier;
 	private ResponseEventHandler handler;
 	private BatchEventProcessor<ResponseEvent> batchEventProcessor;
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	public ResponseProcessor() {
+		int maxPoolSize = configManager.getIntValue(Constants.KEY_INVOKER_MAXPOOLSIZE,
+				Constants.DEFAULT_INVOKER_MAXPOOLSIZE);
 		ringBuffer = new RingBuffer<ResponseEvent>(ResponseEvent.EVENT_FACTORY, new SingleThreadedClaimStrategy(
-				RemotingConfigurer.getInvokerMaxPoolSize()), new BlockingWaitStrategy());
+				maxPoolSize), new BlockingWaitStrategy());
 		sequenceBarrier = ringBuffer.newBarrier();
 		handler = new ResponseEventHandler();
 		batchEventProcessor = new BatchEventProcessor<ResponseEvent>(ringBuffer, sequenceBarrier, handler);

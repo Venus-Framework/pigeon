@@ -12,7 +12,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
@@ -36,13 +35,14 @@ public class InvokerConfig<T> {
 
 	private byte serialize = SerializerFactory.SERIALIZE_HESSIAN;
 
-	private int timeout = RemotingConfigurer.getInvokerTimeout();
+	private int timeout = configManager.getIntValue(Constants.KEY_INVOKER_TIMEOUT, Constants.DEFAULT_INVOKER_TIMEOUT);
 
 	private ServiceCallback callback;
 
-	private String group = configManager.getProperty(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
+	private String group = configManager.getStringValue(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
 
-	private boolean writeBufferLimit = RemotingConfigurer.getDefaultWriteBufferLimit();
+	private boolean writeBufferLimit = configManager.getBooleanValue(Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT,
+			Constants.DEFAULT_WRITE_BUFF_LIMIT);
 
 	private String loadbalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
 
@@ -54,7 +54,7 @@ public class InvokerConfig<T> {
 
 	private String vip;
 
-	private int maxRequests = RemotingConfigurer.getInvokerMaxRequests();
+	private int maxRequests = configManager.getIntValue(Constants.KEY_INVOKER_MAXREQUESTS, 0);
 
 	public int getMaxRequests() {
 		return maxRequests;

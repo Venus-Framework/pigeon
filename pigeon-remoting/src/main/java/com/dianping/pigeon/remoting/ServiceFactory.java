@@ -138,8 +138,12 @@ public class ServiceFactory {
 		return (T) service;
 	}
 
-	public static <T> void registerServerConfig(ServerConfig serverConfig) throws RpcException {
+	public static <T> void startupServer(ServerConfig serverConfig) throws RpcException {
 		ProviderBootStrap.startup(serverConfig);
+	}
+
+	public static <T> void shutdownServer() throws RpcException {
+		ProviderBootStrap.shutdown();
 	}
 
 	public static <T> void publishService(Class<T> serviceInterface, T service) throws RpcException {

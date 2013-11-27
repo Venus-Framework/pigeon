@@ -20,7 +20,6 @@ import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
-import com.dianping.pigeon.util.NetUtils;
 import com.dianping.pigeon.util.VersionUtils;
 
 /**
@@ -85,20 +84,16 @@ public final class ServiceProviderFactory {
 		}
 		if (!registerStatusCache.contains(providerConfig.getUrl())) {
 			try {
-				String autoRegister = configManager.getProperty(Constants.KEY_AUTO_REGISTER,
+				String autoRegister = configManager.getStringValue(Constants.KEY_AUTO_REGISTER,
 						Constants.DEFAULT_AUTO_REGISTER);
 				if ("true".equalsIgnoreCase(autoRegister)) {
-					String localip = RegistryManager.getInstance().getProperty(Constants.KEY_LOCAL_IP);
-					if (localip == null || localip.length() == 0) {
-						localip = NetUtils.getFirstLocalIp();
-					}
-					String serviceAddress = localip + ":" + providerConfig.getServerConfig().getPort();
-					String group = configManager.getProperty(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
+					String serviceAddress = configManager.getLocalIp() + ":"
+							+ providerConfig.getServerConfig().getPort();
+					String group = configManager.getGroup();
 					providerConfig.getServerConfig().setGroup(group);
-					String weight = configManager.getProperty(Constants.KEY_WEIGHT, Constants.DEFAULT_WEIGHT);
-					int intWeight = Integer.parseInt(weight);
+					int weight = configManager.getIntValue(Constants.KEY_WEIGHT, Constants.DEFAULT_WEIGHT);
 					RegistryManager.getInstance().registerService(providerConfig.getUrl(), group, serviceAddress,
-							intWeight);
+							weight);
 					registerStatusCache.put(providerConfig.getUrl(), true);
 				} else {
 					registerStatusCache.put(providerConfig.getUrl(), false);
@@ -115,11 +110,7 @@ public final class ServiceProviderFactory {
 		}
 		ProviderConfig providerConfig = serviceCache.get(url);
 		if (providerConfig != null) {
-			String localip = RegistryManager.getInstance().getProperty(Constants.KEY_LOCAL_IP);
-			if (localip == null || localip.length() == 0) {
-				localip = NetUtils.getFirstLocalIp();
-			}
-			String serviceAddress = localip + ":" + providerConfig.getServerConfig().getPort();
+			String serviceAddress = configManager.getLocalIp() + ":" + providerConfig.getServerConfig().getPort();
 			try {
 				RegistryManager.getInstance().unregisterService(url, providerConfig.getServerConfig().getGroup(),
 						serviceAddress);

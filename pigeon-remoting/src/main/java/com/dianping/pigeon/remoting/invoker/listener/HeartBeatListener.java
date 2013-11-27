@@ -21,9 +21,10 @@ import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.component.HostInfo;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -47,13 +48,26 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 	private final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	long heartBeatDeadCount = configManager.getLongValue(Constants.KEY_HEARTBEAT_DEADTHRESHOLD,
+			Constants.DEFAULT_HEARTBEAT_DEADCOUNT);
+	long heartBeatHealthCount = configManager.getLongValue(Constants.KEY_HEARTBEAT_HEALTHTHRESHOLD,
+			Constants.DEFAULT_HEARTBEAT_HEALTHCOUNT);
+	boolean isHeartBeatAutoPickOff = configManager.getBooleanValue(Constants.KEY_HEARTBEAT_AUTOPICKOFF,
+			Constants.DEFAULT_HEARTBEAT_AUTOPICKOFF);
+	String serviceNameSpace = configManager.getStringValue(Constants.KEY_SERVICE_NAMESPACE,
+			Constants.DEFAULT_SERVICE_NAMESPACE);
+	long interval = configManager.getLongValue(Constants.KEY_HEARTBEAT_INTERVAL, Constants.DEFAULT_HEARTBEAT_INTERVAL);
+	long heartBeatTimeout = configManager.getLongValue(Constants.KEY_HEARTBEAT_TIMEOUT,
+			Constants.DEFAULT_HEARTBEAT_TIMEOUT);
+
 	public void run() {
-		long sleepTime = RemotingConfigurer.getHeartBeatInterval();
+		long sleepTime = interval;
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				Thread.sleep(sleepTime);
 				long now = System.currentTimeMillis();
-				long heartBeatTimeout = RemotingConfigurer.getHeartBeatTimeout();
 				// 检查正在工作的Clients是否完好
 				if (this.workingClients != null) {
 					Set<Client> clientSet = new HashSet<Client>();
@@ -63,7 +77,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 							clientSet.addAll(clientList);
 						}
 					}
-					if(logger.isDebugEnabled()) {
+					if (logger.isDebugEnabled()) {
 						logger.debug("[heartbeat] clients:" + clientSet);
 					}
 					for (Client client : clientSet) {
@@ -87,7 +101,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 						}
 					}
 				}
-				sleepTime = RemotingConfigurer.getHeartBeatInterval() - (System.currentTimeMillis() - now);
+				sleepTime = interval - (System.currentTimeMillis() - now);
 			} catch (Exception e) {
 				logger.error("Do heartbeat task failed, detail[" + e.getMessage() + "].", e);
 			} finally {
@@ -149,7 +163,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	}
 
 	public void removeConnect(Client client) {
-		if(logger.isInfoEnabled()) {
+		if (logger.isInfoEnabled()) {
 			logger.info("[heartbeat] remove client:" + client);
 		}
 		for (Iterator<Entry<String, List<Client>>> iter = workingClients.entrySet().iterator(); iter.hasNext();) {
@@ -184,15 +198,15 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	private void notifyHeartBeatStatChanged(Client client) {
 		try {
 			HeartBeatStat heartStat = heartBeatStats.get(client.getAddress());
-			if (heartStat.succeedCounter.longValue() >= RemotingConfigurer.getHeartBeatHealthCount()) {
+			if (heartStat.succeedCounter.longValue() >= heartBeatHealthCount) {
 				if (!client.isActive()) {
 					client.setActive(true);
 					logger.error("@service-activate:" + client.getAddress() + ", servicename:" + getServiceName(client));
 				}
 				heartStat.resetCounter();
-			} else if (heartStat.failedCounter.longValue() >= RemotingConfigurer.getHeartBeatDeadCount()) {
+			} else if (heartStat.failedCounter.longValue() >= heartBeatDeadCount) {
 				if (client.isActive()) {
-					if (RemotingConfigurer.isHeartBeatAutoPickOff() && canPickOff(client)) {
+					if (isHeartBeatAutoPickOff && canPickOff(client)) {
 						client.setActive(false);
 						logger.error("@service-deactivate:" + client.getAddress());
 					} else {
@@ -211,7 +225,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 		for (Iterator<Entry<String, List<Client>>> iter = workingClients.entrySet().iterator(); iter.hasNext();) {
 			Entry<String, List<Client>> entry = iter.next();
 			if (entry.getValue() != null && entry.getValue().contains(client)) {
-				return StringUtils.substringBetween(entry.getKey(), RemotingConfigurer.getServiceNameSpace(), "/");
+				return StringUtils.substringBetween(entry.getKey(), serviceNameSpace, "/");
 			}
 		}
 		return "unknown";

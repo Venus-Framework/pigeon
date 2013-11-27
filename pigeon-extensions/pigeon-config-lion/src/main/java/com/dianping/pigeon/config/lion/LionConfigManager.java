@@ -4,8 +4,6 @@
  */
 package com.dianping.pigeon.config.lion;
 
-import java.util.Properties;
-
 import org.apache.log4j.Logger;
 
 import com.dianping.lion.EnvZooKeeperConfig;
@@ -21,8 +19,6 @@ import com.dianping.pigeon.monitor.LoggerLoader;
 public class LionConfigManager extends AbstractConfigManager {
 
 	private static Logger logger = LoggerLoader.getLogger(LionConfigManager.class);
-	
-	Properties localCache = new Properties();
 
 	/*
 	 * (non-Javadoc)
@@ -31,44 +27,36 @@ public class LionConfigManager extends AbstractConfigManager {
 	 * com.dianping.pigeon.config.ConfigManager#getProperty(java.lang.String)
 	 */
 	@Override
-	public String getProperty(String key) {
-		if(localCache.containsKey(key)) {
-			if(logger.isInfoEnabled()) {
-				logger.info("read from local cache with key[" + key + "]");
-			}
-			return "" + localCache.get(key);
-		}
-		if(logger.isInfoEnabled()) {
-			logger.info("try to read from lion with key[" + key + "]");
-		}
-		try {
-			String configVal = ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress()).getProperty(key);
-			if (configVal != null) {
-				return configVal.toString();
-			} else {
-				logger.error("config[key=" + key + "] not found in config server[lion].");
-			}
-		} catch (Exception e) {
-			logger.error("error while reading property[" + key + "]:" + e.getMessage());
-		}
-		return null;
+	public String doGetProperty(String key) throws Exception {
+		return ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress()).getProperty(key);
 	}
 
-	public String getEnv() {
-		return EnvZooKeeperConfig.getEnv();
-	}
-
-	public String getAddress() {
+	public String getConfigServerAddress() {
 		return EnvZooKeeperConfig.getZKAddress();
 	}
 
-	@Override
-	public void init(Properties properties) {
-		localCache.putAll(properties);
-//		try {
-//			ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress()).setPts(properties);
-//		} catch (LionException e) {
-//			throw new RuntimeException("init lion config manager failed", e);
-//		}
+	public String doGetEnv() {
+		return EnvZooKeeperConfig.getEnv();
 	}
+
+	@Override
+	public String doGetAppName() {
+		return "";
+	}
+
+	@Override
+	public String doGetLocalIp() {
+		return null;
+	}
+
+	@Override
+	public String doGetGroup() {
+		return "";
+	}
+
+	@Override
+	public String doGetLocalProperty(String key) throws Exception {
+		return null;
+	}
+
 }

@@ -36,7 +36,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 		MonitorTransaction transaction = null;
 		MonitorLogger monitorLogger = null;
 		if (monitor != null) {
-			monitorLogger = monitor.createLogger();
+			monitorLogger = monitor.getLogger();
 		}
 		if (monitorLogger != null) {
 			InvocationRequest request = invocationContext.getRequest();

@@ -7,7 +7,6 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.event.RuntimeServiceEvent;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.RpcInvokeInfo;
@@ -20,7 +19,7 @@ public abstract class InvocationInvokeFilter implements ServiceInvocationFilter<
 	}
 
 	public void beforeInvoke(InvocationRequest request, String addressIp) {
-		if (RemotingConfigurer.isEventEnabled()) {
+		if (EventManager.IS_EVENT_ENABLED) {
 			RpcInvokeInfo rpcInvokeInfo = new RpcInvokeInfo();
 			rpcInvokeInfo.setServiceName(request.getServiceName());
 			rpcInvokeInfo.setAddressIp(addressIp);
@@ -32,7 +31,7 @@ public abstract class InvocationInvokeFilter implements ServiceInvocationFilter<
 	}
 
 	public void afterInvoke(InvocationRequest request, Client client) {
-		if (RemotingConfigurer.isEventEnabled()) {
+		if (EventManager.IS_EVENT_ENABLED) {
 			RpcInvokeInfo rpcInvokeInfo = new RpcInvokeInfo();
 			rpcInvokeInfo.setServiceName(request.getServiceName());
 			long duration = System.currentTimeMillis() - request.getCreateMillisTime();

@@ -8,11 +8,11 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.ServiceException;
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
-import com.dianping.pigeon.remoting.common.exception.RpcException;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
@@ -21,9 +21,13 @@ public class ServerBean {
 	private static final Logger logger = LoggerLoader.getLogger(ServerBean.class);
 
 	private int port = ServerFactory.DEFAULT_PORT;
-	private int corePoolSize = RemotingConfigurer.getProviderCorePoolSize();
-	private int maxPoolSize = RemotingConfigurer.getProviderMaxPoolSize();
-	private int workQueueSize = RemotingConfigurer.getProviderWorkQueueSize();
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
+			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
+	private int maxPoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_MAXPOOLSIZE,
+			Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
+	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
+			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
 	private String group;
 
 	public int getPort() {
@@ -72,7 +76,7 @@ public class ServerBean {
 		serverConfig.setCorePoolSize(corePoolSize);
 		serverConfig.setMaxPoolSize(maxPoolSize);
 		serverConfig.setWorkQueueSize(workQueueSize);
-		ServiceFactory.registerServerConfig(serverConfig);
+		ServiceFactory.startupServer(serverConfig);
 	}
 
 	@Override

@@ -30,7 +30,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		if (monitor != null) {
 			InvokerConfig metaData = invocationContext.getInvokerConfig();
 			Method method = invocationContext.getMethod();
-			logger = monitor.createLogger();
+			logger = monitor.getLogger();
 			if (logger != null) {
 				try {
 					transaction = logger.createTransaction(
@@ -44,7 +44,6 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						Client client = invocationContext.getClient();
 
 						logger.logEvent("PigeonCall.server", client.getAddress(),
-						// JSON.toJSONString(invocationContext.getArguments()));
 								Stringizers.forJson().from(invocationContext.getArguments(), 1000, 50));
 
 						transaction.readMonitorContext();

@@ -14,8 +14,10 @@ import java.util.concurrent.ConcurrentMap;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetException;
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
 
@@ -27,16 +29,19 @@ public class ReconnectListener implements Runnable, ClusterListener {
 
 	private final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
 	private Map<String, List<Client>> workingClients;
 
 	@Override
 	public void run() {
-		long sleepTime = RemotingConfigurer.getReconnectInterval();
+		long interval = configManager.getLongValue(Constants.KEY_RECONNECT_INTERVAL,
+				Constants.DEFAULT_RECONNECT_INTERVAL);
+		long sleepTime = interval;
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				Thread.sleep(sleepTime);
 				long now = System.currentTimeMillis();
-				// 连接已经断开的Clients， TODO， 这个循环写的。。。
 				Set<String> toRemovedConnect = new HashSet<String>();
 				if (logger.isDebugEnabled()) {
 					logger.debug("[reconnect] clients:" + closedClients);
@@ -60,7 +65,7 @@ public class ReconnectListener implements Runnable, ClusterListener {
 				for (String connect : toRemovedConnect) {
 					closedClients.remove(connect);
 				}
-				sleepTime = RemotingConfigurer.getReconnectInterval() - (System.currentTimeMillis() - now);
+				sleepTime = interval - (System.currentTimeMillis() - now);
 			} catch (Exception e) {
 				logger.error("Do reconnect task failed, detail[" + e.getMessage() + "].", e);
 			} finally {

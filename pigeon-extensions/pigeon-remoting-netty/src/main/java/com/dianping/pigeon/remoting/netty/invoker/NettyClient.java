@@ -20,10 +20,11 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
 import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.event.RuntimeServiceEvent;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.AbstractClient;
@@ -62,6 +63,8 @@ public class NettyClient extends AbstractClient {
 
 	private ConnectInfo connectInfo;
 
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
 	public static final int CLIENT_CONNECTIONS = Runtime.getRuntime().availableProcessors();
 
 	public NettyClient(ConnectInfo cmd) {
@@ -78,8 +81,10 @@ public class NettyClient extends AbstractClient {
 				Constants.THREADNAME_CLIENT_NETTY_WORKER_EXECUTOR));
 
 		this.bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(bossExecutor, workExecutor));
-		this.bootstrap.setOption("writeBufferHighWaterMark", RemotingConfigurer.getWriteBufferHighWater());
-		this.bootstrap.setOption("writeBufferLowWaterMark", RemotingConfigurer.getWriteBufferLowWater());
+		this.bootstrap.setOption("writeBufferHighWaterMark", configManager.getIntValue(
+				Constants.KEY_WRITE_BUFFER_HIGH_WATER, Constants.DEFAULT_WRITE_BUFFER_HIGH_WATER));
+		this.bootstrap.setOption("writeBufferLowWaterMark", configManager.getIntValue(
+				Constants.KEY_WRITE_BUFFER_LOW_WATER, Constants.DEFAULT_WRITE_BUFFER_LOW_WATER));
 		this.bootstrap.setPipelineFactory(new NettyClientPipelineFactory(this));
 		this.bootstrap.setOption("tcpNoDelay", true);
 		this.bootstrap.setOption("keepAlive", true);
@@ -150,7 +155,7 @@ public class NettyClient extends AbstractClient {
 	}
 
 	private void error(InvocationRequest request, Client client) {
-		if (RemotingConfigurer.isEventEnabled()) {
+		if (EventManager.IS_EVENT_ENABLED) {
 			RpcInvokeInfo rpcInvokeInfo = new RpcInvokeInfo();
 			rpcInvokeInfo.setServiceName(request.getServiceName());
 			rpcInvokeInfo.setAddressIp(client.getAddress());

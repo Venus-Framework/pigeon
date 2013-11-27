@@ -6,7 +6,9 @@ package com.dianping.pigeon.remoting.invoker;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.invoker.process.InvocationHandlerFactory;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
@@ -28,6 +30,10 @@ public final class InvokerBootStrap {
 					RegistryConfigLoader.init();
 					ServiceInvocationRepository.getInstance().init();
 					InvocationHandlerFactory.init();
+					Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
+					if(monitor != null) {
+						monitor.init();
+					}
 					isStartup = true;
 					if (logger.isInfoEnabled()) {
 						logger.info("pigeon client[version:" + VersionUtils.VERSION + "] has been started");

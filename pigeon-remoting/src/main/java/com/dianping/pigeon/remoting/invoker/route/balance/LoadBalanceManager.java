@@ -9,8 +9,10 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 /**
@@ -23,10 +25,15 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 public class LoadBalanceManager {
 
 	public static final String DEFAULT_LOADBALANCE = RoundRobinLoadBalance.NAME;
-	
+
 	private static final Logger logger = LoggerLoader.getLogger(LoadBalanceManager.class);
 
 	private static Map<String, LoadBalance> loadBalanceMap = new HashMap<String, LoadBalance>();
+
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	private static String loadBalanceFromConfigServer = configManager.getStringValue(Constants.KEY_LOADBALANCE,
+			DEFAULT_LOADBALANCE);
 
 	private static volatile int errorLogSeed = 0;
 
@@ -68,14 +75,13 @@ public class LoadBalanceManager {
 			return loadBalance;
 		}
 
-		String balanceConfigFromLion = RemotingConfigurer.getLoadBalance();
-		if (balanceConfigFromLion != null) {
-			LoadBalance balanceFromLion = loadBalanceMap.get(balanceConfigFromLion);
-			if (balanceFromLion != null) {
-				loadBalanceMap.put(metaData.getLoadbalance(), balanceFromLion);
-				return balanceFromLion;
+		if (loadBalanceFromConfigServer != null) {
+			loadBalance = loadBalanceMap.get(loadBalanceFromConfigServer);
+			if (loadBalance != null) {
+				loadBalanceMap.put(metaData.getLoadbalance(), loadBalance);
+				return loadBalance;
 			} else {
-				logError("Loadbalance[" + balanceConfigFromLion + "] set in lion is invalid, only support "
+				logError("the loadbalance[" + loadBalanceFromConfigServer + "] is invalid, only support "
 						+ loadBalanceMap.keySet() + ".", null);
 			}
 		}
@@ -97,8 +103,8 @@ public class LoadBalanceManager {
 		} else {
 			if (loadBalance instanceof String) {
 				if (!loadBalanceMap.containsKey(loadBalance)) {
-					throw new RuntimeException("Loadbalance[" + loadBalance + "] registered by service["
-							+ serviceId + "] is not supported.");
+					throw new RuntimeException("Loadbalance[" + loadBalance + "] registered by service[" + serviceId
+							+ "] is not supported.");
 				}
 				loadBlanceObj = loadBalanceMap.get(loadBalance);
 			} else if (loadBalance instanceof Class) {
@@ -106,8 +112,8 @@ public class LoadBalanceManager {
 				try {
 					loadBlanceObj = loadBalanceClass.newInstance();
 				} catch (Exception e) {
-					throw new RuntimeException("Register loadbalance[service=" + serviceId + ", class="
-							+ loadBalance + "] failed.", e);
+					throw new RuntimeException("Register loadbalance[service=" + serviceId + ", class=" + loadBalance
+							+ "] failed.", e);
 				}
 			}
 		}

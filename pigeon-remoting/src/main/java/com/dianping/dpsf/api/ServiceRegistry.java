@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.dianping.dpsf.exception.ServiceException;
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
@@ -32,9 +34,10 @@ public class ServiceRegistry {
 	private Map<String, Object> services;
 	private int port = 20000;
 	public static boolean isInit = false;
-	private int corePoolSize = RemotingConfigurer.getProviderCorePoolSize();
-	private int maxPoolSize = RemotingConfigurer.getProviderMaxPoolSize();
-	private int workQueueSize = RemotingConfigurer.getProviderWorkQueueSize();
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE, Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
+	private int maxPoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_MAXPOOLSIZE, Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
+	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE, Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
 
 	public ServiceRegistry() {
 
@@ -60,7 +63,7 @@ public class ServiceRegistry {
 		}
 
 		try {
-			ServiceFactory.registerServerConfig(serverConfig);
+			ServiceFactory.startupServer(serverConfig);
 			ServiceFactory.publishServices(providerConfigList);
 		} catch (RpcException e) {
 			throw new ServiceException("", e);

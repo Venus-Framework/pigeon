@@ -10,7 +10,8 @@ public class SingleServer {
 
 	public static void main(String[] args) throws Exception {
 		SpringLoader.startupProvider();
-		System.in.read();
+		//System.in.read();
+		Thread.currentThread().join();
 	}
 
 }

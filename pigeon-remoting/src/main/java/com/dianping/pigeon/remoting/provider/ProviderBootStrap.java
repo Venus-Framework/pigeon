@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.listener.ShutdownHookListener;
@@ -29,6 +30,10 @@ public final class ProviderBootStrap {
 					serverConfig.setPort(availablePort);
 					RegistryConfigLoader.init();
 					RequestProcessHandlerFactory.init();
+					Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
+					if(monitor != null) {
+						monitor.init();
+					}
 					server = ExtensionLoader.getExtension(ServerFactory.class).createServer(availablePort);
 					if (server != null) {
 						server.start(serverConfig);

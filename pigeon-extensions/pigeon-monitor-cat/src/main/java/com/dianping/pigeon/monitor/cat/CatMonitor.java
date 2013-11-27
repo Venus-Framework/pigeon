@@ -16,18 +16,29 @@ import com.dianping.pigeon.monitor.MonitorLogger;
  */
 public class CatMonitor implements Monitor {
 
-	CatLogger logger = new CatLogger(null);
+	CatLogger innerLogger = new CatLogger(null);
+	MonitorLogger logger = null;
 
-	@Override
 	public MonitorLogger createLogger() {
 		MessageProducer cat = null;
 		try {
 			cat = Cat.getProducer();
 			return new CatLogger(cat);
 		} catch (Exception e2) {
-			logger.logMonitorError(e2);
+			innerLogger.logMonitorError(e2);
 		}
 		return null;
 	}
 
+	@Override
+	public void init() {
+		logger = createLogger();
+	}
+
+	public MonitorLogger getLogger() {
+		if (logger == null) {
+			return createLogger();
+		}
+		return logger;
+	}
 }

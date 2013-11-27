@@ -8,8 +8,9 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.springframework.beans.factory.FactoryBean;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
@@ -18,19 +19,13 @@ import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 
 /**
  * 
- * 请使用pigeon2.0的配置方式，后续新功能不再支持该配置方式，请尽快升级。 引用服务的入口，一般配置如下: <bean
- * id="echoService" class="com.dianping.dpsf.spring.ProxyBeanFactory"
- * init-method="init"> <property name="serviceName"
- * value="http://service.dianping.com/testService/echoService_1.0.0" />
- * <property name="iface" value="com.dianping.pigeon.test.EchoService" />
- * <property name="serialize" value="hessian" /> <property name="callMethod"
- * value="sync" /> <property name="timeout" value="5000" /> </bean>
- * 
  * @author jianhuihuang
  * @version $Id: ProxyBeanFactory.java, v 0.1 2013-6-18 上午11:13:51 jianhuihuang
  *          Exp $
  */
 public class ProxyBeanFactory implements FactoryBean {
+
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	/**
 	 * @deprecated 兼容pigein1.x
@@ -97,7 +92,7 @@ public class ProxyBeanFactory implements FactoryBean {
 	@SuppressWarnings("unused")
 	private String weight;
 
-	private int timeout = RemotingConfigurer.getInvokerTimeout();
+	private int timeout = configManager.getIntValue(Constants.KEY_INVOKER_TIMEOUT, Constants.DEFAULT_INVOKER_TIMEOUT);
 
 	private Object obj;
 
@@ -137,7 +132,8 @@ public class ProxyBeanFactory implements FactoryBean {
 	/**
 	 * 是否对写Buffer限制大小(对于channel使用到的queue buffer的大小限制, 避免OutOfMemoryError)
 	 */
-	private boolean writeBufferLimit = RemotingConfigurer.getDefaultWriteBufferLimit();
+	private boolean writeBufferLimit = configManager.getBooleanValue(Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT,
+			Constants.DEFAULT_WRITE_BUFF_LIMIT);
 
 	public String getLoadbalance() {
 		return loadbalance;

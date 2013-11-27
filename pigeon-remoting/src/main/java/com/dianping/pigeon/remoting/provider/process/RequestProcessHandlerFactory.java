@@ -13,8 +13,9 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.invocation.InvocationContext;
 import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.LoggerLoader;
-import com.dianping.pigeon.remoting.common.config.RemotingConfigurer;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -46,6 +47,10 @@ public final class RequestProcessHandlerFactory {
 
 	private static ServiceInvocationHandler echoInvocationHandler = null;
 
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	private static boolean isMonitorEnabled = configManager.getBooleanValue(Constants.KEY_MONITOR_ENABLED, true);
+
 	public static ServiceInvocationHandler selectInvocationHandler(int messageType) {
 		if (Constants.MESSAGE_TYPE_HEART == messageType) {
 			return heartBeatInvocationHandler;
@@ -57,7 +62,7 @@ public final class RequestProcessHandlerFactory {
 	}
 
 	public static void init() {
-		if (RemotingConfigurer.isMonitorEnabled()) {
+		if (isMonitorEnabled) {
 			registerBizProcessFilter(ProcessPhase.Before_Write, new MonitorProcessFilter());
 		}
 		registerBizProcessFilter(ProcessPhase.Write, new WriteResponseProcessFilter());
