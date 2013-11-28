@@ -17,7 +17,13 @@ public class EchoServiceImpl implements EchoService {
 	
 	@Override
 	public String echo(String input) {
-		//System.out.println("received: " + input);
+		if(input.equals("15000")) {
+			System.out.println("sleep......");
+			try {
+				Thread.currentThread().sleep(10000);
+			} catch (InterruptedException e) {
+			}
+		}
 		return "echo:" + input;
 	}
 
