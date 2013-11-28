@@ -15,7 +15,12 @@ import com.lmax.disruptor.EventHandler;
 public class RequestEventHandler implements EventHandler<RequestEvent> {
 
 	private static final Logger logger = LoggerLoader.getLogger(RequestEventHandler.class);
-
+	private String name;
+	
+	public RequestEventHandler(String name) {
+		this.name = name;
+	}
+	
 	public void onEvent(RequestEvent event, long sequence, boolean endOfBatch) throws Exception {
 		ProviderContext providerContext = event.getProviderContext();
 		ServiceInvocationHandler invocationHandler = RequestProcessHandlerFactory

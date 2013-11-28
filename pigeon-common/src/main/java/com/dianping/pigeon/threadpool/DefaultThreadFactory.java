@@ -20,7 +20,7 @@ public class DefaultThreadFactory implements ThreadFactory {
 	final AtomicInteger threadNumber;
 	final ThreadGroup group;
 	final String namePrefix;
-	final boolean isDaemon;
+	boolean isDaemon = true;
 
 	public DefaultThreadFactory() {
 		this("Default-Pool");
@@ -49,9 +49,9 @@ public class DefaultThreadFactory implements ThreadFactory {
 				-3715992351445876736L);
 
 		t.setDaemon(this.isDaemon);// why? TODO
-		if (t.getPriority() != 5) {
-			t.setPriority(5);
-		}
+//		if (t.getPriority() != 5) {
+//			t.setPriority(5);
+//		}
 
 		return t;
 	}
