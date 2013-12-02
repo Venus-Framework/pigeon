@@ -67,11 +67,10 @@ public class DefaultTest extends BaseInvokerTest {
 				String msg = null;
 				try {
 					// Thread.sleep(1000);
-					msg = System.currentTimeMillis() + "" + Math.abs(RandomUtils.nextLong());
-					String echo = service.echo(msg);
+					long count = counter.addAndGet(1);
+					String echo = service.echo(count + "");
 					// System.out.println(echo);
 					// Assert.assertEquals("echo:" + msg, echo);
-					long count = counter.addAndGet(1);
 					int size = 10000;
 					if (count % size == 0) {
 						long now = System.currentTimeMillis();

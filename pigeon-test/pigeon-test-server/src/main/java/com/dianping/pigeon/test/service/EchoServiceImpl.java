@@ -4,6 +4,10 @@
  */
 package com.dianping.pigeon.test.service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -14,16 +18,26 @@ import com.dianping.pigeon.util.NetUtils;
 public class EchoServiceImpl implements EchoService {
 
 	Logger logger = LoggerLoader.getLogger(EchoServiceImpl.class);
-	
+
 	@Override
 	public String echo(String input) {
-		if(input.equals("15000")) {
+		// String tname1 = Thread.currentThread().getName();
+		if (input.equals("200000")) {
 			System.out.println("sleep......");
 			try {
 				Thread.currentThread().sleep(10000);
 			} catch (InterruptedException e) {
 			}
 		}
+		// try {
+		// Thread.currentThread().sleep(100);
+		// } catch (InterruptedException e) {
+		// }
+		// String tname2 = Thread.currentThread().getName();
+		// if (!tname1.equals(tname2)) {
+		// System.out.println(input + ",t1:" + tname1 + ",t2:" + tname2);
+		// }
+
 		return "echo:" + input;
 	}
 

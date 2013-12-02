@@ -199,8 +199,8 @@
 				<version>${pigeon.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.dianping</groupId>
-				<artifactId>pigeon</artifactId>
+				<groupId>com.dianping.dpsf</groupId>
+				<artifactId>dpsf-net</artifactId>
 				<version>${pigeon.version}</version>
 			</dependency>
 		</dependencies>

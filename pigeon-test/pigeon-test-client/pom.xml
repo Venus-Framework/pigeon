@@ -29,8 +29,8 @@
 			<artifactId>spring-context</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.dianping</groupId>
-			<artifactId>pigeon</artifactId>
+			<groupId>com.dianping.dpsf</groupId>
+			<artifactId>dpsf-net</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.dianping.cat</groupId>

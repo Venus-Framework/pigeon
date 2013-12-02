@@ -5,7 +5,6 @@ package com.dianping.pigeon.test.client.benchmark.call;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Test;
 import org.springframework.util.Assert;
 
@@ -21,7 +20,7 @@ import com.dianping.pigeon.test.service.EchoService;
  */
 public class DefaultTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(callMethod = "sync", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 1000)
+	@PigeonAutoTest(callMethod = "sync", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
 	public EchoService echoService;
 
 	static AtomicLong counter = new AtomicLong(0);
@@ -60,7 +59,7 @@ public class DefaultTest extends BaseInvokerTest {
 			while (true) {
 				String msg = null;
 				try {
-					//Thread.sleep(2);
+					//Thread.sleep(5);
 					//msg = System.currentTimeMillis() + "" + Math.abs(RandomUtils.nextLong());
 					// System.out.println(echo);
 					// Assert.assertEquals("echo:" + msg, echo);
