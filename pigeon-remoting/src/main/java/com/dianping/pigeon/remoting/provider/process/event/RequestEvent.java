@@ -5,7 +5,6 @@
 package com.dianping.pigeon.remoting.provider.process.event;
 
 import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
-import com.lmax.disruptor.EventFactory;
 
 public class RequestEvent {
 
@@ -19,9 +18,4 @@ public class RequestEvent {
 		this.providerContext = providerContext;
 	}
 
-	public final static EventFactory<RequestEvent> EVENT_FACTORY = new EventFactory<RequestEvent>() {
-		public RequestEvent newInstance() {
-			return new RequestEvent();
-		}
-	};
 }

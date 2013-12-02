@@ -119,6 +119,7 @@ public final class Constants {
 	public static final String KEY_PROVIDER_WORKQUEUESIZE = "pigeon.provider.workQueueSize";
 	public static final String KEY_INVOKER_MAXPOOLSIZE = "pigeon.invoker.maxPoolSize";
 	public static final String KEY_INVOKER_TIMEOUT = "pigeon.invoker.timeout";
+	public static final String KEY_PROCESS_TYPE = "pigeon.process.type";
 
 	public static final int DEFAULT_INVOKER_TIMEOUT = 2000;
 	public static final int DEFAULT_PROVIDER_COREPOOLSIZE = 100;
@@ -135,4 +136,5 @@ public final class Constants {
 	public static final int DEFAULT_WRITE_BUFFER_HIGH_WATER = 35 * 1024 * 1024;
 	public static final int DEFAULT_WRITE_BUFFER_LOW_WATER = 25 * 1024 * 1024;
 	public static final boolean DEFAULT_WRITE_BUFF_LIMIT = false;
+	public static final String DEFAULT_PROCESS_TYPE = "threadpool";
 }

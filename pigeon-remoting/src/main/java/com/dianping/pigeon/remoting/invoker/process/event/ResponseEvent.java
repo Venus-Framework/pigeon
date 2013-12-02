@@ -6,7 +6,6 @@ package com.dianping.pigeon.remoting.invoker.process.event;
 
 import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.lmax.disruptor.EventFactory;
 
 public class ResponseEvent {
 
@@ -29,9 +28,4 @@ public class ResponseEvent {
 		this.client = client;
 	}
 
-	public final static EventFactory<ResponseEvent> EVENT_FACTORY = new EventFactory<ResponseEvent>() {
-		public ResponseEvent newInstance() {
-			return new ResponseEvent();
-		}
-	};
 }

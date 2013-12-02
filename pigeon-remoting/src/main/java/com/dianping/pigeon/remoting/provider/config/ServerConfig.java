@@ -23,6 +23,16 @@ public class ServerConfig {
 	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
 			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
 	private String group;
+	private String processType = configManager.getStringValue(Constants.KEY_PROCESS_TYPE,
+			Constants.DEFAULT_PROCESS_TYPE);
+
+	public String getProcessType() {
+		return processType;
+	}
+
+	public void setProcessType(String processType) {
+		this.processType = processType;
+	}
 
 	public String getGroup() {
 		return group;

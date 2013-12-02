@@ -44,6 +44,10 @@
 			<artifactId>disruptor</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-actor_${scala.version}</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.dianping</groupId>
 			<artifactId>pigeon-common</artifactId>
 		</dependency>

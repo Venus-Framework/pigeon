@@ -7,6 +7,7 @@ import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
+import com.dianping.pigeon.remoting.provider.process.RequestProcessorFactory;
 
 public abstract class AbstractServer implements Server {
 
@@ -22,7 +23,7 @@ public abstract class AbstractServer implements Server {
 		if (logger.isInfoEnabled()) {
 			logger.info("server config:" + serverConfig);
 		}
-		requestProcessor = new RequestProcessor(serverConfig);
+		requestProcessor = RequestProcessorFactory.selectProcessor(serverConfig);
 		doStart(serverConfig);
 		this.serverConfig = serverConfig;
 	}
