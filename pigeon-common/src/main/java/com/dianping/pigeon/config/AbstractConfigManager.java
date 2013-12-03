@@ -12,7 +12,6 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.util.NetUtils;
 
 /**
@@ -22,7 +21,7 @@ import com.dianping.pigeon.util.NetUtils;
  */
 public abstract class AbstractConfigManager implements ConfigManager {
 
-	private static Logger logger = LoggerLoader.getLogger(AbstractConfigManager.class);
+	private static Logger logger = Logger.getLogger(AbstractConfigManager.class);
 
 	public static final String KEY_GROUP = "swimlane";
 	public static final String KEY_AUTO_REGISTER = "auto.register";
