@@ -113,8 +113,11 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	}
 
 	private boolean hasHeartBeatRequestExists(String connect) {
-		HeartBeatStat heartBeatStat = heartBeatStats.get(connect);
-		return heartBeatStat != null && heartBeatStat.currentHeartRequest != null;
+		if(connect != null) {
+			HeartBeatStat heartBeatStat = heartBeatStats.get(connect);
+			return heartBeatStat != null && heartBeatStat.currentHeartRequest != null;
+		}
+		return false;
 	}
 
 	private boolean isHeartRequestTimeout(InvocationRequest heartRequest, long heartBeatTimeout) {
