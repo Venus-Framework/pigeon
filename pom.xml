@@ -190,6 +190,11 @@
 			</dependency>
 			<dependency>
 				<groupId>com.dianping</groupId>
+				<artifactId>pigeon-rpc</artifactId>
+				<version>${pigeon.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.dianping</groupId>
 				<artifactId>pigeon-monitor-cat</artifactId>
 				<version>${pigeon.version}</version>
 			</dependency>
