@@ -165,7 +165,6 @@ public class DefaultClusterListener implements ClusterListener {
 				}
 			}
 		}
-
 	}
 
 	@Override

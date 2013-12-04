@@ -83,9 +83,6 @@ public class EventManager {
 	}
 
 	public void publishEvent(RuntimeServiceEvent event) {
-		if (log.isDebugEnabled()) {
-			log.debug("运行时事件 - " + event);
-		}
 		synchronized (monitor) {
 			for (RuntimeServiceListener listener : listeners) {
 				if (listener.support(event)) {
@@ -99,9 +96,6 @@ public class EventManager {
 	}
 
 	public void postEvent(RuntimeServiceEvent event) {
-		if (log.isDebugEnabled()) {
-			log.debug("异步处理事件 - " + event);
-		}
 		eventQueue.offer(event);
 	}
 

@@ -21,6 +21,7 @@ public class EchoServiceImpl implements EchoService {
 
 	@Override
 	public String echo(String input) {
+		System.out.println(input);
 		// String tname1 = Thread.currentThread().getName();
 		if (input.equals("200000")) {
 			System.out.println("sleep......");

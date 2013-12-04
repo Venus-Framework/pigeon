@@ -48,9 +48,8 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 
 	public Client route(List<Client> clientList, InvokerConfig metaData, InvocationRequest request) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Routing from: ");
 			for (Client client : clientList) {
-				logger.debug("当前可用的IP地址列表：\t" + client.getAddress());
+				logger.debug("available service provider：\t" + client.getAddress());
 			}
 		}
 		Boolean isWriteBufferLimit = (Boolean) request.getAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT);

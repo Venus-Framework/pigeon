@@ -11,7 +11,7 @@
 
 	<bean id="echoServiceImpl" class="com.dianping.pigeon.test.service.EchoServiceImpl" />
 
-<bean class="com.dianping.dpsf.spring.ServiceRegistry"
+	<bean class="com.dianping.dpsf.spring.ServiceRegistry"
 		init-method="init">
 		<property name="port" value="4625" />
 		<property name="services">
@@ -21,14 +21,10 @@
 			</map>
 		</property>
 	</bean>
-	
-	<!-- <pigeon:server id="pigeonServer" port="4625" />
 
-	<pigeon:service id="echoServiceNoUrl"
-		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl" />
-
-	<pigeon:service id="echoService"
-		url="http://service.dianping.com/testService/echoService_1.0.0"
-		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl" />
- -->
+	<!-- <pigeon:server id="pigeonServer" port="4625" /> <pigeon:service id="echoServiceNoUrl" 
+		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl" 
+		/> <pigeon:service id="echoService" url="http://service.dianping.com/testService/echoService_1.0.0" 
+		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl" 
+		/> -->
 </beans>
