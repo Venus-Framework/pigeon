@@ -126,8 +126,8 @@ public class ServiceFactory {
 						new Class[] { invokerConfig.getServiceInterface() },
 						new ServiceInvocationProxy(invokerConfig, InvocationHandlerFactory
 								.createInvokeHandler(invokerConfig)));
-				ClientManager.getInstance().findAndRegisterClientFor(invokerConfig.getUrl(), invokerConfig.getGroup(),
-						invokerConfig.getVip());
+//				ClientManager.getInstance().findAndRegisterClientFor(invokerConfig.getUrl(), invokerConfig.getGroup(),
+//						invokerConfig.getVip());
 			} catch (Throwable t) {
 				throw new RpcException("error while trying to get service:" + invokerConfig, t);
 			}

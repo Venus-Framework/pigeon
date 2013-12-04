@@ -11,16 +11,13 @@
 		<property name="propertiesPath" value="config/applicationContext.properties" 
 		/> </bean> -->
 
+	<bean id="echoServiceServiceCallback"
+		class="com.dianping.pigeon.test.service.EchoServiceCallbackImpl" />
+
 	<pigeon:reference id="echoServiceXml"
 		url="http://service.dianping.com/testService/echoServiceXml_1.0.0"
 		interface="com.dianping.pigeon.test.service.EchoService" />
 
-	<pigeon:reference id="echoServiceXmlForVip"
-		url="http://service.dianping.com/testService/echoServiceXml_1.0.0_ForVip"
-		interface="com.dianping.pigeon.test.service.EchoService" vip="127.0.0.1:4625" />
-
-	<bean id="echoServiceServiceCallback"
-		class="com.dianping.pigeon.test.service.EchoServiceCallbackImpl" />
 	<pigeon:reference id="echoServiceXml_callback"
 		url="http://service.dianping.com/testService/echoServiceXml_1.0.0"
 		interface="com.dianping.pigeon.test.service.EchoService" callMethod="callback"

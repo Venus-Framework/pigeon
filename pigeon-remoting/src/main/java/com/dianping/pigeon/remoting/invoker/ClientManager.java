@@ -81,13 +81,13 @@ public class ClientManager implements Disposable {
 		RegistryManager.getInstance().addServiceServer(serviceName, connect, weight);
 	}
 
-	public Client getClient(InvokerConfig metaData, InvocationRequest request, List<Client> excludeClients) {
-		List<Client> clientList = clusterListener.getClientList(metaData.getUrl());
+	public Client getClient(InvokerConfig invokerConfig, InvocationRequest request, List<Client> excludeClients) {
+		List<Client> clientList = clusterListener.getClientList(invokerConfig);
 		List<Client> clientsToRoute = new ArrayList<Client>(clientList);
 		if (excludeClients != null) {
 			clientsToRoute.removeAll(excludeClients);
 		}
-		return routerManager.route(clientsToRoute, metaData, request);
+		return routerManager.route(clientsToRoute, invokerConfig, request);
 	}
 
 	@Override
@@ -117,22 +117,22 @@ public class ClientManager implements Disposable {
 			}
 		} catch (Exception e) {
 			if (StringUtils.isBlank(vip)) {
-				logger.error("cannot get service client info for serviceName=" + serviceName + " no failover vip");
+				logger.error("cannot get service provider for service:" + serviceName);
 				throw new RuntimeException(e);
 			} else {
-				logger.error("cannot get service client info for serviceName=" + serviceName + " use failover vip= "
+				logger.error("cannot get service provider for service:" + serviceName + " use failover vip= "
 						+ vip + " instead", e);
 				serviceAddress = vip;
 			}
 		}
 		
 		if (StringUtils.isBlank(serviceAddress)) {
-			throw new RuntimeException("no service address found for service:" + serviceName + ",group:" + group
+			throw new RuntimeException("no service provider found for service:" + serviceName + ",group:" + group
 					+ ",vip:" + vip);
 		}
 		
 		if (logger.isInfoEnabled()) {
-			logger.info("selected service address is:" + serviceAddress + " with service:" + serviceName + ",group:"
+			logger.info("selected service provider address is:" + serviceAddress + " with service:" + serviceName + ",group:"
 					+ group + ",vip:" + vip);
 		}
 		
