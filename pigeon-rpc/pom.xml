@@ -2,13 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
-		<artifactId>pigeon-extensions</artifactId>
+		<artifactId>pigeon-parent</artifactId>
 		<groupId>com.dianping</groupId>
 		<version>2.1.2-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<name>pigeon-registry-zookeeper</name>
-	<artifactId>pigeon-registry-zookeeper</artifactId>
+	<name>pigeon-rpc</name>
+	<groupId>com.dianping</groupId>
+	<artifactId>pigeon-rpc</artifactId>
+	<version>2.1.2-SNAPSHOT</version>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
 	<dependencies>
@@ -17,17 +19,17 @@
 			<artifactId>commons-lang</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.site.common</groupId>
+			<artifactId>lookup</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>zookeeper</groupId>
-			<artifactId>zookeeper</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.dianping</groupId>
-			<artifactId>pigeon-registry</artifactId>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -37,7 +39,17 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.googlecode.disruptor</groupId>
+			<artifactId>disruptor</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-actor_${scala.version}</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>pigeon-common</artifactId>
+		</dependency>
 	</dependencies>
-	<groupId>com.dianping</groupId>
-	<version>2.1.2-SNAPSHOT</version>
 </project>

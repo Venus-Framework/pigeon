@@ -7,27 +7,15 @@
 		<version>2.1.2-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<name>pigeon-registry-zookeeper</name>
-	<artifactId>pigeon-registry-zookeeper</artifactId>
+	<name>pigeon-rpc-protobuf</name>
+	<artifactId>pigeon-rpc-protobuf</artifactId>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
 	<dependencies>
 		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>zookeeper</groupId>
-			<artifactId>zookeeper</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.dianping</groupId>
-			<artifactId>pigeon-registry</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -37,7 +25,16 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>pigeon-rpc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+		</dependency>
 	</dependencies>
+
 	<groupId>com.dianping</groupId>
 	<version>2.1.2-SNAPSHOT</version>
 </project>

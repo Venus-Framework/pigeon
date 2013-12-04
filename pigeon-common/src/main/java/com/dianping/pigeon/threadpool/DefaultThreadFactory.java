@@ -48,10 +48,10 @@ public class DefaultThreadFactory implements ThreadFactory {
 		Thread t = new Thread(this.group, r, this.namePrefix + this.threadNumber.getAndIncrement(),
 				-3715992351445876736L);
 
-		t.setDaemon(this.isDaemon);// why? TODO
-//		if (t.getPriority() != 5) {
-//			t.setPriority(5);
-//		}
+		t.setDaemon(this.isDaemon);
+		if (t.getPriority() != 5) {
+			t.setPriority(5);
+		}
 
 		return t;
 	}
