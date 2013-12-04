@@ -30,8 +30,8 @@ public class NettyClientHandler extends SimpleChannelUpstreamHandler {
 
 	private static final Logger logger = LoggerLoader.getLogger(NettyClientHandler.class);
 
-	private static ThreadPool exceptionProcessThreadPool = new DefaultThreadPool("exception-process-threadpool", 2,
-			100, new LinkedBlockingQueue<Runnable>(50), new CallerRunsPolicy());
+	private static ThreadPool exceptionProcessThreadPool = new DefaultThreadPool("Pigeon-Exception-Processor", 2,
+			50, new LinkedBlockingQueue<Runnable>(50), new CallerRunsPolicy());
 
 	private NettyClient client;
 
