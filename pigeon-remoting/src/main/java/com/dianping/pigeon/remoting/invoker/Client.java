@@ -20,8 +20,6 @@ public interface Client {
 
 	ConnectInfo getConnectInfo();
 
-	String getServiceName();
-
 	void connect();
 
 	CallFuture write(InvocationRequest message, Callback callback);

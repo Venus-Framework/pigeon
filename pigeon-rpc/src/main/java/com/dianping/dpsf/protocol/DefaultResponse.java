@@ -35,6 +35,10 @@ public class DefaultResponse implements InvocationResponse {
 
 	private Object context;
 
+	public void setCause(String cause) {
+		this.cause = cause;
+	}
+
 	public DefaultResponse(int messageType, byte serialize) {
 		this.messageType = messageType;
 		this.serialize = serialize;

@@ -12,14 +12,14 @@ import com.dianping.dpsf.protocol.DefaultResponse;
  * @Sep 5, 2013
  * 
  */
-public interface CodecManager {
+public interface RpcMarshaller<T> {
 
-	DefaultRequest decodeRequest(Object obj) throws CodecException;
+	DefaultRequest marshalRequest(T message) throws CodecException;
 
-	Object encodeRequest(DefaultRequest request) throws CodecException;
+	T unmarshalRequest(DefaultRequest request) throws CodecException;
 
-	DefaultResponse decodeResponse(Object obj) throws CodecException;
+	DefaultResponse marshalResponse(T message) throws CodecException;
 
-	Object encodeResponse(DefaultResponse response) throws CodecException;
+	T unmarshalResponse(DefaultResponse response) throws CodecException;
 
 }

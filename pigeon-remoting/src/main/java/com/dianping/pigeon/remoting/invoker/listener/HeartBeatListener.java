@@ -79,8 +79,8 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 					}
 					for (Client provider : providers) {
 						if (logger.isDebugEnabled()) {
-							logger.debug("[heartbeat] checking status of service provider:" + provider.getServiceName()
-									+ ":" + provider.getHost() + ":" + provider.getPort());
+							logger.debug("[heartbeat] checking status of service provider:" + provider.getHost() + ":"
+									+ provider.getPort());
 						}
 						if (provider.isConnected()) {
 							String connect = provider.getAddress();
@@ -96,8 +96,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 								}
 							}
 						} else {
-							logger.error("[heartbeat] remove connect:" + provider.getAddress() + ", service:"
-									+ provider.getServiceName());
+							logger.error("[heartbeat] remove connect:" + provider.getAddress());
 							clusterListenerManager.removeConnect(provider);
 						}
 					}

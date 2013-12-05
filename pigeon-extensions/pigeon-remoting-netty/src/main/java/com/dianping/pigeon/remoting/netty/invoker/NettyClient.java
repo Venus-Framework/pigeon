@@ -68,7 +68,6 @@ public class NettyClient extends AbstractClient {
 	public static final int CLIENT_CONNECTIONS = Runtime.getRuntime().availableProcessors();
 
 	public NettyClient(ConnectInfo cmd) {
-		this.serviceName = cmd.getServiceName();
 		this.host = cmd.getHost();
 		this.port = cmd.getPort();
 		this.connectInfo = cmd;
@@ -259,11 +258,6 @@ public class NettyClient extends AbstractClient {
 			processResponse(response);
 		}
 
-	}
-
-	@Override
-	public String getServiceName() {
-		return serviceName;
 	}
 
 	@Override

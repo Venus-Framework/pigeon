@@ -15,9 +15,9 @@ import com.dianping.pigeon.monitor.LoggerLoader;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.util.NetUtils;
 
-public class Echo1ServiceImpl implements EchoService {
+public class Echo2ServiceImpl implements EchoService {
 
-	Logger logger = LoggerLoader.getLogger(Echo1ServiceImpl.class);
+	Logger logger = LoggerLoader.getLogger(Echo2ServiceImpl.class);
 
 	@Override
 	public String echo(String input) {
@@ -29,7 +29,7 @@ public class Echo1ServiceImpl implements EchoService {
 			} catch (InterruptedException e) {
 			}
 		}
-		return "echo1:" + input;
+		return "echo2:" + input;
 	}
 
 	@Override

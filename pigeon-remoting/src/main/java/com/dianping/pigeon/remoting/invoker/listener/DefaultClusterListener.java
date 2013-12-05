@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -58,7 +59,7 @@ public class DefaultClusterListener implements ClusterListener {
 	public List<Client> getClientList(InvokerConfig invokerConfig) {
 		List<Client> clientList = this.serviceClients.get(invokerConfig.getUrl());
 		if (CollectionUtils.isEmpty(clientList)) {
-			if(logger.isInfoEnabled()) {
+			if (logger.isInfoEnabled()) {
 				logger.info("try to find service providers for service:" + invokerConfig.getUrl());
 			}
 			ClientManager.getInstance().findAndRegisterClientFor(invokerConfig.getUrl(), invokerConfig.getGroup(),
@@ -80,10 +81,7 @@ public class DefaultClusterListener implements ClusterListener {
 			if (client != null) {
 				for (List<Client> clientList : serviceClients.values()) {
 					int idx = clientList.indexOf(client);
-					if (idx >= 0 && clientList.get(idx) != client) { // FIXME
-																		// equals
-																		// but
-																		// no ==
+					if (idx >= 0 && clientList.get(idx) != client) {
 						closeClientInFuture(client);
 					}
 				}
@@ -103,21 +101,17 @@ public class DefaultClusterListener implements ClusterListener {
 			if (!client.isConnected()) {
 				client.connect();
 			}
-
 			if (client.isConnected()) {
-				String serviceName = client.getServiceName();
-				List<Client> clientList = this.serviceClients.get(serviceName);
-				if (clientList == null) {
-					clientList = new ArrayList<Client>();
-
-					this.serviceClients.put(serviceName, clientList);
-
+				for(Entry<String,Integer> sw : cmd.getServiceNames().entrySet()){
+					String serviceName = sw.getKey();
+					List<Client> clientList = this.serviceClients.get(serviceName);
+					if(clientList == null){
+						clientList = new ArrayList<Client>();
+						this.serviceClients.put(serviceName, clientList);
+					}
+					if(!clientList.contains(client))
+						clientList.add(client);
 				}
-				if (!clientList.contains(client)) {
-
-					clientList.add(client);
-				}
-				// }
 			} else {
 				clusterListenerManager.removeConnect(client);
 			}
@@ -134,24 +128,22 @@ public class DefaultClusterListener implements ClusterListener {
 	 * @return
 	 */
 	private boolean clientExisted(ConnectInfo cmd) {
-		boolean existed = true;
-		List<Client> clientList = serviceClients.get(cmd.getServiceName());
-		if (clientList == null) {
-			return false;
-
-		}
-		boolean findClient = false;
-		for (Client client : clientList) {
-			if (client.getAddress().equals(cmd.getConnect()) && client.getServiceName().equals(cmd.getServiceName())) {
-				findClient = true;
+		for (String serviceName : cmd.getServiceNames().keySet()) {
+			List<Client> clientList = serviceClients.get(serviceName);
+			if (clientList == null) {
+				return false;
+			}
+			boolean findClient = false;
+			for (Client client : clientList) {
+				if (client.getAddress().equals(cmd.getConnect())) {
+					findClient = true;
+				}
+			}
+			if (!findClient) {
+				return false;
 			}
 		}
-		if (!findClient) {
-			return false;
-
-		}
-		// }
-		return existed;
+		return true;
 	}
 
 	public synchronized void removeConnect(Client client) {

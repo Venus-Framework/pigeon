@@ -52,6 +52,9 @@ public class DefaultRequest implements InvocationRequest {
 
 	private transient Map<String, Object> attachments = new HashMap<String, Object>();
 
+	public DefaultRequest() {
+	}
+	
 	public DefaultRequest(String serviceName, String methodName, Object[] parameters, byte serialize, int messageType,
 			int timeout, Class<?>[] parameterClasses) {
 		this.serviceName = serviceName;
@@ -61,6 +64,30 @@ public class DefaultRequest implements InvocationRequest {
 		this.messageType = messageType;
 		this.timeout = timeout;
 		this.parameterClasses = parameterClasses;
+	}
+
+	public byte getSerialize() {
+		return serialize;
+	}
+
+	public void setSerialize(byte serialize) {
+		this.serialize = serialize;
+	}
+
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
+	}
+
+	public void setParameters(Object[] parameters) {
+		this.parameters = parameters;
+	}
+
+	public void setMessageType(int messageType) {
+		this.messageType = messageType;
 	}
 
 	public String getVersion() {

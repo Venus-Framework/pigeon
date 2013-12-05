@@ -19,6 +19,7 @@ public final class SerializerFactory {
 	// 序列化类型---》HESSIAN序列化
 	public static final byte SERIALIZE_HESSIAN = 2;
 	public static final byte SERIALIZE_JAVA = 3;
+	public static final byte SERIALIZE_PROTOBUF = 4;
 	public static final byte SERIALIZE_HESSIAN1 = 6; // hessian spec. 1.0,
 														// spec
 														// 2.0兼容1.0，但1.0不兼容2.0

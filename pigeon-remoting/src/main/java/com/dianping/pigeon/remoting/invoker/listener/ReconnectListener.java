@@ -75,8 +75,8 @@ public class ReconnectListener implements Runnable, ClusterListener {
 		}
 	}
 
-	private String makeProviderUrl(String serviceName, String host, int port) {
-		return serviceName + ":" + host + ":" + port;
+	private String makeProviderUrl(String host, int port) {
+		return host + ":" + port;
 	}
 
 	@Override
@@ -92,14 +92,12 @@ public class ReconnectListener implements Runnable, ClusterListener {
 		if (logger.isInfoEnabled()) {
 			logger.info("[reconnect] remove service provider:" + client);
 		}
-		String providerUrl = makeProviderUrl(client.getConnectInfo().getServiceName(), client.getConnectInfo()
-				.getHost(), client.getConnectInfo().getPort());
-		closedProviders.putIfAbsent(providerUrl, client);
+		closedProviders.putIfAbsent(client.getConnectInfo().getConnect(), client);
 	}
 
 	@Override
 	public void doNotUse(String serviceName, String host, int port) {
-		String providerUrl = makeProviderUrl(serviceName, host, port);
+		String providerUrl = makeProviderUrl(host, port);
 		if (logger.isInfoEnabled()) {
 			logger.info("[reconnect] do not use service provider:" + providerUrl);
 		}
