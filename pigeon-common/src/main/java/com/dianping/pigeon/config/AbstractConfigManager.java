@@ -134,7 +134,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			}
 			return (T) value;
 		} else {
-			logger.warn("config[key=" + key + "] not found");
+			logger.info("config[key=" + key + "] not found");
 		}
 		return null;
 	}
@@ -159,7 +159,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				}
 				return value;
 			} else {
-				logger.warn("config[key=" + key + "] not found in local config");
+				logger.info("config[key=" + key + "] not found in local config");
 			}
 		} catch (Exception e) {
 			logger.error("error while reading property[" + key + "]:" + e.getMessage());
