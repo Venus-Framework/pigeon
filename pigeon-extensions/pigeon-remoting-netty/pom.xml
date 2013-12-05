@@ -8,6 +8,8 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<name>pigeon-remoting-netty</name>
+	<groupId>com.dianping</groupId>
+	<version>2.1.4-SNAPSHOT</version>
 	<artifactId>pigeon-remoting-netty</artifactId>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
@@ -22,19 +24,8 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.dianping</groupId>
 			<artifactId>pigeon-remoting</artifactId>
 		</dependency>
 	</dependencies>
-
-	<groupId>com.dianping</groupId>
-	<version>2.1.4-SNAPSHOT</version>
 </project>
