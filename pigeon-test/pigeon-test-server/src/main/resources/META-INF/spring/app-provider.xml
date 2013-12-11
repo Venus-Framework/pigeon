@@ -9,7 +9,10 @@
                 http://code.dianping.com/schema/pigeon http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd"
 	default-autowire="byName">
 
-	<bean id="echoServiceImpl" class="com.dianping.pigeon.test.service.EchoServiceImpl" />
+	<bean id="echo1ServiceImpl" class="com.dianping.pigeon.test.service.Echo1ServiceImpl" />
+	
+	<bean id="echo2ServiceImpl" class="com.dianping.pigeon.test.service.Echo2ServiceImpl" />
+	
 	<bean id="echoServiceProtobufImpl"
 		class="com.dianping.pigeon.test.service.protobuf.EchoServiceImpl" />
 
@@ -19,7 +22,9 @@
 		<property name="services">
 			<map>
 				<entry key="http://service.dianping.com/testService/echoService_1.0.0"
-					value-ref="echoServiceImpl" />
+					value-ref="echo1ServiceImpl" />
+				<entry key="http://service.dianping.com/testService/echoService_2.0.0"
+					value-ref="echo2ServiceImpl" />
 				<entry
 					key="http://service.dianping.com/testService/echoServiceProtobuf_1.0.0"
 					value-ref="echoServiceProtobufImpl" />

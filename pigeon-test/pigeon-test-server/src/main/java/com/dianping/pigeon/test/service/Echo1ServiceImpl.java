@@ -21,7 +21,7 @@ public class Echo1ServiceImpl implements EchoService {
 
 	@Override
 	public String echo(String input) {
-		System.out.println(input);
+		// System.out.println(input);
 		if (input.equals("200000")) {
 			System.out.println("sleep......");
 			try {
