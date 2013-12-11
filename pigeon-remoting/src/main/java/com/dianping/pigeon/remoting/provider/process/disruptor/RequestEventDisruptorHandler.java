@@ -8,7 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessHandlerFactory;

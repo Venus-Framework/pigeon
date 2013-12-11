@@ -20,12 +20,9 @@ import com.dianping.pigeon.test.service.EchoService;
  */
 public class DefaultTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(callMethod = "sync", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
-	public EchoService echoService1;
+	@PigeonAutoTest(callMethod = "sync", serialize = "hessian", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
+	public EchoService echoService;
 	
-	@PigeonAutoTest(callMethod = "sync", url = "http://service.dianping.com/testService/echoService_2.0.0", timeout = 2000)
-	public EchoService echoService2;
-
 	static AtomicLong counter = new AtomicLong(0);
 	String startTime = System.currentTimeMillis() + "";
 	ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
@@ -34,12 +31,10 @@ public class DefaultTest extends BaseInvokerTest {
 	public void test() throws Throwable {
 		int threads = configManager.getIntValue("pigeon.test.threads", 50);
 		System.out.println("threads:" + threads);
-
-		Assert.notNull(echoService1);
-		Assert.notNull(echoService2);
+		Assert.notNull(echoService);
 
 		for (int i = 0; i < threads; i++) {
-			ClientThread thread = new ClientThread(echoService1, echoService2);
+			ClientThread thread = new ClientThread(echoService);
 			thread.start();
 		}
 		Thread.currentThread().join();
@@ -53,12 +48,10 @@ public class DefaultTest extends BaseInvokerTest {
 
 	class ClientThread extends Thread {
 
-		EchoService service1 = null;
-		EchoService service2 = null;
+		EchoService service = null;
 
-		public ClientThread(EchoService service1, EchoService service2) {
-			this.service1 = service1;
-			this.service2 = service2;
+		public ClientThread(EchoService service) {
+			this.service = service;
 		}
 
 		public void run() {
@@ -70,10 +63,7 @@ public class DefaultTest extends BaseInvokerTest {
 					// System.out.println(echo);
 					// Assert.assertEquals("echo:" + msg, echo);
 					long count = counter.addAndGet(1);
-					String echo1 = service1.echo(count + "");
-					String echo2 = service2.echo(count + "");
-					//System.out.println(echo1);
-					//System.out.println(echo2);
+					String echo = service.echo(count + "");
 					int size = 10000;
 					if (count % size == 0) {
 						long now = System.currentTimeMillis();

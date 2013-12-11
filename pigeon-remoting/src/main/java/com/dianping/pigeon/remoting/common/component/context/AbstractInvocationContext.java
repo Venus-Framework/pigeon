@@ -8,9 +8,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.dianping.pigeon.component.invocation.InvocationContext;
-import com.dianping.pigeon.component.invocation.InvocationRequest;
-import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationContext;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 
 public abstract class AbstractInvocationContext implements InvocationContext {
 

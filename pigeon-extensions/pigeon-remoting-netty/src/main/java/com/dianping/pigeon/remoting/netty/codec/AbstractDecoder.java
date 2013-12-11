@@ -7,6 +7,7 @@ package com.dianping.pigeon.remoting.netty.codec;
 import static org.jboss.netty.buffer.ChannelBuffers.dynamicBuffer;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,15 +20,20 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 
-import com.dianping.pigeon.component.invocation.InvocationResponse;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
-import com.dianping.pigeon.serialize.SerializerFactory;
 
 public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder {
 
 	private static final Logger logger = LoggerLoader.getLogger(AbstractDecoder.class);
+
+	public abstract Object doInitMsg(Object message);
+
+	public abstract void doFailResponse(Channel channel, InvocationResponse response);
+
+	public abstract Object deserialize(byte serializerType, InputStream is);
 
 	public Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws IOException,
 			ClassNotFoundException {
@@ -79,14 +85,11 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 
 						doFailResponse(channel, ResponseUtils.createThrowableResponse(seq, serializable, e));
 					}
-
 				} catch (Exception e1) {
 					logger.error("", e1);
 				}
 			}
-
 			if (message != null) {
-
 				if (messages == null) {
 					messages = new ArrayList<Object>();
 				}
@@ -95,7 +98,6 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 			} else if (isException) {
 				lastReadIndex = cb.readerIndex();
 			} else {
-
 				setAttachment(ctx, channel, cb, lastReadIndex);
 				break;
 			}
@@ -115,10 +117,6 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 		NettyCodecUtils.setAttachment(ctx, Constants.ATTACHMENT_BYTEBUFFER, cb);
 	}
 
-	public abstract Object doInitMsg(Object message);
-
-	public abstract void doFailResponse(Channel channel, InvocationResponse response);
-
 	public Object _decode(byte serializerType, ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 		ChannelBuffer buffer = (ChannelBuffer) msg;
 		ChannelBuffer frame = beforeDo(ctx, buffer);
@@ -126,7 +124,7 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 			return null;
 		}
 
-		return SerializerFactory.getSerializer(serializerType).deserialize(new ChannelBufferInputStream(frame));
+		return deserialize(serializerType, new ChannelBufferInputStream(frame));
 	}
 
 	private final static int fieldLenth = 4;

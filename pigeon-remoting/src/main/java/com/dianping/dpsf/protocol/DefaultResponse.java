@@ -7,7 +7,7 @@ package com.dianping.dpsf.protocol;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 
 /**
  * 不能修改packagename，修改属性需要注意，确保和之前的dpsf兼容。
@@ -35,6 +35,9 @@ public class DefaultResponse implements InvocationResponse {
 
 	private Object context;
 
+	public DefaultResponse() {
+	}
+	
 	public DefaultResponse(int messageType, byte serialize) {
 		this.messageType = messageType;
 		this.serialize = serialize;
@@ -52,7 +55,7 @@ public class DefaultResponse implements InvocationResponse {
 	 * 
 	 * @see com.dianping.dpsf.net.component.DPSFSerializable#getSerializ()
 	 */
-	public byte getSerializ() {
+	public byte getSerialize() {
 		return this.serialize;
 	}
 
@@ -107,7 +110,6 @@ public class DefaultResponse implements InvocationResponse {
 	 * @see com.dianping.dpsf.component.DPSFResponse#getCause()
 	 */
 	public String getCause() {
-		// TODO Auto-generated method stub
 		return this.cause;
 	}
 
@@ -154,6 +156,11 @@ public class DefaultResponse implements InvocationResponse {
 	@Override
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
+
+	@Override
+	public void setSerialize(byte serialize) {
+		this.serialize = serialize;
 	}
 
 }

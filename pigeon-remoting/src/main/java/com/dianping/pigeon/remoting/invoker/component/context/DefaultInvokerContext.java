@@ -4,32 +4,49 @@
  */
 package com.dianping.pigeon.remoting.invoker.component.context;
 
-import java.lang.reflect.Method;
-
 import com.dianping.pigeon.remoting.common.component.context.AbstractInvocationContext;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 public class DefaultInvokerContext extends AbstractInvocationContext implements InvokerContext {
 
-	private InvokerConfig metaData;
-	private Method method;
+	private InvokerConfig<?> invokerConfig;
+	private String methodName;
+	private Class<?>[] parameterTypes;
 	private Object[] arguments;
 	private Client client;
 
-	public DefaultInvokerContext(InvokerConfig metaData, Method method, Object[] arguments) {
+	public DefaultInvokerContext(InvokerConfig<?> invokerConfig, String methodName, Class<?>[] parameterTypes,
+			Object[] arguments) {
 		super(null);
-		this.metaData = metaData;
-		this.method = method;
+		this.invokerConfig = invokerConfig;
+		this.methodName = methodName;
+		this.parameterTypes = parameterTypes;
 		this.arguments = arguments;
 	}
 
-	public InvokerConfig getInvokerConfig() {
-		return metaData;
+	public InvokerConfig<?> getInvokerConfig() {
+		return invokerConfig;
 	}
 
-	public Method getMethod() {
-		return method;
+	public String getMethodName() {
+		return methodName;
+	}
+
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
+	}
+
+	public Class<?>[] getParameterTypes() {
+		return parameterTypes;
+	}
+
+	public void setParameterTypes(Class<?>[] parameterTypes) {
+		this.parameterTypes = parameterTypes;
+	}
+
+	public void setArguments(Object[] arguments) {
+		this.arguments = arguments;
 	}
 
 	public Object[] getArguments() {

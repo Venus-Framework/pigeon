@@ -7,8 +7,8 @@ package com.dianping.pigeon.remoting.invoker.service;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.component.invocation.InvocationRequest;
-import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.RemoteInvocationBean;
 import com.dianping.pigeon.remoting.invoker.component.async.Callback;

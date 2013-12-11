@@ -7,7 +7,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
 
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;

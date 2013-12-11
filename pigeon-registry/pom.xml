@@ -4,12 +4,10 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	<parent>
 		<artifactId>pigeon-parent</artifactId>
 		<groupId>com.dianping</groupId>
-		<version>2.1.4-SNAPSHOT</version>
+		<version>2.1.5-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<name>pigeon-registry</name>
-	<version>2.1.4-SNAPSHOT</version>
-	<groupId>com.dianping</groupId>
 	<artifactId>pigeon-registry</artifactId>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
@@ -26,16 +24,20 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.dianping</groupId>
 			<artifactId>pigeon-common</artifactId>
 		</dependency>
 	</dependencies>
+	<version>2.1.5-SNAPSHOT</version>
+	<groupId>com.dianping</groupId>
 </project>

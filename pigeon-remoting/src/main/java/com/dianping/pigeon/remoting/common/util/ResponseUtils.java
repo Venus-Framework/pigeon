@@ -8,10 +8,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import com.dianping.dpsf.protocol.DefaultResponse;
-import com.dianping.pigeon.component.invocation.InvocationRequest;
-import com.dianping.pigeon.component.invocation.InvocationResponse;
-import com.dianping.pigeon.remoting.common.component.RemoteServiceError;
-import com.dianping.pigeon.serialize.SerializerFactory;
+import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 
 public final class ResponseUtils {
 
@@ -19,78 +18,77 @@ public final class ResponseUtils {
 	}
 
 	public static InvocationResponse createThrowableResponse(long seq, byte serialization, Throwable e) {
-
 		InvocationResponse response = null;
-		switch (serialization) {
-		case SerializerFactory.SERIALIZE_JAVA:
-			response = new DefaultResponse(serialization, seq, Constants.MESSAGE_TYPE_EXCEPTION, e);
-			break;
-		case SerializerFactory.SERIALIZE_HESSIAN:
-			response = new DefaultResponse(serialization, seq, Constants.MESSAGE_TYPE_EXCEPTION, e);
-			break;
-		}
+		response = SerializerFactory.getSerializer(serialization).newResponse();
+		response.setSequence(seq);
+		response.setSerialize(serialization);
+		response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
+		response.setReturn(e);
+
 		return response;
 	}
 
 	public static InvocationResponse createFailResponse(InvocationRequest request, Throwable e) {
 		InvocationResponse response = null;
-		byte serialization = request.getSerializ();
+		byte serialization = request.getSerialize();
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
 			response = new DefaultResponse(serialization, request.getSequence(), Constants.MESSAGE_TYPE_HEART, e);
 		} else {
-			response = createThrowableResponse(request.getSequence(), request.getSerializ(), e);
+			response = createThrowableResponse(request.getSequence(), request.getSerialize(), e);
 		}
 		return response;
 	}
 
 	public static InvocationResponse createServiceExceptionResponse(InvocationRequest request, Throwable e) {
 		InvocationResponse response = null;
-		byte serialization = request.getSerializ();
-		switch (serialization) {
-		case SerializerFactory.SERIALIZE_JAVA:
-			response = new DefaultResponse(serialization, request.getSequence(),
-					Constants.MESSAGE_TYPE_SERVICE_EXCEPTION, e);
-			break;
-		case SerializerFactory.SERIALIZE_HESSIAN:
-			response = new DefaultResponse(serialization, request.getSequence(),
-					Constants.MESSAGE_TYPE_SERVICE_EXCEPTION, e);
-			break;
-		case SerializerFactory.SERIALIZE_HESSIAN1:
-			String stackTrace = "UnknownTrace";
-			stackTrace = extractStackTrace(e);
-			RemoteServiceError serviceException = new RemoteServiceError(e.getClass().getName(), e.getMessage(),
-					stackTrace);
-			response = new DefaultResponse(serialization, request.getSequence(),
-					Constants.MESSAGE_TYPE_SERVICE_EXCEPTION, serviceException);
-			break;
-		}
+		byte serialize = request.getSerialize();
+		response = SerializerFactory.getSerializer(serialize).newResponse();
+		response.setSequence(request.getSequence());
+		response.setSerialize(serialize);
+		response.setMessageType(Constants.MESSAGE_TYPE_SERVICE_EXCEPTION);
+		response.setReturn(e);
+
+		// switch (serialization) {
+		// case SerializerFactory.SERIALIZE_JAVA:
+		// response = new DefaultResponse(serialization, request.getSequence(),
+		// Constants.MESSAGE_TYPE_SERVICE_EXCEPTION, e);
+		// break;
+		// case SerializerFactory.SERIALIZE_HESSIAN:
+		// response = new DefaultResponse(serialization, request.getSequence(),
+		// Constants.MESSAGE_TYPE_SERVICE_EXCEPTION, e);
+		// break;
+		// case SerializerFactory.SERIALIZE_HESSIAN1:
+		// String stackTrace = "UnknownTrace";
+		// stackTrace = extractStackTrace(e);
+		// RemoteServiceError serviceException = new
+		// RemoteServiceError(e.getClass().getName(), e.getMessage(),
+		// stackTrace);
+		// response = new DefaultResponse(serialization, request.getSequence(),
+		// Constants.MESSAGE_TYPE_SERVICE_EXCEPTION, serviceException);
+		// break;
+		// }
 		return response;
 	}
 
 	public static InvocationResponse createSuccessResponse(InvocationRequest request, Object returnObj) {
 		InvocationResponse response = null;
-		byte serialization = request.getSerializ();
-		switch (serialization) {
-		case SerializerFactory.SERIALIZE_JAVA:
-			response = new DefaultResponse(serialization, request.getSequence(), Constants.MESSAGE_TYPE_SERVICE,
-					returnObj);
-			break;
-		case SerializerFactory.SERIALIZE_HESSIAN:
-		case SerializerFactory.SERIALIZE_HESSIAN1:
-			response = new DefaultResponse(serialization, request.getSequence(), Constants.MESSAGE_TYPE_SERVICE,
-					returnObj);
-			break;
-		}
+		byte serialize = request.getSerialize();
+		response = SerializerFactory.getSerializer(serialize).newResponse();
+		response.setSequence(request.getSequence());
+		response.setSerialize(serialize);
+		response.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
+		response.setReturn(returnObj);
+
 		return response;
 	}
 
 	public static InvocationResponse createHeartResponse(InvocationRequest request) {
-		InvocationResponse response = new DefaultResponse(Constants.MESSAGE_TYPE_HEART, request.getSerializ());
+		InvocationResponse response = new DefaultResponse(Constants.MESSAGE_TYPE_HEART, request.getSerialize());
 		response.setSequence(request.getSequence());
 		response.setReturn(Constants.VERSION_150);
 		return response;
 	}
-	
+
 	public static InvocationResponse createNoReturnResponse() {
 		return new NoReturnResponse();
 	}
@@ -143,7 +141,7 @@ public final class ResponseUtils {
 		}
 
 		@Override
-		public byte getSerializ() {
+		public byte getSerialize() {
 			return 0;
 		}
 
@@ -168,6 +166,10 @@ public final class ResponseUtils {
 
 		@Override
 		public void setContext(Object context) {
+		}
+
+		@Override
+		public void setSerialize(byte serialize) {
 		}
 	}
 }

@@ -7,7 +7,7 @@ package com.dianping.pigeon.remoting.provider;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;

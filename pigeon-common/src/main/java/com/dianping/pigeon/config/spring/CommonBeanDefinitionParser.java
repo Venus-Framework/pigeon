@@ -11,7 +11,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 
 /**
  * 

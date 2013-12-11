@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.serialize.java;
+package com.dianping.pigeon.remoting.common.codec.java;
 
 import java.io.EOFException;
 import java.io.IOException;

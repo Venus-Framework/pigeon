@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +19,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.dianping.dpsf.exception.NetException;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientFactory;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
@@ -233,5 +233,4 @@ public class DefaultClusterListener implements ClusterListener {
 			logger.error("error schedule task to close client", e);
 		}
 	}
-
 }

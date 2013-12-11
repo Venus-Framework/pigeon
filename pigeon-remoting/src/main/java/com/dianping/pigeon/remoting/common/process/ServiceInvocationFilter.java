@@ -4,8 +4,8 @@
  */
 package com.dianping.pigeon.remoting.common.process;
 
-import com.dianping.pigeon.component.invocation.InvocationContext;
-import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationContext;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 
 public interface ServiceInvocationFilter<I extends InvocationContext> {
 

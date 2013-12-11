@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.phase.Disposable;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;

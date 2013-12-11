@@ -6,7 +6,6 @@ package com.dianping.pigeon.test.client.integration.call;
 
 import java.lang.reflect.UndeclaredThrowableException;
 
-import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -23,7 +22,7 @@ public class DefaultEchoServiceTest extends BaseInvokerTest {
 
 	@Test
 	public void test() throws Throwable {
-		String msg = System.currentTimeMillis() + "" + Math.abs(RandomUtils.nextLong());
+		String msg = System.currentTimeMillis() + "";
 		System.out.println(msg);
 		String echo = echoService.echo(msg);
 		System.out.println(echo);
@@ -32,7 +31,7 @@ public class DefaultEchoServiceTest extends BaseInvokerTest {
 	
 	@Test
 	public void testWithServerInfo() throws Throwable {
-		String msg = System.currentTimeMillis() + "" + Math.abs(RandomUtils.nextLong());
+		String msg = System.currentTimeMillis() + "";
 		System.out.println(msg);
 		String echo = echoService.echoWithServerInfo(msg);
 		System.out.println(echo);

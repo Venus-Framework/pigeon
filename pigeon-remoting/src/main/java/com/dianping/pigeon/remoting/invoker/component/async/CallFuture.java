@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.component.async;
 
 import java.util.concurrent.TimeUnit;
 
-import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 
 public interface CallFuture extends Call {
 

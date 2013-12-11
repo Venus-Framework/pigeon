@@ -4,7 +4,6 @@
  */
 package com.dianping.pigeon.remoting;
 
-import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,16 +12,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
+import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.exception.ServiceException;
-import com.dianping.dpsf.spring.ProxyBeanFactory;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
-import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
-import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
-import com.dianping.pigeon.remoting.invoker.process.InvocationHandlerFactory;
-import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationProxy;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.ServerFactory;
@@ -121,13 +117,7 @@ public class ServiceFactory {
 		if (service == null) {
 			try {
 				InvokerBootStrap.startup();
-				service = Proxy.newProxyInstance(
-						ProxyBeanFactory.class.getClassLoader(),
-						new Class[] { invokerConfig.getServiceInterface() },
-						new ServiceInvocationProxy(invokerConfig, InvocationHandlerFactory
-								.createInvokeHandler(invokerConfig)));
-//				ClientManager.getInstance().findAndRegisterClientFor(invokerConfig.getUrl(), invokerConfig.getGroup(),
-//						invokerConfig.getVip());
+				service = SerializerFactory.getSerializer(invokerConfig.getSerialize()).proxyRequest(invokerConfig);
 			} catch (Throwable t) {
 				throw new RpcException("error while trying to get service:" + invokerConfig, t);
 			}

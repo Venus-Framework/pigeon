@@ -6,10 +6,11 @@ package com.dianping.pigeon.remoting.invoker.component.async;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.exception.DPSFException;
-import com.dianping.pigeon.component.invocation.InvocationRequest;
-import com.dianping.pigeon.component.invocation.InvocationResponse;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -63,7 +64,7 @@ public class ServiceCallbackWrapper implements Callback {
 					this.callback.callback(response.getReturn());
 				} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 					logger.error(response.getCause());
-					this.callback.frameworkException(new RuntimeException(response.getCause()));
+					this.callback.frameworkException(new DPSFException(response.getCause()));
 				} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 					this.callback.serviceException((Exception) response.getReturn());
 				}

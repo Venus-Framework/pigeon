@@ -32,6 +32,7 @@ public final class Constants {
 
 	public static final String SERIALIZE_JAVA = "java";
 	public static final String SERIALIZE_HESSIAN = "hessian";
+	public static final String SERIALIZE_PROTOBUF = "protobuf";
 
 	public static final byte MESSAGE_HEAD_FIRST = 57;
 	public static final byte MESSAGE_HEAD_SECOND = 58;
@@ -137,4 +138,6 @@ public final class Constants {
 	public static final int DEFAULT_WRITE_BUFFER_LOW_WATER = 25 * 1024 * 1024;
 	public static final boolean DEFAULT_WRITE_BUFF_LIMIT = false;
 	public static final String DEFAULT_PROCESS_TYPE = "threadpool";
+	
+	public static final String ROUTE_ROUNDROBIN = "roundRobin";
 }

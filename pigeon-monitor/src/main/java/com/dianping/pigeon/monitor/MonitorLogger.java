@@ -4,7 +4,6 @@
  */
 package com.dianping.pigeon.monitor;
 
-import com.dianping.pigeon.component.invocation.InvocationContext;
 
 
 /**
@@ -25,5 +24,5 @@ public interface MonitorLogger {
 	 */
 	void logMonitorError(Throwable t);
 
-	MonitorTransaction createTransaction(String name, String uri, InvocationContext invocationContext);
+	MonitorTransaction createTransaction(String name, String uri, Object invocationContext);
 }

@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.event.RuntimeServiceEvent;
 import com.dianping.pigeon.event.RuntimeServiceListener;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 
 /**
  * 

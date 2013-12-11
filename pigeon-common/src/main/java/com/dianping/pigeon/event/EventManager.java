@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 
 /**
  * 默认的事件分发服务，支持同步和异步的模式。

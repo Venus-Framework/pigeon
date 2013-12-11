@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.dianping.pigeon.monitor;
+package com.dianping.pigeon.log;
 
 import java.io.File;
 import java.util.Enumeration;

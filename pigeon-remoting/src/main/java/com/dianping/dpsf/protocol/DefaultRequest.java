@@ -10,7 +10,10 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.dianping.pigeon.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 /**
  * 不能修改packagename，修改属性需要注意，确保和之前的dpsf兼容。
@@ -30,7 +33,7 @@ public class DefaultRequest implements InvocationRequest {
 
 	private long seq;
 
-	private int callType;
+	private int callType = Constants.CALLTYPE_REPLY;
 
 	private int timeout;
 
@@ -42,7 +45,7 @@ public class DefaultRequest implements InvocationRequest {
 
 	private Object[] parameters;
 
-	private int messageType;
+	private int messageType = Constants.MESSAGE_TYPE_SERVICE;
 
 	private Object context;
 
@@ -61,6 +64,31 @@ public class DefaultRequest implements InvocationRequest {
 		this.messageType = messageType;
 		this.timeout = timeout;
 		this.parameterClasses = parameterClasses;
+	}
+
+	public DefaultRequest() {
+	}
+
+	public DefaultRequest(InvokerContext invokerContext) {
+		if (invokerContext != null) {
+			InvokerConfig<?> invokerConfig = invokerContext.getInvokerConfig();
+			if (invokerConfig != null) {
+				this.serviceName = invokerConfig.getUrl();
+				this.serialize = invokerConfig.getSerialize();
+				this.timeout = invokerConfig.getTimeout();
+				this.setVersion(invokerConfig.getVersion());
+				this.setAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT, invokerConfig.isWriteBufferLimit());
+				if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallMethod())) {
+					this.setCallType(Constants.CALLTYPE_NOREPLY);
+				} else {
+					this.setCallType(Constants.CALLTYPE_REPLY);
+				}
+			}
+			this.methodName = invokerContext.getMethodName();
+			this.parameters = invokerContext.getArguments();
+			this.messageType = Constants.MESSAGE_TYPE_SERVICE;
+			this.parameterClasses = invokerContext.getParameterTypes();
+		}
 	}
 
 	public String getVersion() {
@@ -86,7 +114,7 @@ public class DefaultRequest implements InvocationRequest {
 		this.parameterClasses = parameterClasses;
 	}
 
-	public byte getSerializ() {
+	public byte getSerialize() {
 		return this.serialize;
 	}
 
@@ -184,5 +212,10 @@ public class DefaultRequest implements InvocationRequest {
 	@Override
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
+
+	@Override
+	public void setSerialize(byte serialize) {
+		this.serialize = serialize;
 	}
 }

@@ -7,6 +7,7 @@ package com.dianping.pigeon.remoting.netty.codec;
 import static org.jboss.netty.buffer.ChannelBuffers.dynamicBuffer;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 import org.apache.log4j.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -16,29 +17,30 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
-import com.dianping.pigeon.component.invocation.InvocationResponse;
-import com.dianping.pigeon.component.invocation.InvocationSerializable;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationSerializable;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
-import com.dianping.pigeon.serialize.SerializerFactory;
 
 public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder {
 
 	private static final Logger log = LoggerLoader.getLogger(AbstractEncoder.class);
 	
+	public abstract void serialize(byte serializerType, OutputStream os, Object obj);
+	
 	public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 		if (msg instanceof InvocationSerializable) {
 			InvocationSerializable message = (InvocationSerializable) msg;
 			try {
-				ChannelBuffer buffer = (ChannelBuffer) _encode(message.getSerializ(), ctx, channel, message.getObject());
+				ChannelBuffer buffer = (ChannelBuffer) _encode(message.getSerialize(), ctx, channel, message.getObject());
 				buffer.setBytes(0, Constants.MESSAGE_HEAD);
-				buffer.setByte(2, message.getSerializ());
+				buffer.setByte(2, message.getSerialize());
 				buffer.readerIndex(0);
 				return buffer;
 			} catch (Exception e) {
 				doFailResponse(channel,
-						ResponseUtils.createThrowableResponse(message.getSequence(), message.getSerializ(), e));
+						ResponseUtils.createThrowableResponse(message.getSequence(), message.getSerialize(), e));
 
 				log.error(e.getMessage(), e);
 				throw e;
@@ -61,7 +63,7 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 		ChannelBufferOutputStream bout = new ChannelBufferOutputStream(dynamicBuffer(estimatedLength, ctx.getChannel()
 				.getConfig().getBufferFactory()));
 		beforeDo(bout);
-		SerializerFactory.getSerializer(serializerType).serialize(bout, msg);
+		serialize(serializerType, bout, msg);
 		ChannelBuffer encoded = bout.buffer();
 		afterDo(encoded, msg);
 		return encoded;

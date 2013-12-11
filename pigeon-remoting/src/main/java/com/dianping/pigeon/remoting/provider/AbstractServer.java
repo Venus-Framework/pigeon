@@ -2,8 +2,8 @@ package com.dianping.pigeon.remoting.provider;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.component.invocation.InvocationRequest;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessor;

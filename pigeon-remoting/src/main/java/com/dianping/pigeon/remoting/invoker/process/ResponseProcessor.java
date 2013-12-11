@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.remoting.invoker.process;
 
-import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.Client;
 
 public interface ResponseProcessor {

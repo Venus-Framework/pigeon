@@ -10,7 +10,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 

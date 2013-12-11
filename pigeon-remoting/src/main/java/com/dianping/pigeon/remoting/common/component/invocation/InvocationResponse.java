@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.component.invocation;
+package com.dianping.pigeon.remoting.common.component.invocation;
 
 /**
  * 不能修改packagename，修改属性需要注意，确保和之前的dpsf兼容。
@@ -21,4 +21,5 @@ public interface InvocationResponse extends InvocationSerializable {
 	Object getReturn();
 
 	void setReturn(Object obj);
+	
 }

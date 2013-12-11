@@ -4,11 +4,9 @@
  */
 package com.dianping.pigeon.remoting.provider.config.spring;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -16,9 +14,7 @@ import org.w3c.dom.Element;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.LoggerLoader;
-import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.remoting.provider.ServerFactory;
+import com.dianping.pigeon.log.LoggerLoader;
 
 /**
  * 

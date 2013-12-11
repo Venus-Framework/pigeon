@@ -7,8 +7,9 @@ package com.dianping.pigeon.test.service;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 
-import com.dianping.pigeon.monitor.LoggerLoader;
-import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
+import com.dianping.dpsf.async.ServiceCallback;
+import com.dianping.dpsf.exception.DPSFException;
+import com.dianping.pigeon.log.LoggerLoader;
 
 public class EchoServiceCallbackImpl implements ServiceCallback {
 
@@ -32,7 +33,7 @@ public class EchoServiceCallbackImpl implements ServiceCallback {
 	}
 
 	@Override
-	public void frameworkException(RuntimeException e) {
+	public void frameworkException(DPSFException e) {
 		logger.error("", e);
 	}
 

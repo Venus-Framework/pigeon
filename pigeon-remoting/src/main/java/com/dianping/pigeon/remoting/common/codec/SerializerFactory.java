@@ -2,12 +2,14 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-${year} All Rights Reserved.
  */
-package com.dianping.pigeon.serialize;
+package com.dianping.pigeon.remoting.common.codec;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.serialize.hessian.HessianSerializer;
-import com.dianping.pigeon.serialize.java.JavaSerializer;
+import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
+import com.dianping.pigeon.remoting.common.codec.java.JavaSerializer;
+import com.dianping.pigeon.remoting.common.codec.protobuf.ProtobufSerializer;
+import com.dianping.pigeon.remoting.common.util.Constants;
 
 /**
  * @author xiangwu
@@ -28,6 +30,20 @@ public final class SerializerFactory {
 	static {
 		registerSerializer(SERIALIZE_JAVA, new JavaSerializer());
 		registerSerializer(SERIALIZE_HESSIAN, new HessianSerializer());
+		registerSerializer(SERIALIZE_HESSIAN1, new HessianSerializer());
+		registerSerializer(SERIALIZE_PROTOBUF, new ProtobufSerializer());
+	}
+
+	public static byte getSerialize(String serialize) {
+		if (Constants.SERIALIZE_JAVA.equalsIgnoreCase(serialize)) {
+			return SerializerFactory.SERIALIZE_JAVA;
+		} else if (Constants.SERIALIZE_HESSIAN.equalsIgnoreCase(serialize)) {
+			return SerializerFactory.SERIALIZE_HESSIAN;
+		} else if (Constants.SERIALIZE_PROTOBUF.equalsIgnoreCase(serialize)) {
+			return SerializerFactory.SERIALIZE_PROTOBUF;
+		} else {
+			throw new IllegalArgumentException("Only hessian, java, protobuf serialize type supported now!");
+		}
 	}
 
 	public static void registerSerializer(byte serializerType, Serializer serializer) {
@@ -36,7 +52,7 @@ public final class SerializerFactory {
 
 	public static Serializer getSerializer(byte serializerType) {
 		Serializer serializer = serializers.get(serializerType);
-		if(serializer == null) {
+		if (serializer == null) {
 			throw new RuntimeException("no serializer found for type:" + serializerType);
 		} else {
 			return serializer;

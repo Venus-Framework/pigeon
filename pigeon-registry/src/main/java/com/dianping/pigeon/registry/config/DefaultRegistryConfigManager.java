@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.util.Constants;
 
 /**

@@ -9,8 +9,8 @@ import java.lang.reflect.Method;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.component.invocation.InvocationResponse;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
@@ -20,11 +20,11 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 public class ServiceInvocationProxy implements InvocationHandler {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceInvocationProxy.class);
-	private InvokerConfig metaData;
+	private InvokerConfig invokerConfig;
 	private ServiceInvocationHandler handler;
 
-	public ServiceInvocationProxy(InvokerConfig metaData, ServiceInvocationHandler handler) {
-		this.metaData = metaData;
+	public ServiceInvocationProxy(InvokerConfig invokerConfig, ServiceInvocationHandler handler) {
+		this.invokerConfig = invokerConfig;
 		this.handler = handler;
 	}
 
@@ -44,19 +44,10 @@ public class ServiceInvocationProxy implements InvocationHandler {
 		if ("equals".equals(methodName) && parameterTypes.length == 1) {
 			return handler.equals(args[0]);
 		}
-		return extractResult(handler.handle(new DefaultInvokerContext(metaData, method, args)), method.getReturnType());
-
+		return extractResult(handler.handle(new DefaultInvokerContext(invokerConfig, methodName, parameterTypes, args)), method.getReturnType());
 	}
 
-	/**
-	 * 
-	 * 
-	 * @param response
-	 * @param returnType
-	 * @return
-	 * @throws Throwable
-	 */
-	private Object extractResult(InvocationResponse response, Class<?> returnType) throws Throwable {
+	public Object extractResult(InvocationResponse response, Class<?> returnType) throws Throwable {
 		Object responseReturn = response.getReturn();
 		if (responseReturn != null) {
 			int messageType = response.getMessageType();
@@ -67,7 +58,7 @@ public class ServiceInvocationProxy implements InvocationHandler {
 				
 				throw InvocationUtils.toInvocationThrowable(responseReturn);
 			}
-			throw new RuntimeException("Unsupported response to extract result with type[" + messageType + "].");
+			throw new RuntimeException("unsupported response with type[" + messageType + "].");
 		}
 		return getReturn(returnType);
 	}

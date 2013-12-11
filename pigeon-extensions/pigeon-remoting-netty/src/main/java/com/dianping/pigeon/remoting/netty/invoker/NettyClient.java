@@ -18,13 +18,13 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
-import com.dianping.pigeon.component.invocation.InvocationRequest;
-import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.event.RuntimeServiceEvent;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.AbstractClient;
@@ -41,8 +41,6 @@ public class NettyClient extends AbstractClient {
 	private static final Logger logger = LoggerLoader.getLogger(NettyClient.class);
 
 	private ClientBootstrap bootstrap;
-
-	private String serviceName;
 
 	private Channel channel;
 

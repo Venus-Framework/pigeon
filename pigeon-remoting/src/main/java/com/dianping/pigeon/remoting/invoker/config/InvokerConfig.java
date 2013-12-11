@@ -10,12 +10,11 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
-import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
-import com.dianping.pigeon.serialize.SerializerFactory;
 
 public class InvokerConfig<T> {
 	public static final String CALL_SYNC = Constants.CALL_SYNC;
@@ -44,7 +43,7 @@ public class InvokerConfig<T> {
 	private boolean writeBufferLimit = configManager.getBooleanValue(Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT,
 			Constants.DEFAULT_WRITE_BUFF_LIMIT);
 
-	private String loadbalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
+	private String loadbalance = Constants.ROUTE_ROUNDROBIN;
 
 	private boolean timeoutRetry = false;
 
@@ -230,13 +229,7 @@ public class InvokerConfig<T> {
 		if (serialize != null) {
 			serialize = serialize.trim();
 		}
-		if (Constants.SERIALIZE_JAVA.equalsIgnoreCase(serialize)) {
-			this.serialize = SerializerFactory.SERIALIZE_JAVA;
-		} else if (Constants.SERIALIZE_HESSIAN.equalsIgnoreCase(serialize)) {
-			this.serialize = SerializerFactory.SERIALIZE_HESSIAN;
-		} else {
-			throw new IllegalArgumentException("Only hessian and java serialize type supported now!");
-		}
+		this.serialize = SerializerFactory.getSerialize(serialize);
 	}
 
 	/**
