@@ -6,11 +6,13 @@ package com.dianping.pigeon.remoting.invoker.listener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.phase.Disposable;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
@@ -27,6 +29,8 @@ public class ClusterListenerManager implements Disposable {
 
 	private ServiceProviderChangeListener providerChangeListener = new InnerServiceProviderChangeListener();
 
+	private Map<String, ConnectInfo> connectInfoMap = new ConcurrentHashMap<String, ConnectInfo>();
+
 	private static ClusterListenerManager instance = new ClusterListenerManager();
 
 	public static ClusterListenerManager getInstance() {
@@ -38,23 +42,32 @@ public class ClusterListenerManager implements Disposable {
 	}
 
 	public synchronized void addConnect(String connect, Client client) {
-		for (ClusterListener listener : listeners) {
-			listener.addConnect(client.getConnectInfo(), client);
+		ConnectInfo cmd = this.connectInfoMap.get(connect);
+		if (cmd != null) {
+			for (ClusterListener listener : listeners) {
+				listener.addConnect(client.getConnectInfo(), client);
+			}
 		}
 	}
 
 	public synchronized void addConnect(ConnectInfo cmd) {
-		/**
-		 * else { metaData.addServiceNames(cmd.getServiceNames()); }
-		 **/
+		ConnectInfo connectInfo = this.connectInfoMap.get(cmd.getConnect());
+		if (connectInfo == null) {
+			this.connectInfoMap.put(cmd.getConnect(), cmd);
+		} else {
+			connectInfo.addServiceNames(cmd.getServiceNames());
+		}
 		for (ClusterListener listener : listeners) {
 			listener.addConnect(cmd);
 		}
 	}
 
 	public synchronized void removeConnect(Client client) {
-		for (ClusterListener listener : listeners) {
-			listener.removeConnect(client);
+		ConnectInfo cmd = this.connectInfoMap.get(client.getConnectInfo().getConnect());
+		if (cmd != null) {
+			for (ClusterListener listener : listeners) {
+				listener.removeConnect(client);
+			}
 		}
 	}
 
@@ -83,7 +96,13 @@ public class ClusterListenerManager implements Disposable {
 			if (logger.isInfoEnabled()) {
 				logger.info("remove " + connect + " from " + event.getServiceName());
 			}
-			
+			ConnectInfo cmd = connectInfoMap.get(connect);
+			if (cmd != null) {
+				cmd.getServiceNames().remove(event.getServiceName());
+				if (cmd.getServiceNames().size() == 0) {
+					connectInfoMap.remove(connect);
+				}
+			}
 			for (ClusterListener listener : listeners) {
 				listener.doNotUse(event.getServiceName(), event.getHost(), event.getPort());
 			}

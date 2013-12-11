@@ -20,9 +20,9 @@ import com.dianping.pigeon.test.service.EchoService;
  */
 public class DefaultTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(callMethod = "sync", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
+	@PigeonAutoTest(callMethod = "sync", serialize = "hessian", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
 	public EchoService echoService;
-
+	
 	static AtomicLong counter = new AtomicLong(0);
 	String startTime = System.currentTimeMillis() + "";
 	ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
@@ -31,7 +31,6 @@ public class DefaultTest extends BaseInvokerTest {
 	public void test() throws Throwable {
 		int threads = configManager.getIntValue("pigeon.test.threads", 50);
 		System.out.println("threads:" + threads);
-
 		Assert.notNull(echoService);
 
 		for (int i = 0; i < threads; i++) {

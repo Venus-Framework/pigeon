@@ -4,8 +4,8 @@
  */
 package com.dianping.pigeon.remoting.invoker.component.async;
 
-import com.dianping.pigeon.component.invocation.InvocationRequest;
-import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 
 public interface Callback extends Runnable, Call {
 

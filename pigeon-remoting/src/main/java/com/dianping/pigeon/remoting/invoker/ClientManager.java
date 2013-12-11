@@ -13,15 +13,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.component.HostInfo;
-import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.component.phase.Disposable;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListenerManager;
@@ -81,13 +81,13 @@ public class ClientManager implements Disposable {
 		RegistryManager.getInstance().addServiceServer(serviceName, connect, weight);
 	}
 
-	public Client getClient(InvokerConfig metaData, InvocationRequest request, List<Client> excludeClients) {
-		List<Client> clientList = clusterListener.getClientList(metaData.getUrl());
+	public Client getClient(InvokerConfig invokerConfig, InvocationRequest request, List<Client> excludeClients) {
+		List<Client> clientList = clusterListener.getClientList(invokerConfig);
 		List<Client> clientsToRoute = new ArrayList<Client>(clientList);
 		if (excludeClients != null) {
 			clientsToRoute.removeAll(excludeClients);
 		}
-		return routerManager.route(clientsToRoute, metaData, request);
+		return routerManager.route(clientsToRoute, invokerConfig, request);
 	}
 
 	@Override
@@ -117,22 +117,22 @@ public class ClientManager implements Disposable {
 			}
 		} catch (Exception e) {
 			if (StringUtils.isBlank(vip)) {
-				logger.error("cannot get service client info for serviceName=" + serviceName + " no failover vip");
+				logger.error("cannot get service provider for service:" + serviceName);
 				throw new RuntimeException(e);
 			} else {
-				logger.error("cannot get service client info for serviceName=" + serviceName + " use failover vip= "
+				logger.error("cannot get service provider for service:" + serviceName + " use failover vip= "
 						+ vip + " instead", e);
 				serviceAddress = vip;
 			}
 		}
 		
 		if (StringUtils.isBlank(serviceAddress)) {
-			throw new RuntimeException("no service address found for service:" + serviceName + ",group:" + group
+			throw new RuntimeException("no service provider found for service:" + serviceName + ",group:" + group
 					+ ",vip:" + vip);
 		}
 		
 		if (logger.isInfoEnabled()) {
-			logger.info("selected service address is:" + serviceAddress + " with service:" + serviceName + ",group:"
+			logger.info("selected service provider address is:" + serviceAddress + " with service:" + serviceName + ",group:"
 					+ group + ",vip:" + vip);
 		}
 		

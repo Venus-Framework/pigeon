@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
 import com.dianping.pigeon.config.AbstractConfigManager;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 
 /**
  * @author xiangwu

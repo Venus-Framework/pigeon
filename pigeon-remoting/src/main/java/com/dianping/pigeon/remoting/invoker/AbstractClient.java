@@ -1,6 +1,6 @@
 package com.dianping.pigeon.remoting.invoker;
 
-import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.process.ResponseProcessor;
 import com.dianping.pigeon.remoting.invoker.process.ResponseProcessorFactory;
 

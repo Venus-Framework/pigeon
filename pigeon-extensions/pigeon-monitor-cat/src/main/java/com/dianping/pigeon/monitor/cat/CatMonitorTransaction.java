@@ -11,10 +11,10 @@ import com.dianping.cat.message.Transaction;
 import com.dianping.cat.message.internal.DefaultMessageManager;
 import com.dianping.cat.message.spi.MessageTree;
 import com.dianping.phoenix.environment.PhoenixContext;
-import com.dianping.pigeon.component.invocation.InvocationContext;
-import com.dianping.pigeon.component.invocation.InvocationRequest;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationContext;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
 import com.dianping.pigeon.util.ContextUtils;
 
 /**

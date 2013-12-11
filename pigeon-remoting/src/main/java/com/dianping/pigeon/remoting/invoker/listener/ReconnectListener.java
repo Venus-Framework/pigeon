@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 import com.dianping.dpsf.exception.NetException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
@@ -25,7 +25,7 @@ public class ReconnectListener implements Runnable, ClusterListener {
 
 	private static Logger logger = LoggerLoader.getLogger(ReconnectListener.class);
 
-	private static ConcurrentMap<String, Client> closedClients = new ConcurrentHashMap<String, Client>();
+	private static ConcurrentMap<String, Client> closedProviders = new ConcurrentHashMap<String, Client>();
 
 	private final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
@@ -42,38 +42,41 @@ public class ReconnectListener implements Runnable, ClusterListener {
 			try {
 				Thread.sleep(sleepTime);
 				long now = System.currentTimeMillis();
-				Set<String> toRemovedConnect = new HashSet<String>();
+				Set<String> toRemovedProviders = new HashSet<String>();
 				if (logger.isDebugEnabled()) {
-					logger.debug("[reconnect] clients:" + closedClients);
+					logger.debug("[reconnect] service providers:" + closedProviders);
 				}
-				for (String connect : closedClients.keySet()) {
-					Client client = closedClients.get(connect);
+				for (String providerUrl : closedProviders.keySet()) {
+					Client client = closedProviders.get(providerUrl);
 					if (!client.isConnected()) {
 						try {
 							client.connect();
 						} catch (NetException e) {
-							logger.error("Connect server[" + client.getAddress() + "] failed, detail[" + e.getMessage()
-									+ "].", e);
+							logger.error("[reconnect] connect server[" + providerUrl + "] failed", e);
 						}
 					}
 					if (client.isConnected()) {
 						// 加回去时active设置为true
-						clusterListenerManager.addConnect(connect, client);
-						toRemovedConnect.add(connect);
+						clusterListenerManager.addConnect(providerUrl, client);
+						toRemovedProviders.add(providerUrl);
 					}
 				}
-				for (String connect : toRemovedConnect) {
-					closedClients.remove(connect);
+				for (String providerUrl : toRemovedProviders) {
+					closedProviders.remove(providerUrl);
 				}
 				sleepTime = interval - (System.currentTimeMillis() - now);
 			} catch (Exception e) {
-				logger.error("Do reconnect task failed, detail[" + e.getMessage() + "].", e);
+				logger.error("[reconnect] task failed", e);
 			} finally {
 				if (sleepTime < 1000) {
 					sleepTime = 1000;
 				}
 			}
 		}
+	}
+
+	private String makeProviderUrl(String host, int port) {
+		return host + ":" + port;
 	}
 
 	@Override
@@ -87,19 +90,18 @@ public class ReconnectListener implements Runnable, ClusterListener {
 	@Override
 	public void removeConnect(Client client) {
 		if (logger.isInfoEnabled()) {
-			logger.info("[reconnect] remove client:" + client);
+			logger.info("[reconnect] remove service provider:" + client);
 		}
-		String connect = client.getConnectInfo().getConnect();
-		closedClients.putIfAbsent(connect, client);
+		closedProviders.putIfAbsent(client.getConnectInfo().getConnect(), client);
 	}
 
 	@Override
 	public void doNotUse(String serviceName, String host, int port) {
-		String connect = host + ":" + port;
+		String providerUrl = makeProviderUrl(host, port);
 		if (logger.isInfoEnabled()) {
-			logger.info("[reconnect] do not use client:" + connect + " for service:" + serviceName);
+			logger.info("[reconnect] do not use service provider:" + providerUrl);
 		}
-		Client client = closedClients.get(connect);
+		Client client = closedProviders.get(providerUrl);
 		boolean isClientInUse = false;
 		for (List<Client> clientList : workingClients.values()) {
 			if (clientList.contains(client)) {
@@ -107,12 +109,12 @@ public class ReconnectListener implements Runnable, ClusterListener {
 			}
 		}
 		if (!isClientInUse) {
-			closedClients.remove(connect);
+			closedProviders.remove(providerUrl);
 		}
 	}
 
 	public Map<String, Client> getClosedClients() {
-		return closedClients;
+		return closedProviders;
 	}
 
 	public void setWorkingClients(Map<String, List<Client>> workingClients) {

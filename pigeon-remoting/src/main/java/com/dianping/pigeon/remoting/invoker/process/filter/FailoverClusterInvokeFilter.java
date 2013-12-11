@@ -11,9 +11,9 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetException;
 import com.dianping.dpsf.exception.NetTimeoutException;
-import com.dianping.pigeon.component.invocation.InvocationRequest;
-import com.dianping.pigeon.component.invocation.InvocationResponse;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
@@ -63,7 +63,7 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 				InvocationResponse response = handler.handle(invocationContext);
 				if (lastError != null) {
 					logger.warn(
-							"Retry method[" + invocationContext.getMethod().getName() + "] on service["
+							"Retry method[" + invocationContext.getMethodName() + "] on service["
 									+ invokerConfig.getUrl() + "] succeed after " + invokeTimes
 									+ " times, last failed invoke's error: " + lastError.getMessage(), lastError);
 				}
@@ -87,7 +87,7 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 				}
 			}
 		}
-		throw new RuntimeException("Invoke method[" + invocationContext.getMethod().getName() + "] on service["
+		throw new RuntimeException("Invoke method[" + invocationContext.getMethodName() + "] on service["
 				+ invokerConfig.getUrl() + "] failed with " + invokeTimes + " times, last error: "
 				+ (lastError != null ? lastError.getMessage() : ""),
 				lastError != null && lastError.getCause() != null ? lastError.getCause() : lastError);

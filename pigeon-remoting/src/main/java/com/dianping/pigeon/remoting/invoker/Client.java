@@ -4,8 +4,8 @@
  */
 package com.dianping.pigeon.remoting.invoker;
 
-import com.dianping.pigeon.component.invocation.InvocationRequest;
-import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.component.async.CallFuture;
 import com.dianping.pigeon.remoting.invoker.component.async.Callback;
@@ -19,8 +19,6 @@ import com.dianping.pigeon.remoting.invoker.component.async.Callback;
 public interface Client {
 
 	ConnectInfo getConnectInfo();
-
-	String getServiceName();
 
 	void connect();
 

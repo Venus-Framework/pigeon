@@ -6,11 +6,11 @@ package com.dianping.pigeon.demo.invoker.simple;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.invoker.EchoServiceCallback;
 import com.dianping.pigeon.demo.loader.ConfigLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallback;
 
 public class Client {
 

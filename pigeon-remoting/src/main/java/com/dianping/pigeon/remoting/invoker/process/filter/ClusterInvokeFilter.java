@@ -8,22 +8,15 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.protocol.DefaultRequest;
-import com.dianping.pigeon.component.invocation.InvocationResponse;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
-import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: ClusterInvokeFilter.java, v 0.1 2013-6-18 下午9:50:27
- *          jianhuihuang Exp $
- */
 public abstract class ClusterInvokeFilter extends InvocationInvokeFilter {
 
 	private static final Logger logger = LoggerLoader.getLogger(ClusterInvokeFilter.class);
@@ -48,19 +41,13 @@ public abstract class ClusterInvokeFilter extends InvocationInvokeFilter {
 	public abstract InvocationResponse _invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable;
 
-	protected DefaultRequest createRemoteCallRequest(InvokerContext invocationContext, InvokerConfig invokerConfig) {
-		DefaultRequest request = new DefaultRequest(invokerConfig.getUrl(), invocationContext.getMethod().getName(),
-				invocationContext.getArguments(), invokerConfig.getSerialize(), Constants.MESSAGE_TYPE_SERVICE,
-				invokerConfig.getTimeout(), invocationContext.getMethod().getParameterTypes());
-		request.setVersion(invokerConfig.getVersion());
-		request.setSequence(requestSequenceMaker.incrementAndGet() * -1);
-		request.setAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT, invokerConfig.isWriteBufferLimit());
-		if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallMethod())) {
-			request.setCallType(Constants.CALLTYPE_NOREPLY);
-		} else {
-			request.setCallType(Constants.CALLTYPE_REPLY);
+	protected InvocationRequest createRemoteCallRequest(InvokerContext invocationContext, InvokerConfig<?> invokerConfig) {
+		InvocationRequest request = invocationContext.getRequest();
+		if (request == null) {
+			request = SerializerFactory.getSerializer(invokerConfig.getSerialize()).newRequest(invocationContext);
+			invocationContext.setRequest(request);
 		}
-		invocationContext.setRequest(request);
+		request.setSequence(requestSequenceMaker.incrementAndGet() * -1);
 		return request;
 	}
 

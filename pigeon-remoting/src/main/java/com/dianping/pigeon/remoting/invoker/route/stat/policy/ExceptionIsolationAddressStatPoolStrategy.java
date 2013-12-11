@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.route.stat.DpsfAddressStatPool;
 import com.dianping.pigeon.remoting.invoker.route.stat.DpsfAddressStatPool.AddressStat;
 import com.dianping.pigeon.remoting.invoker.route.stat.support.AddressConstant;

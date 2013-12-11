@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.component.async;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 
 public final class ServiceFutureFactory {
 

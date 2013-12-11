@@ -4,13 +4,11 @@
  */
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
-import java.lang.reflect.Method;
-
-import com.dianping.pigeon.component.invocation.InvocationResponse;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -29,14 +27,13 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		MonitorTransaction transaction = null;
 		if (monitor != null) {
 			InvokerConfig metaData = invocationContext.getInvokerConfig();
-			Method method = invocationContext.getMethod();
 			logger = monitor.getLogger();
 			if (logger != null) {
 				try {
 					transaction = logger.createTransaction(
 							"PigeonCall",
-							InvocationUtils.getRemoteCallFullName(metaData.getUrl(), method.getName(),
-									method.getParameterTypes()), invocationContext);
+							InvocationUtils.getRemoteCallFullName(metaData.getUrl(), invocationContext.getMethodName(),
+									invocationContext.getParameterTypes()), invocationContext);
 					if (transaction != null) {
 						transaction.setStatusOk();
 						transaction.addData("CallType", metaData.getCallMethod());

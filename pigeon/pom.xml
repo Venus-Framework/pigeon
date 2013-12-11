@@ -4,11 +4,11 @@
 	<parent>
 		<artifactId>pigeon-parent</artifactId>
 		<groupId>com.dianping</groupId>
-		<version>2.1.2-SNAPSHOT</version>
+		<version>2.1.5-SNAPSHOT</version>
 	</parent>
 	<groupId>com.dianping.dpsf</groupId>
 	<artifactId>dpsf-net</artifactId>
-	<version>2.1.2-SNAPSHOT</version>
+	<version>2.1.5-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>pigeon</name>
 	<properties>
@@ -16,54 +16,89 @@
 	</properties>
 	<dependencies>
 		<dependency>
-				<groupId>com.dianping</groupId>
-				<artifactId>pigeon-common</artifactId>
-				<version>${pigeon.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.dianping</groupId>
-				<artifactId>pigeon-registry</artifactId>
-				<version>${pigeon.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.dianping</groupId>
-				<artifactId>pigeon-remoting</artifactId>
-				<version>${pigeon.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.dianping</groupId>
-				<artifactId>pigeon-registry-zookeeper</artifactId>
-				<version>${pigeon.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.dianping</groupId>
-				<artifactId>pigeon-remoting-netty</artifactId>
-				<version>${pigeon.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.dianping</groupId>
-				<artifactId>pigeon-monitor-cat</artifactId>
-				<version>${pigeon.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.dianping</groupId>
-				<artifactId>pigeon-config-lion</artifactId>
-				<version>${pigeon.version}</version>
-			</dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>pigeon-common</artifactId>
+			<version>${pigeon.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>pigeon-registry</artifactId>
+			<version>${pigeon.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>pigeon-remoting</artifactId>
+			<version>${pigeon.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>pigeon-monitor</artifactId>
+			<version>${pigeon.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>pigeon-registry-zookeeper</artifactId>
+			<version>${pigeon.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>pigeon-remoting-netty</artifactId>
+			<version>${pigeon.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>pigeon-monitor-cat</artifactId>
+			<version>${pigeon.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>pigeon-config-lion</artifactId>
+			<version>${pigeon.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<executions>
-                    <execution>
-                        <id>attach-javadoc</id>
+					<execution>
+						<id>attach-javadoc</id>
 						<phase>deploy</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<show>public</show>
 					<charset>UTF-8</charset>
@@ -90,21 +125,18 @@
 							<promoteTransitiveDependencies>true</promoteTransitiveDependencies>
 							<artifactSet>
 								<includes>
-								    <include>com.dianping:pigeon-common</include>
-								    <include>com.dianping:pigeon-registry</include>
-								    <include>com.dianping:pigeon-remoting</include>
-								    <include>com.dianping:pigeon-registry-zookeeper</include>
-								    <include>com.dianping:pigeon-remoting-netty</include>
-								    <include>com.dianping:pigeon-monitor-cat</include>
-								    <include>com.dianping:pigeon-config-lion</include>
+									<include>com.dianping:pigeon-common</include>
+									<include>com.dianping:pigeon-registry</include>
+									<include>com.dianping:pigeon-remoting</include>
+									<include>com.dianping:pigeon-monitor</include>
+									<include>com.dianping:pigeon-registry-zookeeper</include>
+									<include>com.dianping:pigeon-remoting-netty</include>
+									<include>com.dianping:pigeon-monitor-cat</include>
+									<include>com.dianping:pigeon-config-lion</include>
 								</includes>
 							</artifactSet>
-							<!-- <transformers>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-									<resource></resource>
-								</transformer>
-							</transformers> -->
+							<!-- <transformers> <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> 
+								<resource></resource> </transformer> </transformers> -->
 						</configuration>
 					</execution>
 				</executions>

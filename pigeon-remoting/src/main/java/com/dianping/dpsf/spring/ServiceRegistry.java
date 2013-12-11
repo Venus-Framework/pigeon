@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.monitor.LoggerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -90,6 +90,7 @@ public final class ServiceRegistry {
 
 		List<ProviderConfig<?>> providerConfigList = new ArrayList<ProviderConfig<?>>();
 		for (String url : services.keySet()) {
+			
 			ProviderConfig providerConfig = new ProviderConfig(services.get(url));
 			providerConfig.setUrl(url);
 			providerConfig.setServerConfig(serverConfig);

@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.provider.component;
 
 import java.net.InetSocketAddress;
 
-import com.dianping.pigeon.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
 
 public interface ProviderChannel {
 

@@ -8,24 +8,28 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
+import org.springframework.util.CollectionUtils;
 
 import com.dianping.dpsf.exception.NetException;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientFactory;
+import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 
 public class DefaultClusterListener implements ClusterListener {
 
-	private static final Logger logger = Logger
-			.getLogger(DefaultClusterListener.class);
+	private static final Logger logger = LoggerLoader.getLogger(DefaultClusterListener.class);
 
 	private Map<String, List<Client>> serviceClients = new ConcurrentHashMap<String, List<Client>>();
 
@@ -35,14 +39,12 @@ public class DefaultClusterListener implements ClusterListener {
 
 	private ReconnectListener reconnectTask;
 
-	private ScheduledThreadPoolExecutor closeExecutor = new ScheduledThreadPoolExecutor(
-			5, new DefaultThreadFactory("Pigeon-Client-Cache-Close-ThreadPool"));
+	private ScheduledThreadPoolExecutor closeExecutor = new ScheduledThreadPoolExecutor(5, new DefaultThreadFactory(
+			"Pigeon-Client-Cache-Close-ThreadPool"));
 
-	private ClusterListenerManager clusterListenerManager = ClusterListenerManager
-			.getInstance();
+	private ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
-	public DefaultClusterListener(HeartBeatListener heartTask,
-			ReconnectListener reconnectTask) {
+	public DefaultClusterListener(HeartBeatListener heartTask, ReconnectListener reconnectTask) {
 		this.heartTask = heartTask;
 		this.reconnectTask = reconnectTask;
 		this.reconnectTask.setWorkingClients(this.serviceClients);
@@ -54,11 +56,18 @@ public class DefaultClusterListener implements ClusterListener {
 		allClients = new ConcurrentHashMap<ConnectInfo, Client>();
 	}
 
-	public List<Client> getClientList(String serviceName) {
-		List<Client> clientList = this.serviceClients.get(serviceName);
-		if (clientList == null || clientList.size() == 0) {
-			throw new NetException("no available connection for service:"
-					+ serviceName);
+	public List<Client> getClientList(InvokerConfig invokerConfig) {
+		List<Client> clientList = this.serviceClients.get(invokerConfig.getUrl());
+		if (CollectionUtils.isEmpty(clientList)) {
+			if (logger.isInfoEnabled()) {
+				logger.info("try to find service providers for service:" + invokerConfig.getUrl());
+			}
+			ClientManager.getInstance().findAndRegisterClientFor(invokerConfig.getUrl(), invokerConfig.getGroup(),
+					invokerConfig.getVip());
+			clientList = this.serviceClients.get(invokerConfig.getUrl());
+			if (CollectionUtils.isEmpty(clientList)) {
+				throw new NetException("no available connection for service:" + invokerConfig.getUrl());
+			}
 		}
 		return clientList;
 	}
@@ -72,10 +81,7 @@ public class DefaultClusterListener implements ClusterListener {
 			if (client != null) {
 				for (List<Client> clientList : serviceClients.values()) {
 					int idx = clientList.indexOf(client);
-					if (idx >= 0 && clientList.get(idx) != client) { // FIXME
-																		// equals
-																		// but
-																		// no ==
+					if (idx >= 0 && clientList.get(idx) != client) {
 						closeClientInFuture(client);
 					}
 				}
@@ -85,8 +91,7 @@ public class DefaultClusterListener implements ClusterListener {
 		}
 
 		if (client == null) {
-			client = ExtensionLoader.getExtension(ClientFactory.class)
-					.createClient(cmd);
+			client = ExtensionLoader.getExtension(ClientFactory.class).createClient(cmd);
 		}
 
 		if (!this.allClients.containsKey(cmd)) {
@@ -96,21 +101,17 @@ public class DefaultClusterListener implements ClusterListener {
 			if (!client.isConnected()) {
 				client.connect();
 			}
-
 			if (client.isConnected()) {
-				String serviceName = client.getServiceName();
-				List<Client> clientList = this.serviceClients.get(serviceName);
-				if (clientList == null) {
-					clientList = new ArrayList<Client>();
-
-					this.serviceClients.put(serviceName, clientList);
-
+				for(Entry<String,Integer> sw : cmd.getServiceNames().entrySet()){
+					String serviceName = sw.getKey();
+					List<Client> clientList = this.serviceClients.get(serviceName);
+					if(clientList == null){
+						clientList = new ArrayList<Client>();
+						this.serviceClients.put(serviceName, clientList);
+					}
+					if(!clientList.contains(client))
+						clientList.add(client);
 				}
-				if (!clientList.contains(client)) {
-
-					clientList.add(client);
-				}
-				// }
 			} else {
 				clusterListenerManager.removeConnect(client);
 			}
@@ -127,25 +128,22 @@ public class DefaultClusterListener implements ClusterListener {
 	 * @return
 	 */
 	private boolean clientExisted(ConnectInfo cmd) {
-		boolean existed = true;
-		List<Client> clientList = serviceClients.get(cmd.getServiceName());
-		if (clientList == null) {
-			return false;
-
-		}
-		boolean findClient = false;
-		for (Client client : clientList) {
-			if (client.getAddress().equals(cmd.getConnect())
-					&& client.getServiceName().equals(cmd.getServiceName())) {
-				findClient = true;
+		for (String serviceName : cmd.getServiceNames().keySet()) {
+			List<Client> clientList = serviceClients.get(serviceName);
+			if (clientList == null) {
+				return false;
+			}
+			boolean findClient = false;
+			for (Client client : clientList) {
+				if (client.getAddress().equals(cmd.getConnect())) {
+					findClient = true;
+				}
+			}
+			if (!findClient) {
+				return false;
 			}
 		}
-		if (!findClient) {
-			return false;
-
-		}
-		// }
-		return existed;
+		return true;
 	}
 
 	public synchronized void removeConnect(Client client) {
@@ -159,7 +157,6 @@ public class DefaultClusterListener implements ClusterListener {
 				}
 			}
 		}
-
 	}
 
 	@Override
@@ -219,16 +216,13 @@ public class DefaultClusterListener implements ClusterListener {
 		};
 
 		try {
-			String waitTimeStr = System
-					.getProperty("com.dianping.pigeon.invoker.closewaittime");
+			String waitTimeStr = System.getProperty("com.dianping.pigeon.invoker.closewaittime");
 			int waitTime = 3000;
 			if (waitTimeStr != null) {
 				try {
 					waitTime = Integer.parseInt(waitTimeStr);
 				} catch (Exception e) {
-					logger.error(
-							"error parsing com.dianping.pigeon.invoker.closewaittime",
-							e);
+					logger.error("error parsing com.dianping.pigeon.invoker.closewaittime", e);
 				}
 			}
 			if (waitTime < 0) {
@@ -239,5 +233,4 @@ public class DefaultClusterListener implements ClusterListener {
 			logger.error("error schedule task to close client", e);
 		}
 	}
-
 }

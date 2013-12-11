@@ -4,17 +4,17 @@
  */
 package com.dianping.pigeon.remoting.invoker.component.context;
 
-import java.lang.reflect.Method;
-
-import com.dianping.pigeon.component.invocation.InvocationContext;
+import com.dianping.pigeon.remoting.common.component.invocation.InvocationContext;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 public interface InvokerContext extends InvocationContext {
 
-	InvokerConfig getInvokerConfig();
+	InvokerConfig<?> getInvokerConfig();
 
-	Method getMethod();
+	String getMethodName();
+	
+	Class<?>[] getParameterTypes();
 
 	Object[] getArguments();
 

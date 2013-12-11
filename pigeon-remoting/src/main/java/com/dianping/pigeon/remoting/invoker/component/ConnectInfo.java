@@ -4,50 +4,41 @@
  */
 package com.dianping.pigeon.remoting.invoker.component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 public class ConnectInfo {
 
 	public static final String PLACEHOLDER = ":";
-
 	private String connect;
-
 	private String host;
-
 	private int port;
-
-	private String serviceName;
-
-	public String getServiceName() {
-		return serviceName;
-	}
-
-	public void setServiceName(String serviceName) {
-		this.serviceName = serviceName;
-	}
-
-	public int getWeight() {
-		return weight;
-	}
-
-	public void setWeight(int weight) {
-		this.weight = weight;
-	}
-
-	private int weight;
+	private Map<String, Integer> serviceNames;
 
 	// private Map<String, Integer> serviceNameAndWeights;
 
 	public ConnectInfo(String serviceName, String connect, int weight) {
+		this(new HashMap<String, Integer>(), connect);
+		this.serviceNames.put(serviceName, weight);
+	}
 
-		this.serviceName = serviceName;
-		this.weight = weight;
+	public ConnectInfo(Map<String, Integer> serviceNames, String connect) {
+		this.serviceNames = serviceNames;
 		this.connect = connect;
 		String[] connectMetaData = connect.split(PLACEHOLDER);
 		this.host = connectMetaData[0];
 		this.port = Integer.parseInt(connectMetaData[1]);
+	}
 
+	public void addServiceNames(Map<String, Integer> serviceNames) {
+		this.serviceNames.putAll(serviceNames);
+	}
+
+	public Map<String, Integer> getServiceNames() {
+		return serviceNames;
 	}
 
 	/**

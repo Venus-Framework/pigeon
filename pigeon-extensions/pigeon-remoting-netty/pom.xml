@@ -4,10 +4,12 @@
 	<parent>
 		<artifactId>pigeon-extensions</artifactId>
 		<groupId>com.dianping</groupId>
-		<version>2.1.2-SNAPSHOT</version>
+		<version>2.1.5-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<name>pigeon-remoting-netty</name>
+	<groupId>com.dianping</groupId>
+	<version>2.1.5-SNAPSHOT</version>
 	<artifactId>pigeon-remoting-netty</artifactId>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
@@ -34,7 +36,4 @@
 			<artifactId>pigeon-remoting</artifactId>
 		</dependency>
 	</dependencies>
-
-	<groupId>com.dianping</groupId>
-	<version>2.1.2-SNAPSHOT</version>
 </project>
