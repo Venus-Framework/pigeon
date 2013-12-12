@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.remoting.provider.process.event;
 
-import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
+import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 
 public class RequestEvent {
 

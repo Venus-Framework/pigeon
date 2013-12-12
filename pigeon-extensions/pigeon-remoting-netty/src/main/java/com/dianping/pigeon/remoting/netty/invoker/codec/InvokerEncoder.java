@@ -13,7 +13,7 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.Channels;
 
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.netty.codec.AbstractEncoder;
 import com.dianping.pigeon.remoting.netty.codec.NettyCodecUtils;

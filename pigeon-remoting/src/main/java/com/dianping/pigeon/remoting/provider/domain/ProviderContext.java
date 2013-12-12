@@ -2,10 +2,11 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.provider.component.context;
+package com.dianping.pigeon.remoting.provider.domain;
 
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationContext;
-import com.dianping.pigeon.remoting.provider.component.ProviderChannel;
+import java.util.concurrent.Future;
+
+import com.dianping.pigeon.remoting.common.domain.InvocationContext;
 
 /**
  * 
@@ -21,5 +22,8 @@ public interface ProviderContext extends InvocationContext {
 	void setServiceError(Throwable serviceError);
 
 	ProviderChannel getChannel();
-
+	
+	Future<?> getFuture();
+	
+	void setFuture(Future<?> future);
 }

@@ -12,7 +12,6 @@ import org.junit.Before;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.spring.ProxyBeanFactory;
-import com.dianping.pigeon.component.QueryString;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.test.client.loader.ConfigLoader;
 
@@ -58,7 +57,7 @@ public class BaseInvokerTest {
 				if (test.group().isEmpty()) {
 					factory.setServiceName(serviceName);
 				} else {
-					factory.setServiceName(serviceName + QueryString.PREFIX + "group=" + test.group());
+					factory.setServiceName(serviceName + "?group=" + test.group());
 				}
 				if (!test.zone().isEmpty()) {
 					factory.setZone(test.zone());

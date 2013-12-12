@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.component;
+package com.dianping.pigeon.remoting.invoker.domain;
 
 import java.util.HashMap;
 import java.util.Map;

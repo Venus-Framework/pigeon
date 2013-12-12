@@ -2,11 +2,12 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.provider.component.context;
+package com.dianping.pigeon.remoting.provider.domain;
 
-import com.dianping.pigeon.remoting.common.component.context.AbstractInvocationContext;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.provider.component.ProviderChannel;
+import java.util.concurrent.Future;
+
+import com.dianping.pigeon.remoting.common.domain.AbstractInvocationContext;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 
 /**
  * 
@@ -19,6 +20,7 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 
 	private Throwable serviceError;
 	private ProviderChannel channel;
+	private Future<?> future;
 
 	public DefaultProviderContext(InvocationRequest request, ProviderChannel channel) {
 		super(request);
@@ -36,6 +38,15 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 	@Override
 	public ProviderChannel getChannel() {
 		return channel;
+	}
+
+	public void setFuture(Future<?> future) {
+		this.future = future;
+	}
+	
+	@Override
+	public Future<?> getFuture() {
+		return this.future;
 	}
 
 }

@@ -7,7 +7,7 @@ package com.dianping.dpsf.protocol;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 
 /**
  * 不能修改packagename，修改属性需要注意，确保和之前的dpsf兼容。
@@ -35,9 +35,39 @@ public class DefaultResponse implements InvocationResponse {
 
 	private Object context;
 
+	private long createTime;
+
+	private long requestTime;
+
+	private long responseTime;
+
+	public long getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(long createTime) {
+		this.createTime = createTime;
+	}
+
+	public long getRequestTime() {
+		return requestTime;
+	}
+
+	public void setRequestTime(long requestTime) {
+		this.requestTime = requestTime;
+	}
+
+	public long getResponseTime() {
+		return responseTime;
+	}
+
+	public void setResponseTime(long responseTime) {
+		this.responseTime = responseTime;
+	}
+
 	public DefaultResponse() {
 	}
-	
+
 	public DefaultResponse(int messageType, byte serialize) {
 		this.messageType = messageType;
 		this.serialize = serialize;

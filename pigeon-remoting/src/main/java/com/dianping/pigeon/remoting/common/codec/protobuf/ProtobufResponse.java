@@ -4,7 +4,7 @@
 package com.dianping.pigeon.remoting.common.codec.protobuf;
 
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.google.protobuf.MessageLite;
 
@@ -36,6 +36,36 @@ public class ProtobufResponse implements InvocationResponse {
 	private int messageType;
 
 	private String cause;
+	
+	private long createTime;
+
+	private long requestTime;
+
+	private long responseTime;
+
+	public long getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(long createTime) {
+		this.createTime = createTime;
+	}
+
+	public long getRequestTime() {
+		return requestTime;
+	}
+
+	public void setRequestTime(long requestTime) {
+		this.requestTime = requestTime;
+	}
+
+	public long getResponseTime() {
+		return responseTime;
+	}
+
+	public void setResponseTime(long responseTime) {
+		this.responseTime = responseTime;
+	}
 
 	public ProtobufResponse(MessageLite response) {
 		if (response instanceof ProtobufRpcProtos.Response) {

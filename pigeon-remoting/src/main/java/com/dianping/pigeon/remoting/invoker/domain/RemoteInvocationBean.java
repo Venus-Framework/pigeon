@@ -1,7 +1,6 @@
-package com.dianping.pigeon.remoting.invoker.component;
+package com.dianping.pigeon.remoting.invoker.domain;
 
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.invoker.component.async.Callback;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 
 public class RemoteInvocationBean {
 

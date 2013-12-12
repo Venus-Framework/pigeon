@@ -13,88 +13,81 @@ import java.util.concurrent.Future;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
+import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.util.ContextUtils;
 
-public class TimeoutListener implements Runnable {
+public class RequestTimeoutListener implements Runnable {
 
-	private static final Logger logger = LoggerLoader.getLogger(TimeoutListener.class);
+	private static final Logger logger = LoggerLoader.getLogger(RequestTimeoutListener.class);
 	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(MonitorLogger.class);
-	private Map<InvocationRequest, ProviderContext> context;
+	private Map<InvocationRequest, ProviderContext> requestContextMap;
 
-	public TimeoutListener(Map<InvocationRequest, ProviderContext> context) {
-		this.context = context;
+	public RequestTimeoutListener(Map<InvocationRequest, ProviderContext> requestContextMap) {
+		this.requestContextMap = requestContextMap;
 	}
 
 	public void run() {
-//		while (true) {
-//			try {
-//				long currentTime = System.currentTimeMillis();
-//				for (InvocationRequest request : context.keySet()) {
-//					if (request.getCreateMillisTime() + request.getTimeout() < currentTime) {
-//						try {
-//							ProviderContext rc = context.get(request);
-//							if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
-//								@SuppressWarnings("rawtypes")
-//								Future future = rc.ge.getFuture();
-//								if (future != null) {
-//									future.cancel(false);
-//								}
-//							} else {
-//								// 记录超时堆栈
-//								// TODO, 需要加强日志，把参数也打印出来？如果是一些敏感信息，是否涉及安全？
-//								// 打印一个cat的messageid？
-//								NetTimeoutException te;
-//								StringBuffer msg = new StringBuffer();
-//								msg.append("DPSF RequestExecutor timeout seq:").append(request.getSequence());
-//								msg.append("  ip:").append(rc.getHost()).append("  timeout:" + request.getTimeout())
-//										.append("  createTime:").append(request.getCreateMillisTime()).append("\r\n")
-//										.append("  serviceName:").append(request.getServiceName()).append("\r\n");
-//								Object[] params = request.getParameters();
-//								if (params != null && params.length > 0) {
-//									for (Object param : params) {
-//										msg.append("<><>").append(String.valueOf(param));
-//									}
-//									msg.append("\r\n");
-//								}
-//								Thread t = rc.getThread();
-//								if (t == null) {
-//									msg.append(" and task has been not executed by threadPool");
-//									te = new NetTimeoutException(msg.toString());
-//								} else {
-//									te = new NetTimeoutException(msg.toString());
-//									te.setStackTrace(t.getStackTrace());
-//								}
-//								ContextUtils.setContext(request.getContext());
-//
-//								logger.error(te.getMessage(), te);
-//								if (monitorLogger != null) {
-//									monitorLogger.logError(te);
-//								}
-//
-//								@SuppressWarnings("rawtypes")
-//								Future fu = rc.getFuture();
-//								if (fu != null) {
-//									fu.cancel(false);
-//								} else {
-//									logger.error("<<<<<< No Future for Request  \r\n" + msg.toString());
-//								}
-//							}
-//						} finally {
-//							context.remove(request);
-//						}
-//
-//					}
-//				}
-//				Thread.sleep(1000);
-//			} catch (Exception e) {
-//				logger.error(e.getMessage(), e);
-//			}
-//		}
+		while (true) {
+			try {
+				long currentTime = System.currentTimeMillis();
+				if (logger.isDebugEnabled()) {
+					logger.debug("checking request timeout, count:" + requestContextMap.size());
+				}
+				for (InvocationRequest request : requestContextMap.keySet()) {
+					if (request.getRequestTime() + request.getTimeout() < currentTime) {
+						try {
+							ProviderContext rc = requestContextMap.get(request);
+							if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
+								Future<?> future = rc.getFuture();
+								if (future != null && !future.isCancelled()) {
+									future.cancel(true);
+								}
+							} else {
+								StringBuffer msg = new StringBuffer();
+								msg.append("pigeon request timeout, seq:").append(request.getSequence())
+										.append(", from:")
+										.append(rc.getChannel().getRemoteAddress().getAddress().getHostAddress())
+										.append(", to:")
+										.append(ExtensionLoader.getExtension(ConfigManager.class).getLocalIp())
+										.append(", timeout:").append(request.getTimeout()).append(", create time:")
+										.append(request.getCreateMillisTime()).append(", request time:")
+										.append(request.getRequestTime()).append(", process time:")
+										.append(System.currentTimeMillis()).append("\r\n").append("service:")
+										.append(request.getServiceName()).append(", method:")
+										.append(request.getMethodName()).append("\r\n");
+								Object[] params = request.getParameters();
+								if (params != null && params.length > 0) {
+									for (Object param : params) {
+										msg.append("parameters:").append(String.valueOf(param));
+									}
+									msg.append("\r\n");
+								}
+								NetTimeoutException te = new NetTimeoutException(msg.toString());
+								ContextUtils.setContext(request.getContext());
+								logger.error(te.getMessage(), te);
+								if (monitorLogger != null) {
+									monitorLogger.logError(te);
+								}
+								Future<?> future = rc.getFuture();
+								if (future != null && !future.isCancelled()) {
+									future.cancel(true);
+								}
+							}
+						} finally {
+							requestContextMap.remove(request);
+						}
+					}
+				}
+				Thread.sleep(2000);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 }

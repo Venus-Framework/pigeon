@@ -13,8 +13,8 @@ import com.dianping.cat.message.spi.MessageTree;
 import com.dianping.phoenix.environment.PhoenixContext;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationContext;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.util.ContextUtils;
 
 /**

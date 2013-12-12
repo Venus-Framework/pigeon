@@ -10,11 +10,11 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
-import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
+import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.util.ContextUtils;
 
 /**

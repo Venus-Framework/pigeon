@@ -13,13 +13,13 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
-import com.dianping.pigeon.remoting.provider.component.ProviderChannel;
-import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
+import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
+import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.site.helper.Stringizers;
 
 public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderContext> {

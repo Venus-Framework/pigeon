@@ -6,8 +6,8 @@ package com.dianping.pigeon.remoting.invoker.util;
 
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.event.RuntimeServiceEvent;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.invoker.component.RpcInvokeInfo;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.invoker.domain.RpcInvokeInfo;
 
 public final class RpcEventUtils {
 

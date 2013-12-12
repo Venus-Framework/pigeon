@@ -8,8 +8,8 @@ import java.net.InetSocketAddress;
 
 import org.jboss.netty.channel.Channel;
 
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
-import com.dianping.pigeon.remoting.provider.component.ProviderChannel;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 
 /**
  * 

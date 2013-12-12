@@ -4,8 +4,8 @@
  */
 package com.dianping.pigeon.remoting.provider.process;
 
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 
 public interface RequestProcessor {
 

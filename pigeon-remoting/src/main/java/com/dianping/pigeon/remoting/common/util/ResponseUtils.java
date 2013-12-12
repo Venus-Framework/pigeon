@@ -9,8 +9,8 @@ import java.io.StringWriter;
 
 import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 
 public final class ResponseUtils {
 
@@ -24,7 +24,7 @@ public final class ResponseUtils {
 		response.setSerialize(serialization);
 		response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
 		response.setReturn(e);
-
+		
 		return response;
 	}
 
@@ -36,6 +36,8 @@ public final class ResponseUtils {
 		} else {
 			response = createThrowableResponse(request.getSequence(), request.getSerialize(), e);
 		}
+		response.setCreateTime(request.getCreateMillisTime());
+		response.setRequestTime(request.getRequestTime());
 		return response;
 	}
 
@@ -47,6 +49,8 @@ public final class ResponseUtils {
 		response.setSerialize(serialize);
 		response.setMessageType(Constants.MESSAGE_TYPE_SERVICE_EXCEPTION);
 		response.setReturn(e);
+		response.setCreateTime(request.getCreateMillisTime());
+		response.setRequestTime(request.getRequestTime());
 
 		// switch (serialization) {
 		// case SerializerFactory.SERIALIZE_JAVA:
@@ -78,6 +82,8 @@ public final class ResponseUtils {
 		response.setSerialize(serialize);
 		response.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
 		response.setReturn(returnObj);
+		response.setCreateTime(request.getCreateMillisTime());
+		response.setRequestTime(request.getRequestTime());
 
 		return response;
 	}
@@ -86,6 +92,8 @@ public final class ResponseUtils {
 		InvocationResponse response = new DefaultResponse(Constants.MESSAGE_TYPE_HEART, request.getSerialize());
 		response.setSequence(request.getSequence());
 		response.setReturn(Constants.VERSION_150);
+		response.setCreateTime(request.getCreateMillisTime());
+		response.setRequestTime(request.getRequestTime());
 		return response;
 	}
 
@@ -116,6 +124,36 @@ public final class ResponseUtils {
 		 * serialVersionUID
 		 */
 		private static final long serialVersionUID = 4348389641787057819L;
+
+		private long createTime;
+
+		private long requestTime;
+
+		private long responseTime;
+
+		public long getCreateTime() {
+			return createTime;
+		}
+
+		public void setCreateTime(long createTime) {
+			this.createTime = createTime;
+		}
+
+		public long getRequestTime() {
+			return requestTime;
+		}
+
+		public void setRequestTime(long requestTime) {
+			this.requestTime = requestTime;
+		}
+
+		public long getResponseTime() {
+			return responseTime;
+		}
+
+		public void setResponseTime(long responseTime) {
+			this.responseTime = responseTime;
+		}
 
 		@Override
 		public void setMessageType(int messageType) {

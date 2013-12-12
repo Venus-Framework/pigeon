@@ -7,11 +7,11 @@ package com.dianping.pigeon.remoting.invoker.service;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.RemoteInvocationBean;
-import com.dianping.pigeon.remoting.invoker.component.async.Callback;
+import com.dianping.pigeon.remoting.invoker.domain.Callback;
+import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
 import com.dianping.pigeon.remoting.invoker.listener.InvocationTimeoutListener;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
@@ -39,7 +39,6 @@ public class ServiceInvocationRepository {
 	}
 
 	public void receiveResponse(InvocationResponse response) {
-
 		RemoteInvocationBean invocationBean = invocations.get(response.getSequence());
 		if (invocationBean != null) {
 			InvocationRequest request = invocationBean.request;
@@ -53,7 +52,6 @@ public class ServiceInvocationRepository {
 					callback.callback(response);
 					callback.run();
 				}
-
 			} finally {
 				invocations.remove(response.getSequence());
 			}

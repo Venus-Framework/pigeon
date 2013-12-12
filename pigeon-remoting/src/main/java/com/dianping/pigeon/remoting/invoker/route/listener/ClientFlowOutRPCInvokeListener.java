@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.dianping.pigeon.event.RuntimeServiceEvent;
 import com.dianping.pigeon.event.RuntimeServiceEvent.Type;
-import com.dianping.pigeon.remoting.invoker.component.RpcInvokeInfo;
+import com.dianping.pigeon.remoting.invoker.domain.RpcInvokeInfo;
 import com.dianping.pigeon.remoting.invoker.route.stat.barrel.ServerStatBarrelsHolder;
 
 /**

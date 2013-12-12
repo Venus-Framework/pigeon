@@ -13,7 +13,7 @@ import com.dianping.cat.message.Transaction;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationContext;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext;
 
 /**
  * @author xiangwu

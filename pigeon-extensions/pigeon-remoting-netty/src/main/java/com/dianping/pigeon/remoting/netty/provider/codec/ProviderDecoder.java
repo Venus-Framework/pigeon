@@ -10,8 +10,8 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.Channels;
 
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.netty.codec.AbstractDecoder;
 
 public class ProviderDecoder extends AbstractDecoder {
@@ -22,9 +22,7 @@ public class ProviderDecoder extends AbstractDecoder {
 			return null;
 		}
 		InvocationRequest request = (InvocationRequest) message;
-		if (request.getCreateMillisTime() == 0) {
-			request.setCreateMillisTime(System.currentTimeMillis());
-		}
+		request.setPequestTime(System.currentTimeMillis());
 		return request;
 	}
 

@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.component.async;
+package com.dianping.pigeon.remoting.invoker.domain;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
@@ -12,9 +12,8 @@ import org.apache.log4j.Logger;
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.component.RequestError;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -32,17 +31,11 @@ public class CallbackFuture implements Callback, CallFuture {
 	private static final Logger logger = LoggerLoader.getLogger(CallbackFuture.class);
 
 	private InvocationResponse response;
-
 	private CallFuture future;
-
 	private boolean done = false;
 	private boolean concelled = false;
 	private boolean success = false;
-
-	private RequestError error;
-
 	private InvocationRequest request;
-
 	private Client client;
 
 	public void run() {
@@ -65,38 +58,23 @@ public class CallbackFuture implements Callback, CallFuture {
 		return get(Long.MAX_VALUE);
 	}
 
-	public InvocationResponse get(long timeoutMillis)
-			throws InterruptedException {
+	public InvocationResponse get(long timeoutMillis) throws InterruptedException {
 		synchronized (this) {
 			long start = request.getCreateMillisTime();
 			while (!this.done) {
-				long timeoutMillis_ = timeoutMillis
-						- (System.currentTimeMillis() - start);
+				long timeoutMillis_ = timeoutMillis - (System.currentTimeMillis() - start);
 				if (timeoutMillis_ <= 0) {
-					this.error = RequestError.TIMEOUT;
 					StringBuilder sb = new StringBuilder();
-					sb.append(this.error.getMsg())
-							.append("\r\n seq:")
-							.append(request.getSequence())
-							.append("\r\n callType:")
-							.append(request.getCallType())
-							.append("\r\n serviceName:")
-							.append(request.getServiceName())
-							.append("\r\n methodName:")
-							.append(request.getMethodName())
-							.append("\r\n host:")
-							.append(client.getHost())
-							.append(":")
-							.append(client.getPort())
-							.append("\r\n timeout:" + request.getTimeout())
-							.append("\r\n Parameters:"
-									+ request.getParameters());
+					sb.append("request timeout").append("\r\n seq:").append(request.getSequence())
+							.append("\r\n callType:").append(request.getCallType()).append("\r\n serviceName:")
+							.append(request.getServiceName()).append("\r\n methodName:")
+							.append(request.getMethodName()).append("\r\n host:").append(client.getHost()).append(":")
+							.append(client.getPort()).append("\r\n timeout:" + request.getTimeout())
+							.append("\r\n Parameters:" + request.getParameters());
 
-					RpcEventUtils.clientTimeOutEvent(request,
-							client.getAddress());
+					RpcEventUtils.clientTimeOutEvent(request, client.getAddress());
 
-					NetTimeoutException netTimeoutException = new NetTimeoutException(
-							sb.toString());
+					NetTimeoutException netTimeoutException = new NetTimeoutException(sb.toString());
 					throw netTimeoutException;
 				} else {
 					this.wait(timeoutMillis_);
@@ -105,8 +83,7 @@ public class CallbackFuture implements Callback, CallFuture {
 
 			Object context = ContextUtils.getContext();
 			if (context != null) {
-				Integer order = ContextUtils.getOrder(this.response
-						.getContext());
+				Integer order = ContextUtils.getOrder(this.response.getContext());
 				if (order != null && order > 0) {
 					ContextUtils.setOrder(context, order);
 				}
@@ -123,8 +100,7 @@ public class CallbackFuture implements Callback, CallFuture {
 					|| response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 				Throwable cause = null;
 				if (response instanceof DefaultResponse) {
-					cause = InvocationUtils.toInvocationThrowable(response
-							.getReturn());
+					cause = InvocationUtils.toInvocationThrowable(response.getReturn());
 				}
 				if (cause == null) {
 					cause = new RuntimeException(response.getCause());
@@ -133,13 +109,10 @@ public class CallbackFuture implements Callback, CallFuture {
 				sb.append(cause.getMessage()).append("\r\n");
 				sb.append("Remote Service Exception Info *************\r\n")
 						// .append(" token:").append(ContextUtil.getToken(this.response.getContext())).append("\r\n")
-						.append(" seq:").append(request.getSequence())
-						.append(" callType:").append(request.getCallType())
-						.append("\r\n serviceName:")
-						.append(request.getServiceName())
-						.append(" methodName:").append(request.getMethodName())
-						.append("\r\n host:").append(client.getHost())
-						.append(":").append(client.getPort())
+						.append(" seq:").append(request.getSequence()).append(" callType:")
+						.append(request.getCallType()).append("\r\n serviceName:").append(request.getServiceName())
+						.append(" methodName:").append(request.getMethodName()).append("\r\n host:")
+						.append(client.getHost()).append(":").append(client.getPort())
 						.append("\r\n timeout:" + request.getTimeout());
 				Field field;
 				try {
@@ -155,8 +128,7 @@ public class CallbackFuture implements Callback, CallFuture {
 		}
 	}
 
-	public InvocationResponse get(long timeout, TimeUnit unit)
-			throws InterruptedException {
+	public InvocationResponse get(long timeout, TimeUnit unit) throws InterruptedException {
 		return get(unit.toMillis(timeout));
 	}
 
@@ -176,24 +148,6 @@ public class CallbackFuture implements Callback, CallFuture {
 
 	public boolean isDone() {
 		return this.done;
-	}
-
-	// public DPSFFuture getFuture(ChannelFuture future) {
-	//
-	// this.future = future;
-	// return this;
-	// }
-
-	public void fail(RequestError error) {
-		synchronized (this) {
-			this.error = error;
-			this.done = true;
-			this.concelled = false;
-			this.success = false;
-			this.future = null;
-			this.notifyAll();
-		}
-
 	}
 
 	public void setRequest(InvocationRequest request) {

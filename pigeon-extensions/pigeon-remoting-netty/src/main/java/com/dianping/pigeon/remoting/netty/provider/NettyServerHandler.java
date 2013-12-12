@@ -18,11 +18,11 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
-import com.dianping.pigeon.remoting.provider.component.context.DefaultProviderContext;
-import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
+import com.dianping.pigeon.remoting.provider.domain.DefaultProviderContext;
+import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 
 public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 

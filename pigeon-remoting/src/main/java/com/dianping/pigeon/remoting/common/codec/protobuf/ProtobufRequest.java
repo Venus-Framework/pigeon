@@ -11,10 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.SerializationException;
 
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -60,6 +60,8 @@ public class ProtobufRequest implements InvocationRequest {
 	private String parameterClass;
 
 	private String version;
+	
+	private long requestTime = 0;
 
 	public void setMethodName(String methodName) {
 		this.methodName = methodName;
@@ -398,6 +400,16 @@ public class ProtobufRequest implements InvocationRequest {
 
 	@Override
 	public void setSerialize(byte serialize) {
+	}
+
+	@Override
+	public long getRequestTime() {
+		return requestTime;
+	}
+
+	@Override
+	public void setPequestTime(long requestTime) {
+		this.requestTime	 = requestTime;
 	}
 
 }

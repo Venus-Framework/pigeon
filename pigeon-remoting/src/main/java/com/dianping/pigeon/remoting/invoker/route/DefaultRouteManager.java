@@ -10,13 +10,13 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NoConnectionException;
-import com.dianping.pigeon.component.phase.Disposable;
+import com.dianping.pigeon.domain.phase.Disposable;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;

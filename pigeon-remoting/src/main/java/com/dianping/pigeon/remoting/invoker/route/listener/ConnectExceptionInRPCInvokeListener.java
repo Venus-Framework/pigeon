@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.event.RuntimeServiceEvent;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.invoker.component.RpcInvokeInfo;
+import com.dianping.pigeon.remoting.invoker.domain.RpcInvokeInfo;
 import com.dianping.pigeon.remoting.invoker.route.stat.barrel.ServerStatBarrelsHolder;
 
 /**

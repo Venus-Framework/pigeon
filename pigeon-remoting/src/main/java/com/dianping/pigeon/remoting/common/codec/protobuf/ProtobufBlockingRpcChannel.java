@@ -6,12 +6,12 @@ package com.dianping.pigeon.remoting.common.codec.protobuf;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationContext;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.component.context.DefaultInvokerContext;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.domain.DefaultInvokerContext;
 import com.dianping.pigeon.remoting.invoker.process.InvocationHandlerFactory;
 import com.google.protobuf.BlockingRpcChannel;
 import com.google.protobuf.Descriptors.MethodDescriptor;

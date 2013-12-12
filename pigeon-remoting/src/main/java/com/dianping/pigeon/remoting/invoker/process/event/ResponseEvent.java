@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.remoting.invoker.process.event;
 
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.Client;
 
 public class ResponseEvent {

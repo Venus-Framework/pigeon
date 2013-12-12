@@ -6,20 +6,21 @@ package com.dianping.pigeon.remoting.provider.process.disruptor;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
-import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
+import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.process.AbstractRequestProcessor;
 import com.dianping.pigeon.remoting.provider.process.event.RequestEvent;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 
-public class RequestDisruptorProcessor implements RequestProcessor {
+public class RequestDisruptorProcessor extends AbstractRequestProcessor {
 
 	private static final Logger logger = LoggerLoader.getLogger(RequestDisruptorProcessor.class);
 	private Disruptor<RequestEvent> disruptor;
@@ -48,14 +49,15 @@ public class RequestDisruptorProcessor implements RequestProcessor {
 		// requestProcessor.start();
 	}
 
-	public void stop() {
+	public void doStop() {
 		disruptor.shutdown();
 	}
 
-	public void processRequest(final InvocationRequest request, final ProviderContext providerContext) {
+	public Future<?> doProcessRequest(final InvocationRequest request, final ProviderContext providerContext) {
 		long sequence = ringBuffer.next();
 		ringBuffer.get(sequence).setProviderContext(providerContext);
 		ringBuffer.publish(sequence);
+		return null;
 	}
 
 }

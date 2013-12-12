@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.component.async;
+package com.dianping.pigeon.remoting.invoker.domain;
 
 import java.util.concurrent.TimeUnit;
 

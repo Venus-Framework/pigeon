@@ -1,11 +1,11 @@
-package com.dianping.pigeon.remoting.invoker.component;
+package com.dianping.pigeon.remoting.invoker.domain;
 
 import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 
 public class RpcInvokeInfo implements Serializable {
 

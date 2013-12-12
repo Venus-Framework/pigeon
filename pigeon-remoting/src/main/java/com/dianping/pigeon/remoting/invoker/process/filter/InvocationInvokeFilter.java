@@ -6,11 +6,11 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.event.RuntimeServiceEvent;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.RpcInvokeInfo;
-import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
+import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
+import com.dianping.pigeon.remoting.invoker.domain.RpcInvokeInfo;
 
 public abstract class InvocationInvokeFilter implements ServiceInvocationFilter<InvokerContext> {
 

@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.route.balance;
 
 import java.util.List;
 
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
 
 /**

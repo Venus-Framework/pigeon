@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.remoting.provider.process.akka;
 
+import java.util.concurrent.Future;
+
 import org.apache.log4j.Logger;
 
 import akka.actor.ActorRef;
@@ -12,13 +14,13 @@ import akka.actor.Props;
 import akka.routing.SmallestMailboxRouter;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
-import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
+import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.process.AbstractRequestProcessor;
 import com.dianping.pigeon.remoting.provider.process.event.RequestEvent;
 
-public class RequestAkkaProcessor implements RequestProcessor {
+public class RequestAkkaProcessor extends AbstractRequestProcessor {
 
 	private static final Logger logger = LoggerLoader.getLogger(RequestAkkaProcessor.class);
 	final ActorSystem system = ActorSystem.create("Pigeon");
@@ -28,14 +30,15 @@ public class RequestAkkaProcessor implements RequestProcessor {
 		router = system.actorOf(new Props(RequestEventAkkaHandler.class).withRouter(new SmallestMailboxRouter(serverConfig.getMaxPoolSize())));
 	}
 
-	public void stop() {
+	public void doStop() {
 		system.shutdown();
 	}
 
-	public void processRequest(final InvocationRequest request, final ProviderContext providerContext) {
+	public Future<?> doProcessRequest(final InvocationRequest request, final ProviderContext providerContext) {
 		RequestEvent event = new RequestEvent();
 		event.setProviderContext(providerContext);
 		router.tell(event, null);
+		return null;
 	}
 
 }

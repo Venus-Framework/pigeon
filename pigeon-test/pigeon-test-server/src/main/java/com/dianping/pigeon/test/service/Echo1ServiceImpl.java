@@ -24,10 +24,20 @@ public class Echo1ServiceImpl implements EchoService {
 		// System.out.println(input);
 		if (input.equals("200000")) {
 			System.out.println("sleep......");
+//			int i = 0;
+//			while(i++ < 99999999) {
+//				if(i == 99999998) {
+//					i = 0;
+//					System.out.println("sleep......");
+//				}
+//			}
 			try {
 				Thread.currentThread().sleep(10000);
+				System.out.println("end sleep, input......" + input);
 			} catch (InterruptedException e) {
+				System.out.println("interrupted......");
 			}
+			System.out.println("end......" + input);
 		}
 		return "echo1:" + input;
 	}

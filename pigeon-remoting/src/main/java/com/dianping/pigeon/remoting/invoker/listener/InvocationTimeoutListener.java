@@ -9,9 +9,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.invoker.component.RemoteInvocationBean;
-import com.dianping.pigeon.remoting.invoker.component.async.Callback;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.invoker.domain.Callback;
+import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 
 public class InvocationTimeoutListener implements Runnable {

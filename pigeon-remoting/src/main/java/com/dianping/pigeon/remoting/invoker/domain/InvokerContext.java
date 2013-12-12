@@ -2,9 +2,9 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.component.context;
+package com.dianping.pigeon.remoting.invoker.domain;
 
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationContext;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 

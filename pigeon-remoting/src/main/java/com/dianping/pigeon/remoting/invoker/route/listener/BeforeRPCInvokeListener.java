@@ -5,7 +5,7 @@
 package com.dianping.pigeon.remoting.invoker.route.listener;
 
 import com.dianping.pigeon.event.RuntimeServiceEvent;
-import com.dianping.pigeon.remoting.invoker.component.RpcInvokeInfo;
+import com.dianping.pigeon.remoting.invoker.domain.RpcInvokeInfo;
 import com.dianping.pigeon.remoting.invoker.route.stat.DpsfAddressStatPool;
 import com.dianping.pigeon.remoting.invoker.route.stat.barrel.ServerStatBarrelsHolder;
 

@@ -10,26 +10,25 @@ import java.lang.reflect.Method;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
-import com.dianping.pigeon.remoting.invoker.component.context.DefaultInvokerContext;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.domain.DefaultInvokerContext;
 
 public class ServiceInvocationProxy implements InvocationHandler {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceInvocationProxy.class);
-	private InvokerConfig invokerConfig;
+	private InvokerConfig<?> invokerConfig;
 	private ServiceInvocationHandler handler;
 
-	public ServiceInvocationProxy(InvokerConfig invokerConfig, ServiceInvocationHandler handler) {
+	public ServiceInvocationProxy(InvokerConfig<?> invokerConfig, ServiceInvocationHandler handler) {
 		this.invokerConfig = invokerConfig;
 		this.handler = handler;
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
 		String methodName = method.getName();
 		Class<?>[] parameterTypes = method.getParameterTypes();
 		if (method.getDeclaringClass() == Object.class) {

@@ -19,7 +19,7 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 
 public class ReconnectListener implements Runnable, ClusterListener {
 

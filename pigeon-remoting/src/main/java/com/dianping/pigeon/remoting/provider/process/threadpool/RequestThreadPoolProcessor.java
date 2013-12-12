@@ -4,21 +4,22 @@
  */
 package com.dianping.pigeon.remoting.provider.process.threadpool;
 
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
-import com.dianping.pigeon.remoting.provider.component.context.ProviderContext;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
+import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.process.AbstractRequestProcessor;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessHandlerFactory;
-import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
 
-public class RequestThreadPoolProcessor implements RequestProcessor {
+public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 	private static final Logger logger = LoggerLoader.getLogger(RequestThreadPoolProcessor.class);
 	private static ThreadPool requestProcessThreadPool = null;
@@ -29,10 +30,11 @@ public class RequestThreadPoolProcessor implements RequestProcessor {
 						serverConfig.getWorkQueueSize()));
 	}
 
-	public void stop() {
+	public void doStop() {
 	}
 
-	public void processRequest(final InvocationRequest request, final ProviderContext providerContext) {
+	public Future<?> doProcessRequest(final InvocationRequest request, final ProviderContext providerContext) {
+		this.requestContextMap.put(request, providerContext);
 		Runnable requestExecutor = new Runnable() {
 			@Override
 			public void run() {
@@ -44,10 +46,12 @@ public class RequestThreadPoolProcessor implements RequestProcessor {
 					}
 				} catch (Throwable t) {
 					logger.error("Process request failed with invocation handler, you should never be here.", t);
+				} finally {
+					requestContextMap.remove(request);
 				}
 			}
 		};
-		requestProcessThreadPool.submit(requestExecutor);
+		return requestProcessThreadPool.submit(requestExecutor);
 	}
 
 }

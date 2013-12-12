@@ -18,19 +18,19 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
-import com.dianping.pigeon.component.HostInfo;
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
-import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 
 public class HeartBeatListener implements Runnable, ClusterListener {
 

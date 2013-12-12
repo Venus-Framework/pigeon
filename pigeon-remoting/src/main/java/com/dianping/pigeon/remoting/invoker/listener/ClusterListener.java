@@ -5,7 +5,7 @@
 package com.dianping.pigeon.remoting.invoker.listener;
 
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 
 public interface ClusterListener {
 

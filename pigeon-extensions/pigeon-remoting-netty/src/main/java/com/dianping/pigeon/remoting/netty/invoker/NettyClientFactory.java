@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.netty.invoker;
 
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientFactory;
-import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 
 /**
  * 

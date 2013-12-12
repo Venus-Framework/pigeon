@@ -2,15 +2,16 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.component.async;
+package com.dianping.pigeon.remoting.invoker.util;
 
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.invoker.domain.ServiceFuture;
 
-public final class ServiceFutureFactory {
+public final class ServiceFutureUtils {
 
-	private static final Logger log = LoggerLoader.getLogger(ServiceFutureFactory.class);
+	private static final Logger log = LoggerLoader.getLogger(ServiceFutureUtils.class);
 
 	private static ThreadLocal<ServiceFuture> threadFuture = new ThreadLocal<ServiceFuture>();
 

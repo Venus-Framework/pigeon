@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.remoting.invoker;
 
-import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 
 /**
  * 

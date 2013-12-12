@@ -23,8 +23,8 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientFactory;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
-import com.dianping.pigeon.remoting.invoker.component.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 
 public class DefaultClusterListener implements ClusterListener {

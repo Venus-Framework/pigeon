@@ -10,10 +10,10 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 
 /**
  * 不能修改packagename，修改属性需要注意，确保和之前的dpsf兼容。
@@ -50,6 +50,8 @@ public class DefaultRequest implements InvocationRequest {
 	private Object context;
 
 	private String version;
+	
+	private long requestTime = 0;
 
 	private transient Class<?>[] parameterClasses;
 
@@ -217,5 +219,15 @@ public class DefaultRequest implements InvocationRequest {
 	@Override
 	public void setSerialize(byte serialize) {
 		this.serialize = serialize;
+	}
+
+	@Override
+	public long getRequestTime() {
+		return requestTime;
+	}
+
+	@Override
+	public void setPequestTime(long requestTime) {
+		this.requestTime = requestTime;
 	}
 }

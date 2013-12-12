@@ -17,10 +17,10 @@ import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.remoting.common.codec.Serializer;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
-import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.process.InvocationHandlerFactory;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationProxy;
 

@@ -5,19 +5,19 @@
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import com.dianping.dpsf.exception.NetException;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationRequest;
-import com.dianping.pigeon.remoting.common.component.invocation.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.component.RemoteInvocationBean;
-import com.dianping.pigeon.remoting.invoker.component.async.Callback;
-import com.dianping.pigeon.remoting.invoker.component.async.CallbackFuture;
-import com.dianping.pigeon.remoting.invoker.component.async.ServiceCallbackWrapper;
-import com.dianping.pigeon.remoting.invoker.component.async.ServiceFutureImpl;
-import com.dianping.pigeon.remoting.invoker.component.context.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.domain.Callback;
+import com.dianping.pigeon.remoting.invoker.domain.CallbackFuture;
+import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
+import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
+import com.dianping.pigeon.remoting.invoker.domain.ServiceCallbackWrapper;
+import com.dianping.pigeon.remoting.invoker.domain.ServiceFutureImpl;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 
 /**

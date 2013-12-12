@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.component.HostInfo;
+import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.util.Constants;
