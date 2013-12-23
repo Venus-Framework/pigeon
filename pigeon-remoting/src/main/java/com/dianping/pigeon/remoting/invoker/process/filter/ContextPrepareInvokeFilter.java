@@ -26,54 +26,37 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
-		initRequest(invocationContext.getRequest());
+		initRequest(invocationContext);
 		transferContextValueToRequest(invocationContext, invocationContext.getRequest());
 		return handler.handle(invocationContext);
 	}
 
 	// 初始化Request的createTime和timeout，以便统一这两个值
-	private void initRequest(InvocationRequest request) {
+	private void initRequest(InvokerContext invokerContext) {
+		InvocationRequest request = invokerContext.getRequest();
 		request.setCreateMillisTime(System.currentTimeMillis());
-		Object timeout = ContextUtils.getLocalContext(Constants.REQUEST_TIMEOUT);
-		if (timeout != null) {
-			int timeout_ = Integer.parseInt(String.valueOf(timeout));
-			if (timeout_ < request.getTimeout()) {
-				request.setTimeout(timeout_);
+		request.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
+		InvokerConfig<?> invokerConfig = invokerContext.getInvokerConfig();
+		if (invokerConfig != null) {
+			request.setTimeout(invokerConfig.getTimeout());
+			Object timeout = ContextUtils.getLocalContext(Constants.REQUEST_TIMEOUT);
+			if (timeout != null) {
+				int timeout_ = Integer.parseInt(String.valueOf(timeout));
+				if (timeout_ > 0 && timeout_ < request.getTimeout()) {
+					request.setTimeout(timeout_);
+				}
+			}
+			request.setAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT, invokerConfig.isWriteBufferLimit());
+			if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallMethod())) {
+				request.setCallType(Constants.CALLTYPE_NOREPLY);
+			} else {
+				request.setCallType(Constants.CALLTYPE_REPLY);
 			}
 		}
-
-		// Object createTime =
-		// ContextUtils.getLocalContext(Constants.REQUEST_CREATE_TIME);
-		// Object timeout =
-		// ContextUtils.getLocalContext(Constants.REQUEST_TIMEOUT);
-		// if (createTime != null) {
-		// long createTime_ = Long.parseLong(String.valueOf(createTime));
-		// int timeout_ = Integer.parseInt(String.valueOf(timeout));
-		// Object firstFlag =
-		// ContextUtils.getLocalContext(Constants.REQUEST_FIRST_FLAG);
-		// if (firstFlag == null) {
-		// ContextUtils.putLocalContext(Constants.REQUEST_FIRST_FLAG, true);
-		// request.setCreateMillisTime(createTime_);
-		// } else {
-		// long now = System.currentTimeMillis();
-		// timeout_ = timeout_ - (int) (now - createTime_);
-		// if (timeout_ <= 0) {
-		// throw new
-		// NetTimeoutException("method has been timeout for first call (startTime:"
-		// + new Date(createTime_) + " timeout:" + timeout_ + ")");
-		// }
-		// request.setCreateMillisTime(now);
-		// }
-		// if (timeout_ < request.getTimeout()) {
-		// request.setTimeout(timeout_);
-		// }
-		// } else {
-		// request.setCreateMillisTime(System.currentTimeMillis());
-		// }
 	}
 
 	private void transferContextValueToRequest(final InvokerContext invocationContext, final InvocationRequest request) {
-		InvokerConfig metaData = invocationContext.getInvokerConfig();
+		InvokerConfig<?> metaData = invocationContext.getInvokerConfig();
 		Client client = invocationContext.getClient();
 		Object contextHolder = ContextUtils.createContext(metaData.getUrl(), invocationContext.getMethodName(),
 				client.getHost(), client.getPort());

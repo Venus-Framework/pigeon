@@ -9,8 +9,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -29,9 +27,9 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.AbstractClient;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.domain.CallFuture;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.RpcInvokeInfo;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
@@ -65,11 +63,11 @@ public class NettyClient extends AbstractClient {
 
 	public static final int CLIENT_CONNECTIONS = Runtime.getRuntime().availableProcessors();
 
-	public NettyClient(ConnectInfo cmd) {
-		this.host = cmd.getHost();
-		this.port = cmd.getPort();
-		this.connectInfo = cmd;
-		this.address = host + ConnectInfo.PLACEHOLDER + port;
+	public NettyClient(ConnectInfo connectInfo) {
+		this.host = connectInfo.getHost();
+		this.port = connectInfo.getPort();
+		this.connectInfo = connectInfo;
+		this.address = host + ":" + port;
 
 		ExecutorService bossExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory(
 				Constants.THREADNAME_CLIENT_NETTY_BOSS_EXECUTOR));
@@ -85,25 +83,37 @@ public class NettyClient extends AbstractClient {
 		this.bootstrap.setPipelineFactory(new NettyClientPipelineFactory(this));
 		this.bootstrap.setOption("tcpNoDelay", true);
 		this.bootstrap.setOption("keepAlive", true);
+		this.bootstrap.setOption("keepAlive", true);
 	}
 
 	public synchronized void connect() {
 		if (this.connected || this.closed) {
 			return;
 		}
+		if(logger.isDebugEnabled()) {
+			logger.debug("client is connecting to " + this.host + ":" + this.port);
+		}
 		ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
 		if (future.awaitUninterruptibly(connectTimeout, TimeUnit.MILLISECONDS)) {
 			if (future.isSuccess()) {
-				logger.warn("Client is connected to " + this.host + ":" + this.port);
+				logger.warn("client is connected to " + this.host + ":" + this.port);
 				this.connected = true;
 			} else {
-				logger.error("Client is not connected to " + this.host + ":" + this.port);
+				logger.error("client is not connected to " + this.host + ":" + this.port);
 			}
 		}
 		this.channel = future.getChannel();
 	}
 
-	public CallFuture write(InvocationRequest request, Callback callback) {
+	public InvocationResponse write(InvokerContext invokerContext, Callback callback) {
+		return write(invokerContext.getRequest(), callback);
+	}
+
+	public InvocationResponse write(InvocationRequest request) {
+		return write(request, null);
+	}
+
+	public InvocationResponse write(InvocationRequest request, Callback callback) {
 		Object[] msg = new Object[] { request, callback };
 		ChannelFuture future = null;
 		if (channel == null) {
@@ -118,8 +128,8 @@ public class NettyClient extends AbstractClient {
 		return null;
 	}
 
-	public void write(InvocationRequest message) {
-		write(message, null);
+	public InvocationResponse write(InvokerContext invokerContext) {
+		return write(invokerContext, null);
 	}
 
 	public void connectionException(Object attachment, Throwable e) {
@@ -128,26 +138,28 @@ public class NettyClient extends AbstractClient {
 	}
 
 	private void connectionException(Client client, Object attachment, Throwable e) {
+		logger.error("exception while connecting to :" + client + ", exception:" + e.getMessage());
 		if (attachment == null) {
 			return;
 		}
 		Object[] msg = (Object[]) attachment;
-		if (msg[0] instanceof InvocationRequest
-				&& ((InvocationRequest) msg[0]).getMessageType() == Constants.MESSAGE_TYPE_SERVICE && msg[1] != null) {
-
-			try {
-				InvocationRequest request = (InvocationRequest) msg[0];
-				Callback callback = (Callback) msg[1];
-				if (client != null) {
-					error(request, client);
-					client.write(request, callback);
-				} else {
-					logger.error("no client for use to " + request.getServiceName());
+		if (msg[0] instanceof InvokerContext) {
+			InvokerContext invokerContext = (InvokerContext) msg[0];
+			InvocationRequest request = (InvocationRequest) invokerContext.getRequest();
+			if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE && msg[1] != null) {
+				try {
+					Callback callback = (Callback) msg[1];
+					if (client != null) {
+						error(request, client);
+						client.write(invokerContext, callback);
+					} else {
+						logger.error("no client for use to " + request.getServiceName());
+					}
+				} catch (Exception ne) {
+					logger.error(ne.getMessage(), ne);
 				}
-			} catch (Exception ne) {
-				logger.error(ne.getMessage(), ne);
+				logger.error(e.getMessage(), e);
 			}
-			logger.error(e.getMessage(), e);
 		}
 	}
 
@@ -230,7 +242,7 @@ public class NettyClient extends AbstractClient {
 
 	@Override
 	public String toString() {
-		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+		return this.getAddress() + ",is connected:" + this.isConnected();
 	}
 
 	public class MsgWriteListener implements ChannelFutureListener {
@@ -262,4 +274,5 @@ public class NettyClient extends AbstractClient {
 	public ConnectInfo getConnectInfo() {
 		return connectInfo;
 	}
+
 }

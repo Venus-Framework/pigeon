@@ -28,6 +28,9 @@ public class LionConfigManager extends AbstractConfigManager {
 	 */
 	@Override
 	public String doGetProperty(String key) throws Exception {
+		if (logger.isInfoEnabled()) {
+			logger.info("read from local config with key[" + key + "]");
+		}
 		return ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress()).getProperty(key);
 	}
 

@@ -17,12 +17,12 @@ import com.dianping.pigeon.remoting.netty.codec.AbstractDecoder;
 public class ProviderDecoder extends AbstractDecoder {
 
 	@Override
-	public Object doInitMsg(Object message) {
+	public Object doInitMsg(Object message, long receiveTime) {
 		if (message == null) {
 			return null;
 		}
 		InvocationRequest request = (InvocationRequest) message;
-		request.setPequestTime(System.currentTimeMillis());
+		request.setCreateMillisTime(receiveTime);
 		return request;
 	}
 

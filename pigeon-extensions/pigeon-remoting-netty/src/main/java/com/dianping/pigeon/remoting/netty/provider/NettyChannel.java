@@ -25,22 +25,15 @@ public class NettyChannel implements ProviderChannel {
 		this.channel = channel;
 	}
 
-	/**
-	 * @return the channel
-	 */
-	@SuppressWarnings("unchecked")
-	public <C> C getChannel(C c) {
-		return (C) channel;
-	}
-
 	@Override
 	public void write(InvocationResponse response) {
 		this.channel.write(response);
 	}
 
 	@Override
-	public InetSocketAddress getRemoteAddress() {
-		return (InetSocketAddress) this.channel.getRemoteAddress();
+	public String getRemoteAddress() {
+		InetSocketAddress address = (InetSocketAddress) this.channel.getRemoteAddress();
+		return address.getAddress().getHostAddress() + ":" + address.getPort();
 	}
 
 }

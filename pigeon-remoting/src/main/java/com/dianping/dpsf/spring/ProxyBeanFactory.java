@@ -101,6 +101,16 @@ public class ProxyBeanFactory implements FactoryBean {
 	private ServiceCallback callback;
 
 	private String version;
+	
+	private String protocol;
+
+	public String getProtocol() {
+		return protocol;
+	}
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
 
 	public void setVersion(String version) {
 		this.version = version;
@@ -301,7 +311,7 @@ public class ProxyBeanFactory implements FactoryBean {
 		this.objType = Class.forName(this.iface.trim());
 		InvokerConfig invokerConfig = new InvokerConfig(this.objType, this.serviceName, this.timeout, this.callMethod,
 				this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadbalance, this.cluster,
-				this.retries, this.timeoutRetry, this.vip, this.version);
+				this.retries, this.timeoutRetry, this.vip, this.version, this.protocol);
 
 		this.obj = ServiceFactory.getService(invokerConfig);
 		configLoadBalance();

@@ -22,6 +22,8 @@ public @interface PigeonAutoTest {
     String registryServer() default "127.0.0.1:2181";
     
     String url() default "";
+    
+    String protocol() default "";
 
     String serialize() default "hessian";
 

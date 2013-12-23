@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.remoting.provider.process.threadpool;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -11,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
@@ -33,22 +35,24 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 	public void doStop() {
 	}
 
-	public Future<?> doProcessRequest(final InvocationRequest request, final ProviderContext providerContext) {
+	public Future<InvocationResponse> doProcessRequest(final InvocationRequest request, final ProviderContext providerContext) {
 		this.requestContextMap.put(request, providerContext);
-		Runnable requestExecutor = new Runnable() {
+		Callable<InvocationResponse> requestExecutor = new Callable<InvocationResponse>() {
+
 			@Override
-			public void run() {
+			public InvocationResponse call() throws Exception {
 				try {
 					ServiceInvocationHandler invocationHandler = RequestProcessHandlerFactory
 							.selectInvocationHandler(providerContext.getRequest().getMessageType());
 					if (invocationHandler != null) {
-						invocationHandler.handle(providerContext);
+						return invocationHandler.handle(providerContext);
 					}
 				} catch (Throwable t) {
 					logger.error("Process request failed with invocation handler, you should never be here.", t);
 				} finally {
 					requestContextMap.remove(request);
 				}
+				return null;
 			}
 		};
 		return requestProcessThreadPool.submit(requestExecutor);

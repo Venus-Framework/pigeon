@@ -29,7 +29,7 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 
 	private static final Logger logger = LoggerLoader.getLogger(AbstractDecoder.class);
 
-	public abstract Object doInitMsg(Object message);
+	public abstract Object doInitMsg(Object message, long receiveTime);
 
 	public abstract void doFailResponse(Channel channel, InvocationResponse response);
 
@@ -37,6 +37,7 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 
 	public Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws IOException,
 			ClassNotFoundException {
+		long receiveTime = System.currentTimeMillis();
 		if (!(msg instanceof ChannelBuffer)) {
 			return msg;
 		}
@@ -93,7 +94,7 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 				if (messages == null) {
 					messages = new ArrayList<Object>();
 				}
-				messages.add(doInitMsg(message));
+				messages.add(doInitMsg(message, receiveTime));
 				lastReadIndex = cb.readerIndex();
 			} else if (isException) {
 				lastReadIndex = cb.readerIndex();

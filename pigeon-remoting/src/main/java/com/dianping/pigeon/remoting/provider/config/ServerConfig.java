@@ -4,17 +4,20 @@
  */
 package com.dianping.pigeon.remoting.provider.config;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.provider.ServerFactory;
 
 public class ServerConfig {
 
-	private int port = ServerFactory.DEFAULT_PORT;
+	public static final int DEFAULT_PORT = 4625;
+	private int port = DEFAULT_PORT;
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
 			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
@@ -25,6 +28,20 @@ public class ServerConfig {
 	private String group;
 	private String processType = configManager.getStringValue(Constants.KEY_PROCESS_TYPE,
 			Constants.DEFAULT_PROCESS_TYPE);
+	private Set<String> protocols = new HashSet<String>();
+
+	public ServerConfig() {
+		protocols.add("default");
+		protocols.add("http");
+	}
+	
+	public Set<String> getProtocols() {
+		return protocols;
+	}
+
+	public void setProtocols(Set<String> protocols) {
+		this.protocols = protocols;
+	}
 
 	public String getProcessType() {
 		return processType;

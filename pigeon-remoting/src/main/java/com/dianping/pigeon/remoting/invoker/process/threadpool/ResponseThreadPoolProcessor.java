@@ -51,8 +51,7 @@ public class ResponseThreadPoolProcessor implements ResponseProcessor {
 		try {
 			responseProcessThreadPool.execute(task);
 		} catch (Exception ex) {
-			String msg = "Response execute fail:seq--" + response.getSequence() + "\r\n";
-			logger.error(msg + ex.getMessage(), ex);
+			logger.error("process response failed:" + response, ex);
 		}
 	}
 

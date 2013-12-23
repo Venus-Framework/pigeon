@@ -26,6 +26,11 @@ public class ProviderConfig<T> {
 	}
 
 	public ProviderConfig(Class<T> serviceInterface, T service) {
+		if (!serviceInterface.isInstance(service)) {
+			throw new IllegalArgumentException("Service interface [" + serviceInterface.getName()
+					+ "] needs to be implemented by service [" + service + "] of class ["
+					+ service.getClass().getName() + "]");
+		}
 		this.setServiceInterface(serviceInterface);
 		this.setService(service);
 	}
@@ -49,6 +54,9 @@ public class ProviderConfig<T> {
 	}
 
 	public void setServiceInterface(Class<T> serviceInterface) {
+		if (serviceInterface != null && !serviceInterface.isInterface()) {
+			throw new IllegalArgumentException("'serviceInterface' must be an interface");
+		}
 		this.serviceInterface = serviceInterface;
 	}
 

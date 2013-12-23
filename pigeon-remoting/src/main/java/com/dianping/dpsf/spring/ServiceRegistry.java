@@ -17,7 +17,6 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
@@ -33,7 +32,7 @@ public final class ServiceRegistry {
 
 	private boolean publish = true;
 	private Map<String, Object> services;
-	private int port = ServerFactory.DEFAULT_PORT;
+	private int port = ServerConfig.DEFAULT_PORT;
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
 			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
@@ -87,16 +86,13 @@ public final class ServiceRegistry {
 		serverConfig.setCorePoolSize(corePoolSize);
 		serverConfig.setMaxPoolSize(maxPoolSize);
 		serverConfig.setWorkQueueSize(workQueueSize);
-
 		List<ProviderConfig<?>> providerConfigList = new ArrayList<ProviderConfig<?>>();
 		for (String url : services.keySet()) {
-			
 			ProviderConfig providerConfig = new ProviderConfig(services.get(url));
 			providerConfig.setUrl(url);
 			providerConfig.setServerConfig(serverConfig);
 			providerConfigList.add(providerConfig);
 		}
-
 		try {
 			ServiceFactory.startupServer(serverConfig);
 			ServiceFactory.publishServices(providerConfigList);

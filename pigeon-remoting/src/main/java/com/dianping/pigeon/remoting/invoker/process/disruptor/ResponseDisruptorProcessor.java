@@ -31,15 +31,16 @@ public class ResponseDisruptorProcessor implements ResponseProcessor {
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	public ResponseDisruptorProcessor() {
-		int maxPoolSize = configManager.getIntValue(Constants.KEY_INVOKER_MAXPOOLSIZE,
-				Constants.DEFAULT_INVOKER_MAXPOOLSIZE);
+		int maxPoolSize = 256;
+		// configManager.getIntValue(Constants.KEY_INVOKER_MAXPOOLSIZE,
+		// Constants.DEFAULT_INVOKER_MAXPOOLSIZE);
 		EventFactory<ResponseEvent> EVENT_FACTORY = new EventFactory<ResponseEvent>() {
 			public ResponseEvent newInstance() {
 				return new ResponseEvent();
 			}
 		};
-		ringBuffer = new RingBuffer<ResponseEvent>(EVENT_FACTORY, new SingleThreadedClaimStrategy(
-				maxPoolSize), new BlockingWaitStrategy());
+		ringBuffer = new RingBuffer<ResponseEvent>(EVENT_FACTORY, new SingleThreadedClaimStrategy(maxPoolSize),
+				new BlockingWaitStrategy());
 		sequenceBarrier = ringBuffer.newBarrier();
 		handler = new ResponseEventDisruptorHandler();
 		batchEventProcessor = new BatchEventProcessor<ResponseEvent>(ringBuffer, sequenceBarrier, handler);

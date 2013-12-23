@@ -14,6 +14,9 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
  * 不能修改packagename，修改属性需要注意，确保和之前的dpsf兼容。
@@ -22,6 +25,7 @@ import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
  * @version $Id: DefaultRequest.java, v 0.1 2013-7-5 上午8:25:42 jianhuihuang Exp
  *          $
  */
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "seq")
 public class DefaultRequest implements InvocationRequest {
 
 	/**
@@ -31,13 +35,14 @@ public class DefaultRequest implements InvocationRequest {
 
 	private byte serialize;
 
+	@JsonProperty("seq")
 	private long seq;
 
 	private int callType = Constants.CALLTYPE_REPLY;
 
-	private int timeout;
+	private int timeout = 0;
 
-	private long createMillisTime;
+	private transient long createMillisTime;
 
 	private String serviceName;
 
@@ -50,8 +55,6 @@ public class DefaultRequest implements InvocationRequest {
 	private Object context;
 
 	private String version;
-	
-	private long requestTime = 0;
 
 	private transient Class<?>[] parameterClasses;
 
@@ -222,12 +225,13 @@ public class DefaultRequest implements InvocationRequest {
 	}
 
 	@Override
-	public long getRequestTime() {
-		return requestTime;
+	public void setMessageType(int messageType) {
+		this.messageType = messageType;
 	}
 
 	@Override
-	public void setPequestTime(long requestTime) {
-		this.requestTime = requestTime;
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
 	}
+	
 }

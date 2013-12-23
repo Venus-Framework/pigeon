@@ -15,6 +15,7 @@ import akka.routing.SmallestMailboxRouter;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.AbstractRequestProcessor;
@@ -34,7 +35,7 @@ public class RequestAkkaProcessor extends AbstractRequestProcessor {
 		system.shutdown();
 	}
 
-	public Future<?> doProcessRequest(final InvocationRequest request, final ProviderContext providerContext) {
+	public Future<InvocationResponse> doProcessRequest(final InvocationRequest request, final ProviderContext providerContext) {
 		RequestEvent event = new RequestEvent();
 		event.setProviderContext(providerContext);
 		router.tell(event, null);

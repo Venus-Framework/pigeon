@@ -33,6 +33,7 @@ public final class Constants {
 	public static final String SERIALIZE_JAVA = "java";
 	public static final String SERIALIZE_HESSIAN = "hessian";
 	public static final String SERIALIZE_PROTOBUF = "protobuf";
+	public static final String SERIALIZE_JSON = "json";
 
 	public static final byte MESSAGE_HEAD_FIRST = 57;
 	public static final byte MESSAGE_HEAD_SECOND = 58;
@@ -121,12 +122,13 @@ public final class Constants {
 	public static final String KEY_INVOKER_MAXPOOLSIZE = "pigeon.invoker.maxPoolSize";
 	public static final String KEY_INVOKER_TIMEOUT = "pigeon.invoker.timeout";
 	public static final String KEY_PROCESS_TYPE = "pigeon.process.type";
+	public static final String KEY_TIMEOUT_INTERVAL = "pigeon.timeout.interval";
 
-	public static final int DEFAULT_INVOKER_TIMEOUT = 2000;
+	public static final int DEFAULT_INVOKER_TIMEOUT = 5000;
 	public static final int DEFAULT_PROVIDER_COREPOOLSIZE = 100;
-	public static final int DEFAULT_PROVIDER_MAXPOOLSIZE = 256;
+	public static final int DEFAULT_PROVIDER_MAXPOOLSIZE = 300;
 	public static final int DEFAULT_PROVIDER_WORKQUEUESIZE = 100;
-	public static final int DEFAULT_INVOKER_MAXPOOLSIZE = 256;
+	public static final int DEFAULT_INVOKER_MAXPOOLSIZE = 300;
 	public static final long DEFAULT_RECONNECT_INTERVAL = 3000;
 	public static final long DEFAULT_HEARTBEAT_INTERVAL = 3000;
 	public static final long DEFAULT_HEARTBEAT_TIMEOUT = 5000;
@@ -138,6 +140,9 @@ public final class Constants {
 	public static final int DEFAULT_WRITE_BUFFER_LOW_WATER = 25 * 1024 * 1024;
 	public static final boolean DEFAULT_WRITE_BUFF_LIMIT = false;
 	public static final String DEFAULT_PROCESS_TYPE = "threadpool";
-	
+	public static final long DEFAULT_TIMEOUT_INTERVAL = 100;
 	public static final String ROUTE_ROUNDROBIN = "roundRobin";
+	
+	public static final String PROTOCOL_HTTP = "http";
+	public static final String PROTOCOL_DEFAULT = "default";
 }

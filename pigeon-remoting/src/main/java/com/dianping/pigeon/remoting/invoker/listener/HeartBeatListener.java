@@ -36,9 +36,9 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 	private static final Logger logger = LoggerLoader.getLogger(HeartBeatListener.class);
 
-	private static final String HEART_TASK_SERVICE = "http://service.dianping.com/piegonService/heartTaskService";
+	public static final String HEART_TASK_SERVICE = "http://service.dianping.com/piegonService/heartTaskService";
 
-	private static final String HEART_TASK_METHOD = "heartBeat";
+	public static final String HEART_TASK_METHOD = "heartBeat";
 
 	private Map<String, List<Client>> workingClients;
 
@@ -69,35 +69,34 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 				Thread.sleep(sleepTime);
 				long now = System.currentTimeMillis();
 				// 检查正在工作的Clients是否完好
-				if (this.workingClients != null) {
-					Set<Client> providers = new HashSet<Client>();
-					for (Entry<String, List<Client>> entry : this.workingClients.entrySet()) {
+				if (this.getWorkingClients() != null) {
+					Set<Client> clients = new HashSet<Client>();
+					for (Entry<String, List<Client>> entry : this.getWorkingClients().entrySet()) {
 						List<Client> clientList = entry.getValue();
 						if (clientList != null) {
-							providers.addAll(clientList);
+							clients.addAll(clientList);
 						}
 					}
-					for (Client provider : providers) {
+					for (Client client : clients) {
 						if (logger.isDebugEnabled()) {
-							logger.debug("[heartbeat] checking status of service provider:" + provider.getHost() + ":"
-									+ provider.getPort());
+							logger.debug("[heartbeat] checking service provider:" + client);
 						}
-						if (provider.isConnected()) {
-							String connect = provider.getAddress();
+						if (client.isConnected()) {
+							String connect = client.getAddress();
 							if (!hasHeartBeatRequestExists(connect)) {
-								sendHeartBeatRequest(provider);
+								sendHeartBeatRequest(client);
 							} else {
 								HeartBeatStat heartBeatStat = heartBeatStats.get(connect);
 								InvocationRequest heartRequest = heartBeatStat.currentHeartRequest;
 								if (isHeartRequestTimeout(heartRequest, heartBeatTimeout)) {
 									heartBeatStat.incrFailed();
-									notifyHeartBeatStatChanged(provider);
-									sendHeartBeatRequest(provider);
+									notifyHeartBeatStatChanged(client);
+									sendHeartBeatRequest(client);
 								}
 							}
 						} else {
-							logger.error("[heartbeat] remove connect:" + provider.getAddress());
-							clusterListenerManager.removeConnect(provider);
+							logger.error("[heartbeat] remove connect:" + client.getAddress());
+							clusterListenerManager.removeConnect(client);
 						}
 					}
 				}
@@ -125,15 +124,21 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	}
 
 	private void sendHeartBeatRequest(Client client) {
+		HeartBeatStat heartBeatStat = getHeartBeatStatWithCreate(client.getAddress());
+		heartBeatStat.currentHeartRequest = null; // 在write之前需要先置空currentHeartRequest
+		InvocationRequest heartRequest = createHeartRequest(client);
 		try {
-			HeartBeatStat heartStat = getHeartBeatStatWithCreate(client.getAddress());
-			heartStat.currentHeartRequest = null; // 在write之前需要先置空currentHeartRequest
-			InvocationRequest heartRequest = createHeartRequest(client);
-			client.write(heartRequest);
-			heartStat.currentHeartRequest = heartRequest;
+			InvocationResponse response = client.write(heartRequest);
+			heartBeatStat.currentHeartRequest = heartRequest;
+			if (response != null) {
+				processResponse(response, client);
+			}
 		} catch (Exception e) {
+			heartBeatStat.incrFailed();
+			notifyHeartBeatStatChanged(client);
 			logger.warn("[heartbeat] send heartbeat to server[" + client.getAddress() + "] failed. detail["
 					+ e.getMessage() + "].");
+
 		}
 	}
 
@@ -151,7 +156,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 	private InvocationRequest createHeartRequest(Client client) {
 		InvocationRequest request = new DefaultRequest(HEART_TASK_SERVICE, HEART_TASK_METHOD, null,
-				SerializerFactory.SERIALIZE_HESSIAN, Constants.MESSAGE_TYPE_HEART, 30000, null);
+				SerializerFactory.SERIALIZE_HESSIAN, Constants.MESSAGE_TYPE_HEART, 5000, null);
 		request.setSequence(generateHeartSeq(client));
 		request.setCreateMillisTime(System.currentTimeMillis());
 		request.setCallType(Constants.CALLTYPE_REPLY);
@@ -162,8 +167,17 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 		return heartBeatSeq.getAndIncrement();
 	}
 
+	@Override
+	public void addConnect(ConnectInfo cmd, Client client) {
+		if (logger.isInfoEnabled()) {
+			logger.info("[heartbeat] current checking providers:" + this.getWorkingClients());
+		}
+	}
+	
 	public void addConnect(ConnectInfo cmd) {
-
+		if (logger.isInfoEnabled()) {
+			logger.info("[heartbeat] current checking providers:" + this.getWorkingClients());
+		}
 	}
 
 	public void removeConnect(Client client) {
@@ -175,6 +189,9 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			if (entry.getValue() != null && entry.getValue().contains(client)) {
 				entry.getValue().remove(client);
 			}
+		}
+		if (logger.isInfoEnabled()) {
+			logger.info("[heartbeat] current checking providers:" + this.getWorkingClients());
 		}
 	}
 
@@ -226,7 +243,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	}
 
 	private String getServiceName(Client client) {
-		for (Iterator<Entry<String, List<Client>>> iter = workingClients.entrySet().iterator(); iter.hasNext();) {
+		for (Iterator<Entry<String, List<Client>>> iter = getWorkingClients().entrySet().iterator(); iter.hasNext();) {
 			Entry<String, List<Client>> entry = iter.next();
 			if (entry.getValue() != null && entry.getValue().contains(client)) {
 				return StringUtils.substringBetween(entry.getKey(), serviceNameSpace, "/");
@@ -252,7 +269,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 				 * 特例：当只有两台机器时，确保该Service一台机器正常可用即可
 				 */
 				int leastAvailable = total != 2 ? total - (int) Math.floor(total / 3) : 1;
-				List<Client> workingClients_ = workingClients.get(serviceName);
+				List<Client> workingClients_ = getWorkingClients().get(serviceName);
 				int working = 0;
 				if (workingClients_ != null) {
 					for (Client workingClient : workingClients_) {
@@ -272,12 +289,12 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	}
 
 	@Override
-	public void addConnect(ConnectInfo cmd, Client client) {
-	}
-
-	@Override
 	public void doNotUse(String serviceName, String host, int port) {
 		// 在ClientCache中才能知道Client是否需要被真正关闭
+	}
+
+	public Map<String, List<Client>> getWorkingClients() {
+		return workingClients;
 	}
 
 	public void setWorkingClients(Map<String, List<Client>> workingClients) {

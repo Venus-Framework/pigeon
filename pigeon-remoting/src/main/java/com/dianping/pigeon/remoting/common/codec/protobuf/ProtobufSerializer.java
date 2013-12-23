@@ -4,7 +4,6 @@
  */
 package com.dianping.pigeon.remoting.common.codec.protobuf;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
@@ -33,7 +32,7 @@ public class ProtobufSerializer implements Serializer {
 		MessageLite request;
 		try {
 			request = requestPrototype.newBuilderForType().mergeFrom(is).build();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new SerializationException(e);
 		}
 		return new ProtobufRequest(request);
@@ -44,7 +43,7 @@ public class ProtobufSerializer implements Serializer {
 		MessageLite response;
 		try {
 			response = responsePrototype.newBuilderForType().mergeFrom(is).build();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new SerializationException(e);
 		}
 		return new ProtobufResponse(response);
@@ -52,18 +51,26 @@ public class ProtobufSerializer implements Serializer {
 
 	@Override
 	public void serializeRequest(OutputStream os, Object obj) throws SerializationException {
-		serializeResponse(os, obj);
+		if (obj instanceof ProtobufRequest) {
+			serializeResponse(os, ((ProtobufRequest) obj).getObject());
+		} else {
+			serializeResponse(os, obj);
+		}
 	}
 
 	@Override
 	public void serializeResponse(OutputStream os, Object obj) throws SerializationException {
-		if (!(obj instanceof MessageLite)) {
-			return;
+		Object msg = obj;
+		if (obj instanceof ProtobufResponse) {
+			msg = ((ProtobufResponse) obj).getObject();
 		}
-		byte[] bytes = ((MessageLite) obj).toByteArray();
+		if (!(msg instanceof MessageLite)) {
+			throw new SerializationException("invalid format:" + obj);
+		}
+		byte[] bytes = ((MessageLite) msg).toByteArray();
 		try {
 			os.write(bytes);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new SerializationException(e);
 		}
 	}
@@ -85,13 +92,6 @@ public class ProtobufSerializer implements Serializer {
 		} catch (Exception e) {
 			throw new SerializationException(e);
 		}
-
-		// return
-		// Proxy.newProxyInstance(ProxyBeanFactory.class.getClassLoader(), new
-		// Class[] { invokerConfig
-		// .getServiceInterface() },
-		// new ServiceInvocationProxy(invokerConfig,
-		// InvocationHandlerFactory.createInvokeHandler(invokerConfig)));
 	}
 
 	@Override

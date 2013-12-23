@@ -23,7 +23,7 @@ public class ServiceRouteInvokeFilter extends ClusterInvokeFilter {
 	@Override
 	public InvocationResponse _invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
-		InvokerConfig invokerConfig = invocationContext.getInvokerConfig();
+		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		InvocationRequest request = createRemoteCallRequest(invocationContext, invokerConfig);
 		Client remoteClient = clientManager.getClient(invokerConfig, request, null);
 		invocationContext.setClient(remoteClient);

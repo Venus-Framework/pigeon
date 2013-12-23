@@ -21,6 +21,9 @@ public class InvokerConfig<T> {
 	public static final String CALL_CALLBACK = Constants.CALL_CALLBACK;
 	public static final String CALL_ONEWAY = Constants.CALL_ONEWAY;
 	public static final String CALL_FUTURE = Constants.CALL_FUTURE;
+	
+	public static final String PROTOCOL_HTTP = Constants.PROTOCOL_HTTP;
+	public static final String PROTOCOL_DEFAULT = Constants.PROTOCOL_DEFAULT;
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
@@ -55,6 +58,16 @@ public class InvokerConfig<T> {
 
 	private int maxRequests = configManager.getIntValue(Constants.KEY_INVOKER_MAXREQUESTS, 0);
 
+	private String protocol = Constants.PROTOCOL_DEFAULT;
+
+	public String getProtocol() {
+		return protocol;
+	}
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
+
 	public int getMaxRequests() {
 		return maxRequests;
 	}
@@ -86,6 +99,9 @@ public class InvokerConfig<T> {
 	}
 
 	public void setServiceInterface(Class<T> serviceInterface) {
+		if (serviceInterface != null && !serviceInterface.isInterface()) {
+			throw new IllegalArgumentException("'serviceInterface' must be an interface");
+		}
 		this.serviceInterface = serviceInterface;
 	}
 
@@ -131,7 +147,7 @@ public class InvokerConfig<T> {
 
 	public InvokerConfig(Class<T> serviceInterface, String url, int timeout, String callMethod, String serialize,
 			ServiceCallback callback, String group, boolean writeBufferLimit, String loadbalance, String cluster,
-			int retries, boolean timeoutRetry, String vip, String version) {
+			int retries, boolean timeoutRetry, String vip, String version, String protocol) {
 		this.setServiceInterface(serviceInterface);
 		this.setUrl(url);
 		this.setTimeout(timeout);
@@ -146,6 +162,7 @@ public class InvokerConfig<T> {
 		this.setSerialize(serialize);
 		this.setVip(vip);
 		this.setVersion(version);
+		this.setProtocol(protocol);
 	}
 
 	public InvokerConfig(String url, Class<T> serviceInterface) {

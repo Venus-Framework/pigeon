@@ -25,7 +25,7 @@ public class ReconnectListener implements Runnable, ClusterListener {
 
 	private static Logger logger = LoggerLoader.getLogger(ReconnectListener.class);
 
-	private static ConcurrentMap<String, Client> closedProviders = new ConcurrentHashMap<String, Client>();
+	private static ConcurrentMap<String, Client> closedClients = new ConcurrentHashMap<String, Client>();
 
 	private final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
@@ -42,12 +42,12 @@ public class ReconnectListener implements Runnable, ClusterListener {
 			try {
 				Thread.sleep(sleepTime);
 				long now = System.currentTimeMillis();
-				Set<String> toRemovedProviders = new HashSet<String>();
-				if (logger.isDebugEnabled()) {
-					logger.debug("[reconnect] service providers:" + closedProviders);
-				}
-				for (String providerUrl : closedProviders.keySet()) {
-					Client client = closedProviders.get(providerUrl);
+				Set<String> toRemovedClients = new HashSet<String>();
+				for (String providerUrl : closedClients.keySet()) {
+					Client client = closedClients.get(providerUrl);
+					if (logger.isDebugEnabled()) {
+						logger.debug("[reconnect] checking service provider:" + client);
+					}
 					if (!client.isConnected()) {
 						try {
 							client.connect();
@@ -58,11 +58,11 @@ public class ReconnectListener implements Runnable, ClusterListener {
 					if (client.isConnected()) {
 						// 加回去时active设置为true
 						clusterListenerManager.addConnect(providerUrl, client);
-						toRemovedProviders.add(providerUrl);
+						toRemovedClients.add(providerUrl);
 					}
 				}
-				for (String providerUrl : toRemovedProviders) {
-					closedProviders.remove(providerUrl);
+				for (String providerUrl : toRemovedClients) {
+					closedClients.remove(providerUrl);
 				}
 				sleepTime = interval - (System.currentTimeMillis() - now);
 			} catch (Exception e) {
@@ -81,18 +81,35 @@ public class ReconnectListener implements Runnable, ClusterListener {
 
 	@Override
 	public void addConnect(ConnectInfo cmd) {
+		if (logger.isInfoEnabled()) {
+			logger.info("[reconnect] current checking providers:" + closedClients);
+		}
 	}
 
 	@Override
 	public void addConnect(ConnectInfo cmd, Client client) {
+		if (logger.isInfoEnabled()) {
+			logger.info("[reconnect] current checking providers:" + closedClients);
+		}
 	}
 
 	@Override
 	public void removeConnect(Client client) {
 		if (logger.isInfoEnabled()) {
-			logger.info("[reconnect] remove service provider:" + client);
+			logger.info("[reconnect] add service provider to reconnect listener:" + client);
 		}
-		closedProviders.putIfAbsent(client.getConnectInfo().getConnect(), client);
+		if (logger.isInfoEnabled()) {
+			logger.info("[reconnect] current checking providers:" + closedClients);
+		}
+		closedClients.putIfAbsent(client.getConnectInfo().getConnect(), client);
+	}
+
+	public Map<String, List<Client>> getWorkingClients() {
+		return workingClients;
+	}
+
+	public void setWorkingClients(Map<String, List<Client>> workingClients) {
+		this.workingClients = workingClients;
 	}
 
 	@Override
@@ -101,24 +118,20 @@ public class ReconnectListener implements Runnable, ClusterListener {
 		if (logger.isInfoEnabled()) {
 			logger.info("[reconnect] do not use service provider:" + providerUrl);
 		}
-		Client client = closedProviders.get(providerUrl);
+		Client client = closedClients.get(providerUrl);
 		boolean isClientInUse = false;
-		for (List<Client> clientList : workingClients.values()) {
+		for (List<Client> clientList : getWorkingClients().values()) {
 			if (clientList.contains(client)) {
 				isClientInUse = true;
 			}
 		}
 		if (!isClientInUse) {
-			closedProviders.remove(providerUrl);
+			closedClients.remove(providerUrl);
 		}
 	}
 
 	public Map<String, Client> getClosedClients() {
-		return closedProviders;
-	}
-
-	public void setWorkingClients(Map<String, List<Client>> workingClients) {
-		this.workingClients = workingClients;
+		return closedClients;
 	}
 
 }

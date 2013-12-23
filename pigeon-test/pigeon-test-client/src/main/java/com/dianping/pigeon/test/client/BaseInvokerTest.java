@@ -69,6 +69,7 @@ public class BaseInvokerTest {
 				factory.setCluster(test.cluster());
 				factory.setTimeoutRetry(test.timeoutRetry());
 				factory.setRetries(test.retries());
+				factory.setProtocol(test.protocol());
 				factory.setLoadbalance(test.loadbalance());
 				factory.setVip(test.vip());
 				if (!test.callback().equals("null")) {

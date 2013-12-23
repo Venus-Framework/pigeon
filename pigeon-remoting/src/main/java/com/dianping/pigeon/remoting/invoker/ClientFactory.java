@@ -14,5 +14,7 @@ import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
  */
 public interface ClientFactory {
 
-	Client createClient(ConnectInfo cmd);
+	boolean support(ConnectInfo connectInfo);
+
+	Client createClient(ConnectInfo connectInfo);
 }

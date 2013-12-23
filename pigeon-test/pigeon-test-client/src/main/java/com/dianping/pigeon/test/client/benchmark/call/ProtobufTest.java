@@ -21,7 +21,7 @@ import com.dianping.pigeon.test.service.protobuf.EchoProtos.EchoResponse;
  */
 public class ProtobufTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(callMethod = "sync", serialize = "protobuf", url = "http://service.dianping.com/testService/echoServiceProtobuf_1.0.0", timeout = 2000)
+	@PigeonAutoTest(callMethod = "sync", protocol = "http", serialize = "protobuf", url = "http://service.dianping.com/testService/echoServiceProtobuf_1.0.0", timeout = 2000)
 	public EchoProtos.EchoService.BlockingInterface echoService;
 
 	static AtomicLong counter = new AtomicLong(0);
@@ -32,6 +32,7 @@ public class ProtobufTest extends BaseInvokerTest {
 	public void test() throws Throwable {
 		int threads = configManager.getIntValue("pigeon.test.threads", 50);
 		System.out.println("threads:" + threads);
+		threads = 50;
 		Assert.notNull(echoService);
 		for (int i = 0; i < threads; i++) {
 			ClientThread thread = new ClientThread(echoService);

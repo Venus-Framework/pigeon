@@ -12,21 +12,24 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.exception.ProcessTimeoutException;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class RequestTimeoutListener implements Runnable {
 
 	private static final Logger logger = LoggerLoader.getLogger(RequestTimeoutListener.class);
-	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(MonitorLogger.class);
+	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
 	private Map<InvocationRequest, ProviderContext> requestContextMap;
+	private long timeoutInterval = ExtensionLoader.getExtension(ConfigManager.class).getLongValue(
+			Constants.KEY_TIMEOUT_INTERVAL, Constants.DEFAULT_TIMEOUT_INTERVAL);
 
 	public RequestTimeoutListener(Map<InvocationRequest, ProviderContext> requestContextMap) {
 		this.requestContextMap = requestContextMap;
@@ -40,7 +43,8 @@ public class RequestTimeoutListener implements Runnable {
 					logger.debug("checking request timeout, count:" + requestContextMap.size());
 				}
 				for (InvocationRequest request : requestContextMap.keySet()) {
-					if (request.getRequestTime() + request.getTimeout() < currentTime) {
+					if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
+							&& (request.getCreateMillisTime() + request.getTimeout()) < currentTime) {
 						try {
 							ProviderContext rc = requestContextMap.get(request);
 							if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
@@ -50,25 +54,12 @@ public class RequestTimeoutListener implements Runnable {
 								}
 							} else {
 								StringBuffer msg = new StringBuffer();
-								msg.append("pigeon request timeout, seq:").append(request.getSequence())
-										.append(", from:")
-										.append(rc.getChannel().getRemoteAddress().getAddress().getHostAddress())
-										.append(", to:")
+								msg.append("timeout while processing request, from:")
+										.append(rc.getChannel().getRemoteAddress()).append(", to:")
 										.append(ExtensionLoader.getExtension(ConfigManager.class).getLocalIp())
-										.append(", timeout:").append(request.getTimeout()).append(", create time:")
-										.append(request.getCreateMillisTime()).append(", request time:")
-										.append(request.getRequestTime()).append(", process time:")
-										.append(System.currentTimeMillis()).append("\r\n").append("service:")
-										.append(request.getServiceName()).append(", method:")
-										.append(request.getMethodName()).append("\r\n");
-								Object[] params = request.getParameters();
-								if (params != null && params.length > 0) {
-									for (Object param : params) {
-										msg.append("parameters:").append(String.valueOf(param));
-									}
-									msg.append("\r\n");
-								}
-								NetTimeoutException te = new NetTimeoutException(msg.toString());
+										.append(", process time:").append(System.currentTimeMillis()).append("\r\n")
+										.append("request:").append(request);
+								ProcessTimeoutException te = new ProcessTimeoutException(msg.toString());
 								ContextUtils.setContext(request.getContext());
 								logger.error(te.getMessage(), te);
 								if (monitorLogger != null) {
@@ -84,7 +75,7 @@ public class RequestTimeoutListener implements Runnable {
 						}
 					}
 				}
-				Thread.sleep(2000);
+				Thread.sleep(timeoutInterval);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}

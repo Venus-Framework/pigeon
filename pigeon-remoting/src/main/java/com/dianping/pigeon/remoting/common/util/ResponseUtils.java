@@ -24,7 +24,7 @@ public final class ResponseUtils {
 		response.setSerialize(serialization);
 		response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
 		response.setReturn(e);
-		
+
 		return response;
 	}
 
@@ -36,8 +36,6 @@ public final class ResponseUtils {
 		} else {
 			response = createThrowableResponse(request.getSequence(), request.getSerialize(), e);
 		}
-		response.setCreateTime(request.getCreateMillisTime());
-		response.setRequestTime(request.getRequestTime());
 		return response;
 	}
 
@@ -49,8 +47,6 @@ public final class ResponseUtils {
 		response.setSerialize(serialize);
 		response.setMessageType(Constants.MESSAGE_TYPE_SERVICE_EXCEPTION);
 		response.setReturn(e);
-		response.setCreateTime(request.getCreateMillisTime());
-		response.setRequestTime(request.getRequestTime());
 
 		// switch (serialization) {
 		// case SerializerFactory.SERIALIZE_JAVA:
@@ -82,8 +78,6 @@ public final class ResponseUtils {
 		response.setSerialize(serialize);
 		response.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
 		response.setReturn(returnObj);
-		response.setCreateTime(request.getCreateMillisTime());
-		response.setRequestTime(request.getRequestTime());
 
 		return response;
 	}
@@ -92,8 +86,7 @@ public final class ResponseUtils {
 		InvocationResponse response = new DefaultResponse(Constants.MESSAGE_TYPE_HEART, request.getSerialize());
 		response.setSequence(request.getSequence());
 		response.setReturn(Constants.VERSION_150);
-		response.setCreateTime(request.getCreateMillisTime());
-		response.setRequestTime(request.getRequestTime());
+
 		return response;
 	}
 
@@ -125,34 +118,44 @@ public final class ResponseUtils {
 		 */
 		private static final long serialVersionUID = 4348389641787057819L;
 
-		private long createTime;
+		private long invokerRequestTime;
 
-		private long requestTime;
+		private long invokerResponseTime;
 
-		private long responseTime;
+		private long providerRequestTime;
 
-		public long getCreateTime() {
-			return createTime;
+		private long providerResponseTime;
+
+		public long getInvokerRequestTime() {
+			return invokerRequestTime;
 		}
 
-		public void setCreateTime(long createTime) {
-			this.createTime = createTime;
+		public void setInvokerRequestTime(long invokerRequestTime) {
+			this.invokerRequestTime = invokerRequestTime;
 		}
 
-		public long getRequestTime() {
-			return requestTime;
+		public long getInvokerResponseTime() {
+			return invokerResponseTime;
 		}
 
-		public void setRequestTime(long requestTime) {
-			this.requestTime = requestTime;
+		public void setInvokerResponseTime(long invokerResponseTime) {
+			this.invokerResponseTime = invokerResponseTime;
 		}
 
-		public long getResponseTime() {
-			return responseTime;
+		public long getProviderRequestTime() {
+			return providerRequestTime;
 		}
 
-		public void setResponseTime(long responseTime) {
-			this.responseTime = responseTime;
+		public void setProviderRequestTime(long providerRequestTime) {
+			this.providerRequestTime = providerRequestTime;
+		}
+
+		public long getProviderResponseTime() {
+			return providerResponseTime;
+		}
+
+		public void setProviderResponseTime(long providerResponseTime) {
+			this.providerResponseTime = providerResponseTime;
 		}
 
 		@Override

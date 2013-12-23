@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
@@ -42,10 +43,13 @@ public final class ServiceMethodFactory {
 	public static ServiceMethod getMethod(InvocationRequest request) throws ServiceException {
 		String serviceName = request.getServiceName();
 		String methodName = request.getMethodName();
+		if(StringUtils.isBlank(methodName)) {
+			throw new IllegalArgumentException("method name is required");
+		}
 		String[] paramClassNames = request.getParamClassName();
 		String version = request.getVersion();
 		String newUrl = ServiceProviderFactory.getServiceUrlWithVersion(serviceName, version);
-		if(logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled()) {
 			logger.debug("get method for service url:" + request);
 		}
 		ServiceMethodCache serviceMethodCache = getServiceMethodCache(newUrl);
@@ -63,8 +67,8 @@ public final class ServiceMethodFactory {
 	private static ServiceMethodCache getServiceMethodCache(String url) throws ServiceException {
 		ServiceMethodCache serviceMethodCache = methods.get(url);
 		if (serviceMethodCache == null) {
-			Map<String, ProviderConfig> services = ServiceProviderFactory.getAllServices();
-			ProviderConfig providerConfig = services.get(url);
+			Map<String, ProviderConfig<?>> services = ServiceProviderFactory.getAllServices();
+			ProviderConfig<?> providerConfig = services.get(url);
 			if (providerConfig != null) {
 				Object service = providerConfig.getService();
 				Method[] methodArray = service.getClass().getMethods();

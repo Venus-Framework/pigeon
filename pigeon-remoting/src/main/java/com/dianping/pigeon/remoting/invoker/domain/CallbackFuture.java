@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
-import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -65,12 +64,9 @@ public class CallbackFuture implements Callback, CallFuture {
 				long timeoutMillis_ = timeoutMillis - (System.currentTimeMillis() - start);
 				if (timeoutMillis_ <= 0) {
 					StringBuilder sb = new StringBuilder();
-					sb.append("request timeout").append("\r\n seq:").append(request.getSequence())
-							.append("\r\n callType:").append(request.getCallType()).append("\r\n serviceName:")
-							.append(request.getServiceName()).append("\r\n methodName:")
-							.append(request.getMethodName()).append("\r\n host:").append(client.getHost()).append(":")
-							.append(client.getPort()).append("\r\n timeout:" + request.getTimeout())
-							.append("\r\n Parameters:" + request.getParameters());
+					sb.append("request timeout, current time:").append(System.currentTimeMillis())
+							.append("\r\nrequest:").append(request).append("\r\nhost:").append(client.getHost())
+							.append(":").append(client.getPort());
 
 					RpcEventUtils.clientTimeOutEvent(request, client.getAddress());
 
@@ -80,7 +76,6 @@ public class CallbackFuture implements Callback, CallFuture {
 					this.wait(timeoutMillis_);
 				}
 			}
-
 			Object context = ContextUtils.getContext();
 			if (context != null) {
 				Integer order = ContextUtils.getOrder(this.response.getContext());
@@ -95,25 +90,19 @@ public class CallbackFuture implements Callback, CallFuture {
 					ContextUtils.addFailedContext(this.response.getContext());
 				}
 			}
-
 			if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION
 					|| response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 				Throwable cause = null;
-				if (response instanceof DefaultResponse) {
+				if (response instanceof InvocationResponse) {
 					cause = InvocationUtils.toInvocationThrowable(response.getReturn());
 				}
 				if (cause == null) {
 					cause = new RuntimeException(response.getCause());
 				}
 				StringBuilder sb = new StringBuilder();
-				sb.append(cause.getMessage()).append("\r\n");
-				sb.append("Remote Service Exception Info *************\r\n")
-						// .append(" token:").append(ContextUtil.getToken(this.response.getContext())).append("\r\n")
-						.append(" seq:").append(request.getSequence()).append(" callType:")
-						.append(request.getCallType()).append("\r\n serviceName:").append(request.getServiceName())
-						.append(" methodName:").append(request.getMethodName()).append("\r\n host:")
-						.append(client.getHost()).append(":").append(client.getPort())
-						.append("\r\n timeout:" + request.getTimeout());
+				sb.append("remote service exception\r\nrequest:").append(request).append("\r\nhost:")
+						.append(client.getHost()).append(":").append(client.getPort()).append("\r\nresponse:")
+						.append(response);
 				Field field;
 				try {
 					field = Throwable.class.getDeclaredField("detailMessage");

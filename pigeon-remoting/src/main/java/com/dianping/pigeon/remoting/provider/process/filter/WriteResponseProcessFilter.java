@@ -6,7 +6,10 @@ package com.dianping.pigeon.remoting.provider.process.filter;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
@@ -14,6 +17,7 @@ import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.exception.ProcessTimeoutException;
 import com.dianping.pigeon.util.ContextUtils;
 
 /**
@@ -26,6 +30,7 @@ import com.dianping.pigeon.util.ContextUtils;
 public class WriteResponseProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
 	private static final Logger logger = LoggerLoader.getLogger(WriteResponseProcessFilter.class);
+	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
@@ -38,8 +43,18 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 			InvocationRequest request = invocationContext.getRequest();
 			InvocationResponse response = handler.handle(invocationContext);
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
-				response.setResponseTime(System.currentTimeMillis());
+				long currentTime = System.currentTimeMillis();
 				channel.write(response);
+				if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0 && 
+						request.getCreateMillisTime() + request.getTimeout() < currentTime) {
+					StringBuffer msg = new StringBuffer();
+					msg.append("request timeout,\r\nrequest:").append(request).append("\r\nresponse:").append(response);
+					ProcessTimeoutException te = new ProcessTimeoutException(msg.toString());
+					logger.error(te.getMessage(), te);
+					if (monitorLogger != null) {
+						monitorLogger.logError(te);
+					}
+				}
 			}
 			return response;
 		} finally {

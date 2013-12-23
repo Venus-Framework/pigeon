@@ -36,9 +36,9 @@ public class ProtobufBlockingRpcChannel implements BlockingRpcChannel {
 
 	private static Logger logger = LoggerLoader.getLogger(ProtobufBlockingRpcChannel.class);
 
-	private InvokerConfig invokerConfig;
+	private InvokerConfig<?> invokerConfig;
 
-	public ProtobufBlockingRpcChannel(InvokerConfig invokerConfig) {
+	public ProtobufBlockingRpcChannel(InvokerConfig<?> invokerConfig) {
 		this.invokerConfig = invokerConfig;
 	}
 

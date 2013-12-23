@@ -4,6 +4,9 @@
  */
 package com.dianping.pigeon.registry.listener;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 public class ServiceProviderChangeEvent {
 
 	private String serviceName;
@@ -38,6 +41,11 @@ public class ServiceProviderChangeEvent {
 		this.port = port;
 		this.weight = weight;
 		this.connect = host + ":" + port;
+	}
+
+	@Override
+	public String toString() {
+		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 
 }

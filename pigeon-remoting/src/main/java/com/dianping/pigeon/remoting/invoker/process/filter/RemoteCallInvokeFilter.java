@@ -31,28 +31,29 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 	private static final InvocationResponse NO_RETURN_RESPONSE = ResponseUtils.createNoReturnResponse();
 
 	@Override
-	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
-			throws Throwable {
-		Client client = invocationContext.getClient();
-		InvocationRequest request = invocationContext.getRequest();
-		InvokerConfig invokerConfig = invocationContext.getInvokerConfig();
+	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invokerContext) throws Throwable {
+		Client client = invokerContext.getClient();
+		InvocationRequest request = invokerContext.getRequest();
+		InvokerConfig<?> invokerConfig = invokerContext.getInvokerConfig();
 		String callMethod = invokerConfig.getCallMethod();
 		beforeInvoke(request, client.getAddress());
 		InvocationResponse response = null;
 		if (Constants.CALL_SYNC.equalsIgnoreCase(callMethod)) {
 			CallbackFuture future = new CallbackFuture();
-			sendRequest(client, request, future);
-			response = future.get(invokerConfig.getTimeout());
+			response = sendRequest(client, invokerContext, future);
+			if (response == null) {
+				response = future.get(request.getTimeout());
+			}
 		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callMethod)) {
-			sendRequest(client, request, new ServiceCallbackWrapper(invokerConfig.getCallback()));
+			sendRequest(client, invokerContext, new ServiceCallbackWrapper(invokerConfig.getCallback()));
 			response = NO_RETURN_RESPONSE;
 		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callMethod)) {
-			CallbackFuture future = new ServiceFutureImpl(invokerConfig.getTimeout());
-			sendRequest(client, request, future);
-			invocationContext.putTransientContextValue(Constants.CONTEXT_FUTURE, future);
+			CallbackFuture future = new ServiceFutureImpl(request.getTimeout());
+			sendRequest(client, invokerContext, future);
+			invokerContext.putTransientContextValue(Constants.CONTEXT_FUTURE, future);
 			response = NO_RETURN_RESPONSE;
 		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callMethod)) {
-			sendRequest(client, request, null);
+			sendRequest(client, invokerContext, null);
 			response = NO_RETURN_RESPONSE;
 		} else {
 			throw new RuntimeException("Call method[" + callMethod + "] is not supported!");
@@ -61,7 +62,8 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 		return response;
 	}
 
-	private void sendRequest(Client client, InvocationRequest request, Callback callback) {
+	private InvocationResponse sendRequest(Client client, InvokerContext invokerContext, Callback callback) {
+		InvocationRequest request = invokerContext.getRequest();
 		if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 			RemoteInvocationBean invocationBean = new RemoteInvocationBean();
 			invocationBean.request = request;
@@ -70,12 +72,18 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 			callback.setClient(client);
 			invocationRepository.put(request.getSequence(), invocationBean);
 		}
+		InvocationResponse response = null;
 		try {
-			client.write(request, callback);
+			response = client.write(invokerContext, callback);
 		} catch (RuntimeException e) {
 			invocationRepository.remove(request.getSequence());
-			throw new NetException("Send request to service provider failed.", e);
+			throw new NetException("remote call failed:" + invokerContext, e);
+		} finally {
+			if (response != null) {
+				invocationRepository.remove(request.getSequence());
+			}
 		}
+		return response;
 	}
 
 }

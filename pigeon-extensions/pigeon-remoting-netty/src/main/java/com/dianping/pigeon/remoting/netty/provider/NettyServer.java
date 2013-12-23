@@ -15,9 +15,12 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import com.dianping.pigeon.domain.phase.Disposable;
+import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.provider.AbstractServer;
+import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.threadpool.NamedThreadFactory;
+import com.dianping.pigeon.util.NetUtils;
 
 /**
  * 
@@ -35,8 +38,7 @@ public class NettyServer extends AbstractServer implements Disposable {
 	private volatile boolean started = false;
 	public static final int DEFAULT_IO_THREADS = Runtime.getRuntime().availableProcessors() + 1;
 
-	public NettyServer(int port) {
-		this.port = port;
+	public NettyServer() {
 		ExecutorService boss = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-NettyServerBoss", true));
 		ExecutorService worker = Executors
 				.newCachedThreadPool(new NamedThreadFactory("Pigeon-NettyServerWorker", true));
@@ -48,8 +50,18 @@ public class NettyServer extends AbstractServer implements Disposable {
 	}
 
 	@Override
+	public boolean support(ServerConfig serverConfig) {
+		if (serverConfig.getProtocols().contains("default")) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
 	public void doStart(ServerConfig serverConfig) {
 		if (!started) {
+			int availablePort = NetUtils.getAvailablePort(port);
+			this.port = availablePort;
 			InetSocketAddress address = null;
 			if (this.ip == null) {
 				address = new InetSocketAddress(this.port);
@@ -110,4 +122,22 @@ public class NettyServer extends AbstractServer implements Disposable {
 		return channelGroup;
 	}
 
+	@Override
+	public <T> void addService(ProviderConfig<T> providerConfig) throws RpcException {
+	}
+
+	@Override
+	public String toString() {
+		return "NettyServer-" + this.port;
+	}
+
+	@Override
+	public int getPort() {
+		return port;
+	}
+
+	@Override
+	public String getRegistryUrl(String url) {
+		return url;
+	}
 }

@@ -24,9 +24,9 @@ import com.google.protobuf.RpcController;
  */
 public class ProtobufRpcChannel implements RpcChannel {
 
-	private InvokerConfig invokerConfig;
+	private InvokerConfig<?> invokerConfig;
 
-	public ProtobufRpcChannel(InvokerConfig invokerConfig) {
+	public ProtobufRpcChannel(InvokerConfig<?> invokerConfig) {
 		this.invokerConfig = invokerConfig;
 	}
 

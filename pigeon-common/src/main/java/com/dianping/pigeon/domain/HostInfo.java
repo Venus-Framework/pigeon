@@ -24,14 +24,6 @@ public class HostInfo {
 		this.weight = weight;
 	}
 
-	public HostInfo(String connect, int weight) {
-		int colonIdx = connect.indexOf(":");
-		this.connect = connect;
-		this.host = connect.substring(0, colonIdx);
-		this.port = Integer.parseInt(connect.substring(colonIdx + 1));
-		this.weight = weight;
-	}
-
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof HostInfo) {

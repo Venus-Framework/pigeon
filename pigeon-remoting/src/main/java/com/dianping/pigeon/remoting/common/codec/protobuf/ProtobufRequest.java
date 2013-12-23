@@ -51,17 +51,15 @@ public class ProtobufRequest implements InvocationRequest {
 
 	private int messageType = Constants.MESSAGE_TYPE_SERVICE;
 
-	private int timeout = -1;
+	private int timeout = 0;
 
 	private long sequence;
 
-	private long createMillisTime = 0;
+	private transient long createMillisTime = 0;
 
 	private String parameterClass;
 
 	private String version;
-	
-	private long requestTime = 0;
 
 	public void setMethodName(String methodName) {
 		this.methodName = methodName;
@@ -400,16 +398,6 @@ public class ProtobufRequest implements InvocationRequest {
 
 	@Override
 	public void setSerialize(byte serialize) {
-	}
-
-	@Override
-	public long getRequestTime() {
-		return requestTime;
-	}
-
-	@Override
-	public void setPequestTime(long requestTime) {
-		this.requestTime	 = requestTime;
 	}
 
 }

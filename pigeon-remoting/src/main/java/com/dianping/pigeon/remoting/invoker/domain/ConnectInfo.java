@@ -12,25 +12,21 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 public class ConnectInfo {
 
-	public static final String PLACEHOLDER = ":";
-	private String connect;
 	private String host;
 	private int port;
 	private Map<String, Integer> serviceNames;
 
 	// private Map<String, Integer> serviceNameAndWeights;
 
-	public ConnectInfo(String serviceName, String connect, int weight) {
-		this(new HashMap<String, Integer>(), connect);
+	public ConnectInfo(String serviceName, String host, int port, int weight) {
+		this(new HashMap<String, Integer>(), host, port);
 		this.serviceNames.put(serviceName, weight);
 	}
 
-	public ConnectInfo(Map<String, Integer> serviceNames, String connect) {
+	public ConnectInfo(Map<String, Integer> serviceNames, String host, int port) {
 		this.serviceNames = serviceNames;
-		this.connect = connect;
-		String[] connectMetaData = connect.split(PLACEHOLDER);
-		this.host = connectMetaData[0];
-		this.port = Integer.parseInt(connectMetaData[1]);
+		this.host = host;
+		this.port = port;
 	}
 
 	public void addServiceNames(Map<String, Integer> serviceNames) {
@@ -45,7 +41,7 @@ public class ConnectInfo {
 	 * @return the connect
 	 */
 	public String getConnect() {
-		return connect;
+		return host + ":" + port;
 	}
 
 	/**
@@ -60,6 +56,14 @@ public class ConnectInfo {
 	 */
 	public int getPort() {
 		return port;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
 	}
 
 	@Override

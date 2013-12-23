@@ -3,6 +3,9 @@
  */
 package com.dianping.pigeon.remoting.common.codec.protobuf;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -37,34 +40,44 @@ public class ProtobufResponse implements InvocationResponse {
 
 	private String cause;
 	
-	private long createTime;
+	private long invokerRequestTime;
 
-	private long requestTime;
+	private long invokerResponseTime;
 
-	private long responseTime;
+	private long providerRequestTime;
 
-	public long getCreateTime() {
-		return createTime;
+	private long providerResponseTime;
+
+	public long getInvokerRequestTime() {
+		return invokerRequestTime;
 	}
 
-	public void setCreateTime(long createTime) {
-		this.createTime = createTime;
+	public void setInvokerRequestTime(long invokerRequestTime) {
+		this.invokerRequestTime = invokerRequestTime;
 	}
 
-	public long getRequestTime() {
-		return requestTime;
+	public long getInvokerResponseTime() {
+		return invokerResponseTime;
 	}
 
-	public void setRequestTime(long requestTime) {
-		this.requestTime = requestTime;
+	public void setInvokerResponseTime(long invokerResponseTime) {
+		this.invokerResponseTime = invokerResponseTime;
 	}
 
-	public long getResponseTime() {
-		return responseTime;
+	public long getProviderRequestTime() {
+		return providerRequestTime;
 	}
 
-	public void setResponseTime(long responseTime) {
-		this.responseTime = responseTime;
+	public void setProviderRequestTime(long providerRequestTime) {
+		this.providerRequestTime = providerRequestTime;
+	}
+
+	public long getProviderResponseTime() {
+		return providerResponseTime;
+	}
+
+	public void setProviderResponseTime(long providerResponseTime) {
+		this.providerResponseTime = providerResponseTime;
 	}
 
 	public ProtobufResponse(MessageLite response) {
@@ -230,4 +243,8 @@ public class ProtobufResponse implements InvocationResponse {
 	public void setSerialize(byte serialize) {
 	}
 
+	@Override
+	public String toString() {
+		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
 }

@@ -17,7 +17,7 @@
 						default="hessian" />
 					<xsd:attribute name="callMethod" type="xsd:string"
 						default="sync" />
-					<xsd:attribute name="timeout" type="xsd:int" default="2000" />
+					<xsd:attribute name="timeout" type="xsd:int" default="5000" />
 					<xsd:attribute name="loadbalance" type="xsd:string"
 						default="roundRobin" />
 					<xsd:attribute name="cluster" type="xsd:string"

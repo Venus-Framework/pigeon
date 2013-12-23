@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.AbstractRequestProcessor;
@@ -33,7 +34,7 @@ public class RequestDisruptorProcessor extends AbstractRequestProcessor {
 				return new RequestEvent();
 			}
 		};
-		disruptor = new Disruptor<RequestEvent>(eventFactory, serverConfig.getMaxPoolSize(), EXECUTOR);
+		disruptor = new Disruptor<RequestEvent>(eventFactory, 256, EXECUTOR);
 		RequestEventDisruptorHandler handler = new RequestEventDisruptorHandler();
 		RequestEventDisruptorHandler[] eventHandlers = new RequestEventDisruptorHandler[] { handler };
 		disruptor.handleEventsWith(eventHandlers);
@@ -53,7 +54,7 @@ public class RequestDisruptorProcessor extends AbstractRequestProcessor {
 		disruptor.shutdown();
 	}
 
-	public Future<?> doProcessRequest(final InvocationRequest request, final ProviderContext providerContext) {
+	public Future<InvocationResponse> doProcessRequest(final InvocationRequest request, final ProviderContext providerContext) {
 		long sequence = ringBuffer.next();
 		ringBuffer.get(sequence).setProviderContext(providerContext);
 		ringBuffer.publish(sequence);

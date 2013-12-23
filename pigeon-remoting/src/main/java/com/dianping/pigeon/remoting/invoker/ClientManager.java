@@ -76,12 +76,13 @@ public class ClientManager implements Disposable {
 		RegistryEventListener.addListener(providerChangeListener);
 	}
 
-	public synchronized void registerClient(String serviceName, String connect, int weight) {
-		this.clusterListenerManager.addConnect(new ConnectInfo(serviceName, connect, weight));
-		RegistryManager.getInstance().addServiceServer(serviceName, connect, weight);
+	public synchronized void registerClient(String serviceName, String host, int port, int weight) {
+		ConnectInfo connectInfo = new ConnectInfo(serviceName, host, port, weight);
+		this.clusterListenerManager.addConnect(connectInfo);
+		RegistryManager.getInstance().addServiceServer(serviceName, host, port, weight);
 	}
 
-	public Client getClient(InvokerConfig invokerConfig, InvocationRequest request, List<Client> excludeClients) {
+	public Client getClient(InvokerConfig<?> invokerConfig, InvocationRequest request, List<Client> excludeClients) {
 		List<Client> clientList = clusterListener.getClientList(invokerConfig);
 		List<Client> clientsToRoute = new ArrayList<Client>(clientList);
 		if (excludeClients != null) {
@@ -101,13 +102,10 @@ public class ClientManager implements Disposable {
 		RegistryEventListener.removeListener(providerChangeListener);
 	}
 
-	/**
-	 * 用Lion从ZK中获取serviceName对应的服务地址，并注册这些服务地址
-	 */
-	public synchronized void findAndRegisterClientFor(String serviceName, String group, String vip) {
+	public void findServiceProviders(String serviceName, String group, String vip) {
 		String serviceAddress = null;
 		try {
-			if (!StringUtils.isBlank(vip) && "dev".equals(configManager.getEnv())) {
+			if (!StringUtils.isBlank(vip)) {
 				serviceAddress = vip;
 			} else {
 				serviceAddress = RegistryManager.getInstance().getServiceAddress(serviceName, group);
@@ -120,22 +118,22 @@ public class ClientManager implements Disposable {
 				logger.error("cannot get service provider for service:" + serviceName);
 				throw new RuntimeException(e);
 			} else {
-				logger.error("cannot get service provider for service:" + serviceName + " use failover vip= "
-						+ vip + " instead", e);
+				logger.error("cannot get service provider for service:" + serviceName + " use failover vip= " + vip
+						+ " instead", e);
 				serviceAddress = vip;
 			}
 		}
-		
+
 		if (StringUtils.isBlank(serviceAddress)) {
 			throw new RuntimeException("no service provider found for service:" + serviceName + ",group:" + group
 					+ ",vip:" + vip);
 		}
-		
+
 		if (logger.isInfoEnabled()) {
-			logger.info("selected service provider address is:" + serviceAddress + " with service:" + serviceName + ",group:"
-					+ group + ",vip:" + vip);
+			logger.info("selected service provider address is:" + serviceAddress + " with service:" + serviceName
+					+ ",group:" + group + ",vip:" + vip);
 		}
-		
+
 		serviceAddress = serviceAddress.trim();
 		String[] addressList = serviceAddress.split(",");
 		for (int i = 0; i < addressList.length; i++) {
@@ -182,7 +180,7 @@ public class ClientManager implements Disposable {
 			if (logger.isInfoEnabled()) {
 				logger.info("add " + event.getHost() + ":" + event.getPort() + " to " + event.getServiceName());
 			}
-			registerClient(event.getServiceName(), event.getHost() + ":" + event.getPort(), event.getWeight());
+			registerClient(event.getServiceName(), event.getHost(), event.getPort(), event.getWeight());
 		}
 
 		@Override

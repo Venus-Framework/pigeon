@@ -18,7 +18,9 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.util.VersionUtils;
 
@@ -31,7 +33,7 @@ public final class ServiceProviderFactory {
 
 	private static Logger logger = LoggerLoader.getLogger(ServiceProviderFactory.class);
 
-	private static ConcurrentHashMap<String, ProviderConfig> serviceCache = new ConcurrentHashMap<String, ProviderConfig>();
+	private static ConcurrentHashMap<String, ProviderConfig<?>> serviceCache = new ConcurrentHashMap<String, ProviderConfig<?>>();
 
 	private static ConcurrentHashMap<String, Boolean> registerStatusCache = new ConcurrentHashMap<String, Boolean>();
 
@@ -49,6 +51,8 @@ public final class ServiceProviderFactory {
 	}
 
 	public static <T> void addService(ProviderConfig<T> providerConfig) throws ServiceException {
+		String group = configManager.getGroup();
+		providerConfig.getServerConfig().setGroup(group);
 		if (logger.isInfoEnabled()) {
 			logger.info("add service:" + providerConfig);
 		}
@@ -60,7 +64,7 @@ public final class ServiceProviderFactory {
 			String urlWithVersion = getServiceUrlWithVersion(url, version);
 			if (serviceCache.containsKey(url)) {
 				serviceCache.put(urlWithVersion, providerConfig);
-				ProviderConfig providerConfigDefault = serviceCache.get(url);
+				ProviderConfig<?> providerConfigDefault = serviceCache.get(url);
 				String defaultVersion = providerConfigDefault.getVersion();
 				if (!StringUtils.isBlank(defaultVersion)) {
 					if (VersionUtils.compareVersion(defaultVersion, providerConfig.getVersion()) < 0) {
@@ -75,32 +79,39 @@ public final class ServiceProviderFactory {
 				serviceCache.put(url, providerConfig);
 			}
 		}
-		publishServiceToRegistry(providerConfig);
+		if (!registerStatusCache.contains(url)) {
+			String autoRegister = configManager.getStringValue(Constants.KEY_AUTO_REGISTER,
+					Constants.DEFAULT_AUTO_REGISTER);
+			List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
+			for (Server server : servers) {
+				if (server.support(providerConfig.getServerConfig())) {
+					try {
+						server.addService(providerConfig);
+					} catch (RpcException e) {
+						throw new ServiceException("", e);
+					}
+					if ("true".equalsIgnoreCase(autoRegister)) {
+						publishServiceToRegistry(server.getRegistryUrl(url), server.getPort(), providerConfig
+								.getServerConfig().getGroup());
+						registerStatusCache.put(url, true);
+					} else {
+						registerStatusCache.put(url, false);
+					}
+				}
+			}
+		}
 	}
 
-	private static <T> void publishServiceToRegistry(ProviderConfig<T> providerConfig) throws ServiceException {
+	private static <T> void publishServiceToRegistry(String url, int port, String group) throws ServiceException {
 		if (logger.isInfoEnabled()) {
-			logger.info("publish service:" + providerConfig);
+			logger.info("publish service to registry, url:" + url + ", port:" + port + ", group:" + group);
 		}
-		if (!registerStatusCache.contains(providerConfig.getUrl())) {
-			try {
-				String autoRegister = configManager.getStringValue(Constants.KEY_AUTO_REGISTER,
-						Constants.DEFAULT_AUTO_REGISTER);
-				if ("true".equalsIgnoreCase(autoRegister)) {
-					String serviceAddress = configManager.getLocalIp() + ":"
-							+ providerConfig.getServerConfig().getPort();
-					String group = configManager.getGroup();
-					providerConfig.getServerConfig().setGroup(group);
-					int weight = configManager.getIntValue(Constants.KEY_WEIGHT, Constants.DEFAULT_WEIGHT);
-					RegistryManager.getInstance().registerService(providerConfig.getUrl(), group, serviceAddress,
-							weight);
-					registerStatusCache.put(providerConfig.getUrl(), true);
-				} else {
-					registerStatusCache.put(providerConfig.getUrl(), false);
-				}
-			} catch (Exception e) {
-				throw new ServiceException("", e);
-			}
+		try {
+			String serviceAddress = configManager.getLocalIp() + ":" + port;
+			int weight = configManager.getIntValue(Constants.KEY_WEIGHT, Constants.DEFAULT_WEIGHT);
+			RegistryManager.getInstance().registerService(url, group, serviceAddress, weight);
+		} catch (Exception e) {
+			throw new ServiceException("", e);
 		}
 	}
 
@@ -108,18 +119,23 @@ public final class ServiceProviderFactory {
 		if (logger.isInfoEnabled()) {
 			logger.info("remove service:" + url);
 		}
-		ProviderConfig providerConfig = serviceCache.get(url);
+		ProviderConfig<?> providerConfig = serviceCache.get(url);
 		if (providerConfig != null) {
-			String serviceAddress = configManager.getLocalIp() + ":" + providerConfig.getServerConfig().getPort();
-			try {
-				RegistryManager.getInstance().unregisterService(url, providerConfig.getServerConfig().getGroup(),
-						serviceAddress);
-			} catch (RegistryException e) {
-				throw new ServiceException("", e);
+			List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
+			for (Server server : servers) {
+				if (server.support(providerConfig.getServerConfig())) {
+					String serviceAddress = configManager.getLocalIp() + ":" + server.getPort();
+					try {
+						RegistryManager.getInstance().unregisterService(server.getRegistryUrl(providerConfig.getUrl()),
+								providerConfig.getServerConfig().getGroup(), serviceAddress);
+					} catch (RegistryException e) {
+						throw new ServiceException("", e);
+					}
+				}
 			}
 			List<String> toRemovedUrls = new ArrayList<String>();
 			for (String key : serviceCache.keySet()) {
-				ProviderConfig pc = serviceCache.get(key);
+				ProviderConfig<?> pc = serviceCache.get(key);
 				if (pc.getUrl().equals(url)) {
 					toRemovedUrls.add(key);
 				}
@@ -140,7 +156,7 @@ public final class ServiceProviderFactory {
 		}
 	}
 
-	public static Map<String, ProviderConfig> getAllServices() {
+	public static Map<String, ProviderConfig<?>> getAllServices() {
 		return serviceCache;
 	}
 

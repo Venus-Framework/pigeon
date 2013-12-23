@@ -18,7 +18,7 @@ import com.dianping.pigeon.remoting.netty.codec.AbstractDecoder;
 public class InvokerDecoder extends AbstractDecoder {
 
 	@Override
-	public Object doInitMsg(Object message) {
+	public Object doInitMsg(Object message, long receiveTime) {
 
 		return message;
 	}

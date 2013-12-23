@@ -13,14 +13,13 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
 public class ServerBean {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServerBean.class);
 
-	private int port = ServerFactory.DEFAULT_PORT;
+	private int port = ServerConfig.DEFAULT_PORT;
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
 			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);

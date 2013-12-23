@@ -7,6 +7,10 @@ package com.dianping.pigeon.registry.listener;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import com.dianping.pigeon.log.LoggerLoader;
+
 /**
  * 将lion推送的动态服务信息发送到感兴趣的listener
  * 
@@ -14,6 +18,8 @@ import java.util.List;
  * 
  */
 public class RegistryEventListener {
+
+	private static final Logger logger = LoggerLoader.getLogger(RegistryEventListener.class);
 
 	private static List<ServiceProviderChangeListener> listeners = new ArrayList<ServiceProviderChangeListener>();
 
@@ -33,7 +39,8 @@ public class RegistryEventListener {
 
 	public static void providerAdded(String serviceName, String host, int port, int weight) {
 		for (ServiceProviderChangeListener listener : listeners) {
-			listener.providerAdded(new ServiceProviderChangeEvent(serviceName, host, port, weight));
+			ServiceProviderChangeEvent event = new ServiceProviderChangeEvent(serviceName, host, port, weight);
+			listener.providerAdded(event);
 		}
 	}
 

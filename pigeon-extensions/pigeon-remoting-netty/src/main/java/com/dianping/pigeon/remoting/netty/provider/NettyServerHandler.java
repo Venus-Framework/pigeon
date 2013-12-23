@@ -17,6 +17,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -27,7 +28,7 @@ import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 
 	private static final Logger log = LoggerLoader.getLogger(NettyServerHandler.class);
-	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(MonitorLogger.class);
+	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
 
 	private NettyServer server;
 
@@ -61,14 +62,13 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 			try {
 				this.server.processRequest(request, invocationContext);
 			} catch (Exception e) {
-				String msg = "process request failed, seq--" + request.getSequence() + "\r\n";
+				String msg = "process request failed:" + request;
 				// 心跳消息只返回正常的, 异常不返回
 				if (request.getCallType() == Constants.CALLTYPE_REPLY
 						&& request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
 					ctx.getChannel().write(ResponseUtils.createFailResponse(request, e));
 				}
-				log.error(msg + "****SEQ:" + request.getSequence() + "****callType:" + request.getCallType(), e);
-				monitorLogger.logError(e);
+				log.error(msg, e);
 			}
 		}
 	}

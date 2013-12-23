@@ -20,6 +20,8 @@ public interface InvocationRequest extends InvocationSerializable {
 
 	String getServiceName();
 
+	void setServiceName(String serviceName);
+
 	String getMethodName();
 
 	String[] getParamClassName();
@@ -28,16 +30,14 @@ public interface InvocationRequest extends InvocationSerializable {
 
 	int getMessageType();
 
+	void setMessageType(int messageType);
+
 	void setAttachment(String name, Object attachment);
 
 	Object getAttachment(String name);
-	
-	String getVersion();
-	
-	void setVersion(String version);
-	
-	long getRequestTime();
 
-	void setPequestTime(long requestTime);
-	
+	String getVersion();
+
+	void setVersion(String version);
+
 }

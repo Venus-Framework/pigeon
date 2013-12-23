@@ -1,9 +1,12 @@
 package com.dianping.pigeon.remoting.provider;
 
+import java.util.concurrent.Future;
+
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
@@ -41,8 +44,8 @@ public abstract class AbstractServer implements Server {
 	}
 
 	@Override
-	public void processRequest(InvocationRequest request, ProviderContext providerContext) {
-		requestProcessor.processRequest(request, providerContext);
+	public Future<InvocationResponse> processRequest(InvocationRequest request, ProviderContext providerContext) {
+		return requestProcessor.processRequest(request, providerContext);
 	}
 
 }

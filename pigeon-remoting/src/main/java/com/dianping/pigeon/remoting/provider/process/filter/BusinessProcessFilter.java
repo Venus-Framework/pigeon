@@ -4,11 +4,9 @@ s * Dianping.com Inc.
  */
 package com.dianping.pigeon.remoting.provider.process.filter;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import org.apache.log4j.Logger;
 
+import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -37,33 +35,23 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			throws Throwable {
 		InvocationRequest request = invocationContext.getRequest();
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-			ContextUtils.putLocalContext(Constants.REQUEST_TIMEOUT, request.getTimeout());
-
+			if (request.getTimeout() > 0) {
+				ContextUtils.putLocalContext(Constants.REQUEST_TIMEOUT, request.getTimeout());
+			}
+			if (Thread.currentThread().isInterrupted()) {
+				StringBuffer msg = new StringBuffer();
+				msg.append("the request has been canceled by timeout checking processor:").append(request);
+				throw new NetTimeoutException(msg.toString());
+			}
 			InvocationResponse response = null;
 			ServiceMethod method = ServiceMethodFactory.getMethod(request);
-			Method method_ = method.getMethod();
-			try {
-				Object returnObj = method_.invoke(method.getService(), request.getParameters());
-				if (request.getCallType() == Constants.CALLTYPE_REPLY) {
-					response = ResponseUtils.createSuccessResponse(request, returnObj);
-				}
-			} catch (InvocationTargetException e) {
-				Throwable e2 = e.getTargetException();
-				if (e2 != null) {
-					logger.error(e2.getMessage(), e2);
-				}
-				if (request.getCallType() == Constants.CALLTYPE_REPLY) {
-					response = ResponseUtils.createServiceExceptionResponse(request, e2);
-				}
-				invocationContext.setServiceError(e2);
-			} catch (Exception e) {
-				invocationContext.setServiceError(e);
-				throw e;
+			Object returnObj = method.invoke(request.getParameters());
+			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
+				response = ResponseUtils.createSuccessResponse(request, returnObj);
 			}
-
 			return response;
 		}
-		throw new RuntimeException("Message type[" + request.getMessageType() + "] is not supported!");
+		throw new RuntimeException("message type[" + request.getMessageType() + "] is not supported!");
 	}
 
 }

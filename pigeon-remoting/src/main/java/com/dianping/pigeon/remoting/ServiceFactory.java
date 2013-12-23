@@ -17,11 +17,10 @@ import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
-import com.dianping.pigeon.remoting.provider.Server;
-import com.dianping.pigeon.remoting.provider.ServerFactory;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
@@ -110,6 +109,10 @@ public class ServiceFactory {
 		if (StringUtils.isBlank(invokerConfig.getUrl())) {
 			invokerConfig.setUrl(getServiceUrl(invokerConfig));
 		}
+		if (!StringUtils.isBlank(invokerConfig.getProtocol())
+				&& !invokerConfig.getProtocol().equalsIgnoreCase(Constants.PROTOCOL_DEFAULT)) {
+			invokerConfig.setUrl("@" + invokerConfig.getProtocol().toUpperCase() + "@" + invokerConfig.getUrl());
+		}
 		Object service = null;
 		if (isCacheService) {
 			service = services.get(invokerConfig);
@@ -137,11 +140,11 @@ public class ServiceFactory {
 	}
 
 	public static <T> void publishService(Class<T> serviceInterface, T service) throws RpcException {
-		publishService(null, serviceInterface, service, ServerFactory.DEFAULT_PORT);
+		publishService(null, serviceInterface, service, ServerConfig.DEFAULT_PORT);
 	}
 
 	public static <T> void publishService(String url, Class<T> serviceInterface, T service) throws RpcException {
-		publishService(url, serviceInterface, service, ServerFactory.DEFAULT_PORT);
+		publishService(url, serviceInterface, service, ServerConfig.DEFAULT_PORT);
 	}
 
 	public static <T> void publishService(String url, Class<T> serviceInterface, T service, int port)
@@ -160,8 +163,8 @@ public class ServiceFactory {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
 		}
 		try {
-			Server server = ProviderBootStrap.startup(providerConfig.getServerConfig());
-			providerConfig.setServerConfig(server.getServerConfig());
+			ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig.getServerConfig());
+			providerConfig.setServerConfig(serverConfig);
 			ServiceProviderFactory.addService(providerConfig);
 		} catch (ServiceException t) {
 			throw new RpcException("error while publishing service:" + providerConfig, t);
@@ -175,8 +178,8 @@ public class ServiceFactory {
 		if (!CollectionUtils.isEmpty(providerConfigList)) {
 			try {
 				for (ProviderConfig<?> providerConfig : providerConfigList) {
-					Server server = ProviderBootStrap.startup(providerConfig.getServerConfig());
-					providerConfig.setServerConfig(server.getServerConfig());
+					ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig.getServerConfig());
+					providerConfig.setServerConfig(serverConfig);
 					if (StringUtils.isBlank(providerConfig.getUrl())) {
 						providerConfig.setUrl(getServiceUrl(providerConfig));
 					}

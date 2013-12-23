@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.listener.RequestTimeoutListener;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
@@ -20,7 +21,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 
 	protected Map<InvocationRequest, ProviderContext> requestContextMap;
 	
-	public abstract Future<?> doProcessRequest(final InvocationRequest request, final ProviderContext providerContext);
+	public abstract Future<InvocationResponse> doProcessRequest(final InvocationRequest request, final ProviderContext providerContext);
 
 	public abstract void doStop();
 	
@@ -34,11 +35,13 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		doStop();
 	}
 	
-	public void processRequest(final InvocationRequest request, final ProviderContext providerContext) {
-		if(request.getRequestTime() == 0) {
-			request.setPequestTime(System.currentTimeMillis());
+	public Future<InvocationResponse> processRequest(final InvocationRequest request, final ProviderContext providerContext) {
+		if(request.getCreateMillisTime() == 0) {
+			request.setCreateMillisTime(System.currentTimeMillis());
 		}
-		providerContext.setFuture(doProcessRequest(request, providerContext));
+		Future<InvocationResponse> invocationResponse = doProcessRequest(request, providerContext);
+		providerContext.setFuture(invocationResponse);
+		return invocationResponse;
 	}
 
 }

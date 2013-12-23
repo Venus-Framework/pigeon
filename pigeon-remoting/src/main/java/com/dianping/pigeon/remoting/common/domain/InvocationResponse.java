@@ -15,16 +15,5 @@ public interface InvocationResponse extends InvocationSerializable {
 	Object getReturn();
 
 	void setReturn(Object obj);
-	
-	long getCreateTime();
 
-	void setCreateTime(long createTime);
-	
-	long getRequestTime();
-
-	void setRequestTime(long requestTime);
-	
-	long getResponseTime();
-
-	void setResponseTime(long responseTime);
 }

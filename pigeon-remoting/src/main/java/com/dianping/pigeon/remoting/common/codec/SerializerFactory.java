@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
 import com.dianping.pigeon.remoting.common.codec.java.JavaSerializer;
+import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.common.codec.protobuf.ProtobufSerializer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 
@@ -25,6 +26,8 @@ public final class SerializerFactory {
 	public static final byte SERIALIZE_HESSIAN1 = 6; // hessian spec. 1.0,
 														// spec
 														// 2.0兼容1.0，但1.0不兼容2.0
+	public static final byte SERIALIZE_JSON = 7;
+
 	private final static ConcurrentHashMap<Byte, Serializer> serializers = new ConcurrentHashMap<Byte, Serializer>();
 
 	static {
@@ -32,6 +35,7 @@ public final class SerializerFactory {
 		registerSerializer(SERIALIZE_HESSIAN, new HessianSerializer());
 		registerSerializer(SERIALIZE_HESSIAN1, new HessianSerializer());
 		registerSerializer(SERIALIZE_PROTOBUF, new ProtobufSerializer());
+		registerSerializer(SERIALIZE_JSON, new JacksonSerializer());
 	}
 
 	public static byte getSerialize(String serialize) {
@@ -41,8 +45,10 @@ public final class SerializerFactory {
 			return SerializerFactory.SERIALIZE_HESSIAN;
 		} else if (Constants.SERIALIZE_PROTOBUF.equalsIgnoreCase(serialize)) {
 			return SerializerFactory.SERIALIZE_PROTOBUF;
+		} else if (Constants.SERIALIZE_JSON.equalsIgnoreCase(serialize)) {
+			return SerializerFactory.SERIALIZE_JSON;
 		} else {
-			throw new IllegalArgumentException("Only hessian, java, protobuf serialize type supported now!");
+			throw new IllegalArgumentException("Only hessian, java, protobuf, json serialize type supported now!");
 		}
 	}
 

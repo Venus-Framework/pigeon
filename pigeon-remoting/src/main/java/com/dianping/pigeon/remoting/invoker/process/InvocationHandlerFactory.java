@@ -36,11 +36,11 @@ public final class InvocationHandlerFactory extends DefaultExtension {
 	private static ServiceInvocationHandler bizInvocationHandler = null;
 
 	private static ServiceInvocationHandler failOverInvocationHandler = null;
-	
+
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	private static boolean isMonitorEnabled = configManager.getBooleanValue(Constants.KEY_MONITOR_ENABLED, true);
-	
+
 	public static void init() {
 		registerInternalInvokeFilter(InvokePhase.Finalize, new GatewayInvokeFilter());
 		registerInternalInvokeFilter(InvokePhase.Cluster, new ServiceRouteInvokeFilter());
@@ -64,8 +64,8 @@ public final class InvocationHandlerFactory extends DefaultExtension {
 		failOverInvocationHandler = createInvocationHandler(failoverInvokeFilters);
 	}
 
-	public static ServiceInvocationHandler createInvokeHandler(InvokerConfig metadata) {
-		if ("failover".equalsIgnoreCase(metadata.getCluster())) {
+	public static ServiceInvocationHandler createInvokeHandler(InvokerConfig<?> invokerConfig) {
+		if ("failover".equalsIgnoreCase(invokerConfig.getCluster())) {
 			return failOverInvocationHandler;
 		}
 		return bizInvocationHandler;

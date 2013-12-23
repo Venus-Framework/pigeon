@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.remoting.provider.service.method;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -77,4 +78,8 @@ public class ServiceMethod {
 		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 
+	public Object invoke(Object[] arguments) throws IllegalArgumentException, IllegalAccessException,
+			InvocationTargetException {
+		return this.getMethod().invoke(this.getService(), arguments);
+	}
 }

@@ -8,6 +8,9 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
  * 不能修改packagename，修改属性需要注意，确保和之前的dpsf兼容。
@@ -16,6 +19,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
  * @version $Id: DefaultResponse.java, v 0.1 2013-7-5 上午8:25:48 jianhuihuang Exp
  *          $
  */
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "seq")
 public class DefaultResponse implements InvocationResponse {
 
 	/**
@@ -25,6 +29,7 @@ public class DefaultResponse implements InvocationResponse {
 
 	private transient byte serialize;
 
+	@JsonProperty("seq")
 	private long seq;
 
 	private int messageType;
@@ -34,36 +39,6 @@ public class DefaultResponse implements InvocationResponse {
 	private Object returnVal;
 
 	private Object context;
-
-	private long createTime;
-
-	private long requestTime;
-
-	private long responseTime;
-
-	public long getCreateTime() {
-		return createTime;
-	}
-
-	public void setCreateTime(long createTime) {
-		this.createTime = createTime;
-	}
-
-	public long getRequestTime() {
-		return requestTime;
-	}
-
-	public void setRequestTime(long requestTime) {
-		this.requestTime = requestTime;
-	}
-
-	public long getResponseTime() {
-		return responseTime;
-	}
-
-	public void setResponseTime(long responseTime) {
-		this.responseTime = responseTime;
-	}
 
 	public DefaultResponse() {
 	}

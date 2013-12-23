@@ -18,11 +18,10 @@ import org.apache.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
 import com.dianping.dpsf.exception.NetException;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.ClientFactory;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
+import com.dianping.pigeon.remoting.invoker.ClientSelector;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
@@ -47,37 +46,45 @@ public class DefaultClusterListener implements ClusterListener {
 	public DefaultClusterListener(HeartBeatListener heartTask, ReconnectListener reconnectTask) {
 		this.heartTask = heartTask;
 		this.reconnectTask = reconnectTask;
-		this.reconnectTask.setWorkingClients(this.serviceClients);
-		this.heartTask.setWorkingClients(this.serviceClients);
+		this.reconnectTask.setWorkingClients(serviceClients);
+		this.heartTask.setWorkingClients(serviceClients);
 	}
 
-	public synchronized void clear() {
+	public void clear() {
 		serviceClients = new ConcurrentHashMap<String, List<Client>>();
 		allClients = new ConcurrentHashMap<ConnectInfo, Client>();
 	}
 
-	public List<Client> getClientList(InvokerConfig invokerConfig) {
+	public List<Client> getClientList(InvokerConfig<?> invokerConfig) {
 		List<Client> clientList = this.serviceClients.get(invokerConfig.getUrl());
 		if (CollectionUtils.isEmpty(clientList)) {
-			if (logger.isInfoEnabled()) {
-				logger.info("try to find service providers for service:" + invokerConfig.getUrl());
-			}
-			ClientManager.getInstance().findAndRegisterClientFor(invokerConfig.getUrl(), invokerConfig.getGroup(),
-					invokerConfig.getVip());
-			clientList = this.serviceClients.get(invokerConfig.getUrl());
-			if (CollectionUtils.isEmpty(clientList)) {
-				throw new NetException("no available connection for service:" + invokerConfig.getUrl());
+			synchronized (this) {
+				clientList = this.serviceClients.get(invokerConfig.getUrl());
+				if (CollectionUtils.isEmpty(clientList)) {
+					if (logger.isInfoEnabled()) {
+						logger.info("try to find service providers for service:" + invokerConfig.getUrl());
+					}
+					ClientManager.getInstance().findServiceProviders(invokerConfig.getUrl(), invokerConfig.getGroup(),
+							invokerConfig.getVip());
+					clientList = this.serviceClients.get(invokerConfig.getUrl());
+					if (CollectionUtils.isEmpty(clientList)) {
+						throw new NetException("no available connection for service:" + invokerConfig.getUrl());
+					} else {
+						logger.info("found service providers:[" + clientList + "] for service:"
+								+ invokerConfig.getUrl());
+					}
+				}
 			}
 		}
 		return clientList;
 	}
 
-	public synchronized void addConnect(ConnectInfo cmd) {
-		addConnect(cmd, this.allClients.get(cmd));
+	public void addConnect(ConnectInfo connectInfo) {
+		addConnect(connectInfo, this.allClients.get(connectInfo));
 	}
 
-	public synchronized void addConnect(ConnectInfo cmd, Client client) {
-		if (clientExisted(cmd)) {
+	public void addConnect(ConnectInfo connectInfo, Client client) {
+		if (clientExisted(connectInfo)) {
 			if (client != null) {
 				for (List<Client> clientList : serviceClients.values()) {
 					int idx = clientList.indexOf(client);
@@ -91,25 +98,25 @@ public class DefaultClusterListener implements ClusterListener {
 		}
 
 		if (client == null) {
-			client = ExtensionLoader.getExtension(ClientFactory.class).createClient(cmd);
+			client = ClientSelector.selectClient(connectInfo);
 		}
 
-		if (!this.allClients.containsKey(cmd)) {
-			this.allClients.put(cmd, client);
+		if (!this.allClients.containsKey(connectInfo)) {
+			this.allClients.put(connectInfo, client);
 		}
 		try {
 			if (!client.isConnected()) {
 				client.connect();
 			}
 			if (client.isConnected()) {
-				for(Entry<String,Integer> sw : cmd.getServiceNames().entrySet()){
+				for (Entry<String, Integer> sw : connectInfo.getServiceNames().entrySet()) {
 					String serviceName = sw.getKey();
 					List<Client> clientList = this.serviceClients.get(serviceName);
-					if(clientList == null){
+					if (clientList == null) {
 						clientList = new ArrayList<Client>();
 						this.serviceClients.put(serviceName, clientList);
 					}
-					if(!clientList.contains(client))
+					if (!clientList.contains(client))
 						clientList.add(client);
 				}
 			} else {
@@ -127,15 +134,15 @@ public class DefaultClusterListener implements ClusterListener {
 	 * @param cmd
 	 * @return
 	 */
-	private boolean clientExisted(ConnectInfo cmd) {
-		for (String serviceName : cmd.getServiceNames().keySet()) {
+	private boolean clientExisted(ConnectInfo connectInfo) {
+		for (String serviceName : connectInfo.getServiceNames().keySet()) {
 			List<Client> clientList = serviceClients.get(serviceName);
 			if (clientList == null) {
 				return false;
 			}
 			boolean findClient = false;
 			for (Client client : clientList) {
-				if (client.getAddress().equals(cmd.getConnect())) {
+				if (client.getAddress().equals(connectInfo.getConnect())) {
 					findClient = true;
 				}
 			}
@@ -147,6 +154,12 @@ public class DefaultClusterListener implements ClusterListener {
 	}
 
 	public synchronized void removeConnect(Client client) {
+		if (logger.isInfoEnabled()) {
+			logger.info("[cluster listener] remove service provider:" + client);
+		}
+		if (logger.isInfoEnabled()) {
+			logger.info("[cluster listener] service providers:" + serviceClients);
+		}
 		String connect = client.getConnectInfo().getConnect();
 		Client clientRemoved = this.allClients.remove(connect);
 		if (clientRemoved != null) {
@@ -202,6 +215,14 @@ public class DefaultClusterListener implements ClusterListener {
 			}
 		}
 		return false;
+	}
+
+	public Map<String, List<Client>> getServiceClients() {
+		return serviceClients;
+	}
+
+	public void setServiceClients(Map<String, List<Client>> serviceClients) {
+		this.serviceClients = serviceClients;
 	}
 
 	private void closeClientInFuture(final Client client) {
