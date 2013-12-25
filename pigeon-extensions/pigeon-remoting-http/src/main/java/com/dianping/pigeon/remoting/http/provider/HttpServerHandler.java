@@ -37,13 +37,17 @@ public class HttpServerHandler implements HttpHandler {
 	public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String uri = request.getRequestURI();
 		String path = uri.substring(uri.lastIndexOf("/") + 1);
+		String serialize = (String) request.getParameter("serialize");
+		if (serialize == null) {
+			serialize = (String) request.getHeader("serialize");
+		}
 		if (!request.getMethod().equalsIgnoreCase("POST")) {
-
-		} else {
-			String serialize = (String) request.getParameter("serialize");
-			if (serialize == null) {
-				serialize = (String) request.getHeader("serialize");
+			if(SerializerFactory.SERIALIZE_JSON == Byte.parseByte(serialize)) {
+				
+			} else {
+				response.setStatus(500);
 			}
+		} else {
 			Serializer serializer = SerializerFactory.getSerializer(Byte.parseByte(serialize));
 			InvocationRequest invocationRequest = null;
 			Object obj = serializer.deserializeRequest(request.getInputStream());

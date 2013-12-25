@@ -39,9 +39,9 @@ public class RequestTimeoutListener implements Runnable {
 		while (true) {
 			try {
 				long currentTime = System.currentTimeMillis();
-				if (logger.isDebugEnabled()) {
-					logger.debug("checking request timeout, count:" + requestContextMap.size());
-				}
+//				if (logger.isDebugEnabled()) {
+//					logger.debug("checking request timeout, count:" + requestContextMap.size());
+//				}
 				for (InvocationRequest request : requestContextMap.keySet()) {
 					if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
 							&& (request.getCreateMillisTime() + request.getTimeout()) < currentTime) {

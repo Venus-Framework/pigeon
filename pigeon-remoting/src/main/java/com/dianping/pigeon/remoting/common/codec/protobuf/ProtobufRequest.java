@@ -135,7 +135,7 @@ public class ProtobufRequest implements InvocationRequest {
 		this.messageType = Constants.MESSAGE_TYPE_SERVICE;
 		this.setVersion(invokerConfig.getVersion());
 		this.setAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT, invokerConfig.isWriteBufferLimit());
-		if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallMethod())) {
+		if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallType())) {
 			this.setCallType(Constants.CALLTYPE_NOREPLY);
 		} else {
 			this.setCallType(Constants.CALLTYPE_REPLY);

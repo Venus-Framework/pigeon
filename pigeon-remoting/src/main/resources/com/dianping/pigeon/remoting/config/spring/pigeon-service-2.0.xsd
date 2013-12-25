@@ -15,7 +15,9 @@
 						use="required" />
 					<xsd:attribute name="serialize" type="xsd:string"
 						default="hessian" />
-					<xsd:attribute name="callMethod" type="xsd:string"
+					<xsd:attribute name="protocol" type="xsd:string"
+						default="default" />
+					<xsd:attribute name="callType" type="xsd:string"
 						default="sync" />
 					<xsd:attribute name="timeout" type="xsd:int" default="5000" />
 					<xsd:attribute name="loadbalance" type="xsd:string"

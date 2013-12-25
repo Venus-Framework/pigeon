@@ -11,10 +11,12 @@ import java.io.OutputStream;
 import java.lang.reflect.Proxy;
 
 import org.apache.commons.lang.SerializationException;
+import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.dpsf.spring.ProxyBeanFactory;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.Serializer;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -22,12 +24,16 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.process.InvocationHandlerFactory;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationProxy;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JacksonSerializer implements Serializer {
+
+	private static final Logger logger = LoggerLoader.getLogger(JacksonSerializer.class);
 
 	ObjectMapper mapper = new ObjectMapper();
 
@@ -38,6 +44,8 @@ public class JacksonSerializer implements Serializer {
 		mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
 		mapper.disable(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
 		mapper.disable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
+		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);  
+		mapper.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
 	}
 
 	@Override
@@ -52,6 +60,9 @@ public class JacksonSerializer implements Serializer {
 		try {
 			while ((len = is.read(buf)) != -1) {
 				sw.write(buf, 0, len);
+			}
+			if(logger.isDebugEnabled()) {
+				logger.debug("deserialize:" + new String(sw.toByteArray()));
 			}
 			return mapper.readValue(sw.toByteArray(), clazz);
 		} catch (Exception e) {

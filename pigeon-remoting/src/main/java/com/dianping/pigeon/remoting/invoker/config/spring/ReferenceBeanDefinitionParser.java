@@ -71,8 +71,11 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 		if (element.hasAttribute("serialize")) {
 			properties.addPropertyValue("serialize", resolveReference(element, "serialize"));
 		}
-		if (element.hasAttribute("callMethod")) {
-			properties.addPropertyValue("callMethod", resolveReference(element, "callMethod"));
+		if (element.hasAttribute("protocol")) {
+			properties.addPropertyValue("protocol", resolveReference(element, "protocol"));
+		}
+		if (element.hasAttribute("callType")) {
+			properties.addPropertyValue("callMethod", resolveReference(element, "callType"));
 		}
 		if (element.hasAttribute("timeout")) {
 			properties.addPropertyValue("timeout", resolveReference(element, "timeout"));

@@ -16,16 +16,20 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.context.i18n.LocaleContext;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.util.Assert;
 
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.Serializer;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 
 public class HttpInvokerExecutor {
+
+	private static final Logger logger = LoggerLoader.getLogger(HttpInvokerExecutor.class);
 
 	private HttpClient httpClient;
 
@@ -42,7 +46,7 @@ public class HttpInvokerExecutor {
 	protected static final String HTTP_HEADER_CONTENT_LENGTH = "Content-Length";
 
 	protected static final String ENCODING_GZIP = "gzip";
-	
+
 	public String getContentType() {
 		return contentType;
 	}
@@ -114,6 +118,9 @@ public class HttpInvokerExecutor {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
 			try {
 				serializer.serializeRequest(baos, invocationRequest);
+				if (logger.isDebugEnabled()) {
+					logger.debug("serialize:" + new String(baos.toByteArray()));
+				}
 				postMethod.setRequestEntity(new ByteArrayRequestEntity(baos.toByteArray(), this.getContentType()));
 			} finally {
 				baos.close();

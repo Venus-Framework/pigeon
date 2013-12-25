@@ -12,13 +12,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-/**
- * 不能修改packagename，修改属性需要注意，确保和之前的dpsf兼容。
- * 
- * @author jianhuihuang
- * @version $Id: DefaultResponse.java, v 0.1 2013-7-5 上午8:25:48 jianhuihuang Exp
- *          $
- */
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "seq")
 public class DefaultResponse implements InvocationResponse {
 
@@ -34,8 +27,10 @@ public class DefaultResponse implements InvocationResponse {
 
 	private int messageType;
 
+	@JsonProperty("exception")
 	private String cause;
 
+	@JsonProperty("response")
 	private Object returnVal;
 
 	private Object context;

@@ -23,10 +23,14 @@ public final class SerializerFactory {
 	public static final byte SERIALIZE_HESSIAN = 2;
 	public static final byte SERIALIZE_JAVA = 3;
 	public static final byte SERIALIZE_PROTOBUF = 4;
-	public static final byte SERIALIZE_HESSIAN1 = 6; // hessian spec. 1.0,
-														// spec
-														// 2.0兼容1.0，但1.0不兼容2.0
+	public static final byte SERIALIZE_HESSIAN1 = 6;
 	public static final byte SERIALIZE_JSON = 7;
+
+	public static final String HESSIAN = "hessian";
+	public static final String JAVA = "java";
+	public static final String PROTOBUF = "protobuf";
+	public static final String HESSIAN1 = "hessian";
+	public static final String JSON = "json";
 
 	private final static ConcurrentHashMap<Byte, Serializer> serializers = new ConcurrentHashMap<Byte, Serializer>();
 
@@ -39,13 +43,13 @@ public final class SerializerFactory {
 	}
 
 	public static byte getSerialize(String serialize) {
-		if (Constants.SERIALIZE_JAVA.equalsIgnoreCase(serialize)) {
+		if (JAVA.equalsIgnoreCase(serialize)) {
 			return SerializerFactory.SERIALIZE_JAVA;
-		} else if (Constants.SERIALIZE_HESSIAN.equalsIgnoreCase(serialize)) {
+		} else if (HESSIAN.equalsIgnoreCase(serialize)) {
 			return SerializerFactory.SERIALIZE_HESSIAN;
-		} else if (Constants.SERIALIZE_PROTOBUF.equalsIgnoreCase(serialize)) {
+		} else if (PROTOBUF.equalsIgnoreCase(serialize)) {
 			return SerializerFactory.SERIALIZE_PROTOBUF;
-		} else if (Constants.SERIALIZE_JSON.equalsIgnoreCase(serialize)) {
+		} else if (JSON.equalsIgnoreCase(serialize)) {
 			return SerializerFactory.SERIALIZE_JSON;
 		} else {
 			throw new IllegalArgumentException("Only hessian, java, protobuf, json serialize type supported now!");

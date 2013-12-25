@@ -21,9 +21,14 @@ public class InvokerConfig<T> {
 	public static final String CALL_CALLBACK = Constants.CALL_CALLBACK;
 	public static final String CALL_ONEWAY = Constants.CALL_ONEWAY;
 	public static final String CALL_FUTURE = Constants.CALL_FUTURE;
-	
+
 	public static final String PROTOCOL_HTTP = Constants.PROTOCOL_HTTP;
 	public static final String PROTOCOL_DEFAULT = Constants.PROTOCOL_DEFAULT;
+
+	public static final String SERIALIZE_HESSIAN = SerializerFactory.HESSIAN;
+	public static final String SERIALIZE_JAVA = SerializerFactory.JAVA;
+	public static final String SERIALIZE_PROTOBUF = SerializerFactory.PROTOBUF;
+	public static final String SERIALIZE_JSON = SerializerFactory.JSON;
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
@@ -33,7 +38,7 @@ public class InvokerConfig<T> {
 
 	private String version;
 
-	private String callMethod = Constants.CALL_SYNC;
+	private String callType = Constants.CALL_SYNC;
 
 	private byte serialize = SerializerFactory.SERIALIZE_HESSIAN;
 
@@ -151,7 +156,7 @@ public class InvokerConfig<T> {
 		this.setServiceInterface(serviceInterface);
 		this.setUrl(url);
 		this.setTimeout(timeout);
-		this.setCallMethod(callMethod);
+		this.setCallType(callMethod);
 		this.setCallback(callback);
 		this.setGroup(group);
 		this.setWriteBufferLimit(writeBufferLimit);
@@ -208,26 +213,26 @@ public class InvokerConfig<T> {
 	}
 
 	/**
-	 * @return the callMethod
+	 * @return the callType
 	 */
-	public String getCallMethod() {
-		return callMethod;
+	public String getCallType() {
+		return callType;
 	}
 
 	/**
-	 * @param callMethod
-	 *            the callMethod to set
+	 * @param callType
+	 *            the callType to set
 	 */
-	public void setCallMethod(String callMethod) {
-		if (!Constants.CALL_SYNC.equalsIgnoreCase(callMethod) && !Constants.CALL_CALLBACK.equalsIgnoreCase(callMethod)
-				&& !Constants.CALL_FUTURE.equalsIgnoreCase(callMethod)
-				&& !Constants.CALL_ONEWAY.equalsIgnoreCase(callMethod)) {
+	public void setCallType(String callType) {
+		if (!Constants.CALL_SYNC.equalsIgnoreCase(callType) && !Constants.CALL_CALLBACK.equalsIgnoreCase(callType)
+				&& !Constants.CALL_FUTURE.equalsIgnoreCase(callType)
+				&& !Constants.CALL_ONEWAY.equalsIgnoreCase(callType)) {
 
-			throw new IllegalArgumentException("Pigeon call method only support[" + Constants.CALL_SYNC + ", "
+			throw new IllegalArgumentException("Pigeon call mode only support[" + Constants.CALL_SYNC + ", "
 					+ Constants.CALL_CALLBACK + ", " + Constants.CALL_FUTURE + ", " + Constants.CALL_ONEWAY + "].");
 		}
-		if (!StringUtils.isBlank(callMethod)) {
-			this.callMethod = callMethod.trim();
+		if (!StringUtils.isBlank(callType)) {
+			this.callType = callType.trim();
 		}
 	}
 
@@ -263,7 +268,7 @@ public class InvokerConfig<T> {
 	public void setCallback(ServiceCallback callback) {
 		this.callback = callback;
 		if (callback != null) {
-			setCallMethod(InvokerConfig.CALL_CALLBACK);
+			setCallType(InvokerConfig.CALL_CALLBACK);
 		}
 	}
 

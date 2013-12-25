@@ -2,25 +2,32 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.demo.invoker.simple;
+package com.dianping.pigeon.demo.invoker.old;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dianping.dpsf.async.ServiceCallback;
+import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.demo.ConfigLoader;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.invoker.EchoServiceCallback;
-import com.dianping.pigeon.remoting.ServiceFactory;
 
 public class Client {
 
 	public static void main(String[] args) throws Exception {
 		ConfigLoader.init();
 
-		EchoService service = ServiceFactory.getService(EchoService.class);
+		ProxyBeanFactory pf = new ProxyBeanFactory();
+		pf.setIface(EchoService.class.getName());
+		pf.init();
+		EchoService service = (EchoService) pf.getObject();
 
 		ServiceCallback callback = new EchoServiceCallback();
-		EchoService serviceWithCallback = ServiceFactory.getService(EchoService.class, callback);
+		ProxyBeanFactory pfCallback = new ProxyBeanFactory();
+		pfCallback.setIface(EchoService.class.getName());
+		pfCallback.setCallback(callback);
+		pfCallback.init();
+		EchoService serviceWithCallback = (EchoService) pfCallback.getObject();
 
 		AtomicInteger atomicInteger = new AtomicInteger();
 		for (;;) {

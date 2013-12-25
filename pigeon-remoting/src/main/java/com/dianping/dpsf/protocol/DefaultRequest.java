@@ -15,16 +15,10 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-/**
- * 不能修改packagename，修改属性需要注意，确保和之前的dpsf兼容。
- * 
- * @author jianhuihuang
- * @version $Id: DefaultRequest.java, v 0.1 2013-7-5 上午8:25:42 jianhuihuang Exp
- *          $
- */
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "seq")
 public class DefaultRequest implements InvocationRequest {
 
@@ -42,8 +36,10 @@ public class DefaultRequest implements InvocationRequest {
 
 	private int timeout = 0;
 
+	@JsonIgnore
 	private transient long createMillisTime;
 
+	@JsonProperty("url")
 	private String serviceName;
 
 	private String methodName;
@@ -56,8 +52,7 @@ public class DefaultRequest implements InvocationRequest {
 
 	private String version;
 
-	private transient Class<?>[] parameterClasses;
-
+	@JsonIgnore
 	private transient Map<String, Object> attachments = new HashMap<String, Object>();
 
 	public DefaultRequest(String serviceName, String methodName, Object[] parameters, byte serialize, int messageType,
@@ -68,7 +63,6 @@ public class DefaultRequest implements InvocationRequest {
 		this.serialize = serialize;
 		this.messageType = messageType;
 		this.timeout = timeout;
-		this.parameterClasses = parameterClasses;
 	}
 
 	public DefaultRequest() {
@@ -83,7 +77,7 @@ public class DefaultRequest implements InvocationRequest {
 				this.timeout = invokerConfig.getTimeout();
 				this.setVersion(invokerConfig.getVersion());
 				this.setAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT, invokerConfig.isWriteBufferLimit());
-				if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallMethod())) {
+				if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallType())) {
 					this.setCallType(Constants.CALLTYPE_NOREPLY);
 				} else {
 					this.setCallType(Constants.CALLTYPE_REPLY);
@@ -92,7 +86,6 @@ public class DefaultRequest implements InvocationRequest {
 			this.methodName = invokerContext.getMethodName();
 			this.parameters = invokerContext.getArguments();
 			this.messageType = Constants.MESSAGE_TYPE_SERVICE;
-			this.parameterClasses = invokerContext.getParameterTypes();
 		}
 	}
 
@@ -102,21 +95,6 @@ public class DefaultRequest implements InvocationRequest {
 
 	public void setVersion(String version) {
 		this.version = version;
-	}
-
-	/**
-	 * @return the parameterClasses
-	 */
-	public Class<?>[] getParameterClasses() {
-		return parameterClasses;
-	}
-
-	/**
-	 * @param parameterClasses
-	 *            the parameterClasses to set
-	 */
-	public void setParameterClasses(Class<?>[] parameterClasses) {
-		this.parameterClasses = parameterClasses;
 	}
 
 	public byte getSerialize() {
@@ -233,5 +211,5 @@ public class DefaultRequest implements InvocationRequest {
 	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
 	}
-	
+
 }

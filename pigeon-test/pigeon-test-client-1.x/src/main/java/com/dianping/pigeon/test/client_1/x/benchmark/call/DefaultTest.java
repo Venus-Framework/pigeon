@@ -5,7 +5,6 @@ package com.dianping.pigeon.test.client_1.x.benchmark.call;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Test;
 import org.springframework.util.Assert;
 

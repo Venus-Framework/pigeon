@@ -36,7 +36,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 									invocationContext.getParameterTypes()), invocationContext);
 					if (transaction != null) {
 						transaction.setStatusOk();
-						transaction.addData("CallType", invokerConfig.getCallMethod());
+						transaction.addData("CallType", invokerConfig.getCallType());
 						transaction.addData("Timeout", invokerConfig.getTimeout());
 
 						Client client = invocationContext.getClient();

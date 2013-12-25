@@ -1,4 +1,4 @@
-package com.dianping.pigeon.demo.loader;
+package com.dianping.pigeon.demo;
 
 import java.io.IOException;
 import java.io.InputStream;

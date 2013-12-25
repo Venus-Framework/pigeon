@@ -35,7 +35,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 		Client client = invokerContext.getClient();
 		InvocationRequest request = invokerContext.getRequest();
 		InvokerConfig<?> invokerConfig = invokerContext.getInvokerConfig();
-		String callMethod = invokerConfig.getCallMethod();
+		String callMethod = invokerConfig.getCallType();
 		beforeInvoke(request, client.getAddress());
 		InvocationResponse response = null;
 		if (Constants.CALL_SYNC.equalsIgnoreCase(callMethod)) {

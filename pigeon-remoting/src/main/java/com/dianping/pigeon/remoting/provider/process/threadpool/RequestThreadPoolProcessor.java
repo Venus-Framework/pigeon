@@ -35,7 +35,8 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 	public void doStop() {
 	}
 
-	public Future<InvocationResponse> doProcessRequest(final InvocationRequest request, final ProviderContext providerContext) {
+	public Future<InvocationResponse> doProcessRequest(final InvocationRequest request,
+			final ProviderContext providerContext) {
 		this.requestContextMap.put(request, providerContext);
 		Callable<InvocationResponse> requestExecutor = new Callable<InvocationResponse>() {
 
@@ -55,7 +56,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 				return null;
 			}
 		};
+		
 		return requestProcessThreadPool.submit(requestExecutor);
 	}
-
 }

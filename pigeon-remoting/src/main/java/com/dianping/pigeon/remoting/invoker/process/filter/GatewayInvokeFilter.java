@@ -45,7 +45,7 @@ public class GatewayInvokeFilter extends InvocationInvokeFilter {
 			try {
 				return handler.handle(invocationContext);
 			} catch (Throwable e) {
-				if (Constants.CALL_FUTURE.equalsIgnoreCase(invokerConfig.getCallMethod())) {
+				if (Constants.CALL_FUTURE.equalsIgnoreCase(invokerConfig.getCallType())) {
 					ServiceFutureUtils.remove();
 				}
 				throw e;
