@@ -7,7 +7,6 @@ package com.dianping.pigeon.remoting.http.invoker;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.httpclient.Header;
@@ -15,11 +14,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.context.i18n.LocaleContext;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.util.Assert;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.Serializer;
@@ -77,18 +72,17 @@ public class HttpInvokerExecutor {
 		if (contentType == null) {
 			throw new IllegalArgumentException("'contentType' must not be null");
 		}
-		Assert.notNull(contentType, "'contentType' must not be null");
 		this.contentType = contentType;
 	}
 
 	protected PostMethod createPostMethod(String url) throws IOException {
 		PostMethod postMethod = new PostMethod(url);
-		LocaleContext locale = LocaleContextHolder.getLocaleContext();
-		if (locale != null) {
-			Locale l = locale.getLocale();
-			String lang = l.getLanguage() + (StringUtils.isNotBlank(l.getCountry()) ? "-" + l.getCountry() : "");
-			postMethod.addRequestHeader(HTTP_HEADER_ACCEPT_LANGUAGE, lang);
-		}
+//		LocaleContext locale = LocaleContextHolder.getLocaleContext();
+//		if (locale != null) {
+//			Locale l = locale.getLocale();
+//			String lang = l.getLanguage() + (StringUtils.isNotBlank(l.getCountry()) ? "-" + l.getCountry() : "");
+//			postMethod.addRequestHeader(HTTP_HEADER_ACCEPT_LANGUAGE, lang);
+//		}
 		postMethod.addRequestHeader(HTTP_HEADER_ACCEPT_ENCODING, ENCODING_GZIP);
 		return postMethod;
 	}
