@@ -9,6 +9,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.protobuf.MessageLite;
 
 /**
@@ -38,48 +39,9 @@ public class ProtobufResponse implements InvocationResponse {
 
 	private int messageType;
 
+	@JsonProperty("exception")
 	private String cause;
 	
-	private long invokerRequestTime;
-
-	private long invokerResponseTime;
-
-	private long providerRequestTime;
-
-	private long providerResponseTime;
-
-	public long getInvokerRequestTime() {
-		return invokerRequestTime;
-	}
-
-	public void setInvokerRequestTime(long invokerRequestTime) {
-		this.invokerRequestTime = invokerRequestTime;
-	}
-
-	public long getInvokerResponseTime() {
-		return invokerResponseTime;
-	}
-
-	public void setInvokerResponseTime(long invokerResponseTime) {
-		this.invokerResponseTime = invokerResponseTime;
-	}
-
-	public long getProviderRequestTime() {
-		return providerRequestTime;
-	}
-
-	public void setProviderRequestTime(long providerRequestTime) {
-		this.providerRequestTime = providerRequestTime;
-	}
-
-	public long getProviderResponseTime() {
-		return providerResponseTime;
-	}
-
-	public void setProviderResponseTime(long providerResponseTime) {
-		this.providerResponseTime = providerResponseTime;
-	}
-
 	public ProtobufResponse(MessageLite response) {
 		if (response instanceof ProtobufRpcProtos.Response) {
 			this.response = (ProtobufRpcProtos.Response) response;

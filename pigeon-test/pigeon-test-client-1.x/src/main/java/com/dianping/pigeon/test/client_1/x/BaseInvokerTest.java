@@ -5,6 +5,7 @@
 package com.dianping.pigeon.test.client_1.x;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;

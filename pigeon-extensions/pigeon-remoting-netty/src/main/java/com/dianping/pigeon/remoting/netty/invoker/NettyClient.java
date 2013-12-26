@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.channel.AdaptiveReceiveBufferSizePredictorFactory;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -76,21 +77,22 @@ public class NettyClient extends AbstractClient {
 				Constants.THREADNAME_CLIENT_NETTY_WORKER_EXECUTOR));
 
 		this.bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(bossExecutor, workExecutor));
-		this.bootstrap.setOption("writeBufferHighWaterMark", configManager.getIntValue(
-				Constants.KEY_WRITE_BUFFER_HIGH_WATER, Constants.DEFAULT_WRITE_BUFFER_HIGH_WATER));
-		this.bootstrap.setOption("writeBufferLowWaterMark", configManager.getIntValue(
-				Constants.KEY_WRITE_BUFFER_LOW_WATER, Constants.DEFAULT_WRITE_BUFFER_LOW_WATER));
-		this.bootstrap.setPipelineFactory(new NettyClientPipelineFactory(this));
-		this.bootstrap.setOption("tcpNoDelay", true);
-		this.bootstrap.setOption("keepAlive", true);
-		this.bootstrap.setOption("keepAlive", true);
+		bootstrap.setOption("writeBufferLowWaterMark", 32 * 1024);
+		bootstrap.setOption("writeBufferHighWaterMark", 64 * 1024);
+		bootstrap.setPipelineFactory(new NettyClientPipelineFactory(this));
+		bootstrap.setOption("tcpNoDelay", true);
+		bootstrap.setOption("keepAlive", true);
+		bootstrap.setOption("sendBufferSize", 1048576);
+		bootstrap.setOption("receiveBufferSize", 1048576);
+		bootstrap.setOption("receiveBufferSizePredictorFactory", new AdaptiveReceiveBufferSizePredictorFactory(64,
+				65536, 1048576));
 	}
 
 	public synchronized void connect() {
 		if (this.connected || this.closed) {
 			return;
 		}
-		if(logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled()) {
 			logger.debug("client is connecting to " + this.host + ":" + this.port);
 		}
 		ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));

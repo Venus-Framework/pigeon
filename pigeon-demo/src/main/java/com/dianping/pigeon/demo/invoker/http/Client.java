@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dianping.pigeon.demo.ConfigLoader;
 import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.demo.UserService;
+import com.dianping.pigeon.demo.UserService.User;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
@@ -16,17 +18,28 @@ public class Client {
 	public static void main(String[] args) throws Exception {
 		ConfigLoader.init();
 
-		InvokerConfig<EchoService> config = new InvokerConfig<EchoService>(EchoService.class);
-		config.setProtocol(InvokerConfig.PROTOCOL_DEFAULT);
-		config.setSerialize(InvokerConfig.SERIALIZE_JSON);
-		EchoService service = ServiceFactory.getService(config);
+		InvokerConfig<EchoService> echoConfig = new InvokerConfig<EchoService>(EchoService.class);
+		echoConfig.setProtocol(InvokerConfig.PROTOCOL_DEFAULT);
+		echoConfig.setSerialize(InvokerConfig.SERIALIZE_JSON);
+		EchoService echoService = ServiceFactory.getService(echoConfig);
+
+		InvokerConfig<UserService> userConfig = new InvokerConfig<UserService>(UserService.class);
+		userConfig.setProtocol(InvokerConfig.PROTOCOL_HTTP);
+		userConfig.setSerialize(InvokerConfig.SERIALIZE_JSON);
+		UserService userService = ServiceFactory.getService(userConfig);
 
 		AtomicInteger atomicInteger = new AtomicInteger();
 		for (;;) {
 			try {
-				String input = "echoService_" + atomicInteger.incrementAndGet();
-				System.out.println("input:" + input);
-				System.out.println("service result:" + service.echo(input));
+				int no = atomicInteger.incrementAndGet();
+				String echoInput = "echoService_" + no;
+				System.out.println("echo input:" + echoInput);
+				System.out.println("echo service result:" + echoService.echo(echoInput));
+
+				User user = new User();
+				user.setUsername("user_" + no);
+				System.out.println("user input:" + user);
+				System.out.println("user service result:" + userService.getUserDetail(user));
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}

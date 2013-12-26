@@ -17,6 +17,7 @@ import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "seq")
@@ -44,10 +45,12 @@ public class DefaultRequest implements InvocationRequest {
 
 	private String methodName;
 
+	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 	private Object[] parameters;
 
 	private int messageType = Constants.MESSAGE_TYPE_SERVICE;
 
+	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 	private Object context;
 
 	private String version;

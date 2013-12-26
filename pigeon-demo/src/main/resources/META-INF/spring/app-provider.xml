@@ -9,6 +9,12 @@
 				http://code.dianping.com/schema/pigeon http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd"
 	default-autowire="byName">
 
+	<bean id="DefaultUserServiceImpl"
+		class="com.dianping.pigeon.demo.provider.UserServiceDefaultImpl" />
+
+	<pigeon:service id="defaultUserService"
+		interface="com.dianping.pigeon.demo.UserService" ref="DefaultUserServiceImpl" />
+
 	<bean id="DefaultEchoServiceImpl"
 		class="com.dianping.pigeon.demo.provider.EchoServiceDefaultImpl" />
 

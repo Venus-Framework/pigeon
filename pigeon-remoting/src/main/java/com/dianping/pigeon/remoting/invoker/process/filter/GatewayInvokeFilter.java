@@ -8,13 +8,13 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
-import com.dianping.pigeon.remoting.invoker.util.ServiceFutureUtils;
 
 /**
  * 
@@ -46,7 +46,7 @@ public class GatewayInvokeFilter extends InvocationInvokeFilter {
 				return handler.handle(invocationContext);
 			} catch (Throwable e) {
 				if (Constants.CALL_FUTURE.equalsIgnoreCase(invokerConfig.getCallType())) {
-					ServiceFutureUtils.remove();
+					ServiceFutureFactory.remove();
 				}
 				throw e;
 			}

@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.channel.AdaptiveReceiveBufferSizePredictorFactory;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
@@ -47,6 +48,12 @@ public class NettyServer extends AbstractServer implements Disposable {
 		this.bootstrap.setPipelineFactory(new NettyServerPipelineFactory(this));
 		this.bootstrap.setOption("child.tcpNoDelay", true);
 		this.bootstrap.setOption("child.keepAlive", true);
+		this.bootstrap.setOption("child.sendBufferSize", 1048576);
+		this.bootstrap.setOption("child.receiveBufferSize", 1048576);
+		this.bootstrap.setOption("receiveBufferSizePredictorFactory", new AdaptiveReceiveBufferSizePredictorFactory(64,
+				65536, 4048576));
+		this.bootstrap.setOption("writeBufferLowWaterMark", 32 * 1024);
+		this.bootstrap.setOption("writeBufferHighWaterMark", 64 * 1024);
 	}
 
 	@Override

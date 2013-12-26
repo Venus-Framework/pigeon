@@ -10,6 +10,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "seq")
@@ -31,8 +32,10 @@ public class DefaultResponse implements InvocationResponse {
 	private String cause;
 
 	@JsonProperty("response")
+	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 	private Object returnVal;
 
+	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 	private Object context;
 
 	public DefaultResponse() {

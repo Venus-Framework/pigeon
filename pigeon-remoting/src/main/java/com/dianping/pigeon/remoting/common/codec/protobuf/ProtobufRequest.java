@@ -15,6 +15,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -75,6 +76,7 @@ public class ProtobufRequest implements InvocationRequest {
 
 	private transient Map<String, Object> attachments = new HashMap<String, Object>();
 
+	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 	private Object context;
 
 	private final static RpcController controller = new RpcController() {
