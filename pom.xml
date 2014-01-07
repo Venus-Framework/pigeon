@@ -127,11 +127,6 @@
 				<optional>true</optional>
 			</dependency>
 			<dependency>
-				<groupId>org.jboss.netty</groupId>
-				<artifactId>netty</artifactId>
-				<version>3.2.1.Final</version>
-			</dependency>
-			<dependency>
 				<groupId>commons-httpclient</groupId>
 				<artifactId>commons-httpclient</artifactId>
 				<version>3.1</version>
@@ -169,6 +164,18 @@
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>jetty</artifactId>
 				<version>${jetty_version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.mortbay.jetty</groupId>
+						<artifactId>servlet-api</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>2.5-20081211</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.freemarker</groupId>
