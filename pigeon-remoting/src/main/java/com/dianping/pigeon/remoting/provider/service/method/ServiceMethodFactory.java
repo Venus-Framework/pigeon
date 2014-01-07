@@ -64,7 +64,7 @@ public final class ServiceMethodFactory {
 		return serviceMethodCache.getMethod(methodName, new ServiceParam(paramClassNames));
 	}
 
-	private static ServiceMethodCache getServiceMethodCache(String url) throws ServiceException {
+	public static ServiceMethodCache getServiceMethodCache(String url) {
 		ServiceMethodCache serviceMethodCache = methods.get(url);
 		if (serviceMethodCache == null) {
 			Map<String, ProviderConfig<?>> services = ServiceProviderFactory.getAllServices();

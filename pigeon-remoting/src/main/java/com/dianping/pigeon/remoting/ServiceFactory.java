@@ -14,10 +14,13 @@ import org.springframework.util.CollectionUtils;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.exception.ServiceException;
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
@@ -34,6 +37,7 @@ public class ServiceFactory {
 
 	static Logger logger = LoggerLoader.getLogger(ServiceFactory.class);
 	static boolean isCacheService = true;
+	static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	static Map<InvokerConfig<?>, Object> services = new ConcurrentHashMap<InvokerConfig<?>, Object>();
 
 	public static boolean isCacheService() {
@@ -124,6 +128,13 @@ public class ServiceFactory {
 			} catch (Throwable t) {
 				throw new RpcException("error while trying to get service:" + invokerConfig, t);
 			}
+			try {
+				ClientManager.getInstance().findServiceProviders(invokerConfig.getUrl(), configManager.getGroup(),
+						invokerConfig.getVip());
+			} catch (Throwable t) {
+				logger.warn("error while trying to setup service client:" + invokerConfig + ", caused by:"
+						+ t.getMessage());
+			}
 			if (isCacheService) {
 				services.put(invokerConfig, service);
 			}
@@ -132,7 +143,8 @@ public class ServiceFactory {
 	}
 
 	public static <T> void startupServer(ServerConfig serverConfig) throws RpcException {
-		ProviderBootStrap.startup(serverConfig);
+		ProviderBootStrap.setServerConfig(serverConfig);
+		// ProviderBootStrap.startup(serverConfig);
 	}
 
 	public static <T> void shutdownServer() throws RpcException {
@@ -163,9 +175,10 @@ public class ServiceFactory {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
 		}
 		try {
+			ServiceProviderFactory.addService(providerConfig);
 			ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig.getServerConfig());
 			providerConfig.setServerConfig(serverConfig);
-			ServiceProviderFactory.addService(providerConfig);
+			ServiceProviderFactory.publishServiceToRegistry(providerConfig);
 		} catch (ServiceException t) {
 			throw new RpcException("error while publishing service:" + providerConfig, t);
 		}
@@ -178,12 +191,13 @@ public class ServiceFactory {
 		if (!CollectionUtils.isEmpty(providerConfigList)) {
 			try {
 				for (ProviderConfig<?> providerConfig : providerConfigList) {
-					ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig.getServerConfig());
-					providerConfig.setServerConfig(serverConfig);
 					if (StringUtils.isBlank(providerConfig.getUrl())) {
 						providerConfig.setUrl(getServiceUrl(providerConfig));
 					}
 					ServiceProviderFactory.addService(providerConfig);
+					ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig.getServerConfig());
+					providerConfig.setServerConfig(serverConfig);
+					ServiceProviderFactory.publishServiceToRegistry(providerConfig);
 				}
 			} catch (ServiceException t) {
 				throw new RpcException("error while publishing services:" + providerConfigList, t);

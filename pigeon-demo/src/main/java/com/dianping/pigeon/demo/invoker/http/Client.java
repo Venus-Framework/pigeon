@@ -39,7 +39,7 @@ public class Client {
 				User user = new User();
 				user.setUsername("user_" + no);
 				System.out.println("user input:" + user);
-				System.out.println("user service result:" + userService.getUserDetail(user));
+				System.out.println("user service result:" + userService.getUserDetail(user, false));
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}

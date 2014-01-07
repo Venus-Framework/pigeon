@@ -6,11 +6,12 @@ package com.dianping.pigeon.demo;
 
 public interface UserService {
 
-	User getUserDetail(User user);
+	User getUserDetail(User user, boolean withPassword);
 
 	class User {
 		private String username;
 		private String email;
+		private String password;
 
 		public String getUsername() {
 			return username;
@@ -28,8 +29,16 @@ public interface UserService {
 			this.email = email;
 		}
 
+		public String getPassword() {
+			return password;
+		}
+
+		public void setPassword(String password) {
+			this.password = password;
+		}
+
 		public String toString() {
-			return username + "," + email;
+			return username + "," + email + "," + password;
 		}
 	}
 }

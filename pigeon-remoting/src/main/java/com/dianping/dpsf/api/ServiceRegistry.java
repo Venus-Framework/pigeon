@@ -63,7 +63,6 @@ public class ServiceRegistry {
 		}
 
 		try {
-			ServiceFactory.startupServer(serverConfig);
 			ServiceFactory.publishServices(providerConfigList);
 		} catch (RpcException e) {
 			throw new ServiceException("", e);

@@ -13,6 +13,15 @@ public class Echo1ServiceImpl implements EchoService {
 
 	Logger logger = LoggerLoader.getLogger(Echo1ServiceImpl.class);
 
+	String str = null;
+	{
+		StringBuilder s = new StringBuilder();
+		for(int i = 0; i < 0; i++) {
+			s.append("i=").append(i).append(",");
+		}
+		str = s.toString();
+	}
+	
 	@Override
 	public String echo(String input) {
 		// System.out.println(input);
@@ -33,7 +42,8 @@ public class Echo1ServiceImpl implements EchoService {
 			}
 			System.out.println("end......" + input);
 		}
-		return "echo1:" + input;
+		
+		return "echo1:" + input + "," + str;
 	}
 
 	@Override

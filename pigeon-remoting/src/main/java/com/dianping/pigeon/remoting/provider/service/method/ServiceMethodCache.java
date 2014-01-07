@@ -35,6 +35,10 @@ public class ServiceMethodCache {
 		this.service = service;
 	}
 
+	public ServiceMethod getCurrentMethod() {
+		return currentMethod;
+	}
+
 	void addMethod(String methodName, ServiceMethod method) {
 		if (this.currentMethod == null) {
 			this.currentMethod = method;

@@ -42,7 +42,7 @@ public class HttpInvokerClient extends AbstractClient {
 			logger.info("http client:" + connectInfo);
 		}
 		serviceUrlPrefix = "http://" + connectInfo.getHost() + ":" + connectInfo.getPort() + "/";
-		defaultServiceUrl = serviceUrlPrefix + "default";
+		defaultServiceUrl = serviceUrlPrefix + "service";
 		httpInvokerExecutor = new HttpInvokerExecutor();
 		HttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
 		HttpConnectionManagerParams params = new HttpConnectionManagerParams();
@@ -85,14 +85,7 @@ public class HttpInvokerClient extends AbstractClient {
 	@Override
 	public InvocationResponse write(InvokerContext invokerContext, Callback callback) {
 		InvocationRequest invocationRequest = invokerContext.getRequest();
-		String url = null;
-		if (invokerContext.getInvokerConfig() != null
-				&& invokerContext.getInvokerConfig().getServiceInterface() != null) {
-			url = serviceUrlPrefix + invokerContext.getInvokerConfig().getServiceInterface().getName();
-		} else {
-			url = serviceUrlPrefix + "default";
-		}
-		return write(url, invocationRequest, callback);
+		return write(defaultServiceUrl, invocationRequest, callback);
 	}
 
 	@Override

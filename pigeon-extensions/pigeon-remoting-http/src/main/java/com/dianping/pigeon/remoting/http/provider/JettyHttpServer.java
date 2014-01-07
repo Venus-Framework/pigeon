@@ -4,10 +4,12 @@
  */
 package com.dianping.pigeon.remoting.http.provider;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.servlet.ServletHandler;
+import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
@@ -63,12 +65,23 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 		server.setThreadPool(threadPool);
 		server.addConnector(connector);
 
-		ServletHandler servletHandler = new ServletHandler();
-		ServletHolder servletHolder = servletHandler.addServletWithMapping(DispatcherServlet.class, "/*");
-		servletHolder.setInitOrder(2);
+		Context context = new Context(Context.SESSIONS);
+		context.setContextPath("/");
+		server.addHandler(context);
 
-		server.addHandler(servletHandler);
+		context.addServlet(new ServletHolder(new DispatcherServlet()), "/service");
+		
+//		ServletHandler servletHandler = new ServletHandler();
+//		ServletHolder servletHolder = servletHandler.addServletWithMapping(DispatcherServlet.class, "/service");
+//		servletHolder.setInitOrder(1);
+//		server.addHandler(servletHandler);
 
+		List<JettyHttpServerProcessor> processors = ExtensionLoader.getExtensionList(JettyHttpServerProcessor.class);
+		if (processors != null) {
+			for (JettyHttpServerProcessor processor : processors) {
+				processor.preStart(server, context);
+			}
+		}
 		try {
 			server.start();
 		} catch (Exception e) {

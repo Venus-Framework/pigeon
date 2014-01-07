@@ -39,9 +39,10 @@ public class RequestTimeoutListener implements Runnable {
 		while (true) {
 			try {
 				long currentTime = System.currentTimeMillis();
-//				if (logger.isDebugEnabled()) {
-//					logger.debug("checking request timeout, count:" + requestContextMap.size());
-//				}
+				// if (logger.isDebugEnabled()) {
+				// logger.debug("checking request timeout, count:" +
+				// requestContextMap.size());
+				// }
 				for (InvocationRequest request : requestContextMap.keySet()) {
 					if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
 							&& (request.getCreateMillisTime() + request.getTimeout()) < currentTime) {
@@ -55,7 +56,8 @@ public class RequestTimeoutListener implements Runnable {
 							} else {
 								StringBuffer msg = new StringBuffer();
 								msg.append("timeout while processing request, from:")
-										.append(rc.getChannel().getRemoteAddress()).append(", to:")
+										.append(rc.getChannel() == null ? "" : rc.getChannel().getRemoteAddress())
+										.append(", to:")
 										.append(ExtensionLoader.getExtension(ConfigManager.class).getLocalIp())
 										.append(", process time:").append(System.currentTimeMillis()).append("\r\n")
 										.append("request:").append(request);

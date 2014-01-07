@@ -94,7 +94,6 @@ public final class ServiceRegistry {
 			providerConfigList.add(providerConfig);
 		}
 		try {
-			ServiceFactory.startupServer(serverConfig);
 			ServiceFactory.publishServices(providerConfigList);
 		} catch (RpcException e) {
 			throw new ServiceException("", e);

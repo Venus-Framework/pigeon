@@ -44,7 +44,7 @@ public class JacksonSerializer implements Serializer {
 		mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
 		mapper.disable(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
 		mapper.disable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
-		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);  
+		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		mapper.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
 	}
 
@@ -61,7 +61,7 @@ public class JacksonSerializer implements Serializer {
 			while ((len = is.read(buf)) != -1) {
 				sw.write(buf, 0, len);
 			}
-			if(logger.isDebugEnabled()) {
+			if (logger.isDebugEnabled()) {
 				logger.debug("deserialize:" + new String(sw.toByteArray()));
 			}
 			return mapper.readValue(sw.toByteArray(), clazz);
@@ -72,6 +72,22 @@ public class JacksonSerializer implements Serializer {
 				sw.close();
 			} catch (IOException e) {
 			}
+		}
+	}
+
+	public String serializeObject(Object obj) throws SerializationException {
+		try {
+			return mapper.writeValueAsString(obj);
+		} catch (Exception e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public <T> T deserializeObject(Class<T> objType, String content) throws SerializationException {
+		try {
+			return mapper.readValue(content, objType);
+		} catch (Exception e) {
+			throw new SerializationException(e);
 		}
 	}
 

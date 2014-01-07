@@ -57,6 +57,8 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent message) {
 		List<InvocationRequest> messages = (List<InvocationRequest>) (message.getMessage());
 		// System.out.println("messages:" + messages.size());
+		// NioSocketChannelConfig config = ((NioSocketChannelConfig)
+		// ctx.getChannel().getConfig());
 		for (InvocationRequest request : messages) {
 			ProviderContext invocationContext = new DefaultProviderContext(request, new NettyChannel(ctx.getChannel()));
 			try {

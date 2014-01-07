@@ -79,6 +79,10 @@ public final class ServiceProviderFactory {
 				serviceCache.put(url, providerConfig);
 			}
 		}
+	}
+	
+	public static <T> void publishServiceToRegistry(ProviderConfig<T> providerConfig) throws ServiceException {
+		String url = providerConfig.getUrl();
 		if (!registerStatusCache.contains(url)) {
 			String autoRegister = configManager.getStringValue(Constants.KEY_AUTO_REGISTER,
 					Constants.DEFAULT_AUTO_REGISTER);

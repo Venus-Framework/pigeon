@@ -19,7 +19,7 @@ import com.dianping.pigeon.test.service.EchoService;
  */
 public class DefaultTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(callMethod = "sync", serviceName = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 2000)
+	@PigeonAutoTest(callMethod = "sync", serviceName = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 500)
 	public EchoService echoService;
 
 	static AtomicLong counter = new AtomicLong(0);

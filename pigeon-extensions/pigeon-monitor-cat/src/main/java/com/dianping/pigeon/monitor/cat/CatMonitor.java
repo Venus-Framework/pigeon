@@ -6,6 +6,7 @@ package com.dianping.pigeon.monitor.cat;
 
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.MessageProducer;
+import com.dianping.cat.message.Transaction;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 
@@ -33,6 +34,9 @@ public class CatMonitor implements Monitor {
 	@Override
 	public void init() {
 		logger = createLogger();
+//		Transaction t = Cat.newTransaction("System", "PigeonClientStart");
+//		t.setStatus("0");
+//		t.complete();
 	}
 
 	public MonitorLogger getLogger() {

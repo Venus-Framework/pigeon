@@ -25,11 +25,34 @@ public final class ProviderBootStrap {
 	private static Logger logger = LoggerLoader.getLogger(ServiceProviderFactory.class);
 	static volatile Map<String, Server> serversMap = null;
 	static volatile ServerConfig serverConfig = null;
+	static volatile boolean isStarted = false;
+
+	public static void setServerConfig(ServerConfig serverConfig) {
+		ProviderBootStrap.serverConfig = serverConfig;
+	}
+
+	public static ServerConfig getServerConfig() {
+		return ProviderBootStrap.serverConfig;
+	}
+
+	public static ServerConfig startup() {
+		if (serverConfig == null) {
+			throw new IllegalArgumentException("server config is required");
+		}
+		startup(ProviderBootStrap.serverConfig);
+		return getServerConfig();
+	}
 
 	public static ServerConfig startup(ServerConfig serverConfig) {
-		if (ProviderBootStrap.serverConfig == null) {
+		if (serverConfig == null) {
+			serverConfig = ProviderBootStrap.serverConfig;
+		}
+		if (serverConfig == null) {
+			throw new IllegalArgumentException("server config is required");
+		}
+		if (!isStarted) {
 			synchronized (ProviderBootStrap.class) {
-				if (ProviderBootStrap.serverConfig == null) {
+				if (!isStarted) {
 					serversMap = new HashMap<String, Server>();
 					RegistryConfigLoader.init();
 					RequestProcessHandlerFactory.init();
@@ -50,6 +73,7 @@ public final class ProviderBootStrap {
 						}
 					}
 					ProviderBootStrap.serverConfig = serverConfig;
+					isStarted = true;
 				} else {
 					logger.warn("pigeon server[version:" + VersionUtils.VERSION + "] has already been started:"
 							+ serversMap);

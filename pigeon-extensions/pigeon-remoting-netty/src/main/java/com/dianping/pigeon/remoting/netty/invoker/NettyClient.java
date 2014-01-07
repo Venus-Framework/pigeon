@@ -82,6 +82,8 @@ public class NettyClient extends AbstractClient {
 		bootstrap.setPipelineFactory(new NettyClientPipelineFactory(this));
 		bootstrap.setOption("tcpNoDelay", true);
 		bootstrap.setOption("keepAlive", true);
+		this.bootstrap.setOption("reuseAddress", true);
+		this.bootstrap.setOption("connectTimeoutMillis", 1000);
 		bootstrap.setOption("sendBufferSize", 1048576);
 		bootstrap.setOption("receiveBufferSize", 1048576);
 		bootstrap.setOption("receiveBufferSizePredictorFactory", new AdaptiveReceiveBufferSizePredictorFactory(64,

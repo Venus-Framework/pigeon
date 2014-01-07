@@ -48,6 +48,8 @@ public class NettyServer extends AbstractServer implements Disposable {
 		this.bootstrap.setPipelineFactory(new NettyServerPipelineFactory(this));
 		this.bootstrap.setOption("child.tcpNoDelay", true);
 		this.bootstrap.setOption("child.keepAlive", true);
+		this.bootstrap.setOption("child.reuseAddress", true);
+		this.bootstrap.setOption("child.connectTimeoutMillis", 1000);
 		this.bootstrap.setOption("child.sendBufferSize", 1048576);
 		this.bootstrap.setOption("child.receiveBufferSize", 1048576);
 		this.bootstrap.setOption("receiveBufferSizePredictorFactory", new AdaptiveReceiveBufferSizePredictorFactory(64,

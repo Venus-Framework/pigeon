@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
@@ -41,9 +42,13 @@ public class HttpServerHandler implements HttpHandler {
 		if (serialize == null) {
 			serialize = (String) request.getHeader("serialize");
 		}
+		if (StringUtils.isBlank(serialize)) {
+			response.setStatus(200);
+			return;
+		}
 		if (!request.getMethod().equalsIgnoreCase("POST")) {
-			if(SerializerFactory.SERIALIZE_JSON == Byte.parseByte(serialize)) {
-				
+			if (serialize != null && SerializerFactory.SERIALIZE_JSON == Byte.parseByte(serialize)) {
+				response.setStatus(200);
 			} else {
 				response.setStatus(500);
 			}
