@@ -47,7 +47,7 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 
 	@Override
 	public void doStart(ServerConfig serverConfig) {
-		int availablePort = NetUtils.getAvailablePort(serverConfig.getPort() + 1000);
+		int availablePort = NetUtils.getAvailablePort(serverConfig.getPort() + 40);
 		port = availablePort;
 		DispatcherServlet.addHttpHandler(port, new HttpServerHandler(this));
 
