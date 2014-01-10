@@ -105,23 +105,14 @@ public class ClientManager implements Disposable {
 	public void findServiceProviders(String serviceName, String group, String vip) {
 		String serviceAddress = null;
 		try {
-			if (!StringUtils.isBlank(vip)) {
+			if (!StringUtils.isBlank(vip) && "dev".equalsIgnoreCase(configManager.getEnv())) {
 				serviceAddress = vip;
 			} else {
 				serviceAddress = RegistryManager.getInstance().getServiceAddress(serviceName, group);
-				if (serviceAddress == null && !StringUtils.isBlank(vip)) {
-					serviceAddress = vip;
-				}
 			}
 		} catch (Exception e) {
-			if (StringUtils.isBlank(vip)) {
-				logger.error("cannot get service provider for service:" + serviceName);
-				throw new RuntimeException(e);
-			} else {
-				logger.error("cannot get service provider for service:" + serviceName + " use failover vip= " + vip
-						+ " instead", e);
-				serviceAddress = vip;
-			}
+			logger.error("cannot get service provider for service:" + serviceName);
+			throw new RuntimeException(e);
 		}
 
 		if (StringUtils.isBlank(serviceAddress)) {

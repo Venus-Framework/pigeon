@@ -6,22 +6,18 @@ package com.dianping.pigeon.test.client.benchmark.call;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Test;
-import org.springframework.util.Assert;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.test.client.BaseInvokerTest;
-import com.dianping.pigeon.test.client.PigeonAutoTest;
 import com.dianping.pigeon.test.service.EchoService;
 
 /**
  * @author xiangwu
  * 
  */
-public class DefaultTest extends BaseInvokerTest {
-
-	@PigeonAutoTest(callMethod = "sync", protocol = "default", serialize = "hessian", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 3000)
-	public EchoService echoService;
+public class SpringTest extends BaseInvokerTest {
 
 	static AtomicLong counter = new AtomicLong(0);
 	String startTime = System.currentTimeMillis() + "";
@@ -31,8 +27,11 @@ public class DefaultTest extends BaseInvokerTest {
 	public void test() throws Throwable {
 		int threads = configManager.getIntValue("pigeon.test.threads", 50);
 		System.out.println("threads:" + threads);
-		Assert.notNull(echoService);
-		threads = 5;
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+				"classpath*:META-INF/spring/*.xml".split("[,\\s]+"));
+		context.start();
+		EchoService echoService = (EchoService) context.getBean("echoService"); // 获取远程服务代理
+
 		for (int i = 0; i < threads; i++) {
 			ClientThread thread = new ClientThread(echoService);
 			thread.start();
@@ -41,7 +40,7 @@ public class DefaultTest extends BaseInvokerTest {
 	}
 
 	public static void main(String[] args) throws Throwable {
-		DefaultTest test = new DefaultTest();
+		SpringTest test = new SpringTest();
 		test.start();
 		test.test();
 	}
@@ -58,19 +57,17 @@ public class DefaultTest extends BaseInvokerTest {
 			while (true) {
 				String msg = null;
 				try {
-					// Thread.sleep(5);
-					// msg = System.currentTimeMillis() + "" +
-					// Math.abs(RandomUtils.nextLong());
-					// Assert.assertEquals("echo:" + msg, echo);
+					// Thread.sleep(1000);
 					long count = counter.addAndGet(1);
-					String echo = service.echo("input:" + count);
+					String echo = service.echo(count + "");
 					// System.out.println(echo);
-					int size = 1000;
+					// Assert.assertEquals("echo:" + msg, echo);
+					int size = 10000;
 					if (count % size == 0) {
 						long now = System.currentTimeMillis();
 						long cost = now - Long.valueOf(startTime);
 						float tps = size * 1000 / cost;
-						System.out.println("tps:" + tps + ",cost:" + cost);
+						System.out.println("" + tps);
 						startTime = now + "";
 					}
 				} catch (Throwable e) {

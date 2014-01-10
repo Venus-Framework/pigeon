@@ -28,7 +28,7 @@ public class ServiceInvocationRepository {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceInvocationRepository.class);
 	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
-	private Map<Long, RemoteInvocationBean> invocations = new ConcurrentHashMap<Long, RemoteInvocationBean>();
+	private static Map<Long, RemoteInvocationBean> invocations = new ConcurrentHashMap<Long, RemoteInvocationBean>();
 	private static ServiceInvocationRepository instance = new ServiceInvocationRepository();
 	private static ThreadPool invocatinTimeCheckThreadPool = new DefaultThreadPool(
 			"Pigeon-Client-Invoke-Timeout-Check-ThreadPool");

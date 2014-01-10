@@ -21,7 +21,7 @@ public class RoundRobinLoadbalanceEchoServiceTest extends BaseInvokerTest {
 
     public List<Integer> getPorts() {
     	List<Integer> ports = new ArrayList<Integer>();
-    	ports.add(4625);
+    	ports.add(4040);
     	ports.add(4626);
     	ports.add(4627);
     	

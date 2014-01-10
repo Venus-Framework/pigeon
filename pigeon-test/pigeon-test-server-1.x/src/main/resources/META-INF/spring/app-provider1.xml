@@ -10,7 +10,7 @@
 
 	<bean class="com.dianping.dpsf.spring.ServiceRegistry"
 		init-method="init">
-		<property name="port" value="4625" />
+		<property name="port" value="4040" />
 		<property name="services">
 			<map>
 				<entry key="http://service.dianping.com/testService/echoService_1.0.0"

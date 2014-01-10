@@ -16,24 +16,24 @@ public class Echo1ServiceImpl implements EchoService {
 	String str = null;
 	{
 		StringBuilder s = new StringBuilder();
-		for(int i = 0; i < 0; i++) {
+		for (int i = 0; i < 999999; i++) {
 			s.append("i=").append(i).append(",");
 		}
 		str = s.toString();
 	}
-	
+
 	@Override
 	public String echo(String input) {
 		// System.out.println(input);
-		if (input.equals("200000")) {
+		if (input.equals("aaa2000000000")) {
 			System.out.println("sleep......");
-//			int i = 0;
-//			while(i++ < 99999999) {
-//				if(i == 99999998) {
-//					i = 0;
-//					System.out.println("sleep......");
-//				}
-//			}
+			// int i = 0;
+			// while(i++ < 99999999) {
+			// if(i == 99999998) {
+			// i = 0;
+			// System.out.println("sleep......");
+			// }
+			// }
 			try {
 				Thread.currentThread().sleep(10000);
 				System.out.println("end sleep, input......" + input);
@@ -42,8 +42,11 @@ public class Echo1ServiceImpl implements EchoService {
 			}
 			System.out.println("end......" + input);
 		}
-		
-		return "echo1:" + input + "," + str;
+		if (input.startsWith("big ")) {
+			return "echo1:" + input + "," + str;
+		} else {
+			return "echo1:" + input;
+		}
 	}
 
 	@Override

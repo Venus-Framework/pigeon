@@ -48,7 +48,7 @@ public class BaseInvokerTest {
 
 	@After
 	public void stop() throws Exception {
-		SpringLoader.stopProvider(4625);
+		SpringLoader.stopProvider(4040);
 	}
 
 	private void initClient() throws Exception {

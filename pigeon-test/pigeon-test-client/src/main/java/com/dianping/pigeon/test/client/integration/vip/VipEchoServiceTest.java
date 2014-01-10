@@ -13,7 +13,7 @@ import com.dianping.pigeon.test.service.EchoService;
 
 public class VipEchoServiceTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(callMethod = "sync", env = "prod", vip = "127.0.0.1:4625")
+	@PigeonAutoTest(callMethod = "sync", env = "prod", vip = "127.0.0.1:4040")
 	public EchoService echoService;
 
 	@Test

@@ -18,9 +18,9 @@ import com.dianping.pigeon.test.service.EchoService;
  * @author xiangwu
  * 
  */
-public class DefaultTest extends BaseInvokerTest {
+public class BigResponseTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(callMethod = "sync", protocol = "default", serialize = "hessian", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 3000)
+	@PigeonAutoTest(callMethod = "sync", protocol = "default", serialize = "hessian", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 1000000)
 	public EchoService echoService;
 
 	static AtomicLong counter = new AtomicLong(0);
@@ -41,7 +41,7 @@ public class DefaultTest extends BaseInvokerTest {
 	}
 
 	public static void main(String[] args) throws Throwable {
-		DefaultTest test = new DefaultTest();
+		BigResponseTest test = new BigResponseTest();
 		test.start();
 		test.test();
 	}
@@ -63,9 +63,9 @@ public class DefaultTest extends BaseInvokerTest {
 					// Math.abs(RandomUtils.nextLong());
 					// Assert.assertEquals("echo:" + msg, echo);
 					long count = counter.addAndGet(1);
-					String echo = service.echo("input:" + count);
+					String echo = service.echo("big input:" + count);
 					// System.out.println(echo);
-					int size = 1000;
+					int size = 100;
 					if (count % size == 0) {
 						long now = System.currentTimeMillis();
 						long cost = now - Long.valueOf(startTime);

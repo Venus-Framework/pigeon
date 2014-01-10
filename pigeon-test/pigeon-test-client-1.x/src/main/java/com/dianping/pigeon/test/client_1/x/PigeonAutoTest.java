@@ -15,9 +15,9 @@ public @interface PigeonAutoTest {
 
     String env() default "DEV";
 
-    String vip() default "127.0.0.1:4625";
+    String vip() default "127.0.0.1:4040";
 
-    String testVip() default "127.0.0.1:4625";
+    String testVip() default "127.0.0.1:4040";
     
     String registry() default "zookeeper";
     

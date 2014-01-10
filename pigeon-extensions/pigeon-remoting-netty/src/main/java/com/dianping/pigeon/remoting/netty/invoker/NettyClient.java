@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.AdaptiveReceiveBufferSizePredictorFactory;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -33,6 +32,7 @@ import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.RpcInvokeInfo;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
+import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 
 public class NettyClient extends AbstractClient {
@@ -45,7 +45,7 @@ public class NettyClient extends AbstractClient {
 
 	private String host;
 
-	private int port = 4625;
+	private int port = ServerConfig.DEFAULT_PORT;
 
 	private String address;
 
@@ -84,10 +84,10 @@ public class NettyClient extends AbstractClient {
 		bootstrap.setOption("keepAlive", true);
 		this.bootstrap.setOption("reuseAddress", true);
 		this.bootstrap.setOption("connectTimeoutMillis", 1000);
-		bootstrap.setOption("sendBufferSize", 1048576);
-		bootstrap.setOption("receiveBufferSize", 1048576);
-		bootstrap.setOption("receiveBufferSizePredictorFactory", new AdaptiveReceiveBufferSizePredictorFactory(64,
-				65536, 1048576));
+//		bootstrap.setOption("sendBufferSize", 1048576);
+//		bootstrap.setOption("receiveBufferSize", 1048576);
+//		bootstrap.setOption("receiveBufferSizePredictorFactory", new AdaptiveReceiveBufferSizePredictorFactory(64,
+//				65536, 1048576));
 	}
 
 	public synchronized void connect() {
