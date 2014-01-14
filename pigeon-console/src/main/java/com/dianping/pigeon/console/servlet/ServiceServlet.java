@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.dianping.pigeon.toolkit.servlet;
+package com.dianping.pigeon.console.servlet;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -17,10 +17,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.dianping.pigeon.console.domain.Service;
+import com.dianping.pigeon.console.domain.ServiceMethod;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
-import com.dianping.pigeon.toolkit.domain.Service;
-import com.dianping.pigeon.toolkit.domain.ServiceMethod;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;

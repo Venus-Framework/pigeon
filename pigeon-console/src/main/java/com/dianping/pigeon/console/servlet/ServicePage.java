@@ -1,9 +1,9 @@
-package com.dianping.pigeon.toolkit.servlet;
+package com.dianping.pigeon.console.servlet;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dianping.pigeon.toolkit.domain.Service;
+import com.dianping.pigeon.console.domain.Service;
 
 public class ServicePage {
 	private int port;

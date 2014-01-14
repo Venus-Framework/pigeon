@@ -33,11 +33,16 @@ public class ServiceRegistry {
 
 	private Map<String, Object> services;
 	private int port = 20000;
+	private int httpPort = ServerConfig.DEFAULT_CONSOLE_PORT;
+	private boolean autoSelectPort = true;
 	public static boolean isInit = false;
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
-	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE, Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
-	private int maxPoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_MAXPOOLSIZE, Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
-	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE, Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
+	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
+			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
+	private int maxPoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_MAXPOOLSIZE,
+			Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
+	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
+			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
 
 	public ServiceRegistry() {
 
@@ -50,6 +55,8 @@ public class ServiceRegistry {
 	public void init() throws Exception {
 		ServerConfig serverConfig = new ServerConfig();
 		serverConfig.setPort(port);
+		serverConfig.setHttpPort(httpPort);
+		serverConfig.setAutoSelectPort(autoSelectPort);
 		serverConfig.setCorePoolSize(corePoolSize);
 		serverConfig.setMaxPoolSize(maxPoolSize);
 		serverConfig.setWorkQueueSize(workQueueSize);
@@ -67,6 +74,22 @@ public class ServiceRegistry {
 		} catch (RpcException e) {
 			throw new ServiceException("", e);
 		}
+	}
+
+	public int getHttpPort() {
+		return httpPort;
+	}
+
+	public void setHttpPort(int httpPort) {
+		this.httpPort = httpPort;
+	}
+
+	public boolean isAutoSelectPort() {
+		return autoSelectPort;
+	}
+
+	public void setAutoSelectPort(boolean autoSelectPort) {
+		this.autoSelectPort = autoSelectPort;
 	}
 
 	/**

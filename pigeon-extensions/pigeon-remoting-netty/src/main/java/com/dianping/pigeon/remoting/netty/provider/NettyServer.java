@@ -16,6 +16,7 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import com.dianping.pigeon.domain.phase.Disposable;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.AbstractServer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
@@ -43,25 +44,17 @@ public class NettyServer extends AbstractServer implements Disposable {
 		ExecutorService worker = Executors
 				.newCachedThreadPool(new NamedThreadFactory("Pigeon-NettyServerWorker", true));
 
-		this.bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(boss, worker, DEFAULT_IO_THREADS));
+		this.bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(boss, worker));
 		this.bootstrap.setPipelineFactory(new NettyServerPipelineFactory(this));
 		this.bootstrap.setOption("child.tcpNoDelay", true);
 		this.bootstrap.setOption("child.keepAlive", true);
 		this.bootstrap.setOption("child.reuseAddress", true);
 		this.bootstrap.setOption("child.connectTimeoutMillis", 1000);
-//		this.bootstrap.setOption("child.sendBufferSize", 1048576);
-//		this.bootstrap.setOption("child.receiveBufferSize", 1048576);
-//		this.bootstrap.setOption("receiveBufferSizePredictorFactory", new AdaptiveReceiveBufferSizePredictorFactory(64,
-//				1048576, 4048576));
-//		this.bootstrap.setOption("sendBufferSizePredictorFactory", new AdaptiveReceiveBufferSizePredictorFactory(64,
-//				1048576, 4048576));
-		this.bootstrap.setOption("writeBufferLowWaterMark", 32 * 1024);
-		this.bootstrap.setOption("writeBufferHighWaterMark", 64 * 1024);
 	}
 
 	@Override
 	public boolean support(ServerConfig serverConfig) {
-		if (serverConfig.getProtocols().contains("default")) {
+		if (serverConfig.getProtocols().contains(Constants.PROTOCOL_DEFAULT)) {
 			return true;
 		}
 		return false;
@@ -70,8 +63,16 @@ public class NettyServer extends AbstractServer implements Disposable {
 	@Override
 	public void doStart(ServerConfig serverConfig) {
 		if (!started) {
-			int availablePort = NetUtils.getAvailablePort(port);
-			this.port = availablePort;
+			if (serverConfig.isAutoSelectPort()) {
+				int availablePort = NetUtils.getAvailablePort(serverConfig.getPort());
+				this.port = availablePort;
+			} else {
+				if (NetUtils.isPortInUse(serverConfig.getPort())) {
+					logger.error("unable to start netty server on port " + serverConfig.getPort() + ", the port is in use");
+					System.exit(0);
+				}
+				this.port = serverConfig.getPort();
+			}
 			InetSocketAddress address = null;
 			if (this.ip == null) {
 				address = new InetSocketAddress(this.port);

@@ -1,4 +1,4 @@
-package com.dianping.pigeon.toolkit.domain;
+package com.dianping.pigeon.console.domain;
 
 import java.util.ArrayList;
 import java.util.List;

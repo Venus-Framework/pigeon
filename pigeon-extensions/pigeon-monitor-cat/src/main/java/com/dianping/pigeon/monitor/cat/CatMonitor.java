@@ -34,9 +34,9 @@ public class CatMonitor implements Monitor {
 	@Override
 	public void init() {
 		logger = createLogger();
-//		Transaction t = Cat.newTransaction("System", "PigeonClientStart");
-//		t.setStatus("0");
-//		t.complete();
+		Transaction t = Cat.newTransaction("System", "PigeonClientStart");
+		t.setStatus("0");
+		t.complete();
 	}
 
 	public MonitorLogger getLogger() {

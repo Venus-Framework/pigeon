@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.toolkit;
+package com.dianping.pigeon.console;
 
 import java.net.URL;
 
@@ -12,13 +12,13 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
 
+import com.dianping.pigeon.console.servlet.ServiceServlet;
+import com.dianping.pigeon.console.servlet.json.InvokeJsonServlet;
+import com.dianping.pigeon.console.servlet.json.ServiceJsonServlet;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.http.provider.JettyHttpServerProcessor;
-import com.dianping.pigeon.toolkit.servlet.ServiceServlet;
-import com.dianping.pigeon.toolkit.servlet.json.InvokeJsonServlet;
-import com.dianping.pigeon.toolkit.servlet.json.ServiceJsonServlet;
 
-public class JettyToolkitProcessor implements JettyHttpServerProcessor {
+public class JettyConsoleProcessor implements JettyHttpServerProcessor {
 
 	protected final Logger logger = LoggerLoader.getLogger(this.getClass());
 
@@ -30,9 +30,9 @@ public class JettyToolkitProcessor implements JettyHttpServerProcessor {
 		context.addServlet(new ServletHolder(new InvokeJsonServlet(port)), "/invoke.json");
 
 		ServletHolder holder = new ServletHolder(new DefaultServlet());
-		URL url = JettyToolkitProcessor.class.getClassLoader().getResource("statics");
+		URL url = JettyConsoleProcessor.class.getClassLoader().getResource("statics");
 		if (url == null) {
-			logger.error("can't find toolkit static files!");
+			logger.error("can't find console static files!");
 			return;
 		}
 		String staticsDir = url.toExternalForm();

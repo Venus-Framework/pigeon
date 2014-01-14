@@ -46,6 +46,9 @@ public class JacksonSerializer implements Serializer {
 		mapper.disable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		mapper.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
+		// initialize
+		String content = serializeObject(new DefaultRequest());
+		deserializeObject(DefaultRequest.class, content);
 	}
 
 	@Override

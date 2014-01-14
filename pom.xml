@@ -28,7 +28,7 @@
 		<module>pigeon-governor</module>
 		<module>pigeon-demo</module>
 		<module>pigeon-test</module>
-		<module>pigeon-toolkit</module>
+		<module>pigeon-console</module>
 		<module>pigeon</module>
 	</modules>
 	<description>pigeon-parent</description>
@@ -208,13 +208,13 @@
 			<dependency>
 				<groupId>com.dianping.cat</groupId>
 				<artifactId>cat-core</artifactId>
-				<version>0.6.1</version>
+				<version>0.6.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.dianping.platform</groupId>
 				<artifactId>phoenix-environment</artifactId>
-				<version>0.1.0</version>
+				<version>0.2.5</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.slf4j</groupId>
@@ -279,7 +279,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.dianping</groupId>
-				<artifactId>pigeon-toolkit</artifactId>
+				<artifactId>pigeon-console</artifactId>
 				<version>${pigeon.version}</version>
 			</dependency>
 			<dependency>

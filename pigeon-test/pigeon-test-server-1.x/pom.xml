@@ -62,12 +62,12 @@
 		<dependency>
 			<groupId>com.dianping.dpsf</groupId>
 			<artifactId>dpsf-net</artifactId>
-			<version>1.9.2.13</version><!--$NO-MVN-MAN-VER$ --><!--1.7.3 1.9.1-SNAPSHOT -->
-		</dependency>
+			<version>1.9.1</version><!--$NO-MVN-MAN-VER$ --><!--1.7.3 1.9.1-SNAPSHOT -->
+		</dependency> 
 		<dependency>
 			<groupId>org.jboss.netty</groupId>
 			<artifactId>netty</artifactId>
-            <version>3.2.13</version>
+            <version>3.2.18</version>
 		</dependency>
 	</dependencies>
 	<build>

@@ -14,6 +14,7 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
+import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.listener.ShutdownHookListener;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessHandlerFactory;
@@ -56,6 +57,7 @@ public final class ProviderBootStrap {
 					serversMap = new HashMap<String, Server>();
 					RegistryConfigLoader.init();
 					RequestProcessHandlerFactory.init();
+					SerializerFactory.init();
 					Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 					if (monitor != null) {
 						monitor.init();
@@ -87,13 +89,12 @@ public final class ProviderBootStrap {
 
 	public static void shutdown() {
 		RequestProcessHandlerFactory.clearServerInternalFilters();
-		synchronized (ProviderBootStrap.class) {
-			for (Server server : serversMap.values()) {
-				if (server != null) {
-					server.stop();
-					if (logger.isInfoEnabled()) {
-						logger.info("pigeon server[" + server + "] has been shutdown");
-					}
+		for (Server server : serversMap.values()) {
+			if (server != null) {
+				logger.info("start to stop " + server);
+				server.stop();
+				if (logger.isInfoEnabled()) {
+					logger.info(server + " has been shutdown");
 				}
 			}
 		}

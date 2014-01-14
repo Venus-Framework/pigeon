@@ -33,6 +33,8 @@ public final class ServiceRegistry {
 	private boolean publish = true;
 	private Map<String, Object> services;
 	private int port = ServerConfig.DEFAULT_PORT;
+	private int httpPort = ServerConfig.DEFAULT_CONSOLE_PORT;
+	private boolean autoSelectPort = true;
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
 			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
@@ -40,6 +42,22 @@ public final class ServiceRegistry {
 			Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
 	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
 			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
+
+	public boolean isAutoSelectPort() {
+		return autoSelectPort;
+	}
+
+	public void setAutoSelectPort(boolean autoSelectPort) {
+		this.autoSelectPort = autoSelectPort;
+	}
+
+	public int getHttpPort() {
+		return httpPort;
+	}
+
+	public void setHttpPort(int httpPort) {
+		this.httpPort = httpPort;
+	}
 
 	public int getCorePoolSize() {
 		return corePoolSize;
@@ -83,6 +101,8 @@ public final class ServiceRegistry {
 	public void init() throws ServiceException {
 		ServerConfig serverConfig = new ServerConfig();
 		serverConfig.setPort(port);
+		serverConfig.setHttpPort(httpPort);
+		serverConfig.setAutoSelectPort(autoSelectPort);
 		serverConfig.setCorePoolSize(corePoolSize);
 		serverConfig.setMaxPoolSize(maxPoolSize);
 		serverConfig.setWorkQueueSize(workQueueSize);

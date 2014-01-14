@@ -21,7 +21,7 @@ import com.dianping.pigeon.test.service.protobuf.EchoProtos.EchoResponse;
  */
 public class ProtobufTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(callMethod = "sync", protocol = "http", serialize = "protobuf", url = "http://service.dianping.com/testService/echoServiceProtobuf_1.0.0", timeout = 2000)
+	@PigeonAutoTest(callMethod = "sync", protocol = "default", serialize = "protobuf", url = "http://service.dianping.com/testService/echoServiceProtobuf_1.0.0", timeout = 2000)
 	public EchoProtos.EchoService.BlockingInterface echoService;
 
 	static AtomicLong counter = new AtomicLong(0);

@@ -17,7 +17,10 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 public class ServerConfig {
 
 	public static final int DEFAULT_PORT = 4040;
+	public static final int DEFAULT_CONSOLE_PORT = 4080;
 	private int port = DEFAULT_PORT;
+	private int httpPort = DEFAULT_CONSOLE_PORT;
+	private boolean autoSelectPort = true;
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
 			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
@@ -31,10 +34,26 @@ public class ServerConfig {
 	private Set<String> protocols = new HashSet<String>();
 
 	public ServerConfig() {
-		protocols.add("default");
-		protocols.add("http");
+		protocols.add(Constants.PROTOCOL_DEFAULT);
+		protocols.add(Constants.PROTOCOL_HTTP);
 	}
-	
+
+	public boolean isAutoSelectPort() {
+		return autoSelectPort;
+	}
+
+	public void setAutoSelectPort(boolean autoSelectPort) {
+		this.autoSelectPort = autoSelectPort;
+	}
+
+	public int getHttpPort() {
+		return httpPort;
+	}
+
+	public void setHttpPort(int httpPort) {
+		this.httpPort = httpPort;
+	}
+
 	public Set<String> getProtocols() {
 		return protocols;
 	}

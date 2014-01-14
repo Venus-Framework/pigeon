@@ -20,6 +20,8 @@ public class ServerBean {
 	private static final Logger logger = LoggerLoader.getLogger(ServerBean.class);
 
 	private int port = ServerConfig.DEFAULT_PORT;
+	private int httpPort = ServerConfig.DEFAULT_CONSOLE_PORT;
+	private boolean autoSelectPort = true;
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
 			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
@@ -28,6 +30,22 @@ public class ServerBean {
 	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
 			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
 	private String group;
+
+	public boolean isAutoSelectPort() {
+		return autoSelectPort;
+	}
+
+	public void setAutoSelectPort(boolean autoSelectPort) {
+		this.autoSelectPort = autoSelectPort;
+	}
+
+	public int getHttpPort() {
+		return httpPort;
+	}
+
+	public void setHttpPort(int httpPort) {
+		this.httpPort = httpPort;
+	}
 
 	public int getPort() {
 		return port;
@@ -72,6 +90,8 @@ public class ServerBean {
 	public void init() throws Exception {
 		ServerConfig serverConfig = new ServerConfig();
 		serverConfig.setPort(port);
+		serverConfig.setHttpPort(httpPort);
+		serverConfig.setAutoSelectPort(autoSelectPort);
 		serverConfig.setCorePoolSize(corePoolSize);
 		serverConfig.setMaxPoolSize(maxPoolSize);
 		serverConfig.setWorkQueueSize(workQueueSize);

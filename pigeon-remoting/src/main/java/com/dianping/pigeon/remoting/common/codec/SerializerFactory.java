@@ -6,11 +6,11 @@ package com.dianping.pigeon.remoting.common.codec;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
 import com.dianping.pigeon.remoting.common.codec.java.JavaSerializer;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.common.codec.protobuf.ProtobufSerializer;
-import com.dianping.pigeon.remoting.common.util.Constants;
 
 /**
  * @author xiangwu
@@ -35,6 +35,10 @@ public final class SerializerFactory {
 	private final static ConcurrentHashMap<Byte, Serializer> serializers = new ConcurrentHashMap<Byte, Serializer>();
 
 	static {
+		init();
+	}
+
+	public static void init() {
 		registerSerializer(SERIALIZE_JAVA, new JavaSerializer());
 		registerSerializer(SERIALIZE_HESSIAN, new HessianSerializer());
 		registerSerializer(SERIALIZE_HESSIAN1, new HessianSerializer());

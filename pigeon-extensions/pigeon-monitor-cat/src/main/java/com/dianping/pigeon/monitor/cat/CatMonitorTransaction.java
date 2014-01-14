@@ -30,6 +30,7 @@ public class CatMonitorTransaction implements MonitorTransaction {
 
 	public static final String REQUEST_ID = "requestId";
 	public static final String REFER_REQUEST_ID = "referRequestId";
+	public static final String GUID = "guid";
 
 	public CatMonitorTransaction(CatLogger logger, Transaction transaction, InvocationContext invocationContext) {
 		this.logger = logger;
@@ -102,6 +103,7 @@ public class CatMonitorTransaction implements MonitorTransaction {
 			// Transfer requestId and referRequestId
 			invocationContext.putContextValue(REQUEST_ID, PhoenixContext.getInstance().getRequestId());
 			invocationContext.putContextValue(REFER_REQUEST_ID, PhoenixContext.getInstance().getReferRequestId());
+			invocationContext.putContextValue(GUID, PhoenixContext.getInstance().getGuid());
 
 			producer.logEvent(CatConstants.TYPE_REMOTE_CALL, CatConstants.NAME_REQUEST, Transaction.SUCCESS,
 					serverMessageId);
@@ -122,8 +124,10 @@ public class CatMonitorTransaction implements MonitorTransaction {
 			// Set requestId & referRequestId
 			String requestId = ContextUtils.getContextValue(context, REQUEST_ID);
 			String referRequestId = ContextUtils.getContextValue(context, REFER_REQUEST_ID);
+			String guid = ContextUtils.getContextValue(context, GUID);
 			PhoenixContext.getInstance().setRequestId(requestId);
 			PhoenixContext.getInstance().setReferRequestId(referRequestId);
+			PhoenixContext.getInstance().setGuid(guid);
 
 			DefaultMessageManager messageManager = (DefaultMessageManager) Cat.getManager();
 			MessageTree tree = messageManager.getThreadLocalMessageTree();

@@ -44,9 +44,9 @@
 					<xsd:attribute name="interface" type="xsd:string"
 						use="required" />
 					<xsd:attribute name="ref" type="xsd:string" use="required" />
-					<xsd:attribute name="port" type="xsd:int" />
+					<xsd:attribute name="port" type="xsd:int"  default="4040"/>
 					<xsd:attribute name="version" type="xsd:string" />
-					<xsd:attribute name="autoRegister" type="xsd:boolean" />
+					<xsd:attribute name="autoRegister" type="xsd:boolean" default="true" />
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>
@@ -57,10 +57,12 @@
 			<xsd:complexContent>
 				<xsd:extension base="beans:identifiedType">
 					<xsd:attribute name="group" type="xsd:string" />
-					<xsd:attribute name="port" type="xsd:int" />
-					<xsd:attribute name="corePoolSize" type="xsd:int" />
-					<xsd:attribute name="maxPoolSize" type="xsd:int" />
-					<xsd:attribute name="workQueueSize" type="xsd:int" />
+					<xsd:attribute name="port" type="xsd:int" default="4040" />
+					<xsd:attribute name="httpPort" type="xsd:int" default="4080" />
+					<xsd:attribute name="autoSelectPort" type="xsd:boolean" default="true" />
+					<xsd:attribute name="corePoolSize" type="xsd:int" default="100" />
+					<xsd:attribute name="maxPoolSize" type="xsd:int" default="300" />
+					<xsd:attribute name="workQueueSize" type="xsd:int" default="100" />
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>

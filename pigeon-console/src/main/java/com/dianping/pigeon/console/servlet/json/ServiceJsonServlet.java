@@ -1,9 +1,9 @@
 /**
  * 
  */
-package com.dianping.pigeon.toolkit.servlet.json;
+package com.dianping.pigeon.console.servlet.json;
 
-import com.dianping.pigeon.toolkit.servlet.ServiceServlet;
+import com.dianping.pigeon.console.servlet.ServiceServlet;
 
 /**
  * @author sean.wang

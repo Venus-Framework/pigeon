@@ -110,7 +110,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.dianping</groupId>
-			<artifactId>pigeon-toolkit</artifactId>
+			<artifactId>pigeon-console</artifactId>
 			<version>${pigeon.version}</version>
 		</dependency>
 	</dependencies>
@@ -162,7 +162,7 @@
 									<include>com.dianping:pigeon-remoting-http</include>
 									<include>com.dianping:pigeon-monitor-cat</include>
 									<include>com.dianping:pigeon-config-lion</include>
-									<include>com.dianping:pigeon-toolkit</include>
+									<include>com.dianping:pigeon-console</include>
 								</includes>
 							</artifactSet>
 							<!-- <transformers> <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> 

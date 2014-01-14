@@ -7,10 +7,10 @@
 		<version>2.1.6-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<name>pigeon-toolkit</name>
+	<name>pigeon-console</name>
 	<groupId>com.dianping</groupId>
 	<version>2.1.6-SNAPSHOT</version>
-	<artifactId>pigeon-toolkit</artifactId>
+	<artifactId>pigeon-console</artifactId>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
 	<dependencies>

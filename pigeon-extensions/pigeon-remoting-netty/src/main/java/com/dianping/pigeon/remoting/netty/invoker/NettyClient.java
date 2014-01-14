@@ -77,17 +77,11 @@ public class NettyClient extends AbstractClient {
 				Constants.THREADNAME_CLIENT_NETTY_WORKER_EXECUTOR));
 
 		this.bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(bossExecutor, workExecutor));
-		bootstrap.setOption("writeBufferLowWaterMark", 32 * 1024);
-		bootstrap.setOption("writeBufferHighWaterMark", 64 * 1024);
-		bootstrap.setPipelineFactory(new NettyClientPipelineFactory(this));
-		bootstrap.setOption("tcpNoDelay", true);
-		bootstrap.setOption("keepAlive", true);
+		this.bootstrap.setPipelineFactory(new NettyClientPipelineFactory(this));
+		this.bootstrap.setOption("tcpNoDelay", true);
+		this.bootstrap.setOption("keepAlive", true);
 		this.bootstrap.setOption("reuseAddress", true);
 		this.bootstrap.setOption("connectTimeoutMillis", 1000);
-//		bootstrap.setOption("sendBufferSize", 1048576);
-//		bootstrap.setOption("receiveBufferSize", 1048576);
-//		bootstrap.setOption("receiveBufferSizePredictorFactory", new AdaptiveReceiveBufferSizePredictorFactory(64,
-//				65536, 1048576));
 	}
 
 	public synchronized void connect() {
@@ -100,13 +94,28 @@ public class NettyClient extends AbstractClient {
 		ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
 		if (future.awaitUninterruptibly(connectTimeout, TimeUnit.MILLISECONDS)) {
 			if (future.isSuccess()) {
+				Channel newChannel = future.getChannel();
+				try {
+					// 关闭旧的连接
+					Channel oldChannel = this.channel;
+					if (oldChannel != null) {
+						if (logger.isInfoEnabled()) {
+							logger.info("close old netty channel " + oldChannel);
+						}
+						try {
+							oldChannel.close();
+						} catch (Throwable t) {
+						}
+					}
+				} finally {
+					this.channel = newChannel;
+				}
 				logger.warn("client is connected to " + this.host + ":" + this.port);
 				this.connected = true;
 			} else {
 				logger.error("client is not connected to " + this.host + ":" + this.port);
 			}
 		}
-		this.channel = future.getChannel();
 	}
 
 	public InvocationResponse write(InvokerContext invokerContext, Callback callback) {

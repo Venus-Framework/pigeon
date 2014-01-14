@@ -62,6 +62,12 @@ public class ServerBeanDefinitionParser implements BeanDefinitionParser {
 		if (element.hasAttribute("port")) {
 			properties.addPropertyValue("port", resolveReference(element, "port"));
 		}
+		if (element.hasAttribute("httpPort")) {
+			properties.addPropertyValue("httpPort", resolveReference(element, "httpPort"));
+		}
+		if (element.hasAttribute("autoSelectPort")) {
+			properties.addPropertyValue("autoSelectPort", resolveReference(element, "autoSelectPort"));
+		}
 		if (element.hasAttribute("corePoolSize")) {
 			properties.addPropertyValue("corePoolSize", resolveReference(element, "corePoolSize"));
 		}

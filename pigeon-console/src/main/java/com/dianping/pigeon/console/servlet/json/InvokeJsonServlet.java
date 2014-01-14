@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.dianping.pigeon.toolkit.servlet.json;
+package com.dianping.pigeon.console.servlet.json;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -15,9 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.dianping.dpsf.spring.ProxyBeanFactory;
+import com.dianping.pigeon.console.servlet.ServiceServlet;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
-import com.dianping.pigeon.toolkit.servlet.ServiceServlet;
 
 /**
  * @author sean.wang
