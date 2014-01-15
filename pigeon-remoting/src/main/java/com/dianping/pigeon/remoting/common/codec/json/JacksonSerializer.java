@@ -8,22 +8,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Proxy;
 
 import org.apache.commons.lang.SerializationException;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.dpsf.protocol.DefaultResponse;
-import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.codec.Serializer;
-import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
-import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
-import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
-import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
-import com.dianping.pigeon.remoting.invoker.process.InvocationHandlerFactory;
-import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationProxy;
+import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -31,7 +23,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class JacksonSerializer implements Serializer {
+public class JacksonSerializer extends DefaultAbstractSerializer {
 
 	private static final Logger logger = LoggerLoader.getLogger(JacksonSerializer.class);
 
@@ -115,23 +107,6 @@ public class JacksonSerializer implements Serializer {
 	@Override
 	public void serializeResponse(OutputStream os, Object obj) throws SerializationException {
 		serializeRequest(os, obj);
-	}
-
-	@Override
-	public Object proxyRequest(InvokerConfig<?> invokerConfig) throws SerializationException {
-		return Proxy.newProxyInstance(ProxyBeanFactory.class.getClassLoader(), new Class[] { invokerConfig
-				.getServiceInterface() },
-				new ServiceInvocationProxy(invokerConfig, InvocationHandlerFactory.createInvokeHandler(invokerConfig)));
-	}
-
-	@Override
-	public InvocationResponse newResponse() throws SerializationException {
-		return new DefaultResponse();
-	}
-
-	@Override
-	public InvocationRequest newRequest(InvokerContext invokerContext) throws SerializationException {
-		return new DefaultRequest(invokerContext);
 	}
 
 }

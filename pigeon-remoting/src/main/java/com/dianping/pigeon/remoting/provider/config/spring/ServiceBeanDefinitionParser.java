@@ -59,17 +59,23 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 		MutablePropertyValues properties = beanDefinition.getPropertyValues();
 		String ref = element.getAttribute("ref");
 		if (!parserContext.getRegistry().containsBeanDefinition(ref)) {
-			throw new IllegalStateException("service must have a reference to impl bean");
+			throw new IllegalStateException("service must have a reference to bean:" + ref);
 		}
 		properties.addPropertyValue("serviceImpl", new RuntimeBeanReference(ref));
+
+		if (element.hasAttribute("server")) {
+			String server = element.getAttribute("server");
+			if (!parserContext.getRegistry().containsBeanDefinition(server)) {
+				throw new IllegalStateException("service must have a reference to bean:" + server);
+			}
+			properties.addPropertyValue("serverBean", new RuntimeBeanReference(server));
+		}
+		
 		if (element.hasAttribute("url")) {
 			properties.addPropertyValue("url", resolveReference(element, "url"));
 		}
 		if (element.hasAttribute("interface")) {
 			properties.addPropertyValue("interfaceName", resolveReference(element, "interface"));
-		}
-		if (element.hasAttribute("port")) {
-			properties.addPropertyValue("port", resolveReference(element, "port"));
 		}
 		if (element.hasAttribute("version")) {
 			properties.addPropertyValue("version", resolveReference(element, "version"));

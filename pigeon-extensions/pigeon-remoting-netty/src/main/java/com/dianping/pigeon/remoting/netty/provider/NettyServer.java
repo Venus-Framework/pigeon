@@ -40,9 +40,9 @@ public class NettyServer extends AbstractServer implements Disposable {
 	public static final int DEFAULT_IO_THREADS = Runtime.getRuntime().availableProcessors() + 1;
 
 	public NettyServer() {
-		ExecutorService boss = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-NettyServerBoss", true));
+		ExecutorService boss = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Netty-Server-Boss", true));
 		ExecutorService worker = Executors
-				.newCachedThreadPool(new NamedThreadFactory("Pigeon-NettyServerWorker", true));
+				.newCachedThreadPool(new NamedThreadFactory("Pigeon-Netty-Server-Worker", true));
 
 		this.bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(boss, worker));
 		this.bootstrap.setPipelineFactory(new NettyServerPipelineFactory(this));

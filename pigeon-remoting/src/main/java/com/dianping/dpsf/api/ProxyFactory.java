@@ -48,7 +48,7 @@ public class ProxyFactory<IFACE> {
 	private boolean writeBufferLimit = configManager.getBooleanValue(Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT,
 			Constants.DEFAULT_WRITE_BUFF_LIMIT);
 
-	private String loadBalance;
+	private String loadBalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
 
 	private Class<? extends LoadBalance> loadBalanceClass;
 

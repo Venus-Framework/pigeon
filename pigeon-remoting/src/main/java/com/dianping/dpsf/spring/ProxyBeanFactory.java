@@ -45,14 +45,14 @@ public class ProxyBeanFactory implements FactoryBean {
 	 * 2. RoundRobin LoadBalance 轮循，按公约后的权重设置轮循比率，存在慢的提供者累积请求问题，
 	 * 比如：第二台机器很慢，但没挂，当请求调到第二台时就卡在那，久而久之，所有请求都卡在调到第二台上。--未实现
 	 * 
-	 * 3. LeastActive LoadBalance： 最少活跃调用数，相同活跃数的随机，活跃数指调用前后计数差。
+	 * 3. AutoAware LoadBalance： 最少活跃调用数，相同活跃数的随机，活跃数指调用前后计数差。
 	 * 使慢的提供者收到更少请求，因为越慢的提供者的调用前后计数差会越大。---已经实现，默认的
 	 * 
 	 * 4. ConsistentHash LoadBalance 一致性Hash，相同参数的请求总是发到同一提供者。
 	 * 当某一台提供者挂时，原本发往该提供者的请求，基于虚拟节点，平摊到其它提供者，不会引起剧烈变动。---未实现
 	 * 
 	 * 5. LeastSuccess LoadBalance，
-	 * 当前调用成功率最高的优先分配（为了避免负载不均与，成功率前80%再按照LeastActive的方式选择）
+	 * 当前调用成功率最高的优先分配（为了避免负载不均，成功率前80%再按照AutoAware的方式选择）
 	 */
 	private String loadbalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
 
@@ -101,7 +101,7 @@ public class ProxyBeanFactory implements FactoryBean {
 	private ServiceCallback callback;
 
 	private String version;
-	
+
 	private String protocol;
 
 	public String getProtocol() {

@@ -46,7 +46,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		LoadBalanceManager.register(ConsistentHashLoadBalance.NAME, null, ConsistentHashLoadBalance.instance);
 	}
 
-	public Client route(List<Client> clientList, InvokerConfig metaData, InvocationRequest request) {
+	public Client route(List<Client> clientList, InvokerConfig<?> invokerConfig, InvocationRequest request) {
 		if (logger.isDebugEnabled()) {
 			for (Client client : clientList) {
 				logger.debug("available service provider：\t" + client.getAddress());
@@ -57,11 +57,11 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		isWriteBufferLimit = (isWriteBufferLimit != null ? isWriteBufferLimit : false)
 				&& request.getCallType() == Constants.CALLTYPE_NOREPLY;
 
-		List<Client> availableClients = filterWithGroupAndWeight(clientList, metaData, isWriteBufferLimit);
+		List<Client> availableClients = filterWithGroupAndWeight(clientList, invokerConfig, isWriteBufferLimit);
 
-		Client selectedClient = select(availableClients, metaData, request);
+		Client selectedClient = select(availableClients, invokerConfig, request);
 
-		checkClientNotNull(selectedClient, metaData);
+		checkClientNotNull(selectedClient, invokerConfig);
 
 		while (!selectedClient.isConnected()) {
 			clusterListenerManager.removeConnect(selectedClient);
@@ -69,12 +69,12 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 			if (availableClients.isEmpty()) {
 				break;
 			}
-			selectedClient = select(availableClients, metaData, request);
-			checkClientNotNull(selectedClient, metaData);
+			selectedClient = select(availableClients, invokerConfig, request);
+			checkClientNotNull(selectedClient, invokerConfig);
 		}
 
 		if (!selectedClient.isConnected()) {
-			throw new NoConnectionException("no available server exists for service metaData[" + metaData + "] .");
+			throw new NoConnectionException("no available server exists for service metaData[" + invokerConfig + "] .");
 		}
 		return selectedClient;
 	}

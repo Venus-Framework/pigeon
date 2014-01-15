@@ -72,26 +72,8 @@ public final class Constants {
 	public static final String CONFIG_CLUSTER_RETRY = "retry";
 	public static final String CONFIG_CLUSTER_TIMEOUT_RETRY = "timeout-retry";
 
-	public static final String THREADNAME_CLIENT_PRESPONSE_PROCESSOR = "Pigeon-Client-Response-Processor";
-
-	// Pigeon server的处理请求线程池,已经优化为cachethread的方式。
-	public static final String THREADNAME_SERVER_REQUEST_PROCESSOR = "Pigeon-Server-Request-Processor";
-	public static final String THREADNAME_TELNET_SYSTEM_PROCESSOR = "Pigeon-Telnet-System-Processor";
-	public static final String THREADNAME_TELNET_SERVICE_PROCESSOR = "Pigeon-Telnet-Service-Processor";
-	public static final String THREADNAME_CLIENT_NETTY_BOSS_EXECUTOR = "Pigeon-Client-Netty-Boss-Executor";
-	public static final String THREADNAME_CLIENT_NETTY_WORKER_EXECUTOR = "Pigeon-Client-Netty-Worker-Executor";
-
-	// Netty Server的Boss 线程池，用来和client建立socket链接的线程，后续就交给work thread去处理。
-	public static final String THREADNAME_SERVER_NETTY_BOSS_EXECUTOR = "Pigeon-Server-Netty-Boss-Executor";
-	// Netty Server的Work 线程池， 和client请求的work线程
-	public static final String THREADNAME_SERVER_NETTY_WORKER_EXECUTOR = "Pigeon-Server-Netty-Worker-Executor";
-
 	public static final String CONTEXT_FUTURE = "Context-Future";
 	public static final String CONTEXT_SERVER_COST = "Context-Server-Cost";
-
-	// TODO remove me!
-	public static final String CONTEXT_REQUEST_SIZE = "Context-Request-Size";
-	public static final String CONTEXT_RESPONSE_SIZE = "Context-Response-Size";
 
 	// Config keys in /data/webapps/appenv
 	public static final String KEY_GROUP = "swimlane";
@@ -111,9 +93,6 @@ public final class Constants {
 	public static final String KEY_HEARTBEAT_HEALTHTHRESHOLD = "pigeon.heartbeat.health.threshold";
 	public static final String KEY_HEARTBEAT_AUTOPICKOFF = "pigeon.heartbeat.autopickoff";
 	public static final String KEY_SERVICE_NAMESPACE = "pigeon.service.namespace";
-	public static final String KEY_WRITE_BUFFER_HIGH_WATER = "pigeon.channel.writebuff.high";
-	public static final String KEY_WRITE_BUFFER_LOW_WATER = "pigeon.channel.writebuff.low";
-	public static final String KEY_DEFAULT_WRITE_BUFF_LIMIT = "pigeon.channel.writebuff.defaultlimit";
 	public static final String KEY_MONITOR_ENABLED = "pigeon.monitor.enabled";
 	public static final String KEY_INVOKER_MAXREQUESTS = "pigeon.invoker.maxrequests";
 	public static final String KEY_PROVIDER_COREPOOLSIZE = "pigeon.provider.corePoolSize";
@@ -123,6 +102,7 @@ public final class Constants {
 	public static final String KEY_INVOKER_TIMEOUT = "pigeon.invoker.timeout";
 	public static final String KEY_PROCESS_TYPE = "pigeon.process.type";
 	public static final String KEY_TIMEOUT_INTERVAL = "pigeon.timeout.interval";
+	public static final String KEY_DEFAULT_WRITE_BUFF_LIMIT = "pigeon.channel.writebuff.defaultlimit";
 
 	public static final int DEFAULT_INVOKER_TIMEOUT = 5000;
 	public static final int DEFAULT_PROVIDER_COREPOOLSIZE = 100;
@@ -142,7 +122,7 @@ public final class Constants {
 	public static final String DEFAULT_PROCESS_TYPE = "threadpool";
 	public static final long DEFAULT_TIMEOUT_INTERVAL = 100;
 	public static final String ROUTE_ROUNDROBIN = "roundRobin";
-	
+
 	public static final String PROTOCOL_HTTP = "http";
 	public static final String PROTOCOL_DEFAULT = "default";
 }

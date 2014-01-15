@@ -71,10 +71,10 @@ public class NettyClient extends AbstractClient {
 		this.address = host + ":" + port;
 
 		ExecutorService bossExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory(
-				Constants.THREADNAME_CLIENT_NETTY_BOSS_EXECUTOR));
+				"Pigeon-Netty-Client-Boss"));
 
 		ExecutorService workExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory(
-				Constants.THREADNAME_CLIENT_NETTY_WORKER_EXECUTOR));
+				"Pigeon-Netty-Client-Worker"));
 
 		this.bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(bossExecutor, workExecutor));
 		this.bootstrap.setPipelineFactory(new NettyClientPipelineFactory(this));

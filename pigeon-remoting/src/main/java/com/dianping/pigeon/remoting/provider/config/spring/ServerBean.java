@@ -30,6 +30,7 @@ public class ServerBean {
 	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
 			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
 	private String group;
+	private volatile ServerConfig serverConfig;
 
 	public boolean isAutoSelectPort() {
 		return autoSelectPort;
@@ -87,15 +88,22 @@ public class ServerBean {
 		this.group = group;
 	}
 
-	public void init() throws Exception {
-		ServerConfig serverConfig = new ServerConfig();
-		serverConfig.setPort(port);
-		serverConfig.setHttpPort(httpPort);
-		serverConfig.setAutoSelectPort(autoSelectPort);
-		serverConfig.setCorePoolSize(corePoolSize);
-		serverConfig.setMaxPoolSize(maxPoolSize);
-		serverConfig.setWorkQueueSize(workQueueSize);
-		ServiceFactory.startupServer(serverConfig);
+	public ServerConfig init() throws Exception {
+		if (serverConfig == null) {
+			synchronized (this) {
+				if (serverConfig == null) {
+					serverConfig = new ServerConfig();
+					serverConfig.setPort(port);
+					serverConfig.setHttpPort(httpPort);
+					serverConfig.setAutoSelectPort(autoSelectPort);
+					serverConfig.setCorePoolSize(corePoolSize);
+					serverConfig.setMaxPoolSize(maxPoolSize);
+					serverConfig.setWorkQueueSize(workQueueSize);
+					ServiceFactory.startupServer(serverConfig);
+				}
+			}
+		}
+		return serverConfig;
 	}
 
 	@Override

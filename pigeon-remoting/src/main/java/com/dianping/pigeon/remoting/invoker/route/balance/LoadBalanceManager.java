@@ -24,7 +24,7 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
  */
 public class LoadBalanceManager {
 
-	public static final String DEFAULT_LOADBALANCE = RoundRobinLoadBalance.NAME;
+	public static final String DEFAULT_LOADBALANCE = LoadAutoawareLoadBalance.NAME;
 
 	private static final Logger logger = LoggerLoader.getLogger(LoadBalanceManager.class);
 

@@ -36,16 +36,8 @@ public final class ProviderBootStrap {
 		return ProviderBootStrap.serverConfig;
 	}
 
-	public static ServerConfig startup() {
-		if (serverConfig == null) {
-			throw new IllegalArgumentException("server config is required");
-		}
-		startup(ProviderBootStrap.serverConfig);
-		return getServerConfig();
-	}
-
 	public static ServerConfig startup(ServerConfig serverConfig) {
-		if (serverConfig == null) {
+		if (ProviderBootStrap.serverConfig != null) {
 			serverConfig = ProviderBootStrap.serverConfig;
 		}
 		if (serverConfig == null) {
@@ -74,7 +66,7 @@ public final class ProviderBootStrap {
 							}
 						}
 					}
-					ProviderBootStrap.serverConfig = serverConfig;
+					// ProviderBootStrap.serverConfig = serverConfig;
 					isStarted = true;
 				} else {
 					logger.warn("pigeon server[version:" + VersionUtils.VERSION + "] has already been started:"

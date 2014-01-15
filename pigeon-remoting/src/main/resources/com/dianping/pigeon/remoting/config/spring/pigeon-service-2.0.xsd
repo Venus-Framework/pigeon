@@ -21,7 +21,7 @@
 						default="sync" />
 					<xsd:attribute name="timeout" type="xsd:int" default="5000" />
 					<xsd:attribute name="loadbalance" type="xsd:string"
-						default="roundRobin" />
+						default="autoaware" />
 					<xsd:attribute name="cluster" type="xsd:string"
 						default="failFast" />
 					<xsd:attribute name="retries" type="xsd:int" default="1" />
@@ -44,6 +44,7 @@
 					<xsd:attribute name="interface" type="xsd:string"
 						use="required" />
 					<xsd:attribute name="ref" type="xsd:string" use="required" />
+					<xsd:attribute name="server" type="xsd:string" />
 					<xsd:attribute name="port" type="xsd:int"  default="4040"/>
 					<xsd:attribute name="version" type="xsd:string" />
 					<xsd:attribute name="autoRegister" type="xsd:boolean" default="true" />

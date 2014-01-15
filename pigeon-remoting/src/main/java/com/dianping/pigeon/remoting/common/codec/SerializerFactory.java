@@ -6,7 +6,6 @@ package com.dianping.pigeon.remoting.common.codec;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
 import com.dianping.pigeon.remoting.common.codec.java.JavaSerializer;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
@@ -61,6 +60,9 @@ public final class SerializerFactory {
 	}
 
 	public static void registerSerializer(byte serializerType, Serializer serializer) {
+		if (serializer == null) {
+			throw new IllegalArgumentException("the serializer is null");
+		}
 		serializers.putIfAbsent(serializerType, serializer);
 	}
 

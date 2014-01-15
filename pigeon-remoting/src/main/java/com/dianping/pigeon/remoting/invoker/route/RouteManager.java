@@ -12,6 +12,6 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 public interface RouteManager {
 
-	public Client route(List<Client> clientList, InvokerConfig metaData, InvocationRequest request);
+	public Client route(List<Client> clientList, InvokerConfig<?> invokerConfig, InvocationRequest request);
 
 }

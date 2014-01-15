@@ -22,6 +22,15 @@ public class ServiceBean {
 	private Object serviceImpl;
 	private String version;
 	private String interfaceName;
+	private ServerBean serverBean;
+
+	public ServerBean getServerBean() {
+		return serverBean;
+	}
+
+	public void setServerBean(ServerBean serverBean) {
+		this.serverBean = serverBean;
+	}
 
 	public String getInterfaceName() {
 		return interfaceName;
@@ -72,6 +81,9 @@ public class ServiceBean {
 		}
 		providerConfig.setVersion(version);
 		providerConfig.setUrl(url);
+		if(serverBean != null) {
+			providerConfig.setServerConfig(serverBean.init());
+		}
 		ServiceFactory.publishService(providerConfig);
 	}
 
