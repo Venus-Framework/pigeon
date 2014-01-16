@@ -45,9 +45,10 @@
 						use="required" />
 					<xsd:attribute name="ref" type="xsd:string" use="required" />
 					<xsd:attribute name="server" type="xsd:string" />
-					<xsd:attribute name="port" type="xsd:int"  default="4040"/>
+					<xsd:attribute name="port" type="xsd:int" default="4040" />
 					<xsd:attribute name="version" type="xsd:string" />
-					<xsd:attribute name="autoRegister" type="xsd:boolean" default="true" />
+					<xsd:attribute name="autoRegister" type="xsd:boolean"
+						default="true" />
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>
@@ -59,13 +60,37 @@
 				<xsd:extension base="beans:identifiedType">
 					<xsd:attribute name="group" type="xsd:string" />
 					<xsd:attribute name="port" type="xsd:int" default="4040" />
-					<xsd:attribute name="httpPort" type="xsd:int" default="4080" />
-					<xsd:attribute name="autoSelectPort" type="xsd:boolean" default="true" />
-					<xsd:attribute name="corePoolSize" type="xsd:int" default="100" />
-					<xsd:attribute name="maxPoolSize" type="xsd:int" default="300" />
-					<xsd:attribute name="workQueueSize" type="xsd:int" default="100" />
+					<xsd:attribute name="httpPort" type="xsd:int"
+						default="4080" />
+					<xsd:attribute name="autoSelectPort" type="xsd:boolean"
+						default="true" />
+					<xsd:attribute name="corePoolSize" type="xsd:int"
+						default="100" />
+					<xsd:attribute name="maxPoolSize" type="xsd:int"
+						default="300" />
+					<xsd:attribute name="workQueueSize" type="xsd:int"
+						default="100" />
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:complexType name="annotationType">
+		<xsd:attribute name="id" type="xsd:ID">
+			<xsd:annotation>
+				<xsd:documentation><![CDATA[ The unique identifier for a bean. ]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="package" type="xsd:string" use="optional">
+			<xsd:annotation>
+				<xsd:documentation><![CDATA[ The scan package. ]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:element name="annotation" type="annotationType">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[ The annotation config ]]></xsd:documentation>
+		</xsd:annotation>
 	</xsd:element>
 </xsd:schema>

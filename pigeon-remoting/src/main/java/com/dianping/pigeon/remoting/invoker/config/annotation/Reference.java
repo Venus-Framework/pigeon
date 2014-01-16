@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.remoting.invoker.config.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -12,25 +13,26 @@ import java.lang.annotation.Target;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.METHOD})
 public @interface Reference {
 
 	Class<?> interfaceClass() default void.class;
 	
-	String interfaceName();
-	
-    String vip();
+    String vip() default "";
     
-    String url();
+    String url() default "";
 
+    String protocol() default Constants.PROTOCOL_DEFAULT;
+    
     String serialize() default Constants.SERIALIZE_HESSIAN;
 
-    String callMethod() default Constants.CALL_SYNC;
+    String callType() default Constants.CALL_SYNC;
 
     int timeout() default 2000;
 
-    String callback();
+    String callback() default "";
 
     String loadbalance() default LoadBalanceManager.DEFAULT_LOADBALANCE;
 
@@ -40,8 +42,8 @@ public @interface Reference {
 
     boolean timeoutRetry() default false;
     
-    String version();
+    String version() default "";
     
-    String group();
+    String group() default "";
 
 }

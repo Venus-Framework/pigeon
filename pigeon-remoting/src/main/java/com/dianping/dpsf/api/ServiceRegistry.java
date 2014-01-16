@@ -33,7 +33,7 @@ public class ServiceRegistry {
 
 	private Map<String, Object> services;
 	private int port = 20000;
-	private int httpPort = ServerConfig.DEFAULT_CONSOLE_PORT;
+	private int httpPort = ServerConfig.DEFAULT_HTTP_PORT;
 	private boolean autoSelectPort = true;
 	public static boolean isInit = false;
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);

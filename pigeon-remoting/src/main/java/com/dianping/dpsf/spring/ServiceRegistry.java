@@ -33,7 +33,7 @@ public final class ServiceRegistry {
 	private boolean publish = true;
 	private Map<String, Object> services;
 	private int port = ServerConfig.DEFAULT_PORT;
-	private int httpPort = ServerConfig.DEFAULT_CONSOLE_PORT;
+	private int httpPort = ServerConfig.DEFAULT_HTTP_PORT;
 	private boolean autoSelectPort = true;
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,

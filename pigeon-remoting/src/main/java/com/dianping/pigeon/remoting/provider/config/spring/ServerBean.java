@@ -20,7 +20,7 @@ public class ServerBean {
 	private static final Logger logger = LoggerLoader.getLogger(ServerBean.class);
 
 	private int port = ServerConfig.DEFAULT_PORT;
-	private int httpPort = ServerConfig.DEFAULT_CONSOLE_PORT;
+	private int httpPort = ServerConfig.DEFAULT_HTTP_PORT;
 	private boolean autoSelectPort = true;
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
