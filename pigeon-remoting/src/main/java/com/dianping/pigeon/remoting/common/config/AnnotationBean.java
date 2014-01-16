@@ -39,9 +39,9 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 
 	public static final Pattern COMMA_SPLIT_PATTERN = Pattern.compile("\\s*[,]+\\s*");
 
-	private String annotationPackage;
+	private String annotationPackage = "com.dianping";
 
-	private String[] annotationPackages;
+	private String[] annotationPackages = new String[] { "com.dianping" };
 
 	private final ConcurrentMap<String, InvokerConfig<?>> invokerConfigs = new ConcurrentHashMap<String, InvokerConfig<?>>();
 

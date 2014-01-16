@@ -8,24 +8,22 @@
 				http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
                 http://code.dianping.com/schema/pigeon http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd">
 
-	<pigeon:annotation id="pigeonAnnotation"
-		package="com.dianping.pigeon.demo.invoker.annotation" />
+	<pigeon:annotation />
 
-	<pigeon:reference id="defaultEchoService" timeout="1000"
-		protocol="default" serialize="hessian" callType="sync"
-		interface="com.dianping.pigeon.demo.EchoService" />
+	<pigeon:reference timeout="1000" protocol="default"
+		serialize="hessian" callType="sync" interface="com.dianping.pigeon.demo.EchoService" />
 
-	<pigeon:reference id="echoService1"
-		interface="com.dianping.pigeon.demo.EchoService" version="1.0.0" />
+	<pigeon:reference interface="com.dianping.pigeon.demo.EchoService"
+		version="1.0.0" />
 
-	<pigeon:reference id="echoService2"
-		interface="com.dianping.pigeon.demo.EchoService" version="2.0.0" />
+	<pigeon:reference interface="com.dianping.pigeon.demo.EchoService"
+		version="2.0.0" />
 
 	<bean id="echoServiceCallback" class="com.dianping.pigeon.demo.invoker.EchoServiceCallback" />
 
-	<pigeon:reference id="echoServiceWithCallback"
-		interface="com.dianping.pigeon.demo.EchoService" timeout="1000"
-		protocol="default" serialize="hessian" callType="callback" callback="echoServiceCallback" />
+	<pigeon:reference interface="com.dianping.pigeon.demo.EchoService"
+		timeout="1000" protocol="default" serialize="hessian" callType="callback"
+		callback="echoServiceCallback" />
 
 	<bean id="annotationTestService"
 		class="com.dianping.pigeon.demo.invoker.annotation.AnnotationTestService" />

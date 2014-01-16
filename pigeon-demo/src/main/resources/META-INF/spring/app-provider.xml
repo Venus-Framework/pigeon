@@ -9,15 +9,14 @@
 				http://code.dianping.com/schema/pigeon http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd"
 	default-autowire="byName">
 
-	<pigeon:annotation id="pigeonAnnotation"
-		package="com.dianping.pigeon.demo.provider.annotation" />
+	<pigeon:annotation />
 
 	<pigeon:server id="pigeonServer" port="4040" httpPort="4080" />
 
 	<bean id="DefaultUserServiceImpl"
 		class="com.dianping.pigeon.demo.provider.UserServiceDefaultImpl" />
 
-	<pigeon:service id="defaultUserService" server="pigeonServer"
+	<pigeon:service server="pigeonServer"
 		interface="com.dianping.pigeon.demo.UserService" ref="DefaultUserServiceImpl" />
 
 	<bean id="DefaultEchoServiceImpl"
@@ -29,14 +28,14 @@
 	<bean id="echoServiceImpl2"
 		class="com.dianping.pigeon.demo.provider.version.EchoServiceImpl2" />
 
-	<pigeon:service id="defaultEchoService" server="pigeonServer"
+	<pigeon:service server="pigeonServer"
 		interface="com.dianping.pigeon.demo.EchoService" ref="DefaultEchoServiceImpl" />
 
-	<pigeon:service id="echoService1" server="pigeonServer"
+	<pigeon:service server="pigeonServer"
 		interface="com.dianping.pigeon.demo.EchoService" ref="echoServiceImpl1"
 		version="1.0.0" />
 
-	<pigeon:service id="echoService2" server="pigeonServer"
+	<pigeon:service server="pigeonServer"
 		interface="com.dianping.pigeon.demo.EchoService" ref="echoServiceImpl2"
 		version="2.0.0" />
 

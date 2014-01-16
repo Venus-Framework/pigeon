@@ -4,6 +4,9 @@
  */
 package com.dianping.pigeon.remoting.provider.config.spring;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -36,6 +39,8 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 	private final Class<?> beanClass;
 
 	private final boolean required;
+	
+	public static AtomicInteger idCounter = new AtomicInteger();
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
@@ -53,6 +58,9 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 		RootBeanDefinition beanDefinition = new RootBeanDefinition();
 		beanDefinition.setLazyInit(false);
 		String id = element.getAttribute("id");
+		if (StringUtils.isBlank(id)) {
+			id = "pigeonService_" + idCounter.incrementAndGet();
+		}
 		beanDefinition.setBeanClass(ServiceBean.class);
 		beanDefinition.setInitMethodName("init");
 

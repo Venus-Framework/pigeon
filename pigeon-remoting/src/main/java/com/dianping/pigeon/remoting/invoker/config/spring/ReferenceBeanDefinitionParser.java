@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.remoting.invoker.config.spring;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.MutablePropertyValues;
@@ -40,6 +42,8 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 
 	private final boolean required;
 
+	public static AtomicInteger idCounter = new AtomicInteger();
+
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	public ReferenceBeanDefinitionParser(Class<?> beanClass, boolean required) {
@@ -56,7 +60,9 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 		RootBeanDefinition beanDefinition = new RootBeanDefinition();
 		beanDefinition.setLazyInit(false);
 		String id = element.getAttribute("id");
-
+		if (StringUtils.isBlank(id)) {
+			id = "pigeonRef_" + idCounter.incrementAndGet();
+		}
 		beanDefinition.setBeanClass(ProxyBeanFactory.class);
 		beanDefinition.setInitMethodName("init");
 		InvokerBootStrap.startup();
