@@ -210,7 +210,7 @@ public class ServiceFactory {
 			logger.info("unpublish service:" + url);
 		}
 		try {
-			ServiceProviderFactory.removeService(url);
+			ServiceProviderFactory.unpublishServiceFromRegistry(url);
 		} catch (ServiceException e) {
 			throw new RpcException("error while unpublishing service:" + url, e);
 		}
@@ -226,9 +226,20 @@ public class ServiceFactory {
 			logger.info("unpublish all services");
 		}
 		try {
-			ServiceProviderFactory.removeAllServices();
+			ServiceProviderFactory.unpublishAllServices();
 		} catch (ServiceException e) {
 			throw new RpcException("error while unpublishing all services", e);
+		}
+	}
+	
+	public static <T> void republishAllServices() throws RpcException {
+		if (logger.isInfoEnabled()) {
+			logger.info("republish all services");
+		}
+		try {
+			ServiceProviderFactory.republishAllServices();
+		} catch (ServiceException e) {
+			throw new RpcException("error while republishing all services", e);
 		}
 	}
 }

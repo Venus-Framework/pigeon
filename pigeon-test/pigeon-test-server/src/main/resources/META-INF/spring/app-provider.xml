@@ -10,33 +10,31 @@
 	default-autowire="byName">
 
 	<bean id="echo1ServiceImpl" class="com.dianping.pigeon.test.service.Echo1ServiceImpl" />
-	
+
 	<bean id="echo2ServiceImpl" class="com.dianping.pigeon.test.service.Echo2ServiceImpl" />
-	
+
 	<bean id="echoServiceProtobufImpl"
 		class="com.dianping.pigeon.test.service.protobuf.EchoServiceImpl" />
 
-	<bean class="com.dianping.dpsf.spring.ServiceRegistry"
-		init-method="init">
-		<property name="port" value="4040" />
-		<property name="httpPort" value="4080" />
-		<property name="autoSelectPort" value="false" />
-		<property name="services">
-			<map>
-				<entry key="http://service.dianping.com/testService/echoService_1.0.0"
-					value-ref="echo1ServiceImpl" />
-				<entry key="http://service.dianping.com/testService/echoService_2.0.0"
-					value-ref="echo2ServiceImpl" />
-				<entry
-					key="http://service.dianping.com/testService/echoServiceProtobuf_1.0.0"
-					value-ref="echoServiceProtobufImpl" />
-			</map>
-		</property>
-	</bean>
+	<!-- <bean class="com.dianping.dpsf.spring.ServiceRegistry" init-method="init"> 
+		<property name="port" value="4040" /> <property name="httpPort" value="4080" 
+		/> <property name="autoSelectPort" value="false" /> <property name="services"> 
+		<map> <entry key="http://service.dianping.com/testService/echoService_1.0.0" 
+		value-ref="echo1ServiceImpl" /> <entry key="http://service.dianping.com/testService/echoService_2.0.0" 
+		value-ref="echo2ServiceImpl" /> <entry key="http://service.dianping.com/testService/echoServiceProtobuf_1.0.0" 
+		value-ref="echoServiceProtobufImpl" /> </map> </property> </bean> -->
 
-	<!-- <pigeon:server id="pigeonServer" port="4040" /> <pigeon:service id="echoServiceNoUrl" 
-		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl" 
-		/> <pigeon:service id="echoService" url="http://service.dianping.com/testService/echoService_1.0.0" 
-		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceImpl" 
-		/> -->
+	<!-- <pigeon:server id="pigeonServer" port="4040" /> -->
+
+	<pigeon:service
+		url="http://service.dianping.com/testService/echoServiceProtobuf_1.0.0"
+		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceProtobufImpl" />
+
+	<pigeon:service
+		url="http://service.dianping.com/testService/echoService_1.0.0"
+		interface="com.dianping.pigeon.test.service.EchoService" ref="echo1ServiceImpl" />
+
+	<pigeon:service
+		url="http://service.dianping.com/testService/echoService_2.0.0"
+		interface="com.dianping.pigeon.test.service.EchoService" ref="echo2ServiceImpl" />
 </beans>

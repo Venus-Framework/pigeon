@@ -86,7 +86,7 @@ public class RegistryConfigLoader {
 			in = new FileInputStream(ENV_FILE);
 			props.load(in);
 		} catch (FileNotFoundException e) {
-			logger.info(ENV_FILE + "does not exist");
+			logger.info(ENV_FILE + " does not exist");
 		} finally {
 			if(in != null)
 				in.close();

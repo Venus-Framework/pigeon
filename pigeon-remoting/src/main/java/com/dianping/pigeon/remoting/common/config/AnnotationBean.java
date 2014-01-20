@@ -45,8 +45,6 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 
 	private final ConcurrentMap<String, InvokerConfig<?>> invokerConfigs = new ConcurrentHashMap<String, InvokerConfig<?>>();
 
-	private final ConcurrentMap<String, ProviderConfig<?>> providerConfigs = new ConcurrentHashMap<String, ProviderConfig<?>>();
-
 	public String getPackage() {
 		return annotationPackage;
 	}
@@ -91,23 +89,6 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 		}
 	}
 
-	public void destroy() throws Exception {
-		for (InvokerConfig<?> referenceConfig : invokerConfigs.values()) {
-			try {
-				// referenceConfig.destroy();
-			} catch (Throwable e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-		for (ProviderConfig<?> providerConfig : providerConfigs.values()) {
-			try {
-
-			} catch (Throwable e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (!isMatchPackage(bean)) {
 			return bean;
@@ -135,11 +116,11 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 			serverConfig.setGroup(service.group());
 			serverConfig.setAutoSelectPort(service.autoSelectPort());
 			serverConfig.setHttpPort(service.httpPort());
+			serverConfig.setCorePoolSize(service.corePoolSize());
+			serverConfig.setMaxPoolSize(service.maxPoolSize());
+			serverConfig.setWorkQueueSize(service.workQueueSize());
 			providerConfig.setServerConfig(serverConfig);
 
-			String key = serverConfig.getGroup() + "/" + providerConfig.getServiceInterface().getName() + ":"
-					+ providerConfig.getVersion();
-			providerConfigs.put(key, providerConfig);
 			try {
 				ServiceFactory.publishService(providerConfig);
 			} catch (RpcException e) {
@@ -229,7 +210,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 						+ ", is not a ServiceCallback interface.");
 			}
 		}
-		String key = reference.group() + "/" + interfaceName + ":" + reference.version();
+		String key = reference.group() + "/" + reference.url() + "@" + interfaceName + ":" + reference.version();
 		InvokerConfig<?> invokerConfig = invokerConfigs.get(key);
 		if (invokerConfig == null) {
 			invokerConfig = new InvokerConfig(referenceClass, reference.url(), reference.timeout(),
@@ -257,6 +238,11 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public void destroy() throws Exception {
+
 	}
 
 }

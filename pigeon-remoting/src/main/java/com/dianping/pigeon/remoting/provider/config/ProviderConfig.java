@@ -14,6 +14,15 @@ public class ProviderConfig<T> {
 	private String version;
 	private T service;
 	private ServerConfig serverConfig = new ServerConfig();
+	private boolean registered = false;
+
+	public boolean isRegistered() {
+		return registered;
+	}
+
+	public void setRegistered(boolean registered) {
+		this.registered = registered;
+	}
 
 	public ServerConfig getServerConfig() {
 		return serverConfig;

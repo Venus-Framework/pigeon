@@ -41,7 +41,9 @@ public final class SerializerFactory {
 		registerSerializer(SERIALIZE_JAVA, new JavaSerializer());
 		registerSerializer(SERIALIZE_HESSIAN, new HessianSerializer());
 		registerSerializer(SERIALIZE_HESSIAN1, new HessianSerializer());
-		registerSerializer(SERIALIZE_PROTOBUF, new ProtobufSerializer());
+		if(ProtobufSerializer.support()) {
+			registerSerializer(SERIALIZE_PROTOBUF, new ProtobufSerializer());
+		}
 		registerSerializer(SERIALIZE_JSON, new JacksonSerializer());
 	}
 

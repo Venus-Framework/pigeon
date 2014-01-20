@@ -35,8 +35,6 @@ public final class ServiceProviderFactory {
 
 	private static ConcurrentHashMap<String, ProviderConfig<?>> serviceCache = new ConcurrentHashMap<String, ProviderConfig<?>>();
 
-	private static ConcurrentHashMap<String, Boolean> registerStatusCache = new ConcurrentHashMap<String, Boolean>();
-
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	public ServiceProviderFactory() {
@@ -80,27 +78,29 @@ public final class ServiceProviderFactory {
 			}
 		}
 	}
-	
+
 	public static <T> void publishServiceToRegistry(ProviderConfig<T> providerConfig) throws ServiceException {
 		String url = providerConfig.getUrl();
-		if (!registerStatusCache.contains(url)) {
+		if (!providerConfig.isRegistered()) {
 			String autoRegister = configManager.getStringValue(Constants.KEY_AUTO_REGISTER,
 					Constants.DEFAULT_AUTO_REGISTER);
-			List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
-			for (Server server : servers) {
-				if (server.support(providerConfig.getServerConfig())) {
-					try {
-						server.addService(providerConfig);
-					} catch (RpcException e) {
-						throw new ServiceException("", e);
-					}
-					if ("true".equalsIgnoreCase(autoRegister)) {
+			if ("true".equalsIgnoreCase(autoRegister)) {
+				List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
+				int registerCount = 0;
+				for (Server server : servers) {
+					if (server.support(providerConfig.getServerConfig())) {
+						try {
+							server.addService(providerConfig);
+						} catch (RpcException e) {
+							throw new ServiceException("", e);
+						}
 						publishServiceToRegistry(server.getRegistryUrl(url), server.getPort(), providerConfig
 								.getServerConfig().getGroup());
-						registerStatusCache.put(url, true);
-					} else {
-						registerStatusCache.put(url, false);
+						registerCount++;
 					}
+				}
+				if (registerCount > 0) {
+					providerConfig.setRegistered(true);
 				}
 			}
 		}
@@ -119,24 +119,40 @@ public final class ServiceProviderFactory {
 		}
 	}
 
+	public static void unpublishServiceFromRegistry(String url) throws ServiceException {
+		if (logger.isInfoEnabled()) {
+			logger.info("unpublish service from registry:" + url);
+		}
+		String autoRegister = configManager
+				.getStringValue(Constants.KEY_AUTO_REGISTER, Constants.DEFAULT_AUTO_REGISTER);
+		if ("true".equalsIgnoreCase(autoRegister)) {
+			ProviderConfig<?> providerConfig = serviceCache.get(url);
+			if (providerConfig != null) {
+				List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
+				for (Server server : servers) {
+					if (server.support(providerConfig.getServerConfig())) {
+						String serviceAddress = configManager.getLocalIp() + ":" + server.getPort();
+						try {
+							RegistryManager.getInstance().unregisterService(
+									server.getRegistryUrl(providerConfig.getUrl()),
+									providerConfig.getServerConfig().getGroup(), serviceAddress);
+						} catch (RegistryException e) {
+							throw new ServiceException("", e);
+						}
+					}
+				}
+				providerConfig.setRegistered(false);
+			}
+		}
+	}
+
 	public static void removeService(String url) throws ServiceException {
 		if (logger.isInfoEnabled()) {
 			logger.info("remove service:" + url);
 		}
 		ProviderConfig<?> providerConfig = serviceCache.get(url);
 		if (providerConfig != null) {
-			List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
-			for (Server server : servers) {
-				if (server.support(providerConfig.getServerConfig())) {
-					String serviceAddress = configManager.getLocalIp() + ":" + server.getPort();
-					try {
-						RegistryManager.getInstance().unregisterService(server.getRegistryUrl(providerConfig.getUrl()),
-								providerConfig.getServerConfig().getGroup(), serviceAddress);
-					} catch (RegistryException e) {
-						throw new ServiceException("", e);
-					}
-				}
-			}
+			unpublishServiceFromRegistry(url);
 			List<String> toRemovedUrls = new ArrayList<String>();
 			for (String key : serviceCache.keySet()) {
 				ProviderConfig<?> pc = serviceCache.get(key);
@@ -147,7 +163,6 @@ public final class ServiceProviderFactory {
 			for (String key : toRemovedUrls) {
 				serviceCache.remove(key);
 			}
-			registerStatusCache.remove(url);
 		}
 	}
 
@@ -157,6 +172,27 @@ public final class ServiceProviderFactory {
 		}
 		for (String url : serviceCache.keySet()) {
 			removeService(url);
+		}
+	}
+
+	public static void unpublishAllServices() throws ServiceException {
+		if (logger.isInfoEnabled()) {
+			logger.info("unpublish all services");
+		}
+		for (String url : serviceCache.keySet()) {
+			unpublishServiceFromRegistry(url);
+		}
+	}
+
+	public static void republishAllServices() throws ServiceException {
+		if (logger.isInfoEnabled()) {
+			logger.info("republish all services");
+		}
+		for (String url : serviceCache.keySet()) {
+			ProviderConfig<?> providerConfig = serviceCache.get(url);
+			if (providerConfig != null) {
+				publishServiceToRegistry(providerConfig);
+			}
 		}
 	}
 

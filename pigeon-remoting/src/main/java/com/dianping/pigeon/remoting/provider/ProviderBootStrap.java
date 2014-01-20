@@ -55,6 +55,9 @@ public final class ProviderBootStrap {
 						monitor.init();
 					}
 					List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
+					if (logger.isInfoEnabled()) {
+						logger.info("server list:" + servers);
+					}
 					for (Server server : servers) {
 						if (server.support(serverConfig)) {
 							server.start(serverConfig);
@@ -66,7 +69,7 @@ public final class ProviderBootStrap {
 							}
 						}
 					}
-					// ProviderBootStrap.serverConfig = serverConfig;
+					ProviderBootStrap.serverConfig = serverConfig;
 					isStarted = true;
 				} else {
 					logger.warn("pigeon server[version:" + VersionUtils.VERSION + "] has already been started:"

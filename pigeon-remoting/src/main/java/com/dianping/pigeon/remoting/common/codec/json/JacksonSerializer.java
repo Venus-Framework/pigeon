@@ -28,6 +28,15 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 	private static final Logger logger = LoggerLoader.getLogger(JacksonSerializer.class);
 
 	ObjectMapper mapper = new ObjectMapper();
+	
+	public static boolean support() {
+		try {
+			Class.forName("com.fasterxml.jackson.databind.ObjectMapper");
+			return true;
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
+	}
 
 	public JacksonSerializer() {
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);

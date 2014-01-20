@@ -98,7 +98,7 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 		if (value.startsWith(DEFAULT_PLACEHOLDER_PREFIX) && value.endsWith(DEFAULT_PLACEHOLDER_SUFFIX)) {
 			String valueInCache = configManager.getStringValue(value.substring(2, value.length() - 1));
 			if (valueInCache == null) {
-				throw new IllegalStateException("引用了properties中不存在的变量：" + element.getAttribute(attribute));
+				throw new IllegalStateException("undefined config property:" + element.getAttribute(attribute));
 			} else {
 				value = valueInCache;
 			}

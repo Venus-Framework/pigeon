@@ -27,6 +27,15 @@ public class ProtobufSerializer implements Serializer {
 	private final MessageLite requestPrototype = ProtobufRpcProtos.Request.getDefaultInstance();
 	private final MessageLite responsePrototype = ProtobufRpcProtos.Response.getDefaultInstance();
 
+	public static boolean support() {
+		try {
+			Class.forName("com.google.protobuf.MessageOrBuilder");
+			return true;
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
+	}
+
 	@Override
 	public Object deserializeRequest(InputStream is) throws SerializationException {
 		MessageLite request;
