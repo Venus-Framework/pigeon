@@ -142,12 +142,12 @@ public class ServiceFactory {
 		return (T) service;
 	}
 
-	public static <T> void startupServer(ServerConfig serverConfig) throws RpcException {
+	public static void startupServer(ServerConfig serverConfig) throws RpcException {
 		ProviderBootStrap.setServerConfig(serverConfig);
 		// ProviderBootStrap.startup(serverConfig);
 	}
 
-	public static <T> void shutdownServer() throws RpcException {
+	public static void shutdownServer() throws RpcException {
 		ProviderBootStrap.shutdown();
 	}
 
@@ -221,7 +221,7 @@ public class ServiceFactory {
 		unpublishService(url);
 	}
 
-	public static <T> void unpublishAllServices() throws RpcException {
+	public static void unpublishAllServices() throws RpcException {
 		if (logger.isInfoEnabled()) {
 			logger.info("unpublish all services");
 		}
@@ -231,8 +231,8 @@ public class ServiceFactory {
 			throw new RpcException("error while unpublishing all services", e);
 		}
 	}
-	
-	public static <T> void republishAllServices() throws RpcException {
+
+	public static void republishAllServices() throws RpcException {
 		if (logger.isInfoEnabled()) {
 			logger.info("republish all services");
 		}
@@ -240,6 +240,28 @@ public class ServiceFactory {
 			ServiceProviderFactory.republishAllServices();
 		} catch (ServiceException e) {
 			throw new RpcException("error while republishing all services", e);
+		}
+	}
+
+	public static void removeAllServices() throws RpcException {
+		if (logger.isInfoEnabled()) {
+			logger.info("remove all services");
+		}
+		try {
+			ServiceProviderFactory.removeAllServices();
+		} catch (ServiceException e) {
+			throw new RpcException("error while removing all services", e);
+		}
+	}
+
+	public static void removeService(String url) throws RpcException {
+		if (logger.isInfoEnabled()) {
+			logger.info("remove service:" + url);
+		}
+		try {
+			ServiceProviderFactory.removeService(url);
+		} catch (ServiceException e) {
+			throw new RpcException("error while removing service:" + url, e);
 		}
 	}
 }

@@ -49,7 +49,7 @@ public class NettyClient extends AbstractClient {
 
 	private String address;
 
-	private static final int connectTimeout = 500;
+	private static final int connectTimeout = 1000;
 
 	private volatile boolean connected = false;
 
@@ -88,8 +88,8 @@ public class NettyClient extends AbstractClient {
 		if (this.connected || this.closed) {
 			return;
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("client is connecting to " + this.host + ":" + this.port);
+		if (logger.isInfoEnabled()) {
+			logger.info("client is connecting to " + this.host + ":" + this.port);
 		}
 		ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
 		if (future.awaitUninterruptibly(connectTimeout, TimeUnit.MILLISECONDS)) {
