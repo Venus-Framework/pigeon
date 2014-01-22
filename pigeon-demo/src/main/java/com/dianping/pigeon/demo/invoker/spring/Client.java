@@ -7,7 +7,6 @@ package com.dianping.pigeon.demo.invoker.spring;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dianping.pigeon.container.SpringContainer;
-import com.dianping.pigeon.demo.ConfigLoader;
 import com.dianping.pigeon.demo.EchoService;
 
 public class Client {
@@ -19,7 +18,6 @@ public class Client {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		ConfigLoader.init();
 		CLIENT_CONTAINER.start();
 		AtomicInteger atomicInteger = new AtomicInteger();
 		EchoService defaultEchoService = (EchoService) CLIENT_CONTAINER.getBean("defaultEchoService");

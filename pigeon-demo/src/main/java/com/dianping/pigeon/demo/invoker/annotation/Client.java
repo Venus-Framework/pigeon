@@ -7,7 +7,6 @@ package com.dianping.pigeon.demo.invoker.annotation;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dianping.pigeon.container.SpringContainer;
-import com.dianping.pigeon.demo.ConfigLoader;
 
 public class Client {
 
@@ -18,7 +17,6 @@ public class Client {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		ConfigLoader.init();
 		CLIENT_CONTAINER.start();
 		AtomicInteger atomicInteger = new AtomicInteger();
 		AnnotationTestService annotationTestService = (AnnotationTestService) CLIENT_CONTAINER

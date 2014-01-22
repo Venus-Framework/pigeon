@@ -10,7 +10,7 @@
 
 	<pigeon:annotation />
 
-	<pigeon:reference timeout="1000" protocol="default"
+	<pigeon:reference id="defaultEchoService" timeout="1000" protocol="default"
 		serialize="hessian" callType="sync" interface="com.dianping.pigeon.demo.EchoService" />
 
 	<pigeon:reference interface="com.dianping.pigeon.demo.EchoService"
@@ -21,7 +21,7 @@
 
 	<bean id="echoServiceCallback" class="com.dianping.pigeon.demo.invoker.EchoServiceCallback" />
 
-	<pigeon:reference interface="com.dianping.pigeon.demo.EchoService"
+	<pigeon:reference id="echoServiceWithCallback" interface="com.dianping.pigeon.demo.EchoService"
 		timeout="1000" protocol="default" serialize="hessian" callType="callback"
 		callback="echoServiceCallback" />
 

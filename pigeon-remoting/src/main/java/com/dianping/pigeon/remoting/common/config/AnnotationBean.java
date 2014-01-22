@@ -122,7 +122,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 			providerConfig.setServerConfig(serverConfig);
 
 			try {
-				ServiceFactory.publishService(providerConfig);
+				ServiceFactory.addService(providerConfig);
 			} catch (RpcException e) {
 				throw new IllegalStateException("Failed to publish remote service class " + bean.getClass().getName()
 						+ ", config:" + providerConfig, e);

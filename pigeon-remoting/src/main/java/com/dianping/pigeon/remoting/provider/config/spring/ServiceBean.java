@@ -84,7 +84,7 @@ public class ServiceBean {
 		if(serverBean != null) {
 			providerConfig.setServerConfig(serverBean.init());
 		}
-		ServiceFactory.publishService(providerConfig);
+		ServiceFactory.addService(providerConfig);
 	}
 
 	@Override

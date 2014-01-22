@@ -5,7 +5,6 @@
 package com.dianping.pigeon.demo.provider.spring;
 
 import com.dianping.pigeon.container.SpringContainer;
-import com.dianping.pigeon.demo.ConfigLoader;
 
 public class Server {
 
@@ -16,7 +15,6 @@ public class Server {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		ConfigLoader.init();
 		SERVER_CONTAINER.start();
 		System.in.read();
 	}

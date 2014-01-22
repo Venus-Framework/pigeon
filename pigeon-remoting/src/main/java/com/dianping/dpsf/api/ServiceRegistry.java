@@ -70,7 +70,7 @@ public class ServiceRegistry {
 		}
 
 		try {
-			ServiceFactory.publishServices(providerConfigList);
+			ServiceFactory.addServices(providerConfigList);
 		} catch (RpcException e) {
 			throw new ServiceException("", e);
 		}

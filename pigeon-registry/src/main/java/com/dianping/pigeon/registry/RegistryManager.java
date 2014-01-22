@@ -10,8 +10,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -39,6 +41,8 @@ public class RegistryManager {
 	private Map<String, Set<HostInfo>> serviceNameToHostInfos = new ConcurrentHashMap<String, Set<HostInfo>>();
 
 	private Map<String, HostInfo> serviceAddrToHostInfo = new ConcurrentHashMap<String, HostInfo>();
+
+	ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	private RegistryManager() {
 	}
@@ -85,6 +89,16 @@ public class RegistryManager {
 			}
 			return props.getProperty(serviceKey);
 		}
+		if ("dev".equalsIgnoreCase(configManager.getEnv())) {
+			String addr = configManager.getStringValue(serviceKey);
+			if (!StringUtils.isBlank(addr)) {
+				if (logger.isInfoEnabled()) {
+					logger.info("get service address from local properties, service name:" + serviceName + "  address:"
+							+ addr);
+				}
+				return addr;
+			}
+		}
 		if (registry != null) {
 			return registry.getServiceAddress(serviceName, group);
 		}
@@ -93,7 +107,11 @@ public class RegistryManager {
 	}
 
 	private String getServiceKey(String serviceName, String group) {
-		return serviceName + "?group=" + group;
+		if (StringUtils.isBlank(group)) {
+			return serviceName;
+		} else {
+			return serviceName + "?group=" + group;
+		}
 	}
 
 	public int getServiceWeight(String serviceAddress) {

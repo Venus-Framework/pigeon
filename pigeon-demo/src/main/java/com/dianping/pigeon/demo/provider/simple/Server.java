@@ -4,7 +4,6 @@
  */
 package com.dianping.pigeon.demo.provider.simple;
 
-import com.dianping.pigeon.demo.ConfigLoader;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.UserService;
 import com.dianping.pigeon.demo.provider.EchoServiceDefaultImpl;
@@ -14,11 +13,9 @@ import com.dianping.pigeon.remoting.ServiceFactory;
 public class Server {
 
 	public static void main(String[] args) throws Exception {
-		ConfigLoader.init();
+		ServiceFactory.addService(EchoService.class, new EchoServiceDefaultImpl());
 		
-		ServiceFactory.publishService(EchoService.class, new EchoServiceDefaultImpl());
-		
-		ServiceFactory.publishService(UserService.class, new UserServiceDefaultImpl());
+		ServiceFactory.addService(UserService.class, new UserServiceDefaultImpl());
 		
 		System.in.read();
 	}

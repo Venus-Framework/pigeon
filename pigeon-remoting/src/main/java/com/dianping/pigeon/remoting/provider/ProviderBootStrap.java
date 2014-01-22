@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
@@ -47,6 +48,7 @@ public final class ProviderBootStrap {
 			synchronized (ProviderBootStrap.class) {
 				if (!isStarted) {
 					serversMap = new HashMap<String, Server>();
+					ConfigLoader.init();
 					RegistryConfigLoader.init();
 					RequestProcessHandlerFactory.init();
 					SerializerFactory.init();

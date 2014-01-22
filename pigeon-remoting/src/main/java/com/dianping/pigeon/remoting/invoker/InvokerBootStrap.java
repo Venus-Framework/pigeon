@@ -6,6 +6,7 @@ package com.dianping.pigeon.remoting.invoker;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
@@ -28,6 +29,7 @@ public final class InvokerBootStrap {
 		if (!isStartup) {
 			synchronized (InvokerBootStrap.class) {
 				if (!isStartup) {
+					ConfigLoader.init();
 					RegistryConfigLoader.init();
 					ServiceInvocationRepository.getInstance().init();
 					InvocationHandlerFactory.init();

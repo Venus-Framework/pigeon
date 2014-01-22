@@ -8,15 +8,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.spring.ProxyBeanFactory;
-import com.dianping.pigeon.demo.ConfigLoader;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.invoker.EchoServiceCallback;
 
 public class Client {
 
 	public static void main(String[] args) throws Exception {
-		ConfigLoader.init();
-
 		ProxyBeanFactory pf = new ProxyBeanFactory();
 		pf.setIface(EchoService.class.getName());
 		pf.init();

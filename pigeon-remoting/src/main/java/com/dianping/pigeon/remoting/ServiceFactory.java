@@ -151,26 +151,22 @@ public class ServiceFactory {
 		ProviderBootStrap.shutdown();
 	}
 
-	public static <T> void publishService(Class<T> serviceInterface, T service) throws RpcException {
-		publishService(null, serviceInterface, service, ServerConfig.DEFAULT_PORT);
+	public static <T> void addService(Class<T> serviceInterface, T service) throws RpcException {
+		addService(null, serviceInterface, service, ServerConfig.DEFAULT_PORT);
 	}
 
-	public static <T> void publishService(String url, Class<T> serviceInterface, T service) throws RpcException {
-		publishService(url, serviceInterface, service, ServerConfig.DEFAULT_PORT);
+	public static <T> void addService(String url, Class<T> serviceInterface, T service) throws RpcException {
+		addService(url, serviceInterface, service, ServerConfig.DEFAULT_PORT);
 	}
 
-	public static <T> void publishService(String url, Class<T> serviceInterface, T service, int port)
-			throws RpcException {
+	public static <T> void addService(String url, Class<T> serviceInterface, T service, int port) throws RpcException {
 		ProviderConfig<T> providerConfig = new ProviderConfig<T>(serviceInterface, service);
 		providerConfig.setUrl(url);
 		providerConfig.getServerConfig().setPort(port);
-		publishService(providerConfig);
+		addService(providerConfig);
 	}
 
-	public static <T> void publishService(ProviderConfig<T> providerConfig) throws RpcException {
-		if (logger.isInfoEnabled()) {
-			logger.info("publish service:" + providerConfig);
-		}
+	public static <T> void addService(ProviderConfig<T> providerConfig) throws RpcException {
 		if (StringUtils.isBlank(providerConfig.getUrl())) {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
 		}
@@ -178,15 +174,15 @@ public class ServiceFactory {
 			ServiceProviderFactory.addService(providerConfig);
 			ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig.getServerConfig());
 			providerConfig.setServerConfig(serverConfig);
-			ServiceProviderFactory.publishServiceToRegistry(providerConfig);
+			ServiceProviderFactory.publishService(providerConfig);
 		} catch (ServiceException t) {
-			throw new RpcException("error while publishing service:" + providerConfig, t);
+			throw new RpcException("error while adding service:" + providerConfig, t);
 		}
 	}
 
-	public static void publishServices(List<ProviderConfig<?>> providerConfigList) throws RpcException {
+	public static void addServices(List<ProviderConfig<?>> providerConfigList) throws RpcException {
 		if (logger.isInfoEnabled()) {
-			logger.info("publish services:" + providerConfigList);
+			logger.info("add services:" + providerConfigList);
 		}
 		if (!CollectionUtils.isEmpty(providerConfigList)) {
 			try {
@@ -197,34 +193,50 @@ public class ServiceFactory {
 					ServiceProviderFactory.addService(providerConfig);
 					ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig.getServerConfig());
 					providerConfig.setServerConfig(serverConfig);
-					ServiceProviderFactory.publishServiceToRegistry(providerConfig);
+					ServiceProviderFactory.publishService(providerConfig);
 				}
 			} catch (ServiceException t) {
-				throw new RpcException("error while publishing services:" + providerConfigList, t);
+				throw new RpcException("error while adding services:" + providerConfigList, t);
 			}
 		}
 	}
 
-	public static <T> void unpublishService(String url) throws RpcException {
-		if (logger.isInfoEnabled()) {
-			logger.info("unpublish service:" + url);
+	public static <T> void publishService(ProviderConfig<T> providerConfig) throws RpcException {
+		if (StringUtils.isBlank(providerConfig.getUrl())) {
+			providerConfig.setUrl(getServiceUrl(providerConfig));
 		}
 		try {
-			ServiceProviderFactory.unpublishServiceFromRegistry(url);
+			ServiceProviderFactory.publishService(providerConfig);
+		} catch (ServiceException t) {
+			throw new RpcException("error while publishing service:" + providerConfig, t);
+		}
+	}
+	
+	public static <T> void publishService(String url) throws RpcException {
+		try {
+			ServiceProviderFactory.publishService(url);
+		} catch (ServiceException t) {
+			throw new RpcException("error while publishing service:" + url, t);
+		}
+	}
+
+	public static <T> void unpublishService(ProviderConfig<T> providerConfig) throws RpcException {
+		try {
+			ServiceProviderFactory.unpublishService(providerConfig);
+		} catch (ServiceException e) {
+			throw new RpcException("error while unpublishing service:" + providerConfig, e);
+		}
+	}
+	
+	public static <T> void unpublishService(String url) throws RpcException {
+		try {
+			ServiceProviderFactory.unpublishService(url);
 		} catch (ServiceException e) {
 			throw new RpcException("error while unpublishing service:" + url, e);
 		}
 	}
 
-	public static <T> void unpublishService(Class<T> serviceInterface) throws RpcException {
-		String url = getServiceUrl(serviceInterface);
-		unpublishService(url);
-	}
-
 	public static void unpublishAllServices() throws RpcException {
-		if (logger.isInfoEnabled()) {
-			logger.info("unpublish all services");
-		}
 		try {
 			ServiceProviderFactory.unpublishAllServices();
 		} catch (ServiceException e) {
@@ -232,21 +244,15 @@ public class ServiceFactory {
 		}
 	}
 
-	public static void republishAllServices() throws RpcException {
-		if (logger.isInfoEnabled()) {
-			logger.info("republish all services");
-		}
+	public static void publishAllServices() throws RpcException {
 		try {
-			ServiceProviderFactory.republishAllServices();
+			ServiceProviderFactory.publishAllServices();
 		} catch (ServiceException e) {
-			throw new RpcException("error while republishing all services", e);
+			throw new RpcException("error while publishing all services", e);
 		}
 	}
 
 	public static void removeAllServices() throws RpcException {
-		if (logger.isInfoEnabled()) {
-			logger.info("remove all services");
-		}
 		try {
 			ServiceProviderFactory.removeAllServices();
 		} catch (ServiceException e) {
@@ -255,13 +261,14 @@ public class ServiceFactory {
 	}
 
 	public static void removeService(String url) throws RpcException {
-		if (logger.isInfoEnabled()) {
-			logger.info("remove service:" + url);
-		}
 		try {
 			ServiceProviderFactory.removeService(url);
 		} catch (ServiceException e) {
 			throw new RpcException("error while removing service:" + url, e);
 		}
+	}
+
+	public static <T> void removeService(ProviderConfig<T> providerConfig) throws RpcException {
+		removeService(providerConfig.getUrl());
 	}
 }

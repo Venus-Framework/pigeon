@@ -44,7 +44,6 @@ public class LoggerLoader {
 	private static LoggerRepository loggerRepository = null;
 	private static Level level = Level.INFO;
 	private static volatile boolean initOK = false;
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	public static synchronized void initLogger(String className) {
 		if (initOK) {
@@ -53,6 +52,7 @@ public class LoggerLoader {
 		Properties logPro = new Properties();
 		String logLevel = "info";
 		String logSuffix = "default";
+		ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 		if(configManager != null) {
 			logLevel = configManager.getStringValue("pigeon.log.defaultlevel", logLevel);
 		}

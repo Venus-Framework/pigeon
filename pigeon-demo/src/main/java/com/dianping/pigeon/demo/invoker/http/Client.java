@@ -6,7 +6,6 @@ package com.dianping.pigeon.demo.invoker.http;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dianping.pigeon.demo.ConfigLoader;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.UserService;
 import com.dianping.pigeon.demo.UserService.User;
@@ -16,8 +15,6 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 public class Client {
 
 	public static void main(String[] args) throws Exception {
-		ConfigLoader.init();
-
 		InvokerConfig<EchoService> echoConfig = new InvokerConfig<EchoService>(EchoService.class);
 		echoConfig.setProtocol(InvokerConfig.PROTOCOL_DEFAULT);
 		echoConfig.setSerialize(InvokerConfig.SERIALIZE_JSON);

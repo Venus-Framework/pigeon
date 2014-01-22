@@ -13,8 +13,8 @@
 
 	<bean id="echo2ServiceImpl" class="com.dianping.pigeon.test.service.Echo2ServiceImpl" />
 
-	<bean id="echoServiceProtobufImpl"
-		class="com.dianping.pigeon.test.service.protobuf.EchoServiceImpl" />
+	<!-- <bean id="echoServiceProtobufImpl"
+		class="com.dianping.pigeon.test.service.protobuf.EchoServiceImpl" /> -->
 
 	<!-- <bean class="com.dianping.dpsf.spring.ServiceRegistry" init-method="init"> 
 		<property name="port" value="4040" /> <property name="httpPort" value="4080" 
@@ -26,10 +26,10 @@
 
 	<!-- <pigeon:server id="pigeonServer" port="4040" /> -->
 
-	<pigeon:service
+	<!-- <pigeon:service
 		url="http://service.dianping.com/testService/echoServiceProtobuf_1.0.0"
-		interface="com.dianping.pigeon.test.service.EchoService" ref="echoServiceProtobufImpl" />
-
+		interface="com.dianping.pigeon.test.service.protobuf.EchoProtos.EchoService.BlockingInterface" ref="echoServiceProtobufImpl" />
+ -->
 	<pigeon:service
 		url="http://service.dianping.com/testService/echoService_1.0.0"
 		interface="com.dianping.pigeon.test.service.EchoService" ref="echo1ServiceImpl" />
