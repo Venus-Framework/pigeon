@@ -49,7 +49,7 @@ public class NettyClient extends AbstractClient {
 
 	private String address;
 
-	private static final int connectTimeout = 1000;
+	private static final int connectTimeout = 3000;
 
 	private volatile boolean connected = false;
 
@@ -115,6 +115,8 @@ public class NettyClient extends AbstractClient {
 			} else {
 				logger.error("client is not connected to " + this.host + ":" + this.port);
 			}
+		} else {
+			logger.error("timeout while connecting to " + this.host + ":" + this.port);
 		}
 	}
 
