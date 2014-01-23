@@ -1,0 +1,2 @@
+com.dianping.pigeon.remoting.netty.invoker.NettyClientFactory
+com.dianping.pigeon.remoting.http.invoker.HttpInvokerClientFactory
