@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.pigeon.log.LoggerLoader;
 
 /**
@@ -97,8 +98,16 @@ public final class ContextUtils {
 		if (flag) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(serviceName).append(".").append(methodName).append("@").append(host).append(":").append(port);
+			String location = sb.toString();
 			try {
-				return createContextMethod.invoke(null, new Object[] { sb.toString() });
+				Object result = createContextMethod.invoke(null, new Object[] { location });
+				if(result == null) {
+					TrackerContext trackerContext = new TrackerContext().createRemoteContext(location);
+					setContextMethod.invoke(null, new Object[] { trackerContext });
+					return trackerContext;
+				} else {
+					return result;
+				}
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}

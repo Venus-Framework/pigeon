@@ -14,10 +14,11 @@ import com.dianping.pigeon.remoting.ServiceFactory;
 public class Client {
 
 	public static void main(String[] args) throws Exception {
-		EchoService service = ServiceFactory.getService(EchoService.class);
+		String url = "http://service.dianping.com/com.dianping.pigeon.demo.EchoService";
+		EchoService service = ServiceFactory.getService(url, EchoService.class);
 
 		ServiceCallback callback = new EchoServiceCallback();
-		EchoService serviceWithCallback = ServiceFactory.getService(EchoService.class, callback);
+		EchoService serviceWithCallback = ServiceFactory.getService(url, EchoService.class, callback);
 
 		AtomicInteger atomicInteger = new AtomicInteger();
 		for (;;) {

@@ -98,6 +98,11 @@ public class ServiceFactory {
 		return getService(invokerConfig);
 	}
 
+	public static <T> T getService(String url, Class<T> serviceInterface, ServiceCallback callback)
+			throws RpcException {
+		return getService(url, serviceInterface, callback, Constants.DEFAULT_INVOKER_TIMEOUT);
+	}
+	
 	public static <T> T getService(String url, Class<T> serviceInterface, ServiceCallback callback, int timeout)
 			throws RpcException {
 		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(url, serviceInterface);
@@ -151,14 +156,38 @@ public class ServiceFactory {
 		ProviderBootStrap.shutdown();
 	}
 
+	/**
+	 * add the service to pigeon and publish the service to registry
+	 * 
+	 * @param serviceInterface
+	 * @param service
+	 * @throws RpcException
+	 */
 	public static <T> void addService(Class<T> serviceInterface, T service) throws RpcException {
 		addService(null, serviceInterface, service, ServerConfig.DEFAULT_PORT);
 	}
 
+	/**
+	 * add the service to pigeon and publish the service to registry
+	 * 
+	 * @param url
+	 * @param serviceInterface
+	 * @param service
+	 * @throws RpcException
+	 */
 	public static <T> void addService(String url, Class<T> serviceInterface, T service) throws RpcException {
 		addService(url, serviceInterface, service, ServerConfig.DEFAULT_PORT);
 	}
 
+	/**
+	 * add the service to pigeon and publish the service to registry
+	 * 
+	 * @param url
+	 * @param serviceInterface
+	 * @param service
+	 * @param port
+	 * @throws RpcException
+	 */
 	public static <T> void addService(String url, Class<T> serviceInterface, T service, int port) throws RpcException {
 		ProviderConfig<T> providerConfig = new ProviderConfig<T>(serviceInterface, service);
 		providerConfig.setUrl(url);
@@ -166,6 +195,12 @@ public class ServiceFactory {
 		addService(providerConfig);
 	}
 
+	/**
+	 * add the service to pigeon and publish the service to registry
+	 * 
+	 * @param providerConfig
+	 * @throws RpcException
+	 */
 	public static <T> void addService(ProviderConfig<T> providerConfig) throws RpcException {
 		if (StringUtils.isBlank(providerConfig.getUrl())) {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
@@ -180,6 +215,12 @@ public class ServiceFactory {
 		}
 	}
 
+	/**
+	 * add the services to pigeon and publish these services to registry
+	 * 
+	 * @param providerConfigList
+	 * @throws RpcException
+	 */
 	public static void addServices(List<ProviderConfig<?>> providerConfigList) throws RpcException {
 		if (logger.isInfoEnabled()) {
 			logger.info("add services:" + providerConfigList);
@@ -201,6 +242,12 @@ public class ServiceFactory {
 		}
 	}
 
+	/**
+	 * publish the service to registry
+	 * 
+	 * @param providerConfig
+	 * @throws RpcException
+	 */
 	public static <T> void publishService(ProviderConfig<T> providerConfig) throws RpcException {
 		if (StringUtils.isBlank(providerConfig.getUrl())) {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
@@ -211,7 +258,13 @@ public class ServiceFactory {
 			throw new RpcException("error while publishing service:" + providerConfig, t);
 		}
 	}
-	
+
+	/**
+	 * publish the service to registry
+	 * 
+	 * @param url
+	 * @throws RpcException
+	 */
 	public static <T> void publishService(String url) throws RpcException {
 		try {
 			ServiceProviderFactory.publishService(url);
@@ -220,6 +273,12 @@ public class ServiceFactory {
 		}
 	}
 
+	/**
+	 * unpublish the service from registry
+	 * 
+	 * @param providerConfig
+	 * @throws RpcException
+	 */
 	public static <T> void unpublishService(ProviderConfig<T> providerConfig) throws RpcException {
 		try {
 			ServiceProviderFactory.unpublishService(providerConfig);
@@ -227,7 +286,13 @@ public class ServiceFactory {
 			throw new RpcException("error while unpublishing service:" + providerConfig, e);
 		}
 	}
-	
+
+	/**
+	 * unpublish the service from registry
+	 * 
+	 * @param url
+	 * @throws RpcException
+	 */
 	public static <T> void unpublishService(String url) throws RpcException {
 		try {
 			ServiceProviderFactory.unpublishService(url);
@@ -236,6 +301,11 @@ public class ServiceFactory {
 		}
 	}
 
+	/**
+	 * unpublish all pigeon services from registry
+	 * 
+	 * @throws RpcException
+	 */
 	public static void unpublishAllServices() throws RpcException {
 		try {
 			ServiceProviderFactory.unpublishAllServices();
@@ -244,6 +314,11 @@ public class ServiceFactory {
 		}
 	}
 
+	/**
+	 * publish all pigeon services to registry
+	 * 
+	 * @throws RpcException
+	 */
 	public static void publishAllServices() throws RpcException {
 		try {
 			ServiceProviderFactory.publishAllServices();
@@ -252,6 +327,12 @@ public class ServiceFactory {
 		}
 	}
 
+	/**
+	 * remove all pigeon services, including unregister these services from
+	 * registry
+	 * 
+	 * @throws RpcException
+	 */
 	public static void removeAllServices() throws RpcException {
 		try {
 			ServiceProviderFactory.removeAllServices();
@@ -260,6 +341,13 @@ public class ServiceFactory {
 		}
 	}
 
+	/**
+	 * remove the service from pigeon, including unregister this service from
+	 * registry
+	 * 
+	 * @param url
+	 * @throws RpcException
+	 */
 	public static void removeService(String url) throws RpcException {
 		try {
 			ServiceProviderFactory.removeService(url);
@@ -268,6 +356,13 @@ public class ServiceFactory {
 		}
 	}
 
+	/**
+	 * remove the service from pigeon, including unregister this service from
+	 * registry
+	 * 
+	 * @param providerConfig
+	 * @throws RpcException
+	 */
 	public static <T> void removeService(ProviderConfig<T> providerConfig) throws RpcException {
 		removeService(providerConfig.getUrl());
 	}

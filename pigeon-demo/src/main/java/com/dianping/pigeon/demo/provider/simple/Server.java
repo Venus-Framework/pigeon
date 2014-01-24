@@ -9,14 +9,20 @@ import com.dianping.pigeon.demo.UserService;
 import com.dianping.pigeon.demo.provider.EchoServiceDefaultImpl;
 import com.dianping.pigeon.demo.provider.UserServiceDefaultImpl;
 import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 
 public class Server {
 
 	public static void main(String[] args) throws Exception {
-		ServiceFactory.addService(EchoService.class, new EchoServiceDefaultImpl());
-		
+		ProviderConfig<EchoService> providerConfig = new ProviderConfig<EchoService>(EchoService.class,
+				new EchoServiceDefaultImpl());
+		String url = "http://service.dianping.com/com.dianping.pigeon.demo.EchoService";
+		providerConfig.setUrl(url);
+		ServiceFactory.addService(providerConfig);
 		ServiceFactory.addService(UserService.class, new UserServiceDefaultImpl());
-		
+		ServiceFactory.unpublishService(url);
+		ServiceFactory.publishService(url);
+
 		System.in.read();
 	}
 
