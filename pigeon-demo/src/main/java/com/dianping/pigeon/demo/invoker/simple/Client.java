@@ -6,10 +6,12 @@ package com.dianping.pigeon.demo.invoker.simple;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.invoker.EchoServiceCallback;
 import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.util.ContextUtils;
 
 public class Client {
 
@@ -25,6 +27,8 @@ public class Client {
 			try {
 				String input = "echoService_" + atomicInteger.incrementAndGet();
 				System.out.println("input:" + input);
+				ContextUtils.putContextValue("key1", input);
+				
 				System.out.println("service result:" + service.echo(input));
 
 				String input2 = "echoServiceWithCallback_" + atomicInteger.incrementAndGet();

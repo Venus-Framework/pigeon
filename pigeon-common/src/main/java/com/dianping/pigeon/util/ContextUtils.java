@@ -101,7 +101,7 @@ public final class ContextUtils {
 			String location = sb.toString();
 			try {
 				Object result = createContextMethod.invoke(null, new Object[] { location });
-				if(result == null) {
+				if (result == null) {
 					TrackerContext trackerContext = new TrackerContext().createRemoteContext(location);
 					setContextMethod.invoke(null, new Object[] { trackerContext });
 					return trackerContext;
@@ -188,6 +188,15 @@ public final class ContextUtils {
 		}
 	}
 
+	public static void putContextValue(String key, Serializable value) {
+		Object context = getContext();
+		if (context == null) {
+			context = new TrackerContext();
+			ContextUtils.setContext(context);
+		}
+		ContextUtils.putContextValue(context, key, value);
+	}
+
 	public static void putContextValue(Object context, String key, Serializable value) {
 		if (flag && context != null) {
 			try {
@@ -196,6 +205,10 @@ public final class ContextUtils {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+	public static <T> T getContextValue(String key) {
+		return getContextValue(ContextUtils.getContext(), key);
 	}
 
 	public static <T> T getContextValue(Object context, String key) {
