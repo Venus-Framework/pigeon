@@ -49,11 +49,13 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 	@Override
 	public void doStart(ServerConfig serverConfig) {
 		if (serverConfig.isAutoSelectPort()) {
-			int availablePort = NetUtils.getAvailablePort(serverConfig.getHttpPort());
+			int availablePort = NetUtils.getAvailablePort(serverConfig
+					.getHttpPort());
 			this.port = availablePort;
 		} else {
 			if (NetUtils.isPortInUse(serverConfig.getHttpPort())) {
-				logger.error("unable to start jetty server on port " + serverConfig.getHttpPort() + ", the port is in use");
+				logger.error("unable to start jetty server on port "
+						+ serverConfig.getHttpPort() + ", the port is in use");
 				System.exit(0);
 			}
 			this.port = serverConfig.getHttpPort();
@@ -66,20 +68,22 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 		threadPool.setMaxThreads(serverConfig.getMaxPoolSize());
 		threadPool.setMinThreads(serverConfig.getCorePoolSize());
 
-		SelectChannelConnector connector = new SelectChannelConnector();
-		ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
-		connector.setHost(configManager.getLocalIp());
-		connector.setPort(port);
+		// SelectChannelConnector connector = new SelectChannelConnector();
+		// ConfigManager configManager =
+		// ExtensionLoader.getExtension(ConfigManager.class);
+		// connector.setHost(configManager.getLocalIp());
+		// connector.setPort(port);
 
 		server = new Server(port);
 		server.setThreadPool(threadPool);
-		server.addConnector(connector);
+		// server.addConnector(connector);
 
 		Context context = new Context(Context.SESSIONS);
 		context.setContextPath("/");
 		server.addHandler(context);
 
-		context.addServlet(new ServletHolder(new DispatcherServlet()), "/service");
+		context.addServlet(new ServletHolder(new DispatcherServlet()),
+				"/service");
 
 		// ServletHandler servletHandler = new ServletHandler();
 		// ServletHolder servletHolder =
@@ -88,7 +92,8 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 		// servletHolder.setInitOrder(1);
 		// server.addHandler(servletHandler);
 
-		List<JettyHttpServerProcessor> processors = ExtensionLoader.getExtensionList(JettyHttpServerProcessor.class);
+		List<JettyHttpServerProcessor> processors = ExtensionLoader
+				.getExtensionList(JettyHttpServerProcessor.class);
 		if (processors != null) {
 			for (JettyHttpServerProcessor processor : processors) {
 				processor.preStart(server, context);
@@ -97,8 +102,10 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 		try {
 			server.start();
 		} catch (Exception e) {
-			throw new IllegalStateException("failed to start jetty server on " + serverConfig.getPort() + ", cause: "
-					+ e.getMessage(), e);
+			throw new IllegalStateException(
+					"failed to start jetty server on "
+							+ serverConfig.getHttpPort() + ", cause: "
+							+ e.getMessage(), e);
 		}
 	}
 
@@ -114,7 +121,8 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 	}
 
 	@Override
-	public <T> void addService(ProviderConfig<T> providerConfig) throws RpcException {
+	public <T> void addService(ProviderConfig<T> providerConfig)
+			throws RpcException {
 	}
 
 	@Override

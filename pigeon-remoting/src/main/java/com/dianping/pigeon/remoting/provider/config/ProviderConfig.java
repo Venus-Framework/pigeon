@@ -14,14 +14,14 @@ public class ProviderConfig<T> {
 	private String version;
 	private T service;
 	private ServerConfig serverConfig = new ServerConfig();
-	private boolean registered = false;
+	private boolean published = false;
 
-	public boolean isRegistered() {
-		return registered;
+	public boolean isPublished() {
+		return published;
 	}
 
-	public void setRegistered(boolean registered) {
-		this.registered = registered;
+	public void setPublished(boolean published) {
+		this.published = published;
 	}
 
 	public ServerConfig getServerConfig() {

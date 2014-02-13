@@ -12,7 +12,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 	@Override
 	public String echo(String input) {
 		System.out.println("received: " + input);
-		System.out.println(ContextUtils.getContextValue("key1"));
+		System.out.println("context key1:" + ContextUtils.getContextValue("key1"));
 
 		return "echo:" + input;
 	}

@@ -112,7 +112,7 @@ public final class ServiceProviderFactory {
 					}
 				}
 				if (registerCount > 0) {
-					providerConfig.setRegistered(true);
+					providerConfig.setPublished(true);
 				}
 			}
 		}
@@ -177,7 +177,7 @@ public final class ServiceProviderFactory {
 						}
 					}
 				}
-				providerConfig.setRegistered(false);
+				providerConfig.setPublished(false);
 				if (logger.isInfoEnabled()) {
 					logger.info("unpublished service from registry:" + providerConfig);
 				}
@@ -198,6 +198,11 @@ public final class ServiceProviderFactory {
 				}
 			}
 		}
+	}
+	
+	public static ProviderConfig<?> getServiceConfig(String url) {
+		ProviderConfig<?> providerConfig = serviceCache.get(url);
+		return providerConfig;
 	}
 
 	public static void removeService(String url) throws ServiceException {

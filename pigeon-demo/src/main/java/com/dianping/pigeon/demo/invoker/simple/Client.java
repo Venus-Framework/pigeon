@@ -6,7 +6,6 @@ package com.dianping.pigeon.demo.invoker.simple;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.invoker.EchoServiceCallback;

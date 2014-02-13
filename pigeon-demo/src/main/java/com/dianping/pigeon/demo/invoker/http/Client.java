@@ -15,9 +15,12 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 public class Client {
 
 	public static void main(String[] args) throws Exception {
+		String url = "http://service.dianping.com/com.dianping.pigeon.demo.EchoService";
+
 		InvokerConfig<EchoService> echoConfig = new InvokerConfig<EchoService>(EchoService.class);
-		echoConfig.setProtocol(InvokerConfig.PROTOCOL_DEFAULT);
+		echoConfig.setProtocol(InvokerConfig.PROTOCOL_HTTP);
 		echoConfig.setSerialize(InvokerConfig.SERIALIZE_JSON);
+		echoConfig.setUrl(url);
 		EchoService echoService = ServiceFactory.getService(echoConfig);
 
 		InvokerConfig<UserService> userConfig = new InvokerConfig<UserService>(UserService.class);

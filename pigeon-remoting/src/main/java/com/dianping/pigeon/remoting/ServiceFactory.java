@@ -37,7 +37,8 @@ public class ServiceFactory {
 
 	static Logger logger = LoggerLoader.getLogger(ServiceFactory.class);
 	static boolean isCacheService = true;
-	static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	static ConfigManager configManager = ExtensionLoader
+			.getExtension(ConfigManager.class);
 	static Map<InvokerConfig<?>, Object> services = new ConcurrentHashMap<InvokerConfig<?>, Object>();
 
 	public static boolean isCacheService() {
@@ -63,55 +64,65 @@ public class ServiceFactory {
 		return url;
 	}
 
-	public static <T> T getService(Class<T> serviceInterface) throws RpcException {
+	public static <T> T getService(Class<T> serviceInterface)
+			throws RpcException {
 		return getService(null, serviceInterface);
 	}
 
-	public static <T> T getService(Class<T> serviceInterface, int timeout) throws RpcException {
+	public static <T> T getService(Class<T> serviceInterface, int timeout)
+			throws RpcException {
 		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(serviceInterface);
 		invokerConfig.setTimeout(timeout);
 		return getService(invokerConfig);
 	}
 
-	public static <T> T getService(Class<T> serviceInterface, ServiceCallback callback) throws RpcException {
+	public static <T> T getService(Class<T> serviceInterface,
+			ServiceCallback callback) throws RpcException {
 		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(serviceInterface);
+		invokerConfig.setCallback(callback);
+		return getService(invokerConfig);
+	}
+
+	public static <T> T getService(Class<T> serviceInterface,
+			ServiceCallback callback, int timeout) throws RpcException {
+		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(serviceInterface);
+		invokerConfig.setCallback(callback);
+		invokerConfig.setTimeout(timeout);
+		return getService(invokerConfig);
+	}
+
+	public static <T> T getService(String url, Class<T> serviceInterface)
+			throws RpcException {
+		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(url,
+				serviceInterface);
+		return getService(invokerConfig);
+	}
+
+	public static <T> T getService(String url, Class<T> serviceInterface,
+			int timeout) throws RpcException {
+		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(url,
+				serviceInterface);
+		invokerConfig.setTimeout(timeout);
+		return getService(invokerConfig);
+	}
+
+	public static <T> T getService(String url, Class<T> serviceInterface,
+			ServiceCallback callback) throws RpcException {
+		return getService(url, serviceInterface, callback,
+				Constants.DEFAULT_INVOKER_TIMEOUT);
+	}
+
+	public static <T> T getService(String url, Class<T> serviceInterface,
+			ServiceCallback callback, int timeout) throws RpcException {
+		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(url,
+				serviceInterface);
+		invokerConfig.setTimeout(timeout);
 		invokerConfig.setCallback(callback);
 		return getService(invokerConfig);
 	}
 
-	public static <T> T getService(Class<T> serviceInterface, ServiceCallback callback, int timeout)
+	public static <T> T getService(InvokerConfig<T> invokerConfig)
 			throws RpcException {
-		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(serviceInterface);
-		invokerConfig.setCallback(callback);
-		invokerConfig.setTimeout(timeout);
-		return getService(invokerConfig);
-	}
-
-	public static <T> T getService(String url, Class<T> serviceInterface) throws RpcException {
-		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(url, serviceInterface);
-		return getService(invokerConfig);
-	}
-
-	public static <T> T getService(String url, Class<T> serviceInterface, int timeout) throws RpcException {
-		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(url, serviceInterface);
-		invokerConfig.setTimeout(timeout);
-		return getService(invokerConfig);
-	}
-
-	public static <T> T getService(String url, Class<T> serviceInterface, ServiceCallback callback)
-			throws RpcException {
-		return getService(url, serviceInterface, callback, Constants.DEFAULT_INVOKER_TIMEOUT);
-	}
-	
-	public static <T> T getService(String url, Class<T> serviceInterface, ServiceCallback callback, int timeout)
-			throws RpcException {
-		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(url, serviceInterface);
-		invokerConfig.setTimeout(timeout);
-		invokerConfig.setCallback(callback);
-		return getService(invokerConfig);
-	}
-
-	public static <T> T getService(InvokerConfig<T> invokerConfig) throws RpcException {
 		if (invokerConfig.getServiceInterface() == null) {
 			throw new IllegalArgumentException("service interface is required");
 		}
@@ -119,8 +130,11 @@ public class ServiceFactory {
 			invokerConfig.setUrl(getServiceUrl(invokerConfig));
 		}
 		if (!StringUtils.isBlank(invokerConfig.getProtocol())
-				&& !invokerConfig.getProtocol().equalsIgnoreCase(Constants.PROTOCOL_DEFAULT)) {
-			invokerConfig.setUrl("@" + invokerConfig.getProtocol().toUpperCase() + "@" + invokerConfig.getUrl());
+				&& !invokerConfig.getProtocol().equalsIgnoreCase(
+						Constants.PROTOCOL_DEFAULT)) {
+			invokerConfig.setUrl("@"
+					+ invokerConfig.getProtocol().toUpperCase() + "@"
+					+ invokerConfig.getUrl());
 		}
 		Object service = null;
 		if (isCacheService) {
@@ -129,16 +143,20 @@ public class ServiceFactory {
 		if (service == null) {
 			try {
 				InvokerBootStrap.startup();
-				service = SerializerFactory.getSerializer(invokerConfig.getSerialize()).proxyRequest(invokerConfig);
+				service = SerializerFactory.getSerializer(
+						invokerConfig.getSerialize()).proxyRequest(
+						invokerConfig);
 			} catch (Throwable t) {
-				throw new RpcException("error while trying to get service:" + invokerConfig, t);
+				throw new RpcException("error while trying to get service:"
+						+ invokerConfig, t);
 			}
 			try {
-				ClientManager.getInstance().findServiceProviders(invokerConfig.getUrl(), configManager.getGroup(),
+				ClientManager.getInstance().findServiceProviders(
+						invokerConfig.getUrl(), configManager.getGroup(),
 						invokerConfig.getVip());
 			} catch (Throwable t) {
-				logger.warn("error while trying to setup service client:" + invokerConfig + ", caused by:"
-						+ t.getMessage());
+				logger.warn("error while trying to setup service client:"
+						+ invokerConfig + ", caused by:" + t.getMessage());
 			}
 			if (isCacheService) {
 				services.put(invokerConfig, service);
@@ -147,7 +165,8 @@ public class ServiceFactory {
 		return (T) service;
 	}
 
-	public static void startupServer(ServerConfig serverConfig) throws RpcException {
+	public static void startupServer(ServerConfig serverConfig)
+			throws RpcException {
 		ProviderBootStrap.setServerConfig(serverConfig);
 		// ProviderBootStrap.startup(serverConfig);
 	}
@@ -163,7 +182,8 @@ public class ServiceFactory {
 	 * @param service
 	 * @throws RpcException
 	 */
-	public static <T> void addService(Class<T> serviceInterface, T service) throws RpcException {
+	public static <T> void addService(Class<T> serviceInterface, T service)
+			throws RpcException {
 		addService(null, serviceInterface, service, ServerConfig.DEFAULT_PORT);
 	}
 
@@ -175,7 +195,8 @@ public class ServiceFactory {
 	 * @param service
 	 * @throws RpcException
 	 */
-	public static <T> void addService(String url, Class<T> serviceInterface, T service) throws RpcException {
+	public static <T> void addService(String url, Class<T> serviceInterface,
+			T service) throws RpcException {
 		addService(url, serviceInterface, service, ServerConfig.DEFAULT_PORT);
 	}
 
@@ -188,8 +209,10 @@ public class ServiceFactory {
 	 * @param port
 	 * @throws RpcException
 	 */
-	public static <T> void addService(String url, Class<T> serviceInterface, T service, int port) throws RpcException {
-		ProviderConfig<T> providerConfig = new ProviderConfig<T>(serviceInterface, service);
+	public static <T> void addService(String url, Class<T> serviceInterface,
+			T service, int port) throws RpcException {
+		ProviderConfig<T> providerConfig = new ProviderConfig<T>(
+				serviceInterface, service);
 		providerConfig.setUrl(url);
 		providerConfig.getServerConfig().setPort(port);
 		addService(providerConfig);
@@ -201,17 +224,20 @@ public class ServiceFactory {
 	 * @param providerConfig
 	 * @throws RpcException
 	 */
-	public static <T> void addService(ProviderConfig<T> providerConfig) throws RpcException {
+	public static <T> void addService(ProviderConfig<T> providerConfig)
+			throws RpcException {
 		if (StringUtils.isBlank(providerConfig.getUrl())) {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
 		}
 		try {
 			ServiceProviderFactory.addService(providerConfig);
-			ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig.getServerConfig());
+			ServerConfig serverConfig = ProviderBootStrap
+					.startup(providerConfig.getServerConfig());
 			providerConfig.setServerConfig(serverConfig);
 			ServiceProviderFactory.publishService(providerConfig);
 		} catch (ServiceException t) {
-			throw new RpcException("error while adding service:" + providerConfig, t);
+			throw new RpcException("error while adding service:"
+					+ providerConfig, t);
 		}
 	}
 
@@ -221,7 +247,8 @@ public class ServiceFactory {
 	 * @param providerConfigList
 	 * @throws RpcException
 	 */
-	public static void addServices(List<ProviderConfig<?>> providerConfigList) throws RpcException {
+	public static void addServices(List<ProviderConfig<?>> providerConfigList)
+			throws RpcException {
 		if (logger.isInfoEnabled()) {
 			logger.info("add services:" + providerConfigList);
 		}
@@ -232,12 +259,14 @@ public class ServiceFactory {
 						providerConfig.setUrl(getServiceUrl(providerConfig));
 					}
 					ServiceProviderFactory.addService(providerConfig);
-					ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig.getServerConfig());
+					ServerConfig serverConfig = ProviderBootStrap
+							.startup(providerConfig.getServerConfig());
 					providerConfig.setServerConfig(serverConfig);
 					ServiceProviderFactory.publishService(providerConfig);
 				}
 			} catch (ServiceException t) {
-				throw new RpcException("error while adding services:" + providerConfigList, t);
+				throw new RpcException("error while adding services:"
+						+ providerConfigList, t);
 			}
 		}
 	}
@@ -248,14 +277,16 @@ public class ServiceFactory {
 	 * @param providerConfig
 	 * @throws RpcException
 	 */
-	public static <T> void publishService(ProviderConfig<T> providerConfig) throws RpcException {
+	public static <T> void publishService(ProviderConfig<T> providerConfig)
+			throws RpcException {
 		if (StringUtils.isBlank(providerConfig.getUrl())) {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
 		}
 		try {
 			ServiceProviderFactory.publishService(providerConfig);
 		} catch (ServiceException t) {
-			throw new RpcException("error while publishing service:" + providerConfig, t);
+			throw new RpcException("error while publishing service:"
+					+ providerConfig, t);
 		}
 	}
 
@@ -279,11 +310,13 @@ public class ServiceFactory {
 	 * @param providerConfig
 	 * @throws RpcException
 	 */
-	public static <T> void unpublishService(ProviderConfig<T> providerConfig) throws RpcException {
+	public static <T> void unpublishService(ProviderConfig<T> providerConfig)
+			throws RpcException {
 		try {
 			ServiceProviderFactory.unpublishService(providerConfig);
 		} catch (ServiceException e) {
-			throw new RpcException("error while unpublishing service:" + providerConfig, e);
+			throw new RpcException("error while unpublishing service:"
+					+ providerConfig, e);
 		}
 	}
 
@@ -363,7 +396,12 @@ public class ServiceFactory {
 	 * @param providerConfig
 	 * @throws RpcException
 	 */
-	public static <T> void removeService(ProviderConfig<T> providerConfig) throws RpcException {
+	public static <T> void removeService(ProviderConfig<T> providerConfig)
+			throws RpcException {
 		removeService(providerConfig.getUrl());
+	}
+
+	public static ProviderConfig<?> getServiceConfig(String url) {
+		return ServiceProviderFactory.getServiceConfig(url);
 	}
 }
