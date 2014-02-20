@@ -39,12 +39,12 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 	}
 
 	public JacksonSerializer() {
-		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-		mapper.disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
-		mapper.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-		mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
-		mapper.disable(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
-		mapper.disable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
+//		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+//		mapper.disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
+//		mapper.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+//		mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
+//		mapper.disable(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
+//		mapper.disable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		mapper.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
 		// initialize

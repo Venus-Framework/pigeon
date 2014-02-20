@@ -53,10 +53,12 @@ public final class SerializerFactory {
 				logger.warn("failed to initialize protobuf serializer:" + t.getMessage());
 			}
 		}
-		try {
-			registerSerializer(SERIALIZE_JSON, new JacksonSerializer());
-		} catch (Throwable t) {
-			logger.warn("failed to initialize jackson serializer:" + t.getMessage());
+		if (JacksonSerializer.support()) {
+			try {
+				registerSerializer(SERIALIZE_JSON, new JacksonSerializer());
+			} catch (Throwable t) {
+				logger.warn("failed to initialize jackson serializer:" + t.getMessage());
+			}
 		}
 	}
 
