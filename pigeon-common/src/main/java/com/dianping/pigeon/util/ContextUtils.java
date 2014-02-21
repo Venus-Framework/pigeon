@@ -27,7 +27,8 @@ public final class ContextUtils {
 
 	}
 
-	private static final Logger logger = LoggerLoader.getLogger(ContextUtils.class);
+	private static final Logger logger = LoggerLoader
+			.getLogger(ContextUtils.class);
 
 	public static final String TRAC_ORDER = "tracker_order";
 
@@ -51,41 +52,51 @@ public final class ContextUtils {
 	static {
 
 		try {
-			Class contextHolderClass = Class.forName("com.dianping.avatar.tracker.ExecutionContextHolder");
-			Class contextClass = Class.forName("com.dianping.avatar.tracker.TrackerContext");
+			Class contextHolderClass = Class
+					.forName("com.dianping.avatar.tracker.ExecutionContextHolder");
+			Class contextClass = Class
+					.forName("com.dianping.avatar.tracker.TrackerContext");
 
-			createContextMethod = contextHolderClass.getDeclaredMethod("createRemoteTrackerContext",
-					new Class[] { String.class });
+			createContextMethod = contextHolderClass.getDeclaredMethod(
+					"createRemoteTrackerContext", new Class[] { String.class });
 			createContextMethod.setAccessible(true);
 
-			setContextMethod = contextHolderClass.getDeclaredMethod("setTrackerContext", new Class[] { contextClass });
+			setContextMethod = contextHolderClass.getDeclaredMethod(
+					"setTrackerContext", new Class[] { contextClass });
 			setContextMethod.setAccessible(true);
 
-			getContextMethod = contextHolderClass.getDeclaredMethod("getTrackerContext", new Class[] {});
+			getContextMethod = contextHolderClass.getDeclaredMethod(
+					"getTrackerContext", new Class[] {});
 			getContextMethod.setAccessible(true);
 
-			clearContextMethod = contextHolderClass.getDeclaredMethod("clearContext", new Class[] {});
+			clearContextMethod = contextHolderClass.getDeclaredMethod(
+					"clearContext", new Class[] {});
 			clearContextMethod.setAccessible(true);
 
-			addSuccessContextMethod = contextHolderClass.getDeclaredMethod("addSucceedRemoteTrackerContext",
+			addSuccessContextMethod = contextHolderClass.getDeclaredMethod(
+					"addSucceedRemoteTrackerContext",
 					new Class[] { contextClass });
 			addSuccessContextMethod.setAccessible(true);
 
-			addFailedContextMethod = contextHolderClass.getDeclaredMethod("addFailedRemoteTrackerContext",
+			addFailedContextMethod = contextHolderClass.getDeclaredMethod(
+					"addFailedRemoteTrackerContext",
 					new Class[] { contextClass });
 			addFailedContextMethod.setAccessible(true);
 
-			getTokenMethod = contextClass.getDeclaredMethod("getToken", new Class[] {});
+			getTokenMethod = contextClass.getDeclaredMethod("getToken",
+					new Class[] {});
 			getTokenMethod.setAccessible(true);
 
-			getExtensionMethod = contextClass.getDeclaredMethod("getExtension", new Class[] { String.class });
+			getExtensionMethod = contextClass.getDeclaredMethod("getExtension",
+					new Class[] { String.class });
 			getExtensionMethod.setAccessible(true);
 
-			getExtensionsMethod = contextClass.getDeclaredMethod("getExtension", new Class[] {});
+			getExtensionsMethod = contextClass.getDeclaredMethod(
+					"getExtension", new Class[] {});
 			getExtensionsMethod.setAccessible(true);
 
-			addExtensionMethod = contextClass.getDeclaredMethod("addExtension", new Class[] { String.class,
-					Object.class });
+			addExtensionMethod = contextClass.getDeclaredMethod("addExtension",
+					new Class[] { String.class, Object.class });
 			addExtensionMethod.setAccessible(true);
 
 			flag = true;
@@ -94,20 +105,18 @@ public final class ContextUtils {
 		}
 	}
 
-	public static Object createContext(String serviceName, String methodName, String host, int port) {
+	public static Object createContext(String serviceName, String methodName,
+			String host, int port) {
 		if (flag) {
 			StringBuilder sb = new StringBuilder();
-			sb.append(serviceName).append(".").append(methodName).append("@").append(host).append(":").append(port);
-			String location = sb.toString();
+			sb.append(serviceName).append(".").append(methodName).append("@")
+					.append(host).append(":").append(port);
 			try {
-				Object result = createContextMethod.invoke(null, new Object[] { location });
-				if (result == null) {
-					TrackerContext trackerContext = new TrackerContext().createRemoteContext(location);
-					setContextMethod.invoke(null, new Object[] { trackerContext });
-					return trackerContext;
-				} else {
-					return result;
+				if (getContext() == null) {
+					setContext(new TrackerContext());
 				}
+				return createContextMethod.invoke(null,
+						new Object[] { sb.toString() });
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -170,7 +179,8 @@ public final class ContextUtils {
 	public static Integer getOrder(Object context) {
 		if (flag && context != null) {
 			try {
-				return (Integer) getExtensionMethod.invoke(context, new Object[] { TRAC_ORDER });
+				return (Integer) getExtensionMethod.invoke(context,
+						new Object[] { TRAC_ORDER });
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -181,7 +191,8 @@ public final class ContextUtils {
 	public static void setOrder(Object context, Integer order) {
 		if (flag && context != null) {
 			try {
-				addExtensionMethod.invoke(context, new Object[] { TRAC_ORDER, order });
+				addExtensionMethod.invoke(context, new Object[] { TRAC_ORDER,
+						order });
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -197,7 +208,8 @@ public final class ContextUtils {
 		ContextUtils.putContextValue(context, key, value);
 	}
 
-	public static void putContextValue(Object context, String key, Serializable value) {
+	public static void putContextValue(Object context, String key,
+			Serializable value) {
 		if (flag && context != null) {
 			try {
 				addExtensionMethod.invoke(context, new Object[] { key, value });
@@ -214,7 +226,8 @@ public final class ContextUtils {
 	public static <T> T getContextValue(Object context, String key) {
 		if (flag && context != null) {
 			try {
-				return (T) getExtensionMethod.invoke(context, new Object[] { key });
+				return (T) getExtensionMethod.invoke(context,
+						new Object[] { key });
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}

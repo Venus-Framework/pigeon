@@ -88,7 +88,7 @@ public class LoggerLoader {
 		String osName = System.getProperty("os.name");
 		String bizLogDir = null;
 		if (osName != null && osName.toLowerCase().indexOf("windows") > -1) {
-			bizLogDir = "d:/";
+			bizLogDir = "c:/";
 		}
 		for (Enumeration<?> appenders = lr.getLogger(LOGGER_NAME).getAllAppenders(); appenders.hasMoreElements();) {
 			Appender appender = (Appender) appenders.nextElement();
