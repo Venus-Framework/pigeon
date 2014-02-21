@@ -6,6 +6,9 @@ package com.dianping.pigeon.remoting.common.codec;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.log4j.Logger;
+
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
 import com.dianping.pigeon.remoting.common.codec.java.JavaSerializer;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
@@ -17,6 +20,8 @@ import com.dianping.pigeon.remoting.common.codec.protobuf.ProtobufSerializer;
  * 
  */
 public final class SerializerFactory {
+
+	private static final Logger logger = LoggerLoader.getLogger(SerializerFactory.class);
 
 	// 序列化类型---》HESSIAN序列化
 	public static final byte SERIALIZE_HESSIAN = 2;
@@ -41,10 +46,20 @@ public final class SerializerFactory {
 		registerSerializer(SERIALIZE_JAVA, new JavaSerializer());
 		registerSerializer(SERIALIZE_HESSIAN, new HessianSerializer());
 		registerSerializer(SERIALIZE_HESSIAN1, new HessianSerializer());
-		if(ProtobufSerializer.support()) {
-			registerSerializer(SERIALIZE_PROTOBUF, new ProtobufSerializer());
+		if (ProtobufSerializer.support()) {
+			try {
+				registerSerializer(SERIALIZE_PROTOBUF, new ProtobufSerializer());
+			} catch (Throwable t) {
+				logger.warn("failed to initialize protobuf serializer:" + t.getMessage());
+			}
 		}
-		registerSerializer(SERIALIZE_JSON, new JacksonSerializer());
+		if (JacksonSerializer.support()) {
+			try {
+				registerSerializer(SERIALIZE_JSON, new JacksonSerializer());
+			} catch (Throwable t) {
+				logger.warn("failed to initialize jackson serializer:" + t.getMessage());
+			}
+		}
 	}
 
 	public static byte getSerialize(String serialize) {
