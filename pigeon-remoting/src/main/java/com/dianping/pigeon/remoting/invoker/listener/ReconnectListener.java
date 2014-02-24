@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.NetException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -51,7 +50,7 @@ public class ReconnectListener implements Runnable, ClusterListener {
 					if (!client.isConnected()) {
 						try {
 							client.connect();
-						} catch (NetException e) {
+						} catch (Exception e) {
 							logger.error("[reconnect] connect server[" + providerUrl + "] failed", e);
 						}
 					}

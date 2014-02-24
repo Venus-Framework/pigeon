@@ -25,7 +25,7 @@ public class Client {
 			try {
 				String input = "annotationTestService_" + atomicInteger.incrementAndGet();
 				System.out.println("input:" + input);
-				System.out.println(annotationTestService.testEcho(input));
+ 				System.out.println(annotationTestService.testEcho(input));
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}

@@ -49,5 +49,9 @@ public interface Client {
 	int getPort();
 
 	void close();
+	
+	boolean isDisposable();
+	
+	void dispose();
 
 }

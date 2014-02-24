@@ -16,10 +16,8 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
-import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.event.RuntimeServiceEvent;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -60,9 +58,9 @@ public class NettyClient extends AbstractClient {
 
 	private ConnectInfo connectInfo;
 
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
-
 	public static final int CLIENT_CONNECTIONS = Runtime.getRuntime().availableProcessors();
+
+	private long logCount;
 
 	public NettyClient(ConnectInfo connectInfo) {
 		this.host = connectInfo.getHost();
@@ -86,9 +84,11 @@ public class NettyClient extends AbstractClient {
 
 	public synchronized void connect() {
 		if (this.connected || this.closed) {
+			resetLogCount();
 			return;
 		}
-		if (logger.isInfoEnabled()) {
+		incLogCount();
+		if (logger.isInfoEnabled() && isLog()) {
 			logger.info("client is connecting to " + this.host + ":" + this.port);
 		}
 		ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
@@ -112,10 +112,11 @@ public class NettyClient extends AbstractClient {
 				}
 				logger.warn("client is connected to " + this.host + ":" + this.port);
 				this.connected = true;
-			} else {
+				resetLogCount();
+			} else if (isLog()) {
 				logger.error("client is not connected to " + this.host + ":" + this.port);
 			}
-		} else {
+		} else if (isLog()) {
 			logger.error("timeout while connecting to " + this.host + ":" + this.port);
 		}
 	}
@@ -153,7 +154,9 @@ public class NettyClient extends AbstractClient {
 	}
 
 	private void connectionException(Client client, Object attachment, Throwable e) {
-		logger.error("exception while connecting to :" + client + ", exception:" + e.getMessage());
+		if (isLog()) {
+			logger.error("exception while connecting to :" + client + ", exception:" + e.getMessage());
+		}
 		if (attachment == null) {
 			return;
 		}
@@ -272,12 +275,9 @@ public class NettyClient extends AbstractClient {
 			if (future.isSuccess()) {
 				return;
 			}
-			logger.error("MsgWriteListener........future" + future.isSuccess());
 			if (request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
-
 				connected = false;
 			}
-
 			RpcEventUtils.channelOperationComplete(request, NettyClient.this.address);
 			InvocationResponse response = ResponseUtils.createFailResponse(request, future.getCause());
 			processResponse(response);
@@ -290,4 +290,29 @@ public class NettyClient extends AbstractClient {
 		return connectInfo;
 	}
 
+	private void resetLogCount() {
+		logCount = 0;
+	}
+
+	private boolean isLog() {
+		boolean isLog = true;
+		if (logCount > 100 && logCount % 100 != 0) {
+			isLog = false;
+		}
+		return isLog;
+	}
+
+	private void incLogCount() {
+		logCount = logCount + 1;
+	}
+
+	@Override
+	public boolean isDisposable() {
+		return false;
+	}
+
+	@Override
+	public void dispose() {
+		
+	}
 }
