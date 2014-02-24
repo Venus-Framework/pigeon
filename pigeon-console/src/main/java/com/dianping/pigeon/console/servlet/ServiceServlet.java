@@ -105,9 +105,6 @@ public class ServiceServlet extends HttpServlet {
 			}
 			page.addService(s);
 		}
-		if(!services.isEmpty()) {
-			page.setStatus("ok");
-		}
 		this.model = page;
 	}
 

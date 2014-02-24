@@ -25,14 +25,14 @@ public class Client {
 		for (;;) {
 			try {
 				String input = "echoService_" + atomicInteger.incrementAndGet();
-				//System.out.println("input:" + input);
+				System.out.println("input:" + input);
 				ContextUtils.putContextValue("key1", input);
 				
-				//System.out.println("service result:" + service.echo(input));
+				System.out.println("service result:" + service.echo(input));
 
 				String input2 = "echoServiceWithCallback_" + atomicInteger.incrementAndGet();
-				//System.out.println("input:" + input2);
-				//serviceWithCallback.echo(input);
+				System.out.println("input:" + input2);
+				serviceWithCallback.echo(input);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}

@@ -10,16 +10,6 @@ public class ServicePage {
 
 	private List<Service> services;
 
-	private String status = "";
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
 	public List<Service> getServices() {
 		return services;
 	}

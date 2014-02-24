@@ -166,14 +166,4 @@ public class HttpInvokerClient extends AbstractClient {
 		return this.getAddress();
 	}
 
-	@Override
-	public boolean isDisposable() {
-		return false;
-	}
-
-	@Override
-	public void dispose() {
-		
-	}
-
 }
