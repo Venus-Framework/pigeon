@@ -16,8 +16,6 @@
 		<pigeon.version>2.1.6-SNAPSHOT</pigeon.version>
 		<spring_version>2.5.6</spring_version>
 		<jetty_version>6.1.26</jetty_version>
-		<scala.version>2.10</scala.version>
-		<akka.version>2.2.3</akka.version>
 	</properties>
 	<modules>
 		<module>pigeon-common</module>
@@ -104,9 +102,9 @@
 				<version>1.6.6</version>
 			</dependency>
 			<dependency>
-				<groupId>io.netty</groupId>
+				<groupId>org.jboss.netty</groupId>
 				<artifactId>netty</artifactId>
-				<version>3.9.0.Final</version>
+				<version>3.2.10.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -183,11 +181,6 @@
 				<version>2.3.19</version>
 			</dependency>
 			<dependency>
-				<groupId>com.googlecode.disruptor</groupId>
-				<artifactId>disruptor</artifactId>
-				<version>2.10.4</version>
-			</dependency>
-			<dependency>
 				<groupId>com.dianping.lion</groupId>
 				<artifactId>lion-client</artifactId>
 				<version>0.3.1-SNAPSHOT</version>
@@ -221,16 +214,6 @@
 						<artifactId>slf4j-api</artifactId>
 					</exclusion>
 				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.typesafe.akka</groupId>
-				<artifactId>akka-actor_${scala.version}</artifactId>
-				<version>${akka.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.typesafe.akka</groupId>
-				<artifactId>akka-remote_${scala.version}</artifactId>
-				<version>${akka.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.dianping</groupId>
