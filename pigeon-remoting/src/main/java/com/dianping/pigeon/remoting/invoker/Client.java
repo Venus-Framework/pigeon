@@ -50,4 +50,8 @@ public interface Client {
 
 	void close();
 
+	boolean isDisposable();
+	
+	void dispose();
+	
 }

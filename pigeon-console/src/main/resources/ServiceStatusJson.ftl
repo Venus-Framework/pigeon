@@ -1,0 +1,1 @@
+{"status": "${status}","size": "${services?size}"}

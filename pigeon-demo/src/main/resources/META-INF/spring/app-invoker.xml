@@ -11,17 +11,22 @@
 	<pigeon:annotation />
 
 	<pigeon:reference id="defaultEchoService" timeout="1000" protocol="default"
+	url="http://service.dianping.com/com.dianping.pigeon.demo.EchoService"
 		serialize="hessian" callType="sync" interface="com.dianping.pigeon.demo.EchoService" />
 
 	<pigeon:reference interface="com.dianping.pigeon.demo.EchoService"
+	url="http://service.dianping.com/com.dianping.pigeon.demo.EchoService"
 		version="1.0.0" />
 
 	<pigeon:reference interface="com.dianping.pigeon.demo.EchoService"
-		version="2.0.0" />
+	url="http://service.dianping.com/com.dianping.pigeon.demo.EchoService"
+	version="2.0.0" />
 
 	<bean id="echoServiceCallback" class="com.dianping.pigeon.demo.invoker.EchoServiceCallback" />
 
-	<pigeon:reference id="echoServiceWithCallback" interface="com.dianping.pigeon.demo.EchoService"
+	<pigeon:reference id="echoServiceWithCallback"
+		interface="com.dianping.pigeon.demo.EchoService"
+		url="http://service.dianping.com/com.dianping.pigeon.demo.EchoService"
 		timeout="1000" protocol="default" serialize="hessian" callType="callback"
 		callback="echoServiceCallback" />
 

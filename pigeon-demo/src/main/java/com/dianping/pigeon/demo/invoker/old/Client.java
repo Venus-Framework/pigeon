@@ -16,12 +16,14 @@ public class Client {
 	public static void main(String[] args) throws Exception {
 		ProxyBeanFactory pf = new ProxyBeanFactory();
 		pf.setIface(EchoService.class.getName());
+		pf.setServiceName("http://service.dianping.com/com.dianping.pigeon.demo.EchoService");
 		pf.init();
 		EchoService service = (EchoService) pf.getObject();
 
 		ServiceCallback callback = new EchoServiceCallback();
 		ProxyBeanFactory pfCallback = new ProxyBeanFactory();
 		pfCallback.setIface(EchoService.class.getName());
+		pfCallback.setServiceName("http://service.dianping.com/com.dianping.pigeon.demo.EchoService");
 		pfCallback.setCallback(callback);
 		pfCallback.init();
 		EchoService serviceWithCallback = (EchoService) pfCallback.getObject();
