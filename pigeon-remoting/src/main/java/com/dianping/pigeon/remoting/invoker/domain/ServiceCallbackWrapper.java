@@ -35,15 +35,16 @@ public class ServiceCallbackWrapper implements Callback {
 	@Override
 	public void run() {
 		try {
-			if (ContextUtils.getContext() != null) {
-				if (this.response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-					// 传递业务上下文
-					ContextUtils.addSuccessContext(this.response.getContext());
-				} else {
-					// 传递业务上下文
-					ContextUtils.addFailedContext(this.response.getContext());
-				}
-			}
+// BUGFIX: no context needed for callback invocation
+//			if (ContextUtils.getContext() != null) {
+//				if (this.response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+//					// 传递业务上下文
+//					ContextUtils.addSuccessContext(this.response.getContext());
+//				} else {
+//					// 传递业务上下文
+//					ContextUtils.addFailedContext(this.response.getContext());
+//				}
+//			}
 			if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 				StringBuilder sb = new StringBuilder();
 				sb.append("Service Exception Info *************\r\n")

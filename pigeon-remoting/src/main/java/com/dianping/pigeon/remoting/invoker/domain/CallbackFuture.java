@@ -76,20 +76,9 @@ public class CallbackFuture implements Callback, CallFuture {
 					this.wait(timeoutMillis_);
 				}
 			}
-			Object context = ContextUtils.getContext();
-			if (context != null) {
-				Integer order = ContextUtils.getOrder(this.response.getContext());
-				if (order != null && order > 0) {
-					ContextUtils.setOrder(context, order);
-				}
-				if (this.success) {
-					// 传递业务上下文
-					ContextUtils.addSuccessContext(this.response.getContext());
-				} else {
-					// 传递业务上下文
-					ContextUtils.addFailedContext(this.response.getContext());
-				}
-			}
+			
+			processContext();
+			
 			if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION
 					|| response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 				Throwable cause = null;
@@ -117,6 +106,23 @@ public class CallbackFuture implements Callback, CallFuture {
 		}
 	}
 
+	protected void processContext() {
+	    Object context = ContextUtils.getContext();
+        if (context != null) {
+            Integer order = ContextUtils.getOrder(this.response.getContext());
+            if (order != null && order > 0) {
+                ContextUtils.setOrder(context, order);
+            }
+            if (this.success) {
+                // 传递业务上下文
+                ContextUtils.addSuccessContext(this.response.getContext());
+            } else {
+                // 传递业务上下文
+                ContextUtils.addFailedContext(this.response.getContext());
+            }
+        }    
+	}
+	
 	public InvocationResponse get(long timeout, TimeUnit unit) throws InterruptedException {
 		return get(unit.toMillis(timeout));
 	}

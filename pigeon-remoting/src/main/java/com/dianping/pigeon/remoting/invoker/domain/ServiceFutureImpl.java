@@ -71,4 +71,6 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		return _get(unit.toMillis(timeout));
 	}
 
+	protected void processContext() {}
+	
 }
