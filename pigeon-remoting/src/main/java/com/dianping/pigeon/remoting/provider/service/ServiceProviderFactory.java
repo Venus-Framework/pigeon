@@ -22,6 +22,7 @@ import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.listener.ServiceChangeListener;
 import com.dianping.pigeon.util.VersionUtils;
 
 /**
@@ -36,6 +37,12 @@ public final class ServiceProviderFactory {
 	private static ConcurrentHashMap<String, ProviderConfig<?>> serviceCache = new ConcurrentHashMap<String, ProviderConfig<?>>();
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	private static ServiceChangeListener serviceChangeListener = ExtensionLoader
+			.getExtension(ServiceChangeListener.class);
+
+	private static boolean DEFAULT_NOTIFY_ENABLE = configManager.getEnv().equalsIgnoreCase("dev") ? false
+			: Constants.DEFAULT_NOTIFY_ENABLE;
 
 	public ServiceProviderFactory() {
 	}
@@ -112,6 +119,11 @@ public final class ServiceProviderFactory {
 					}
 				}
 				if (registerCount > 0) {
+					boolean isNotify = configManager
+							.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
+					if (isNotify && serviceChangeListener != null) {
+						serviceChangeListener.notifyServicePublished(providerConfig);
+					}
 					providerConfig.setPublished(true);
 				}
 			}
@@ -177,6 +189,10 @@ public final class ServiceProviderFactory {
 						}
 					}
 				}
+				boolean isNotify = configManager.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
+				if (isNotify && serviceChangeListener != null) {
+					serviceChangeListener.notifyServiceUnpublished(providerConfig);
+				}
 				providerConfig.setPublished(false);
 				if (logger.isInfoEnabled()) {
 					logger.info("unpublished service from registry:" + providerConfig);
@@ -199,7 +215,7 @@ public final class ServiceProviderFactory {
 			}
 		}
 	}
-	
+
 	public static ProviderConfig<?> getServiceConfig(String url) {
 		ProviderConfig<?> providerConfig = serviceCache.get(url);
 		return providerConfig;

@@ -103,7 +103,9 @@ public final class Constants {
 	public static final String KEY_PROCESS_TYPE = "pigeon.process.type";
 	public static final String KEY_TIMEOUT_INTERVAL = "pigeon.timeout.interval";
 	public static final String KEY_DEFAULT_WRITE_BUFF_LIMIT = "pigeon.channel.writebuff.defaultlimit";
-
+	public static final String KEY_MANAGER_ADDRESS = "pigeon.manager.address";
+	public static final String KEY_NOTIFY_ENABLE = "pigeon.notify.enable";
+	
 	public static final int DEFAULT_INVOKER_TIMEOUT = 5000;
 	public static final int DEFAULT_PROVIDER_COREPOOLSIZE = 100;
 	public static final int DEFAULT_PROVIDER_MAXPOOLSIZE = 300;
@@ -122,6 +124,8 @@ public final class Constants {
 	public static final String DEFAULT_PROCESS_TYPE = "threadpool";
 	public static final long DEFAULT_TIMEOUT_INTERVAL = 100;
 	public static final String ROUTE_ROUNDROBIN = "roundRobin";
+	public static final String DEFAULT_MANAGER_ADDRESS = "lionapi.dp:8080";
+	public static final boolean DEFAULT_NOTIFY_ENABLE = true;
 
 	public static final String PROTOCOL_HTTP = "http";
 	public static final String PROTOCOL_DEFAULT = "default";

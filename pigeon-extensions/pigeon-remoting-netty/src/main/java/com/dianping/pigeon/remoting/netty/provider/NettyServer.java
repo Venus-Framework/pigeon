@@ -80,6 +80,7 @@ public class NettyServer extends AbstractServer implements Disposable {
 				address = new InetSocketAddress(this.ip, this.port);
 			}
 			channel = this.bootstrap.bind(address);
+			serverConfig.setPort(this.port);
 			this.started = true;
 		}
 	}

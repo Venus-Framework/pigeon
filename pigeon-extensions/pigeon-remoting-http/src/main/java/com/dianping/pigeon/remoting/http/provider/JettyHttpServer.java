@@ -101,6 +101,7 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 		}
 		try {
 			server.start();
+			serverConfig.setHttpPort(this.port);
 		} catch (Exception e) {
 			throw new IllegalStateException(
 					"failed to start jetty server on "
