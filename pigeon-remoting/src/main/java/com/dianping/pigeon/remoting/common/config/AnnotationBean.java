@@ -157,6 +157,7 @@ public class AnnotationBean implements DisposableBean,
 								+ providerConfig, e);
 			}
 		}
+		postProcessBeforeInitialization(bean, beanName);
 		return bean;
 	}
 
@@ -190,7 +191,7 @@ public class AnnotationBean implements DisposableBean,
 				}
 			}
 		}
-		Field[] fields = bean.getClass().getDeclaredFields();
+		Field[] fields = bean.getClass().getFields();
 		for (Field field : fields) {
 			try {
 				if (!field.isAccessible()) {

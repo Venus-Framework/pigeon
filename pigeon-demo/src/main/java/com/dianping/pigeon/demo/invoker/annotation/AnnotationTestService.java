@@ -9,7 +9,7 @@ import com.dianping.pigeon.remoting.invoker.config.annotation.Reference;
 
 public class AnnotationTestService {
 
-	@Reference(timeout = 100, serialize = "json", protocol = "http")
+	@Reference(timeout = 100, serialize = "json", protocol = "http", callback = "com.dianping.pigeon.demo.invoker.EchoServiceCallback")
 	private AnnotationEchoService annotationEchoService;
 
 	public String testEcho(String input) {
