@@ -22,9 +22,16 @@ public final class Utils {
 	}
 
 	public static void validateWeight(int weight) {
-		if(weight < Constants.MIN_WEIGHT || weight > Constants.MAX_WEIGHT)
-			throw new IllegalArgumentException("weight should be in range [" + 
-					Constants.MIN_WEIGHT + "-" + Constants.MAX_WEIGHT + "]");
+		if (weight < Constants.MIN_WEIGHT || weight > Constants.MAX_WEIGHT)
+			throw new IllegalArgumentException("weight should be in range [" + Constants.MIN_WEIGHT + "-"
+					+ Constants.MAX_WEIGHT + "]");
 	}
 
+	public static String unescapeServiceName(String serviceName) {
+		return serviceName.replace(Constants.PLACEHOLDER, Constants.PATH_SEPARATOR);
+	}
+
+	public static String escapeServiceName(String serviceName) {
+		return serviceName.replace(Constants.PATH_SEPARATOR, Constants.PLACEHOLDER);
+	}
 }

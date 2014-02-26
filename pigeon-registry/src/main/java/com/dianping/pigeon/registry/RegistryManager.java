@@ -91,6 +91,9 @@ public class RegistryManager {
 		}
 		if ("dev".equalsIgnoreCase(configManager.getEnv())) {
 			String addr = configManager.getStringValue(serviceKey);
+			if(addr == null) {
+				addr = configManager.getStringValue(Utils.escapeServiceName(serviceKey));
+			}
 			if (!StringUtils.isBlank(addr)) {
 				if (logger.isInfoEnabled()) {
 					logger.info("get service address from local properties, service name:" + serviceName + "  address:"

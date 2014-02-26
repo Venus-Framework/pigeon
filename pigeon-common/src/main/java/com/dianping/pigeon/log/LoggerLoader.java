@@ -19,9 +19,6 @@ import org.apache.log4j.spi.LoggerRepository;
 import org.apache.log4j.spi.RootLogger;
 import org.apache.log4j.xml.DOMConfigurator;
 
-import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
-
 /**
  * <p>
  * Title: pigeonLog.java
@@ -52,10 +49,10 @@ public class LoggerLoader {
 		Properties logPro = new Properties();
 		String logLevel = "info";
 		String logSuffix = "default";
-		ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+		/*ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 		if(configManager != null) {
 			logLevel = configManager.getStringValue("pigeon.log.defaultlevel", logLevel);
-		}
+		}*/
 		
 		try {
 			logPro.load(LoggerLoader.class.getClassLoader().getResourceAsStream("config/applicationContext.properties"));

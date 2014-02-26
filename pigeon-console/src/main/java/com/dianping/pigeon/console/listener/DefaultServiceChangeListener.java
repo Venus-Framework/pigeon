@@ -35,7 +35,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		HttpConnectionManagerParams params = new HttpConnectionManagerParams();
 		params.setMaxTotalConnections(300);
 		params.setDefaultMaxConnectionsPerHost(50);
-		params.setConnectionTimeout(1000);
+		params.setConnectionTimeout(3000);
 		params.setTcpNoDelay(true);
 		params.setSoTimeout(3000);
 		params.setStaleCheckingEnabled(true);

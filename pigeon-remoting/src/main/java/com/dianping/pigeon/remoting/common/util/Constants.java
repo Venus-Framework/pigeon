@@ -100,7 +100,6 @@ public final class Constants {
 	public static final String KEY_PROVIDER_WORKQUEUESIZE = "pigeon.provider.workQueueSize";
 	public static final String KEY_INVOKER_MAXPOOLSIZE = "pigeon.invoker.maxPoolSize";
 	public static final String KEY_INVOKER_TIMEOUT = "pigeon.invoker.timeout";
-	public static final String KEY_PROCESS_TYPE = "pigeon.process.type";
 	public static final String KEY_TIMEOUT_INTERVAL = "pigeon.timeout.interval";
 	public static final String KEY_DEFAULT_WRITE_BUFF_LIMIT = "pigeon.channel.writebuff.defaultlimit";
 	public static final String KEY_MANAGER_ADDRESS = "pigeon.manager.address";

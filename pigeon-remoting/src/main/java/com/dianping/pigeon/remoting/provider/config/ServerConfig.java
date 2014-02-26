@@ -29,8 +29,6 @@ public class ServerConfig {
 	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
 			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
 	private String group;
-	private String processType = configManager.getStringValue(Constants.KEY_PROCESS_TYPE,
-			Constants.DEFAULT_PROCESS_TYPE);
 	private Set<String> protocols = new HashSet<String>();
 
 	public ServerConfig() {
@@ -60,14 +58,6 @@ public class ServerConfig {
 
 	public void setProtocols(Set<String> protocols) {
 		this.protocols = protocols;
-	}
-
-	public String getProcessType() {
-		return processType;
-	}
-
-	public void setProcessType(String processType) {
-		this.processType = processType;
 	}
 
 	public String getGroup() {
