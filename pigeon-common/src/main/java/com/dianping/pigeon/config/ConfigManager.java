@@ -40,5 +40,9 @@ public interface ConfigManager {
 	public String getLocalIp();
 
 	public String getGroup();
+	
+	public void setStringValue(String key, String value);
+	
+	public void deleteKey(String key);
 
 }
