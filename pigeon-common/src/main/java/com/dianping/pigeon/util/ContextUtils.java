@@ -145,8 +145,13 @@ public final class ContextUtils {
 		return null;
 	}
 
+	public static boolean isTrackRequired() {
+        TrackerContext trackerContext = (TrackerContext) getContext();
+        return trackerContext != null && trackerContext.isTrackRequired();
+    }
+	
 	public static void addSuccessContext(Object context) {
-		if (flag && context != null) {
+		if (flag && context != null && isTrackRequired()) {
 			try {
 				addSuccessContextMethod.invoke(null, new Object[] { context });
 			} catch (Exception e) {
@@ -156,7 +161,7 @@ public final class ContextUtils {
 	}
 
 	public static void addFailedContext(Object context) {
-		if (flag && context != null) {
+		if (flag && context != null && isTrackRequired()) {
 			try {
 				addFailedContextMethod.invoke(null, new Object[] { context });
 			} catch (Exception e) {
