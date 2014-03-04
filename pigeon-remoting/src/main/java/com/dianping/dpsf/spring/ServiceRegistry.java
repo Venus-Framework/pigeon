@@ -42,6 +42,33 @@ public final class ServiceRegistry {
 			Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
 	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
 			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
+	private int enginePort = ServerConfig.DEFAULT_HTTP_PORT;
+	private String serviceType = "dp";
+	private boolean enableEngine = true;
+
+	public int getEnginePort() {
+		return enginePort;
+	}
+
+	public void setEnginePort(int enginePort) {
+		this.setHttpPort(enginePort);
+	}
+
+	public String getServiceType() {
+		return serviceType;
+	}
+
+	public void setServiceType(String serviceType) {
+		this.serviceType = serviceType;
+	}
+
+	public boolean isEnableEngine() {
+		return enableEngine;
+	}
+
+	public void setEnableEngine(boolean enableEngine) {
+		this.enableEngine = enableEngine;
+	}
 
 	public boolean isAutoSelectPort() {
 		return autoSelectPort;
