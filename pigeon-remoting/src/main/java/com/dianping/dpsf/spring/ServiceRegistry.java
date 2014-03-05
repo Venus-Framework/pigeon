@@ -51,7 +51,7 @@ public final class ServiceRegistry {
 	}
 
 	public void setEnginePort(int enginePort) {
-		this.setHttpPort(enginePort);
+		this.enginePort = enginePort;
 	}
 
 	public String getServiceType() {

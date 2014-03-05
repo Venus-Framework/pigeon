@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
+import com.dianping.dpsf.async.ServiceFuture;
+import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.dpsf.exception.NetException;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -50,6 +52,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callMethod)) {
 			CallbackFuture future = new ServiceFutureImpl(request.getTimeout());
 			sendRequest(client, invokerContext, future);
+			ServiceFutureFactory.setFuture((ServiceFuture) future);
 			invokerContext.putTransientContextValue(Constants.CONTEXT_FUTURE, future);
 			response = NO_RETURN_RESPONSE;
 		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callMethod)) {
