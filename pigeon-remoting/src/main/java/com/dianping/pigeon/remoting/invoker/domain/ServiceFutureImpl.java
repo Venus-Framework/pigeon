@@ -31,9 +31,12 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 
 	private long timeout = Long.MAX_VALUE;
 
+	private Thread callerThread;
+	
 	public ServiceFutureImpl(long timeout) {
 		super();
 		this.timeout = timeout;
+		callerThread = Thread.currentThread();
 	}
 
 	@Override
@@ -72,6 +75,11 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		return _get(unit.toMillis(timeout));
 	}
 
-	protected void processContext() {}
+	protected void processContext() {
+	    Thread currentThread = Thread.currentThread();
+	    if(currentThread == callerThread) {
+	        super.processContext();
+	    }
+	}
 	
 }
