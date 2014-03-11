@@ -4,7 +4,10 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <link href="/ztree/ztree.css" rel="stylesheet" type="text/css"/>
   <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+  <link href="/jquery/jquery-ui.css" rel="stylesheet" type="text/css"/>
   <script src="/jquery/jquery-1.7.2.min.js"></script>
+  <script src="/jquery/jquery-ui.js"></script>
+  <script src="/jquery/jquery.easy-confirm-dialog.js"></script>
   <script src="/ztree/jquery.ztree.core-3.3.min.js"></script>
 	<SCRIPT type="text/javascript">
 		<!--
@@ -25,27 +28,40 @@
 						content.hide();
 						return;
 					}
+					if('${env}'!='dev'){
+						content.append("<p>verification code(you can get it from pigeon log):<input type='text' id='token' value=''/></p>");
+					}
 					for(var i = 0; i < treeNode.parameters; i++){
 						content.append("<p><input type='text' value=''/></p>");
 					}
-					content.append("<button class='submit'>invoke</button>");
+					content.append("<button id='invokeBtn' class='submit'>invoke</button>");
 					$("button.submit", content).on("click", function(){
 						var pdata = {};
 						pdata.parameters = [];
 						$("input", content).each(function(){
-							pdata.parameters.push($(this).val());
+							if($(this).attr("id")!='token'){
+								pdata.parameters.push($(this).val());
+							}
 						});
 						pdata.url = treeNode.data_url;
 						pdata.method = treeNode.data_method;
 						pdata.parameterTypes = treeNode.data_parameterTypes.split(',');
 						$.ajax({
-							url:"/invoke.json",
+							url:"/invoke.json?token=" + $("#token").val(),
 							data: pdata,
 							success: function(m){
 								result.text(m).show();
 							}
 						});
 					});
+					if('${env}'!='dev'){
+						$("#invokeBtn").easyconfirm({locale: {
+							title: '警告',
+							text: '是否确认执行该调用?在线上请务必谨慎执行，以免影响线上数据，仅在特殊情况下使用该功能！！！',
+							button: ['取消','确认'],
+							closeText: '取消'
+						}});
+					}
 				}
 			}
 		};
