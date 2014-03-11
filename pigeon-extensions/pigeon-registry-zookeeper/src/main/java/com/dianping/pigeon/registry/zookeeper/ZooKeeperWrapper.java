@@ -15,7 +15,9 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.ConnectionLossException;
 import org.apache.zookeeper.KeeperException.SessionExpiredException;
+import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.ACL;
@@ -41,12 +43,17 @@ public class ZooKeeperWrapper {
 		this.addresses = addresses;
 		this.timeout = timeout;
 		this.watcher = watcher;
-		this.zk = new ZooKeeper(addresses, timeout, watcher);
+		WatcherWrapper watcherWrapper = new WatcherWrapper(watcher);
+		this.zk = new ZooKeeper(addresses, timeout, watcherWrapper);
+		watcherWrapper.waitUntilConnected(2000);
 	}
 
 	private synchronized void init(ZooKeeper zk) throws IOException, KeeperException, InterruptedException {
 		if (zk == this.zk) {
-			this.zk = new ZooKeeper(addresses, timeout, watcher);
+		    WatcherWrapper watcherWrapper = new WatcherWrapper(watcher);
+		    this.zk = new ZooKeeper(addresses, timeout, watcherWrapper);
+		    watcherWrapper.waitUntilConnected(2000);
+
 			for (Entry<String, Watcher> entry : watcherMap.entrySet()) {
 				this.zk.getData(entry.getKey(), entry.getValue(), null);
 			}
@@ -231,4 +238,48 @@ public class ZooKeeperWrapper {
 	public String getAddresses() {
 		return addresses;
 	}
+	
+    public class WatcherWrapper implements Watcher {
+        
+        private volatile boolean connected;
+        private Watcher wrappedWatcher;
+        
+        public WatcherWrapper(Watcher watcher) {
+            this.connected = false;
+            this.wrappedWatcher = watcher;
+        }
+        
+        @Override
+         public void process(WatchedEvent event) {
+             if(event.getState() == KeeperState.SyncConnected) {
+                 logger.info("Zookeeper connected");
+                 connected = true;
+                 this.notifyAll();
+                 return;
+             }
+             
+             if(wrappedWatcher != null) {
+                 wrappedWatcher.process(event);
+             }
+         }
+        
+        public void waitUntilConnected(long milliseconds) throws IOException {
+            synchronized(this){
+                long start = System.currentTimeMillis();
+                while(!connected){
+                    long waitMillis = milliseconds - (System.currentTimeMillis() - start);
+                    if(waitMillis <= 0) {
+                        throw new IOException("Timeout while connecting to zookeeper");
+                    } else {
+                        try {
+                            this.wait(waitMillis);
+                        } catch (InterruptedException e) {
+                            throw new IOException("Interrupted while connecting to zookeeper", e);
+                        }
+                    }
+                }
+            }    
+        }
+    }
+
 }
