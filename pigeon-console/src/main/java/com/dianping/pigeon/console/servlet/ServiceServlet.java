@@ -19,12 +19,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.console.domain.Service;
 import com.dianping.pigeon.console.domain.ServiceMethod;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 import com.dianping.pigeon.util.RandomUtils;
 
@@ -44,6 +47,8 @@ public class ServiceServlet extends HttpServlet {
 	private Set<String> ingoreMethods = new HashSet<String>();
 
 	protected int port;
+	
+	protected ServerConfig serverConfig;
 
 	private ServicePage model;
 
@@ -69,7 +74,8 @@ public class ServiceServlet extends HttpServlet {
 		cfg.setTemplateLoader(templateLoader);
 	}
 
-	public ServiceServlet(int port) {
+	public ServiceServlet(ServerConfig serverConfig, int port) {
+		this.serverConfig = serverConfig;
 		this.port = port;
 	}
 
@@ -167,10 +173,10 @@ public class ServiceServlet extends HttpServlet {
 		} catch (TemplateException e) {
 			throw new ServletException(e);
 		}
-		if (!"dev".equalsIgnoreCase(configManager.getEnv())) {
+		if (ConfigConstants.ENV_PRODUCT.equalsIgnoreCase(configManager.getEnv())) {
 			String token = RandomUtils.newRandomString(6);
 			setToken(token);
-			logger.info("current verification code:" + token);
+			logger.info("current verification code:" + token + ", from " + Utils.getIpAddr(request));
 		}
 	}
 

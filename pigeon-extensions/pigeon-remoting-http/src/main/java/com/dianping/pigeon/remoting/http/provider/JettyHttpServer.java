@@ -96,7 +96,7 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 				.getExtensionList(JettyHttpServerProcessor.class);
 		if (processors != null) {
 			for (JettyHttpServerProcessor processor : processors) {
-				processor.preStart(server, context);
+				processor.preStart(serverConfig, server, context);
 			}
 		}
 		try {

@@ -28,7 +28,7 @@
 						content.hide();
 						return;
 					}
-					if('${env}'!='dev'){
+					if('${env}'=='product'){
 						content.append("<p>verification code(you can get it from pigeon log):<input type='text' id='token' value=''/></p>");
 					}
 					for(var i = 0; i < treeNode.parameters; i++){
@@ -47,17 +47,17 @@
 						pdata.method = treeNode.data_method;
 						pdata.parameterTypes = treeNode.data_parameterTypes.split(',');
 						$.ajax({
-							url:"/invoke.json?token=" + $("#token").val(),
+							url:"/invoke.json?validate=true&token=" + $("#token").val(),
 							data: pdata,
 							success: function(m){
 								result.text(m).show();
 							}
 						});
 					});
-					if('${env}'!='dev'){
+					if('${env}'=='product'){
 						$("#invokeBtn").easyconfirm({locale: {
 							title: '警告',
-							text: '是否确认执行该调用?在线上请务必谨慎执行，以免影响线上数据，仅在特殊情况下使用该功能！！！',
+							text: '是否确认执行该调用?在线上请务必谨慎执行！！！',
 							button: ['取消','确认'],
 							closeText: '取消'
 						}});

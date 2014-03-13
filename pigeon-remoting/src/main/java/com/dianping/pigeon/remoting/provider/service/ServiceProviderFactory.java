@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
+import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -41,7 +42,7 @@ public final class ServiceProviderFactory {
 	private static ServiceChangeListener serviceChangeListener = ExtensionLoader
 			.getExtension(ServiceChangeListener.class);
 
-	private static boolean DEFAULT_NOTIFY_ENABLE = configManager.getEnv().equalsIgnoreCase("dev") ? false
+	private static boolean DEFAULT_NOTIFY_ENABLE = ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv()) ? false
 			: Constants.DEFAULT_NOTIFY_ENABLE;
 
 	public ServiceProviderFactory() {

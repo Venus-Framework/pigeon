@@ -15,11 +15,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.dianping.dpsf.spring.ProxyBeanFactory;
+import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
 /**
  * @author sean.wang
@@ -27,8 +30,9 @@ import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
  */
 public class InvokeJsonServlet extends ServiceServlet {
 
-	public InvokeJsonServlet(int port) {
-		super(port);
+	
+	public InvokeJsonServlet(ServerConfig serverConfig, int port) {
+		super(serverConfig, port);
 	}
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
@@ -53,9 +57,14 @@ public class InvokeJsonServlet extends ServiceServlet {
 
 	protected void generateView(HttpServletRequest request, HttpServletResponse response) throws IOException,
 			ServletException {
-		boolean isValidate = true;
-		if ("dev".equalsIgnoreCase(configManager.getEnv())) {
-			isValidate = false;
+		if(!serverConfig.isEnableTest()) {
+			response.getWriter().write("pigeon test is disabled!");
+			return;
+		}
+		boolean isValidate = false;
+		String validate = request.getParameter("validate");
+		if ("true".equalsIgnoreCase(validate) && ConfigConstants.ENV_PRODUCT.equalsIgnoreCase(configManager.getEnv())) {
+			isValidate = true;
 		}
 		String token = request.getParameter("token");
 		if (!isValidate || isValidate && token != null && token.equals(ServiceServlet.getToken())) {
@@ -78,6 +87,10 @@ public class InvokeJsonServlet extends ServiceServlet {
 			if (values != null && "".equals(values[0])) {
 				values = null;
 			}
+
+			logger.info("pigeon console: invoking '" + serviceName + "@" + methodName + "', from "
+					+ Utils.getIpAddr(request));
+
 			Object result = null;
 			if (direct) {
 				try {

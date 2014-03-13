@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.domain.phase.Disposable;
@@ -105,7 +106,7 @@ public class ClientManager implements Disposable {
 	public void findServiceProviders(String serviceName, String group, String vip) {
 		String serviceAddress = null;
 		try {
-			if (!StringUtils.isBlank(vip) && "dev".equalsIgnoreCase(configManager.getEnv())) {
+			if (!StringUtils.isBlank(vip) && ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv())) {
 				serviceAddress = vip;
 			} else {
 				serviceAddress = RegistryManager.getInstance().getServiceAddress(serviceName, group);

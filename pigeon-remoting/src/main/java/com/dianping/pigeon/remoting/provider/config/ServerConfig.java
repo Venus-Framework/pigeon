@@ -22,6 +22,8 @@ public class ServerConfig {
 	private int httpPort = DEFAULT_HTTP_PORT;
 	private boolean autoSelectPort = true;
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private boolean enableTest = configManager
+			.getBooleanValue(Constants.KEY_TEST_ENABLE, Constants.DEFAULT_TEST_ENABLE);
 	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
 			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
 	private int maxPoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_MAXPOOLSIZE,
@@ -34,6 +36,14 @@ public class ServerConfig {
 	public ServerConfig() {
 		protocols.add(Constants.PROTOCOL_DEFAULT);
 		protocols.add(Constants.PROTOCOL_HTTP);
+	}
+
+	public boolean isEnableTest() {
+		return enableTest;
+	}
+
+	public void setEnableTest(boolean enableTest) {
+		this.enableTest = enableTest;
 	}
 
 	public boolean isAutoSelectPort() {

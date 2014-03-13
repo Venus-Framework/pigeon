@@ -18,18 +18,19 @@ import com.dianping.pigeon.console.servlet.json.ServiceJsonServlet;
 import com.dianping.pigeon.console.servlet.json.ServiceStatusJsonServlet;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.http.provider.JettyHttpServerProcessor;
+import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
 public class JettyConsoleProcessor implements JettyHttpServerProcessor {
 
 	protected final Logger logger = LoggerLoader.getLogger(this.getClass());
 
 	@Override
-	public void preStart(Server server, Context context) {
+	public void preStart(ServerConfig serverConfig, Server server, Context context) {
 		int port = server.getConnectors()[0].getPort();
-		context.addServlet(new ServletHolder(new ServiceServlet(port)), "/services");
-		context.addServlet(new ServletHolder(new ServiceJsonServlet(port)), "/services.json");
-		context.addServlet(new ServletHolder(new InvokeJsonServlet(port)), "/invoke.json");
-		context.addServlet(new ServletHolder(new ServiceStatusJsonServlet(port)), "/services.status");
+		context.addServlet(new ServletHolder(new ServiceServlet(serverConfig, port)), "/services");
+		context.addServlet(new ServletHolder(new ServiceJsonServlet(serverConfig, port)), "/services.json");
+		context.addServlet(new ServletHolder(new InvokeJsonServlet(serverConfig, port)), "/invoke.json");
+		context.addServlet(new ServletHolder(new ServiceStatusJsonServlet(serverConfig, port)), "/services.status");
 
 		ServletHolder holder = new ServletHolder(new DefaultServlet());
 		URL url = JettyConsoleProcessor.class.getClassLoader().getResource("statics");

@@ -42,8 +42,13 @@ public final class ServiceRegistry {
 			Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
 	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
 			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
+	private boolean enableTest = configManager
+			.getBooleanValue(Constants.KEY_TEST_ENABLE, Constants.DEFAULT_TEST_ENABLE);
+	@Deprecated
 	private int enginePort = ServerConfig.DEFAULT_HTTP_PORT;
+	@Deprecated
 	private String serviceType = "dp";
+	@Deprecated
 	private boolean enableEngine = true;
 
 	@Deprecated
@@ -74,6 +79,15 @@ public final class ServiceRegistry {
 	@Deprecated
 	public void setEnableEngine(boolean enableEngine) {
 		this.enableEngine = enableEngine;
+		this.setEnableTest(enableEngine);
+	}
+
+	public boolean isEnableTest() {
+		return enableTest;
+	}
+
+	public void setEnableTest(boolean enableTest) {
+		this.enableTest = enableTest;
 	}
 
 	public boolean isAutoSelectPort() {
@@ -139,6 +153,7 @@ public final class ServiceRegistry {
 		serverConfig.setCorePoolSize(corePoolSize);
 		serverConfig.setMaxPoolSize(maxPoolSize);
 		serverConfig.setWorkQueueSize(workQueueSize);
+		serverConfig.setEnableTest(enableTest);
 		List<ProviderConfig<?>> providerConfigList = new ArrayList<ProviderConfig<?>>();
 		for (String url : services.keySet()) {
 			ProviderConfig providerConfig = new ProviderConfig(services.get(url));

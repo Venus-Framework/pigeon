@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.config;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,12 +26,18 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	private static Logger logger = Logger.getLogger(AbstractConfigManager.class);
 
 	public static final String KEY_GROUP = "swimlane";
+
 	public static final String KEY_AUTO_REGISTER = "auto.register";
+
 	public static final String KEY_LOCAL_IP = "host.ip";
+
 	public static final String KEY_APP_NAME = "app.name";
+
 	public static final String KEY_ENV = "environment";
 
 	public static final String DEFAULT_GROUP = "";
+
+	private static final String PROPERTIES_PATH = "config/applicationContext.properties";
 
 	protected Map<String, Object> localCache = new HashMap<String, Object>();
 
@@ -44,6 +52,26 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	public abstract String doGetAppName() throws Exception;
 
 	public abstract String doGetGroup() throws Exception;
+
+	public AbstractConfigManager() {
+		Properties properties = new Properties();
+		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPERTIES_PATH);
+		if (input != null) {
+			try {
+				properties.load(input);
+				input.close();
+			} catch (IOException e) {
+				logger.error("", e);
+			}
+		}
+		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(getEnv())) {
+			try {
+				init(properties);
+			} catch (Exception e) {
+				logger.error("", e);
+			}
+		}
+	}
 
 	public boolean getBooleanValue(String key, boolean defaultValue) {
 		Boolean value = getBooleanValue(key);

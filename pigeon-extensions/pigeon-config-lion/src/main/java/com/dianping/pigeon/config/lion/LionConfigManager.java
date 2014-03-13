@@ -44,23 +44,23 @@ public class LionConfigManager extends AbstractConfigManager {
 		return EnvZooKeeperConfig.getZKAddress();
 	}
 
-	public String doGetEnv() {
+	public String doGetEnv() throws Exception {
 		return EnvZooKeeperConfig.getEnv();
 	}
 
 	@Override
-	public String doGetAppName() {
+	public String doGetAppName() throws Exception {
 		return "";
 	}
 
 	@Override
-	public String doGetLocalIp() {
+	public String doGetLocalIp() throws Exception {
 		return null;
 	}
 
 	@Override
-	public String doGetGroup() {
-		return "";
+	public String doGetGroup() throws Exception {
+		return ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress()).getAppenv(KEY_GROUP);
 	}
 
 	@Override

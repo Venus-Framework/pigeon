@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -89,7 +90,7 @@ public class RegistryManager {
 			}
 			return props.getProperty(serviceKey);
 		}
-		if ("dev".equalsIgnoreCase(configManager.getEnv())) {
+		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv())) {
 			String addr = configManager.getStringValue(serviceKey);
 			if(addr == null) {
 				addr = configManager.getStringValue(Utils.escapeServiceName(serviceKey));
