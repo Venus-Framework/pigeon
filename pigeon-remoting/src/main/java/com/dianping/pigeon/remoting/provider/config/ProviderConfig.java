@@ -45,7 +45,13 @@ public class ProviderConfig<T> {
 	}
 
 	public ProviderConfig(T service) {
-		Class interfaceClass = service.getClass().getInterfaces()[0];
+		Class<?>[] interfaces = service.getClass().getInterfaces();
+		Class interfaceClass = null;
+		if (interfaces != null && interfaces.length > 0) {
+			interfaceClass = service.getClass().getInterfaces()[0];
+		} else {
+			interfaceClass = service.getClass();
+		}
 		this.setService(service);
 		this.setServiceInterface(interfaceClass);
 	}
@@ -63,9 +69,9 @@ public class ProviderConfig<T> {
 	}
 
 	public void setServiceInterface(Class<T> serviceInterface) {
-		if (serviceInterface != null && !serviceInterface.isInterface()) {
+		/*if (serviceInterface != null && !serviceInterface.isInterface()) {
 			throw new IllegalArgumentException("'serviceInterface' must be an interface");
-		}
+		}*/
 		this.serviceInterface = serviceInterface;
 	}
 

@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.demo.TestService;
 import com.dianping.pigeon.demo.invoker.EchoServiceCallback;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.util.ContextUtils;
@@ -21,6 +22,8 @@ public class Client {
 		ServiceCallback callback = new EchoServiceCallback();
 		EchoService serviceWithCallback = ServiceFactory.getService(url, EchoService.class, callback);
 
+		TestService testService = ServiceFactory.getService("http://service.dianping.com/testservice", TestService.class);
+		
 		AtomicInteger atomicInteger = new AtomicInteger();
 		for (;;) {
 			try {
@@ -29,6 +32,8 @@ public class Client {
 				ContextUtils.putContextValue("key1", input);
 				
 				System.out.println("service result:" + service.echo(input));
+				
+				System.out.println("test service result:" + testService.echo(input));
 
 				String input2 = "echoServiceWithCallback_" + atomicInteger.incrementAndGet();
 				System.out.println("input:" + input2);

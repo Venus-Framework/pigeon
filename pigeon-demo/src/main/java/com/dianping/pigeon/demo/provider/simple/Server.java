@@ -7,6 +7,7 @@ package com.dianping.pigeon.demo.provider.simple;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.UserService;
 import com.dianping.pigeon.demo.provider.EchoServiceDefaultImpl;
+import com.dianping.pigeon.demo.provider.TestServiceImpl;
 import com.dianping.pigeon.demo.provider.UserServiceDefaultImpl;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
@@ -20,6 +21,9 @@ public class Server {
 		providerConfig.setUrl(url);
 		ServiceFactory.addService(providerConfig);
 		ServiceFactory.addService(UserService.class, new UserServiceDefaultImpl());
+		
+		ServiceFactory.addService("http://service.dianping.com/testservice", TestServiceImpl.class, new TestServiceImpl());
+		
 		ServiceFactory.unpublishService(url);
 		ServiceFactory.publishService(url);
 

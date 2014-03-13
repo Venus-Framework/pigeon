@@ -126,10 +126,11 @@ public class AnnotationBean implements DisposableBean,
 				if (beanClass.getInterfaces().length > 0) {
 					serviceInterface = beanClass.getInterfaces()[0];
 				} else {
-					throw new IllegalStateException(
-							"Failed to export remote service class "
-									+ beanClass.getName()
-									+ ", cause: The @Service undefined interfaceClass or interfaceName, and the service class unimplemented any interfaces.");
+					serviceInterface = beanClass.getClass();
+//					throw new IllegalStateException(
+//							"Failed to export remote service class "
+//									+ beanClass.getName()
+//									+ ", cause: The @Service undefined interfaceClass or interfaceName, and the service class unimplemented any interfaces.");
 				}
 			}
 			ProviderConfig<Object> providerConfig = new ProviderConfig<Object>(
