@@ -45,14 +45,14 @@ public class ZooKeeperWrapper {
 		this.watcher = watcher;
 		WatcherWrapper watcherWrapper = new WatcherWrapper(watcher);
 		this.zk = new ZooKeeper(addresses, timeout, watcherWrapper);
-		watcherWrapper.waitUntilConnected(2000);
+		watcherWrapper.waitUntilConnected(30000);
 	}
 
 	private synchronized void init(ZooKeeper zk) throws IOException, KeeperException, InterruptedException {
 		if (zk == this.zk) {
 		    WatcherWrapper watcherWrapper = new WatcherWrapper(watcher);
 		    this.zk = new ZooKeeper(addresses, timeout, watcherWrapper);
-		    watcherWrapper.waitUntilConnected(2000);
+		    watcherWrapper.waitUntilConnected(30000);
 
 			for (Entry<String, Watcher> entry : watcherMap.entrySet()) {
 				this.zk.getData(entry.getKey(), entry.getValue(), null);
@@ -120,10 +120,10 @@ public class ZooKeeperWrapper {
 
 	public boolean updateData(String path, String data) throws IOException, KeeperException, InterruptedException {
 		byte[] bytes = data.getBytes("UTF-8");
-		if (zk.exists(path, false) == null) {
-			zk.create(path, bytes, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+		if (exists(path, false) == null) {
+			create(path, bytes, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 		} else {
-			zk.setData(path, bytes, -1);
+			setData(path, bytes, -1);
 		}
 		return false;
 	}

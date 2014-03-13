@@ -36,7 +36,7 @@ public class ZookeeperRegistry implements Registry {
 	private ServiceChangeListener serviceChangeListener = new DefaultServiceChangeListener();
 
 	private boolean isInit = false;
-	private int timeout = 6000;
+	private int timeout = 20000;
 
 	private Properties properties;
 
