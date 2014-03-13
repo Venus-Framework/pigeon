@@ -15,7 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.dianping.dpsf.spring.ProxyBeanFactory;
+import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 
@@ -28,6 +30,8 @@ public class InvokeJsonServlet extends ServiceServlet {
 	public InvokeJsonServlet(int port) {
 		super(port);
 	}
+
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	JacksonSerializer jacksonSerializer = new JacksonSerializer();
 
@@ -49,47 +53,56 @@ public class InvokeJsonServlet extends ServiceServlet {
 
 	protected void generateView(HttpServletRequest request, HttpServletResponse response) throws IOException,
 			ServletException {
-		boolean direct = request.getParameter("direct") == null ? true : true;
-		String timeoutKey = request.getParameter("timeout");
-		int timeout = timeoutKey == null ? 10 * 1000 : Integer.parseInt(timeoutKey);
-		String serviceName = request.getParameter("url");
-		String methodName = request.getParameter("method");
-		String[] types = request.getParameterValues("parameterTypes");
-		if (types == null) { // for jquery ajax
-			types = request.getParameterValues("parameterTypes[]");
+		boolean isValidate = true;
+		if ("dev".equalsIgnoreCase(configManager.getEnv())) {
+			isValidate = false;
 		}
-		if (types != null && "".equals(types[0])) {
-			types = null;
-		}
-		String[] values = request.getParameterValues("parameters");
-		if (values == null) { // for jquery ajax
-			values = request.getParameterValues("parameters[]");
-		}
-		if (values != null && "".equals(values[0])) {
-			values = null;
-		}
-		Object result = null;
-		if (direct) {
-			try {
-				result = directInvoke(serviceName, methodName, types, values);
-			} catch (Exception e) {
-				result = e.toString();
+		String token = request.getParameter("token");
+		if (!isValidate || isValidate && token != null && token.equals(ServiceServlet.getToken())) {
+			boolean direct = request.getParameter("direct") == null ? true : true;
+			String timeoutKey = request.getParameter("timeout");
+			int timeout = timeoutKey == null ? 10 * 1000 : Integer.parseInt(timeoutKey);
+			String serviceName = request.getParameter("url");
+			String methodName = request.getParameter("method");
+			String[] types = request.getParameterValues("parameterTypes");
+			if (types == null) { // for jquery ajax
+				types = request.getParameterValues("parameterTypes[]");
 			}
+			if (types != null && "".equals(types[0])) {
+				types = null;
+			}
+			String[] values = request.getParameterValues("parameters");
+			if (values == null) { // for jquery ajax
+				values = request.getParameterValues("parameters[]");
+			}
+			if (values != null && "".equals(values[0])) {
+				values = null;
+			}
+			Object result = null;
+			if (direct) {
+				try {
+					result = directInvoke(serviceName, methodName, types, values);
+				} catch (Exception e) {
+					result = e.toString();
+				}
+			} else {
+				try {
+					result = proxyInvoke(serviceName, methodName, types, values, timeout);
+				} catch (InvocationTargetException e) {
+					result = e.getTargetException().toString() + ":"
+							+ Arrays.toString(e.getTargetException().getStackTrace());
+				} catch (Exception e) {
+					result = e.toString();
+				}
+			}
+			if (result == null) {
+				return;
+			}
+			String json = jacksonSerializer.serializeObject(result);
+			response.getWriter().write(json);
 		} else {
-			try {
-				result = proxyInvoke(serviceName, methodName, types, values, timeout);
-			} catch (InvocationTargetException e) {
-				result = e.getTargetException().toString() + ":"
-						+ Arrays.toString(e.getTargetException().getStackTrace());
-			} catch (Exception e) {
-				result = e.toString();
-			}
+			response.getWriter().write("invalid verification code!");
 		}
-		if (result == null) {
-			return;
-		}
-		String json = jacksonSerializer.serializeObject(result);
-		response.getWriter().write(json);
 	}
 
 	private Object proxyInvoke(String serviceName, String methodName, String[] types, String[] values, int timeout)

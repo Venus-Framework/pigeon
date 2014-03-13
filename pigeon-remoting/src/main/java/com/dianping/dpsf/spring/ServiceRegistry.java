@@ -46,26 +46,32 @@ public final class ServiceRegistry {
 	private String serviceType = "dp";
 	private boolean enableEngine = true;
 
+	@Deprecated
 	public int getEnginePort() {
 		return enginePort;
 	}
 
+	@Deprecated
 	public void setEnginePort(int enginePort) {
 		this.enginePort = enginePort;
 	}
 
+	@Deprecated
 	public String getServiceType() {
 		return serviceType;
 	}
 
+	@Deprecated
 	public void setServiceType(String serviceType) {
 		this.serviceType = serviceType;
 	}
 
+	@Deprecated
 	public boolean isEnableEngine() {
 		return enableEngine;
 	}
 
+	@Deprecated
 	public void setEnableEngine(boolean enableEngine) {
 		this.enableEngine = enableEngine;
 	}

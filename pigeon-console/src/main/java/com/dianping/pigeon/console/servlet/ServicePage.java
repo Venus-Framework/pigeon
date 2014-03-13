@@ -12,6 +12,16 @@ public class ServicePage {
 
 	private String status = "";
 
+	private String env = "";
+
+	public String getEnv() {
+		return env;
+	}
+
+	public void setEnv(String env) {
+		this.env = env;
+	}
+
 	public String getStatus() {
 		return status;
 	}

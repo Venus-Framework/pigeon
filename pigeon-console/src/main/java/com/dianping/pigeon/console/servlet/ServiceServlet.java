@@ -17,10 +17,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
+import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.console.domain.Service;
 import com.dianping.pigeon.console.domain.ServiceMethod;
+import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.util.RandomUtils;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
@@ -41,6 +47,12 @@ public class ServiceServlet extends HttpServlet {
 
 	private ServicePage model;
 
+	protected final Logger logger = LoggerLoader.getLogger(this.getClass());
+
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	private static String token;
+
 	{
 		Method[] objectMethodArray = Object.class.getMethods();
 		for (Method method : objectMethodArray) {
@@ -59,6 +71,14 @@ public class ServiceServlet extends HttpServlet {
 
 	public ServiceServlet(int port) {
 		this.port = port;
+	}
+
+	public static String getToken() {
+		return token;
+	}
+
+	public static void setToken(String token) {
+		ServiceServlet.token = token;
 	}
 
 	public Map<String, ProviderConfig<?>> getServices() {
@@ -105,10 +125,11 @@ public class ServiceServlet extends HttpServlet {
 			}
 			page.addService(s);
 		}
-		if(!services.isEmpty()) {
+		if (!services.isEmpty()) {
 			page.setStatus("ok");
 		}
 		this.model = page;
+		this.model.setEnv(configManager.getEnv());
 	}
 
 	public String getView() {
@@ -145,6 +166,11 @@ public class ServiceServlet extends HttpServlet {
 			temp.process(this.model, response.getWriter());
 		} catch (TemplateException e) {
 			throw new ServletException(e);
+		}
+		if (!"dev".equalsIgnoreCase(configManager.getEnv())) {
+			String token = RandomUtils.newRandomString(6);
+			setToken(token);
+			logger.info("current verification code:" + token);
 		}
 	}
 
