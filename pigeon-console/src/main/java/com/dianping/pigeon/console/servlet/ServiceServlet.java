@@ -93,7 +93,8 @@ public class ServiceServlet extends HttpServlet {
 
 	private void initServicePage() {
 		ServicePage page = new ServicePage();
-		page.setPort(this.port);
+		page.setPort(this.serverConfig.getPort());
+		page.setHttpPort(this.port);
 		Map<String, ProviderConfig<?>> services = getServices();
 		for (Entry<String, ProviderConfig<?>> entry : services.entrySet()) {
 			String serviceName = entry.getKey();

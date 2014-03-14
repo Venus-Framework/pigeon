@@ -1,4 +1,4 @@
-[
+{"port": "${port?c}/${httpPort?c}", "services": [
 <#list services as x>
 	{
 		"name": "${x.name}", 
@@ -19,3 +19,4 @@
 	}<#if x_has_next>,</#if>
 </#list>
 ]
+}

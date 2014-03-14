@@ -12,6 +12,7 @@ import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
@@ -64,11 +65,16 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		url.append("http://").append(managerAddress).append("/service/").append(action);
 		url.append("?env=").append(configManager.getEnv()).append("&id=3&service=");
 		url.append(providerConfig.getUrl());
-		url.append("&group=").append(providerConfig.getServerConfig().getGroup());
+		String group = providerConfig.getServerConfig().getGroup();
+		if (StringUtils.isBlank(group)) {
+			group = Constants.DEFAULT_GROUP;
+		}
+		url.append("&group=").append(group);
 		url.append("&ip=").append(configManager.getLocalIp());
 		url.append("&port=").append(providerConfig.getServerConfig().getPort());
 		GetMethod getMethod = null;
 		String response = null;
+		logger.info("service change notify url:" + url.toString());
 		try {
 			getMethod = new GetMethod(url.toString());
 			httpClient.executeMethod(getMethod);

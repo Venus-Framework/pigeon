@@ -12,11 +12,13 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.data.Stat;
+import org.springframework.util.CollectionUtils;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
@@ -310,7 +312,11 @@ public class ZookeeperRegistry implements Registry {
 			// 1. Register weight
 			Stat statWeight = zkClient.exists(weightPath, false);
 			if (statWeight != null) {
-				zkClient.delete(weightPath, statWeight.getVersion());
+				try {
+					zkClient.delete(weightPath, statWeight.getVersion());
+				} catch (NoNodeException e) {
+					logger.warn("Already deleted path:" + weightPath + ":" + e.getMessage());
+				}
 			}
 			// 2. Register address
 			Stat statService = zkClient.exists(servicePath, false);
@@ -329,7 +335,17 @@ public class ZookeeperRegistry implements Registry {
 						Collections.sort(addressList);
 						zkClient.updateData(servicePath, StringUtils.join(addressList, ","));
 					} else {
-						zkClient.delete(servicePath, statService.getVersion());
+						List<String> children = zkClient.getChildren(servicePath, false);
+						if (CollectionUtils.isEmpty(children)) {
+							try {
+								zkClient.delete(servicePath, statService.getVersion());
+							} catch (NoNodeException e) {
+								logger.warn("Already deleted path:" + servicePath + ":" + e.getMessage());
+							}
+						} else {
+							logger.warn("Existing children [" + children + "] under path:" + servicePath);
+							zkClient.updateData(servicePath, "");
+						}
 					}
 				}
 			}

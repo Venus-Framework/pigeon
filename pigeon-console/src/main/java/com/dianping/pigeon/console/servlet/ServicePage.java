@@ -8,6 +8,8 @@ import com.dianping.pigeon.console.domain.Service;
 public class ServicePage {
 	private int port;
 
+	private int httpPort;
+
 	private List<Service> services;
 
 	private String status = "";
@@ -43,6 +45,14 @@ public class ServicePage {
 			services = new ArrayList<Service>();
 		}
 		services.add(s);
+	}
+
+	public int getHttpPort() {
+		return httpPort;
+	}
+
+	public void setHttpPort(int httpPort) {
+		this.httpPort = httpPort;
 	}
 
 	public int getPort() {

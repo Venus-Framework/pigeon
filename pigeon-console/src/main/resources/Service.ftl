@@ -90,7 +90,7 @@
 	<div class="row">
 	  <div class="span6"  style="overflow:hidden">
 		<div>
-		<p>Pigeon services registered on port ${port?c}:</p>
+		<p>Pigeon services registered at port ${port?c}/${httpPort?c}:</p>
 		</div>
 		<div>
 			<div class="zTreeDemoBackground left">
