@@ -15,7 +15,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
-import com.dianping.pigeon.remoting.invoker.process.InvocationHandlerFactory;
+import com.dianping.pigeon.remoting.invoker.process.InvokerProcessHandlerFactory;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationProxy;
 
 /**
@@ -29,7 +29,7 @@ public abstract class DefaultAbstractSerializer implements Serializer {
 	public Object proxyRequest(InvokerConfig<?> invokerConfig) throws SerializationException {
 		return Proxy.newProxyInstance(ProxyBeanFactory.class.getClassLoader(), new Class[] { invokerConfig
 				.getServiceInterface() },
-				new ServiceInvocationProxy(invokerConfig, InvocationHandlerFactory.createInvokeHandler(invokerConfig)));
+				new ServiceInvocationProxy(invokerConfig, InvokerProcessHandlerFactory.createInvokeHandler(invokerConfig)));
 	}
 
 	@Override

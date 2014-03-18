@@ -30,7 +30,6 @@ import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 public class ExceptionProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
 	private static final Logger logger = LoggerLoader.getLogger(ExceptionProcessFilter.class);
-	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)

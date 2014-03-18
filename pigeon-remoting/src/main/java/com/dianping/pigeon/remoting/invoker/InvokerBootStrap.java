@@ -11,7 +11,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
-import com.dianping.pigeon.remoting.invoker.process.InvocationHandlerFactory;
+import com.dianping.pigeon.remoting.invoker.process.InvokerProcessHandlerFactory;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 import com.dianping.pigeon.util.VersionUtils;
 
@@ -30,7 +30,7 @@ public final class InvokerBootStrap {
 				if (!isStartup) {
 					RegistryConfigLoader.init();
 					ServiceInvocationRepository.getInstance().init();
-					InvocationHandlerFactory.init();
+					InvokerProcessHandlerFactory.init();
 					SerializerFactory.init();
 					Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 					if(monitor != null) {
@@ -49,7 +49,7 @@ public final class InvokerBootStrap {
 		if (isStartup) {
 			synchronized (InvokerBootStrap.class) {
 				if (isStartup) {
-					InvocationHandlerFactory.clearClientInternalFilters();
+					InvokerProcessHandlerFactory.clearClientInternalFilters();
 					ClientManager.getInstance().clear();
 					isStartup = false;
 					if (logger.isInfoEnabled()) {

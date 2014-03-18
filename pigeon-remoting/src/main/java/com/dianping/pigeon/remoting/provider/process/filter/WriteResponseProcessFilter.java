@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.remoting.provider.process.filter;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -18,6 +20,8 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.exception.ProcessTimeoutException;
+import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
+import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
 import com.dianping.pigeon.util.ContextUtils;
 
 /**
@@ -45,8 +49,8 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 				long currentTime = System.currentTimeMillis();
 				channel.write(response);
-				if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0 && 
-						request.getCreateMillisTime() + request.getTimeout() < currentTime) {
+				if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
+						&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
 					StringBuffer msg = new StringBuffer();
 					msg.append("request timeout,\r\nrequest:").append(request).append("\r\nresponse:").append(response);
 					ProcessTimeoutException te = new ProcessTimeoutException(msg.toString());
@@ -55,6 +59,10 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 						monitorLogger.logError(te);
 					}
 				}
+			}
+			List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
+			for (ProviderProcessInterceptor interceptor : interceptors) {
+				interceptor.postInvoke(request, response);
 			}
 			return response;
 		} finally {

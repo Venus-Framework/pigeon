@@ -5,6 +5,8 @@
 package com.dianping.pigeon.demo.provider.spring;
 
 import com.dianping.pigeon.container.SpringContainer;
+import com.dianping.pigeon.demo.provider.MyProviderProcessInterceptor;
+import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
 
 public class Server {
 
@@ -15,6 +17,7 @@ public class Server {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
+		ProviderProcessInterceptorFactory.registerInterceptor(new MyProviderProcessInterceptor());
 		SERVER_CONTAINER.start();
 		System.in.read();
 	}

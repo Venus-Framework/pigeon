@@ -11,6 +11,18 @@
 
 	<pigeon:annotation />
 
+	<bean class="com.dianping.dpsf.spring.ServiceRegistry"
+		init-method="init">
+		<property name="services">
+			<map>
+				<entry key="http://service.dianping.com/testservice"
+					value-ref="testServiceImpl" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="testServiceImpl" class="com.dianping.pigeon.demo.provider.TestServiceImpl" />
+
 	<!-- <pigeon:server id="pigeonServer" port="4040" httpPort="4080" /> -->
 	<bean id="DefaultUserServiceImpl"
 		class="com.dianping.pigeon.demo.provider.UserServiceDefaultImpl" />

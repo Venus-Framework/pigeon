@@ -59,26 +59,4 @@ public abstract class AbstractInvocationContext implements InvocationContext {
 		return contextValues;
 	}
 
-	@Override
-	public void putTransientContextValue(String key, Object value) {
-		if (transientContextValues == null) {
-			transientContextValues = new HashMap<String, Object>();
-		}
-		transientContextValues.put(key, value);
-	}
-
-	@Override
-	public Object getTransientContextValue(String key) {
-		if (transientContextValues == null) {
-			return null;
-		}
-		return transientContextValues.get(key);
-	}
-
-	public void removeTransientContextValue(String key) {
-		if (transientContextValues != null) {
-			transientContextValues.remove(key);
-		}
-	}
-
 }

@@ -12,7 +12,7 @@ import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.DefaultInvokerContext;
-import com.dianping.pigeon.remoting.invoker.process.InvocationHandlerFactory;
+import com.dianping.pigeon.remoting.invoker.process.InvokerProcessHandlerFactory;
 import com.google.protobuf.BlockingRpcChannel;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -45,7 +45,7 @@ public class ProtobufBlockingRpcChannel implements BlockingRpcChannel {
 	@Override
 	public Message callBlockingMethod(MethodDescriptor method, RpcController controller, Message request,
 			Message responsePrototype) throws ServiceException {
-		ServiceInvocationHandler handler = InvocationHandlerFactory.createInvokeHandler(invokerConfig);
+		ServiceInvocationHandler handler = InvokerProcessHandlerFactory.createInvokeHandler(invokerConfig);
 		InvocationContext invocationContext = new DefaultInvokerContext(invokerConfig, method.getName(), null, null);
 		ProtobufRequest protobufRequest = new ProtobufRequest(method, request, invokerConfig);
 		invocationContext.setRequest(protobufRequest);

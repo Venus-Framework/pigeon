@@ -17,7 +17,7 @@ import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.AbstractRequestProcessor;
-import com.dianping.pigeon.remoting.provider.process.RequestProcessHandlerFactory;
+import com.dianping.pigeon.remoting.provider.process.ProviderProcessHandlerFactory;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
 
@@ -43,7 +43,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 			@Override
 			public InvocationResponse call() throws Exception {
 				try {
-					ServiceInvocationHandler invocationHandler = RequestProcessHandlerFactory
+					ServiceInvocationHandler invocationHandler = ProviderProcessHandlerFactory
 							.selectInvocationHandler(providerContext.getRequest().getMessageType());
 					if (invocationHandler != null) {
 						return invocationHandler.handle(providerContext);

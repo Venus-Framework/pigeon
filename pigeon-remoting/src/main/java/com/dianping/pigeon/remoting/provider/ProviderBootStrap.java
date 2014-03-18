@@ -17,7 +17,7 @@ import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.listener.ShutdownHookListener;
-import com.dianping.pigeon.remoting.provider.process.RequestProcessHandlerFactory;
+import com.dianping.pigeon.remoting.provider.process.ProviderProcessHandlerFactory;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 import com.dianping.pigeon.util.VersionUtils;
 
@@ -48,7 +48,7 @@ public final class ProviderBootStrap {
 				if (!isStarted) {
 					serversMap = new HashMap<String, Server>();
 					RegistryConfigLoader.init();
-					RequestProcessHandlerFactory.init();
+					ProviderProcessHandlerFactory.init();
 					SerializerFactory.init();
 					Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 					if (monitor != null) {
@@ -83,7 +83,7 @@ public final class ProviderBootStrap {
 	}
 
 	public static void shutdown() {
-		RequestProcessHandlerFactory.clearServerInternalFilters();
+		ProviderProcessHandlerFactory.clearServerInternalFilters();
 		for (Server server : serversMap.values()) {
 			if (server != null) {
 				logger.info("start to stop " + server);

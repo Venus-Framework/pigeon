@@ -27,7 +27,7 @@ import com.dianping.pigeon.remoting.invoker.process.filter.RemoteCallInvokeFilte
 import com.dianping.pigeon.remoting.invoker.process.filter.RemoteCallMonitorInvokeFilter;
 import com.dianping.pigeon.remoting.invoker.process.filter.ServiceRouteInvokeFilter;
 
-public final class InvocationHandlerFactory extends DefaultExtension {
+public final class InvokerProcessHandlerFactory extends DefaultExtension {
 
 	private static Map<InvokePhase, List<InvocationInvokeFilter>> internalInvokeFilters = new LinkedHashMap<InvokePhase, List<InvocationInvokeFilter>>();
 

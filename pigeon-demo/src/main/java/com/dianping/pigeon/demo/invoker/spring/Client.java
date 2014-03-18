@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.demo.invoker.MyInvokerProcessInterceptor;
+import com.dianping.pigeon.remoting.invoker.process.InvokerProcessInterceptorFactory;
 
 public class Client {
 
@@ -18,6 +20,8 @@ public class Client {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
+		InvokerProcessInterceptorFactory.registerInterceptor(new MyInvokerProcessInterceptor());
+
 		CLIENT_CONTAINER.start();
 		AtomicInteger atomicInteger = new AtomicInteger();
 		EchoService defaultEchoService = (EchoService) CLIENT_CONTAINER.getBean("defaultEchoService");

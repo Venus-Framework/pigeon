@@ -306,18 +306,18 @@ public class ZookeeperRegistry implements Registry {
 
 	private void unregisterServiceFromZookeeper(String serviceName, String group, String serviceAddress)
 			throws RegistryException {
-		String weightPath = Utils.getWeightPath(serviceAddress);
+		//String weightPath = Utils.getWeightPath(serviceAddress);
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
 			// 1. Register weight
-			Stat statWeight = zkClient.exists(weightPath, false);
-			if (statWeight != null) {
-				try {
-					zkClient.delete(weightPath, statWeight.getVersion());
-				} catch (NoNodeException e) {
-					logger.warn("Already deleted path:" + weightPath + ":" + e.getMessage());
-				}
-			}
+//			Stat statWeight = zkClient.exists(weightPath, false);
+//			if (statWeight != null) {
+//				try {
+//					zkClient.delete(weightPath, statWeight.getVersion());
+//				} catch (NoNodeException e) {
+//					logger.warn("Already deleted path:" + weightPath + ":" + e.getMessage());
+//				}
+//			}
 			// 2. Register address
 			Stat statService = zkClient.exists(servicePath, false);
 			if (statService != null) {

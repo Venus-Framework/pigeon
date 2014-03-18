@@ -15,8 +15,6 @@ public interface InvocationContext {
 
 	InvocationResponse getResponse();
 
-	void setResponse(InvocationResponse response);
-
 	/**
 	 * 在整个调用流程中公用，会随着调用被传播，如被修改，会随着调用流被同步
 	 * 
@@ -40,19 +38,4 @@ public interface InvocationContext {
 	 */
 	Map<String, Serializable> getContextValues();
 
-	/**
-	 * 仅在当前进程生效，不垮进程共享
-	 * 
-	 * @param key
-	 * @param value
-	 */
-	void putTransientContextValue(String key, Object value);
-
-	/**
-	 * 仅在当前进程生效，不垮进程共享
-	 * 
-	 * @param key
-	 * @return
-	 */
-	Object getTransientContextValue(String key);
 }

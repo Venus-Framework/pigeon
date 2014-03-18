@@ -9,13 +9,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.TestService;
+import com.dianping.pigeon.demo.invoker.MyInvokerProcessInterceptor;
 import com.dianping.pigeon.demo.invoker.EchoServiceCallback;
 import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.invoker.process.InvokerProcessInterceptorFactory;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class Client {
 
 	public static void main(String[] args) throws Exception {
+		InvokerProcessInterceptorFactory.registerInterceptor(new MyInvokerProcessInterceptor());
+		
 		String url = "http://service.dianping.com/com.dianping.pigeon.demo.EchoService";
 		EchoService service = ServiceFactory.getService(url, EchoService.class);
 

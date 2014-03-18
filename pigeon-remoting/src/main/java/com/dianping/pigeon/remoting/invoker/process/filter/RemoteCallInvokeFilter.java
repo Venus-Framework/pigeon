@@ -38,7 +38,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 		InvocationRequest request = invokerContext.getRequest();
 		InvokerConfig<?> invokerConfig = invokerContext.getInvokerConfig();
 		String callMethod = invokerConfig.getCallType();
-		beforeInvoke(request, client.getAddress());
+		beforeInvoke(request, client);
 		InvocationResponse response = null;
 		if (Constants.CALL_SYNC.equalsIgnoreCase(callMethod)) {
 			CallbackFuture future = new CallbackFuture();
@@ -53,7 +53,6 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 			CallbackFuture future = new ServiceFutureImpl(request.getTimeout());
 			sendRequest(client, invokerContext, future);
 			ServiceFutureFactory.setFuture((ServiceFuture) future);
-			invokerContext.putTransientContextValue(Constants.CONTEXT_FUTURE, future);
 			response = NO_RETURN_RESPONSE;
 		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callMethod)) {
 			sendRequest(client, invokerContext, null);
@@ -61,7 +60,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 		} else {
 			throw new RuntimeException("Call method[" + callMethod + "] is not supported!");
 		}
-		afterInvoke(request, client);
+		afterInvoke(request, response, client);
 		return response;
 	}
 
