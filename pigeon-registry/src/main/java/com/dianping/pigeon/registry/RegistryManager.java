@@ -95,9 +95,12 @@ public class RegistryManager {
 			return props.getProperty(serviceKey);
 		}
 		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv())) {
-			String addr = configManager.getStringValue(serviceKey);
+			String addr = configManager.getStringValue(Utils.escapeServiceName(serviceKey));
 			if(addr == null) {
-				addr = configManager.getStringValue(Utils.escapeServiceName(serviceKey));
+				try {
+					addr = configManager.getStringValue(serviceKey);
+				} catch(Exception e) {
+				}
 			}
 			if (!StringUtils.isBlank(addr)) {
 				if (logger.isInfoEnabled()) {
