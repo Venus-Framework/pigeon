@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -119,6 +120,14 @@ public class CallbackFuture implements Callback, CallFuture {
             } else {
                 // 传递业务上下文
                 ContextUtils.addFailedContext(this.response.getContext());
+            }
+            TrackerContext currentContext = (TrackerContext)context;
+            TrackerContext responseContext = (TrackerContext)response.getContext();
+            if(responseContext != null && responseContext.getExtension() != null) {
+                if(currentContext.getExtension() == null) 
+                    currentContext.setExtension(responseContext.getExtension());
+                else
+                    currentContext.getExtension().putAll(responseContext.getExtension());
             }
         }    
 	}
