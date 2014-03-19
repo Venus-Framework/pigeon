@@ -22,6 +22,7 @@ import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.filter.BusinessProcessFilter;
 import com.dianping.pigeon.remoting.provider.process.filter.ContextTransferProcessFilter;
 import com.dianping.pigeon.remoting.provider.process.filter.ExceptionProcessFilter;
+import com.dianping.pigeon.remoting.provider.process.filter.HealthCheckProcessFilter;
 import com.dianping.pigeon.remoting.provider.process.filter.HeartbeatProcessFilter;
 import com.dianping.pigeon.remoting.provider.process.filter.MonitorProcessFilter;
 import com.dianping.pigeon.remoting.provider.process.filter.WriteResponseProcessFilter;
@@ -34,9 +35,13 @@ public final class ProviderProcessHandlerFactory {
 
 	private static List<ServiceInvocationFilter<ProviderContext>> heartBeatProcessFilters = new LinkedList<ServiceInvocationFilter<ProviderContext>>();
 
+	private static List<ServiceInvocationFilter<ProviderContext>> healthCheckProcessFilters = new LinkedList<ServiceInvocationFilter<ProviderContext>>();
+
 	private static ServiceInvocationHandler bizInvocationHandler = null;
 
 	private static ServiceInvocationHandler heartBeatInvocationHandler = null;
+
+	private static ServiceInvocationHandler healthCheckInvocationHandler = null;
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
@@ -45,6 +50,8 @@ public final class ProviderProcessHandlerFactory {
 	public static ServiceInvocationHandler selectInvocationHandler(int messageType) {
 		if (Constants.MESSAGE_TYPE_HEART == messageType) {
 			return heartBeatInvocationHandler;
+		} else if (Constants.MESSAGE_TYPE_HEALTHCHECK == messageType) {
+			return healthCheckInvocationHandler;
 		} else {
 			return bizInvocationHandler;
 		}
@@ -63,6 +70,10 @@ public final class ProviderProcessHandlerFactory {
 		registerHeartBeatProcessFilter(new WriteResponseProcessFilter());
 		registerHeartBeatProcessFilter(new HeartbeatProcessFilter());
 		heartBeatInvocationHandler = createInvocationHandler(heartBeatProcessFilters);
+
+		registerHealthCheckProcessFilter(new WriteResponseProcessFilter());
+		registerHealthCheckProcessFilter(new HealthCheckProcessFilter());
+		healthCheckInvocationHandler = createInvocationHandler(healthCheckProcessFilters);
 	}
 
 	@SuppressWarnings({ "rawtypes" })
@@ -97,6 +108,13 @@ public final class ProviderProcessHandlerFactory {
 			logger.info("register heartbeat filter:" + filter.getClass());
 		}
 		heartBeatProcessFilters.add(filter);
+	}
+
+	private static void registerHealthCheckProcessFilter(ServiceInvocationFilter<ProviderContext> filter) {
+		if (logger.isInfoEnabled()) {
+			logger.info("register healthcheck filter:" + filter.getClass());
+		}
+		healthCheckProcessFilters.add(filter);
 	}
 
 	public static void clearServerInternalFilters() {

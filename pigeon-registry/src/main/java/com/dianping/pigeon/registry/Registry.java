@@ -1,5 +1,6 @@
 package com.dianping.pigeon.registry;
 
+import java.util.List;
 import java.util.Properties;
 
 import com.dianping.pigeon.registry.exception.RegistryException;
@@ -28,4 +29,5 @@ public interface Registry {
 
 	RegistryMeta getRegistryMeta(String serviceAddress) throws RegistryException;
 	
+	List<String> getChildren(String key) throws RegistryException;
 }

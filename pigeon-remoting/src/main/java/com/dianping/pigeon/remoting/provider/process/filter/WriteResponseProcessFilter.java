@@ -60,9 +60,11 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 					}
 				}
 			}
-			List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
-			for (ProviderProcessInterceptor interceptor : interceptors) {
-				interceptor.postInvoke(request, response);
+			if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+				List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
+				for (ProviderProcessInterceptor interceptor : interceptors) {
+					interceptor.postInvoke(request, response);
+				}
 			}
 			return response;
 		} finally {

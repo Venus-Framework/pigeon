@@ -67,6 +67,10 @@ public class RegistryManager {
 		}
 	}
 
+	public Registry getRegistry() {
+		return registry;
+	}
+	
 	public String getProperty(String key) {
 		String v = props.getProperty(key);
 		return v;

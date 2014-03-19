@@ -8,7 +8,6 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
-import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 
 /**
  * 
@@ -22,9 +21,7 @@ public interface Client {
 
 	void connect();
 
-	InvocationResponse write(InvokerContext invokerContext, Callback callback);
-
-	InvocationResponse write(InvokerContext invokerContext);
+	InvocationResponse write(InvocationRequest request, Callback callback);
 
 	InvocationResponse write(InvocationRequest request);
 

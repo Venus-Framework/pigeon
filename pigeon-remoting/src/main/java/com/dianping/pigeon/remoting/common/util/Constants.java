@@ -20,6 +20,7 @@ public final class Constants {
 	public static final int MESSAGE_TYPE_SERVICE = 2;
 	public static final int MESSAGE_TYPE_EXCEPTION = 3;
 	public static final int MESSAGE_TYPE_SERVICE_EXCEPTION = 4;
+	public static final int MESSAGE_TYPE_HEALTHCHECK = 5;
 
 	public static final int CALLTYPE_REPLY = 1;
 	public static final int CALLTYPE_NOREPLY = 2;

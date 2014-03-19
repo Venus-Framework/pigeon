@@ -1,4 +1,4 @@
-{"port": "${port?c}/${httpPort?c}", "services": [
+{"port": "${port?c}/${httpPort?c}", "pigeonVersion": "${version}", "services": [
 <#list services as x>
 	{
 		"name": "${x.name}", 

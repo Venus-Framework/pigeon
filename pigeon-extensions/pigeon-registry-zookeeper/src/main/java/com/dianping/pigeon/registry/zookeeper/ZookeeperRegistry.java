@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.registry.zookeeper;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -306,18 +308,19 @@ public class ZookeeperRegistry implements Registry {
 
 	private void unregisterServiceFromZookeeper(String serviceName, String group, String serviceAddress)
 			throws RegistryException {
-		//String weightPath = Utils.getWeightPath(serviceAddress);
+		// String weightPath = Utils.getWeightPath(serviceAddress);
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
 			// 1. Register weight
-//			Stat statWeight = zkClient.exists(weightPath, false);
-//			if (statWeight != null) {
-//				try {
-//					zkClient.delete(weightPath, statWeight.getVersion());
-//				} catch (NoNodeException e) {
-//					logger.warn("Already deleted path:" + weightPath + ":" + e.getMessage());
-//				}
-//			}
+			// Stat statWeight = zkClient.exists(weightPath, false);
+			// if (statWeight != null) {
+			// try {
+			// zkClient.delete(weightPath, statWeight.getVersion());
+			// } catch (NoNodeException e) {
+			// logger.warn("Already deleted path:" + weightPath + ":" +
+			// e.getMessage());
+			// }
+			// }
 			// 2. Register address
 			Stat statService = zkClient.exists(servicePath, false);
 			if (statService != null) {
@@ -351,6 +354,21 @@ public class ZookeeperRegistry implements Registry {
 			}
 		} catch (Exception e) {
 			logger.error("error while unregistering service from registry:" + serviceName, e);
+			throw new RegistryException(e);
+		}
+	}
+
+	@Override
+	public List<String> getChildren(String key) throws RegistryException {
+		try {
+			return zkClient.getChildren(key, false);
+		} catch (KeeperException e) {
+			throw new RegistryException(e);
+		} catch (InterruptedException e) {
+			throw new RegistryException(e);
+		} catch (IOException e) {
+			throw new RegistryException(e);
+		} catch (Exception e) {
 			throw new RegistryException(e);
 		}
 	}

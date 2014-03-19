@@ -22,7 +22,6 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.AbstractClient;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
-import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;
 
 public class HttpInvokerClient extends AbstractClient {
@@ -80,17 +79,6 @@ public class HttpInvokerClient extends AbstractClient {
 		} catch (Exception e) {
 			isConnected = false;
 		}
-	}
-
-	@Override
-	public InvocationResponse write(InvokerContext invokerContext, Callback callback) {
-		InvocationRequest invocationRequest = invokerContext.getRequest();
-		return write(defaultServiceUrl, invocationRequest, callback);
-	}
-
-	@Override
-	public InvocationResponse write(InvokerContext invokerContext) {
-		return write(invokerContext, null);
 	}
 
 	public InvocationResponse write(InvocationRequest invocationRequest, Callback callback) {

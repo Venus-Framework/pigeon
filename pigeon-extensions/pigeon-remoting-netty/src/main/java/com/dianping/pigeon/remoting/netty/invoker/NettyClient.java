@@ -121,10 +121,6 @@ public class NettyClient extends AbstractClient {
 		}
 	}
 
-	public InvocationResponse write(InvokerContext invokerContext, Callback callback) {
-		return write(invokerContext.getRequest(), callback);
-	}
-
 	public InvocationResponse write(InvocationRequest request) {
 		return write(request, null);
 	}
@@ -144,10 +140,6 @@ public class NettyClient extends AbstractClient {
 		return null;
 	}
 
-	public InvocationResponse write(InvokerContext invokerContext) {
-		return write(invokerContext, null);
-	}
-
 	public void connectionException(Object attachment, Throwable e) {
 		this.connected = false;
 		connectionException(this, attachment, e);
@@ -163,13 +155,13 @@ public class NettyClient extends AbstractClient {
 		Object[] msg = (Object[]) attachment;
 		if (msg[0] instanceof InvokerContext) {
 			InvokerContext invokerContext = (InvokerContext) msg[0];
-			InvocationRequest request = (InvocationRequest) invokerContext.getRequest();
+			InvocationRequest request = invokerContext.getRequest();
 			if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE && msg[1] != null) {
 				try {
 					Callback callback = (Callback) msg[1];
 					if (client != null) {
 						error(request, client);
-						client.write(invokerContext, callback);
+						client.write(request, callback);
 					} else {
 						logger.error("no client for use to " + request.getServiceName());
 					}
@@ -314,6 +306,6 @@ public class NettyClient extends AbstractClient {
 
 	@Override
 	public void dispose() {
-		
+
 	}
 }

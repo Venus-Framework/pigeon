@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dianping.pigeon.console.domain.Service;
+import com.dianping.pigeon.util.VersionUtils;
 
 public class ServicePage {
 	private int port;

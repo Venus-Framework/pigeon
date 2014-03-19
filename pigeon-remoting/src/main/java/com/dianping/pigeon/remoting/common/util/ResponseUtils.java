@@ -6,11 +6,14 @@ package com.dianping.pigeon.remoting.common.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.util.VersionUtils;
 
 public final class ResponseUtils {
 
@@ -86,6 +89,16 @@ public final class ResponseUtils {
 		InvocationResponse response = new DefaultResponse(Constants.MESSAGE_TYPE_HEART, request.getSerialize());
 		response.setSequence(request.getSequence());
 		response.setReturn(Constants.VERSION_150);
+
+		return response;
+	}
+	
+	public static InvocationResponse createHealthCheckResponse(InvocationRequest request) {
+		InvocationResponse response = new DefaultResponse(Constants.MESSAGE_TYPE_HEALTHCHECK, request.getSerialize());
+		response.setSequence(request.getSequence());
+		Map<String, Object> info = new HashMap<String, Object>(); 
+		info.put("version", VersionUtils.VERSION);
+		response.setReturn(info);
 
 		return response;
 	}

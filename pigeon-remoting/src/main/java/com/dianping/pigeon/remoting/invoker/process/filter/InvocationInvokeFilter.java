@@ -11,6 +11,7 @@ import com.dianping.pigeon.event.RuntimeServiceEvent;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.RpcInvokeInfo;
@@ -24,9 +25,11 @@ public abstract class InvocationInvokeFilter implements ServiceInvocationFilter<
 	}
 
 	public void beforeInvoke(InvocationRequest request, Client client) {
-		List<InvokerProcessInterceptor> interceptors = InvokerProcessInterceptorFactory.getInterceptors();
-		for (InvokerProcessInterceptor interceptor : interceptors) {
-			interceptor.preInvoke(request);
+		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+			List<InvokerProcessInterceptor> interceptors = InvokerProcessInterceptorFactory.getInterceptors();
+			for (InvokerProcessInterceptor interceptor : interceptors) {
+				interceptor.preInvoke(request);
+			}
 		}
 		if (EventManager.IS_EVENT_ENABLED) {
 			RpcInvokeInfo rpcInvokeInfo = new RpcInvokeInfo();
@@ -40,9 +43,11 @@ public abstract class InvocationInvokeFilter implements ServiceInvocationFilter<
 	}
 
 	public void afterInvoke(InvocationRequest request, InvocationResponse response, Client client) {
-		List<InvokerProcessInterceptor> interceptors = InvokerProcessInterceptorFactory.getInterceptors();
-		for (InvokerProcessInterceptor interceptor : interceptors) {
-			interceptor.postInvoke(request, response);
+		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+			List<InvokerProcessInterceptor> interceptors = InvokerProcessInterceptorFactory.getInterceptors();
+			for (InvokerProcessInterceptor interceptor : interceptors) {
+				interceptor.postInvoke(request, response);
+			}
 		}
 		if (EventManager.IS_EVENT_ENABLED) {
 			RpcInvokeInfo rpcInvokeInfo = new RpcInvokeInfo();
