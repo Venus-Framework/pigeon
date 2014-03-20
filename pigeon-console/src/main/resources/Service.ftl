@@ -56,10 +56,10 @@
 					});
 					if('${env}'=='product'){
 						$("#invokeBtn").easyconfirm({locale: {
-							title: '警告',
-							text: '是否确认执行该调用?在线上请务必谨慎执行！！！',
-							button: ['取消','确认'],
-							closeText: '取消'
+							title: 'WARNING',
+							text: 'Are you sure you want to continue? Be careful in the production environment!!!',
+							button: ['cancel','ok'],
+							closeText: 'cancel'
 						}});
 					}
 				}

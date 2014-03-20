@@ -175,7 +175,10 @@ public class DefaultClusterListener implements ClusterListener {
 	@Override
 	public synchronized void doNotUse(String serviceName, String host, int port) {
 		List<Client> cs = serviceClients.get(serviceName);
-		List<Client> newCS = new ArrayList<Client>(cs);
+		List<Client> newCS = new ArrayList<Client>();
+		if (cs != null && !cs.isEmpty()) {
+			newCS.addAll(cs);
+		}
 		Client clientFound = null;
 		for (Client client : cs) {
 			if (client.getHost().equals(host) && client.getPort() == port) {

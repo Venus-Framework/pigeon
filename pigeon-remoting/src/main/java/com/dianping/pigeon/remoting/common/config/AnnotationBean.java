@@ -192,7 +192,7 @@ public class AnnotationBean implements DisposableBean,
 				}
 			}
 		}
-		Field[] fields = bean.getClass().getFields();
+		Field[] fields = bean.getClass().getDeclaredFields();
 		for (Field field : fields) {
 			try {
 				if (!field.isAccessible()) {
