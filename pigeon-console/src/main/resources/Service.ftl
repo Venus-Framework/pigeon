@@ -68,7 +68,7 @@
 
 		var zNodes =[
 			<#list services as x>
-			{ id:${x_index + 1}, pId:0, name:"${x.name}", title:"${x.type.canonicalName}", isParent:true}<#if (x.methods?size>0) >,<#elseif x_has_next>,</#if>
+			{ id:${x_index + 1}, pId:0, name:"${x.name}", title:"${x.type.canonicalName}(published:${x.published})", isParent:true}<#if (x.methods?size>0) >,<#elseif x_has_next>,</#if>
 				<#list x.methods as m>
 			{ id:${x_index + 1}${m_index + 1}, pId:${x_index + 1}, 
 				data_url:"${x.name}",

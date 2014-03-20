@@ -47,7 +47,7 @@ public class ServiceServlet extends HttpServlet {
 	private Set<String> ingoreMethods = new HashSet<String>();
 
 	protected int port;
-	
+
 	protected ServerConfig serverConfig;
 
 	private ServicePage model;
@@ -102,6 +102,7 @@ public class ServiceServlet extends HttpServlet {
 			Service s = new Service();
 			s.setName(serviceName);
 			s.setType(providerConfig.getService().getClass());
+			s.setPublished(providerConfig.isPublished() + "");
 			Map<String, Method> allMethods = new HashMap<String, Method>();
 			// Class<?>[] ifaces =
 			// providerConfig.getService().getClass().getInterfaces();
@@ -162,13 +163,14 @@ public class ServiceServlet extends HttpServlet {
 	protected void generateView(HttpServletRequest request, HttpServletResponse response) throws IOException,
 			ServletException {
 		Template temp = cfg.getTemplate(getView());
-		if (this.model == null) {
+		initServicePage();
+		/*if (this.model == null) {
 			synchronized (this) {
 				if (this.model == null) {
 					initServicePage();
 				}
 			}
-		}
+		}*/
 		try {
 			temp.process(this.model, response.getWriter());
 		} catch (TemplateException e) {

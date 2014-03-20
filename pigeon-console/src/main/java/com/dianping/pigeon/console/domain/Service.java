@@ -8,7 +8,17 @@ public class Service {
 
 	private Class<?> type;
 
+	private String published;
+
 	private List<ServiceMethod> methods;
+
+	public String getPublished() {
+		return published;
+	}
+
+	public void setPublished(String published) {
+		this.published = published;
+	}
 
 	public String getName() {
 		return name;

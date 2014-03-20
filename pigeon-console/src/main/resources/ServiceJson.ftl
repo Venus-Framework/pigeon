@@ -2,6 +2,7 @@
 <#list services as x>
 	{
 		"name": "${x.name}", 
+		"published": "${x.published}",
 		"type": "${x.type.name}",
 		"methods": [
 		<#list x.methods as m>
