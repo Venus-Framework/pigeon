@@ -10,12 +10,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.dianping.dpsf.protocol.DefaultResponse;
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.util.VersionUtils;
 
 public final class ResponseUtils {
+
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	private ResponseUtils() {
 	}
@@ -92,12 +96,14 @@ public final class ResponseUtils {
 
 		return response;
 	}
-	
+
 	public static InvocationResponse createHealthCheckResponse(InvocationRequest request) {
 		InvocationResponse response = new DefaultResponse(Constants.MESSAGE_TYPE_HEALTHCHECK, request.getSerialize());
 		response.setSequence(request.getSequence());
-		Map<String, Object> info = new HashMap<String, Object>(); 
+		Map<String, Object> info = new HashMap<String, Object>();
 		info.put("version", VersionUtils.VERSION);
+		info.put("group", configManager.getGroup());
+		info.put("env", configManager.getEnv());
 		response.setReturn(info);
 
 		return response;

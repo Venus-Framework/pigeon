@@ -61,7 +61,6 @@ public final class ProviderBootStrap {
 					for (Server server : servers) {
 						if (server.support(serverConfig)) {
 							server.start(serverConfig);
-							Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookListener(server)));
 							serversMap.put(server.toString(), server);
 							if (logger.isInfoEnabled()) {
 								logger.info("pigeon server[version:" + VersionUtils.VERSION
@@ -69,6 +68,9 @@ public final class ProviderBootStrap {
 							}
 						}
 					}
+					Thread shutdownHook = new Thread(new ShutdownHookListener());
+					shutdownHook.setPriority(Thread.MAX_PRIORITY);
+					Runtime.getRuntime().addShutdownHook(shutdownHook);
 					ProviderBootStrap.serverConfig = serverConfig;
 					isStarted = true;
 				} else {
@@ -83,7 +85,6 @@ public final class ProviderBootStrap {
 	}
 
 	public static void shutdown() {
-		ProviderProcessHandlerFactory.clearServerInternalFilters();
 		for (Server server : serversMap.values()) {
 			if (server != null) {
 				logger.info("start to stop " + server);
@@ -93,6 +94,7 @@ public final class ProviderBootStrap {
 				}
 			}
 		}
+		ProviderProcessHandlerFactory.clearServerInternalFilters();
 	}
 
 }

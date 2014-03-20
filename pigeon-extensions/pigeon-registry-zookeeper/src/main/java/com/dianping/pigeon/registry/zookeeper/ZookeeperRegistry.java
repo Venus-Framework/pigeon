@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -175,7 +174,7 @@ public class ZookeeperRegistry implements Registry {
 	@Override
 	public void registerService(String serviceName, String group, String serviceAddress, int weight)
 			throws RegistryException {
-		if (StringUtils.isBlank(group)) {
+		if (Utils.isBlank(group)) {
 			group = Constants.DEFAULT_GROUP;
 		}
 		registerServiceToZookeeper(serviceName, group, serviceAddress, weight);
@@ -198,14 +197,14 @@ public class ZookeeperRegistry implements Registry {
 				String[] addressArray = addressValue.split(",");
 				List<String> addressList = new ArrayList<String>();
 				for (String addr : addressArray) {
-					if (StringUtils.isNotBlank(addr) && !addressList.contains(addr)) {
+					if (!Utils.isBlank(addr) && !addressList.contains(addr)) {
 						addressList.add(addr);
 					}
 				}
 				if (!addressList.contains(serviceAddress)) {
 					addressList.add(serviceAddress);
 					Collections.sort(addressList);
-					zkClient.updateData(servicePath, StringUtils.join(addressList, ","));
+					zkClient.updateData(servicePath, Utils.join(addressList.iterator(), ","));
 				}
 			} else {
 				zkClient.updateData(servicePath, serviceAddress);
@@ -297,7 +296,7 @@ public class ZookeeperRegistry implements Registry {
 
 	@Override
 	public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
-		if (StringUtils.isBlank(group)) {
+		if (Utils.isBlank(group)) {
 			group = Constants.DEFAULT_GROUP;
 		}
 		unregisterServiceFromZookeeper(serviceName, group, serviceAddress);
@@ -328,7 +327,7 @@ public class ZookeeperRegistry implements Registry {
 				String[] addressArray = addressValue.split(",");
 				List<String> addressList = new ArrayList<String>();
 				for (String addr : addressArray) {
-					if (StringUtils.isNotBlank(addr) && !addressList.contains(addr)) {
+					if (!Utils.isBlank(addr) && !addressList.contains(addr)) {
 						addressList.add(addr);
 					}
 				}
@@ -336,7 +335,7 @@ public class ZookeeperRegistry implements Registry {
 					addressList.remove(serviceAddress);
 					if (!addressList.isEmpty()) {
 						Collections.sort(addressList);
-						zkClient.updateData(servicePath, StringUtils.join(addressList, ","));
+						zkClient.updateData(servicePath, Utils.join(addressList.iterator(), ","));
 					} else {
 						List<String> children = zkClient.getChildren(servicePath, false);
 						if (CollectionUtils.isEmpty(children)) {

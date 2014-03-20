@@ -103,7 +103,7 @@ public class PigeonServiceHealthChecker {
 			if (response != null) {
 				Map<String, Object> result = (Map<String, Object>) response.getReturn();
 				if (result != null && result.get("version") != null) {
-					logger.info("checking server:" + connectInfo + ", version:" + result.get("version"));
+					logger.info("checking server:" + connectInfo + ", response:" + result);
 					return true;
 				}
 			}

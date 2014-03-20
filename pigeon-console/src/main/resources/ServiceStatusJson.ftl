@@ -1,1 +1,1 @@
-{"status": "${status}","size": "${services?size}"}
+{"status": "${status}","size": "${services?size}","version": "${version}","env": "${env}"}
