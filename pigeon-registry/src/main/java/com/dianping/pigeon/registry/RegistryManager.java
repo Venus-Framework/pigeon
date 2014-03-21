@@ -70,7 +70,7 @@ public class RegistryManager {
 	public Registry getRegistry() {
 		return registry;
 	}
-	
+
 	public String getProperty(String key) {
 		String v = props.getProperty(key);
 		return v;
@@ -95,11 +95,11 @@ public class RegistryManager {
 			return props.getProperty(serviceKey);
 		}
 		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv())) {
-			String addr = configManager.getStringValue(Utils.escapeServiceName(serviceKey));
-			if(addr == null) {
+			String addr = configManager.getStringValueFromLocal(Utils.escapeServiceName(serviceKey));
+			if (addr == null) {
 				try {
-					addr = configManager.getStringValue(serviceKey);
-				} catch(Exception e) {
+					addr = configManager.getStringValueFromLocal(serviceKey);
+				} catch (Exception e) {
 				}
 			}
 			if (!StringUtils.isBlank(addr)) {

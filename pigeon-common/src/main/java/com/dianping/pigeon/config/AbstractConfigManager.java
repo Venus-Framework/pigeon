@@ -106,6 +106,56 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		return value != null ? value : defaultValue;
 	}
 
+	public String getStringValueFromLocal(String key) {
+		return getPropertyFromLocal(key, String.class);
+	}
+
+	private <T> T getPropertyFromLocal(String key, Class<T> type) {
+		String strValue = null;
+		if (localCache.containsKey(key)) {
+			Object value = localCache.get(key);
+			if (value != null && logger.isInfoEnabled()) {
+				logger.info("read from local cache with key[" + key + "]:" + value);
+			}
+			if (value.getClass() == type) {
+				return (T) value;
+			} else {
+				strValue = value + "";
+			}
+		}
+		if (strValue == null) {
+			try {
+				strValue = doGetLocalProperty(key);
+				if (strValue != null && logger.isInfoEnabled()) {
+					logger.info("read from local config with key[" + key + "]:" + strValue);
+				}
+			} catch (Exception e) {
+				logger.error("error while reading local config[" + key + "]:" + e.getMessage());
+			}
+		}
+		if (strValue != null) {
+			Object value = null;
+			if (String.class == type) {
+				value = strValue;
+			} else if (!StringUtils.isBlank(strValue)) {
+				if (Integer.class == type) {
+					value = Integer.valueOf(strValue);
+				} else if (Long.class == type) {
+					value = Long.valueOf(strValue);
+				} else if (Boolean.class == type) {
+					value = Boolean.valueOf(strValue);
+				}
+			}
+			if (value != null) {
+				localCache.put(key, value);
+			}
+			return (T) value;
+		} else {
+			logger.info("config[key=" + key + "] not found");
+		}
+		return null;
+	}
+
 	@Override
 	public String getStringValue(String key) {
 		return getProperty(key, String.class);

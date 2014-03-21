@@ -16,6 +16,8 @@ public interface ConfigManager {
 	public String getEnv();
 
 	public String getConfigServerAddress();
+	
+	public String getStringValueFromLocal(String key);
 
 	public String getStringValue(String key);
 

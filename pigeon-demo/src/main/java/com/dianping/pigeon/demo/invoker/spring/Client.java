@@ -26,16 +26,16 @@ public class Client {
 		AtomicInteger atomicInteger = new AtomicInteger();
 		EchoService defaultEchoService = (EchoService) CLIENT_CONTAINER.getBean("defaultEchoService");
 		EchoService echoServiceWithCallback = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithCallback");
-		for (;;) {
+		//for (;;) {
 			try {
 				String input = "echoService_" + atomicInteger.incrementAndGet();
 				System.out.println("input:" + input);
 				System.out.println(defaultEchoService.echo(input));
-				echoServiceWithCallback.echo(input);
+				//echoServiceWithCallback.echo(input);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
-		}
+		//}
 	}
 
 }

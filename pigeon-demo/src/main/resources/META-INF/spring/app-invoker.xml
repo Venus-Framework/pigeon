@@ -10,7 +10,7 @@
 
 	<pigeon:annotation package="com.dianping.pigeon.demo.invoker.annotation"/>
 
-	<pigeon:reference id="defaultEchoService" timeout="1000" protocol="default"
+	<pigeon:reference id="defaultEchoService" timeout="10" protocol="default" timeoutRetry="true" retries="3" cluster="failover"
 	url="http://service.dianping.com/com.dianping.pigeon.demo.EchoService"
 		serialize="hessian" callType="sync" interface="com.dianping.pigeon.demo.EchoService" />
 
