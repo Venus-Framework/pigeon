@@ -111,9 +111,9 @@ public final class Constants {
 	public static final int DEFAULT_PROVIDER_MAXPOOLSIZE = 300;
 	public static final int DEFAULT_PROVIDER_WORKQUEUESIZE = 100;
 	public static final int DEFAULT_INVOKER_MAXPOOLSIZE = 300;
-	public static final long DEFAULT_RECONNECT_INTERVAL = 3000;
-	public static final long DEFAULT_HEARTBEAT_INTERVAL = 3000;
-	public static final long DEFAULT_HEARTBEAT_TIMEOUT = 5000;
+	public static final long DEFAULT_RECONNECT_INTERVAL = 1000;
+	public static final long DEFAULT_HEARTBEAT_INTERVAL = 1000;
+	public static final long DEFAULT_HEARTBEAT_TIMEOUT = 3000;
 	public static final long DEFAULT_HEARTBEAT_DEADCOUNT = 5;
 	public static final long DEFAULT_HEARTBEAT_HEALTHCOUNT = 5;
 	public static final boolean DEFAULT_HEARTBEAT_AUTOPICKOFF = true;

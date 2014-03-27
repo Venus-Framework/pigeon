@@ -55,6 +55,9 @@ public class ClientManager implements Disposable {
 
 	private static ThreadPool reconnectThreadPool = new DefaultThreadPool("Pigeon-Client-Reconnect-ThreadPool");
 
+	private static ThreadPool registerServiceInvokerThreadPool = new DefaultThreadPool(
+			"Pigeon-Invoker-register-ThreadPool");
+
 	private static ClientManager instance = new ClientManager();
 
 	public static ClientManager getInstance() {
@@ -103,7 +106,7 @@ public class ClientManager implements Disposable {
 		RegistryEventListener.removeListener(providerChangeListener);
 	}
 
-	public void findServiceProviders(String serviceName, String group, String vip) {
+	public void registerServiceInvokers(String serviceName, String group, String vip) {
 		String serviceAddress = null;
 		try {
 			if (!StringUtils.isBlank(vip) && ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv())) {
@@ -127,21 +130,53 @@ public class ClientManager implements Disposable {
 		}
 
 		serviceAddress = serviceAddress.trim();
-		String[] addressList = serviceAddress.split(",");
-		for (int i = 0; i < addressList.length; i++) {
-			if (StringUtils.isNotBlank(addressList[i])) {
-				String[] parts = addressList[i].split(":");
-				String host = parts[0];
-
+		String[] addressArray = serviceAddress.split(",");
+		// List<String> addressList = new ArrayList<String>();
+		for (int i = 0; i < addressArray.length; i++) {
+			if (StringUtils.isNotBlank(addressArray[i])) {
+				// addressList.add(addressArray[i]);
+				String address = addressArray[i];
+				String[] parts = address.split(":");
 				try {
-					int weight = RegistryManager.getInstance().getServiceWeight(addressList[i]);
+					String host = parts[0];
 					int port = Integer.parseInt(parts[1]);
+					int weight = RegistryManager.getInstance().getServiceWeight(address);
 					RegistryEventListener.providerAdded(serviceName, host, port, weight);
 				} catch (Exception e) {
-					throw new RuntimeException("error while getting service weight:" + addressList[i], e);
+					throw new RuntimeException("error while registering service invoker:" + serviceName + ", address:"
+							+ address, e);
 				}
 			}
 		}
+
+//		final CountDownLatch latch = new CountDownLatch(addressList.size());
+//		for (final String address : addressList) {
+//			final String url = serviceName;
+//			Runnable r = new Runnable() {
+//
+//				@Override
+//				public void run() {
+//					String[] parts = address.split(":");
+//					try {
+//						String host = parts[0];
+//						int port = Integer.parseInt(parts[1]);
+//						int weight = RegistryManager.getInstance().getServiceWeight(address);
+//						RegistryEventListener.providerAdded(url, host, port, weight);
+//						latch.countDown();
+//					} catch (Exception e) {
+//						throw new RuntimeException("error while registering service invoker:" + url + ", address:"
+//								+ address, e);
+//					}
+//				}
+//
+//			};
+//			registerServiceInvokerThreadPool.submit(r);
+//		}
+//		try {
+//			latch.await(1000, TimeUnit.MILLISECONDS);
+//		} catch (InterruptedException e) {
+//			throw new RuntimeException("error while registering service invokers:" + serviceName, e);
+//		}
 	}
 
 	public Map<String, Set<HostInfo>> getServiceHostInfos() {

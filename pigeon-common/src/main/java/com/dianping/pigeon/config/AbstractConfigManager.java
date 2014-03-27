@@ -151,7 +151,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			}
 			return (T) value;
 		} else {
-			logger.info("config[key=" + key + "] not found");
+			logger.info("config[key=" + key + "] not found, use default value");
 		}
 		return null;
 	}

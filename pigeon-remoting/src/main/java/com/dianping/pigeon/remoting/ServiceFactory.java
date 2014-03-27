@@ -136,7 +136,7 @@ public class ServiceFactory {
 				throw new RpcException("error while trying to get service:" + invokerConfig, t);
 			}
 			try {
-				ClientManager.getInstance().findServiceProviders(invokerConfig.getUrl(), configManager.getGroup(),
+				ClientManager.getInstance().registerServiceInvokers(invokerConfig.getUrl(), configManager.getGroup(),
 						invokerConfig.getVip());
 			} catch (Throwable t) {
 				logger.warn("error while trying to setup service client:" + invokerConfig + ", caused by:"

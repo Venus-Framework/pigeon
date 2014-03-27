@@ -64,7 +64,7 @@ public class DefaultClusterListener implements ClusterListener {
 					if (logger.isInfoEnabled()) {
 						logger.info("try to find service providers for service:" + invokerConfig.getUrl());
 					}
-					ClientManager.getInstance().findServiceProviders(invokerConfig.getUrl(), invokerConfig.getGroup(),
+					ClientManager.getInstance().registerServiceInvokers(invokerConfig.getUrl(), invokerConfig.getGroup(),
 							invokerConfig.getVip());
 					clientList = this.serviceClients.get(invokerConfig.getUrl());
 					if (CollectionUtils.isEmpty(clientList)) {

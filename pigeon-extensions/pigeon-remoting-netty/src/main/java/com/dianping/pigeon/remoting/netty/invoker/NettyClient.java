@@ -16,8 +16,10 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
+import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.event.EventManager;
 import com.dianping.pigeon.event.RuntimeServiceEvent;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -47,7 +49,8 @@ public class NettyClient extends AbstractClient {
 
 	private String address;
 
-	private static final int connectTimeout = 3000;
+	private static final int connectTimeout = ExtensionLoader.getExtension(ConfigManager.class).getIntValue(
+			"pigeon.netty.connecttimeout", 500);
 
 	private volatile boolean connected = false;
 
@@ -59,6 +62,10 @@ public class NettyClient extends AbstractClient {
 	private ConnectInfo connectInfo;
 
 	public static final int CLIENT_CONNECTIONS = Runtime.getRuntime().availableProcessors();
+
+	private static final int LOG_LIMIT_INITIAL = 5;
+
+	private static final int LOG_LIMIT_INTERVAL = 60;
 
 	private long logCount;
 
@@ -79,7 +86,7 @@ public class NettyClient extends AbstractClient {
 		this.bootstrap.setOption("tcpNoDelay", true);
 		this.bootstrap.setOption("keepAlive", true);
 		this.bootstrap.setOption("reuseAddress", true);
-		this.bootstrap.setOption("connectTimeoutMillis", 1000);
+		this.bootstrap.setOption("connectTimeoutMillis", connectTimeout);
 	}
 
 	public synchronized void connect() {
@@ -91,33 +98,40 @@ public class NettyClient extends AbstractClient {
 		if (logger.isInfoEnabled() && isLog()) {
 			logger.info("client is connecting to " + this.host + ":" + this.port);
 		}
-		ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
-		if (future.awaitUninterruptibly(connectTimeout, TimeUnit.MILLISECONDS)) {
-			if (future.isSuccess()) {
-				Channel newChannel = future.getChannel();
-				try {
-					// 关闭旧的连接
-					Channel oldChannel = this.channel;
-					if (oldChannel != null) {
-						if (logger.isInfoEnabled()) {
-							logger.info("close old netty channel " + oldChannel);
+		ChannelFuture future = null;
+		try {
+			future = bootstrap.connect(new InetSocketAddress(host, port));
+			if (future.awaitUninterruptibly(connectTimeout, TimeUnit.MILLISECONDS)) {
+				if (future.isSuccess()) {
+					Channel newChannel = future.getChannel();
+					try {
+						// 关闭旧的连接
+						Channel oldChannel = this.channel;
+						if (oldChannel != null) {
+							if (logger.isInfoEnabled()) {
+								logger.info("close old netty channel " + oldChannel);
+							}
+							try {
+								oldChannel.close();
+							} catch (Throwable t) {
+							}
 						}
-						try {
-							oldChannel.close();
-						} catch (Throwable t) {
-						}
+					} finally {
+						this.channel = newChannel;
 					}
-				} finally {
-					this.channel = newChannel;
+					logger.warn("client is connected to " + this.host + ":" + this.port);
+					this.connected = true;
+					resetLogCount();
+				} else if (isLog()) {
+					logger.error("client is not connected to " + this.host + ":" + this.port);
 				}
-				logger.warn("client is connected to " + this.host + ":" + this.port);
-				this.connected = true;
-				resetLogCount();
 			} else if (isLog()) {
-				logger.error("client is not connected to " + this.host + ":" + this.port);
+				logger.error("timeout while connecting to " + this.host + ":" + this.port);
 			}
-		} else if (isLog()) {
-			logger.error("timeout while connecting to " + this.host + ":" + this.port);
+		} catch (Exception e) {
+			if (isLog()) {
+				logger.error("error while connecting to " + this.host + ":" + this.port, e);
+			}
 		}
 	}
 
@@ -289,9 +303,10 @@ public class NettyClient extends AbstractClient {
 
 	private boolean isLog() {
 		boolean isLog = true;
-		if (logCount > 100 && logCount % 100 != 0) {
+		if (logCount > LOG_LIMIT_INITIAL && logCount % LOG_LIMIT_INTERVAL != 0) {
 			isLog = false;
 		}
+		System.out.println(logCount);
 		return isLog;
 	}
 
