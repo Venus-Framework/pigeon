@@ -306,7 +306,6 @@ public class NettyClient extends AbstractClient {
 		if (logCount > LOG_LIMIT_INITIAL && logCount % LOG_LIMIT_INTERVAL != 0) {
 			isLog = false;
 		}
-		System.out.println(logCount);
 		return isLog;
 	}
 
