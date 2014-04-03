@@ -36,10 +36,6 @@ public class RequestTimeoutListener implements Runnable {
 		while (true) {
 			try {
 				long currentTime = System.currentTimeMillis();
-				// if (logger.isDebugEnabled()) {
-				// logger.debug("checking request timeout, count:" +
-				// requestContextMap.size());
-				// }
 				for (InvocationRequest request : requestContextMap.keySet()) {
 					if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
 							&& (request.getCreateMillisTime() + request.getTimeout()) < currentTime) {
@@ -48,7 +44,7 @@ public class RequestTimeoutListener implements Runnable {
 							if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
 								Future<?> future = rc.getFuture();
 								if (future != null && !future.isCancelled()) {
-									future.cancel(true);
+									future.cancel(false);
 								}
 							} else {
 								StringBuffer msg = new StringBuffer();
@@ -66,7 +62,7 @@ public class RequestTimeoutListener implements Runnable {
 								}
 								Future<?> future = rc.getFuture();
 								if (future != null && !future.isCancelled()) {
-									future.cancel(true);
+									future.cancel(false);
 								}
 							}
 						} finally {

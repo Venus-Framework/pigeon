@@ -32,6 +32,7 @@ public final class Constants {
 
 	public static final String SERIALIZE_JAVA = "java";
 	public static final String SERIALIZE_HESSIAN = "hessian";
+	public static final String SERIALIZE_HESSIAN1 = "hessian1";
 	public static final String SERIALIZE_PROTOBUF = "protobuf";
 	public static final String SERIALIZE_JSON = "json";
 

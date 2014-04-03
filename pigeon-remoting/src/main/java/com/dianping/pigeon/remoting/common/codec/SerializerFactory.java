@@ -34,7 +34,7 @@ public final class SerializerFactory {
 	public static final String HESSIAN = "hessian";
 	public static final String JAVA = "java";
 	public static final String PROTOBUF = "protobuf";
-	public static final String HESSIAN1 = "hessian";
+	public static final String HESSIAN1 = "hessian1";
 	public static final String JSON = "json";
 
 	private final static ConcurrentHashMap<Byte, Serializer> serializers = new ConcurrentHashMap<Byte, Serializer>();
@@ -68,6 +68,8 @@ public final class SerializerFactory {
 			return SerializerFactory.SERIALIZE_JAVA;
 		} else if (HESSIAN.equalsIgnoreCase(serialize)) {
 			return SerializerFactory.SERIALIZE_HESSIAN;
+		} else if (HESSIAN1.equalsIgnoreCase(serialize)) {
+			return SerializerFactory.SERIALIZE_HESSIAN1;
 		} else if (PROTOBUF.equalsIgnoreCase(serialize)) {
 			return SerializerFactory.SERIALIZE_PROTOBUF;
 		} else if (JSON.equalsIgnoreCase(serialize)) {
