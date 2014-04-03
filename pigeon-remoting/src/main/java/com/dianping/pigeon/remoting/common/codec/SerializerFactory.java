@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.codec.hessian.Hessian1Serializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
 import com.dianping.pigeon.remoting.common.codec.java.JavaSerializer;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
@@ -45,7 +46,7 @@ public final class SerializerFactory {
 	public static void init() {
 		registerSerializer(SERIALIZE_JAVA, new JavaSerializer());
 		registerSerializer(SERIALIZE_HESSIAN, new HessianSerializer());
-		registerSerializer(SERIALIZE_HESSIAN1, new HessianSerializer());
+		registerSerializer(SERIALIZE_HESSIAN1, new Hessian1Serializer());
 		if (ProtobufSerializer.support()) {
 			try {
 				registerSerializer(SERIALIZE_PROTOBUF, new ProtobufSerializer());

@@ -85,6 +85,10 @@ public class RegistryManager {
 		this.props.putAll(props);
 	}
 
+	public String getServiceAddress(String serviceName) throws RegistryException {
+		return RegistryManager.getInstance().getServiceAddress(serviceName, configManager.getGroup());
+	}
+
 	public String getServiceAddress(String serviceName, String group) throws RegistryException {
 		String serviceKey = getServiceKey(serviceName, group);
 		if (props.containsKey(serviceKey)) {
