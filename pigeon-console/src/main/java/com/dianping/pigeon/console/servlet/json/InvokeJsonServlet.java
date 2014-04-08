@@ -14,6 +14,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+
 import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
@@ -30,7 +32,6 @@ import com.dianping.pigeon.remoting.provider.config.ServerConfig;
  */
 public class InvokeJsonServlet extends ServiceServlet {
 
-	
 	public InvokeJsonServlet(ServerConfig serverConfig, int port) {
 		super(serverConfig, port);
 	}
@@ -57,7 +58,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 
 	protected void generateView(HttpServletRequest request, HttpServletResponse response) throws IOException,
 			ServletException {
-		if(!serverConfig.isEnableTest()) {
+		if (!serverConfig.isEnableTest()) {
 			response.getWriter().write("pigeon test is disabled!");
 			return;
 		}
@@ -95,15 +96,27 @@ public class InvokeJsonServlet extends ServiceServlet {
 			if (direct) {
 				try {
 					result = directInvoke(serviceName, methodName, types, values);
+				} catch (InvocationTargetException e) {
+					logger.error("console invoke error", e);
+					if(e.getTargetException() != null) {
+						result = ExceptionUtils.getFullStackTrace(e.getTargetException());
+					} else {
+						result = e.toString();
+					}
 				} catch (Exception e) {
+					logger.error("console invoke error", e);
 					result = e.toString();
 				}
 			} else {
 				try {
 					result = proxyInvoke(serviceName, methodName, types, values, timeout);
 				} catch (InvocationTargetException e) {
-					result = e.getTargetException().toString() + ":"
-							+ Arrays.toString(e.getTargetException().getStackTrace());
+					logger.error("console invoke error", e);
+					if(e.getTargetException() != null) {
+						result = ExceptionUtils.getFullStackTrace(e.getTargetException());
+					} else {
+						result = e.toString();
+					}
 				} catch (Exception e) {
 					result = e.toString();
 				}
