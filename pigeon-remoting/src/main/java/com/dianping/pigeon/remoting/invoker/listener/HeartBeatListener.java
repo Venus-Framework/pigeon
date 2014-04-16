@@ -78,8 +78,8 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 						}
 					}
 					for (Client client : clients) {
-						if (logger.isInfoEnabled()) {
-							logger.info("[heartbeat] checking service provider:" + client);
+						if (logger.isDebugEnabled()) {
+							logger.debug("[heartbeat] checking service provider:" + client);
 						}
 						if (client.isConnected()) {
 							String connect = client.getAddress();
