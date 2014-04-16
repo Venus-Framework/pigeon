@@ -5,6 +5,8 @@
 package com.dianping.pigeon.remoting.netty.provider;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,8 +43,8 @@ public class NettyServer extends AbstractServer implements Disposable {
 
 	public NettyServer() {
 		ExecutorService boss = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Netty-Server-Boss", true));
-		ExecutorService worker = Executors
-				.newCachedThreadPool(new NamedThreadFactory("Pigeon-Netty-Server-Worker", true));
+		ExecutorService worker = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Netty-Server-Worker",
+				true));
 
 		this.bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(boss, worker));
 		this.bootstrap.setPipelineFactory(new NettyServerPipelineFactory(this));
@@ -68,7 +70,8 @@ public class NettyServer extends AbstractServer implements Disposable {
 				this.port = availablePort;
 			} else {
 				if (NetUtils.isPortInUse(serverConfig.getPort())) {
-					logger.error("unable to start netty server on port " + serverConfig.getPort() + ", the port is in use");
+					logger.error("unable to start netty server on port " + serverConfig.getPort()
+							+ ", the port is in use");
 					System.exit(0);
 				}
 				this.port = serverConfig.getPort();
@@ -151,5 +154,22 @@ public class NettyServer extends AbstractServer implements Disposable {
 	@Override
 	public String getRegistryUrl(String url) {
 		return url;
+	}
+
+	public String getRemoteAddress(Channel channel) {
+		InetSocketAddress address = (InetSocketAddress) channel.getRemoteAddress();
+		return address.getAddress().getHostAddress() + ":" + address.getPort();
+	}
+
+	@Override
+	public List<String> getInvokerMetaInfo() {
+		if (channelGroup != null) {
+			List<String> results = new ArrayList<String>();
+			for (Channel channel : channelGroup) {
+				results.add(getRemoteAddress(channel));
+			}
+			return results;
+		}
+		return null;
 	}
 }

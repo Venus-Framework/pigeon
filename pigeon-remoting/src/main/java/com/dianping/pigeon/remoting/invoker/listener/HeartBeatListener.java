@@ -27,10 +27,10 @@ import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
 public class HeartBeatListener implements Runnable, ClusterListener {
 
@@ -78,8 +78,8 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 						}
 					}
 					for (Client client : clients) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("[heartbeat] checking service provider:" + client);
+						if (logger.isInfoEnabled()) {
+							logger.info("[heartbeat] checking service provider:" + client);
 						}
 						if (client.isConnected()) {
 							String connect = client.getAddress();
@@ -201,7 +201,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			logger.debug("client:" + client);
 		}
 		// 兼容老版本
-		if (!ResponseUtils.isHeartErrorResponse(response)) {
+		if (!InvokerUtils.isHeartErrorResponse(response)) {
 			Object heartReturn = response.getReturn();
 			if (heartReturn instanceof Integer && (Integer) heartReturn >= Constants.VERSION_150) {
 				client.setActiveSetable(true);

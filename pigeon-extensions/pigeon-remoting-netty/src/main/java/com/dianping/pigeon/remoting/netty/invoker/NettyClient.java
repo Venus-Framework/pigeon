@@ -24,7 +24,6 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.AbstractClient;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
@@ -33,6 +32,7 @@ import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.RpcInvokeInfo;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
+import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 
 public class NettyClient extends AbstractClient {
@@ -286,7 +286,7 @@ public class NettyClient extends AbstractClient {
 			}
 
 			RpcEventUtils.channelOperationComplete(request, NettyClient.this.address);
-			InvocationResponse response = ResponseUtils.createFailResponse(request, future.getCause());
+			InvocationResponse response = ProviderUtils.createFailResponse(request, future.getCause());
 			processResponse(response);
 		}
 

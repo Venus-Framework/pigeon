@@ -36,7 +36,7 @@ public @interface Reference {
 
     String loadbalance() default LoadBalanceManager.DEFAULT_LOADBALANCE;
 
-    String cluster() default "failFast";
+    String cluster() default Constants.CLUSTER_FAILFAST;
 
     int retries() default 1;
 

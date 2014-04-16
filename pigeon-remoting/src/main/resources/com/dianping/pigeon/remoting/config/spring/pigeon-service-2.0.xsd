@@ -23,7 +23,7 @@
 					<xsd:attribute name="loadbalance" type="xsd:string"
 						default="autoaware" />
 					<xsd:attribute name="cluster" type="xsd:string"
-						default="failFast" />
+						default="failfast" />
 					<xsd:attribute name="retries" type="xsd:int" default="1" />
 					<xsd:attribute name="timeoutRetry" type="xsd:boolean"
 						default="false" />

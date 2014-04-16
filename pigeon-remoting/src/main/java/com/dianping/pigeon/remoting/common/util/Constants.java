@@ -29,6 +29,10 @@ public final class Constants {
 	public static final String CALL_CALLBACK = "callback";
 	public static final String CALL_ONEWAY = "oneway";
 	public static final String CALL_FUTURE = "future";
+	
+	public static final String CLUSTER_FAILFAST = "failfast";
+	public static final String CLUSTER_FAILOVER = "failover";
+	public static final String CLUSTER_FAILSAFE = "failsafe";
 
 	public static final String SERIALIZE_JAVA = "java";
 	public static final String SERIALIZE_HESSIAN = "hessian";

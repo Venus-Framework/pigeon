@@ -32,7 +32,7 @@ public class DefaultClusterListener implements ClusterListener {
 
 	private Map<String, List<Client>> serviceClients = new ConcurrentHashMap<String, List<Client>>();
 
-	private Map<ConnectInfo, Client> allClients = new ConcurrentHashMap<ConnectInfo, Client>();
+	private Map<String, Client> allClients = new ConcurrentHashMap<String, Client>();
 
 	private HeartBeatListener heartTask;
 
@@ -52,7 +52,7 @@ public class DefaultClusterListener implements ClusterListener {
 
 	public void clear() {
 		serviceClients = new ConcurrentHashMap<String, List<Client>>();
-		allClients = new ConcurrentHashMap<ConnectInfo, Client>();
+		allClients = new ConcurrentHashMap<String, Client>();
 	}
 
 	public List<Client> getClientList(InvokerConfig<?> invokerConfig) {
@@ -64,8 +64,8 @@ public class DefaultClusterListener implements ClusterListener {
 					if (logger.isInfoEnabled()) {
 						logger.info("try to find service providers for service:" + invokerConfig.getUrl());
 					}
-					ClientManager.getInstance().registerServiceInvokers(invokerConfig.getUrl(), invokerConfig.getGroup(),
-							invokerConfig.getVip());
+					ClientManager.getInstance().registerServiceInvokers(invokerConfig.getUrl(),
+							invokerConfig.getGroup(), invokerConfig.getVip());
 					clientList = this.serviceClients.get(invokerConfig.getUrl());
 					if (CollectionUtils.isEmpty(clientList)) {
 						throw new NetException("no available connection for service:" + invokerConfig.getUrl());
@@ -80,7 +80,7 @@ public class DefaultClusterListener implements ClusterListener {
 	}
 
 	public void addConnect(ConnectInfo connectInfo) {
-		addConnect(connectInfo, this.allClients.get(connectInfo));
+		addConnect(connectInfo, this.allClients.get(connectInfo.getConnect()));
 	}
 
 	public void addConnect(ConnectInfo connectInfo, Client client) {
@@ -101,8 +101,8 @@ public class DefaultClusterListener implements ClusterListener {
 			client = ClientSelector.selectClient(connectInfo);
 		}
 
-		if (!this.allClients.containsKey(connectInfo)) {
-			this.allClients.put(connectInfo, client);
+		if (!this.allClients.containsKey(connectInfo.getConnect())) {
+			this.allClients.put(connectInfo.getConnect(), client);
 		}
 		try {
 			if (!client.isConnected()) {
@@ -160,8 +160,7 @@ public class DefaultClusterListener implements ClusterListener {
 		if (logger.isInfoEnabled()) {
 			logger.info("[cluster listener] service providers:" + serviceClients);
 		}
-		String connect = client.getConnectInfo().getConnect();
-		Client clientRemoved = this.allClients.remove(connect);
+		Client clientRemoved = this.allClients.remove(client.getAddress());
 		if (clientRemoved != null) {
 			for (String serviceName : this.serviceClients.keySet()) {
 				List<Client> clientList = this.serviceClients.get(serviceName);

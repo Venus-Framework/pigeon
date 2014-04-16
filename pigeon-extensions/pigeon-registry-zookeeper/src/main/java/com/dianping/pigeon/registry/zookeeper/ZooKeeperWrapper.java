@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -52,9 +53,9 @@ public class ZooKeeperWrapper {
 
 	private synchronized void init(ZooKeeper zk) throws IOException, KeeperException, InterruptedException {
 		if (zk == this.zk) {
-		    WatcherWrapper watcherWrapper = new WatcherWrapper(watcher);
-		    this.zk = new ZooKeeper(addresses, timeout, watcherWrapper);
-		    watcherWrapper.waitUntilConnected();
+			WatcherWrapper watcherWrapper = new WatcherWrapper(watcher);
+			this.zk = new ZooKeeper(addresses, timeout, watcherWrapper);
+			watcherWrapper.waitUntilConnected();
 
 			for (Entry<String, Watcher> entry : watcherMap.entrySet()) {
 				this.zk.getData(entry.getKey(), entry.getValue(), null);
@@ -102,6 +103,22 @@ public class ZooKeeperWrapper {
 		return stat;
 	}
 
+	public String createIfNotExisted(String path, byte[] data, List<ACL> acl, CreateMode createMode)
+			throws KeeperException, InterruptedException, IOException {
+		String[] pathArray = path.split("/");
+		StringBuilder pathStr = new StringBuilder();
+		for (int i = 0; i < pathArray.length - 1; i++) {
+			String p = pathArray[i];
+			if (StringUtils.isNotBlank(p)) {
+				pathStr.append("/").append(p);
+				if (exists(pathStr.toString(), false) == null) {
+					create(pathStr.toString(), new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+				}
+			}
+		}
+		return create(path, data, acl, createMode);
+	}
+
 	public String create(String path, byte[] data, List<ACL> acl, CreateMode createMode) throws KeeperException,
 			InterruptedException, IOException {
 		ZooKeeper zk_ = this.zk;
@@ -123,7 +140,7 @@ public class ZooKeeperWrapper {
 	public boolean updateData(String path, String data) throws IOException, KeeperException, InterruptedException {
 		byte[] bytes = data.getBytes("UTF-8");
 		if (exists(path, false) == null) {
-			create(path, bytes, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			createIfNotExisted(path, bytes, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 		} else {
 			setData(path, bytes, -1);
 		}
@@ -240,35 +257,35 @@ public class ZooKeeperWrapper {
 	public String getAddresses() {
 		return addresses;
 	}
-	
-    public class WatcherWrapper implements Watcher {
-        
-        private CountDownLatch latch;
-        private Watcher wrappedWatcher;
-        
-        public WatcherWrapper(Watcher watcher) {
-            this.latch = new CountDownLatch(1);
-            this.wrappedWatcher = watcher;
-        }
-        
-        @Override
-         public void process(WatchedEvent event) {
-             if(event.getState() == KeeperState.SyncConnected) {
-                 logger.info("Zookeeper connected");
-                 latch.countDown();
-                 return;
-             }
-             
-             if(wrappedWatcher != null) {
-                 wrappedWatcher.process(event);
-             }
-         }
-        
-        public void waitUntilConnected() throws IOException, InterruptedException {
-            if(!latch.await(30, TimeUnit.SECONDS)) {
-                throw new IOException("Timeout while connecting to zookeeper");
-            }
-        }
-    }
+
+	public class WatcherWrapper implements Watcher {
+
+		private CountDownLatch latch;
+		private Watcher wrappedWatcher;
+
+		public WatcherWrapper(Watcher watcher) {
+			this.latch = new CountDownLatch(1);
+			this.wrappedWatcher = watcher;
+		}
+
+		@Override
+		public void process(WatchedEvent event) {
+			if (event.getState() == KeeperState.SyncConnected) {
+				logger.info("Zookeeper connected");
+				latch.countDown();
+				return;
+			}
+
+			if (wrappedWatcher != null) {
+				wrappedWatcher.process(event);
+			}
+		}
+
+		public void waitUntilConnected() throws IOException, InterruptedException {
+			if (!latch.await(30, TimeUnit.SECONDS)) {
+				throw new IOException("Timeout while connecting to zookeeper");
+			}
+		}
+	}
 
 }

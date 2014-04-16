@@ -12,7 +12,6 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
-import com.dianping.pigeon.registry.RegistryMeta;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 
@@ -30,8 +29,8 @@ public class RegistryConfigLoader {
 	 * ConfigManager to get service configs.
 	 */
 	public static void init() {
-		Properties config = loadDefaultConfig();
-		
+		//Properties config = loadDefaultConfig();
+		Properties config = new Properties();
 		try {
 			Properties props = loadFromRegistry();
 			config.putAll(props);
@@ -48,7 +47,7 @@ public class RegistryConfigLoader {
 		
 		config = normalizeConfig(config);
 		ExtensionLoader.getExtension(ConfigManager.class).init(config);
-		RegistryManager.getInstance().init(config);
+		//RegistryManager.getInstance().init(config);
 	}
 	
 	private static Properties normalizeConfig(Properties props) {
@@ -70,12 +69,7 @@ public class RegistryConfigLoader {
 	}
 
 	private static Properties loadFromRegistry() throws RegistryException {
-		RegistryMeta meta = RegistryManager.getInstance().getRegistryMeta();
-		Properties props = new Properties();
-		props.put(Constants.KEY_GROUP, meta.getGroup());
-		props.put(Constants.KEY_WEIGHT, "" + meta.getWeight());
-		props.put(Constants.KEY_AUTO_REGISTER, "" + meta.isAutoRegister());
-		return props;
+		return RegistryManager.getInstance().getRegistryMeta();
 	}
 
 	private static Properties loadFromFile() throws IOException {
@@ -86,7 +80,7 @@ public class RegistryConfigLoader {
 			in = new FileInputStream(ENV_FILE);
 			props.load(in);
 		} catch (FileNotFoundException e) {
-			logger.info(ENV_FILE + " does not exist");
+			logger.warn(ENV_FILE + " does not exist");
 		} finally {
 			if(in != null)
 				in.close();
@@ -94,12 +88,4 @@ public class RegistryConfigLoader {
 		return props;
 	}
 
-	private static boolean configLoaded(Properties props) {
-		if(props == null || props.size()==0)
-			return false;
-		return props.containsKey(Constants.KEY_GROUP) ||
-			   props.containsKey(Constants.KEY_WEIGHT) ||
-			   props.containsKey(Constants.KEY_AUTO_REGISTER) ||
-			   props.containsKey(Constants.KEY_LOCAL_IP);
-	}
 }

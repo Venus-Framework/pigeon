@@ -45,7 +45,7 @@ public class ProtobufBlockingRpcChannel implements BlockingRpcChannel {
 	@Override
 	public Message callBlockingMethod(MethodDescriptor method, RpcController controller, Message request,
 			Message responsePrototype) throws ServiceException {
-		ServiceInvocationHandler handler = InvokerProcessHandlerFactory.createInvokeHandler(invokerConfig);
+		ServiceInvocationHandler handler = InvokerProcessHandlerFactory.selectInvocationHandler(invokerConfig);
 		InvocationContext invocationContext = new DefaultInvokerContext(invokerConfig, method.getName(), null, null);
 		ProtobufRequest protobufRequest = new ProtobufRequest(method, request, invokerConfig);
 		invocationContext.setRequest(protobufRequest);

@@ -21,9 +21,9 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.provider.domain.DefaultProviderContext;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 
 public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 
@@ -68,7 +68,7 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 				// 心跳消息只返回正常的, 异常不返回
 				if (request.getCallType() == Constants.CALLTYPE_REPLY
 						&& request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
-					ctx.getChannel().write(ResponseUtils.createFailResponse(request, e));
+					ctx.getChannel().write(ProviderUtils.createFailResponse(request, e));
 				}
 				log.error(msg, e);
 			}

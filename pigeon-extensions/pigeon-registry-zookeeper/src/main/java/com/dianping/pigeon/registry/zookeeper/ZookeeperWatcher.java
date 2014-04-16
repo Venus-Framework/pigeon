@@ -7,8 +7,9 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 
@@ -20,6 +21,8 @@ public class ZookeeperWatcher implements Watcher {
 	private static final int WEIGHT = 2;
 
 	private ZookeeperRegistry zookeeperRegistry;
+	
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	public ZookeeperWatcher(ZookeeperRegistry zookeeperRegistry) {
 		this.zookeeperRegistry = zookeeperRegistry;
@@ -71,7 +74,7 @@ public class ZookeeperWatcher implements Watcher {
 	}
 
 	private boolean shouldNotify(PathInfo pathInfo) throws Exception {
-		String currentGroup = RegistryManager.getInstance().getProperty(Constants.KEY_GROUP);
+		String currentGroup = configManager.getGroup();
 		currentGroup = Utils.normalizeGroup(currentGroup);
 		if (currentGroup.equals(pathInfo.group))
 			return true;

@@ -13,9 +13,9 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.DefaultInvokerContext;
+import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
 public class ServiceInvocationProxy implements InvocationHandler {
 
@@ -43,7 +43,9 @@ public class ServiceInvocationProxy implements InvocationHandler {
 		if ("equals".equals(methodName) && parameterTypes.length == 1) {
 			return handler.equals(args[0]);
 		}
-		return extractResult(handler.handle(new DefaultInvokerContext(invokerConfig, methodName, parameterTypes, args)), method.getReturnType());
+		return extractResult(
+				handler.handle(new DefaultInvokerContext(invokerConfig, methodName, parameterTypes, args)),
+				method.getReturnType());
 	}
 
 	public Object extractResult(InvocationResponse response, Class<?> returnType) throws Throwable {
@@ -54,8 +56,7 @@ public class ServiceInvocationProxy implements InvocationHandler {
 				return responseReturn;
 			} else if (messageType == Constants.MESSAGE_TYPE_EXCEPTION
 					|| messageType == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-				
-				throw InvocationUtils.toInvocationThrowable(responseReturn);
+				throw InvokerUtils.toInvocationThrowable(responseReturn);
 			}
 			throw new RuntimeException("unsupported response with type[" + messageType + "].");
 		}

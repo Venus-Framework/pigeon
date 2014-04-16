@@ -2,10 +2,8 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.common.util;
+package com.dianping.pigeon.remoting.provider.util;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,13 +13,14 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.util.VersionUtils;
 
-public final class ResponseUtils {
+public final class ProviderUtils {
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	private ResponseUtils() {
+	private ProviderUtils() {
 	}
 
 	public static InvocationResponse createThrowableResponse(long seq, byte serialization, Throwable e) {
@@ -109,127 +108,4 @@ public final class ResponseUtils {
 		return response;
 	}
 
-	public static InvocationResponse createNoReturnResponse() {
-		return new NoReturnResponse();
-	}
-
-	private static String extractStackTrace(Throwable t) {
-		StringWriter me = new StringWriter();
-		PrintWriter pw = new PrintWriter(me);
-		t.printStackTrace(pw);
-		pw.flush();
-		return me.toString();
-	}
-
-	public static boolean isHeartErrorResponse(InvocationResponse response) {
-		try {
-			return response != null && response.getMessageType() == Constants.MESSAGE_TYPE_HEART
-					&& response.getCause() != null;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	static class NoReturnResponse implements InvocationResponse {
-
-		/**
-		 * serialVersionUID
-		 */
-		private static final long serialVersionUID = 4348389641787057819L;
-
-		private long invokerRequestTime;
-
-		private long invokerResponseTime;
-
-		private long providerRequestTime;
-
-		private long providerResponseTime;
-
-		public long getInvokerRequestTime() {
-			return invokerRequestTime;
-		}
-
-		public void setInvokerRequestTime(long invokerRequestTime) {
-			this.invokerRequestTime = invokerRequestTime;
-		}
-
-		public long getInvokerResponseTime() {
-			return invokerResponseTime;
-		}
-
-		public void setInvokerResponseTime(long invokerResponseTime) {
-			this.invokerResponseTime = invokerResponseTime;
-		}
-
-		public long getProviderRequestTime() {
-			return providerRequestTime;
-		}
-
-		public void setProviderRequestTime(long providerRequestTime) {
-			this.providerRequestTime = providerRequestTime;
-		}
-
-		public long getProviderResponseTime() {
-			return providerResponseTime;
-		}
-
-		public void setProviderResponseTime(long providerResponseTime) {
-			this.providerResponseTime = providerResponseTime;
-		}
-
-		@Override
-		public void setMessageType(int messageType) {
-		}
-
-		@Override
-		public int getMessageType() {
-			return 0;
-		}
-
-		@Override
-		public String getCause() {
-			return null;
-		}
-
-		@Override
-		public Object getReturn() {
-			return null;
-		}
-
-		@Override
-		public void setReturn(Object obj) {
-		}
-
-		@Override
-		public byte getSerialize() {
-			return 0;
-		}
-
-		@Override
-		public void setSequence(long seq) {
-		}
-
-		@Override
-		public long getSequence() {
-			return 0;
-		}
-
-		@Override
-		public Object getObject() {
-			return null;
-		}
-
-		@Override
-		public Object getContext() {
-			return null;
-		}
-
-		@Override
-		public void setContext(Object context) {
-		}
-
-		@Override
-		public void setSerialize(byte serialize) {
-		}
-	}
 }

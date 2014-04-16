@@ -29,7 +29,7 @@ public abstract class DefaultAbstractSerializer implements Serializer {
 	public Object proxyRequest(InvokerConfig<?> invokerConfig) throws SerializationException {
 		return Proxy.newProxyInstance(ProxyBeanFactory.class.getClassLoader(), new Class[] { invokerConfig
 				.getServiceInterface() },
-				new ServiceInvocationProxy(invokerConfig, InvokerProcessHandlerFactory.createInvokeHandler(invokerConfig)));
+				new ServiceInvocationProxy(invokerConfig, InvokerProcessHandlerFactory.selectInvocationHandler(invokerConfig)));
 	}
 
 	@Override

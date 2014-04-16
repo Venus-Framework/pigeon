@@ -64,6 +64,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				logger.error("", e);
 			}
 		}
+		properties = normalizeConfig(properties);
 		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(getEnv())) {
 			try {
 				init(properties);
@@ -71,6 +72,15 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				logger.error("", e);
 			}
 		}
+	}
+	
+	private Properties normalizeConfig(Properties props) {
+		Properties newProps = new Properties();
+		for(String key : props.stringPropertyNames()) {
+			String value = props.getProperty(key);
+			newProps.put(key, value.trim());
+		}
+		return newProps;
 	}
 
 	public boolean getBooleanValue(String key, boolean defaultValue) {

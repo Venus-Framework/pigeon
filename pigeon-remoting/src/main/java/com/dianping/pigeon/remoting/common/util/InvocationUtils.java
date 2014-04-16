@@ -5,7 +5,6 @@
 package com.dianping.pigeon.remoting.common.util;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
@@ -59,23 +58,6 @@ public class InvocationUtils {
 			remoteCallNameCache.putIfAbsent(cacheKey, name);
 		}
 		return name;
-	}
-
-	public static Throwable toInvocationThrowable(Object responseReturn) {
-		if (responseReturn == null) {
-			return null;
-		} else if (responseReturn instanceof Throwable) {
-			return (Throwable) responseReturn;
-		} else if (responseReturn instanceof Map) {
-			Map errors = (Map) responseReturn;
-			String detailMessage = (String) errors.get("detailMessage");
-			StackTraceElement[] stackTrace = (StackTraceElement[]) errors.get("stackTrace");
-			RuntimeException e = new RuntimeException(detailMessage);
-			e.setStackTrace(stackTrace);
-			return e;
-		} else {
-			return new RuntimeException(responseReturn.toString());
-		}
 	}
 
 }

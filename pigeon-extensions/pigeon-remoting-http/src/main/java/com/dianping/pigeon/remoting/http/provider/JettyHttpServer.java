@@ -140,4 +140,9 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 	public String getRegistryUrl(String url) {
 		return HttpUtils.getHttpServiceUrl(url);
 	}
+
+	@Override
+	public List<String> getInvokerMetaInfo() {
+		return null;
+	}
 }

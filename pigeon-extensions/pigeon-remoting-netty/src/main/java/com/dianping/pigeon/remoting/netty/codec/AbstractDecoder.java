@@ -23,7 +23,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.ResponseUtils;
+import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 
 public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder {
 
@@ -80,11 +80,10 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 					if (seqObj != null) {
 						long seq = Long.parseLong(String.valueOf(seqObj));
 						String errorMsg = "Deserialize Exception>>>>host:"
-								+ ((InetSocketAddress) channel.getRemoteAddress()).getHostName() + " seq:" + seq + "\n"
-								+ e.getMessage();
+								+ ((InetSocketAddress) channel.getRemoteAddress()).getAddress().getHostAddress()
+								+ " seq:" + seq + "\n" + e.getMessage();
 						logger.error(errorMsg, e);
-
-						doFailResponse(channel, ResponseUtils.createThrowableResponse(seq, serializable, e));
+						doFailResponse(channel, ProviderUtils.createThrowableResponse(seq, serializable, e));
 					}
 				} catch (Exception e1) {
 					logger.error("", e1);

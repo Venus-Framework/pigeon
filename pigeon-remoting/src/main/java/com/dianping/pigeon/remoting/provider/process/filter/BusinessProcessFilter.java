@@ -15,12 +15,12 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethod;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethodFactory;
+import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import com.dianping.pigeon.util.ContextUtils;
 
 /**
@@ -55,7 +55,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			ServiceMethod method = ServiceMethodFactory.getMethod(request);
 			Object returnObj = method.invoke(request.getParameters());
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
-				response = ResponseUtils.createSuccessResponse(request, returnObj);
+				response = ProviderUtils.createSuccessResponse(request, returnObj);
 			}
 			return response;
 		}

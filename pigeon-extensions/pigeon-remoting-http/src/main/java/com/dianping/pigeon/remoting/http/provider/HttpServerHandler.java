@@ -18,13 +18,13 @@ import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.http.HttpUtils;
 import com.dianping.pigeon.remoting.http.provider.HttpChannel;
 import com.dianping.pigeon.remoting.http.provider.HttpHandler;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.domain.DefaultProviderContext;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 
 public class HttpServerHandler implements HttpHandler {
 
@@ -75,7 +75,7 @@ public class HttpServerHandler implements HttpHandler {
 				// 心跳消息只返回正常的, 异常不返回
 				if (invocationRequest.getCallType() == Constants.CALLTYPE_REPLY
 						&& invocationRequest.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
-					invocationContext.getChannel().write(ResponseUtils.createFailResponse(invocationRequest, e));
+					invocationContext.getChannel().write(ProviderUtils.createFailResponse(invocationRequest, e));
 				}
 				logger.error(msg, e);
 			}

@@ -44,8 +44,8 @@ public class ReconnectListener implements Runnable, ClusterListener {
 				Set<String> toRemovedClients = new HashSet<String>();
 				for (String providerUrl : closedClients.keySet()) {
 					Client client = closedClients.get(providerUrl);
-					if (logger.isDebugEnabled()) {
-						logger.debug("[reconnect] checking service provider:" + client);
+					if (logger.isInfoEnabled()) {
+						logger.info("[reconnect] checking service provider:" + client);
 					}
 					if (!client.isConnected()) {
 						try {

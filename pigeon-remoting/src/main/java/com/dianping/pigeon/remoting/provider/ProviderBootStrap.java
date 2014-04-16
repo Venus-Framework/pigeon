@@ -27,6 +27,7 @@ public final class ProviderBootStrap {
 	static volatile Map<String, Server> serversMap = null;
 	static volatile ServerConfig serverConfig = null;
 	static volatile boolean isStarted = false;
+	static volatile boolean isInitialized = false;
 
 	public static void setServerConfig(ServerConfig serverConfig) {
 		ProviderBootStrap.serverConfig = serverConfig;
@@ -34,6 +35,15 @@ public final class ProviderBootStrap {
 
 	public static ServerConfig getServerConfig() {
 		return ProviderBootStrap.serverConfig;
+	}
+
+	public static void init() {
+		if (!isInitialized) {
+			RegistryConfigLoader.init();
+			ProviderProcessHandlerFactory.init();
+			SerializerFactory.init();
+			isInitialized = true;
+		}
 	}
 
 	public static ServerConfig startup(ServerConfig serverConfig) {
@@ -47,9 +57,6 @@ public final class ProviderBootStrap {
 			synchronized (ProviderBootStrap.class) {
 				if (!isStarted) {
 					serversMap = new HashMap<String, Server>();
-					RegistryConfigLoader.init();
-					ProviderProcessHandlerFactory.init();
-					SerializerFactory.init();
 					Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 					if (monitor != null) {
 						monitor.init();

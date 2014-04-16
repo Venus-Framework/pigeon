@@ -15,8 +15,8 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.util.ContextUtils;
 
@@ -84,7 +84,7 @@ public class CallbackFuture implements Callback, CallFuture {
 					|| response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 				Throwable cause = null;
 				if (response instanceof InvocationResponse) {
-					cause = InvocationUtils.toInvocationThrowable(response.getReturn());
+					cause = InvokerUtils.toInvocationThrowable(response.getReturn());
 				}
 				if (cause == null) {
 					cause = new RuntimeException(response.getCause());

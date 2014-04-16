@@ -12,9 +12,8 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.util.ContextUtils;
+import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
 public class ServiceCallbackWrapper implements Callback {
 
@@ -54,7 +53,7 @@ public class ServiceCallbackWrapper implements Callback {
 						.append(" methodName:").append(request.getMethodName()).append("\r\n host:")
 						.append(client.getHost()).append(":").append(client.getPort());
 				
-				response.setReturn(new RuntimeException(sb.toString(), InvocationUtils.toInvocationThrowable(response.getReturn())));
+				response.setReturn(new RuntimeException(sb.toString(), InvokerUtils.toInvocationThrowable(response.getReturn())));
 			}
 			try {
 				if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {

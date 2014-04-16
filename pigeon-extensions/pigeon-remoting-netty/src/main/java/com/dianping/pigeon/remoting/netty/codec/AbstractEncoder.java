@@ -21,7 +21,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.ResponseUtils;
+import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 
 public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder {
 
@@ -40,7 +40,7 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 				return buffer;
 			} catch (Exception e) {
 				doFailResponse(channel,
-						ResponseUtils.createThrowableResponse(message.getSequence(), message.getSerialize(), e));
+						ProviderUtils.createThrowableResponse(message.getSequence(), message.getSerialize(), e));
 
 				log.error(e.getMessage(), e);
 				throw e;

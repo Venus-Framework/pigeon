@@ -65,7 +65,6 @@ public class CatLogger implements MonitorLogger {
 			} catch (Exception e) {
 				logMonitorError(e);
 			}
-			logger.error("", t);
 		}
 	}
 

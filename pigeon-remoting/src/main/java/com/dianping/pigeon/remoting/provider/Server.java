@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.remoting.provider;
 
+import java.util.List;
 import java.util.concurrent.Future;
 
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -13,28 +14,24 @@ import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: Server.java, v 0.1 2013-6-17 下午6:38:37 jianhuihuang Exp $
- */
 public interface Server {
 
-	boolean support(ServerConfig serverConfig);
-	
-	void start(ServerConfig serverConfig);
+	public boolean support(ServerConfig serverConfig);
 
-	void stop();
+	public void start(ServerConfig serverConfig);
 
-	ServerConfig getServerConfig();
-	
-	int getPort();
-	
-	String getRegistryUrl(String url);
+	public void stop();
 
-	public Future<InvocationResponse> processRequest(final InvocationRequest request, final ProviderContext providerContext);
+	public ServerConfig getServerConfig();
+
+	public int getPort();
+
+	public String getRegistryUrl(String url);
+
+	public Future<InvocationResponse> processRequest(final InvocationRequest request,
+			final ProviderContext providerContext);
 
 	public <T> void addService(ProviderConfig<T> providerConfig) throws RpcException;
-	
+
+	public List<String> getInvokerMetaInfo();
 }

@@ -17,8 +17,8 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 
 /**
  * 
@@ -47,7 +47,7 @@ public class ExceptionProcessFilter implements ServiceInvocationFilter<ProviderC
 				logger.error(e2.getMessage(), e2);
 			}
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
-				response = ResponseUtils.createServiceExceptionResponse(request, e2);
+				response = ProviderUtils.createServiceExceptionResponse(request, e2);
 			}
 			invocationContext.setServiceError(e2);
 		} catch (Exception e) {
@@ -55,7 +55,7 @@ public class ExceptionProcessFilter implements ServiceInvocationFilter<ProviderC
 			invocationContext.setServiceError(e);
 			if (request.getCallType() == Constants.CALLTYPE_REPLY
 					&& request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
-				response = ResponseUtils.createFailResponse(request, e);
+				response = ProviderUtils.createFailResponse(request, e);
 			}
 		}
 		return response;

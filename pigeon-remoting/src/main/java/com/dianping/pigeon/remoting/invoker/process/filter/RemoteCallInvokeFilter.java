@@ -10,7 +10,6 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.ResponseUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.CallbackFuture;
@@ -26,7 +25,7 @@ import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
  */
 public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 
-	private static final InvocationResponse NO_RETURN_RESPONSE = ResponseUtils.createNoReturnResponse();
+	private static final InvocationResponse NO_RETURN_RESPONSE = InvokerUtils.createNoReturnResponse();
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invokerContext) throws Throwable {

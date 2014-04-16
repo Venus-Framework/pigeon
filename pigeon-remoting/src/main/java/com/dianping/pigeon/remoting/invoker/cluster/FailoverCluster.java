@@ -1,8 +1,4 @@
-/**
- * Dianping.com Inc.
- * Copyright (c) 2003-2013 All Rights Reserved.
- */
-package com.dianping.pigeon.remoting.invoker.process.filter;
+package com.dianping.pigeon.remoting.invoker.cluster;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,28 +11,24 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.route.context.ClientContext;
+import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
-/**
- * 调用出错，则进行该Service剩余Provider的重试 Note：该策略仅适用于只读业务，有写操作的业务不建议使用，可能产生重复数据
- * 
- * @author jianhuihuang
- * @version $Id: FailoverClusterInvokeFilter.java, v 0.1 2013-7-22 下午8:51:55
- *          jianhuihuang Exp $
- */
-public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
+public class FailoverCluster implements Cluster {
 
-	public static final String NAME = "fail-over";
+	private ClientManager clientManager = ClientManager.getInstance();
 
-	private static final Logger logger = LoggerLoader.getLogger(ClusterInvokeFilter.class);
+	private static final Logger logger = LoggerLoader.getLogger(FailoverCluster.class);
 
 	@Override
-	public InvocationResponse _invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
+	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
-		InvokerConfig invokerConfig = invocationContext.getInvokerConfig();
+		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		List<Client> selectedClients = new ArrayList<Client>();
 		Throwable lastError = null;
 		int retry = invokerConfig.getRetries();
@@ -47,7 +39,7 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 		boolean nextInvokeErrorExit = false;
 		int invokeTimes = 0;
 		for (int index = 0; index < maxInvokeTimes; index++) {
-			InvocationRequest request = createRemoteCallRequest(invocationContext, invokerConfig);
+			InvocationRequest request = InvokerUtils.createRemoteCallRequest(invocationContext, invokerConfig);
 			Client clientSelected = null;
 			try {
 				clientSelected = clientManager.getClient(invokerConfig, request, selectedClients);
@@ -94,8 +86,8 @@ public class FailoverClusterInvokeFilter extends ClusterInvokeFilter {
 	}
 
 	@Override
-	public String name() {
-		return NAME;
+	public String getName() {
+		return Constants.CLUSTER_FAILOVER;
 	}
 
 }

@@ -49,7 +49,7 @@ public final class InvokerBootStrap {
 		if (isStartup) {
 			synchronized (InvokerBootStrap.class) {
 				if (isStartup) {
-					InvokerProcessHandlerFactory.clearClientInternalFilters();
+					InvokerProcessHandlerFactory.clearClientFilters();
 					ClientManager.getInstance().clear();
 					isStartup = false;
 					if (logger.isInfoEnabled()) {

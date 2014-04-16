@@ -16,6 +16,26 @@ public class ServicePage {
 
 	private String env = "";
 
+	private String published = "";
+
+	private List<String> invokers;
+
+	public List<String> getInvokers() {
+		return invokers;
+	}
+
+	public void setInvokers(List<String> invokers) {
+		this.invokers = invokers;
+	}
+
+	public String getPublished() {
+		return published;
+	}
+
+	public void setPublished(String published) {
+		this.published = published;
+	}
+
 	public String getEnv() {
 		return env;
 	}

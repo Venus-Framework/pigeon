@@ -55,7 +55,7 @@ public class InvokerConfig<T> {
 
 	private boolean timeoutRetry = false;
 
-	private String cluster = "failFast";
+	private String cluster = Constants.CLUSTER_FAILFAST;
 
 	private int retries = 1;
 

@@ -5,9 +5,11 @@ package com.dianping.pigeon.console.servlet;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -26,6 +28,7 @@ import com.dianping.pigeon.console.domain.Service;
 import com.dianping.pigeon.console.domain.ServiceMethod;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
@@ -95,6 +98,8 @@ public class ServiceServlet extends HttpServlet {
 		ServicePage page = new ServicePage();
 		page.setPort(this.serverConfig.getPort());
 		page.setHttpPort(this.port);
+		int publishedCount = 0;
+		int unpublishedCount = 0;
 		Map<String, ProviderConfig<?>> services = getServices();
 		for (Entry<String, ProviderConfig<?>> entry : services.entrySet()) {
 			String serviceName = entry.getKey();
@@ -103,6 +108,11 @@ public class ServiceServlet extends HttpServlet {
 			s.setName(serviceName);
 			s.setType(providerConfig.getService().getClass());
 			s.setPublished(providerConfig.isPublished() + "");
+			if (providerConfig.isPublished()) {
+				publishedCount++;
+			} else {
+				unpublishedCount++;
+			}
 			Map<String, Method> allMethods = new HashMap<String, Method>();
 			// Class<?>[] ifaces =
 			// providerConfig.getService().getClass().getInterfaces();
@@ -136,6 +146,23 @@ public class ServiceServlet extends HttpServlet {
 		if (!services.isEmpty()) {
 			page.setStatus("ok");
 		}
+		if (publishedCount > 0 && unpublishedCount == 0) {
+			page.setPublished("true");
+		} else if (publishedCount == 0 && unpublishedCount >= 0) {
+			page.setPublished("false");
+		} else {
+			page.setPublished("inprocess");
+		}
+
+		List<String> invokers = new ArrayList<String>();
+		List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
+		for (Server server : servers) {
+			List<String> serverInvokers = server.getInvokerMetaInfo();
+			if (serverInvokers != null) {
+				invokers.addAll(serverInvokers);
+			}
+		}
+		page.setInvokers(invokers);
 		this.model = page;
 		this.model.setEnv(configManager.getEnv());
 	}
@@ -164,13 +191,10 @@ public class ServiceServlet extends HttpServlet {
 			ServletException {
 		Template temp = cfg.getTemplate(getView());
 		initServicePage();
-		/*if (this.model == null) {
-			synchronized (this) {
-				if (this.model == null) {
-					initServicePage();
-				}
-			}
-		}*/
+		/*
+		 * if (this.model == null) { synchronized (this) { if (this.model ==
+		 * null) { initServicePage(); } } }
+		 */
 		try {
 			temp.process(this.model, response.getWriter());
 		} catch (TemplateException e) {

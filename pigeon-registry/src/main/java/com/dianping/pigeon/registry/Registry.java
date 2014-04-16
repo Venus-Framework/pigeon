@@ -27,7 +27,7 @@ public interface Registry {
 
 	int getServiceWeigth(String serviceAddress) throws RegistryException;
 
-	RegistryMeta getRegistryMeta(String serviceAddress) throws RegistryException;
+	Properties getRegistryMeta(String serviceAddress) throws RegistryException;
 	
 	List<String> getChildren(String key) throws RegistryException;
 }

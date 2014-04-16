@@ -56,7 +56,7 @@ public class RegistryManager {
 		return instance;
 	}
 
-	public void init(Properties properties) {
+	private void init(Properties properties) {
 		instance.setProperties(properties);
 		String registryType = properties.getProperty(Constants.KEY_REGISTRY_TYPE);
 		if (!Constants.REGISTRY_TYPE_LOCAL.equalsIgnoreCase(registryType)) {
@@ -69,11 +69,6 @@ public class RegistryManager {
 
 	public Registry getRegistry() {
 		return registry;
-	}
-
-	public String getProperty(String key) {
-		String v = props.getProperty(key);
-		return v;
 	}
 
 	public void setProperty(String key, String value) {
@@ -240,7 +235,7 @@ public class RegistryManager {
 		return serviceNameToHostInfos;
 	}
 
-	public RegistryMeta getRegistryMeta() throws RegistryException {
+	public Properties getRegistryMeta() throws RegistryException {
 		if (registry != null) {
 			return registry.getRegistryMeta(NetUtils.getFirstLocalIp());
 		}

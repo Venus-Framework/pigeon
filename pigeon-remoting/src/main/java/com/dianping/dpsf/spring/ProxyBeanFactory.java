@@ -63,7 +63,7 @@ public class ProxyBeanFactory implements FactoryBean {
 	 * 重发次数，使用retries参数 5. Forking:并行调用多个服务器，只要一个成功即返回。 6.
 	 * Broadcast:广播调用所有提供者，逐个调用，任意一台报错则报错。
 	 */
-	private String cluster = "failFast";
+	private String cluster = Constants.CLUSTER_FAILFAST;
 
 	/**
 	 * 用于支持P2P调用的服务IP地址，也作为注册中心无法访问时的备用地址

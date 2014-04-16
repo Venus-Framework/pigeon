@@ -23,7 +23,6 @@ import org.springframework.util.CollectionUtils;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
-import com.dianping.pigeon.registry.RegistryMeta;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.listener.DefaultServiceChangeListener;
 import com.dianping.pigeon.registry.listener.ServiceChangeListener;
@@ -137,7 +136,7 @@ public class ZookeeperRegistry implements Registry {
 	@Override
 	public String getServiceAddress(String serviceName, String group) throws RegistryException {
 		String path = Utils.getServicePath(serviceName, group);
-		if (!Utils.isEmpty(group) && !zkExists(path)) {
+		if (!Utils.isEmpty(group) && getZkValue(path) == null) {
 			logger.info(path + " does not exist. Fallback to default group");
 			path = Utils.getServicePath(serviceName, Constants.DEFAULT_GROUP);
 		}
@@ -227,39 +226,36 @@ public class ZookeeperRegistry implements Registry {
 	}
 
 	@Override
-	public RegistryMeta getRegistryMeta(String serviceAddress) throws RegistryException {
+	public Properties getRegistryMeta(String serviceAddress) throws RegistryException {
+		Properties props = new Properties();
 		try {
 			String path = Utils.getRegistryPath(serviceAddress);
 			if (zkClient.exists(path, false) == null) {
-				return RegistryMeta.DEFAULT_REGISTRY_META;
+				return props;
 			}
 
-			RegistryMeta registryMeta = new RegistryMeta();
 			path = Utils.getRegistryPath(serviceAddress, Constants.KEY_GROUP);
 			String value = new String(zkClient.getData(path, false, null), Constants.CHARSET);
-			if (!Utils.isEmpty(value))
-				registryMeta.setGroup(value);
-			else
-				registryMeta.setGroup(Constants.DEFAULT_GROUP);
+			if (!Utils.isEmpty(value)) {
+				props.put(Constants.KEY_GROUP, value);
+			}
 
 			path = Utils.getRegistryPath(serviceAddress, Constants.KEY_WEIGHT);
 			value = new String(zkClient.getData(path, false, null), Constants.CHARSET);
 			if (!Utils.isEmpty(value)) {
 				int weight = Integer.parseInt(value);
-				registryMeta.setWeight(weight);
-			} else
-				registryMeta.setWeight(Constants.DEFAULT_WEIGHT_INT);
+				props.put(Constants.KEY_WEIGHT, weight);
+			}
 
 			path = Utils.getRegistryPath(serviceAddress, Constants.KEY_AUTO_REGISTER);
 			value = new String(zkClient.getData(path, false, null), Constants.CHARSET);
 			if (!Utils.isEmpty(value)) {
 				boolean autoRegister = Boolean.parseBoolean(value);
-				registryMeta.setAutoRegister(autoRegister);
-			} else
-				registryMeta.setAutoRegister(Constants.DEFAULT_AUTO_REGISTER_BOOL);
+				props.put(Constants.KEY_AUTO_REGISTER, autoRegister);
+			}
 
-			logger.info("Registry meta for " + serviceAddress + " is " + registryMeta);
-			return registryMeta;
+			logger.info("Registry meta for " + serviceAddress + " is " + props);
+			return props;
 		} catch (Exception e) {
 			logger.error("Failed to get regsitry meta for " + serviceAddress, e);
 			throw new RegistryException(e);
