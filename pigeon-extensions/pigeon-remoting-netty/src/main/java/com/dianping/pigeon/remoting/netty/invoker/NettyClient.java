@@ -49,9 +49,6 @@ public class NettyClient extends AbstractClient {
 
 	private String address;
 
-	private static final int connectTimeout = ExtensionLoader.getExtension(ConfigManager.class).getIntValue(
-			"pigeon.netty.connecttimeout", 500);
-
 	private volatile boolean connected = false;
 
 	private volatile boolean closed = false;
@@ -68,6 +65,22 @@ public class NettyClient extends AbstractClient {
 	private static final int LOG_LIMIT_INTERVAL = 60;
 
 	private long logCount;
+
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	public int getConnectTimeout() {
+		return configManager.getIntValue(Constants.KEY_CONNECT_TIMEOUT, Constants.DEFAULT_CONNECT_TIMEOUT);
+	}
+
+	public int getWriteBufferHighWater() {
+		return configManager.getIntValue(Constants.KEY_WRITE_BUFFER_HIGH_WATER,
+				Constants.DEFAULT_WRITE_BUFFER_HIGH_WATER);
+	}
+
+	public int getWriteBufferLowWater() {
+		return configManager
+				.getIntValue(Constants.KEY_WRITE_BUFFER_LOW_WATER, Constants.DEFAULT_WRITE_BUFFER_LOW_WATER);
+	}
 
 	public NettyClient(ConnectInfo connectInfo) {
 		this.host = connectInfo.getHost();
@@ -86,7 +99,9 @@ public class NettyClient extends AbstractClient {
 		this.bootstrap.setOption("tcpNoDelay", true);
 		this.bootstrap.setOption("keepAlive", true);
 		this.bootstrap.setOption("reuseAddress", true);
-		this.bootstrap.setOption("connectTimeoutMillis", connectTimeout);
+		this.bootstrap.setOption("connectTimeoutMillis", getConnectTimeout());
+		this.bootstrap.setOption("writeBufferHighWaterMark", getWriteBufferHighWater());
+		this.bootstrap.setOption("writeBufferLowWaterMark", getWriteBufferLowWater());
 	}
 
 	public synchronized void connect() {
@@ -101,7 +116,7 @@ public class NettyClient extends AbstractClient {
 		ChannelFuture future = null;
 		try {
 			future = bootstrap.connect(new InetSocketAddress(host, port));
-			if (future.awaitUninterruptibly(connectTimeout, TimeUnit.MILLISECONDS)) {
+			if (future.awaitUninterruptibly(getConnectTimeout(), TimeUnit.MILLISECONDS)) {
 				if (future.isSuccess()) {
 					Channel newChannel = future.getChannel();
 					try {
