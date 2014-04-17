@@ -4,8 +4,10 @@
  */
 package com.dianping.pigeon.config;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -54,33 +56,43 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	public abstract String doGetGroup() throws Exception;
 
 	public AbstractConfigManager() {
-		Properties properties = new Properties();
-		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPERTIES_PATH);
-		if (input != null) {
-			try {
-				properties.load(input);
-				input.close();
-			} catch (IOException e) {
-				logger.error("", e);
-			}
-		}
-		properties = normalizeConfig(properties);
 		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(getEnv())) {
 			try {
-				init(properties);
+				init(readLocalConfig());
 			} catch (Exception e) {
 				logger.error("", e);
 			}
 		}
 	}
-	
-	private Properties normalizeConfig(Properties props) {
-		Properties newProps = new Properties();
-		for(String key : props.stringPropertyNames()) {
-			String value = props.getProperty(key);
-			newProps.put(key, value.trim());
+
+	private Properties readLocalConfig() {
+		Properties properties = new Properties();
+		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPERTIES_PATH);
+		BufferedReader br = null;
+		if (input != null) {
+			try {
+				br = new BufferedReader(new InputStreamReader(input));
+				String line = null;
+				while ((line = br.readLine()) != null) {
+					int idx = line.indexOf("=");
+					if (idx != -1) {
+						String key = line.substring(0, idx);
+						String value = line.substring(idx + 1);
+						properties.put(key.trim(), value.trim());
+					}
+				}
+			} catch (Exception e) {
+				logger.error("", e);
+			} finally {
+				if (br != null) {
+					try {
+						br.close();
+					} catch (IOException e) {
+					}
+				}
+			}
 		}
-		return newProps;
+		return properties;
 	}
 
 	public boolean getBooleanValue(String key, boolean defaultValue) {
