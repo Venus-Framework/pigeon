@@ -37,6 +37,8 @@ public final class SerializerFactory {
 	public static final String HESSIAN1 = "hessian1";
 	public static final String JSON = "json";
 
+	private static volatile boolean isInitialized = false;
+
 	private final static ConcurrentHashMap<Byte, Serializer> serializers = new ConcurrentHashMap<Byte, Serializer>();
 
 	static {
@@ -44,22 +46,25 @@ public final class SerializerFactory {
 	}
 
 	public static void init() {
-		registerSerializer(SERIALIZE_JAVA, new JavaSerializer());
-		registerSerializer(SERIALIZE_HESSIAN, new HessianSerializer());
-		registerSerializer(SERIALIZE_HESSIAN1, new Hessian1Serializer());
-		if (ProtobufSerializer.support()) {
-			try {
-				registerSerializer(SERIALIZE_PROTOBUF, new ProtobufSerializer());
-			} catch (Throwable t) {
-				logger.warn("failed to initialize protobuf serializer:" + t.getMessage());
+		if (!isInitialized) {
+			registerSerializer(SERIALIZE_JAVA, new JavaSerializer());
+			registerSerializer(SERIALIZE_HESSIAN, new HessianSerializer());
+			registerSerializer(SERIALIZE_HESSIAN1, new Hessian1Serializer());
+			if (ProtobufSerializer.support()) {
+				try {
+					registerSerializer(SERIALIZE_PROTOBUF, new ProtobufSerializer());
+				} catch (Throwable t) {
+					logger.warn("failed to initialize protobuf serializer:" + t.getMessage());
+				}
 			}
-		}
-		if (JacksonSerializer.support()) {
-			try {
-				registerSerializer(SERIALIZE_JSON, new JacksonSerializer());
-			} catch (Throwable t) {
-				logger.warn("failed to initialize jackson serializer:" + t.getMessage());
+			if (JacksonSerializer.support()) {
+				try {
+					registerSerializer(SERIALIZE_JSON, new JacksonSerializer());
+				} catch (Throwable t) {
+					logger.warn("failed to initialize jackson serializer:" + t.getMessage());
+				}
 			}
+			isInitialized = true;
 		}
 	}
 

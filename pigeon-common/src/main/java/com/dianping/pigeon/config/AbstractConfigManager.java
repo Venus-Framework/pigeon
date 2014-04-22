@@ -29,7 +29,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 
 	public static final String KEY_GROUP = "swimlane";
 
-	public static final String KEY_AUTO_REGISTER = "auto.register";
+	public static final String KEY_WEIGHT = "weight";
 
 	public static final String KEY_LOCAL_IP = "host.ip";
 
@@ -38,6 +38,8 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	public static final String KEY_ENV = "environment";
 
 	public static final String DEFAULT_GROUP = "";
+
+	public static final int DEFAULT_WEIGHT = 1;
 
 	private static final String PROPERTIES_PATH = "config/applicationContext.properties";
 
@@ -239,6 +241,35 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		return null;
 	}
 
+	public int getLocalIntValue(String key, int defaultValue) {
+		String strValue = getLocalProperty(key);
+		if (!StringUtils.isBlank(strValue)) {
+			return Integer.valueOf(strValue);
+		}
+		return defaultValue;
+	}
+
+	public long getLocalLongValue(String key, long defaultValue) {
+		String strValue = getLocalProperty(key);
+		if (!StringUtils.isBlank(strValue)) {
+			return Long.valueOf(strValue);
+		}
+		return defaultValue;
+	}
+
+	public boolean getLocalBooleanValue(String key, boolean defaultValue) {
+		String strValue = getLocalProperty(key);
+		if (!StringUtils.isBlank(strValue)) {
+			return Boolean.valueOf(strValue);
+		}
+		return defaultValue;
+	}
+
+	public String getLocalStringValue(String key, String defaultValue) {
+		String value = getLocalProperty(key);
+		return value != null ? value : defaultValue;
+	}
+
 	public String getLocalProperty(String key) {
 		if (localCache.containsKey(key)) {
 			String value = "" + localCache.get(key);
@@ -336,7 +367,13 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				localCache.put(KEY_GROUP, value);
 			}
 		}
+		if (value == null) {
+			return DEFAULT_GROUP;
+		}
 		return value;
 	}
 
+	public int getWeight() {
+		return getLocalIntValue(KEY_WEIGHT, DEFAULT_WEIGHT);
+	}
 }

@@ -80,11 +80,6 @@ public final class Constants {
 	public static final String CONTEXT_FUTURE = "Context-Future";
 	public static final String CONTEXT_SERVER_COST = "Context-Server-Cost";
 
-	// Config keys in /data/webapps/appenv
-	public static final String KEY_GROUP = "swimlane";
-	public static final String KEY_WEIGHT = "weight";
-	public static final String KEY_AUTO_REGISTER = "auto.register";
-	public static final String KEY_LOCAL_IP = "host.ip";
 	// Deafult value for the above keys
 	public static final String DEFAULT_GROUP = "";
 	public static final int DEFAULT_WEIGHT = 1;

@@ -40,6 +40,10 @@ public class ServiceFactory {
 	static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	static Map<InvokerConfig<?>, Object> services = new ConcurrentHashMap<InvokerConfig<?>, Object>();
 
+	static {
+		ProviderBootStrap.init();
+	}
+	
 	public static boolean isCacheService() {
 		return isCacheService;
 	}
@@ -208,7 +212,6 @@ public class ServiceFactory {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
 		}
 		try {
-			ProviderBootStrap.init();
 			ServiceProviderFactory.addService(providerConfig);
 			ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig.getServerConfig());
 			providerConfig.setServerConfig(serverConfig);
@@ -230,7 +233,6 @@ public class ServiceFactory {
 		}
 		if (!CollectionUtils.isEmpty(providerConfigList)) {
 			try {
-				ProviderBootStrap.init();
 				for (ProviderConfig<?> providerConfig : providerConfigList) {
 					if (StringUtils.isBlank(providerConfig.getUrl())) {
 						providerConfig.setUrl(getServiceUrl(providerConfig));

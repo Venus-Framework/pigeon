@@ -93,6 +93,7 @@
 		<p>pigeon services registered at port ${port?c}/${httpPort?c}:</p>
 		<p>version: ${version}</p>
 		<p>env: ${env}</p>
+		<p>group: ${group}</p>
 		</div>
 		<div>
 			<div class="zTreeDemoBackground left">

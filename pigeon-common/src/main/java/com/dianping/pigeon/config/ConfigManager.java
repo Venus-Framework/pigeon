@@ -16,7 +16,7 @@ public interface ConfigManager {
 	public String getEnv();
 
 	public String getConfigServerAddress();
-	
+
 	public String getStringValueFromLocal(String key);
 
 	public String getStringValue(String key);
@@ -42,9 +42,11 @@ public interface ConfigManager {
 	public String getLocalIp();
 
 	public String getGroup();
-	
+
 	public void setStringValue(String key, String value);
-	
+
 	public void deleteKey(String key);
+
+	public int getWeight();
 
 }

@@ -55,9 +55,6 @@ public class ClientManager implements Disposable {
 
 	private static ThreadPool reconnectThreadPool = new DefaultThreadPool("Pigeon-Client-Reconnect-ThreadPool");
 
-	private static ThreadPool registerServiceInvokerThreadPool = new DefaultThreadPool(
-			"Pigeon-Invoker-register-ThreadPool");
-
 	private static ClientManager instance = new ClientManager();
 
 	public static ClientManager getInstance() {

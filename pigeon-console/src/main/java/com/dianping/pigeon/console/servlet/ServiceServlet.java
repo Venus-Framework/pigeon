@@ -5,11 +5,9 @@ package com.dianping.pigeon.console.servlet;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -28,7 +26,6 @@ import com.dianping.pigeon.console.domain.Service;
 import com.dianping.pigeon.console.domain.ServiceMethod;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
@@ -53,13 +50,13 @@ public class ServiceServlet extends HttpServlet {
 
 	protected ServerConfig serverConfig;
 
-	private ServicePage model;
+	protected Object model;
 
 	protected final Logger logger = LoggerLoader.getLogger(this.getClass());
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	protected static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	private static String token;
+	protected static String token;
 
 	{
 		Method[] objectMethodArray = Object.class.getMethods();
@@ -94,7 +91,7 @@ public class ServiceServlet extends HttpServlet {
 		return ServiceProviderFactory.getAllServices();
 	}
 
-	private void initServicePage() {
+	protected void initServicePage() {
 		ServicePage page = new ServicePage();
 		page.setPort(this.serverConfig.getPort());
 		page.setHttpPort(this.port);
@@ -153,18 +150,9 @@ public class ServiceServlet extends HttpServlet {
 		} else {
 			page.setPublished("inprocess");
 		}
-
-		List<String> invokers = new ArrayList<String>();
-		List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
-		for (Server server : servers) {
-			List<String> serverInvokers = server.getInvokerMetaInfo();
-			if (serverInvokers != null) {
-				invokers.addAll(serverInvokers);
-			}
-		}
-		page.setInvokers(invokers);
+		page.setEnv(configManager.getEnv());
+		page.setGroup(configManager.getGroup());
 		this.model = page;
-		this.model.setEnv(configManager.getEnv());
 	}
 
 	public String getView() {

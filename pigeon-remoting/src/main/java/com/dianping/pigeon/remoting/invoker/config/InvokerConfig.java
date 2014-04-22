@@ -46,7 +46,7 @@ public class InvokerConfig<T> {
 
 	private ServiceCallback callback;
 
-	private String group = configManager.getStringValue(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
+	private String group = configManager.getGroup();
 
 	private boolean writeBufferLimit = configManager.getBooleanValue(Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT,
 			Constants.DEFAULT_WRITE_BUFF_LIMIT);

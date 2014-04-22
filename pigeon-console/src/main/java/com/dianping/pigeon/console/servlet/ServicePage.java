@@ -2,6 +2,7 @@ package com.dianping.pigeon.console.servlet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.dianping.pigeon.console.domain.Service;
 
@@ -10,7 +11,7 @@ public class ServicePage {
 
 	private int httpPort;
 
-	private List<Service> services;
+	private List<Service> services = new ArrayList<Service>();
 
 	private String status = "";
 
@@ -19,6 +20,36 @@ public class ServicePage {
 	private String published = "";
 
 	private List<String> invokers;
+
+	private Map<String, String> heartbeats;
+
+	private Map<String, String> reconnects;
+
+	private String group;
+
+	public String getGroup() {
+		return group;
+	}
+
+	public void setGroup(String group) {
+		this.group = group;
+	}
+
+	public Map<String, String> getHeartbeats() {
+		return heartbeats;
+	}
+
+	public void setHeartbeats(Map<String, String> heartbeats) {
+		this.heartbeats = heartbeats;
+	}
+
+	public Map<String, String> getReconnects() {
+		return reconnects;
+	}
+
+	public void setReconnects(Map<String, String> reconnects) {
+		this.reconnects = reconnects;
+	}
 
 	public List<String> getInvokers() {
 		return invokers;
@@ -61,9 +92,6 @@ public class ServicePage {
 	}
 
 	public void addService(Service s) {
-		if (services == null) {
-			services = new ArrayList<Service>();
-		}
 		services.add(s);
 	}
 

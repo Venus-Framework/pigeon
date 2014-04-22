@@ -16,11 +16,13 @@ import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 
 public class RegistryConfigLoader {
-	
+
 	private static final Logger logger = LoggerLoader.getLogger(RegistryConfigLoader.class);
-	
+
 	private static final String ENV_FILE = "/data/webapps/appenv";
-	
+
+	static volatile boolean isInitialized = false;
+
 	/*
 	 * Service config can be stored in /data/webapps/appenv or Registery Center.
 	 * The priority of /data/webapps/appenv is higher than Register Center.
@@ -28,32 +30,35 @@ public class RegistryConfigLoader {
 	 * Service config will be published to ConfigManager. Other module can use
 	 * ConfigManager to get service configs.
 	 */
-	public static void init() {
-		//Properties config = loadDefaultConfig();
-		Properties config = new Properties();
-		try {
-			Properties props = loadFromRegistry();
-			config.putAll(props);
-		} catch (RegistryException e) {
-			logger.error("Failed to load config from registry", e);
+	public synchronized static void init() {
+		if (!isInitialized) {
+			// Properties config = loadDefaultConfig();
+			Properties config = new Properties();
+			try {
+				Properties props = loadFromRegistry();
+				config.putAll(props);
+			} catch (RegistryException e) {
+				logger.error("Failed to load config from registry", e);
+			}
+
+			try {
+				Properties props = loadFromFile();
+				config.putAll(props);
+			} catch (IOException e) {
+				logger.error("Failed to load config from " + ENV_FILE, e);
+			}
+
+			config = normalizeConfig(config);
+			ExtensionLoader.getExtension(ConfigManager.class).init(config);
+			// RegistryManager.getInstance().init(config);
+			isInitialized = true;
 		}
-		
-		try {
-			Properties props = loadFromFile();
-			config.putAll(props);
-		} catch (IOException e) {
-			logger.error("Failed to load config from " + ENV_FILE, e);
-		}
-		
-		config = normalizeConfig(config);
-		ExtensionLoader.getExtension(ConfigManager.class).init(config);
-		//RegistryManager.getInstance().init(config);
 	}
-	
+
 	private static Properties normalizeConfig(Properties props) {
 		// Strip trailing whitespace in property values
 		Properties newProps = new Properties();
-		for(String key : props.stringPropertyNames()) {
+		for (String key : props.stringPropertyNames()) {
 			String value = props.getProperty(key);
 			newProps.put(key, value.trim());
 		}
@@ -75,14 +80,14 @@ public class RegistryConfigLoader {
 	private static Properties loadFromFile() throws IOException {
 		Properties props = new Properties();
 		InputStream in = null;
-		
+
 		try {
 			in = new FileInputStream(ENV_FILE);
 			props.load(in);
 		} catch (FileNotFoundException e) {
 			logger.warn(ENV_FILE + " does not exist");
 		} finally {
-			if(in != null)
+			if (in != null)
 				in.close();
 		}
 		return props;

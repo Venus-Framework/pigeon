@@ -103,7 +103,7 @@ public final class ServiceRegistry {
 	}
 
 	public void setHttpPort(int httpPort) {
-		this.httpPort = httpPort;
+		// this.httpPort = httpPort;
 	}
 
 	public int getCorePoolSize() {

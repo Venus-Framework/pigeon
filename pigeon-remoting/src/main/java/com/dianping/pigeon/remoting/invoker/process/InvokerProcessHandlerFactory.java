@@ -34,15 +34,20 @@ public final class InvokerProcessHandlerFactory extends DefaultExtension {
 
 	private static boolean isMonitorEnabled = configManager.getBooleanValue(Constants.KEY_MONITOR_ENABLED, true);
 
+	private static volatile boolean isInitialized = false;
+
 	public static void init() {
-		registerBizProcessFilter(new GatewayInvokeFilter());
-		registerBizProcessFilter(new ClusterInvokeFilter());
-		if (isMonitorEnabled) {
-			registerBizProcessFilter(new RemoteCallMonitorInvokeFilter());
+		if (!isInitialized) {
+			registerBizProcessFilter(new GatewayInvokeFilter());
+			registerBizProcessFilter(new ClusterInvokeFilter());
+			if (isMonitorEnabled) {
+				registerBizProcessFilter(new RemoteCallMonitorInvokeFilter());
+			}
+			registerBizProcessFilter(new ContextPrepareInvokeFilter());
+			registerBizProcessFilter(new RemoteCallInvokeFilter());
+			bizInvocationHandler = createInvocationHandler(bizProcessFilters);
+			isInitialized = true;
 		}
-		registerBizProcessFilter(new ContextPrepareInvokeFilter());
-		registerBizProcessFilter(new RemoteCallInvokeFilter());
-		bizInvocationHandler = createInvocationHandler(bizProcessFilters);
 	}
 
 	public static ServiceInvocationHandler selectInvocationHandler(InvokerConfig<?> invokerConfig) {

@@ -19,6 +19,7 @@ public class CatMonitor implements Monitor {
 
 	CatLogger innerLogger = new CatLogger(null);
 	MonitorLogger logger = null;
+	volatile boolean isInitialized = false;
 
 	public MonitorLogger createLogger() {
 		MessageProducer cat = null;
@@ -33,10 +34,13 @@ public class CatMonitor implements Monitor {
 
 	@Override
 	public void init() {
-		logger = createLogger();
-		Transaction t = Cat.newTransaction("System", "PigeonClientStart");
-		t.setStatus("0");
-		t.complete();
+		if (!isInitialized) {
+			logger = createLogger();
+			Transaction t = Cat.newTransaction("System", "PigeonClientStart");
+			t.setStatus("0");
+			t.complete();
+			isInitialized = true;
+		}
 	}
 
 	public MonitorLogger getLogger() {

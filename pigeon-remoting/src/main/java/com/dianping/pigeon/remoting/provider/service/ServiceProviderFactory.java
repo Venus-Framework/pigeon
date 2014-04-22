@@ -102,31 +102,26 @@ public final class ServiceProviderFactory {
 					+ existingService);
 		}
 		if (existingService) {
-			String autoRegister = configManager.getStringValue(Constants.KEY_AUTO_REGISTER,
-					Constants.DEFAULT_AUTO_REGISTER);
-			if ("true".equalsIgnoreCase(autoRegister)) {
-				List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
-				int registerCount = 0;
-				for (Server server : servers) {
-					if (server.support(providerConfig.getServerConfig())) {
-						try {
-							server.addService(providerConfig);
-						} catch (RpcException e) {
-							throw new ServiceException("", e);
-						}
-						publishService(server.getRegistryUrl(url), server.getPort(), providerConfig.getServerConfig()
-								.getGroup());
-						registerCount++;
+			List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
+			int registerCount = 0;
+			for (Server server : servers) {
+				if (server.support(providerConfig.getServerConfig())) {
+					try {
+						server.addService(providerConfig);
+					} catch (RpcException e) {
+						throw new ServiceException("", e);
 					}
+					publishService(server.getRegistryUrl(url), server.getPort(), providerConfig.getServerConfig()
+							.getGroup());
+					registerCount++;
 				}
-				if (registerCount > 0) {
-					boolean isNotify = configManager
-							.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
-					if (isNotify && serviceChangeListener != null) {
-						serviceChangeListener.notifyServicePublished(providerConfig);
-					}
-					providerConfig.setPublished(true);
+			}
+			if (registerCount > 0) {
+				boolean isNotify = configManager.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
+				if (isNotify && serviceChangeListener != null) {
+					serviceChangeListener.notifyServicePublished(providerConfig);
 				}
+				providerConfig.setPublished(true);
 			}
 		}
 	}
@@ -152,7 +147,7 @@ public final class ServiceProviderFactory {
 		}
 		try {
 			String serviceAddress = configManager.getLocalIp() + ":" + port;
-			int weight = configManager.getIntValue(Constants.KEY_WEIGHT, Constants.DEFAULT_WEIGHT);
+			int weight = configManager.getWeight();
 			RegistryManager.getInstance().registerService(url, group, serviceAddress, weight);
 		} catch (Exception e) {
 			throw new ServiceException("", e);
@@ -174,30 +169,25 @@ public final class ServiceProviderFactory {
 					+ existingService);
 		}
 		if (existingService) {
-			String autoRegister = configManager.getStringValue(Constants.KEY_AUTO_REGISTER,
-					Constants.DEFAULT_AUTO_REGISTER);
-			if ("true".equalsIgnoreCase(autoRegister)) {
-				List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
-				for (Server server : servers) {
-					if (server.support(providerConfig.getServerConfig())) {
-						String serviceAddress = configManager.getLocalIp() + ":" + server.getPort();
-						try {
-							RegistryManager.getInstance().unregisterService(
-									server.getRegistryUrl(providerConfig.getUrl()),
-									providerConfig.getServerConfig().getGroup(), serviceAddress);
-						} catch (RegistryException e) {
-							throw new ServiceException("", e);
-						}
+			List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
+			for (Server server : servers) {
+				if (server.support(providerConfig.getServerConfig())) {
+					String serviceAddress = configManager.getLocalIp() + ":" + server.getPort();
+					try {
+						RegistryManager.getInstance().unregisterService(server.getRegistryUrl(providerConfig.getUrl()),
+								providerConfig.getServerConfig().getGroup(), serviceAddress);
+					} catch (RegistryException e) {
+						throw new ServiceException("", e);
 					}
 				}
-				boolean isNotify = configManager.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
-				if (isNotify && serviceChangeListener != null) {
-					serviceChangeListener.notifyServiceUnpublished(providerConfig);
-				}
-				providerConfig.setPublished(false);
-				if (logger.isInfoEnabled()) {
-					logger.info("unpublished service from registry:" + providerConfig);
-				}
+			}
+			boolean isNotify = configManager.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
+			if (isNotify && serviceChangeListener != null) {
+				serviceChangeListener.notifyServiceUnpublished(providerConfig);
+			}
+			providerConfig.setPublished(false);
+			if (logger.isInfoEnabled()) {
+				logger.info("unpublished service from registry:" + providerConfig);
 			}
 		}
 	}

@@ -172,4 +172,9 @@ public class NettyServer extends AbstractServer implements Disposable {
 		}
 		return null;
 	}
+	
+	@Override
+	public boolean isStarted() {
+		return started;
+	}
 }

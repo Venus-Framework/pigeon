@@ -16,6 +16,8 @@ import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 
 public interface Server {
 
+	public boolean isStarted();
+	
 	public boolean support(ServerConfig serverConfig);
 
 	public void start(ServerConfig serverConfig);
