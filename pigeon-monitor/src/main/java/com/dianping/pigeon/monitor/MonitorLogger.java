@@ -13,6 +13,8 @@ package com.dianping.pigeon.monitor;
  */
 public interface MonitorLogger {
 
+	void logError(String msg, Throwable t);
+	
 	void logError(Throwable t);
 
 	void logEvent(String name, String source, String event);

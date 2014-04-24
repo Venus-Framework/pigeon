@@ -8,62 +8,149 @@
 	<version>1.0.0</version>
 	<url>http://maven.apache.org</url>
 	<packaging>war</packaging>
+	<properties>
+		<skip_maven_deploy>false</skip_maven_deploy>
+		<cglib.version>2.2.2</cglib.version>
+		<spring.version>3.2.7.RELEASE</spring.version>
+		<jackson.version>2.1.4</jackson.version>
+		<jaxb-api.version>2.2.11</jaxb-api.version>
+	</properties>
+
 	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.11</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.14</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.6.6</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.6.6</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>3.2.5.RELEASE</version>
-		</dependency>
 		<dependency>
 			<groupId>com.dianping.dpsf</groupId>
 			<artifactId>dpsf-net</artifactId>
 			<version>2.1.12</version>
 		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>dae-java-sdk</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.curator</groupId>
+					<artifactId>curator-framework</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-nodep</artifactId>
+			<version>${cglib.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>spy</groupId>
+			<artifactId>spymemcached</artifactId>
+			<version>2.8.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping.cat</groupId>
+			<artifactId>cat-core</artifactId>
+			<version>0.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping.lion</groupId>
+			<artifactId>lion-client</artifactId>
+			<version>0.3.6</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping.lion</groupId>
+			<artifactId>lion-dev</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>${jaxb-api.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.26</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.8.0.10</version>
+		</dependency>
 	</dependencies>
 	<build>
+		<finalName>dae-service-manager</finalName>
 		<plugins>
 			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
-				<artifactId>maven-jetty-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
 				<configuration>
-					<contextPath>/governor</contextPath>
-					<connectors>
-						<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-							<port>4626</port>
-						</connector>
-					</connectors>
-					<stopKey>exit</stopKey>
-					<stopPort>9413</stopPort>
+					<overwrite>true</overwrite>
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<configuration>
-					<warName>${artifactId}-${env}-${version}</warName>
-					<warSourceDirectory>src/main/webapp</warSourceDirectory>
-				</configuration>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>maven-jetty-plugin</artifactId>
+				<version>6.1.10</version>
 			</plugin>
 		</plugins>
 	</build>

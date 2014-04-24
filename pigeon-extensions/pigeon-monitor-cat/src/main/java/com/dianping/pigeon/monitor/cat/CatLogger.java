@@ -41,7 +41,7 @@ public class CatLogger implements MonitorLogger {
 	public MonitorTransaction createTransaction(String name, String uri, Object invocationContext) {
 		if (producer != null) {
 			Transaction transaction = producer.newTransaction(name, uri);
-			return new CatMonitorTransaction(this, transaction, (InvocationContext)invocationContext);
+			return new CatMonitorTransaction(this, transaction, (InvocationContext) invocationContext);
 		}
 		return null;
 	}
@@ -54,13 +54,28 @@ public class CatLogger implements MonitorLogger {
 	 */
 	@Override
 	public void logError(Throwable t) {
-		if(t != null) {
+		if (t != null) {
 			try {
 				if (producer == null) {
 					producer = Cat.getProducer();
 				}
 				if (producer != null && t != null) {
 					producer.logError(t);
+				}
+			} catch (Exception e) {
+				logMonitorError(e);
+			}
+		}
+	}
+
+	public void logError(String msg, Throwable t) {
+		if (t != null) {
+			try {
+				if (producer == null) {
+					producer = Cat.getProducer();
+				}
+				if (producer != null && t != null) {
+					producer.logError(msg, t);
 				}
 			} catch (Exception e) {
 				logMonitorError(e);

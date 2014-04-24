@@ -73,7 +73,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		BufferedReader br = null;
 		if (input != null) {
 			try {
-				br = new BufferedReader(new InputStreamReader(input));
+				br = new BufferedReader(new InputStreamReader(input, "utf-8"));
 				String line = null;
 				while ((line = br.readLine()) != null) {
 					int idx = line.indexOf("=");
