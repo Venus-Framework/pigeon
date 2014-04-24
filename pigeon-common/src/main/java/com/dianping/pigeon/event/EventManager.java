@@ -44,6 +44,7 @@ public class EventManager {
 
 	private EventManager() {
 		asynchronizeEventProcessor = new Thread(new AsynchronizeEventProcessor(), "Pigeon-Asynchronize-Event-Processor");
+		asynchronizeEventProcessor.setDaemon(true);
 		asynchronizeEventProcessor.start();
 	}
 
