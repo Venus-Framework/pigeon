@@ -49,4 +49,6 @@ public interface ConfigManager {
 
 	public int getWeight();
 
+	public String doGetProperty(String key) throws Exception;
+
 }
