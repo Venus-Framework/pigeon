@@ -72,16 +72,24 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			throws ServiceException {
 		String managerAddress = configManager.getStringValue(Constants.KEY_MANAGER_ADDRESS,
 				Constants.DEFAULT_MANAGER_ADDRESS);
-		StringBuilder url = new StringBuilder();
-		url.append("http://").append(managerAddress).append("/service/").append(action);
-		url.append("?env=").append(configManager.getEnv()).append("&id=3&updatezk=false&service=");
-		url.append(providerConfig.getUrl());
+		String env = providerConfig.getServerConfig().getEnv();
+		if (StringUtils.isBlank(env)) {
+			env = configManager.getEnv();
+		}
+		String ip = providerConfig.getServerConfig().getIp();
+		if (StringUtils.isBlank(ip)) {
+			ip = configManager.getLocalIp();
+		}
 		String group = providerConfig.getServerConfig().getGroup();
 		if (StringUtils.isBlank(group)) {
 			group = Constants.DEFAULT_GROUP;
 		}
+		StringBuilder url = new StringBuilder();
+		url.append("http://").append(managerAddress).append("/service/").append(action);
+		url.append("?env=").append(env).append("&id=3&updatezk=false&service=");
+		url.append(providerConfig.getUrl());
 		url.append("&group=").append(group);
-		url.append("&ip=").append(configManager.getLocalIp());
+		url.append("&ip=").append(ip);
 		url.append("&port=").append(providerConfig.getServerConfig().getPort());
 
 		failedNotifyEvents.remove(providerConfig.getUrl());

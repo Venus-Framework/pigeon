@@ -32,10 +32,28 @@ public class ServerConfig {
 			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
 	private String group;
 	private Set<String> protocols = new HashSet<String>();
+	private String env;
+	private String ip;
 
 	public ServerConfig() {
 		protocols.add(Constants.PROTOCOL_DEFAULT);
 		protocols.add(Constants.PROTOCOL_HTTP);
+	}
+
+	public String getEnv() {
+		return env;
+	}
+
+	public void setEnv(String env) {
+		this.env = env;
+	}
+
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
 	}
 
 	public boolean isEnableTest() {
