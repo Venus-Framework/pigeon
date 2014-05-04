@@ -14,7 +14,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 public class NotifyFailureListener implements Runnable {
 
 	private static final Logger logger = LoggerLoader.getLogger(NotifyFailureListener.class);
-	private static final int MAX_RETRIES = 5;
+	private static final int MAX_RETRIES = 3;
 	private static final int CHECK_INTERVAL = 5000;
 	private DefaultServiceChangeListener serviceChangeListener = null;
 

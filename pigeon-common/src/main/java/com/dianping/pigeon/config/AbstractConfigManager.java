@@ -29,7 +29,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 
 	public static final String KEY_GROUP = "swimlane";
 
-	public static final String KEY_WEIGHT = "weight";
+	public static final String KEY_WEIGHT = "pigeon.weight.initial";
 
 	public static final String KEY_LOCAL_IP = "host.ip";
 
@@ -374,6 +374,6 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	}
 
 	public int getWeight() {
-		return getLocalIntValue(KEY_WEIGHT, DEFAULT_WEIGHT);
+		return getIntValue(KEY_WEIGHT, DEFAULT_WEIGHT);
 	}
 }
