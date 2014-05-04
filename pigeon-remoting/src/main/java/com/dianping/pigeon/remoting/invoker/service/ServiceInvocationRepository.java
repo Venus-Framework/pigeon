@@ -68,8 +68,8 @@ public class ServiceInvocationRepository {
 		} else {
 			String msg = "the response has expired:" + response;
 			logger.error(msg);
-			ResponseExpiredException e = new ResponseExpiredException(msg);
-			monitorLogger.logError(e);
+			/*ResponseExpiredException e = new ResponseExpiredException(msg);
+			monitorLogger.logError(e);*/
 		}
 	}
 

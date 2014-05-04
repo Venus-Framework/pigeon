@@ -29,10 +29,9 @@ public class DefaultTest extends BaseInvokerTest {
 
 	@Test
 	public void test() throws Throwable {
-		int threads = configManager.getIntValue("pigeon.test.threads", 50);
+		int threads = 50;
 		System.out.println("threads:" + threads);
 		Assert.notNull(echoService);
-		threads = 5;
 		for (int i = 0; i < threads; i++) {
 			ClientThread thread = new ClientThread(echoService);
 			thread.start();

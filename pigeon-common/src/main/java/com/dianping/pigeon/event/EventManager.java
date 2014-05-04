@@ -40,7 +40,7 @@ public class EventManager {
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	public static boolean IS_EVENT_ENABLED = configManager.getBooleanValue("pigeon.event.enabled", true);
+	public static boolean IS_EVENT_ENABLED = configManager.getBooleanValue("pigeon.event.enabled", false);
 
 	private EventManager() {
 		asynchronizeEventProcessor = new Thread(new AsynchronizeEventProcessor(), "Pigeon-Asynchronize-Event-Processor");
@@ -77,7 +77,7 @@ public class EventManager {
 						// ignore
 						return;
 					}
-					log.error("ִ执行异步事件" + event + "出现错误", e);
+					log.error("执行异步事件" + event + "出现错误", e);
 				}
 			}
 		}

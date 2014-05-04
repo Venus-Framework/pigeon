@@ -28,18 +28,8 @@ public class DefaultTest extends BaseInvokerTest {
 	@Test
 	public void test() throws Throwable {
 		int threads = 50;
-		try {
-			String threadsConfig = ConfigCache.getInstance(registryAddress).getProperty("pigeon.test.threads");
-			if (threadsConfig != null) {
-				threads = Integer.valueOf(threadsConfig);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		System.out.println("threads:" + threads);
-
 		Assert.notNull(echoService);
-
 		for (int i = 0; i < threads; i++) {
 			ClientThread thread = new ClientThread(echoService);
 			thread.start();

@@ -33,16 +33,14 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	private Set<String> publishedUrls = new HashSet<String>();
-
 	private Map<String, NotifyEvent> failedNotifyEvents = new ConcurrentHashMap<String, NotifyEvent>();
-	
+
 	private static ThreadPool failureListenerThreadPool = new DefaultThreadPool("pigeon-notify-failure-listener");
 
 	public DefaultServiceChangeListener() {
 		failureListenerThreadPool.execute(new NotifyFailureListener(this));
 	}
-	
+
 	public Map<String, NotifyEvent> getFailedNotifyEvents() {
 		return failedNotifyEvents;
 	}
@@ -65,12 +63,9 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 
 	@Override
 	public synchronized void notifyServicePublished(ProviderConfig<?> providerConfig) throws ServiceException {
-		if (!publishedUrls.contains(providerConfig.getUrl())) {
-			logger.info("start to notify service published:" + providerConfig);
-			notifyServiceChange("publish", providerConfig);
-			publishedUrls.add(providerConfig.getUrl());
-			logger.info("succeed to notify service published:" + providerConfig);
-		}
+		logger.info("start to notify service published:" + providerConfig);
+		notifyServiceChange("publish", providerConfig);
+		logger.info("succeed to notify service published:" + providerConfig);
 	}
 
 	public synchronized void notifyServiceChange(String action, ProviderConfig<?> providerConfig)
@@ -112,7 +107,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			}
 			response = getMethod.getResponseBodyAsString();
 		} catch (Throwable t) {
-			logger.error("error while notifying service change to url:" + url, t);
+			logger.warn("error while notifying service change to url:" + url, t);
 		} finally {
 			if (getMethod != null) {
 				getMethod.releaseConnection();
@@ -123,22 +118,19 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			isSuccess = true;
 		}
 		if (!isSuccess) {
-			logger.error("error while notifying service change to url:" + url.toString() + ", response:" + response);
+			logger.warn("error while notifying service change to url:" + url.toString() + ", response:" + response);
 		}
 		return isSuccess;
 	}
 
 	@Override
 	public synchronized void notifyServiceUnpublished(ProviderConfig<?> providerConfig) throws ServiceException {
-		if (publishedUrls.contains(providerConfig.getUrl())) {
-			logger.info("start to notify service unpublished:" + providerConfig);
-			try {
-				notifyServiceChange("unpublish", providerConfig);
-				logger.info("succeed to notify service unpublished:" + providerConfig);
-			} catch (ServiceException t) {
-				logger.warn(t.getMessage());
-			}
-			publishedUrls.remove(providerConfig.getUrl());
+		logger.info("start to notify service unpublished:" + providerConfig);
+		try {
+			notifyServiceChange("unpublish", providerConfig);
+			logger.info("succeed to notify service unpublished:" + providerConfig);
+		} catch (ServiceException t) {
+			logger.warn(t.getMessage());
 		}
 	}
 

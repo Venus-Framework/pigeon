@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -26,6 +27,7 @@ import com.dianping.pigeon.console.domain.Service;
 import com.dianping.pigeon.console.domain.ServiceMethod;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
@@ -93,7 +95,17 @@ public class ServiceServlet extends HttpServlet {
 
 	protected void initServicePage() {
 		ServicePage page = new ServicePage();
-		page.setPort(this.serverConfig.getPort());
+		List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
+		StringBuilder ports = new StringBuilder();
+		for (Server server : servers) {
+			if (server.isStarted()) {
+				ports.append(server.getPort()).append("/");
+			}
+		}
+		if(ports.length() > 0) {
+			ports.deleteCharAt(ports.length() - 1);
+			page.setPort(ports.toString());
+		}
 		page.setHttpPort(this.port);
 		int publishedCount = 0;
 		int unpublishedCount = 0;
@@ -140,15 +152,17 @@ public class ServiceServlet extends HttpServlet {
 			}
 			page.addService(s);
 		}
-		if (!services.isEmpty()) {
-			page.setStatus("ok");
-		}
-		if (publishedCount > 0 && unpublishedCount == 0) {
-			page.setPublished("true");
-		} else if (publishedCount == 0 && unpublishedCount >= 0) {
-			page.setPublished("false");
+		page.setStatus("ok");
+		if (services.isEmpty()) {
+			page.setPublished("none");
 		} else {
-			page.setPublished("inprocess");
+			if (publishedCount > 0 && unpublishedCount == 0) {
+				page.setPublished("true");
+			} else if (publishedCount == 0 && unpublishedCount > 0) {
+				page.setPublished("false");
+			} else {
+				page.setPublished("inprocess");
+			}
 		}
 		page.setEnv(configManager.getEnv());
 		page.setGroup(configManager.getGroup());

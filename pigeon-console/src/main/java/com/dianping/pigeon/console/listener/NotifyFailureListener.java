@@ -36,7 +36,7 @@ public class NotifyFailureListener implements Runnable {
 							serviceChangeListener.getFailedNotifyEvents().remove(serviceUrl);
 						} else if (notifyEvent.getRetries() >= MAX_RETRIES) {
 							serviceChangeListener.getFailedNotifyEvents().remove(serviceUrl);
-							logger.error("Reached max retries while notifying to " + notifyEvent.getNotifyUrl());
+							logger.warn("Reached max retries while notifying to " + notifyEvent.getNotifyUrl());
 						}
 					}
 				}

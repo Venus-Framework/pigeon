@@ -90,7 +90,7 @@
 	<div class="row">
 	  <div class="span6"  style="overflow:hidden">
 		<div>
-		<p>pigeon services registered at port ${port?c}/${httpPort?c}:</p>
+		<p>pigeon services registered at port ${port}</p>
 		<p>version: ${version}</p>
 		<p>env: ${env}</p>
 		<p>group: ${group}</p>

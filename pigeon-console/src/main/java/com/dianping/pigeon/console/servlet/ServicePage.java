@@ -7,7 +7,7 @@ import java.util.Map;
 import com.dianping.pigeon.console.domain.Service;
 
 public class ServicePage {
-	private int port;
+	private String port = "";
 
 	private int httpPort;
 
@@ -103,11 +103,11 @@ public class ServicePage {
 		this.httpPort = httpPort;
 	}
 
-	public int getPort() {
+	public String getPort() {
 		return port;
 	}
 
-	public void setPort(int port) {
+	public void setPort(String port) {
 		this.port = port;
 	}
 
