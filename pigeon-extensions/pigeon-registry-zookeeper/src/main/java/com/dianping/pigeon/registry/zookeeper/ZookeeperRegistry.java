@@ -183,6 +183,16 @@ public class ZookeeperRegistry implements Registry {
 		}
 	}
 
+	public void setServerWeight(String serverAddress, int weight) throws RegistryException {
+		try {
+			String weightPath = Utils.getWeightPath(serverAddress);
+			zkClient.updateData(weightPath, "" + weight);
+		} catch (Exception e) {
+			logger.error("error while setting weight:" + serverAddress + " to " + weight, e);
+			throw new RegistryException(e);
+		}
+	}
+
 	private void registerServiceToZookeeper(String serviceName, String group, String serviceAddress, int weight)
 			throws RegistryException {
 		String weightPath = Utils.getWeightPath(serviceAddress);

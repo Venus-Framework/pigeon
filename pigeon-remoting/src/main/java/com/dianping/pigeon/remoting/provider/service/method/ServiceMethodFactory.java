@@ -43,7 +43,7 @@ public final class ServiceMethodFactory {
 	public static ServiceMethod getMethod(InvocationRequest request) throws ServiceException {
 		String serviceName = request.getServiceName();
 		String methodName = request.getMethodName();
-		if(StringUtils.isBlank(methodName)) {
+		if (StringUtils.isBlank(methodName)) {
 			throw new IllegalArgumentException("method name is required");
 		}
 		String[] paramClassNames = request.getParamClassName();
@@ -83,6 +83,10 @@ public final class ServiceMethodFactory {
 			}
 		}
 		return serviceMethodCache;
+	}
+
+	public static void init(String url) {
+		getServiceMethodCache(url);
 	}
 
 }

@@ -12,6 +12,8 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
 
+import com.dianping.pigeon.console.servlet.ServiceOfflineServlet;
+import com.dianping.pigeon.console.servlet.ServiceOnlineServlet;
 import com.dianping.pigeon.console.servlet.ServicePublishServlet;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
 import com.dianping.pigeon.console.servlet.ServiceUnpublishServlet;
@@ -37,6 +39,8 @@ public class JettyConsoleProcessor implements JettyHttpServerProcessor {
 		context.addServlet(new ServletHolder(new ServicePublishServlet(serverConfig, port)), "/services.publish");
 		context.addServlet(new ServletHolder(new ServiceUnpublishServlet(serverConfig, port)), "/services.unpublish");
 		context.addServlet(new ServletHolder(new DependencyJsonServlet(serverConfig, port)), "/dependencies.json");
+		context.addServlet(new ServletHolder(new ServiceOnlineServlet(serverConfig, port)), "/services.online");
+		context.addServlet(new ServletHolder(new ServiceOfflineServlet(serverConfig, port)), "/services.offline");
 		
 		ServletHolder holder = new ServletHolder(new DefaultServlet());
 		URL url = JettyConsoleProcessor.class.getClassLoader().getResource("statics");

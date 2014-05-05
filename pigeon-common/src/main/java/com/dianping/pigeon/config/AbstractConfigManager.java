@@ -148,6 +148,9 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			}
 		}
 		if (strValue == null) {
+			strValue = System.getProperty(key);
+		}
+		if (strValue == null) {
 			try {
 				strValue = doGetLocalProperty(key);
 				if (strValue != null && logger.isInfoEnabled()) {
@@ -197,6 +200,9 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			} else {
 				strValue = value + "";
 			}
+		}
+		if (strValue == null) {
+			strValue = System.getProperty(key);
 		}
 		if (strValue == null) {
 			try {

@@ -43,7 +43,7 @@ public class ServiceFactory {
 	static {
 		ProviderBootStrap.init();
 	}
-	
+
 	public static boolean isCacheService() {
 		return isCacheService;
 	}
@@ -376,4 +376,13 @@ public class ServiceFactory {
 	public static ProviderConfig<?> getServiceConfig(String url) {
 		return ServiceProviderFactory.getServiceConfig(url);
 	}
+
+	public static void setServerWeight(int weight) throws RpcException {
+		try {
+			ServiceProviderFactory.setServerWeight(weight);
+		} catch (ServiceException e) {
+			throw new RpcException("error while setting server weight:" + weight, e);
+		}
+	}
+
 }

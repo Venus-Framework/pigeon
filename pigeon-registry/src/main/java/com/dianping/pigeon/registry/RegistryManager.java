@@ -167,6 +167,12 @@ public class RegistryManager {
 		}
 	}
 
+	public void setServerWeight(String serverAddress, int weight) throws RegistryException {
+		if (registry != null) {
+			registry.setServerWeight(serverAddress, weight);
+		}
+	}
+
 	public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
 		if (registry != null) {
 			registry.unregisterService(serviceName, serviceAddress);
