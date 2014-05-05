@@ -25,6 +25,7 @@ import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.listener.ServiceChangeListener;
 import com.dianping.pigeon.remoting.provider.listener.ServiceRegistryListener;
+import com.dianping.pigeon.remoting.provider.service.method.ServiceMethodFactory;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
 import com.dianping.pigeon.util.VersionUtils;
@@ -92,6 +93,7 @@ public final class ServiceProviderFactory {
 				serviceCache.put(url, providerConfig);
 			}
 		}
+		ServiceMethodFactory.init(url);
 	}
 
 	public static <T> void publishService(ProviderConfig<T> providerConfig) throws ServiceException {
