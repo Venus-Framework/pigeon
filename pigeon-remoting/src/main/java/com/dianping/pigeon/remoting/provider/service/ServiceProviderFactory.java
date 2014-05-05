@@ -172,7 +172,25 @@ public final class ServiceProviderFactory {
 		return serverWeightCache;
 	}
 
-	public static void setServerWeight(int weight) throws ServiceException {
+	public synchronized static void setServerWeightOn() throws ServiceException {
+		for (String serverAddress : serverWeightCache.keySet()) {
+			int weight = serverWeightCache.get(serverAddress);
+			if (weight == 0) {
+				int newWeight = Constants.DEFAULT_WEIGHT;
+				if (logger.isInfoEnabled()) {
+					logger.info("set weight, address:" + serverAddress + ", weight:" + newWeight);
+				}
+				try {
+					RegistryManager.getInstance().setServerWeight(serverAddress, newWeight);
+					serverWeightCache.put(serverAddress, newWeight);
+				} catch (Exception e) {
+					throw new ServiceException("", e);
+				}
+			}
+		}
+	}
+
+	public synchronized static void setServerWeight(int weight) throws ServiceException {
 		try {
 			for (String serverAddress : serverWeightCache.keySet()) {
 				if (logger.isInfoEnabled()) {
@@ -186,7 +204,7 @@ public final class ServiceProviderFactory {
 		}
 	}
 
-	public static <T> void unpublishService(ProviderConfig<T> providerConfig) throws ServiceException {
+	public synchronized static <T> void unpublishService(ProviderConfig<T> providerConfig) throws ServiceException {
 		String url = providerConfig.getUrl();
 		boolean existingService = false;
 		for (String key : serviceCache.keySet()) {
