@@ -17,6 +17,7 @@ import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -43,7 +44,7 @@ public class ServiceFactory {
 	static {
 		ProviderBootStrap.init();
 	}
-	
+
 	public static boolean isCacheService() {
 		return isCacheService;
 	}
@@ -376,4 +377,13 @@ public class ServiceFactory {
 	public static ProviderConfig<?> getServiceConfig(String url) {
 		return ServiceProviderFactory.getServiceConfig(url);
 	}
+
+	public static void setServerWeight(int weight) throws RpcException {
+		try {
+			ServiceProviderFactory.setServerWeight(weight);
+		} catch (ServiceException e) {
+			throw new RpcException("error while setting server weight:" + weight, e);
+		}
+	}
+
 }

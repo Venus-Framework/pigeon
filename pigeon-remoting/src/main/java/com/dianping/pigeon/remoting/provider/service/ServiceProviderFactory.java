@@ -24,6 +24,9 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.listener.ServiceChangeListener;
+import com.dianping.pigeon.remoting.provider.listener.ServiceRegistryListener;
+import com.dianping.pigeon.threadpool.DefaultThreadPool;
+import com.dianping.pigeon.threadpool.ThreadPool;
 import com.dianping.pigeon.util.VersionUtils;
 
 /**
@@ -45,8 +48,12 @@ public final class ServiceProviderFactory {
 	private static boolean DEFAULT_NOTIFY_ENABLE = ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv()) ? false
 			: Constants.DEFAULT_NOTIFY_ENABLE;
 
-	public ServiceProviderFactory() {
-	}
+	private static ConcurrentHashMap<String, Integer> serverWeightCache = new ConcurrentHashMap<String, Integer>();
+
+	private static ThreadPool serviceRegistryListenerThreadPool = new DefaultThreadPool(
+			"pigeon-service-registry-listener");
+
+	private static volatile boolean isRegistryListenerStarted = false;
 
 	public static String getServiceUrlWithVersion(String url, String version) {
 		String newUrl = url;
@@ -141,14 +148,39 @@ public final class ServiceProviderFactory {
 		}
 	}
 
-	private static <T> void publishService(String url, int port, String group) throws ServiceException {
-		if (logger.isInfoEnabled()) {
-			logger.info("publish service to registry, url:" + url + ", port:" + port + ", group:" + group);
-		}
+	private synchronized static <T> void publishService(String url, int port, String group) throws ServiceException {
 		try {
-			String serviceAddress = configManager.getLocalIp() + ":" + port;
+			String serverAddress = configManager.getLocalIp() + ":" + port;
 			int weight = configManager.getWeight();
-			RegistryManager.getInstance().registerService(url, group, serviceAddress, weight);
+			if (logger.isInfoEnabled()) {
+				logger.info("publish service to registry, url:" + url + ", port:" + port + ", group:" + group
+						+ ", address:" + serverAddress + ", weight:" + weight);
+			}
+			RegistryManager.getInstance().registerService(url, group, serverAddress, weight);
+			serverWeightCache.put(serverAddress, weight);
+
+			if (!isRegistryListenerStarted) {
+				serviceRegistryListenerThreadPool.execute(new ServiceRegistryListener());
+				isRegistryListenerStarted = true;
+			}
+		} catch (Exception e) {
+			throw new ServiceException("", e);
+		}
+	}
+
+	public static Map<String, Integer> getServerWeight() {
+		return serverWeightCache;
+	}
+
+	public static void setServerWeight(int weight) throws ServiceException {
+		try {
+			for (String serverAddress : serverWeightCache.keySet()) {
+				if (logger.isInfoEnabled()) {
+					logger.info("set weight, address:" + serverAddress + ", weight:" + weight);
+				}
+				RegistryManager.getInstance().setServerWeight(serverAddress, weight);
+				serverWeightCache.put(serverAddress, weight);
+			}
 		} catch (Exception e) {
 			throw new ServiceException("", e);
 		}
@@ -172,10 +204,11 @@ public final class ServiceProviderFactory {
 			List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
 			for (Server server : servers) {
 				if (server.support(providerConfig.getServerConfig())) {
-					String serviceAddress = configManager.getLocalIp() + ":" + server.getPort();
+					String serverAddress = configManager.getLocalIp() + ":" + server.getPort();
 					try {
 						RegistryManager.getInstance().unregisterService(server.getRegistryUrl(providerConfig.getUrl()),
-								providerConfig.getServerConfig().getGroup(), serviceAddress);
+								providerConfig.getServerConfig().getGroup(), serverAddress);
+						serverWeightCache.remove(serverAddress);
 					} catch (RegistryException e) {
 						throw new ServiceException("", e);
 					}

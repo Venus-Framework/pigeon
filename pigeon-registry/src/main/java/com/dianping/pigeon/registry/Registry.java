@@ -30,4 +30,6 @@ public interface Registry {
 	Properties getRegistryMeta(String serviceAddress) throws RegistryException;
 	
 	List<String> getChildren(String key) throws RegistryException;
+	
+	public void setServerWeight(String serverAddress, int weight) throws RegistryException;
 }

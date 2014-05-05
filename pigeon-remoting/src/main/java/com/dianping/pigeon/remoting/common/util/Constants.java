@@ -108,6 +108,7 @@ public final class Constants {
 	public static final String KEY_NOTIFY_ENABLE = "pigeon.notify.enable";
 	public static final String KEY_TEST_ENABLE = "pigeon.test.enable";
 	public static final String KEY_CONNECT_TIMEOUT = "pigeon.netty.connecttimeout";
+	public static final String KEY_WEIGHT_CHECKINTERVAL = "pigeon.weight.checkinterval";
 
 	public static final int DEFAULT_INVOKER_TIMEOUT = 5000;
 	public static final int DEFAULT_PROVIDER_COREPOOLSIZE = 100;
@@ -131,6 +132,7 @@ public final class Constants {
 	public static final boolean DEFAULT_NOTIFY_ENABLE = true;
 	public static final boolean DEFAULT_TEST_ENABLE = true;
 	public static final int DEFAULT_CONNECT_TIMEOUT = 500;
+	public static final int DEFAULT_WEIGHT_CHECKINTERVAL = 30000;
 
 	public static final String PROTOCOL_HTTP = "http";
 	public static final String PROTOCOL_DEFAULT = "default";
