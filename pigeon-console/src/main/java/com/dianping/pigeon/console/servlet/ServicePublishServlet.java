@@ -49,7 +49,7 @@ public class ServicePublishServlet extends HttpServlet {
 			try {
 				ServiceFactory.publishAllServices();
 				response.getWriter().println("ok");
-			} catch (RpcException e) {
+			} catch (Exception e) {
 				logger.error("Error while publishing all services", e);
 				response.getWriter().println("error:" + e.getMessage());
 			}
