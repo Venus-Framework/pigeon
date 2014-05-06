@@ -31,8 +31,8 @@ public class CheckTask implements Runnable {
     private String group;
     private String ip;
     private int port;
-    private boolean alive;
-    private int deadCount;
+    private volatile boolean alive;
+    private volatile int deadCount;
     private volatile long lastCheckTime;
     private long hostInterval;
 
