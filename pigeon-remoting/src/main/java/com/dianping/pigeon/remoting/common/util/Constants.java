@@ -136,4 +136,8 @@ public final class Constants {
 
 	public static final String PROTOCOL_HTTP = "http";
 	public static final String PROTOCOL_DEFAULT = "default";
+	public static final String KEY_UNPUBLISH_WAITTIME = "pigeon.unpublish.waittime";
+	public static final int DEFAULT_UNPUBLISH_WAITTIME = 3000;
+	public static final String KEY_ONLINE_WHILE_INITIALIZED = "pigeon.online.whileinitialized";
+	public static final boolean DEFAULT_ONLINE_WHILE_INITIALIZED = false;
 }

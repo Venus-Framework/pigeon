@@ -15,7 +15,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
-import org.springframework.util.CollectionUtils;
 
 import com.dianping.dpsf.exception.NetException;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -25,6 +24,7 @@ import com.dianping.pigeon.remoting.invoker.ClientSelector;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
+import com.dianping.pigeon.util.CollectionUtils;
 
 public class DefaultClusterListener implements ClusterListener {
 

@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.util.CollectionUtils;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.exception.ServiceException;
@@ -231,7 +230,7 @@ public class ServiceFactory {
 		if (logger.isInfoEnabled()) {
 			logger.info("add services:" + providerConfigList);
 		}
-		if (!CollectionUtils.isEmpty(providerConfigList)) {
+		if (providerConfigList != null && !providerConfigList.isEmpty()) {
 			try {
 				for (ProviderConfig<?> providerConfig : providerConfigList) {
 					if (StringUtils.isBlank(providerConfig.getUrl())) {

@@ -9,11 +9,10 @@ package com.dianping.pigeon.remoting.netty.invoker;
 
 import java.util.Map;
 
-import org.springframework.util.CollectionUtils;
-
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientFactory;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
+import com.dianping.pigeon.util.CollectionUtils;
 
 /**
  *

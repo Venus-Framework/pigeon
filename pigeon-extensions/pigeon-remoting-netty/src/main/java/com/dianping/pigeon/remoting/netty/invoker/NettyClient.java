@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
@@ -66,7 +67,15 @@ public class NettyClient extends AbstractClient {
 
 	private long logCount;
 
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	private static ExecutorService bossExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory(
+			"Pigeon-Netty-Client-Boss"));
+
+	private static ExecutorService workExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory(
+			"Pigeon-Netty-Client-Worker"));
+
+	private static ChannelFactory channelFactory = new NioClientSocketChannelFactory(bossExecutor, workExecutor);
 
 	public int getConnectTimeout() {
 		return configManager.getIntValue(Constants.KEY_CONNECT_TIMEOUT, Constants.DEFAULT_CONNECT_TIMEOUT);
@@ -88,13 +97,7 @@ public class NettyClient extends AbstractClient {
 		this.connectInfo = connectInfo;
 		this.address = host + ":" + port;
 
-		ExecutorService bossExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory(
-				"Pigeon-Netty-Client-Boss"));
-
-		ExecutorService workExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory(
-				"Pigeon-Netty-Client-Worker"));
-
-		this.bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(bossExecutor, workExecutor));
+		this.bootstrap = new ClientBootstrap(channelFactory);
 		this.bootstrap.setPipelineFactory(new NettyClientPipelineFactory(this));
 		this.bootstrap.setOption("tcpNoDelay", true);
 		this.bootstrap.setOption("keepAlive", true);

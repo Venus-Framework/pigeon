@@ -48,13 +48,6 @@ public class ServiceUnpublishServlet extends HttpServlet {
 		logger.info("unpublishing all services, from " + ip);
 		if (LOCAL_IP_LIST.contains(ip) || ip.equals(configManager.getLocalIp())) {
 			try {
-				ServiceFactory.setServerWeight(0);
-				String wait = request.getParameter("wait");
-				int waitTime = 3000;
-				if (StringUtils.isNotBlank(wait)) {
-					waitTime = Integer.valueOf(wait);
-				}
-				Thread.sleep(waitTime);
 				ServiceFactory.unpublishAllServices();
 				String isShutdown = request.getParameter("shutdown");
 				if ("true".equalsIgnoreCase(isShutdown)) {

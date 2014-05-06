@@ -19,7 +19,6 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.data.Stat;
-import org.springframework.util.CollectionUtils;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
@@ -27,6 +26,7 @@ import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.listener.DefaultServiceChangeListener;
 import com.dianping.pigeon.registry.listener.ServiceChangeListener;
 import com.dianping.pigeon.registry.util.Constants;
+import com.dianping.pigeon.util.CollectionUtils;
 
 public class ZookeeperRegistry implements Registry {
 

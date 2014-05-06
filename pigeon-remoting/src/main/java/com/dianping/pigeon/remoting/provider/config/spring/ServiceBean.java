@@ -13,6 +13,7 @@ import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 
 public class ServiceBean {
 
@@ -85,6 +86,7 @@ public class ServiceBean {
 			providerConfig.setServerConfig(serverBean.init());
 		}
 		ServiceFactory.addService(providerConfig);
+		ServiceProviderFactory.startServiceOnlineListener();
 	}
 
 	@Override

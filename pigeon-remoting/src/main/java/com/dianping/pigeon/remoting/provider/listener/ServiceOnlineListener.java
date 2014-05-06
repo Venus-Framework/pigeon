@@ -12,9 +12,9 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 
-public class ServiceRegistryListener implements Runnable {
+public class ServiceOnlineListener implements Runnable {
 
-	private static final Logger logger = LoggerLoader.getLogger(ServiceRegistryListener.class);
+	private static final Logger logger = LoggerLoader.getLogger(ServiceOnlineListener.class);
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 

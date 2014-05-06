@@ -9,8 +9,6 @@ import static org.jboss.netty.channel.Channels.pipeline;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.Timer;
 
 import com.dianping.pigeon.remoting.netty.invoker.codec.InvokerDecoder;
 import com.dianping.pigeon.remoting.netty.invoker.codec.InvokerEncoder;
@@ -21,7 +19,6 @@ public class NettyClientPipelineFactory implements ChannelPipelineFactory {
 	private ChannelHandler decoder;
 	private ChannelHandler encoder;
 	private ChannelHandler handler;
-	Timer timer = new HashedWheelTimer();
 
 	public NettyClientPipelineFactory(NettyClient client) {
 		this.client = client;
@@ -35,8 +32,6 @@ public class NettyClientPipelineFactory implements ChannelPipelineFactory {
 		pipeline.addLast("decoder", decoder);
 		pipeline.addLast("encoder", encoder);
 		pipeline.addLast("handler", handler);
-		//pipeline.addLast("timeout", new ReadTimeoutHandler(timer, 3));  
-		//pipeline.addLast("timeout", new IdleStateHandler(timer, 10, 10, 0));
 		return pipeline;
 	}
 

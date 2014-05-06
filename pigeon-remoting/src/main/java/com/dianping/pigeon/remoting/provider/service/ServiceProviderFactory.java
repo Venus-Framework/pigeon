@@ -24,7 +24,7 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.listener.ServiceChangeListener;
-import com.dianping.pigeon.remoting.provider.listener.ServiceRegistryListener;
+import com.dianping.pigeon.remoting.provider.listener.ServiceOnlineListener;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethodFactory;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
@@ -51,10 +51,17 @@ public final class ServiceProviderFactory {
 
 	private static ConcurrentHashMap<String, Integer> serverWeightCache = new ConcurrentHashMap<String, Integer>();
 
-	private static ThreadPool serviceRegistryListenerThreadPool = new DefaultThreadPool(
-			"pigeon-service-registry-listener");
+	private static ThreadPool serviceOnlineListenerThreadPool = new DefaultThreadPool("pigeon-service-online-listener");
 
-	private static volatile boolean isRegistryListenerStarted = false;
+	private static volatile boolean isServiceOnlineListenerStarted = false;
+
+	private static volatile PublishStatus status = PublishStatus.TOPUBLISH;
+
+	private static final int unpublishWaitTime = configManager.getIntValue(Constants.KEY_UNPUBLISH_WAITTIME,
+			Constants.DEFAULT_UNPUBLISH_WAITTIME);
+
+	private static final boolean onlineWhileInitialized = configManager.getBooleanValue(
+			Constants.KEY_ONLINE_WHILE_INITIALIZED, Constants.DEFAULT_ONLINE_WHILE_INITIALIZED);
 
 	public static String getServiceUrlWithVersion(String url, String version) {
 		String newUrl = url;
@@ -130,6 +137,11 @@ public final class ServiceProviderFactory {
 				if (isNotify && serviceChangeListener != null) {
 					serviceChangeListener.notifyServicePublished(providerConfig);
 				}
+
+				if (!onlineWhileInitialized) {
+					startServiceOnlineListener();
+				}
+
 				providerConfig.setPublished(true);
 			}
 		}
@@ -160,13 +172,16 @@ public final class ServiceProviderFactory {
 			}
 			RegistryManager.getInstance().registerService(url, group, serverAddress, weight);
 			serverWeightCache.put(serverAddress, weight);
-
-			if (!isRegistryListenerStarted) {
-				serviceRegistryListenerThreadPool.execute(new ServiceRegistryListener());
-				isRegistryListenerStarted = true;
-			}
 		} catch (Exception e) {
 			throw new ServiceException("", e);
+		}
+	}
+
+	public static void startServiceOnlineListener() {
+		if (!isServiceOnlineListenerStarted) {
+			status = PublishStatus.PUBLISHED;
+			serviceOnlineListenerThreadPool.execute(new ServiceOnlineListener());
+			isServiceOnlineListenerStarted = true;
 		}
 	}
 
@@ -175,18 +190,20 @@ public final class ServiceProviderFactory {
 	}
 
 	public synchronized static void setServerWeightOn() throws ServiceException {
-		for (String serverAddress : serverWeightCache.keySet()) {
-			int weight = serverWeightCache.get(serverAddress);
-			if (weight == 0) {
-				int newWeight = Constants.DEFAULT_WEIGHT;
-				if (logger.isInfoEnabled()) {
-					logger.info("set weight, address:" + serverAddress + ", weight:" + newWeight);
-				}
-				try {
-					RegistryManager.getInstance().setServerWeight(serverAddress, newWeight);
-					serverWeightCache.put(serverAddress, newWeight);
-				} catch (Exception e) {
-					throw new ServiceException("", e);
+		if (status.equals(PublishStatus.PUBLISHED)) {
+			for (String serverAddress : serverWeightCache.keySet()) {
+				int weight = serverWeightCache.get(serverAddress);
+				if (weight == 0) {
+					int newWeight = Constants.DEFAULT_WEIGHT;
+					if (logger.isInfoEnabled()) {
+						logger.info("set weight, address:" + serverAddress + ", weight:" + newWeight);
+					}
+					try {
+						RegistryManager.getInstance().setServerWeight(serverAddress, newWeight);
+						serverWeightCache.put(serverAddress, newWeight);
+					} catch (Exception e) {
+						throw new ServiceException("", e);
+					}
 				}
 			}
 		}
@@ -200,6 +217,11 @@ public final class ServiceProviderFactory {
 				}
 				RegistryManager.getInstance().setServerWeight(serverAddress, weight);
 				serverWeightCache.put(serverAddress, weight);
+			}
+			if (weight <= 0) {
+				status = PublishStatus.OFFLINE;
+			} else if (weight > 0) {
+				status = PublishStatus.ONLINE;
 			}
 		} catch (Exception e) {
 			throw new ServiceException("", e);
@@ -286,10 +308,7 @@ public final class ServiceProviderFactory {
 		if (logger.isInfoEnabled()) {
 			logger.info("remove all services");
 		}
-		for (String key : serviceCache.keySet()) {
-			ProviderConfig<?> pc = serviceCache.get(key);
-			unpublishService(pc);
-		}
+		unpublishAllServices();
 		serviceCache.clear();
 	}
 
@@ -297,12 +316,19 @@ public final class ServiceProviderFactory {
 		if (logger.isInfoEnabled()) {
 			logger.info("unpublish all services");
 		}
+		status = PublishStatus.TOUNPUBLISH;
+		setServerWeight(0);
+		try {
+			Thread.sleep(unpublishWaitTime);
+		} catch (InterruptedException e) {
+		}
 		for (String url : serviceCache.keySet()) {
 			ProviderConfig<?> providerConfig = serviceCache.get(url);
 			if (providerConfig != null) {
 				unpublishService(providerConfig);
 			}
 		}
+		status = PublishStatus.UNPUBLISHED;
 	}
 
 	public static void publishAllServices() throws ServiceException {
@@ -315,6 +341,7 @@ public final class ServiceProviderFactory {
 				publishService(providerConfig);
 			}
 		}
+		status = PublishStatus.PUBLISHED;
 	}
 
 	public static Map<String, ProviderConfig<?>> getAllServices() {

@@ -19,6 +19,7 @@ import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
+import com.dianping.pigeon.remoting.provider.listener.ServiceInitializeListener;
 
 /**
  * 
@@ -26,7 +27,7 @@ import com.dianping.pigeon.remoting.provider.config.ServerConfig;
  * @version $Id: ServiceRegistry.java, v 0.1 2013-6-17 下午6:11:08 jianhuihuang
  *          Exp $
  */
-public final class ServiceRegistry {
+public final class ServiceRegistry extends ServiceInitializeListener {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceRegistry.class);
 
