@@ -102,10 +102,10 @@ public class CheckTask implements Runnable {
                 }
             }
         } catch(NetTimeoutException e) {
-            logger.error("server " + getAddress() + " is not responding: " + e.getMessage());
+            logger.error("server " + getAddress() + " timeout, dead count " + deadCount + ": " + e.getMessage());
             alive = false;
         } catch (Throwable t) {
-            logger.error("error while checking health of server: " + getAddress(), t);
+            logger.error("error contacting server " + getAddress() + ", dead count " + deadCount, t);
             alive = false;
         }
         return alive;

@@ -11,7 +11,7 @@
 	<properties>
 		<skip_maven_deploy>false</skip_maven_deploy>
 		<cglib.version>2.2.2</cglib.version>
-		<spring.version>3.2.7.RELEASE</spring.version>
+		<spring.version>3.2.6.RELEASE</spring.version>
 		<jackson.version>2.1.4</jackson.version>
 		<jaxb-api.version>2.2.11</jaxb-api.version>
 	</properties>
@@ -36,7 +36,7 @@
 		<dependency>
 			<groupId>com.dianping.lion</groupId>
 			<artifactId>lion-client</artifactId>
-			<version>0.3.6</version>
+			<version>0.3.7-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -75,6 +75,11 @@
 			<artifactId>spring-core</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
@@ -115,6 +120,14 @@
 	<build>
 		<finalName>dae-service-manager</finalName>
 		<plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-eclipse-plugin</artifactId>
+            <configuration>
+                <downloadSources>true</downloadSources>
+                <downloadJavadocs>false</downloadJavadocs>
+            </configuration>
+            </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
