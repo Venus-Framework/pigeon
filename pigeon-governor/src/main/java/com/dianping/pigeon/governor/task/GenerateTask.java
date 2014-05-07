@@ -47,13 +47,16 @@ public class GenerateTask implements Runnable {
     }
 
     private void waitForTaskComplete() throws InterruptedException {
-//        BlockingQueue<Runnable> queue = manager.getWorkerPool().getQueue();
-//        while(true) {
-//            if(queue.isEmpty())
-//                break;
-//            Thread.sleep(1000);
-//        }
+    	int n = 0;
         while(manager.getWorkerPool().getActiveCount() > 0) {
+        	if(n % 10 == 0) {
+	        	String message = String.format("active threads: %d, queue size: %d, completed task: %d", 
+	        			manager.getWorkerPool().getActiveCount(),
+	        			manager.getWorkerPool().getQueue().size(),
+	        			manager.getWorkerPool().getCompletedTaskCount());
+	        	logger.info(message);
+	        	n++;
+        	}
             Thread.sleep(1000);
         }
     }

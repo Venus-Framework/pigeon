@@ -131,8 +131,8 @@ public class DisposeTask implements Runnable {
         if(httpClient == null) {
             HttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
             HttpConnectionManagerParams params = new HttpConnectionManagerParams();
-            params.setMaxTotalConnections(300);
-            params.setDefaultMaxConnectionsPerHost(50);
+            params.setMaxTotalConnections(500);
+            params.setDefaultMaxConnectionsPerHost(10);
             params.setConnectionTimeout(3000);
             params.setTcpNoDelay(true);
             params.setSoTimeout(3000);
