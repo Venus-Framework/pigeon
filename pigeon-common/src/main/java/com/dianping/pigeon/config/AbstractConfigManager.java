@@ -138,9 +138,9 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		String strValue = null;
 		if (localCache.containsKey(key)) {
 			Object value = localCache.get(key);
-			if (value != null && logger.isInfoEnabled()) {
-				logger.info("read from local cache with key[" + key + "]:" + value);
-			}
+//			if (value != null && logger.isInfoEnabled()) {
+//				logger.info("read from local cache with key[" + key + "]:" + value);
+//			}
 			if (value.getClass() == type) {
 				return (T) value;
 			} else {
