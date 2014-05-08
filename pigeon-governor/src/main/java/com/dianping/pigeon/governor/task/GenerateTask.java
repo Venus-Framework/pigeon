@@ -2,6 +2,7 @@ package com.dianping.pigeon.governor.task;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -47,15 +48,14 @@ public class GenerateTask implements Runnable {
     }
 
     private void waitForTaskComplete() throws InterruptedException {
-    	int n = 0;
+    	AtomicInteger n = new AtomicInteger(0);
         while(manager.getWorkerPool().getActiveCount() > 0) {
-        	if(n % 10 == 0) {
+        	if(n.getAndIncrement() % 10 == 0) {
 	        	String message = String.format("active threads: %d, queue size: %d, completed task: %d", 
 	        			manager.getWorkerPool().getActiveCount(),
 	        			manager.getWorkerPool().getQueue().size(),
 	        			manager.getWorkerPool().getCompletedTaskCount());
 	        	logger.info(message);
-	        	n++;
         	}
             Thread.sleep(1000);
         }

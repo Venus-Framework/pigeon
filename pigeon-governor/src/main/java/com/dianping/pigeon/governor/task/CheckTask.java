@@ -1,5 +1,9 @@
 package com.dianping.pigeon.governor.task;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -83,6 +87,9 @@ public class CheckTask implements Runnable {
     private boolean isServerAlive() {
         boolean alive = false;
         try {
+        	if(!isPortAvailable()) {
+        		return false;
+        	}
             InvocationRequest request = createHealthCheckRequest();
             InvocationResponse response = getHealthCheckResponse(request);
             if (response != null) {
@@ -111,6 +118,26 @@ public class CheckTask implements Runnable {
         return alive;
     }
 
+    private boolean isPortAvailable() {
+    	Socket socket = null;
+    	try {
+    		socket = new Socket();
+    		socket.setReuseAddress(true);
+    		SocketAddress sa = new InetSocketAddress(ip, port);
+    		socket.connect(sa, 3000);
+			return true;
+		} catch (IOException e) {
+			return false;
+		} finally {
+			if(socket != null) {
+				try {
+					socket.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+    }
+    
     private boolean isSameGroup(String group1, String group2) {
         if(StringUtils.isEmpty(group1))
             return StringUtils.isEmpty(group2);

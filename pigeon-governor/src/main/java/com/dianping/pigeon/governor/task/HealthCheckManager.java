@@ -4,12 +4,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -31,6 +35,10 @@ public class HealthCheckManager extends Thread {
     
     private Registry registryClass = ExtensionLoader.getExtension(Registry.class);
     
+    private int corePoolSize = Runtime.getRuntime().availableProcessors();
+    private int maxPoolSize = corePoolSize * 10;
+    private int queueSize = 500;
+    
     private BlockingQueue<CheckTask> resultQueue = new LinkedBlockingQueue<CheckTask>();
     
     private ThreadPoolExecutor workerPool;
@@ -51,7 +59,8 @@ public class HealthCheckManager extends Thread {
     }
     
     public void run() {
-        workerPool = new ThreadPoolExecutor(4, 20, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+        workerPool = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 60, TimeUnit.SECONDS, 
+        		new ArrayBlockingQueue<Runnable>(queueSize), new NamingThreadFactory("pigeon-healthcheck"), new BlockProviderPolicy());
         
         bossPool = Executors.newFixedThreadPool(2);
         bossPool.submit(new GenerateTask(this));
@@ -121,6 +130,43 @@ public class HealthCheckManager extends Thread {
         
         new HealthCheckManager().start();
         logger.info("HealthCheckManager started");
+    }
+    
+    class BlockProviderPolicy implements RejectedExecutionHandler {
+
+		@Override
+		public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+			if (!executor.isShutdown()) {
+				try {
+					executor.getQueue().put(r);
+				} catch (InterruptedException e) {
+					// should not be interrupted
+				}
+			}
+		}
+    	
+    }
+    
+    class NamingThreadFactory implements ThreadFactory {
+
+    	private String prefix;
+    	private AtomicInteger n;
+
+		public NamingThreadFactory(String prefix) {
+			if(prefix == null) {
+				throw new NullPointerException("Thread name prefix is null");
+			}
+    		this.prefix = prefix;
+    		this.n = new AtomicInteger(0);
+    	}
+    	
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(r, prefix + "-" + n.incrementAndGet());
+			t.setDaemon(true);
+			return t;
+		}
+    	
     }
 
 }
