@@ -21,7 +21,7 @@ import com.dianping.pigeon.util.ContextUtils;
  * 
  * 
  * @author jianhuihuang
- * @version $Id: ContextTransferProcessFilter.java, v 0.1 2013-6-18 上午11:11:34
+ * @version $Id: ContextTransferProcessFilter.java, v 0.1 2013-6-18 ������11:11:34
  *          jianhuihuang Exp $
  */
 public class ContextTransferProcessFilter implements ServiceInvocationFilter<ProviderContext> {
@@ -63,6 +63,7 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 				processContext.putContextValue(entry.getKey(), entry.getValue());
 			}
 		}
+		ContextUtils.putLocalContext("CLIENT_IP", processContext.getChannel().getRemoteAddress());
 	}
 
 	private void transferContextValueToResponse(final ProviderContext processContext, final InvocationResponse response) {

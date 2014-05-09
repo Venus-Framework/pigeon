@@ -1,7 +1,6 @@
 package com.dianping.pigeon.governor.task;
 
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;

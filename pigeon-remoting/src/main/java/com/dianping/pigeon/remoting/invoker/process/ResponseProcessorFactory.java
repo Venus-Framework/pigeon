@@ -8,13 +8,14 @@ import com.dianping.pigeon.remoting.invoker.process.threadpool.ResponseThreadPoo
 
 public class ResponseProcessorFactory {
 
+	private static ResponseProcessor responseProcessor = new ResponseThreadPoolProcessor();
+	
 	public static ResponseProcessor selectProcessor() {
 		// ConfigManager configManager =
 		// ExtensionLoader.getExtension(ConfigManager.class);
 		// String processType =
 		// configManager.getStringValue(Constants.KEY_PROCESS_TYPE,
 		// Constants.DEFAULT_PROCESS_TYPE);
-		ResponseProcessor responseProcessor = new ResponseThreadPoolProcessor();
 		return responseProcessor;
 	}
 }
