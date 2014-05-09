@@ -6,6 +6,7 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import com.dianping.dpsf.async.ServiceFuture;
 import com.dianping.dpsf.async.ServiceFutureFactory;
+import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
@@ -54,7 +55,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 			InvokerUtils.sendRequest(client, invokerContext.getRequest(), null);
 			response = NO_RETURN_RESPONSE;
 		} else {
-			throw new RuntimeException("Call method[" + callMethod + "] is not supported!");
+			throw new DPSFException("Call type[" + callMethod + "] is not supported!");
 		}
 		afterInvoke(request, response, client);
 		return response;

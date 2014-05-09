@@ -164,7 +164,7 @@ public class ServiceServlet extends HttpServlet {
 				page.setPublished("inprocess");
 			}
 		}
-		page.setEnv(configManager.getEnv());
+		page.setEnvironment(configManager.getEnv());
 		page.setGroup(configManager.getGroup());
 		this.model = page;
 	}

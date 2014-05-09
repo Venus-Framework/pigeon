@@ -1,4 +1,4 @@
-{"port": "${port}", "pigeonVersion": "${version}", "env": "${env}", "group": "${group}","published": "${published}", "services": [
+{"port": "${port}", "pigeonVersion": "${version}", "env": "${environment}", "group": "${group}","published": "${published}", "services": [
 <#list services as x>
 	{
 		"name": "${x.name}", 

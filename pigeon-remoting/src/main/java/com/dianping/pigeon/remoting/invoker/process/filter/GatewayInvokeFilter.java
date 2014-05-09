@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceFutureFactory;
+import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
@@ -39,7 +40,7 @@ public class GatewayInvokeFilter extends InvocationInvokeFilter {
 		try {
 			if (maxRequests > 0) {
 				if (requests.incrementAndGet() > maxRequests) {
-					throw new RuntimeException("request refused, max requests limit reached:" + maxRequests);
+					throw new DPSFException("request refused, max requests limit reached:" + maxRequests);
 				}
 			}
 			try {

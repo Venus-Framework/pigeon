@@ -28,7 +28,7 @@
 						content.hide();
 						return;
 					}
-					if('${env}'=='product'){
+					if('${environment}'=='product'){
 						content.append("<p>verification code(you can get it from pigeon log):<input type='text' id='token' value=''/></p>");
 					}
 					for(var i = 0; i < treeNode.parameters; i++){
@@ -54,7 +54,7 @@
 							}
 						});
 					});
-					if('${env}'=='product'){
+					if('${environment}'=='product'){
 						$("#invokeBtn").easyconfirm({locale: {
 							title: 'WARNING',
 							text: 'Are you sure you want to continue? Be careful in the production environment!!!',
@@ -92,7 +92,7 @@
 		<div>
 		<p>pigeon services registered at port ${port}</p>
 		<p>version: ${version}</p>
-		<p>env: ${env}</p>
+		<p>env: ${environment}</p>
 		<p>group: ${group}</p>
 		</div>
 		<div>

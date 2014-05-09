@@ -3,6 +3,7 @@ package com.dianping.pigeon.remoting.invoker.util;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.dpsf.exception.NetException;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -77,11 +78,11 @@ public class InvokerUtils {
 			Map errors = (Map) responseReturn;
 			String detailMessage = (String) errors.get("detailMessage");
 			StackTraceElement[] stackTrace = (StackTraceElement[]) errors.get("stackTrace");
-			RuntimeException e = new RuntimeException(detailMessage);
+			DPSFException e = new DPSFException(detailMessage);
 			e.setStackTrace(stackTrace);
 			return e;
 		} else {
-			return new RuntimeException(responseReturn.toString());
+			return new DPSFException(responseReturn.toString());
 		}
 	}
 

@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
@@ -58,7 +59,7 @@ public class ServiceInvocationProxy implements InvocationHandler {
 					|| messageType == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 				throw InvokerUtils.toInvocationThrowable(responseReturn);
 			}
-			throw new RuntimeException("unsupported response with type[" + messageType + "].");
+			throw new DPSFException("unsupported response with type[" + messageType + "].");
 		}
 		return getReturn(returnType);
 	}

@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.domain.HostInfo;
@@ -113,11 +114,11 @@ public class ClientManager implements Disposable {
 			}
 		} catch (Exception e) {
 			logger.error("cannot get service provider for service:" + serviceName);
-			throw new RuntimeException(e);
+			throw new DPSFException(e);
 		}
 
 		if (StringUtils.isBlank(serviceAddress)) {
-			throw new RuntimeException("no service provider found for service:" + serviceName + ",group:" + group
+			throw new DPSFException("no service provider found for service:" + serviceName + ",group:" + group
 					+ ",vip:" + vip);
 		}
 
@@ -140,7 +141,7 @@ public class ClientManager implements Disposable {
 					int weight = RegistryManager.getInstance().getServiceWeight(address);
 					RegistryEventListener.providerAdded(serviceName, host, port, weight);
 				} catch (Exception e) {
-					throw new RuntimeException("error while registering service invoker:" + serviceName + ", address:"
+					throw new DPSFException("error while registering service invoker:" + serviceName + ", address:"
 							+ address, e);
 				}
 			}

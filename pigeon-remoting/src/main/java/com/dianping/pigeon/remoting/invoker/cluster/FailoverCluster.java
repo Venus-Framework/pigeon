@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.dpsf.exception.NetException;
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -79,7 +80,7 @@ public class FailoverCluster implements Cluster {
 				}
 			}
 		}
-		throw new RuntimeException("Invoke method[" + invocationContext.getMethodName() + "] on service["
+		throw new DPSFException("Invoke method[" + invocationContext.getMethodName() + "] on service["
 				+ invokerConfig.getUrl() + "] failed with " + invokeTimes + " times, last error: "
 				+ (lastError != null ? lastError.getMessage() : ""),
 				lastError != null && lastError.getCause() != null ? lastError.getCause() : lastError);

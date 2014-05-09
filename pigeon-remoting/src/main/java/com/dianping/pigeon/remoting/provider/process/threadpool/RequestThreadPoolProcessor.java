@@ -46,6 +46,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 					ServiceInvocationHandler invocationHandler = ProviderProcessHandlerFactory
 							.selectInvocationHandler(providerContext.getRequest().getMessageType());
 					if (invocationHandler != null) {
+						providerContext.setThread(Thread.currentThread());
 						return invocationHandler.handle(providerContext);
 					}
 				} catch (Throwable t) {

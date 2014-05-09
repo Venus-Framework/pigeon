@@ -9,18 +9,13 @@ import java.util.concurrent.Future;
 import com.dianping.pigeon.remoting.common.domain.AbstractInvocationContext;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: InvocationProcessContextImpl.java, v 0.1 2013-6-30 下午7:41:22
- *          jianhuihuang Exp $
- */
+
 public class DefaultProviderContext extends AbstractInvocationContext implements ProviderContext {
 
 	private Throwable serviceError;
 	private ProviderChannel channel;
 	private Future<?> future;
+	private Thread thread;
 
 	public DefaultProviderContext(InvocationRequest request, ProviderChannel channel) {
 		super(request);
@@ -43,10 +38,20 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 	public void setFuture(Future<?> future) {
 		this.future = future;
 	}
-	
+
 	@Override
 	public Future<?> getFuture() {
 		return this.future;
+	}
+
+	@Override
+	public Thread getThread() {
+		return thread;
+	}
+
+	@Override
+	public void setThread(Thread thread) {
+		this.thread = thread;
 	}
 
 }

@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -43,7 +44,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 				ContextUtils.putLocalContext(Constants.REQUEST_TIMEOUT, request.getTimeout());
 			}
 			if (Thread.currentThread().isInterrupted()) {
-				StringBuffer msg = new StringBuffer();
+				StringBuilder msg = new StringBuilder();
 				msg.append("the request has been canceled by timeout checking processor:").append(request);
 				throw new NetTimeoutException(msg.toString());
 			}
@@ -59,7 +60,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			}
 			return response;
 		}
-		throw new RuntimeException("message type[" + request.getMessageType() + "] is not supported!");
+		throw new DPSFException("message type[" + request.getMessageType() + "] is not supported!");
 	}
 
 }

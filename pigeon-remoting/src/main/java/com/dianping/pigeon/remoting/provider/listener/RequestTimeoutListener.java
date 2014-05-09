@@ -47,14 +47,22 @@ public class RequestTimeoutListener implements Runnable {
 									future.cancel(false);
 								}
 							} else {
-								StringBuffer msg = new StringBuffer();
+								StringBuilder msg = new StringBuilder();
 								msg.append("timeout while processing request, from:")
 										.append(rc.getChannel() == null ? "" : rc.getChannel().getRemoteAddress())
 										.append(", to:")
 										.append(ExtensionLoader.getExtension(ConfigManager.class).getLocalIp())
 										.append(", process time:").append(System.currentTimeMillis()).append("\r\n")
 										.append("request:").append(request);
-								ProcessTimeoutException te = new ProcessTimeoutException(msg.toString());
+								ProcessTimeoutException te = null;
+								Thread t = rc.getThread();
+								if (t == null) {
+									msg.append("\r\n the task has not been executed by threadPool");
+									te = new ProcessTimeoutException(msg.toString());
+								} else {
+									te = new ProcessTimeoutException(msg.toString());
+									te.setStackTrace(t.getStackTrace());
+								}
 								ContextUtils.setContext(request.getContext());
 								logger.error(te.getMessage(), te);
 								if (monitorLogger != null) {

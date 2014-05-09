@@ -53,7 +53,7 @@ public class ServiceCallbackWrapper implements Callback {
 						.append(" methodName:").append(request.getMethodName()).append("\r\n host:")
 						.append(client.getHost()).append(":").append(client.getPort());
 				
-				response.setReturn(new RuntimeException(sb.toString(), InvokerUtils.toInvocationThrowable(response.getReturn())));
+				response.setReturn(new DPSFException(sb.toString(), InvokerUtils.toInvocationThrowable(response.getReturn())));
 			}
 			try {
 				if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {

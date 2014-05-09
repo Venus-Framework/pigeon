@@ -17,7 +17,6 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
-import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 
 public class InvocationTimeoutListener implements Runnable {

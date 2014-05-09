@@ -15,7 +15,7 @@ public class ServicePage {
 
 	private String status = "";
 
-	private String env = "";
+	private String environment = "";
 
 	private String published = "";
 
@@ -67,12 +67,12 @@ public class ServicePage {
 		this.published = published;
 	}
 
-	public String getEnv() {
-		return env;
+	public String getEnvironment() {
+		return environment;
 	}
 
-	public void setEnv(String env) {
-		this.env = env;
+	public void setEnvironment(String environment) {
+		this.environment = environment;
 	}
 
 	public String getStatus() {

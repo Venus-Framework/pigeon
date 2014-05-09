@@ -6,6 +6,7 @@ package com.dianping.pigeon.remoting.invoker;
 
 import java.util.List;
 
+import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 
@@ -24,6 +25,6 @@ public class ClientSelector {
 				return clientFactory.createClient(connectInfo);
 			}
 		}
-		throw new RuntimeException("no available client been created from client factory:" + connectInfo);
+		throw new DPSFException("no available client been created from client factory:" + connectInfo);
 	}
 }

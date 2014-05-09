@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.hessian.Hessian1Serializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
@@ -94,7 +95,7 @@ public final class SerializerFactory {
 	public static Serializer getSerializer(byte serializerType) {
 		Serializer serializer = serializers.get(serializerType);
 		if (serializer == null) {
-			throw new RuntimeException("no serializer found for type:" + serializerType);
+			throw new DPSFException("no serializer found for type:" + serializerType);
 		} else {
 			return serializer;
 		}

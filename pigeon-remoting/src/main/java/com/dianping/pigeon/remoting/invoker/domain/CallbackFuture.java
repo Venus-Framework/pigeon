@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.dianping.avatar.tracker.TrackerContext;
+import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -87,7 +88,7 @@ public class CallbackFuture implements Callback, CallFuture {
 					cause = InvokerUtils.toInvocationThrowable(response.getReturn());
 				}
 				if (cause == null) {
-					cause = new RuntimeException(response.getCause());
+					cause = new DPSFException(response.getCause());
 				}
 				StringBuilder sb = new StringBuilder();
 				sb.append("remote service exception\r\nrequest:").append(request).append("\r\nhost:")

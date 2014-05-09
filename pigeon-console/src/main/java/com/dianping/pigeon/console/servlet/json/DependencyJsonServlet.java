@@ -47,7 +47,7 @@ public class DependencyJsonServlet extends ServiceServlet {
 		}
 		ServicePage page = new ServicePage();
 		page.setInvokers(invokers);
-		page.setEnv(configManager.getEnv());
+		page.setEnvironment(configManager.getEnv());
 		Map<String, String> heartbeatsResults = new HashMap<String, String>();
 		Map<String, List<Client>> heartbeats = clientManager.getHeartTask().getWorkingClients();
 		if (heartbeats != null) {

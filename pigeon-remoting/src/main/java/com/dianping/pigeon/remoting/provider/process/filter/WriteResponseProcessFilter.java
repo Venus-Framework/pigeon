@@ -24,13 +24,7 @@ import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
 import com.dianping.pigeon.util.ContextUtils;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: WriteResponseProcessFilter.java, v 0.1 2013-6-20 下午5:46:19
- *          jianhuihuang Exp $
- */
+
 public class WriteResponseProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
 	private static final Logger logger = LoggerLoader.getLogger(WriteResponseProcessFilter.class);
@@ -51,7 +45,7 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 				channel.write(response);
 				if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
 						&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
-					StringBuffer msg = new StringBuffer();
+					StringBuilder msg = new StringBuilder();
 					msg.append("request timeout,\r\nrequest:").append(request).append("\r\nresponse:").append(response);
 					ProcessTimeoutException te = new ProcessTimeoutException(msg.toString());
 					logger.error(te.getMessage(), te);
