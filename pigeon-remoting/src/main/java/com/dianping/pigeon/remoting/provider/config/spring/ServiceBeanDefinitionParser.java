@@ -39,7 +39,7 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 	private final Class<?> beanClass;
 
 	private final boolean required;
-	
+
 	public static AtomicInteger idCounter = new AtomicInteger();
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
@@ -78,7 +78,7 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 			}
 			properties.addPropertyValue("serverBean", new RuntimeBeanReference(server));
 		}
-		
+
 		if (element.hasAttribute("url")) {
 			properties.addPropertyValue("url", resolveReference(element, "url"));
 		}
@@ -87,6 +87,9 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		if (element.hasAttribute("version")) {
 			properties.addPropertyValue("version", resolveReference(element, "version"));
+		}
+		if (element.hasAttribute("cancelTimeout")) {
+			properties.addPropertyValue("cancelTimeout", resolveReference(element, "cancelTimeout"));
 		}
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
 

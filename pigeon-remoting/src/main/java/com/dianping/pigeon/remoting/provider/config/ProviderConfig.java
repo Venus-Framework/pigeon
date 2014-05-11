@@ -7,6 +7,8 @@ package com.dianping.pigeon.remoting.provider.config;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.dianping.pigeon.remoting.common.util.Constants;
+
 public class ProviderConfig<T> {
 
 	private Class<T> serviceInterface;
@@ -15,6 +17,15 @@ public class ProviderConfig<T> {
 	private T service;
 	private ServerConfig serverConfig = new ServerConfig();
 	private boolean published = false;
+	private boolean cancelTimeout = Constants.DEFAULT_TIMEOUT_CANCEL;
+
+	public boolean isCancelTimeout() {
+		return cancelTimeout;
+	}
+
+	public void setCancelTimeout(boolean cancelTimeout) {
+		this.cancelTimeout = cancelTimeout;
+	}
 
 	public boolean isPublished() {
 		return published;
@@ -69,9 +80,12 @@ public class ProviderConfig<T> {
 	}
 
 	public void setServiceInterface(Class<T> serviceInterface) {
-		/*if (serviceInterface != null && !serviceInterface.isInterface()) {
-			throw new IllegalArgumentException("'serviceInterface' must be an interface");
-		}*/
+		/*
+		 * if (serviceInterface != null && !serviceInterface.isInterface()) {
+		 * throw new
+		 * IllegalArgumentException("'serviceInterface' must be an interface");
+		 * }
+		 */
 		this.serviceInterface = serviceInterface;
 	}
 

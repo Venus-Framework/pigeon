@@ -25,8 +25,11 @@ public class RequestTimeoutListener implements Runnable {
 	private static final Logger logger = LoggerLoader.getLogger(RequestTimeoutListener.class);
 	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
 	private Map<InvocationRequest, ProviderContext> requestContextMap;
-	private long timeoutInterval = ExtensionLoader.getExtension(ConfigManager.class).getLongValue(
-			Constants.KEY_TIMEOUT_INTERVAL, Constants.DEFAULT_TIMEOUT_INTERVAL);
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private long timeoutInterval = configManager.getLongValue(Constants.KEY_TIMEOUT_INTERVAL,
+			Constants.DEFAULT_TIMEOUT_INTERVAL);
+	private boolean defaultCancelTimeout = configManager.getBooleanValue(Constants.KEY_TIMEOUT_CANCEL,
+			Constants.DEFAULT_TIMEOUT_CANCEL);
 
 	public RequestTimeoutListener(Map<InvocationRequest, ProviderContext> requestContextMap) {
 		this.requestContextMap = requestContextMap;
@@ -41,10 +44,11 @@ public class RequestTimeoutListener implements Runnable {
 							&& (request.getCreateMillisTime() + request.getTimeout()) < currentTime) {
 						try {
 							ProviderContext rc = requestContextMap.get(request);
+							boolean cancelTimeout = defaultCancelTimeout;
 							if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
 								Future<?> future = rc.getFuture();
 								if (future != null && !future.isCancelled()) {
-									future.cancel(false);
+									future.cancel(cancelTimeout);
 								}
 							} else {
 								StringBuilder msg = new StringBuilder();
@@ -70,7 +74,7 @@ public class RequestTimeoutListener implements Runnable {
 								}
 								Future<?> future = rc.getFuture();
 								if (future != null && !future.isCancelled()) {
-									future.cancel(false);
+									future.cancel(cancelTimeout);
 								}
 							}
 						} finally {

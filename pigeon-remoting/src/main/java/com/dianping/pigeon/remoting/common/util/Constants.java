@@ -140,4 +140,6 @@ public final class Constants {
 	public static final int DEFAULT_UNPUBLISH_WAITTIME = 3000;
 	public static final String KEY_ONLINE_WHILE_INITIALIZED = "pigeon.online.whileinitialized";
 	public static final boolean DEFAULT_ONLINE_WHILE_INITIALIZED = false;
+	public static final boolean DEFAULT_TIMEOUT_CANCEL = false;
+	public static final String KEY_TIMEOUT_CANCEL = "pigeon.timeout.cancel";
 }

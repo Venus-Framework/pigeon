@@ -36,6 +36,7 @@ public final class ServiceRegistry extends ServiceInitializeListener {
 	private int port = ServerConfig.DEFAULT_PORT;
 	private int httpPort = ServerConfig.DEFAULT_HTTP_PORT;
 	private boolean autoSelectPort = true;
+	private boolean cancelTimeout = Constants.DEFAULT_TIMEOUT_CANCEL;
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
 			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
@@ -51,6 +52,14 @@ public final class ServiceRegistry extends ServiceInitializeListener {
 	private String serviceType = "dp";
 	@Deprecated
 	private boolean enableEngine = true;
+
+	public boolean isCancelTimeout() {
+		return cancelTimeout;
+	}
+
+	public void setCancelTimeout(boolean cancelTimeout) {
+		this.cancelTimeout = cancelTimeout;
+	}
 
 	@Deprecated
 	public int getEnginePort() {
@@ -160,6 +169,7 @@ public final class ServiceRegistry extends ServiceInitializeListener {
 			ProviderConfig providerConfig = new ProviderConfig(services.get(url));
 			providerConfig.setUrl(url);
 			providerConfig.setServerConfig(serverConfig);
+			providerConfig.setCancelTimeout(cancelTimeout);
 			providerConfigList.add(providerConfig);
 		}
 		try {

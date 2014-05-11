@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 
@@ -24,6 +25,15 @@ public class ServiceBean {
 	private String version;
 	private String interfaceName;
 	private ServerBean serverBean;
+	private boolean cancelTimeout = Constants.DEFAULT_TIMEOUT_CANCEL;
+
+	public boolean isCancelTimeout() {
+		return cancelTimeout;
+	}
+
+	public void setCancelTimeout(boolean cancelTimeout) {
+		this.cancelTimeout = cancelTimeout;
+	}
 
 	public ServerBean getServerBean() {
 		return serverBean;
@@ -82,7 +92,8 @@ public class ServiceBean {
 		}
 		providerConfig.setVersion(version);
 		providerConfig.setUrl(url);
-		if(serverBean != null) {
+		providerConfig.setCancelTimeout(cancelTimeout);
+		if (serverBean != null) {
 			providerConfig.setServerConfig(serverBean.init());
 		}
 		ServiceFactory.addService(providerConfig);

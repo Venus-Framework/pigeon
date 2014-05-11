@@ -37,6 +37,7 @@ public class ServiceRegistry extends ServiceInitializeListener {
 	private int httpPort = ServerConfig.DEFAULT_HTTP_PORT;
 	private boolean autoSelectPort = true;
 	public static boolean isInit = false;
+	private boolean cancelTimeout = Constants.DEFAULT_TIMEOUT_CANCEL;
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
 			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
@@ -67,6 +68,7 @@ public class ServiceRegistry extends ServiceInitializeListener {
 			ProviderConfig providerConfig = new ProviderConfig(services.get(url));
 			providerConfig.setUrl(url);
 			providerConfig.setServerConfig(serverConfig);
+			providerConfig.setCancelTimeout(cancelTimeout);
 			providerConfigList.add(providerConfig);
 		}
 
@@ -75,6 +77,14 @@ public class ServiceRegistry extends ServiceInitializeListener {
 		} catch (RpcException e) {
 			throw new ServiceException("", e);
 		}
+	}
+
+	public boolean isCancelTimeout() {
+		return cancelTimeout;
+	}
+
+	public void setCancelTimeout(boolean cancelTimeout) {
+		this.cancelTimeout = cancelTimeout;
 	}
 
 	public int getHttpPort() {

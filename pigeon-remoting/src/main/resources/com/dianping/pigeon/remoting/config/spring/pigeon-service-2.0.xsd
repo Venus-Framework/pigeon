@@ -49,6 +49,8 @@
 					<xsd:attribute name="version" type="xsd:string" />
 					<xsd:attribute name="autoRegister" type="xsd:boolean"
 						default="true" />
+					<xsd:attribute name="cancelTimeout" type="xsd:boolean"
+						default="false" />
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>
