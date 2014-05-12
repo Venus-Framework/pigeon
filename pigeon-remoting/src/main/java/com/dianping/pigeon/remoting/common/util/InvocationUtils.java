@@ -9,11 +9,30 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.site.helper.Splitters;
+import com.site.helper.Stringizers;
 
 public class InvocationUtils {
 
-	static ConcurrentHashMap<String, String> remoteCallNameCache = new ConcurrentHashMap<String, String>();
+	private static ConcurrentHashMap<String, String> remoteCallNameCache = new ConcurrentHashMap<String, String>();
+
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	private static final int defaultStrMaxLength = configManager.getIntValue(Constants.KEY_STRING_MAXLENGTH,
+			Constants.DEFAULT_STRING_MAXLENGTH);
+
+	private static final int defaultStrMaxItems = configManager.getIntValue(Constants.KEY_STRING_MAXITEMS,
+			Constants.DEFAULT_STRING_MAXITEMS);
+
+	public static String toJsonString(Object obj) {
+		return Stringizers.forJson().from(obj, defaultStrMaxLength, defaultStrMaxItems);
+	}
+
+	public static String toJsonString(Object obj, int strMaxLength, int strMaxItems) {
+		return Stringizers.forJson().from(obj, strMaxLength, strMaxItems);
+	}
 
 	public static String getRemoteCallFullName(String serviceName, String methodName, Class<?>[] parameterTypes) {
 		if (parameterTypes != null) {

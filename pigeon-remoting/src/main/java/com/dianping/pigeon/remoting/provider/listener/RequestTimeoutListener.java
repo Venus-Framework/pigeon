@@ -16,6 +16,7 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.exception.ProcessTimeoutException;
 import com.dianping.pigeon.util.ContextUtils;
@@ -57,7 +58,7 @@ public class RequestTimeoutListener implements Runnable {
 										.append(", to:")
 										.append(ExtensionLoader.getExtension(ConfigManager.class).getLocalIp())
 										.append(", process time:").append(System.currentTimeMillis()).append("\r\n")
-										.append("request:").append(request);
+										.append("request:").append(InvocationUtils.toJsonString(request));
 								ProcessTimeoutException te = null;
 								Thread t = rc.getThread();
 								if (t == null) {

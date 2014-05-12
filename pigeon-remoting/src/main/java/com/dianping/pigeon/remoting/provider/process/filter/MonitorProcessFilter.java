@@ -18,7 +18,6 @@ import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
-import com.site.helper.Stringizers;
 
 public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
@@ -66,7 +65,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			if (transaction != null) {
 				try {
 					StringBuilder event = new StringBuilder();
-					event.append(Stringizers.forJson().from(request.getParameters(), 1000, 50));
+					event.append(InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
 					monitorLogger.logEvent("PigeonService.client", channel.getRemoteAddress(), event.toString());
 					transaction.writeMonitorContext();
 					transaction.setStatusOk();

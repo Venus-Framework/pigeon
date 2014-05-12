@@ -15,7 +15,6 @@ import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
-import com.site.helper.Stringizers;
 
 public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 
@@ -31,9 +30,11 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 			logger = monitor.getLogger();
 			if (logger != null) {
 				try {
-					transaction = logger.createTransaction("PigeonCall",
-							InvocationUtils.getRemoteCallFullName(invokerConfig.getUrl(), invocationContext.getMethodName(),
-									invocationContext.getParameterTypes()), invocationContext);
+					transaction = logger.createTransaction(
+							"PigeonCall",
+							InvocationUtils.getRemoteCallFullName(invokerConfig.getUrl(),
+									invocationContext.getMethodName(), invocationContext.getParameterTypes()),
+							invocationContext);
 					if (transaction != null) {
 						transaction.setStatusOk();
 						transaction.addData("CallType", invokerConfig.getCallType());
@@ -42,7 +43,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						Client client = invocationContext.getClient();
 						InvocationRequest request = invocationContext.getRequest();
 						logger.logEvent("PigeonCall.server", client.getAddress(),
-								Stringizers.forJson().from(request.getParameters(), 1000, 50));
+								InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
 
 						transaction.readMonitorContext();
 					}

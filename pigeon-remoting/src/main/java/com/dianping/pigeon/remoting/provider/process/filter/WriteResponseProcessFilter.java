@@ -17,13 +17,13 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.exception.ProcessTimeoutException;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
 import com.dianping.pigeon.util.ContextUtils;
-
 
 public class WriteResponseProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
@@ -46,7 +46,8 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 				if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
 						&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
 					StringBuilder msg = new StringBuilder();
-					msg.append("request timeout,\r\nrequest:").append(request).append("\r\nresponse:").append(response);
+					msg.append("request timeout,\r\nrequest:").append(InvocationUtils.toJsonString(request))
+							.append("\r\nresponse:").append(InvocationUtils.toJsonString(response));
 					ProcessTimeoutException te = new ProcessTimeoutException(msg.toString());
 					logger.error(te.getMessage(), te);
 					if (monitorLogger != null) {

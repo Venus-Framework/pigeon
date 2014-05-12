@@ -15,10 +15,10 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
-import com.dianping.pigeon.remoting.invoker.exception.ResponseExpiredException;
 import com.dianping.pigeon.remoting.invoker.listener.InvocationTimeoutListener;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
@@ -66,10 +66,10 @@ public class ServiceInvocationRepository {
 				invocations.remove(response.getSequence());
 			}
 		} else {
-			String msg = "the response has expired:" + response;
+			String msg = "the response has expired:" + InvocationUtils.toJsonString(response);
 			logger.error(msg);
-			/*ResponseExpiredException e = new ResponseExpiredException(msg);
-			monitorLogger.logError(e);*/
+			// ResponseExpiredException e = new ResponseExpiredException(msg);
+			// monitorLogger.logError(e);
 		}
 	}
 

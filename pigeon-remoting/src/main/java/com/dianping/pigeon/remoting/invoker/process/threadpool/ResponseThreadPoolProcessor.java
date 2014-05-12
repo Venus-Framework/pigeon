@@ -25,7 +25,7 @@ public class ResponseThreadPoolProcessor implements ResponseProcessor {
 
 	private static final Logger logger = LoggerLoader.getLogger(ResponseThreadPoolProcessor.class);
 	private static ThreadPool responseProcessThreadPool;
-	private ClientManager clientManager = ClientManager.getInstance();
+	private static ClientManager clientManager = ClientManager.getInstance();
 
 	public ResponseThreadPoolProcessor() {
 		ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);

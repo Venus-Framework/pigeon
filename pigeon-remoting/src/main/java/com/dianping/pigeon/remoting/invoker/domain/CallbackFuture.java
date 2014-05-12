@@ -16,6 +16,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
@@ -67,8 +68,8 @@ public class CallbackFuture implements Callback, CallFuture {
 				if (timeoutMillis_ <= 0) {
 					StringBuilder sb = new StringBuilder();
 					sb.append("request timeout, current time:").append(System.currentTimeMillis())
-							.append("\r\nrequest:").append(request).append("\r\nhost:").append(client.getHost())
-							.append(":").append(client.getPort());
+							.append("\r\nrequest:").append(InvocationUtils.toJsonString(request)).append("\r\nhost:")
+							.append(client.getHost()).append(":").append(client.getPort());
 
 					RpcEventUtils.clientTimeOutEvent(request, client.getAddress());
 
@@ -78,9 +79,9 @@ public class CallbackFuture implements Callback, CallFuture {
 					this.wait(timeoutMillis_);
 				}
 			}
-			
+
 			processContext();
-			
+
 			if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION
 					|| response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 				Throwable cause = null;
@@ -91,9 +92,9 @@ public class CallbackFuture implements Callback, CallFuture {
 					cause = new DPSFException(response.getCause());
 				}
 				StringBuilder sb = new StringBuilder();
-				sb.append("remote service exception\r\nrequest:").append(request).append("\r\nhost:")
-						.append(client.getHost()).append(":").append(client.getPort()).append("\r\nresponse:")
-						.append(response);
+				sb.append("remote service exception\r\nrequest:").append(InvocationUtils.toJsonString(request))
+						.append("\r\nhost:").append(client.getHost()).append(":").append(client.getPort())
+						.append("\r\nresponse:").append(InvocationUtils.toJsonString(response));
 				Field field;
 				try {
 					field = Throwable.class.getDeclaredField("detailMessage");
@@ -109,30 +110,30 @@ public class CallbackFuture implements Callback, CallFuture {
 	}
 
 	protected void processContext() {
-	    Object context = ContextUtils.getContext();
-        if (context != null) {
-            Integer order = ContextUtils.getOrder(this.response.getContext());
-            if (order != null && order > 0) {
-                ContextUtils.setOrder(context, order);
-            }
-            if (this.success) {
-                // 传递业务上下文
-                ContextUtils.addSuccessContext(this.response.getContext());
-            } else {
-                // 传递业务上下文
-                ContextUtils.addFailedContext(this.response.getContext());
-            }
-            TrackerContext currentContext = (TrackerContext)context;
-            TrackerContext responseContext = (TrackerContext)response.getContext();
-            if(responseContext != null && responseContext.getExtension() != null) {
-                if(currentContext.getExtension() == null) 
-                    currentContext.setExtension(responseContext.getExtension());
-                else
-                    currentContext.getExtension().putAll(responseContext.getExtension());
-            }
-        }    
+		Object context = ContextUtils.getContext();
+		if (context != null) {
+			Integer order = ContextUtils.getOrder(this.response.getContext());
+			if (order != null && order > 0) {
+				ContextUtils.setOrder(context, order);
+			}
+			if (this.success) {
+				// 传递业务上下文
+				ContextUtils.addSuccessContext(this.response.getContext());
+			} else {
+				// 传递业务上下文
+				ContextUtils.addFailedContext(this.response.getContext());
+			}
+			TrackerContext currentContext = (TrackerContext) context;
+			TrackerContext responseContext = (TrackerContext) response.getContext();
+			if (responseContext != null && responseContext.getExtension() != null) {
+				if (currentContext.getExtension() == null)
+					currentContext.setExtension(responseContext.getExtension());
+				else
+					currentContext.getExtension().putAll(responseContext.getExtension());
+			}
+		}
 	}
-	
+
 	public InvocationResponse get(long timeout, TimeUnit unit) throws InterruptedException {
 		return get(unit.toMillis(timeout));
 	}
