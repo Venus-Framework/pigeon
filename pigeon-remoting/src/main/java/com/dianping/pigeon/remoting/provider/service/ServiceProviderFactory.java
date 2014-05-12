@@ -63,6 +63,9 @@ public final class ServiceProviderFactory {
 	private static final boolean onlineWhileInitialized = configManager.getBooleanValue(
 			Constants.KEY_ONLINE_WHILE_INITIALIZED, Constants.DEFAULT_ONLINE_WHILE_INITIALIZED);
 
+	private static final boolean autoOnline = configManager.getBooleanValue(Constants.KEY_ONLINE_AUTO,
+			Constants.DEFAULT_ONLINE_AUTO);
+
 	public static String getServiceUrlWithVersion(String url, String version) {
 		String newUrl = url;
 		if (!StringUtils.isBlank(version)) {
@@ -178,7 +181,7 @@ public final class ServiceProviderFactory {
 	}
 
 	public static void startServiceOnlineListener() {
-		if (!isServiceOnlineListenerStarted) {
+		if (autoOnline && !isServiceOnlineListenerStarted) {
 			status = PublishStatus.PUBLISHED;
 			serviceOnlineListenerThreadPool.execute(new ServiceOnlineListener());
 			isServiceOnlineListenerStarted = true;

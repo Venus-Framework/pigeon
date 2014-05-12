@@ -4,10 +4,11 @@
  */
 package com.dianping.dpsf.protocol;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -158,7 +159,14 @@ public class DefaultResponse implements InvocationResponse {
 
 	@Override
 	public String toString() {
-		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+		if (this.messageType == Constants.MESSAGE_TYPE_SERVICE) {
+			return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("serialize", serialize)
+					.append("seq", seq).append("messageType", messageType).append("cause", cause).toString();
+		} else {
+			return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("serialize", serialize)
+					.append("seq", seq).append("messageType", messageType).append("cause", cause)
+					.append("return", returnVal).toString();
+		}
 	}
 
 	@Override

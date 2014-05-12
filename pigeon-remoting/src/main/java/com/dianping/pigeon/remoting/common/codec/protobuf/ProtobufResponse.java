@@ -3,7 +3,7 @@
  */
 package com.dianping.pigeon.remoting.common.codec.protobuf;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
@@ -41,7 +41,7 @@ public class ProtobufResponse implements InvocationResponse {
 
 	@JsonProperty("exception")
 	private String cause;
-	
+
 	public ProtobufResponse(MessageLite response) {
 		if (response instanceof ProtobufRpcProtos.Response) {
 			this.response = (ProtobufRpcProtos.Response) response;
@@ -207,6 +207,8 @@ public class ProtobufResponse implements InvocationResponse {
 
 	@Override
 	public String toString() {
-		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("seq", seq)
+				.append("messageType", messageType).append("cause", cause).toString();
 	}
+
 }

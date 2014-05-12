@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.SerializationException;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -400,6 +402,14 @@ public class ProtobufRequest implements InvocationRequest {
 
 	@Override
 	public void setSerialize(byte serialize) {
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("seq", sequence).append("messageType", messageType).append("callType", callType)
+				.append("timeout", timeout).append("url", serviceName).append("methodName", methodName)
+				.append("parameterClass", parameterClass).append("version", version).toString();
 	}
 
 }

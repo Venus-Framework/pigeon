@@ -146,4 +146,6 @@ public final class Constants {
 	public static final String KEY_STRING_MAXLENGTH = "pigeon.string.maxlength";
 	public static final int DEFAULT_STRING_MAXITEMS = 500;
 	public static final String KEY_STRING_MAXITEMS = "pigeon.string.maxitems";
+	public static final boolean DEFAULT_ONLINE_AUTO = true;
+	public static final String KEY_ONLINE_AUTO = "pigeon.online.auto";
 }

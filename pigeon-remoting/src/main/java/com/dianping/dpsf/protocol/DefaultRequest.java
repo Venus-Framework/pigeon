@@ -7,11 +7,12 @@ package com.dianping.dpsf.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -197,7 +198,10 @@ public class DefaultRequest implements InvocationRequest {
 
 	@Override
 	public String toString() {
-		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("serialize", serialize)
+				.append("seq", seq).append("messageType", messageType).append("callType", callType)
+				.append("timeout", timeout).append("url", serviceName).append("methodName", methodName)
+				.append("parameters", InvocationUtils.toJsonString(parameters)).append("version", version).toString();
 	}
 
 	@Override
