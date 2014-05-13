@@ -32,10 +32,10 @@ public class GatewayInvokeFilter extends InvocationInvokeFilter {
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
-		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		if (logger.isDebugEnabled()) {
-			logger.debug("GatewayInvokeFilter invoke config:" + invokerConfig);
+			logger.debug("invoke the GatewayInvokeFilter, invocationContext:" + invocationContext);
 		}
+		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		int maxRequests = invokerConfig.getMaxRequests();
 		try {
 			if (maxRequests > 0) {

@@ -126,7 +126,7 @@ public final class Constants {
 	public static final int DEFAULT_WRITE_BUFFER_LOW_WATER = 25 * 1024 * 1024;
 	public static final boolean DEFAULT_WRITE_BUFF_LIMIT = false;
 	public static final String DEFAULT_PROCESS_TYPE = "threadpool";
-	public static final long DEFAULT_TIMEOUT_INTERVAL = 100;
+	public static final long DEFAULT_TIMEOUT_INTERVAL = 1000;
 	public static final String ROUTE_ROUNDROBIN = "roundRobin";
 	public static final String DEFAULT_MANAGER_ADDRESS = "lionapi.dp:8080";
 	public static final boolean DEFAULT_NOTIFY_ENABLE = true;

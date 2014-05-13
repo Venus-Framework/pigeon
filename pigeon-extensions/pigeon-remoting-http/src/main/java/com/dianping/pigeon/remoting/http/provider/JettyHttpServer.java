@@ -8,12 +8,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.mortbay.jetty.Server;
-import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
-import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.domain.phase.Disposable;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;

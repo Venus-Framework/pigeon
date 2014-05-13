@@ -17,10 +17,8 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
-import com.dianping.pigeon.remoting.provider.exception.ProcessTimeoutException;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
 import com.dianping.pigeon.util.ContextUtils;
@@ -41,19 +39,19 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 			InvocationRequest request = invocationContext.getRequest();
 			InvocationResponse response = handler.handle(invocationContext);
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
-				long currentTime = System.currentTimeMillis();
 				channel.write(response);
-				if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
-						&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
-					StringBuilder msg = new StringBuilder();
-					msg.append("request timeout,\r\nrequest:").append(InvocationUtils.toJsonString(request))
-							.append("\r\nresponse:").append(InvocationUtils.toJsonString(response));
-					ProcessTimeoutException te = new ProcessTimeoutException(msg.toString());
-					logger.error(te.getMessage(), te);
-					if (monitorLogger != null) {
-						monitorLogger.logError(te);
-					}
-				}
+//				long currentTime = System.currentTimeMillis();
+//				if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
+//						&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
+//					StringBuilder msg = new StringBuilder();
+//					msg.append("request timeout,\r\nrequest:").append(InvocationUtils.toJsonString(request))
+//							.append("\r\nresponse:").append(InvocationUtils.toJsonString(response));
+//					ProcessTimeoutException te = new ProcessTimeoutException(msg.toString());
+//					logger.error(te.getMessage(), te);
+//					if (monitorLogger != null) {
+//						monitorLogger.logError(te);
+//					}
+//				}
 			}
 			if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 				List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();

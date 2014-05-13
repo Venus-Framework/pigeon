@@ -26,6 +26,9 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
+		if (logger.isDebugEnabled()) {
+			logger.debug("invoke the ContextPrepareInvokeFilter, invocationContext:" + invocationContext);
+		}
 		initRequest(invocationContext);
 		transferContextValueToRequest(invocationContext, invocationContext.getRequest());
 		return handler.handle(invocationContext);

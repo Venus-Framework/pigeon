@@ -4,7 +4,10 @@
  */
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
+import org.apache.log4j.Logger;
+
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
@@ -18,11 +21,16 @@ import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 
 public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 
+	private static final Logger logger = LoggerLoader.getLogger(RemoteCallMonitorInvokeFilter.class);
+
 	private Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
+		if (logger.isDebugEnabled()) {
+			logger.debug("invoke the RemoteCallMonitorInvokeFilter, invocationContext:" + invocationContext);
+		}
 		MonitorLogger logger = null;
 		MonitorTransaction transaction = null;
 		if (monitor != null) {

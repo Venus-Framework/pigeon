@@ -57,6 +57,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 			} else {
 				dpsfException = new DPSFException(e);
 			}
+			logger.error(dpsfException);
 			monitorLogger.logError(dpsfException);
 			throw dpsfException;
 		}

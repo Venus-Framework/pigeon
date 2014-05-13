@@ -19,24 +19,25 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 
 	private static ThreadPool timeCheckThreadPool = new DefaultThreadPool("pigeon-provider-timeout-checker");
 
-	protected Map<InvocationRequest, ProviderContext> requestContextMap;
-	
-	public abstract Future<InvocationResponse> doProcessRequest(final InvocationRequest request, final ProviderContext providerContext);
+	protected static Map<InvocationRequest, ProviderContext> requestContextMap = new ConcurrentHashMap<InvocationRequest, ProviderContext>();
 
-	public abstract void doStop();
-	
-	public AbstractRequestProcessor() {
-		this.requestContextMap = new ConcurrentHashMap<InvocationRequest, ProviderContext>();
+	static {
 		timeCheckThreadPool.execute(new RequestTimeoutListener(requestContextMap));
 	}
-	
+
+	public abstract Future<InvocationResponse> doProcessRequest(final InvocationRequest request,
+			final ProviderContext providerContext);
+
+	public abstract void doStop();
+
 	public void stop() {
 		timeCheckThreadPool.getExecutor().shutdown();
 		doStop();
 	}
-	
-	public Future<InvocationResponse> processRequest(final InvocationRequest request, final ProviderContext providerContext) {
-		if(request.getCreateMillisTime() == 0) {
+
+	public Future<InvocationResponse> processRequest(final InvocationRequest request,
+			final ProviderContext providerContext) {
+		if (request.getCreateMillisTime() == 0) {
 			request.setCreateMillisTime(System.currentTimeMillis());
 		}
 		Future<InvocationResponse> invocationResponse = doProcessRequest(request, providerContext);

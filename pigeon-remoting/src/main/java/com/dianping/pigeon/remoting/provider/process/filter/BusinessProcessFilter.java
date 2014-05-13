@@ -16,6 +16,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
@@ -24,13 +25,6 @@ import com.dianping.pigeon.remoting.provider.service.method.ServiceMethodFactory
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import com.dianping.pigeon.util.ContextUtils;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: BusinessProcessFilter.java, v 0.1 2013-6-30 下午8:33:49
- *          jianhuihuang Exp $
- */
 public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
 	private static final Logger logger = LoggerLoader.getLogger(BusinessProcessFilter.class);
@@ -38,6 +32,9 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
+		if (logger.isDebugEnabled()) {
+			logger.debug("invoke the BusinessProcessFilter, invocationContext:" + invocationContext);
+		}
 		InvocationRequest request = invocationContext.getRequest();
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 			if (request.getTimeout() > 0) {
@@ -45,7 +42,8 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			}
 			if (Thread.currentThread().isInterrupted()) {
 				StringBuilder msg = new StringBuilder();
-				msg.append("the request has been canceled by timeout checking processor:").append(request);
+				msg.append("the request has been canceled by timeout checking processor:").append(
+						InvocationUtils.toJsonString(request));
 				throw new NetTimeoutException(msg.toString());
 			}
 			List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
