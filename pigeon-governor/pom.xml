@@ -121,6 +121,7 @@
 	</dependencies>
 	
 	<build>
+		<finalName>${artifactId}-${env}-${version}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
