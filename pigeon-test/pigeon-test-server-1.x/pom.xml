@@ -62,7 +62,7 @@
 		<dependency>
 			<groupId>com.dianping.dpsf</groupId>
 			<artifactId>dpsf-net</artifactId>
-			<version>1.9.3.2</version><!--$NO-MVN-MAN-VER$ --><!--1.7.3 1.9.1-SNAPSHOT -->
+			<version>1.9.8</version><!--$NO-MVN-MAN-VER$ --><!--1.7.3 1.9.1-SNAPSHOT -->
 		</dependency> 
 	</dependencies>
 	<build>
