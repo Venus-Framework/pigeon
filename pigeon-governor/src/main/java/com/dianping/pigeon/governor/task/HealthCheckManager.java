@@ -19,19 +19,19 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
-import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.lion.EnvZooKeeperConfig;
+import com.dianping.lion.client.ConfigCache;
+import com.dianping.lion.client.ConfigChange;
+import com.dianping.lion.client.LionException;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.governor.task.Constants.Action;
 import com.dianping.pigeon.governor.task.Constants.Environment;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.registry.util.Constants;
 
 public class HealthCheckManager extends Thread {
 
     private static final Logger logger = Logger.getLogger(HealthCheckManager.class);
-    
-    private static final String DEFAULT_ACTION = "alpha:remove,qa:log";
     
     private Registry registryClass = ExtensionLoader.getExtension(Registry.class);
     
@@ -45,14 +45,33 @@ public class HealthCheckManager extends Thread {
     private ExecutorService bossPool;
     
     private String action;
+    private volatile long interval;
+    private volatile long hostInterval;
+    private volatile int deadThreshold;
+    
     private Map<Environment, Action> actionMap;
     private Map<Environment, Registry> registryMap;
     
-    private ConfigManager configManager;
+    private ConfigCache configManager;
     
     public HealthCheckManager() {
-        configManager = ExtensionLoader.getExtension(ConfigManager.class);
-        action = configManager.getStringValue("pigeon.healthcheck.action", DEFAULT_ACTION);
+        try {
+        	configManager = ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress());
+        	configManager.addChange(new ConfigChangeHandler());
+			action = configManager.getProperty(Constants.KEY_ACTION);
+			String tmp = configManager.getProperty(Constants.KEY_INTERVAL);
+			interval = Long.parseLong(tmp);
+			tmp = configManager.getProperty(Constants.KEY_HOST_INTERVAL);
+			hostInterval = Long.parseLong(tmp);
+			tmp = configManager.getProperty(Constants.KEY_DEAD_THRESHOLD);
+			deadThreshold = Integer.parseInt(tmp);
+		} catch (LionException e) {
+			logger.error("", e);
+			action = "alpha:remove,qa:log";
+			interval = 30*60*1000;
+			hostInterval = 60*1000;
+			deadThreshold = 5;
+		}
         actionMap = new LinkedHashMap<Environment, Action>();
         registryMap = new LinkedHashMap<Environment, Registry>();
         parseAction();
@@ -81,10 +100,6 @@ public class HealthCheckManager extends Thread {
             actionMap.put(env, act);
         }
     }
-    
-    public ConfigManager getConfigManager() {
-        return configManager;
-    }
 
     public ThreadPoolExecutor getWorkerPool() {
         return workerPool;
@@ -101,7 +116,19 @@ public class HealthCheckManager extends Thread {
     public Action getAction(Environment env) {
         return actionMap.get(env);
     }
-    
+
+	public long getHostInterval() {
+		return hostInterval;
+	}
+
+	public int getDeadThreshold() {
+		return deadThreshold;
+	}
+
+	public long getInterval() {
+		return interval;
+	}
+
     public synchronized Registry getRegistry(Environment env) throws RegistryException {
         Registry registry = registryMap.get(env);
         if(registry == null) {
@@ -120,7 +147,7 @@ public class HealthCheckManager extends Thread {
     private Registry initRegistry(Environment env) throws InstantiationException, IllegalAccessException {
         Registry registry = registryClass.getClass().newInstance();
         Properties props = new Properties();
-        props.put(Constants.KEY_REGISTRY_ADDRESS, env.getZkAddress());
+        props.put(com.dianping.pigeon.registry.util.Constants.KEY_REGISTRY_ADDRESS, env.getZkAddress());
         registry.init(props);
         return registry;
     }
@@ -168,5 +195,22 @@ public class HealthCheckManager extends Thread {
 		}
     	
     }
+    
+    class ConfigChangeHandler implements ConfigChange {
 
+		@Override
+		public void onChange(String key, String value) {
+			if(Constants.KEY_ACTION.equals(key)) {
+				action = value;
+				parseAction();
+			} else if(Constants.KEY_INTERVAL.equals(key)) {
+				interval = Long.parseLong(value);
+			} else if(Constants.KEY_HOST_INTERVAL.equals(key)) {
+				hostInterval = Long.parseLong(value);
+			} else if(Constants.KEY_DEAD_THRESHOLD.equals(key)) {
+				deadThreshold = Integer.parseInt(value);
+			}
+		}
+    	
+    }
 }
