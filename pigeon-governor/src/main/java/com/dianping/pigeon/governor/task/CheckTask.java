@@ -11,8 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.dpsf.protocol.DefaultRequest;
-import com.dianping.pigeon.governor.task.Constants.Action;
-import com.dianping.pigeon.governor.task.Constants.Environment;
+import com.dianping.pigeon.governor.task.Constants.Host;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -26,33 +25,12 @@ public class CheckTask implements Runnable {
 
     private static final Logger logger = Logger.getLogger(CheckTask.class);
     
-    private static final long HOST_INTERVAL = 60*1000; 
-
     private HealthCheckManager manager;
-    private Environment env;
-    private Action action;
-    private String service;
-    private String group;
-    private String ip;
-    private int port;
-    private volatile boolean alive;
-    private volatile int deadCount;
-    private volatile long lastCheckTime;
-    private long hostInterval;
+    private Host host;
 
-    public CheckTask(HealthCheckManager manager, Environment env, Action action, 
-            String service, String group, String ip, int port) {
+    public CheckTask(HealthCheckManager manager, Host host) {
         this.manager = manager;
-        this.env = env;
-        this.action = action;
-        this.service = service;
-        this.group = group;
-        this.ip = ip;
-        this.port = port;
-        this.alive = false;
-        this.deadCount = 0;
-        this.lastCheckTime = 0;
-        hostInterval = manager.getConfigManager().getLongValue("pigeon.healthcheck.host.interval", HOST_INTERVAL);
+        this.host = host;
     }
 
     @Override
@@ -67,20 +45,19 @@ public class CheckTask implements Runnable {
     }
 
     private void checkServer() throws InterruptedException {
-        if(System.currentTimeMillis() - lastCheckTime > hostInterval) {
+        if(System.currentTimeMillis() - host.getLastCheckTime() > manager.getHostInterval()) {
             if(isServerAlive()) {
-                alive = true;
-                deadCount = 0;
+                host.setAlive(true);
             } else {
-                alive = false;
-                if(deadCount < Integer.MAX_VALUE)
-                    deadCount++;
+                host.setAlive(false);
+                if(host.getDeadCount() < Integer.MAX_VALUE)
+                    host.increaseDeadCount();
             }
-            lastCheckTime = System.currentTimeMillis();
+            host.updateCheckTime();
             manager.getResultQueue().add(this);
         } else {
             manager.getWorkerPool().submit(this);
-            Thread.sleep(100);
+            Thread.sleep(20);
         }
     }
     
@@ -98,21 +75,21 @@ public class CheckTask implements Runnable {
                 if(response.getReturn() instanceof Map) {
                     Map result = (Map) response.getReturn();
                     if (result != null) {
-                        logger.info("server " + getAddress() + " response: " + result);
+                        logger.info("server " + host + " response: " + result);
                         
                         // If group does not match, remove immediately
-                        if(result.containsKey("group") && !isSameGroup(group, (String) result.get("group"))) {
+                        if(result.containsKey("group") && !isSameGroup(host.getService().getGroup(), (String) result.get("group"))) {
                             alive = false;
-                            deadCount = Integer.MAX_VALUE;
+                            host.setDeadCount(Integer.MAX_VALUE);
                         }
                     }
                 }
             }
         } catch(NetTimeoutException e) {
-            logger.error("server " + getAddress() + " timeout, dead count " + deadCount + ": " + e.getMessage());
+            logger.error("server " + host + " timeout, dead count " + host.getDeadCount() + ": " + e.getMessage());
             alive = false;
         } catch (Throwable t) {
-            logger.error("error contacting server " + getAddress() + ", dead count " + deadCount, t);
+            logger.error("error contacting server " + host + ", dead count " + host.getDeadCount(), t);
             alive = false;
         }
         return alive;
@@ -123,7 +100,7 @@ public class CheckTask implements Runnable {
     	try {
     		socket = new Socket();
     		socket.setReuseAddress(true);
-    		SocketAddress sa = new InetSocketAddress(ip, port);
+    		SocketAddress sa = new InetSocketAddress(host.getIp(), host.getPort());
     		socket.connect(sa, 3000);
 			return true;
 		} catch (IOException e) {
@@ -157,7 +134,7 @@ public class CheckTask implements Runnable {
     private InvocationResponse getHealthCheckResponse(InvocationRequest request) throws InterruptedException {
         NettyClient client = null;
         try {
-            ConnectInfo connectInfo = new ConnectInfo(service, ip, port, 1);
+            ConnectInfo connectInfo = new ConnectInfo(host.getService().getUrl(), host.getIp(), host.getPort(), 1);
             client = new NettyClient(connectInfo);
             client.connect();
             CallbackFuture future = new CallbackFuture();
@@ -174,68 +151,8 @@ public class CheckTask implements Runnable {
         }
     }
 
-    public Environment getEnv() {
-        return env;
-    }
-
-    public void setEnv(Environment env) {
-        this.env = env;
-    }
-
-    public Action getAction() {
-        return action;
-    }
-
-    public void setAction(Action action) {
-        this.action = action;
-    }
-
-    public String getService() {
-        return service;
-    }
-
-    public void setService(String service) {
-        this.service = service;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public boolean isAlive() {
-        return alive;
-    }
-
-    public void setAlive(boolean alive) {
-        this.alive = alive;
-    }
-
-    public String getAddress() {
-        return ip + ":" + port;
-    }
-
-    public int getDeadCount() {
-        return deadCount;
+    public Host getHost() {
+    	return this.host;
     }
 
 }
