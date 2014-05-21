@@ -94,10 +94,10 @@ public class RegistryManager {
 			return props.getProperty(serviceKey);
 		}
 		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv())) {
-			String addr = configManager.getStringValueFromLocal(Utils.escapeServiceName(serviceKey));
+			String addr = configManager.getLocalStringValue(Utils.escapeServiceName(serviceKey));
 			if (addr == null) {
 				try {
-					addr = configManager.getStringValueFromLocal(serviceKey);
+					addr = configManager.getLocalStringValue(serviceKey);
 				} catch (Exception e) {
 				}
 			}

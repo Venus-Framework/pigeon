@@ -8,8 +8,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -41,7 +43,11 @@ public abstract class AbstractConfigManager implements ConfigManager {
 
 	public static final int DEFAULT_WEIGHT = 1;
 
-	private static final String PROPERTIES_PATH = "config/applicationContext.properties";
+	private static final String DEV_PROPERTIES_PATH = "config/applicationContext.properties";
+
+	private static final String PROPERTIES_PATH = "config/pigeon.properties";
+
+	private static List<ConfigChangeListener> configChangeListeners = new ArrayList<ConfigChangeListener>();
 
 	protected Map<String, Object> localCache = new HashMap<String, Object>();
 
@@ -57,19 +63,28 @@ public abstract class AbstractConfigManager implements ConfigManager {
 
 	public abstract String doGetGroup() throws Exception;
 
+	public abstract void doSetStringValue(String key, String value) throws Exception;
+
+	public abstract void doDeleteKey(String key) throws Exception;
+
 	public AbstractConfigManager() {
+		try {
+			init(readLocalConfig(PROPERTIES_PATH));
+		} catch (Exception e) {
+			logger.error("", e);
+		}
 		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(getEnv())) {
 			try {
-				init(readLocalConfig());
+				init(readLocalConfig(DEV_PROPERTIES_PATH));
 			} catch (Exception e) {
 				logger.error("", e);
 			}
 		}
 	}
 
-	private Properties readLocalConfig() {
+	private Properties readLocalConfig(String configPath) {
 		Properties properties = new Properties();
-		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPERTIES_PATH);
+		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(configPath);
 		BufferedReader br = null;
 		if (input != null) {
 			try {
@@ -130,7 +145,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		return value != null ? value : defaultValue;
 	}
 
-	public String getStringValueFromLocal(String key) {
+	public String getLocalStringValue(String key) {
 		return getPropertyFromLocal(key, String.class);
 	}
 
@@ -138,9 +153,10 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		String strValue = null;
 		if (localCache.containsKey(key)) {
 			Object value = localCache.get(key);
-//			if (value != null && logger.isInfoEnabled()) {
-//				logger.info("read from local cache with key[" + key + "]:" + value);
-//			}
+			// if (value != null && logger.isInfoEnabled()) {
+			// logger.info("read from local cache with key[" + key + "]:" +
+			// value);
+			// }
 			if (value.getClass() == type) {
 				return (T) value;
 			} else {
@@ -381,5 +397,41 @@ public abstract class AbstractConfigManager implements ConfigManager {
 
 	public int getWeight() {
 		return getIntValue(KEY_WEIGHT, DEFAULT_WEIGHT);
+	}
+
+	public void registerConfigChangeListener(ConfigChangeListener configChangeListener) {
+		configChangeListeners.add(configChangeListener);
+	}
+
+	@Override
+	public void setStringValue(String key, String value) {
+		try {
+			doSetStringValue(key, value);
+			setLocalStringValue(key, value);
+		} catch (Exception e) {
+			throw new ConfigException("error while setting key:" + key, e);
+		}
+	}
+
+	@Override
+	public void deleteKey(String key) {
+		try {
+			doDeleteKey(key);
+			localCache.remove(key);
+		} catch (Exception e) {
+			throw new ConfigException("error while deleting key:" + key, e);
+		}
+	}
+
+	@Override
+	public void setLocalStringValue(String key, String value) {
+		localCache.put(key, value);
+		for (ConfigChangeListener listener : configChangeListeners) {
+			listener.onChange(key, value);
+		}
+	}
+
+	public Map<String, Object> getLocalConfig() {
+		return localCache;
 	}
 }

@@ -93,7 +93,7 @@ public class ServiceServlet extends HttpServlet {
 		return ServiceProviderFactory.getAllServices();
 	}
 
-	protected void initServicePage() {
+	protected void initServicePage(HttpServletRequest request) {
 		ServicePage page = new ServicePage();
 		List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
 		StringBuilder ports = new StringBuilder();
@@ -102,7 +102,7 @@ public class ServiceServlet extends HttpServlet {
 				ports.append(server.getPort()).append("/");
 			}
 		}
-		if(ports.length() > 0) {
+		if (ports.length() > 0) {
 			ports.deleteCharAt(ports.length() - 1);
 			page.setPort(ports.toString());
 		}
@@ -164,6 +164,7 @@ public class ServiceServlet extends HttpServlet {
 				page.setPublished("inprocess");
 			}
 		}
+		page.setDirect(request.getParameter("direct"));
 		page.setEnvironment(configManager.getEnv());
 		page.setGroup(configManager.getGroup());
 		this.model = page;
@@ -192,7 +193,7 @@ public class ServiceServlet extends HttpServlet {
 	protected void generateView(HttpServletRequest request, HttpServletResponse response) throws IOException,
 			ServletException {
 		Template temp = cfg.getTemplate(getView());
-		initServicePage();
+		initServicePage(request);
 		/*
 		 * if (this.model == null) { synchronized (this) { if (this.model ==
 		 * null) { initServicePage(); } } }

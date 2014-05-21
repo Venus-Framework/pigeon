@@ -69,7 +69,7 @@ public class LionConfigManager extends AbstractConfigManager {
 	}
 
 	@Override
-	public void setStringValue(String key, String value) {
+	public void doSetStringValue(String key, String value) {
 		if (logger.isInfoEnabled()) {
 			logger.info("set key[" + key + "]");
 		}
@@ -102,16 +102,12 @@ public class LionConfigManager extends AbstractConfigManager {
 	}
 
 	@Override
-	public void deleteKey(String key) {
+	public void doDeleteKey(String key) throws Exception {
 		ZooKeeperWrapper zk;
-		try {
-			zk = ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress()).getZk();
-			Stat statWeight = zk.exists(key, false);
-			if (statWeight != null) {
-				zk.delete(key, statWeight.getVersion());
-			}
-		} catch (Throwable e) {
-			throw new ConfigException(e);
+		zk = ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress()).getZk();
+		Stat statWeight = zk.exists(key, false);
+		if (statWeight != null) {
+			zk.delete(key, statWeight.getVersion());
 		}
 	}
 

@@ -17,8 +17,6 @@ public interface ConfigManager {
 
 	public String getConfigServerAddress();
 
-	public String getStringValueFromLocal(String key);
-
 	public String getStringValue(String key);
 
 	public String getStringValue(String key, String defaultValue);
@@ -43,12 +41,17 @@ public interface ConfigManager {
 
 	public String getGroup();
 
-	public void setStringValue(String key, String value);
-
-	public void deleteKey(String key);
-
 	public int getWeight();
 
 	public String doGetProperty(String key) throws Exception;
 
+	public void registerConfigChangeListener(ConfigChangeListener configChangeListener);
+	
+	public String getLocalStringValue(String key);
+	
+	public void setLocalStringValue(String key, String value);
+	
+	public void setStringValue(String key, String value);
+
+	public void deleteKey(String key);
 }

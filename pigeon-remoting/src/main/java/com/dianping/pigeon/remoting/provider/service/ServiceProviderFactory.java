@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
+import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -60,11 +61,21 @@ public final class ServiceProviderFactory {
 	private static final int unpublishWaitTime = configManager.getIntValue(Constants.KEY_UNPUBLISH_WAITTIME,
 			Constants.DEFAULT_UNPUBLISH_WAITTIME);
 
-	private static final boolean onlineWhileInitialized = configManager.getBooleanValue(
-			Constants.KEY_ONLINE_WHILE_INITIALIZED, Constants.DEFAULT_ONLINE_WHILE_INITIALIZED);
-
-	private static final boolean autoOnline = configManager.getBooleanValue(Constants.KEY_ONLINE_AUTO,
+	private static boolean autoOnline = configManager.getBooleanValue(Constants.KEY_ONLINE_AUTO,
 			Constants.DEFAULT_ONLINE_AUTO);
+
+	static {
+		configManager.registerConfigChangeListener(new ConfigChangeListener() {
+
+			@Override
+			public void onChange(String key, String value) {
+				if (Constants.KEY_ONLINE_AUTO.equals(key)) {
+					autoOnline = Boolean.valueOf(value);
+				}
+			}
+
+		});
+	}
 
 	public static String getServiceUrlWithVersion(String url, String version) {
 		String newUrl = url;
@@ -141,9 +152,7 @@ public final class ServiceProviderFactory {
 					serviceChangeListener.notifyServicePublished(providerConfig);
 				}
 
-				if (!onlineWhileInitialized) {
-					startServiceOnlineListener();
-				}
+				startServiceOnlineListener();
 
 				providerConfig.setPublished(true);
 			}
@@ -192,8 +201,8 @@ public final class ServiceProviderFactory {
 		return serverWeightCache;
 	}
 
-	public synchronized static void setServerWeightOn() throws ServiceException {
-		if (status.equals(PublishStatus.PUBLISHED)) {
+	public synchronized static void setServerOnline() throws ServiceException {
+		if (autoOnline && status.equals(PublishStatus.PUBLISHED)) {
 			for (String serverAddress : serverWeightCache.keySet()) {
 				int weight = serverWeightCache.get(serverAddress);
 				if (weight == 0) {
