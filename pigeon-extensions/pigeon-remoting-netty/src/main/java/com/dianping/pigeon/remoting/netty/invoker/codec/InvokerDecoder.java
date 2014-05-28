@@ -10,16 +10,23 @@ import java.util.List;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.Channels;
+import org.jboss.netty.util.DebugUtil;
 
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
+import com.dianping.pigeon.remoting.common.util.TimelineManager;
+import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
 import com.dianping.pigeon.remoting.netty.codec.AbstractDecoder;
 
 public class InvokerDecoder extends AbstractDecoder {
 
 	@Override
 	public Object doInitMsg(Object message, long receiveTime) {
-
+		// TIMELINE_client_received: DebugUtil.getTimestamp()
+		TimelineManager.time((InvocationSerializable)message, Phase.ClientReceived, DebugUtil.getTimestamp());
+		// TIMELINE_client_decoded
+		TimelineManager.time((InvocationSerializable)message, Phase.ClientDecoded);
 		return message;
 	}
 
@@ -32,7 +39,8 @@ public class InvokerDecoder extends AbstractDecoder {
 
 	@Override
 	public Object deserialize(byte serializerType, InputStream is) {
-		return SerializerFactory.getSerializer(serializerType).deserializeResponse(is);
+		Object decoded = SerializerFactory.getSerializer(serializerType).deserializeResponse(is);
+		return decoded;
 	}
 
 }

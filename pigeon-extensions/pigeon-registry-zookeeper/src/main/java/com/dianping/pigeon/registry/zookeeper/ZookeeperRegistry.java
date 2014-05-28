@@ -53,7 +53,7 @@ public class ZookeeperRegistry implements Registry {
 			logger.info("Zookeeper timeout " + timeout);
 
 			try {
-				this.zkClient = new ZooKeeperWrapper(zookeeperAddress, timeout, new ZkStateWatcher());
+				this.zkClient = new ZooKeeperWrapper(zookeeperAddress, timeout, null);
 				if (this.zkClient.exists(Constants.DP_PATH, false) == null) {
 					this.zkClient.create(Constants.DP_PATH, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 				}
@@ -277,23 +277,23 @@ public class ZookeeperRegistry implements Registry {
 		return "zookeeper";
 	}
 
-	class ZkStateWatcher implements Watcher {
-		@Override
-		public void process(WatchedEvent event) {
-			if (event.getState() == KeeperState.Expired) {
-				if (logger.isInfoEnabled()) {
-					logger.info("Zookeeper session expried");
-				}
-				try {
-					zkClient.sessionExpiredReConnect();
-					logger.info("Zookeeper session reconnected");
-				} catch (Exception e) {
-					logger.error("Failed to reconnect to zookeeper", e);
-				}
-				return;
-			}
-		}
-	}
+//	class ZkStateWatcher implements Watcher {
+//		@Override
+//		public void process(WatchedEvent event) {
+//			if (event.getState() == KeeperState.Expired) {
+//				if (logger.isInfoEnabled()) {
+//					logger.info("Zookeeper session expried");
+//				}
+//				try {
+//					zkClient.reconnectSession();
+//					logger.info("Zookeeper session reconnected");
+//				} catch (Exception e) {
+//					logger.error("Failed to reconnect to zookeeper", e);
+//				}
+//				return;
+//			}
+//		}
+//	}
 
 	@Override
 	public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {

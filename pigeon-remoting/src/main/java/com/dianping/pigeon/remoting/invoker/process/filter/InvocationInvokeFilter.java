@@ -12,6 +12,8 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.TimelineManager;
+import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.RpcInvokeInfo;
@@ -25,6 +27,7 @@ public abstract class InvocationInvokeFilter implements ServiceInvocationFilter<
 	}
 
 	public void beforeInvoke(InvocationRequest request, Client client) {
+		// TIMELINE_start
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 			List<InvokerProcessInterceptor> interceptors = InvokerProcessInterceptorFactory.getInterceptors();
 			for (InvokerProcessInterceptor interceptor : interceptors) {
@@ -59,6 +62,7 @@ public abstract class InvocationInvokeFilter implements ServiceInvocationFilter<
 					rpcInvokeInfo);
 			EventManager.getInstance().publishEvent(event);
 		}
+		// TIMELINE_end
 	}
 
 }

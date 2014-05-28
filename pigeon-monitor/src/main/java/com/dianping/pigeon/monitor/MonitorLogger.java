@@ -27,4 +27,7 @@ public interface MonitorLogger {
 	void logMonitorError(Throwable t);
 
 	MonitorTransaction createTransaction(String name, String uri, Object invocationContext);
+	
+	MonitorTransaction getCurrentTransaction();
+	
 }

@@ -17,6 +17,7 @@ import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
+import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.exception.ProcessTimeoutException;
 import com.dianping.pigeon.util.ContextUtils;
@@ -75,7 +76,9 @@ public class RequestTimeoutListener implements Runnable {
 								}
 								Future<?> future = rc.getFuture();
 								if (future != null && !future.isCancelled()) {
-									future.cancel(cancelTimeout);
+									if(future.cancel(cancelTimeout)) {
+										TimelineManager.removeTimeline(request);
+									}
 								}
 							}
 						} finally {

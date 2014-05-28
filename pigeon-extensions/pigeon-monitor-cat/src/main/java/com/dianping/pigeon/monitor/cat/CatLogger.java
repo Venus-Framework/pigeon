@@ -119,4 +119,15 @@ public class CatLogger implements MonitorLogger {
 		errorCounter++;
 	}
 
+	@Override
+	public MonitorTransaction getCurrentTransaction() {
+		if(Cat.getManager() != null) {
+			Transaction transaction = Cat.getManager().getPeekTransaction();
+			if(transaction != null) {
+				return new CatMonitorTransaction(this, transaction, null);
+			}
+		}
+		return null;
+	}
+
 }

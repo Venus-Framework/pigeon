@@ -15,10 +15,12 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.jboss.netty.logging.InternalLoggerFactory;
 
 import com.dianping.pigeon.domain.phase.Disposable;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.netty.util.DpsfLoggerFactory;
 import com.dianping.pigeon.remoting.provider.AbstractServer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
@@ -33,6 +35,10 @@ import com.dianping.pigeon.util.NetUtils;
  */
 public class NettyServer extends AbstractServer implements Disposable {
 
+	static {
+		InternalLoggerFactory.setDefaultFactory(new DpsfLoggerFactory());
+	}
+	
 	private String ip = null;
 	private int port = ServerConfig.DEFAULT_PORT;
 	private ServerBootstrap bootstrap;

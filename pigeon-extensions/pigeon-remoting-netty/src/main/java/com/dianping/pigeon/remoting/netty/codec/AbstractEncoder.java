@@ -45,11 +45,6 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 				log.error(e.getMessage(), e);
 				throw e;
 			}
-		} else if (msg instanceof String) {
-			byte[] msgBytes = ((String) msg).getBytes(Constants.TELNET_CHARSET);
-			ChannelBuffer cb = ChannelBuffers.buffer(msgBytes.length);
-			cb.writeBytes(msgBytes);
-			return cb;
 		} else {
 			throw new IllegalArgumentException("invalid message format");
 		}
