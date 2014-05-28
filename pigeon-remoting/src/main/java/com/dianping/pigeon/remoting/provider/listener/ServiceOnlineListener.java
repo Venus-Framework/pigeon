@@ -21,11 +21,19 @@ public class ServiceOnlineListener implements Runnable {
 	private static final int CHECK_INTERVAL = configManager.getIntValue(Constants.KEY_WEIGHT_CHECKINTERVAL,
 			Constants.DEFAULT_WEIGHT_CHECKINTERVAL);
 
+	private static final int START_DELAY = configManager.getIntValue(Constants.KEY_WEIGHT_STARTDELAY, CHECK_INTERVAL);
+
 	public void run() {
+		try {
+			Thread.sleep(START_DELAY);
+			ServiceProviderFactory.setServerOnline();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				Thread.sleep(CHECK_INTERVAL);
-				ServiceProviderFactory.setServerWeightOn();
+				ServiceProviderFactory.setServerOnline();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}

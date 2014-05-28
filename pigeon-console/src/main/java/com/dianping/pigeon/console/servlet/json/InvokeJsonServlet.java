@@ -6,7 +6,7 @@ package com.dianping.pigeon.console.servlet.json;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import com.dianping.dpsf.spring.ProxyBeanFactory;
@@ -69,7 +70,8 @@ public class InvokeJsonServlet extends ServiceServlet {
 		}
 		String token = request.getParameter("token");
 		if (!isValidate || isValidate && token != null && token.equals(ServiceServlet.getToken())) {
-			boolean direct = request.getParameter("direct") == null ? true : true;
+			boolean direct = request.getParameter("direct") == null ? true : request.getParameter("direct").equals(
+					"true") ? true : false;
 			String timeoutKey = request.getParameter("timeout");
 			int timeout = timeoutKey == null ? 10 * 1000 : Integer.parseInt(timeoutKey);
 			String serviceName = request.getParameter("url");
@@ -98,7 +100,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 					result = directInvoke(serviceName, methodName, types, values);
 				} catch (InvocationTargetException e) {
 					logger.error("console invoke error", e);
-					if(e.getTargetException() != null) {
+					if (e.getTargetException() != null) {
 						result = ExceptionUtils.getFullStackTrace(e.getTargetException());
 					} else {
 						result = e.toString();
@@ -112,7 +114,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 					result = proxyInvoke(serviceName, methodName, types, values, timeout);
 				} catch (InvocationTargetException e) {
 					logger.error("console invoke error", e);
-					if(e.getTargetException() != null) {
+					if (e.getTargetException() != null) {
 						result = ExceptionUtils.getFullStackTrace(e.getTargetException());
 					} else {
 						result = e.toString();
@@ -140,12 +142,12 @@ public class InvokeJsonServlet extends ServiceServlet {
 		ProxyBeanFactory beanFactory = new ProxyBeanFactory();
 		beanFactory.setServiceName(serviceName);
 		beanFactory.setIface(service.getServiceInterface().getName());
-		beanFactory.setVip("localhost:" + this.port);
+		beanFactory.setVip("localhost:" + serverConfig.getPort());
 		beanFactory.setTimeout(timeout);
 		beanFactory.init();
 		Object proxy = beanFactory.getObject();
 
-		return invoke(methodName, types, values, proxy);
+		return invoke(serviceName, methodName, types, values, proxy);
 	}
 
 	private Object directInvoke(String serviceName, String methodName, String[] types, String[] values)
@@ -156,10 +158,10 @@ public class InvokeJsonServlet extends ServiceServlet {
 			return null;
 		}
 
-		return invoke(methodName, types, values, providerConfig.getService());
+		return invoke(serviceName, methodName, types, values, providerConfig.getService());
 	}
 
-	private Object invoke(String methodName, String[] types, String[] values, Object service)
+	private Object invoke(String url, String methodName, String[] types, String[] values, Object service)
 			throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 		Class<?> serviceClz = service.getClass();
 		Class<?>[] typesClz = null;
@@ -178,18 +180,12 @@ public class InvokeJsonServlet extends ServiceServlet {
 		}
 		Method method = serviceClz.getMethod(methodName, typesClz);
 		method.setAccessible(true);
-		// Object[] valuesObj = null;
-		// if (values != null) {
-		// valuesObj = new Object[values.length];
-		// for (int i = 0; i < values.length; i++) {
-		// valuesObj[i] = gson.fromJson(values[i], typesClz[i]);
-		// }
-		// }
 
 		return method.invoke(service, formParameters(typesClz, values));
 	}
 
-	private Object[] formParameters(Class[] types, String[] values) {
+	private Object[] formParameters(Class<?>[] types, String[] values) throws SerializationException,
+			ClassNotFoundException {
 		if (types == null || types.length == 0) {
 			return new Object[0];
 		}
@@ -205,7 +201,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 		return valueObjs;
 	}
 
-	private Object toObject(Class<?> type, String value) {
+	private Object toObject(Class<?> type, String value) throws SerializationException, ClassNotFoundException {
 		String value_;
 		if (value == null || value.length() == 0) {
 			value_ = "0";
@@ -234,6 +230,20 @@ public class InvokeJsonServlet extends ServiceServlet {
 				valueObj = null;
 			} else {
 				valueObj = jacksonSerializer.deserializeObject(type, value);
+				if (valueObj instanceof Collection) {
+					Collection valueObjList = (Collection) valueObj;
+					if (!valueObjList.isEmpty()) {
+						Object first = valueObjList.iterator().next();
+						if (first instanceof Map) {
+							Map valueMap = (Map) first;
+							String valueClass = (String) valueMap.get("@class");
+							if (valueClass != null) {
+								valueObj = jacksonSerializer.deserializeCollection(value, type,
+										Class.forName(valueClass));
+							}
+						}
+					}
+				}
 			}
 		}
 		return valueObj;

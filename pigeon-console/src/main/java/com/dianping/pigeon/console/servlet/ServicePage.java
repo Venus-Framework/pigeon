@@ -27,6 +27,16 @@ public class ServicePage {
 
 	private String group;
 
+	private String direct = "false";
+
+	public String getDirect() {
+		return direct;
+	}
+
+	public void setDirect(String direct) {
+		this.direct = direct;
+	}
+
 	public String getGroup() {
 		return group;
 	}

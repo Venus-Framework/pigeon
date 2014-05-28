@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.DPSFException;
+import com.dianping.dpsf.exception.NoConnectionException;
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.domain.HostInfo;
@@ -118,7 +119,7 @@ public class ClientManager implements Disposable {
 		}
 
 		if (StringUtils.isBlank(serviceAddress)) {
-			throw new DPSFException("no service provider found for service:" + serviceName + ",group:" + group
+			throw new NoConnectionException("no service provider found for service:" + serviceName + ",group:" + group
 					+ ",vip:" + vip);
 		}
 

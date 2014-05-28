@@ -19,6 +19,8 @@ import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -27,7 +29,7 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 	private static final Logger logger = LoggerLoader.getLogger(JacksonSerializer.class);
 
 	ObjectMapper mapper = new ObjectMapper();
-	
+
 	public static boolean support() {
 		try {
 			Class.forName("com.fasterxml.jackson.databind.ObjectMapper");
@@ -38,12 +40,11 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 	}
 
 	public JacksonSerializer() {
-//		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-//		mapper.disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
-//		mapper.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-//		mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
-//		mapper.disable(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
-//		mapper.disable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		// mapper.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+		// mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
+		// mapper.disable(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
+		// mapper.disable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		mapper.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
 		// initialize
@@ -89,6 +90,16 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 	public <T> T deserializeObject(Class<T> objType, String content) throws SerializationException {
 		try {
 			return mapper.readValue(content, objType);
+		} catch (Exception e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public <T> T deserializeCollection(String content, Class<?> collectionClass, Class<?>... componentType)
+			throws SerializationException {
+		try {
+			JavaType javaType = mapper.getTypeFactory().constructParametricType(collectionClass, componentType);
+			return (T) mapper.readValue(content, javaType);
 		} catch (Exception e) {
 			throw new SerializationException(e);
 		}

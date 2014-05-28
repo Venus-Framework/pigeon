@@ -46,13 +46,23 @@
 						pdata.url = treeNode.data_url;
 						pdata.method = treeNode.data_method;
 						pdata.parameterTypes = treeNode.data_parameterTypes.split(',');
+						<#if direct??>
 						$.ajax({
-							url:"/invoke.json?validate=true&token=" + $("#token").val(),
+							url:"/invoke.json?validate=true&direct=${direct}&token=" + $("#token").val(),
 							data: pdata,
 							success: function(m){
 								result.text(m).show();
 							}
 						});
+						<#else>
+						$.ajax({
+							url:"/invoke.json?validate=true&direct=false&token=" + $("#token").val(),
+							data: pdata,
+							success: function(m){
+								result.text(m).show();
+							}
+						});
+						</#if>
 					});
 					if('${environment}'=='product'){
 						$("#invokeBtn").easyconfirm({locale: {
