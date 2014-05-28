@@ -86,7 +86,8 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			}
 			if (transaction != null) {
 				try {
-					if(timeout || TimelineManager.isAbnormalTimeline(request)) {
+					if(TimelineManager.isEnabled() && 
+					  (timeout || TimelineManager.isAbnormalTimeline(request))) {
 						transaction.addData("Timeline", TimelineManager.getTimeline(request));
 					}
 					transaction.complete();

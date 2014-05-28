@@ -10,7 +10,6 @@ import com.dianping.dpsf.DPSFLog;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
-import com.dianping.pigeon.remoting.common.util.TimelineManager.Timeline;
 
 /**
  * TODO log improvement
