@@ -11,7 +11,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
+import com.dianping.pigeon.remoting.invoker.route.balance.RoundRobinLoadBalance;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -34,7 +34,7 @@ public @interface Reference {
 
     String callback() default "";
 
-    String loadbalance() default LoadBalanceManager.DEFAULT_LOADBALANCE;
+    String loadbalance() default RoundRobinLoadBalance.NAME;
 
     String cluster() default Constants.CLUSTER_FAILFAST;
 

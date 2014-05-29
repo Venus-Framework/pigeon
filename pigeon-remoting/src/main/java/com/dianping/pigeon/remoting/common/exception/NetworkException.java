@@ -4,19 +4,19 @@
  */
 package com.dianping.pigeon.remoting.common.exception;
 
-public class RejectedException extends RpcException {
+public class NetworkException extends RpcException {
 
 	private static final long serialVersionUID = -4052834884778586750L;
 
-	public RejectedException() {
+	public NetworkException() {
 		super();
 	}
 
-	public RejectedException(String msg) {
+	public NetworkException(String msg) {
 		super(msg);
 	}
 
-	public RejectedException(String msg, Throwable cause) {
+	public NetworkException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
 

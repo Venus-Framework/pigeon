@@ -81,22 +81,24 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 						if (logger.isDebugEnabled()) {
 							logger.debug("[heartbeat] checking service provider:" + client);
 						}
-						if (client.isConnected()) {
-							String connect = client.getAddress();
-							if (!hasHeartBeatRequestExists(connect)) {
-								sendHeartBeatRequest(client);
-							} else {
-								HeartBeatStat heartBeatStat = heartBeatStats.get(connect);
-								InvocationRequest heartRequest = heartBeatStat.currentHeartRequest;
-								if (isHeartRequestTimeout(heartRequest, heartBeatTimeout)) {
-									heartBeatStat.incrFailed();
-									notifyHeartBeatStatChanged(client);
+						if (RegistryManager.getInstance().getServiceWeight(client.getAddress()) > 0) {
+							if (client.isConnected()) {
+								String connect = client.getAddress();
+								if (!hasHeartBeatRequestExists(connect)) {
 									sendHeartBeatRequest(client);
+								} else {
+									HeartBeatStat heartBeatStat = heartBeatStats.get(connect);
+									InvocationRequest heartRequest = heartBeatStat.currentHeartRequest;
+									if (isHeartRequestTimeout(heartRequest, heartBeatTimeout)) {
+										heartBeatStat.incrFailed();
+										notifyHeartBeatStatChanged(client);
+										sendHeartBeatRequest(client);
+									}
 								}
+							} else {
+								logger.error("[heartbeat] remove connect:" + client.getAddress());
+								clusterListenerManager.removeConnect(client);
 							}
-						} else {
-							logger.error("[heartbeat] remove connect:" + client.getAddress());
-							clusterListenerManager.removeConnect(client);
 						}
 					}
 				}
@@ -173,7 +175,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			logger.info("[heartbeat] current checking providers:" + this.getWorkingClients());
 		}
 	}
-	
+
 	public void addConnect(ConnectInfo cmd) {
 		if (logger.isInfoEnabled()) {
 			logger.info("[heartbeat] current checking providers:" + this.getWorkingClients());

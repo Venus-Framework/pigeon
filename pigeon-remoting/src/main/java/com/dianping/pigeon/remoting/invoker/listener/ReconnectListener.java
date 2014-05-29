@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
@@ -47,17 +48,19 @@ public class ReconnectListener implements Runnable, ClusterListener {
 					if (logger.isDebugEnabled()) {
 						logger.debug("[reconnect] checking service provider:" + client);
 					}
-					if (!client.isConnected()) {
-						try {
-							client.connect();
-						} catch (Exception e) {
-							logger.error("[reconnect] connect server[" + providerUrl + "] failed", e);
+					if (RegistryManager.getInstance().getServiceWeight(client.getAddress()) > 0) {
+						if (!client.isConnected()) {
+							try {
+								client.connect();
+							} catch (Exception e) {
+								logger.error("[reconnect] connect server[" + providerUrl + "] failed", e);
+							}
 						}
-					}
-					if (client.isConnected()) {
-						// 加回去时active设置为true
-						clusterListenerManager.addConnect(providerUrl, client);
-						toRemovedClients.add(providerUrl);
+						if (client.isConnected()) {
+							// 加回去时active设置为true
+							clusterListenerManager.addConnect(providerUrl, client);
+							toRemovedClients.add(providerUrl);
+						}
 					}
 				}
 				for (String providerUrl : toRemovedClients) {

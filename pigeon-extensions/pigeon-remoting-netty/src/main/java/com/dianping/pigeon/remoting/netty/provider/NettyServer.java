@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
@@ -25,12 +26,6 @@ import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.threadpool.NamedThreadFactory;
 import com.dianping.pigeon.util.NetUtils;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: NettyServer.java, v 0.1 2013-6-18 下午12:14:43 jianhuihuang Exp $
- */
 public class NettyServer extends AbstractServer implements Disposable {
 
 	private String ip = null;
@@ -40,13 +35,14 @@ public class NettyServer extends AbstractServer implements Disposable {
 	private Channel channel;
 	private volatile boolean started = false;
 	public static final int DEFAULT_IO_THREADS = Runtime.getRuntime().availableProcessors() + 1;
+	private static ExecutorService bossExecutor = Executors.newCachedThreadPool(new NamedThreadFactory(
+			"Pigeon-Netty-Server-Boss", true));
+	private static ExecutorService workerExecutor = Executors.newCachedThreadPool(new NamedThreadFactory(
+			"Pigeon-Netty-Server-Worker", true));
+	private static ChannelFactory channelFactory = new NioServerSocketChannelFactory(bossExecutor, workerExecutor);
 
 	public NettyServer() {
-		ExecutorService boss = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Netty-Server-Boss", true));
-		ExecutorService worker = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Netty-Server-Worker",
-				true));
-
-		this.bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(boss, worker));
+		this.bootstrap = new ServerBootstrap(channelFactory);
 		this.bootstrap.setPipelineFactory(new NettyServerPipelineFactory(this));
 		this.bootstrap.setOption("child.tcpNoDelay", true);
 		this.bootstrap.setOption("child.keepAlive", true);
@@ -66,7 +62,7 @@ public class NettyServer extends AbstractServer implements Disposable {
 	public void doStart(ServerConfig serverConfig) {
 		if (!started) {
 			if (serverConfig.isAutoSelectPort()) {
-				int availablePort = NetUtils.getAvailablePort(serverConfig.getPort());
+				int availablePort = getAvailablePort(serverConfig.getPort());
 				this.port = availablePort;
 			} else {
 				if (NetUtils.isPortInUse(serverConfig.getPort())) {
@@ -166,13 +162,13 @@ public class NettyServer extends AbstractServer implements Disposable {
 		if (channelGroup != null) {
 			List<String> results = new ArrayList<String>();
 			for (Channel channel : channelGroup) {
-				results.add(getRemoteAddress(channel));
+				results.add("from:" + getRemoteAddress(channel) + ",to:" + this.getPort());
 			}
 			return results;
 		}
 		return null;
 	}
-	
+
 	@Override
 	public boolean isStarted() {
 		return started;

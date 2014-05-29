@@ -17,13 +17,6 @@ import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: ServiceFutureImpl.java, v 0.1 2013-6-20 下午5:50:31 jianhuihuang
- *          Exp $
- */
 public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceFutureImpl.class);
@@ -48,6 +41,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 	@Override
 	public Object _get(long timeoutMillis) throws InterruptedException {
 		InvocationResponse res = null;
+		monitorLogger.logEvent("PigeonCall.future", "", "timeout=" + timeoutMillis);
 		try {
 			res = super.get(timeoutMillis);
 		} catch (Exception e) {

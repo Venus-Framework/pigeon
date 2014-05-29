@@ -153,7 +153,7 @@ public class ServiceFactory {
 	}
 
 	public static void startupServer(ServerConfig serverConfig) throws RpcException {
-		ProviderBootStrap.setServerConfig(serverConfig);
+		// ProviderBootStrap.setServerConfig(serverConfig);
 		// ProviderBootStrap.startup(serverConfig);
 	}
 

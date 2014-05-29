@@ -14,7 +14,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
-import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.remoting.provider.listener.ServiceWarmupListener;
 
 public class ServiceBean {
 
@@ -97,7 +97,7 @@ public class ServiceBean {
 			providerConfig.setServerConfig(serverBean.init());
 		}
 		ServiceFactory.addService(providerConfig);
-		ServiceProviderFactory.startServiceOnlineListener();
+		ServiceWarmupListener.start();
 	}
 
 	@Override

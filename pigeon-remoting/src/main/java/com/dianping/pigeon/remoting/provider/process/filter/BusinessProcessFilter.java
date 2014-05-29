@@ -55,7 +55,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			Object returnObj = method.invoke(request.getParameters());
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 				response = ProviderUtils.createSuccessResponse(request, returnObj);
-			}
+			}  
 			return response;
 		}
 		throw new DPSFException("message type[" + request.getMessageType() + "] is not supported!");

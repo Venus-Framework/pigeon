@@ -37,7 +37,6 @@ public class ServerConfig {
 
 	public ServerConfig() {
 		protocols.add(Constants.PROTOCOL_DEFAULT);
-		protocols.add(Constants.PROTOCOL_HTTP);
 	}
 
 	public String getEnv() {

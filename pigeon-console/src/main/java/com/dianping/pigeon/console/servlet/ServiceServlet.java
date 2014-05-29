@@ -6,9 +6,9 @@ package com.dianping.pigeon.console.servlet;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -27,6 +27,7 @@ import com.dianping.pigeon.console.domain.Service;
 import com.dianping.pigeon.console.domain.ServiceMethod;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
@@ -95,7 +96,7 @@ public class ServiceServlet extends HttpServlet {
 
 	protected void initServicePage(HttpServletRequest request) {
 		ServicePage page = new ServicePage();
-		List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
+		Collection<Server> servers = ProviderBootStrap.getServersMap().values();
 		StringBuilder ports = new StringBuilder();
 		for (Server server : servers) {
 			if (server.isStarted()) {

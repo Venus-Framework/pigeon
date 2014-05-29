@@ -16,16 +16,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
-/**
- * 
- * 
- * @author jianhuihuang,wuxiang
- * @version $Id: LoadBalanceManager.java, v 0.1 2013-6-19 下午4:26:28 jianhuihuang
- *          Exp $
- */
 public class LoadBalanceManager {
-
-	public static final String DEFAULT_LOADBALANCE = LoadAutoawareLoadBalance.NAME;
 
 	private static final Logger logger = LoggerLoader.getLogger(LoadBalanceManager.class);
 
@@ -34,7 +25,7 @@ public class LoadBalanceManager {
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	private static String loadBalanceFromConfigServer = configManager.getStringValue(Constants.KEY_LOADBALANCE,
-			DEFAULT_LOADBALANCE);
+			RoundRobinLoadBalance.NAME);
 
 	private static volatile int errorLogSeed = 0;
 
@@ -57,19 +48,19 @@ public class LoadBalanceManager {
 	/**
 	 * 
 	 * 
-	 * @param metaData
+	 * @param invokerConfig
 	 * @param callType
 	 * @return
 	 */
-	public static LoadBalance getLoadBalance(InvokerConfig metaData, int callType) {
-		LoadBalance loadBalance = loadBalanceMap.get(metaData.getLoadbalance());
+	public static LoadBalance getLoadBalance(InvokerConfig<?> invokerConfig, int callType) {
+		LoadBalance loadBalance = loadBalanceMap.get(invokerConfig.getLoadbalance());
 		if (loadBalance != null) {
 			return loadBalance;
 		}
 
-		String serviceId = metaData.getUrl();
-		if (metaData.getGroup() != null) {
-			serviceId = serviceId + ":" + metaData.getGroup();
+		String serviceId = invokerConfig.getUrl();
+		if (invokerConfig.getGroup() != null) {
+			serviceId = serviceId + ":" + invokerConfig.getGroup();
 		}
 		loadBalance = loadBalanceMap.get(serviceId);
 		if (loadBalance != null) {
@@ -79,7 +70,7 @@ public class LoadBalanceManager {
 		if (loadBalanceFromConfigServer != null) {
 			loadBalance = loadBalanceMap.get(loadBalanceFromConfigServer);
 			if (loadBalance != null) {
-				loadBalanceMap.put(metaData.getLoadbalance(), loadBalance);
+				loadBalanceMap.put(invokerConfig.getLoadbalance(), loadBalance);
 				return loadBalance;
 			} else {
 				logError("the loadbalance[" + loadBalanceFromConfigServer + "] is invalid, only support "

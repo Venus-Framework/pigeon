@@ -4,10 +4,6 @@
  */
 package com.dianping.pigeon.config;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,6 +14,7 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.util.FileUtils;
 import com.dianping.pigeon.util.NetUtils;
 
 /**
@@ -30,8 +27,6 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	private static Logger logger = Logger.getLogger(AbstractConfigManager.class);
 
 	public static final String KEY_GROUP = "swimlane";
-
-	public static final String KEY_WEIGHT = "pigeon.weight.initial";
 
 	public static final String KEY_LOCAL_IP = "host.ip";
 
@@ -69,47 +64,19 @@ public abstract class AbstractConfigManager implements ConfigManager {
 
 	public AbstractConfigManager() {
 		try {
-			init(readLocalConfig(PROPERTIES_PATH));
+			init(FileUtils
+					.readFile(Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPERTIES_PATH)));
 		} catch (Exception e) {
 			logger.error("", e);
 		}
 		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(getEnv())) {
 			try {
-				init(readLocalConfig(DEV_PROPERTIES_PATH));
+				init(FileUtils.readFile(Thread.currentThread().getContextClassLoader()
+						.getResourceAsStream(DEV_PROPERTIES_PATH)));
 			} catch (Exception e) {
 				logger.error("", e);
 			}
 		}
-	}
-
-	private Properties readLocalConfig(String configPath) {
-		Properties properties = new Properties();
-		InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(configPath);
-		BufferedReader br = null;
-		if (input != null) {
-			try {
-				br = new BufferedReader(new InputStreamReader(input, "utf-8"));
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					int idx = line.indexOf("=");
-					if (idx != -1) {
-						String key = line.substring(0, idx);
-						String value = line.substring(idx + 1);
-						properties.put(key.trim(), value.trim());
-					}
-				}
-			} catch (Exception e) {
-				logger.error("", e);
-			} finally {
-				if (br != null) {
-					try {
-						br.close();
-					} catch (IOException e) {
-					}
-				}
-			}
-		}
-		return properties;
 	}
 
 	public boolean getBooleanValue(String key, boolean defaultValue) {
@@ -137,6 +104,15 @@ public abstract class AbstractConfigManager implements ConfigManager {
 
 	public Integer getIntValue(String key) {
 		return getProperty(key, Integer.class);
+	}
+
+	public float getFloatValue(String key, float defaultValue) {
+		Float value = getFloatValue(key);
+		return value != null ? value : defaultValue;
+	}
+
+	public Float getFloatValue(String key) {
+		return getProperty(key, Float.class);
 	}
 
 	@Override
@@ -185,6 +161,8 @@ public abstract class AbstractConfigManager implements ConfigManager {
 					value = Integer.valueOf(strValue);
 				} else if (Long.class == type) {
 					value = Long.valueOf(strValue);
+				} else if (Float.class == type) {
+					value = Float.valueOf(strValue);
 				} else if (Boolean.class == type) {
 					value = Boolean.valueOf(strValue);
 				}
@@ -249,6 +227,8 @@ public abstract class AbstractConfigManager implements ConfigManager {
 					value = Integer.valueOf(strValue);
 				} else if (Long.class == type) {
 					value = Long.valueOf(strValue);
+				} else if (Float.class == type) {
+					value = Float.valueOf(strValue);
 				} else if (Boolean.class == type) {
 					value = Boolean.valueOf(strValue);
 				}
@@ -393,10 +373,6 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			return DEFAULT_GROUP;
 		}
 		return value;
-	}
-
-	public int getWeight() {
-		return getIntValue(KEY_WEIGHT, DEFAULT_WEIGHT);
 	}
 
 	public void registerConfigChangeListener(ConfigChangeListener configChangeListener) {

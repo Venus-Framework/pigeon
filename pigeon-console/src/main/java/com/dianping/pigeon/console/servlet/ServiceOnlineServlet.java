@@ -4,8 +4,6 @@
 package com.dianping.pigeon.console.servlet;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -19,6 +17,7 @@ import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
 public class ServiceOnlineServlet extends HttpServlet {
@@ -27,12 +26,9 @@ public class ServiceOnlineServlet extends HttpServlet {
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	private static final List<String> LOCAL_IP_LIST = new ArrayList<String>();
+	private static final int WEIGHT_DEFAULT = configManager.getIntValue(Constants.KEY_WEIGHT_DEFAULT,
+			Constants.DEFAULT_WEIGHT_DEFAULT);
 
-	static {
-		LOCAL_IP_LIST.add("127.0.0.1");
-		LOCAL_IP_LIST.add("0:0:0:0:0:0:0:1");
-	}
 	/**
 	 * 
 	 */
@@ -43,13 +39,13 @@ public class ServiceOnlineServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String ip = Utils.getIpAddr(request);
-		logger.info("publishing all services, from " + ip);
-		if (LOCAL_IP_LIST.contains(ip) || ip.equals(configManager.getLocalIp())) {
+		logger.info("online all services, from " + ip);
+		if (Utils.isGranted(request)) {
 			try {
-				ServiceFactory.setServerWeight(1);
+				ServiceFactory.setServerWeight(WEIGHT_DEFAULT);
 				response.getWriter().println("ok");
 			} catch (Exception e) {
-				logger.error("Error while publishing all services", e);
+				logger.error("Error with online all services", e);
 				response.getWriter().println("error:" + e.getMessage());
 			}
 		}

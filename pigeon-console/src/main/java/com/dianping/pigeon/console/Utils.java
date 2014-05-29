@@ -1,8 +1,25 @@
 package com.dianping.pigeon.console;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
+
 public class Utils {
+
+	private static final List<String> LOCAL_IP_LIST = new ArrayList<String>();
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static final String SIGN = "q!A1w@S2e#D3r$F4t%G5y^H6u&J7";
+
+	static {
+		LOCAL_IP_LIST.add("127.0.0.1");
+		LOCAL_IP_LIST.add("0:0:0:0:0:0:0:1");
+	}
 
 	public static String getIpAddr(HttpServletRequest request) {
 		String ip = request.getHeader("x-forwarded-for");
@@ -16,5 +33,16 @@ public class Utils {
 			ip = request.getRemoteAddr();
 		}
 		return ip;
+	}
+
+	public static boolean isGranted(HttpServletRequest request) {
+		boolean isGranted = false;
+		String ip = Utils.getIpAddr(request);
+		String sign = request.getParameter("sign");
+		isGranted = LOCAL_IP_LIST.contains(ip) || ip.equals(configManager.getLocalIp());
+		if (!isGranted && StringUtils.isNotBlank(sign)) {
+			isGranted = sign.equals(SIGN);
+		}
+		return isGranted;
 	}
 }

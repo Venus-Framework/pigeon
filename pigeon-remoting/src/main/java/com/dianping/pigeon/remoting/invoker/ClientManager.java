@@ -148,34 +148,37 @@ public class ClientManager implements Disposable {
 			}
 		}
 
-//		final CountDownLatch latch = new CountDownLatch(addressList.size());
-//		for (final String address : addressList) {
-//			final String url = serviceName;
-//			Runnable r = new Runnable() {
-//
-//				@Override
-//				public void run() {
-//					String[] parts = address.split(":");
-//					try {
-//						String host = parts[0];
-//						int port = Integer.parseInt(parts[1]);
-//						int weight = RegistryManager.getInstance().getServiceWeight(address);
-//						RegistryEventListener.providerAdded(url, host, port, weight);
-//						latch.countDown();
-//					} catch (Exception e) {
-//						throw new RuntimeException("error while registering service invoker:" + url + ", address:"
-//								+ address, e);
-//					}
-//				}
-//
-//			};
-//			registerServiceInvokerThreadPool.submit(r);
-//		}
-//		try {
-//			latch.await(1000, TimeUnit.MILLISECONDS);
-//		} catch (InterruptedException e) {
-//			throw new RuntimeException("error while registering service invokers:" + serviceName, e);
-//		}
+		// final CountDownLatch latch = new CountDownLatch(addressList.size());
+		// for (final String address : addressList) {
+		// final String url = serviceName;
+		// Runnable r = new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		// String[] parts = address.split(":");
+		// try {
+		// String host = parts[0];
+		// int port = Integer.parseInt(parts[1]);
+		// int weight = RegistryManager.getInstance().getServiceWeight(address);
+		// RegistryEventListener.providerAdded(url, host, port, weight);
+		// latch.countDown();
+		// } catch (Exception e) {
+		// throw new RuntimeException("error while registering service invoker:"
+		// + url + ", address:"
+		// + address, e);
+		// }
+		// }
+		//
+		// };
+		// registerServiceInvokerThreadPool.submit(r);
+		// }
+		// try {
+		// latch.await(1000, TimeUnit.MILLISECONDS);
+		// } catch (InterruptedException e) {
+		// throw new
+		// RuntimeException("error while registering service invokers:" +
+		// serviceName, e);
+		// }
 	}
 
 	public Map<String, Set<HostInfo>> getServiceHostInfos() {
