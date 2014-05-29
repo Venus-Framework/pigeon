@@ -74,6 +74,7 @@ public class ServiceCallbackWrapper implements Callback {
 		} catch (DPSFException e) {
 			this.callback.frameworkException(e);
 		}
+		// TIMELINE_remove
 	}
 
 	@Override

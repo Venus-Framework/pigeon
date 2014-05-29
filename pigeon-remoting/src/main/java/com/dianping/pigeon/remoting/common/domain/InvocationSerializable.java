@@ -8,6 +8,10 @@ import java.io.Serializable;
 
 public interface InvocationSerializable extends Serializable {
 
+	int getMessageType();
+
+	void setMessageType(int messageType);
+	
 	byte getSerialize();
 	
 	void setSerialize(byte serialize);

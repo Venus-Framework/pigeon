@@ -15,6 +15,7 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
@@ -26,7 +27,8 @@ public class InvocationTimeoutListener implements Runnable {
 	private Map<Long, RemoteInvocationBean> invocations;
 	private long timeoutInterval = ExtensionLoader.getExtension(ConfigManager.class).getLongValue(
 			Constants.KEY_TIMEOUT_INTERVAL, Constants.DEFAULT_TIMEOUT_INTERVAL);
-
+	private int count = 0;
+	
 	public InvocationTimeoutListener(Map<Long, RemoteInvocationBean> invocations) {
 		this.invocations = invocations;
 	}
@@ -47,6 +49,7 @@ public class InvocationTimeoutListener implements Runnable {
 								RpcEventUtils.channelExceptionCaughtEvent(request, callback.getClient().getAddress());
 							}
 							invocations.remove(sequence);
+							TimelineManager.removeTimeline(request);
 							StringBuilder msg = new StringBuilder();
 							msg.append("remove timeout request, process time:").append(System.currentTimeMillis())
 									.append("\r\n").append("request:").append(request);
@@ -57,6 +60,9 @@ public class InvocationTimeoutListener implements Runnable {
 //							}
 						}
 					}
+				}
+				if(++count % 10 == 0) {
+					TimelineManager.removeLegacyTimelines();
 				}
 				Thread.sleep(timeoutInterval);
 			} catch (Exception e) {

@@ -16,6 +16,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
+import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 
@@ -34,6 +35,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 		ProviderChannel channel = invocationContext.getChannel();
 		MonitorTransaction transaction = null;
 		MonitorLogger monitorLogger = null;
+		boolean timeout = false;
 		if (monitor != null) {
 			monitorLogger = monitor.getLogger();
 		}
@@ -50,6 +52,11 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			InvocationResponse response = null;
 			try {
 				response = handler.handle(invocationContext);
+				long currentTime = System.currentTimeMillis();
+				if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
+						&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
+					timeout = true;
+				}
 			} catch (RuntimeException e) {
 				if (transaction != null) {
 					try {
@@ -79,6 +86,10 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			}
 			if (transaction != null) {
 				try {
+					if(TimelineManager.isEnabled() && 
+					  (timeout || TimelineManager.isAbnormalTimeline(request))) {
+						transaction.addData("Timeline", TimelineManager.getTimeline(request));
+					}
 					transaction.complete();
 				} catch (Exception e) {
 					monitorLogger.logMonitorError(e);

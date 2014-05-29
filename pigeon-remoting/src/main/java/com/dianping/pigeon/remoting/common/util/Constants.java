@@ -51,13 +51,9 @@ public final class Constants {
 
 	public static final int ATTACHMENT_RETRY = 1;
 	public static final int ATTACHMENT_BYTEBUFFER = 2;
-	public static final int ATTACHMENT_IS_TELNET = 3;
-	public static final int ATTACHMENT_TELNET_INFO = 5;
 	public static final int ATTACHMENT_REQUEST_SEQ = 11;
 
 	public static final String TRANSFER_NULL = "NULL";
-
-	public static final String TELNET_CHARSET = "UTF-8";
 
 	public static final String REQ_ATTACH_FLOW = "FLOW";
 	public static final String REQ_ATTACH_WRITE_BUFF_LIMIT = "WRITE_BUFF_LIMIT";

@@ -6,22 +6,43 @@ package com.dianping.pigeon.remoting.netty.provider.codec;
 
 import java.io.OutputStream;
 
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.Channels;
 
+import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
+import com.dianping.pigeon.remoting.common.util.TimelineManager;
+import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
 import com.dianping.pigeon.remoting.netty.codec.AbstractEncoder;
 
 public class ProviderEncoder extends AbstractEncoder {
 
+	private MonitorLogger monitor = ExtensionLoader.getExtension(Monitor.class).getLogger();
+	private static final int SIZE_1M = 2 << 20;
+	
 	public ProviderEncoder() {
 		super();
 	}
 
 	public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
-		return super.encode(ctx, channel, msg);
+		Object encoded = super.encode(ctx, channel, msg);
+		// TIMELINE_server_encoded
+		TimelineManager.time((InvocationSerializable)msg, Phase.ServerEncoded);
+		int size = ((ChannelBuffer)encoded).readableBytes();
+		if(size > SIZE_1M) {
+			MonitorTransaction transaction = monitor.getCurrentTransaction();
+			if(transaction != null) {
+				transaction.addData("ResponseSize", size);
+			}
+		}
+		return encoded;
 	}
 
 	@Override

@@ -8,11 +8,15 @@ import java.io.InputStream;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.Channels;
+import org.jboss.netty.util.DebugUtil;
 
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.util.TimelineManager;
+import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
 import com.dianping.pigeon.remoting.netty.codec.AbstractDecoder;
+import com.dianping.pigeon.remoting.netty.provider.NettyChannel;
 
 public class ProviderDecoder extends AbstractDecoder {
 
@@ -22,18 +26,24 @@ public class ProviderDecoder extends AbstractDecoder {
 			return null;
 		}
 		InvocationRequest request = (InvocationRequest) message;
+		// TIMELINE_server_received: DebugUtil.getTimestamp()
+		TimelineManager.time(request, Phase.ServerReceived, DebugUtil.getTimestamp());
+		// TIMELINE_server_decoded
+		TimelineManager.time(request, Phase.ServerDecoded);
 		request.setCreateMillisTime(receiveTime);
 		return request;
 	}
 
 	@Override
 	public void doFailResponse(Channel channel, InvocationResponse response) {
-		Channels.write(channel, response);
+		NettyChannel nettyChannel = new NettyChannel(channel);
+		nettyChannel.write(response);
 	}
 
 	@Override
 	public Object deserialize(byte serializerType, InputStream is) {
-		return SerializerFactory.getSerializer(serializerType).deserializeRequest(is);
+		Object decoded = SerializerFactory.getSerializer(serializerType).deserializeRequest(is);
+		return decoded;
 	}
 
 }

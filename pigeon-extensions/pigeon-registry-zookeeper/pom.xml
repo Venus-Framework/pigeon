@@ -8,7 +8,9 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<name>pigeon-registry-zookeeper</name>
+	<groupId>com.dianping</groupId>
 	<artifactId>pigeon-registry-zookeeper</artifactId>
+	<version>2.1.19-SNAPSHOT</version>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
 	<dependencies>
@@ -38,6 +40,4 @@
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 	</dependencies>
-	<groupId>com.dianping</groupId>
-	<version>2.1.19-SNAPSHOT</version>
 </project>

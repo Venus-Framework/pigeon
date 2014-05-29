@@ -8,18 +8,29 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.Channels;
 
+import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.TimelineManager;
+import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
 import com.dianping.pigeon.remoting.netty.codec.AbstractEncoder;
 import com.dianping.pigeon.remoting.netty.codec.NettyCodecUtils;
 
 public class InvokerEncoder extends AbstractEncoder {
 
+	private MonitorLogger monitor = ExtensionLoader.getExtension(Monitor.class).getLogger();
+	private static final int SIZE_1M = 2 << 20;
+	
 	public InvokerEncoder() {
 		super();
 	}
@@ -27,7 +38,17 @@ public class InvokerEncoder extends AbstractEncoder {
 	public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 		NettyCodecUtils.setAttachment(ctx, Constants.ATTACHMENT_RETRY, msg);
 		Object[] message = (Object[]) msg;
-		return super.encode(ctx, channel, message[0]);
+		Object encoded = super.encode(ctx, channel, message[0]);
+		// TIMELINE_client_encoded
+		TimelineManager.time((InvocationSerializable)message[0], Phase.ClientEncoded);
+		int size = ((ChannelBuffer)encoded).readableBytes();
+		if(size > SIZE_1M) {
+			MonitorTransaction transaction = monitor.getCurrentTransaction();
+			if(transaction != null) {
+				transaction.addData("RequestSize", size);
+			}
+		}
+		return encoded;
 	}
 
 	@Override

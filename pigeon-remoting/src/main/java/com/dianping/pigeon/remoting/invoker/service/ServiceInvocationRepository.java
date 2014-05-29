@@ -16,6 +16,7 @@ import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
+import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
@@ -64,12 +65,15 @@ public class ServiceInvocationRepository {
 				}
 			} finally {
 				invocations.remove(response.getSequence());
+				TimelineManager.removeTimeline(response);
 			}
 		} else {
+			TimelineManager.removeTimeline(response);
 			String msg = "the response has expired:" + InvocationUtils.toJsonString(response);
 			logger.error(msg);
 			// ResponseExpiredException e = new ResponseExpiredException(msg);
 			// monitorLogger.logError(e);
+			// TIMELINE_remove
 		}
 	}
 

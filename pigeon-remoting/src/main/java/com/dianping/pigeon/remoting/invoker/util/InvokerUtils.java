@@ -9,6 +9,8 @@ import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.TimelineManager;
+import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
@@ -30,16 +32,19 @@ public class InvokerUtils {
 			callback.setRequest(request);
 			callback.setClient(client);
 			invocationRepository.put(request.getSequence(), invocationBean);
+			TimelineManager.time(request, Phase.Start);
 		}
 		InvocationResponse response = null;
 		try {
 			response = client.write(request, callback);
 		} catch (RuntimeException e) {
 			invocationRepository.remove(request.getSequence());
+			TimelineManager.removeTimeline(request);
 			throw new NetException("remote call failed:" + request, e);
 		} finally {
 			if (response != null) {
 				invocationRepository.remove(request.getSequence());
+				TimelineManager.removeTimeline(request);
 			}
 		}
 		return response;

@@ -45,7 +45,7 @@ public class CatMonitor implements Monitor {
 
 	public MonitorLogger getLogger() {
 		if (logger == null) {
-			return createLogger();
+			logger = createLogger();
 		}
 		return logger;
 	}
