@@ -2,26 +2,26 @@ package com.dianping.pigeon.remoting.invoker.exception;
 
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 
-public class RequestTimeoutException extends RpcException {
+public class ServiceUnavailableException extends RpcException {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1961488305051802648L;
 
-	public RequestTimeoutException() {
+	public ServiceUnavailableException() {
 		super();
 	}
 
-	public RequestTimeoutException(String message) {
+	public ServiceUnavailableException(String message) {
 		super(message);
 	}
 
-	public RequestTimeoutException(Throwable cause) {
+	public ServiceUnavailableException(Throwable cause) {
 		super(cause);
 	}
 
-	public RequestTimeoutException(String message, Throwable cause) {
+	public ServiceUnavailableException(String message, Throwable cause) {
 		super(message, cause);
 	}
 

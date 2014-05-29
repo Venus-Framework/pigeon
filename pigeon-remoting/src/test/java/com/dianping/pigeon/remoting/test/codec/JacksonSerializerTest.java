@@ -66,10 +66,6 @@ public class JacksonSerializerTest {
 		List<User> users2 = serializer.deserializeCollection(str, List.class, User.class);
 		System.out.println(users2);
 		Assert.assertEquals(users, users2);
-		
-		List<User> users3 = serializer.deserializeObject(List.class, str);
-		System.out.println(users3);
-		Assert.assertEquals(users, users3);
 	}
 
 }

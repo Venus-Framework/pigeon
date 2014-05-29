@@ -29,6 +29,10 @@ public interface ConfigManager {
 
 	public long getLongValue(String key, long defaultValue);
 
+	public Float getFloatValue(String key);
+
+	public float getFloatValue(String key, float defaultValue);
+
 	public Boolean getBooleanValue(String key);
 
 	public boolean getBooleanValue(String key, boolean defaultValue);
@@ -41,16 +45,14 @@ public interface ConfigManager {
 
 	public String getGroup();
 
-	public int getWeight();
-
 	public String doGetProperty(String key) throws Exception;
 
 	public void registerConfigChangeListener(ConfigChangeListener configChangeListener);
-	
+
 	public String getLocalStringValue(String key);
-	
+
 	public void setLocalStringValue(String key, String value);
-	
+
 	public void setStringValue(String key, String value);
 
 	public void deleteKey(String key);

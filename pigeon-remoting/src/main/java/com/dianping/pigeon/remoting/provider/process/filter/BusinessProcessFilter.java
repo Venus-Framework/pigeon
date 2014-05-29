@@ -61,7 +61,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			// TIMELINE_biz_end
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 				response = ProviderUtils.createSuccessResponse(request, returnObj);
-			}
+			}  
 			return response;
 		}
 		throw new DPSFException("message type[" + request.getMessageType() + "] is not supported!");

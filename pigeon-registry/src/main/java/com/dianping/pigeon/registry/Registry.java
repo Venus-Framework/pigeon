@@ -12,9 +12,9 @@ public interface Registry {
 	String getName();
 
 	String getValue(String key);
-	
+
 	String getServiceAddress(String serviceName) throws RegistryException;
-	
+
 	String getServiceAddress(String serviceName, String group) throws RegistryException;
 
 	void registerService(String serviceName, String serviceAddress) throws RegistryException;
@@ -28,8 +28,9 @@ public interface Registry {
 	int getServiceWeigth(String serviceAddress) throws RegistryException;
 
 	Properties getRegistryMeta(String serviceAddress) throws RegistryException;
-	
+
 	List<String> getChildren(String key) throws RegistryException;
-	
+
 	public void setServerWeight(String serverAddress, int weight) throws RegistryException;
+
 }

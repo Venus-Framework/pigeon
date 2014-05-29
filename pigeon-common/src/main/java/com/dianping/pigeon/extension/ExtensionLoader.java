@@ -20,8 +20,7 @@ import org.apache.log4j.Logger;
  */
 public final class ExtensionLoader {
 
-	private static final Logger logger = Logger
-			.getLogger(ExtensionLoader.class);
+	private static final Logger logger = Logger.getLogger(ExtensionLoader.class);
 
 	private static Map<Class<?>, Object> extensionMap = new ConcurrentHashMap<Class<?>, Object>();
 
@@ -30,12 +29,10 @@ public final class ExtensionLoader {
 	public static <T> T getExtension(Class<T> clazz) {
 		T extension = (T) extensionMap.get(clazz);
 		if (extension == null) {
-			ServiceLoader<T> serviceLoader = ServiceLoader.load(clazz);
-			for (T service : serviceLoader) {
-				extensionMap.put(clazz, service);
-				return service;
+			extension = newExtension(clazz);
+			if (extension != null) {
+				extensionMap.put(clazz, extension);
 			}
-			logger.warn("no extension found for class:" + clazz.getName());
 		}
 		return extension;
 	}
@@ -43,18 +40,32 @@ public final class ExtensionLoader {
 	public static <T> List<T> getExtensionList(Class<T> clazz) {
 		List<T> extensions = (List<T>) extensionListMap.get(clazz);
 		if (extensions == null) {
-			ServiceLoader<T> serviceLoader = ServiceLoader.load(clazz);
-			extensions = new ArrayList<T>();
-			for (T service : serviceLoader) {
-				extensions.add(service);
-			}
+			extensions = newExtensionList(clazz);
 			if (!extensions.isEmpty()) {
 				extensionListMap.put(clazz, extensions);
-			} else {
-				logger.warn("no extension found for class:" + clazz.getName());
 			}
 		}
 		return extensions;
 	}
 
+	public static <T> T newExtension(Class<T> clazz) {
+		ServiceLoader<T> serviceLoader = ServiceLoader.load(clazz);
+		for (T service : serviceLoader) {
+			return service;
+		}
+		logger.warn("no extension found for class:" + clazz.getName());
+		return null;
+	}
+
+	public static <T> List<T> newExtensionList(Class<T> clazz) {
+		ServiceLoader<T> serviceLoader = ServiceLoader.load(clazz);
+		List<T> extensions = new ArrayList<T>();
+		for (T service : serviceLoader) {
+			extensions.add(service);
+		}
+		if (extensions.isEmpty()) {
+			logger.warn("no extension found for class:" + clazz.getName());
+		}
+		return extensions;
+	}
 }

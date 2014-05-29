@@ -21,10 +21,10 @@ public final class Utils {
 				+ (b[3] & 0x000000FF);
 	}
 
-	public static void validateWeight(int weight) {
+	public static void validateWeight(String host, int port, int weight) {
 		if (weight < Constants.MIN_WEIGHT || weight > Constants.MAX_WEIGHT)
 			throw new IllegalArgumentException("weight should be in range [" + Constants.MIN_WEIGHT + "-"
-					+ Constants.MAX_WEIGHT + "]");
+					+ Constants.MAX_WEIGHT + "]:" + host + ":" + port + "-" + weight);
 	}
 
 	public static String unescapeServiceName(String serviceName) {
@@ -34,4 +34,5 @@ public final class Utils {
 	public static String escapeServiceName(String serviceName) {
 		return serviceName.replace(Constants.PATH_SEPARATOR, Constants.PLACEHOLDER);
 	}
+
 }

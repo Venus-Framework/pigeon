@@ -61,7 +61,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 				String port = parts[1];
 				String serviceAddress = host + ":" + port;
 
-				int weight = Constants.DEFAULT_WEIGHT_INT;
+				int weight = Constants.WEIGHT_DEFAULT;
 				try {
 					weight = RegistryManager.getInstance().getServiceWeight(serviceAddress);
 				} catch (Exception e) {

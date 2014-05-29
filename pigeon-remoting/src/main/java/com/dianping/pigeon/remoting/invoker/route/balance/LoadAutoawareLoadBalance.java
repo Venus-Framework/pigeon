@@ -27,7 +27,6 @@ public class LoadAutoawareLoadBalance extends AbstractLoadBalance {
 
 	@Override
 	public Client doSelect(List<Client> clients, InvocationRequest request, int[] weights) {
-
 		float minCapacity = Float.MAX_VALUE;
 		int clientSize = clients.size();
 		Client[] candidates = new Client[clientSize];

@@ -78,10 +78,8 @@ public final class Constants {
 
 	// Deafult value for the above keys
 	public static final String DEFAULT_GROUP = "";
-	public static final int DEFAULT_WEIGHT = 1;
-	public static final String DEFAULT_AUTO_REGISTER = "true";
 
-	public static final String KEY_LOADBALANCE = "pigeon.loadbalance";
+	public static final String KEY_LOADBALANCE = "pigeon.loadbalance.default";
 	public static final String KEY_RECONNECT_INTERVAL = "pigeon.reconnect.interval";
 	public static final String KEY_HEARTBEAT_INTERVAL = "pigeon.heartbeat.interval";
 	public static final String KEY_HEARTBEAT_TIMEOUT = "pigeon.heartbeat.timeout";
@@ -106,7 +104,7 @@ public final class Constants {
 	public static final String KEY_CONNECT_TIMEOUT = "pigeon.netty.connecttimeout";
 	public static final String KEY_WEIGHT_CHECKINTERVAL = "pigeon.weight.checkinterval";
 	public static final String KEY_WEIGHT_STARTDELAY = "pigeon.weight.startdelay";
-	
+
 	public static final int DEFAULT_INVOKER_TIMEOUT = 5000;
 	public static final int DEFAULT_PROVIDER_COREPOOLSIZE = 100;
 	public static final int DEFAULT_PROVIDER_MAXPOOLSIZE = 300;
@@ -124,12 +122,11 @@ public final class Constants {
 	public static final boolean DEFAULT_WRITE_BUFF_LIMIT = false;
 	public static final String DEFAULT_PROCESS_TYPE = "threadpool";
 	public static final long DEFAULT_TIMEOUT_INTERVAL = 1000;
-	public static final String ROUTE_ROUNDROBIN = "roundRobin";
 	public static final String DEFAULT_MANAGER_ADDRESS = "lionapi.dp:8080";
 	public static final boolean DEFAULT_NOTIFY_ENABLE = true;
 	public static final boolean DEFAULT_TEST_ENABLE = true;
 	public static final int DEFAULT_CONNECT_TIMEOUT = 500;
-	public static final int DEFAULT_WEIGHT_CHECKINTERVAL = 30000;
+	public static final int DEFAULT_WEIGHT_CHECKINTERVAL = 1000;
 	public static final int DEFAULT_WEIGHT_STARTDELAY = DEFAULT_WEIGHT_CHECKINTERVAL;
 
 	public static final String PROTOCOL_HTTP = "http";
@@ -146,4 +143,11 @@ public final class Constants {
 	public static final String KEY_STRING_MAXITEMS = "pigeon.string.maxitems";
 	public static final boolean DEFAULT_ONLINE_AUTO = true;
 	public static final String KEY_ONLINE_AUTO = "pigeon.online.auto";
+	public static final String KEY_WEIGHT_INITIAL = "pigeon.weight.initial";
+	public static final int DEFAULT_WEIGHT_INITIAL = 0;
+	public static final String KEY_WEIGHT_DEFAULT = "pigeon.weight.default";
+	public static final int DEFAULT_WEIGHT_DEFAULT = 1;
+	public static final String KEY_WEIGHT_MAX = "pigeon.weight.max";
+	public static final int DEFAULT_WEIGHT_MAX = 1;
+
 }

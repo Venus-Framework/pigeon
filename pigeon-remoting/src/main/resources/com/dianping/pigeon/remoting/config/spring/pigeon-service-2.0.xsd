@@ -21,7 +21,7 @@
 						default="sync" />
 					<xsd:attribute name="timeout" type="xsd:int" default="5000" />
 					<xsd:attribute name="loadbalance" type="xsd:string"
-						default="autoaware" />
+						default="roundRobin" />
 					<xsd:attribute name="cluster" type="xsd:string"
 						default="failfast" />
 					<xsd:attribute name="retries" type="xsd:int" default="1" />

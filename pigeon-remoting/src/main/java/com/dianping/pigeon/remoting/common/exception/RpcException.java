@@ -4,11 +4,13 @@
  */
 package com.dianping.pigeon.remoting.common.exception;
 
-public class RpcException extends Exception {
+import com.dianping.dpsf.exception.DPSFException;
+
+public class RpcException extends DPSFException {
 
 	private static final long serialVersionUID = -4052834884778586750L;
 
-	String errorCode = null;
+	private String errorCode;
 
 	public String getErrorCode() {
 		return errorCode;
@@ -24,6 +26,15 @@ public class RpcException extends Exception {
 
 	public RpcException(String msg) {
 		super(msg);
+	}
+
+	public RpcException(Throwable cause) {
+		super(cause);
+	}
+
+	public RpcException(String msg, String errorCode, Throwable cause) {
+		super(msg, cause);
+		this.errorCode = errorCode;
 	}
 
 	public RpcException(String msg, Throwable cause) {

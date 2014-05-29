@@ -129,7 +129,7 @@ public class RegistryManager {
 		if (hostInfo != null) {
 			return hostInfo.getWeight();
 		}
-		int weight = Constants.DEFAULT_WEIGHT_INT;
+		int weight = Constants.WEIGHT_DEFAULT;
 		if (registry != null) {
 			try {
 				weight = registry.getServiceWeigth(serviceAddress);
@@ -187,7 +187,7 @@ public class RegistryManager {
 
 	// TODO multi thread support
 	public void addServiceServer(String serviceName, String host, int port, int weight) {
-		Utils.validateWeight(weight);
+		Utils.validateWeight(host, port, weight);
 
 		HostInfo hostInfo = new HostInfo(host, port, weight);
 

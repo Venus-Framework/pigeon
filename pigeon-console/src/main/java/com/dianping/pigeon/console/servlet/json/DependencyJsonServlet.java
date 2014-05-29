@@ -4,16 +4,19 @@
 package com.dianping.pigeon.console.servlet.json;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.dianping.pigeon.console.servlet.ServicePage;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
+import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
@@ -36,9 +39,9 @@ public class DependencyJsonServlet extends ServiceServlet {
 		return "application/json; charset=UTF-8";
 	}
 
-	protected void initServicePage() {
+	protected void initServicePage(HttpServletRequest request) {
 		List<String> invokers = new ArrayList<String>();
-		List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
+		Collection<Server> servers = ProviderBootStrap.getServersMap().values();
 		for (Server server : servers) {
 			List<String> serverInvokers = server.getInvokerMetaInfo();
 			if (serverInvokers != null) {

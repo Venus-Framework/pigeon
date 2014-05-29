@@ -13,7 +13,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.ServiceException;
-import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -22,13 +21,12 @@ import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.listener.ServiceChangeListener;
-import com.dianping.pigeon.remoting.provider.listener.ServiceOnlineListener;
+import com.dianping.pigeon.remoting.provider.listener.ServiceWarmupListener;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethodFactory;
-import com.dianping.pigeon.threadpool.DefaultThreadPool;
-import com.dianping.pigeon.threadpool.ThreadPool;
 import com.dianping.pigeon.util.VersionUtils;
 
 /**
@@ -52,30 +50,13 @@ public final class ServiceProviderFactory {
 
 	private static ConcurrentHashMap<String, Integer> serverWeightCache = new ConcurrentHashMap<String, Integer>();
 
-	private static ThreadPool serviceOnlineListenerThreadPool = new DefaultThreadPool("pigeon-service-online-listener");
-
-	private static volatile boolean isServiceOnlineListenerStarted = false;
-
 	private static volatile PublishStatus status = PublishStatus.TOPUBLISH;
 
-	private static final int unpublishWaitTime = configManager.getIntValue(Constants.KEY_UNPUBLISH_WAITTIME,
+	private static final int UNPUBLISH_WAITTIME = configManager.getIntValue(Constants.KEY_UNPUBLISH_WAITTIME,
 			Constants.DEFAULT_UNPUBLISH_WAITTIME);
 
-	private static boolean autoOnline = configManager.getBooleanValue(Constants.KEY_ONLINE_AUTO,
-			Constants.DEFAULT_ONLINE_AUTO);
-
-	static {
-		configManager.registerConfigChangeListener(new ConfigChangeListener() {
-
-			@Override
-			public void onChange(String key, String value) {
-				if (Constants.KEY_ONLINE_AUTO.equals(key)) {
-					autoOnline = Boolean.valueOf(value);
-				}
-			}
-
-		});
-	}
+	private static final int WEIGHT_INITIAL = configManager.getIntValue(Constants.KEY_WEIGHT_INITIAL,
+			Constants.DEFAULT_WEIGHT_INITIAL);
 
 	public static String getServiceUrlWithVersion(String url, String version) {
 		String newUrl = url;
@@ -132,27 +113,25 @@ public final class ServiceProviderFactory {
 					+ existingService);
 		}
 		if (existingService) {
-			List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
+			List<Server> servers = ProviderBootStrap.getServers(providerConfig);
 			int registerCount = 0;
 			for (Server server : servers) {
-				if (server.support(providerConfig.getServerConfig())) {
-					try {
-						server.addService(providerConfig);
-					} catch (RpcException e) {
-						throw new ServiceException("", e);
-					}
-					publishService(server.getRegistryUrl(url), server.getPort(), providerConfig.getServerConfig()
-							.getGroup());
-					registerCount++;
+				try {
+					server.addService(providerConfig);
+				} catch (RpcException e) {
+					throw new ServiceException("", e);
 				}
+				publishService(server.getRegistryUrl(url), server.getPort(), providerConfig.getServerConfig()
+						.getGroup());
+				registerCount++;
 			}
 			if (registerCount > 0) {
 				boolean isNotify = configManager.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
 				if (isNotify && serviceChangeListener != null) {
 					serviceChangeListener.notifyServicePublished(providerConfig);
 				}
-
-				startServiceOnlineListener();
+				status = PublishStatus.PUBLISHING;
+				ServiceWarmupListener.start();
 
 				providerConfig.setPublished(true);
 			}
@@ -177,7 +156,7 @@ public final class ServiceProviderFactory {
 	private synchronized static <T> void publishService(String url, int port, String group) throws ServiceException {
 		try {
 			String serverAddress = configManager.getLocalIp() + ":" + port;
-			int weight = configManager.getWeight();
+			int weight = WEIGHT_INITIAL;
 			if (logger.isInfoEnabled()) {
 				logger.info("publish service to registry, url:" + url + ", port:" + port + ", group:" + group
 						+ ", address:" + serverAddress + ", weight:" + weight);
@@ -189,39 +168,14 @@ public final class ServiceProviderFactory {
 		}
 	}
 
-	public static void startServiceOnlineListener() {
-		if (autoOnline && !isServiceOnlineListenerStarted) {
-			status = PublishStatus.PUBLISHED;
-			serviceOnlineListenerThreadPool.execute(new ServiceOnlineListener());
-			isServiceOnlineListenerStarted = true;
-		}
-	}
-
 	public static Map<String, Integer> getServerWeight() {
 		return serverWeightCache;
 	}
 
-	public synchronized static void setServerOnline() throws ServiceException {
-		if (autoOnline && status.equals(PublishStatus.PUBLISHED)) {
-			for (String serverAddress : serverWeightCache.keySet()) {
-				int weight = serverWeightCache.get(serverAddress);
-				if (weight == 0) {
-					int newWeight = Constants.DEFAULT_WEIGHT;
-					if (logger.isInfoEnabled()) {
-						logger.info("set weight, address:" + serverAddress + ", weight:" + newWeight);
-					}
-					try {
-						RegistryManager.getInstance().setServerWeight(serverAddress, newWeight);
-						serverWeightCache.put(serverAddress, newWeight);
-					} catch (Exception e) {
-						throw new ServiceException("", e);
-					}
-				}
-			}
-		}
-	}
-
 	public synchronized static void setServerWeight(int weight) throws ServiceException {
+		if (weight < 0 || weight > 100) {
+			throw new IllegalArgumentException("The weight must be within the range of 0 to 100:" + weight);
+		}
 		try {
 			for (String serverAddress : serverWeightCache.keySet()) {
 				if (logger.isInfoEnabled()) {
@@ -232,8 +186,6 @@ public final class ServiceProviderFactory {
 			}
 			if (weight <= 0) {
 				status = PublishStatus.OFFLINE;
-			} else if (weight > 0) {
-				status = PublishStatus.ONLINE;
 			}
 		} catch (Exception e) {
 			throw new ServiceException("", e);
@@ -255,17 +207,16 @@ public final class ServiceProviderFactory {
 					+ existingService);
 		}
 		if (existingService) {
-			List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
+			status = PublishStatus.TOUNPUBLISH;
+			List<Server> servers = ProviderBootStrap.getServers(providerConfig);
 			for (Server server : servers) {
-				if (server.support(providerConfig.getServerConfig())) {
-					String serverAddress = configManager.getLocalIp() + ":" + server.getPort();
-					try {
-						RegistryManager.getInstance().unregisterService(server.getRegistryUrl(providerConfig.getUrl()),
-								providerConfig.getServerConfig().getGroup(), serverAddress);
-						serverWeightCache.remove(serverAddress);
-					} catch (RegistryException e) {
-						throw new ServiceException("", e);
-					}
+				String serverAddress = configManager.getLocalIp() + ":" + server.getPort();
+				try {
+					RegistryManager.getInstance().unregisterService(server.getRegistryUrl(providerConfig.getUrl()),
+							providerConfig.getServerConfig().getGroup(), serverAddress);
+					serverWeightCache.remove(serverAddress);
+				} catch (RegistryException e) {
+					throw new ServiceException("", e);
 				}
 			}
 			boolean isNotify = configManager.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
@@ -331,7 +282,7 @@ public final class ServiceProviderFactory {
 		status = PublishStatus.TOUNPUBLISH;
 		setServerWeight(0);
 		try {
-			Thread.sleep(unpublishWaitTime);
+			Thread.sleep(UNPUBLISH_WAITTIME);
 		} catch (InterruptedException e) {
 		}
 		for (String url : serviceCache.keySet()) {
@@ -358,6 +309,14 @@ public final class ServiceProviderFactory {
 
 	public static Map<String, ProviderConfig<?>> getAllServices() {
 		return serviceCache;
+	}
+
+	public synchronized static void setPublishStatus(PublishStatus publishStatus) {
+		status = publishStatus;
+	}
+
+	public static PublishStatus getPublishStatus() {
+		return status;
 	}
 
 }

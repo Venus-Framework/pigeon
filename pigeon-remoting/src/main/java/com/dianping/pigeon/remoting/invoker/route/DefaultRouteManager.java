@@ -62,11 +62,11 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		Client selectedClient = select(availableClients, invokerConfig, request);
 
 		checkClientNotNull(selectedClient, invokerConfig);
-		
+
 		if (!selectedClient.isConnected()) {
 			selectedClient.connect();
 		}
-		
+
 		while (!selectedClient.isConnected()) {
 			clusterListenerManager.removeConnect(selectedClient);
 			availableClients.remove(selectedClient);
@@ -78,7 +78,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		}
 
 		if (!selectedClient.isConnected()) {
-			throw new NoConnectionException("no available server exists for service metaData[" + invokerConfig + "] .");
+			throw new NoConnectionException("no available server exists for service[" + invokerConfig + "]");
 		}
 		return selectedClient;
 	}
@@ -92,14 +92,13 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	 * @param isWriteBufferLimit
 	 * @return
 	 */
-	public List<Client> filterWithGroupAndWeight(List<Client> clientList, InvokerConfig metaData,
+	public List<Client> filterWithGroupAndWeight(List<Client> clientList, InvokerConfig<?> invokerConfig,
 			Boolean isWriteBufferLimit) {
 		List<Client> filteredClients = new ArrayList<Client>(clientList.size());
 		boolean existClientBuffToLimit = false;
 		for (Client client : clientList) {
 			String address = client.getAddress();
-			if (client.isActive() 
-					&& RegistryManager.getInstance().getServiceWeight(address) > 0) {
+			if (client.isActive() && RegistryManager.getInstance().getServiceWeight(address) > 0) {
 				if (!isWriteBufferLimit || client.isWritable()) {
 					filteredClients.add(client);
 				} else {
@@ -108,26 +107,26 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 			}
 		}
 		if (filteredClients.isEmpty()) {
-			throw new NoConnectionException("no available server exists for service[" + metaData.getUrl()
-					+ "] and group[" + metaData.getGroup() + "]"
+			throw new NoConnectionException("no available server exists for service[" + invokerConfig.getUrl()
+					+ "] and group[" + invokerConfig.getGroup() + "]"
 					+ (existClientBuffToLimit ? ", and exists some server's write buffer reach limit" : "") + ".");
 		}
 		return filteredClients;
 	}
 
-	private void checkClientNotNull(Client client, InvokerConfig metaData) {
+	private void checkClientNotNull(Client client, InvokerConfig<?> invokerConfig) {
 		if (client == null) {
-			throw new NoConnectionException("no available server exists for service[" + metaData + "]");
+			throw new NoConnectionException("no available server exists for service[" + invokerConfig + "]");
 		}
 	}
 
-	private Client select(List<Client> availableClients, InvokerConfig metaData, InvocationRequest request) {
+	private Client select(List<Client> availableClients, InvokerConfig<?> invokerConfig, InvocationRequest request) {
 		LoadBalance loadBalance = null;
 		if (request.getCallType() == Constants.CALLTYPE_NOREPLY) {
 			loadBalance = RandomLoadBalance.instance;
 		}
 		if (loadBalance == null) {
-			loadBalance = LoadBalanceManager.getLoadBalance(metaData, request.getCallType());
+			loadBalance = LoadBalanceManager.getLoadBalance(invokerConfig, request.getCallType());
 		}
 		if (loadBalance == null) {
 			loadBalance = RandomLoadBalance.instance;

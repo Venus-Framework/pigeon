@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.remoting.provider;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +19,7 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.listener.ShutdownHookListener;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessHandlerFactory;
@@ -27,17 +29,9 @@ import com.dianping.pigeon.util.VersionUtils;
 public final class ProviderBootStrap {
 
 	private static Logger logger = LoggerLoader.getLogger(ServiceProviderFactory.class);
-	static volatile Map<String, Server> serversMap = new HashMap<String, Server>();
-	static volatile ServerConfig serverConfig = null;
+	static Server httpServer = null;
+	static volatile Map<Integer, Server> serversMap = new HashMap<Integer, Server>();
 	static volatile boolean isInitialized = false;
-
-	public static void setServerConfig(ServerConfig serverConfig) {
-		ProviderBootStrap.serverConfig = serverConfig;
-	}
-
-	public static ServerConfig getServerConfig() {
-		return ProviderBootStrap.serverConfig;
-	}
 
 	public static void init() {
 		if (!isInitialized) {
@@ -61,7 +55,8 @@ public final class ProviderBootStrap {
 				if (!server.isStarted()) {
 					if (server.support(config)) {
 						server.start(config);
-						serversMap.put(server.toString(), server);
+						httpServer = server;
+						serversMap.put(server.getPort(), server);
 						if (logger.isInfoEnabled()) {
 							logger.info("pigeon server[version:" + VersionUtils.VERSION + "] has been started at port:"
 									+ server.getPort());
@@ -74,35 +69,35 @@ public final class ProviderBootStrap {
 	}
 
 	public static ServerConfig startup(ServerConfig serverConfig) {
-		if (ProviderBootStrap.serverConfig != null) {
-			serverConfig = ProviderBootStrap.serverConfig;
-		}
 		if (serverConfig == null) {
 			throw new IllegalArgumentException("server config is required");
 		}
-		synchronized (ProviderBootStrap.class) {
-			List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
-			if (logger.isInfoEnabled()) {
-				logger.info("server list:" + servers);
-			}
-			for (Server server : servers) {
-				if (!server.isStarted()) {
-					if (server.support(serverConfig)) {
-						server.start(serverConfig);
-						serversMap.put(server.toString(), server);
-						if (logger.isInfoEnabled()) {
-							logger.info("pigeon server[version:" + VersionUtils.VERSION + "] has been started at port:"
-									+ server.getPort());
+		Server server = serversMap.get(serverConfig.getPort());
+		if (server != null) {
+			return server.getServerConfig();
+		} else {
+			synchronized (ProviderBootStrap.class) {
+				List<Server> servers = ExtensionLoader.newExtensionList(Server.class);
+				for (Server s : servers) {
+					if (!s.isStarted()) {
+						if (s.support(serverConfig)) {
+							s.start(serverConfig);
+							serversMap.put(s.getPort(), s);
+							if (logger.isInfoEnabled()) {
+								logger.info("pigeon server[version:" + VersionUtils.VERSION
+										+ "] has been started at port:" + s.getPort());
+							}
+							break;
 						}
 					}
-				} else {
-					logger.info("pigeon server[version:" + VersionUtils.VERSION + "] has already been started:"
-							+ serversMap);
 				}
+				server = serversMap.get(serverConfig.getPort());
+				if (server != null) {
+					return server.getServerConfig();
+				}
+				return null;
 			}
-			ProviderBootStrap.serverConfig = serverConfig;
 		}
-		return ProviderBootStrap.serverConfig;
 	}
 
 	public static void shutdown() {
@@ -118,4 +113,16 @@ public final class ProviderBootStrap {
 		ProviderProcessHandlerFactory.clearServerInternalFilters();
 	}
 
+	public static List<Server> getServers(ProviderConfig<?> providerConfig) {
+		List<Server> servers = new ArrayList<Server>();
+		servers.add(httpServer);
+		int port = providerConfig.getServerConfig().getPort();
+		servers.add(serversMap.get(port));
+		
+		return servers;
+	}
+	
+	public static Map<Integer, Server> getServersMap() {
+		return serversMap;
+	}
 }

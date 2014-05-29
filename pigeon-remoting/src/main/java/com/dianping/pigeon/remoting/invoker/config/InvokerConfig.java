@@ -15,6 +15,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.route.balance.RoundRobinLoadBalance;
 
 public class InvokerConfig<T> {
 	public static final String CALL_SYNC = Constants.CALL_SYNC;
@@ -51,7 +52,7 @@ public class InvokerConfig<T> {
 	private boolean writeBufferLimit = configManager.getBooleanValue(Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT,
 			Constants.DEFAULT_WRITE_BUFF_LIMIT);
 
-	private String loadbalance = Constants.ROUTE_ROUNDROBIN;
+	private String loadbalance = configManager.getStringValue(Constants.KEY_LOADBALANCE, RoundRobinLoadBalance.NAME);
 
 	private boolean timeoutRetry = false;
 

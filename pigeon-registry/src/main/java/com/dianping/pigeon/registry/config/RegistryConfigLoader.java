@@ -13,7 +13,6 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.registry.util.Constants;
 
 public class RegistryConfigLoader {
 
@@ -63,14 +62,6 @@ public class RegistryConfigLoader {
 			newProps.put(key, value.trim());
 		}
 		return newProps;
-	}
-
-	private static Properties loadDefaultConfig() {
-		Properties props = new Properties();
-		props.put(Constants.KEY_GROUP, Constants.DEFAULT_GROUP);
-		props.put(Constants.KEY_WEIGHT, Constants.DEFAULT_WEIGHT);
-		props.put(Constants.KEY_AUTO_REGISTER, Constants.DEFAULT_AUTO_REGISTER);
-		return props;
 	}
 
 	private static Properties loadFromRegistry() throws RegistryException {

@@ -48,17 +48,18 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 	@Override
 	public void doStart(ServerConfig serverConfig) {
 		if (!started) {
-			if (serverConfig.isAutoSelectPort()) {
-				int availablePort = NetUtils.getAvailablePort(serverConfig.getHttpPort());
-				this.port = availablePort;
-			} else {
-				if (NetUtils.isPortInUse(serverConfig.getHttpPort())) {
-					logger.error("unable to start jetty server on port " + serverConfig.getHttpPort()
-							+ ", the port is in use");
-					System.exit(0);
-				}
-				this.port = serverConfig.getHttpPort();
-			}
+			// if (serverConfig.isAutoSelectPort()) {
+			int availablePort = NetUtils.getAvailablePort(serverConfig.getHttpPort());
+			this.port = availablePort;
+			// } else {
+			// if (NetUtils.isPortInUse(serverConfig.getHttpPort())) {
+			// logger.error("unable to start jetty server on port " +
+			// serverConfig.getHttpPort()
+			// + ", the port is in use");
+			// System.exit(0);
+			// }
+			// this.port = serverConfig.getHttpPort();
+			// }
 
 			DispatcherServlet.addHttpHandler(port, new HttpServerHandler(this));
 

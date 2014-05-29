@@ -167,7 +167,7 @@ public class ZookeeperRegistry implements Registry {
 
 	@Override
 	public void registerService(String serviceName, String serviceAddress) throws RegistryException {
-		registerService(serviceName, Constants.DEFAULT_GROUP, serviceAddress, Constants.DEFAULT_WEIGHT_INT);
+		registerService(serviceName, Constants.DEFAULT_GROUP, serviceAddress, Constants.WEIGHT_DEFAULT);
 	}
 
 	@Override
@@ -228,7 +228,7 @@ public class ZookeeperRegistry implements Registry {
 	public int getServiceWeigth(String serviceAddress) throws RegistryException {
 		String path = Utils.getWeightPath(serviceAddress);
 		String strWeight = getZkValue(path);
-		Integer result = 1;
+		int result = Constants.WEIGHT_DEFAULT;
 		if (strWeight != null) {
 			result = Integer.parseInt(strWeight);
 		}
@@ -377,4 +377,5 @@ public class ZookeeperRegistry implements Registry {
 			throw new RegistryException(e);
 		}
 	}
+
 }
