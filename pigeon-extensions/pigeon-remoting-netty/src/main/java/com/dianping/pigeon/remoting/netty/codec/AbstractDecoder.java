@@ -19,6 +19,7 @@ import org.jboss.netty.buffer.DynamicChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
+import org.jboss.netty.util.DebugUtil;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -34,6 +35,17 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 	public abstract void doFailResponse(Channel channel, InvocationResponse response);
 
 	public abstract Object deserialize(byte serializerType, InputStream is);
+
+	protected boolean isNettyTimelineEnabled = true;
+
+	public AbstractDecoder() {
+		try {
+			DebugUtil.getTimestamp();
+		} catch (NoSuchMethodError e) {
+			logger.warn("timeline is disabled with netty");
+			isNettyTimelineEnabled = false;
+		}
+	}
 
 	public Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws IOException,
 			ClassNotFoundException {
