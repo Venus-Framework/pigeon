@@ -4,19 +4,11 @@
 	<parent>
 		<artifactId>pigeon-parent</artifactId>
 		<groupId>com.dianping</groupId>
-<<<<<<< HEAD
 		<version>2.1.19-SNAPSHOT</version>
 	</parent>
 	<groupId>com.dianping.dpsf</groupId>
 	<artifactId>dpsf-net</artifactId>
 	<version>2.1.19-SNAPSHOT</version>
-=======
-		<version>2.1.19</version>
-	</parent>
-	<groupId>com.dianping.dpsf</groupId>
-	<artifactId>dpsf-net</artifactId>
-	<version>2.1.19</version>
->>>>>>> 3a9b952d27785e9dcdd415f3c051e5d455e73d8b
 	<packaging>jar</packaging>
 	<name>dpsf-net</name>
 	<properties>
