@@ -6,9 +6,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.DPSFLog;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 
 /**
@@ -36,7 +36,7 @@ public class TimelineManager {
         End/*13*/
     };
     
-    private static Logger logger = DPSFLog.getLogger();
+    private static Logger logger = LoggerLoader.getLogger(TimelineManager.class);
     
     private static ConcurrentHashMap<Long, Timeline> sequenceMap = new ConcurrentHashMap<Long, Timeline>();
 
