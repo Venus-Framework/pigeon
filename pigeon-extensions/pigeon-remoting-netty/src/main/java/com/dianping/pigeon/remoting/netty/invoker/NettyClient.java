@@ -16,7 +16,6 @@ import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.logging.InternalLoggerFactory;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.event.EventManager;
@@ -35,16 +34,11 @@ import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.RpcInvokeInfo;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
-import com.dianping.pigeon.remoting.netty.util.DpsfLoggerFactory;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 
 public class NettyClient extends AbstractClient {
-
-	static {
-		InternalLoggerFactory.setDefaultFactory(new DpsfLoggerFactory());
-	}
 	
 	private static final Logger logger = LoggerLoader.getLogger(NettyClient.class);
 

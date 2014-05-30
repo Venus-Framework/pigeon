@@ -32,7 +32,6 @@ public class RequestTimeoutListener implements Runnable {
 			Constants.DEFAULT_TIMEOUT_INTERVAL);
 	private boolean defaultCancelTimeout = configManager.getBooleanValue(Constants.KEY_TIMEOUT_CANCEL,
 			Constants.DEFAULT_TIMEOUT_CANCEL);
-	private int count = 0;
 	
 	public RequestTimeoutListener(Map<InvocationRequest, ProviderContext> requestContextMap) {
 		this.requestContextMap = requestContextMap;
@@ -87,9 +86,7 @@ public class RequestTimeoutListener implements Runnable {
 						}
 					}
 				}
-				if(++count % 10 == 0) {
-					TimelineManager.removeLegacyTimelines();
-				}
+				TimelineManager.removeLegacyTimelines();
 				Thread.sleep(timeoutInterval);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);

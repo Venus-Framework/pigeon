@@ -17,6 +17,7 @@ import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.common.util.TimelineManager;
+import com.dianping.pigeon.remoting.common.util.TimelineManager.Timeline;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 
@@ -88,7 +89,9 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 				try {
 					if(TimelineManager.isEnabled() && 
 					  (timeout || TimelineManager.isAbnormalTimeline(request))) {
-						transaction.addData("Timeline", TimelineManager.getTimeline(request));
+						Timeline timeline = TimelineManager.getTimeline(request);
+						transaction.addData("Timeline", timeline);
+						logger.warn(String.format("request %s, timeline %s", request, timeline));
 					}
 					transaction.complete();
 				} catch (Exception e) {

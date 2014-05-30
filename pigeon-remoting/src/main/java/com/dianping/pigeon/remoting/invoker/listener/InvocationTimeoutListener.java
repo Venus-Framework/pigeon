@@ -27,7 +27,6 @@ public class InvocationTimeoutListener implements Runnable {
 	private Map<Long, RemoteInvocationBean> invocations;
 	private long timeoutInterval = ExtensionLoader.getExtension(ConfigManager.class).getLongValue(
 			Constants.KEY_TIMEOUT_INTERVAL, Constants.DEFAULT_TIMEOUT_INTERVAL);
-	private int count = 0;
 	
 	public InvocationTimeoutListener(Map<Long, RemoteInvocationBean> invocations) {
 		this.invocations = invocations;
@@ -61,9 +60,7 @@ public class InvocationTimeoutListener implements Runnable {
 						}
 					}
 				}
-				if(++count % 10 == 0) {
-					TimelineManager.removeLegacyTimelines();
-				}
+				TimelineManager.removeLegacyTimelines();
 				Thread.sleep(timeoutInterval);
 			} catch (Exception e) {
 				logger.error("checking remote call timeout failed", e);

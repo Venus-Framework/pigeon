@@ -41,9 +41,15 @@ public class TimelineManager {
     private static ConcurrentHashMap<Long, Timeline> sequenceMap = new ConcurrentHashMap<Long, Timeline>();
 
     private static boolean enabled;
+    private static long abnormalThreshold;
+    private static long legacyThreshold; 
+    private static long lastRemoveTime;
+    
     static {
     	ConfigManager config = ExtensionLoader.getExtension(ConfigManager.class);
     	enabled = config.getBooleanValue("pigeon.timeline.enabled", false);
+    	abnormalThreshold = config.getLongValue("pigeon.timeline.abnormal.threshold", 50);
+    	legacyThreshold = config.getLongValue("pigeon.timeline.legacy.threshold", 60000);
     }
     
     public static class Timeline {
@@ -131,7 +137,6 @@ public class TimelineManager {
     
     public static Timeline removeTimeline(InvocationSerializable message) {
     	Timeline tl = sequenceMap.remove(message.getSequence());
-    	logAbnormalTimeline(tl);
     	return tl;
     }
 
@@ -139,29 +144,32 @@ public class TimelineManager {
     	Timeline tl = sequenceMap.get(message.getSequence());
     	if(tl != null) {
     		long[] timeline = tl.getTimeline();
-    		return (timeline[5] - timeline[4] > 100) || (timeline[10] - timeline[9] > 100);
+    		return (timeline[2] - timeline[1] > abnormalThreshold) || 
+    			   (timeline[5] - timeline[4] > abnormalThreshold) ||
+    			   (timeline[10] - timeline[9] > abnormalThreshold) ||
+    			   (timeline[12] - timeline[11] > abnormalThreshold);
     	}
 		return false;
     }
     
-    private static void logAbnormalTimeline(Timeline tl) {
-        if(tl == null)
-            return;
-        long[] timeline = tl.getTimeline();
-        if((timeline[5] - timeline[4] > 100) || (timeline[10] - timeline[9] > 100)) {
-            logger.warn("abnormal timeline " + tl);
-        }
-    }
-    
-    public static void removeLegacyTimelines() {
+    public static synchronized void removeLegacyTimelines() {
+    	long now = System.currentTimeMillis();
+    	if(now - lastRemoveTime < legacyThreshold) {
+    		return;
+    	}
+    	int count = 0;
     	Iterator<Entry<Long, Timeline>> it = sequenceMap.entrySet().iterator();
-    	long threshold = System.currentTimeMillis() - 60000;
     	while(it.hasNext()) {
     		Entry<Long, Timeline> entry = it.next();
-    		if(isLegacyTimeline(entry.getValue(), threshold)) {
+    		if(isLegacyTimeline(entry.getValue(), lastRemoveTime)) {
     			it.remove();
+    			count++;
     		}
     	}
+    	if(count > 0) {
+    		logger.info(String.format("removed %d legacy timelines", count));
+    	}
+    	lastRemoveTime = now;
     }
     
     private static boolean isLegacyTimeline(Timeline timeline, long threshold) {

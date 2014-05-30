@@ -3,11 +3,11 @@ package com.dianping.pigeon.remoting.netty.util;
 import org.apache.log4j.Logger;
 import org.jboss.netty.logging.AbstractInternalLogger;
 
-public class DpsfLogger extends AbstractInternalLogger {
+public class PigeonLogger extends AbstractInternalLogger {
 
     private final Logger logger;
 
-    public DpsfLogger(Logger logger) {
+    public PigeonLogger(Logger logger) {
         this.logger = logger;
     }
 
