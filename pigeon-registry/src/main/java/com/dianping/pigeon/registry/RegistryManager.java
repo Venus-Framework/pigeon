@@ -133,7 +133,7 @@ public class RegistryManager {
 		if (registry != null) {
 			try {
 				weight = registry.getServiceWeigth(serviceAddress);
-			} catch (RegistryException e) {
+			} catch (Exception e) {
 				logger.error("Failed to get weight for " + serviceAddress, e);
 			}
 		}
@@ -152,12 +152,6 @@ public class RegistryManager {
 		hostInfo.setWeight(weight);
 		// TODO deal with weight 0
 		logger.info("Set " + serviceAddress + " weight to " + weight);
-	}
-
-	public void registerService(String serviceName, String serviceAddress) throws RegistryException {
-		if (registry != null) {
-			registry.registerService(serviceName, serviceAddress);
-		}
 	}
 
 	public void registerService(String serviceName, String group, String serviceAddress, int weight)

@@ -15,7 +15,6 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.console.exception.ServiceNotifyException;
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -65,14 +64,13 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 	}
 
 	@Override
-	public synchronized void notifyServicePublished(ProviderConfig<?> providerConfig) throws ServiceException {
+	public synchronized void notifyServicePublished(ProviderConfig<?> providerConfig) {
 		logger.info("start to notify service published:" + providerConfig);
 		notifyServiceChange("publish", providerConfig);
 		logger.info("succeed to notify service published:" + providerConfig);
 	}
 
-	public synchronized void notifyServiceChange(String action, ProviderConfig<?> providerConfig)
-			throws ServiceException {
+	public synchronized void notifyServiceChange(String action, ProviderConfig<?> providerConfig) {
 		String managerAddress = configManager.getStringValue(Constants.KEY_MANAGER_ADDRESS,
 				Constants.DEFAULT_MANAGER_ADDRESS);
 		String env = providerConfig.getServerConfig().getEnv();
@@ -119,7 +117,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			getMethod = new GetMethod(url);
 			httpClient.executeMethod(getMethod);
 			if (getMethod.getStatusCode() >= 300) {
-				throw new ServiceException("Did not receive successful HTTP response: status code = "
+				throw new IllegalStateException("Did not receive successful HTTP response: status code = "
 						+ getMethod.getStatusCode() + ", status message = [" + getMethod.getStatusText() + "]");
 			}
 			response = getMethod.getResponseBodyAsString();
@@ -144,12 +142,12 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 	}
 
 	@Override
-	public synchronized void notifyServiceUnpublished(ProviderConfig<?> providerConfig) throws ServiceException {
+	public synchronized void notifyServiceUnpublished(ProviderConfig<?> providerConfig) {
 		logger.info("start to notify service unpublished:" + providerConfig);
 		try {
 			notifyServiceChange("unpublish", providerConfig);
 			logger.info("succeed to notify service unpublished:" + providerConfig);
-		} catch (ServiceException t) {
+		} catch (Exception t) {
 			logger.warn(t.getMessage());
 		}
 	}

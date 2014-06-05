@@ -20,4 +20,10 @@ public class RejectedException extends RpcException {
 		super(msg, cause);
 	}
 
+	public String getErrorCode() {
+		if (errorCode == null) {
+			return "0300";
+		}
+		return errorCode;
+	}
 }

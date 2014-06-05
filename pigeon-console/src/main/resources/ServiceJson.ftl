@@ -1,4 +1,13 @@
-{"port": "${port}", "pigeonVersion": "${version}", "env": "${environment}", "group": "${group}","published": "${published}", "services": [
+{"port": "${port}", "pigeonVersion": "${version}", "env": "${environment}", "group": "${group}","published": "${published}", 
+"weights": [
+		<#list serviceWeights?keys as key>
+			{
+				"ip:port": "${key}",
+				"weight": "${serviceWeights[key]}"
+			}<#if key_has_next>,</#if>
+		</#list>
+		],
+"services": [
 <#list services as x>
 	{
 		"name": "${x.name}", 

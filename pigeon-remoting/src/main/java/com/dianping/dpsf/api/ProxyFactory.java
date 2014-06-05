@@ -39,7 +39,7 @@ public class ProxyFactory<IFACE> {
 
 	private ServiceCallback callback;
 
-	private String group;
+	private String group = configManager.getGroup();
 
 	private boolean useLion = false;
 

@@ -25,4 +25,10 @@ public class ServiceUnavailableException extends RpcException {
 		super(message, cause);
 	}
 
+	public String getErrorCode() {
+		if (errorCode == null) {
+			return "0600";
+		}
+		return errorCode;
+	}
 }

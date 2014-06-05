@@ -15,7 +15,6 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
@@ -172,11 +171,7 @@ public final class ServiceRegistry extends ServiceInitializeListener {
 			providerConfig.setCancelTimeout(cancelTimeout);
 			providerConfigList.add(providerConfig);
 		}
-		try {
-			ServiceFactory.addServices(providerConfigList);
-		} catch (RpcException e) {
-			throw new ServiceException("", e);
-		}
+		ServiceFactory.addServices(providerConfigList);
 	}
 
 	/**

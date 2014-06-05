@@ -17,8 +17,6 @@ public interface Registry {
 
 	String getServiceAddress(String serviceName, String group) throws RegistryException;
 
-	void registerService(String serviceName, String serviceAddress) throws RegistryException;
-
 	void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException;
 
 	void unregisterService(String serviceName, String serviceAddress) throws RegistryException;

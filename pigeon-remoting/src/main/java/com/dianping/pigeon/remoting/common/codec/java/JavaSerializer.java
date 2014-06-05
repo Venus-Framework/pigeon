@@ -8,9 +8,8 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
-import org.apache.commons.lang.SerializationException;
-
 import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
+import com.dianping.pigeon.remoting.common.exception.SerializationException;
 
 /**
  * @author xiangwu

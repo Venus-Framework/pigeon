@@ -19,6 +19,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
+import com.dianping.pigeon.remoting.provider.listener.ServiceWarmupListener;
 
 public class ServiceOnlineServlet extends HttpServlet {
 
@@ -26,8 +27,8 @@ public class ServiceOnlineServlet extends HttpServlet {
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	private static final int WEIGHT_DEFAULT = configManager.getIntValue(Constants.KEY_WEIGHT_DEFAULT,
-			Constants.DEFAULT_WEIGHT_DEFAULT);
+	private static final int WEIGHT_DEFAULT = configManager.getIntValue(Constants.KEY_WEIGHT_START,
+			Constants.DEFAULT_WEIGHT_START);
 
 	/**
 	 * 
@@ -43,11 +44,14 @@ public class ServiceOnlineServlet extends HttpServlet {
 		if (Utils.isGranted(request)) {
 			try {
 				ServiceFactory.setServerWeight(WEIGHT_DEFAULT);
+				ServiceWarmupListener.start();
 				response.getWriter().println("ok");
 			} catch (Exception e) {
 				logger.error("Error with online all services", e);
 				response.getWriter().println("error:" + e.getMessage());
 			}
+		} else {
+			logger.warn("Forbidden!");
 		}
 	}
 

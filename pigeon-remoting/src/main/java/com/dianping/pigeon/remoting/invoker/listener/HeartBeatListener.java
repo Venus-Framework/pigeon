@@ -172,13 +172,17 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	@Override
 	public void addConnect(ConnectInfo cmd, Client client) {
 		if (logger.isInfoEnabled()) {
-			logger.info("[heartbeat] current checking providers:" + this.getWorkingClients());
+			logger.info("[heartbeat] add service provider:" + client);
+			// logger.info("[heartbeat] current checking providers:" +
+			// this.getWorkingClients());
 		}
 	}
 
 	public void addConnect(ConnectInfo cmd) {
 		if (logger.isInfoEnabled()) {
-			logger.info("[heartbeat] current checking providers:" + this.getWorkingClients());
+			logger.info("[heartbeat] add service provider:" + cmd);
+			// logger.info("[heartbeat] current checking providers:" +
+			// this.getWorkingClients());
 		}
 	}
 
@@ -193,7 +197,8 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			}
 		}
 		if (logger.isInfoEnabled()) {
-			logger.info("[heartbeat] current checking providers:" + this.getWorkingClients());
+			// logger.info("[heartbeat] current checking providers:" +
+			// this.getWorkingClients());
 		}
 	}
 

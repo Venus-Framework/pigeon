@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
 
 public class ServiceMethodCache {
 
@@ -57,7 +57,7 @@ public class ServiceMethodCache {
 		methodSize++;
 	}
 
-	public ServiceMethod getMethod(String methodName, ServiceParam paramNames) throws ServiceException {
+	public ServiceMethod getMethod(String methodName, ServiceParam paramNames) throws InvocationFailureException {
 		if (methodSize == 1) {
 			return this.currentMethod;
 		} else {
@@ -84,16 +84,17 @@ public class ServiceMethodCache {
 		return paramMethodMap.get(paramNames);
 	}
 
-	private ServiceMethod getBestMatchMethod(String methodName, ServiceParam paramNames) throws ServiceException {
+	private ServiceMethod getBestMatchMethod(String methodName, ServiceParam paramNames)
+			throws InvocationFailureException {
 		Map<Integer, List<ServiceMethod>> methodMap = this.methods.get(methodName);
 		if (methodMap == null) {
-			throw new ServiceException("Service  serviceName:" + this.service + " is not this method for name:"
+			throw new InvocationFailureException("the service " + this.service + " is not matched with method:"
 					+ methodName);
 		}
 		List<ServiceMethod> methodList = methodMap.get(paramNames.getLength());
 		if (methodList == null || methodList.size() == 0) {
-			throw new ServiceException("Service  serviceName:" + this.service + " is not this method:" + methodName
-					+ " for " + paramNames.getLength() + " parameters");
+			throw new InvocationFailureException("the service " + this.service + " is not matched with method:"
+					+ methodName + " for " + paramNames.getLength() + " parameters");
 		}
 		if (paramNames.getLength() == 0) {
 			return methodList.get(0);
@@ -101,17 +102,17 @@ public class ServiceMethodCache {
 		int matchingValue = -1;
 		ServiceMethod bestMethod = null;
 
-		for (ServiceMethod dpsfm : methodList) {
+		for (ServiceMethod m : methodList) {
 
-			int mv = matching(dpsfm, paramNames.getParamNames());
+			int mv = matching(m, paramNames.getParamNames());
 			if (mv > matchingValue) {
 				matchingValue = mv;
-				bestMethod = dpsfm;
+				bestMethod = m;
 			}
 		}
 		if (matchingValue < 0) {
-			throw new ServiceException("Service  serviceName:" + this.service + " is not this method:" + methodName
-					+ " for parameter class types");
+			throw new InvocationFailureException("the service " + this.service + " is not matched with method:"
+					+ methodName + " for parameter class types");
 		}
 		return bestMethod;
 	}
@@ -122,9 +123,9 @@ public class ServiceMethodCache {
 	 * 
 	 * @param paramClassNames
 	 * @return
-	 * @throws ServiceException
+	 * @throws InvocationFailureException
 	 */
-	private int matching(ServiceMethod dpsfm, String[] paramClassNames) throws ServiceException {
+	private int matching(ServiceMethod dpsfm, String[] paramClassNames) throws InvocationFailureException {
 		int k = 0;
 		for (int i = 0; i < paramClassNames.length; i++) {
 			if (paramClassNames[i].equals(Constants.TRANSFER_NULL)) {
@@ -135,7 +136,7 @@ public class ServiceMethodCache {
 				paramClass = Class.forName(paramClassNames[i]);
 
 			} catch (ClassNotFoundException e) {
-				throw new ServiceException("no class:" + paramClassNames[i] + " for parameter");
+				throw new InvocationFailureException("no class found for parameter:" + paramClassNames[i]);
 			}
 			if (paramClass == dpsfm.getParameterClasses()[i]) {
 				k++;

@@ -25,4 +25,10 @@ public class InvocationFailureException extends RpcException {
 		super(message, cause);
 	}
 
+	public String getErrorCode() {
+		if (errorCode == null) {
+			return "0800";
+		}
+		return errorCode;
+	}
 }

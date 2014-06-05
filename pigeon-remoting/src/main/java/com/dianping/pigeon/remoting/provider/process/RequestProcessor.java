@@ -16,4 +16,5 @@ public interface RequestProcessor {
 
 	public Future<InvocationResponse> processRequest(final InvocationRequest request, final ProviderContext providerContext);
 
+	public String getProcessorStatistics();
 }

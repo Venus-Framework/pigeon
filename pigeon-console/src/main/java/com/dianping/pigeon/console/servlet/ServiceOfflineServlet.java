@@ -16,6 +16,7 @@ import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
+import com.dianping.pigeon.remoting.provider.listener.ServiceWarmupListener;
 
 public class ServiceOfflineServlet extends HttpServlet {
 
@@ -34,12 +35,15 @@ public class ServiceOfflineServlet extends HttpServlet {
 		logger.info("offline all services, from " + ip);
 		if (Utils.isGranted(request)) {
 			try {
+				ServiceWarmupListener.stop();
 				ServiceFactory.setServerWeight(0);
 				response.getWriter().println("ok");
 			} catch (Exception e) {
 				logger.error("Error with offline all services", e);
 				response.getWriter().println("error:" + e.getMessage());
 			}
+		} else {
+			logger.warn("Forbidden!");
 		}
 	}
 

@@ -9,13 +9,13 @@ import java.lang.reflect.Method;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.DefaultInvokerContext;
+import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
 public class ServiceInvocationProxy implements InvocationHandler {
@@ -55,11 +55,12 @@ public class ServiceInvocationProxy implements InvocationHandler {
 			int messageType = response.getMessageType();
 			if (messageType == Constants.MESSAGE_TYPE_SERVICE) {
 				return responseReturn;
-			} else if (messageType == Constants.MESSAGE_TYPE_EXCEPTION
-					|| messageType == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-				throw InvokerUtils.toInvocationThrowable(responseReturn);
+			} else if (messageType == Constants.MESSAGE_TYPE_EXCEPTION) {
+				throw InvokerUtils.toRpcException(response);
+			} else if (messageType == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
+				throw InvokerUtils.toApplicationException(response);
 			}
-			throw new DPSFException("unsupported response with type[" + messageType + "].");
+			throw new RemoteInvocationException("unsupported response with message type:" + messageType);
 		}
 		return getReturn(returnType);
 	}

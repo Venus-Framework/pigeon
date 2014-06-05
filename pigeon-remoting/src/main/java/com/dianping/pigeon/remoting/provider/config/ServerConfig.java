@@ -7,6 +7,7 @@ package com.dianping.pigeon.remoting.provider.config;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -30,7 +31,7 @@ public class ServerConfig {
 			Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
 	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
 			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
-	private String group;
+	private String group = configManager.getGroup();
 	private Set<String> protocols = new HashSet<String>();
 	private String env;
 	private String ip;
@@ -92,7 +93,9 @@ public class ServerConfig {
 	}
 
 	public void setGroup(String group) {
-		this.group = group;
+		if (!StringUtils.isBlank(group)) {
+			this.group = group;
+		}
 	}
 
 	public int getPort() {

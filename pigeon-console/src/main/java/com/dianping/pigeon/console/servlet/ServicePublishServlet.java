@@ -40,6 +40,8 @@ public class ServicePublishServlet extends HttpServlet {
 				logger.error("Error while publishing all services", e);
 				response.getWriter().println("error:" + e.getMessage());
 			}
+		} else {
+			logger.warn("Forbidden!");
 		}
 	}
 

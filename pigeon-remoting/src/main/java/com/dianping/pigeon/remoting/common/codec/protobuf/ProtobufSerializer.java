@@ -8,11 +8,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 
-import org.apache.commons.lang.SerializationException;
-
 import com.dianping.pigeon.remoting.common.codec.Serializer;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.google.protobuf.MessageLite;

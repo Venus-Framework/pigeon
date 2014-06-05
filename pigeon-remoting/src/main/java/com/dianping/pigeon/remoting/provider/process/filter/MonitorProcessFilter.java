@@ -91,7 +91,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					  (timeout || TimelineManager.isAbnormalTimeline(request))) {
 						Timeline timeline = TimelineManager.getTimeline(request);
 						transaction.addData("Timeline", timeline);
-						logger.warn(String.format("request %s, timeline %s", request, timeline));
+						logger.warn(String.format("request- %s, timeline- %s", request, timeline));
 					}
 					transaction.complete();
 				} catch (Exception e) {

@@ -92,7 +92,9 @@ public final class Constants {
 	public static final String KEY_PROVIDER_COREPOOLSIZE = "pigeon.provider.corePoolSize";
 	public static final String KEY_PROVIDER_MAXPOOLSIZE = "pigeon.provider.maxPoolSize";
 	public static final String KEY_PROVIDER_WORKQUEUESIZE = "pigeon.provider.workQueueSize";
-	public static final String KEY_INVOKER_MAXPOOLSIZE = "pigeon.invoker.maxPoolSize";
+	public static final String KEY_RESPONSE_COREPOOLSIZE = "pigeon.response.corePoolSize";
+	public static final String KEY_RESPONSE_MAXPOOLSIZE = "pigeon.response.maxPoolSize";
+	public static final String KEY_RESPONSE_WORKQUEUESIZE = "pigeon.response.workQueueSize";
 	public static final String KEY_INVOKER_TIMEOUT = "pigeon.invoker.timeout";
 	public static final String KEY_TIMEOUT_INTERVAL = "pigeon.timeout.interval";
 	public static final String KEY_WRITE_BUFFER_HIGH_WATER = "pigeon.channel.writebuff.high";
@@ -102,14 +104,16 @@ public final class Constants {
 	public static final String KEY_NOTIFY_ENABLE = "pigeon.notify.enable";
 	public static final String KEY_TEST_ENABLE = "pigeon.test.enable";
 	public static final String KEY_CONNECT_TIMEOUT = "pigeon.netty.connecttimeout";
-	public static final String KEY_WEIGHT_CHECKINTERVAL = "pigeon.weight.checkinterval";
+	public static final String KEY_WEIGHT_WARMUPPERIOD = "pigeon.weight.warmupperiod";
 	public static final String KEY_WEIGHT_STARTDELAY = "pigeon.weight.startdelay";
 
 	public static final int DEFAULT_INVOKER_TIMEOUT = 5000;
-	public static final int DEFAULT_PROVIDER_COREPOOLSIZE = 100;
+	public static final int DEFAULT_PROVIDER_COREPOOLSIZE = 150;
 	public static final int DEFAULT_PROVIDER_MAXPOOLSIZE = 300;
-	public static final int DEFAULT_PROVIDER_WORKQUEUESIZE = 100;
-	public static final int DEFAULT_INVOKER_MAXPOOLSIZE = 300;
+	public static final int DEFAULT_PROVIDER_WORKQUEUESIZE = 300;
+	public static final int DEFAULT_RESPONSE_COREPOOLSIZE = 30;
+	public static final int DEFAULT_RESPONSE_MAXPOOLSIZE = 300;
+	public static final int DEFAULT_RESPONSE_WORKQUEUESIZE = 200;
 	public static final long DEFAULT_RECONNECT_INTERVAL = 1000;
 	public static final long DEFAULT_HEARTBEAT_INTERVAL = 1000;
 	public static final long DEFAULT_HEARTBEAT_TIMEOUT = 3000;
@@ -126,8 +130,8 @@ public final class Constants {
 	public static final boolean DEFAULT_NOTIFY_ENABLE = true;
 	public static final boolean DEFAULT_TEST_ENABLE = true;
 	public static final int DEFAULT_CONNECT_TIMEOUT = 500;
-	public static final int DEFAULT_WEIGHT_CHECKINTERVAL = 1000;
-	public static final int DEFAULT_WEIGHT_STARTDELAY = DEFAULT_WEIGHT_CHECKINTERVAL;
+	public static final int DEFAULT_WEIGHT_WAMUPPERIOD = 1000;
+	public static final int DEFAULT_WEIGHT_STARTDELAY = 30000;
 
 	public static final String PROTOCOL_HTTP = "http";
 	public static final String PROTOCOL_DEFAULT = "default";
@@ -145,9 +149,10 @@ public final class Constants {
 	public static final String KEY_ONLINE_AUTO = "pigeon.online.auto";
 	public static final String KEY_WEIGHT_INITIAL = "pigeon.weight.initial";
 	public static final int DEFAULT_WEIGHT_INITIAL = 0;
+	public static final String KEY_WEIGHT_START = "pigeon.weight.start";
+	public static final int DEFAULT_WEIGHT_START = 1;
 	public static final String KEY_WEIGHT_DEFAULT = "pigeon.weight.default";
 	public static final int DEFAULT_WEIGHT_DEFAULT = 1;
-	public static final String KEY_WEIGHT_MAX = "pigeon.weight.max";
-	public static final int DEFAULT_WEIGHT_MAX = 1;
-
+	public static final String KEY_STATUS_CHECKINVOKERAVAILABLE = "pigeon.status.checkinvokeravailable";
+	public static final boolean DEFAULT_STATUS_CHECKINVOKERAVAILABLE = true;
 }

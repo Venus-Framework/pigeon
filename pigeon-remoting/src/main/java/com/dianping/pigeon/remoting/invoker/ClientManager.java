@@ -12,8 +12,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.DPSFException;
-import com.dianping.dpsf.exception.NoConnectionException;
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.domain.HostInfo;
@@ -27,6 +25,7 @@ import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListenerManager;
 import com.dianping.pigeon.remoting.invoker.listener.DefaultClusterListener;
 import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;
@@ -105,7 +104,7 @@ public class ClientManager implements Disposable {
 		RegistryEventListener.removeListener(providerChangeListener);
 	}
 
-	public void registerServiceInvokers(String serviceName, String group, String vip) {
+	public String getServiceAddress(String serviceName, String group, String vip) {
 		String serviceAddress = null;
 		try {
 			if (!StringUtils.isBlank(vip) && ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv())) {
@@ -114,21 +113,24 @@ public class ClientManager implements Disposable {
 				serviceAddress = RegistryManager.getInstance().getServiceAddress(serviceName, group);
 			}
 		} catch (Exception e) {
-			logger.error("cannot get service provider for service:" + serviceName);
-			throw new DPSFException(e);
+			throw new ServiceUnavailableException("cannot get service provider for service:" + serviceName, e);
 		}
 
 		if (StringUtils.isBlank(serviceAddress)) {
-			throw new NoConnectionException("no service provider found for service:" + serviceName + ",group:" + group
-					+ ",vip:" + vip);
+			throw new ServiceUnavailableException("no service provider found for service:" + serviceName + ",group:"
+					+ group + ",vip:" + vip);
 		}
 
 		if (logger.isInfoEnabled()) {
 			logger.info("selected service provider address is:" + serviceAddress + " with service:" + serviceName
 					+ ",group:" + group + ",vip:" + vip);
 		}
-
 		serviceAddress = serviceAddress.trim();
+		return serviceAddress;
+	}
+
+	public void registerServiceInvokers(String serviceName, String group, String vip) {
+		String serviceAddress = getServiceAddress(serviceName, group, vip);
 		String[] addressArray = serviceAddress.split(",");
 		// List<String> addressList = new ArrayList<String>();
 		for (int i = 0; i < addressArray.length; i++) {
@@ -136,14 +138,18 @@ public class ClientManager implements Disposable {
 				// addressList.add(addressArray[i]);
 				String address = addressArray[i];
 				String[] parts = address.split(":");
-				try {
-					String host = parts[0];
-					int port = Integer.parseInt(parts[1]);
-					int weight = RegistryManager.getInstance().getServiceWeight(address);
-					RegistryEventListener.providerAdded(serviceName, host, port, weight);
-				} catch (Exception e) {
-					throw new DPSFException("error while registering service invoker:" + serviceName + ", address:"
-							+ address, e);
+				if (parts.length == 2) {
+					try {
+						String host = parts[0];
+						int port = Integer.parseInt(parts[1]);
+						int weight = RegistryManager.getInstance().getServiceWeight(address);
+						RegistryEventListener.providerAdded(serviceName, host, port, weight);
+					} catch (Exception e) {
+						throw new ServiceUnavailableException("error while registering service invoker:" + serviceName
+								+ ", address:" + address, e);
+					}
+				} else {
+					logger.warn("invalid address:" + address + " for service:" + serviceName);
 				}
 			}
 		}

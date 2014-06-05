@@ -29,6 +29,26 @@ public class ServicePage {
 
 	private String direct = "false";
 
+	private Map<String, Integer> serviceWeights;
+
+	private String error = "";
+
+	public String getError() {
+		return error;
+	}
+
+	public void setError(String error) {
+		this.error = error;
+	}
+
+	public Map<String, Integer> getServiceWeights() {
+		return serviceWeights;
+	}
+
+	public void setServiceWeights(Map<String, Integer> serviceWeights) {
+		this.serviceWeights = serviceWeights;
+	}
+
 	public String getDirect() {
 		return direct;
 	}

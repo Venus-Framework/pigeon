@@ -9,12 +9,12 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.NoConnectionException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.route.context.ClientContext;
 
 public abstract class AbstractLoadBalance implements LoadBalance {
@@ -39,7 +39,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 				}
 			}
 			if (selectedClient == null) {
-				throw new NoConnectionException("Force used server[" + forceAddress + "] is not connected for service["
+				throw new ServiceUnavailableException("server[" + forceAddress + "] is not connected for service["
 						+ request.getServiceName() + "].");
 			}
 		} else {

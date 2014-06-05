@@ -20,4 +20,14 @@ public class SerializationException extends RpcException {
 		super(msg, cause);
 	}
 
+	public SerializationException(Throwable cause) {
+		super(cause);
+	}
+
+	public String getErrorCode() {
+		if (errorCode == null) {
+			return "0100";
+		}
+		return errorCode;
+	}
 }

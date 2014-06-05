@@ -45,6 +45,8 @@ public class ServiceUnpublishServlet extends HttpServlet {
 				logger.error("Error while unpublishing all services", e);
 				response.getWriter().println("error:" + e.getMessage());
 			}
+		} else {
+			logger.warn("Forbidden!");
 		}
 	}
 

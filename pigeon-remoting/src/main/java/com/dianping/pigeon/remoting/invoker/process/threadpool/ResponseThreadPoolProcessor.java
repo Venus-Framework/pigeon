@@ -5,40 +5,43 @@
 package com.dianping.pigeon.remoting.invoker.process.threadpool;
 
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-
-import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.RejectedException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
-import com.dianping.pigeon.remoting.invoker.process.ResponseProcessor;
+import com.dianping.pigeon.remoting.invoker.process.AbstractResponseProcessor;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
 
-public class ResponseThreadPoolProcessor implements ResponseProcessor {
+public class ResponseThreadPoolProcessor extends AbstractResponseProcessor {
 
-	private static final Logger logger = LoggerLoader.getLogger(ResponseThreadPoolProcessor.class);
 	private static ThreadPool responseProcessThreadPool;
 	private static ClientManager clientManager = ClientManager.getInstance();
 
 	public ResponseThreadPoolProcessor() {
 		ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
-		int maxPoolSize = configManager.getIntValue(Constants.KEY_INVOKER_MAXPOOLSIZE,
-				Constants.DEFAULT_INVOKER_MAXPOOLSIZE);
-		responseProcessThreadPool = new DefaultThreadPool("Pigeon-Client-Response-Processor", 20, maxPoolSize,
-				new LinkedBlockingQueue<Runnable>(50), new CallerRunsPolicy());
+		int corePoolSize = configManager.getIntValue(Constants.KEY_RESPONSE_COREPOOLSIZE,
+				Constants.DEFAULT_RESPONSE_COREPOOLSIZE);
+		int maxPoolSize = configManager.getIntValue(Constants.KEY_RESPONSE_MAXPOOLSIZE,
+				Constants.DEFAULT_RESPONSE_MAXPOOLSIZE);
+		int queueSize = configManager.getIntValue(Constants.KEY_RESPONSE_WORKQUEUESIZE,
+				Constants.DEFAULT_RESPONSE_WORKQUEUESIZE);
+		responseProcessThreadPool = new DefaultThreadPool("Pigeon-Client-Response-Processor", corePoolSize,
+				maxPoolSize, new LinkedBlockingQueue<Runnable>(queueSize), new CallerRunsPolicy());
 	}
 
 	public void stop() {
 	}
 
-	public void processResponse(final InvocationResponse response, final Client client) {
+	public void doProcessResponse(final InvocationResponse response, final Client client) {
 		Runnable task = new Runnable() {
 			public void run() {
 				if (response.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
@@ -50,9 +53,20 @@ public class ResponseThreadPoolProcessor implements ResponseProcessor {
 		};
 		try {
 			responseProcessThreadPool.execute(task);
-		} catch (Exception ex) {
-			logger.error("process response failed:" + response, ex);
+		} catch (RejectedExecutionException e) {
+			String error = String.format("process response failed:%s, processor stats:%s", response,
+					getProcessorStatistics());
+			throw new RejectedException(error, e);
 		}
 	}
 
+	@Override
+	public String getProcessorStatistics() {
+		ThreadPoolExecutor e = responseProcessThreadPool.getExecutor();
+		String stats = String.format(
+				"response pool size:%d(active:%d,core:%d,max:%d,largest:%),task count:%d(completed:%d),queue size:%d",
+				e.getPoolSize(), e.getActiveCount(), e.getCorePoolSize(), e.getMaximumPoolSize(),
+				e.getLargestPoolSize(), e.getTaskCount(), e.getCompletedTaskCount(), e.getQueue().size());
+		return stats;
+	}
 }

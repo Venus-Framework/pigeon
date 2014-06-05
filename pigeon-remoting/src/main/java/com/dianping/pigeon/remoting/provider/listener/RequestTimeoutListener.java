@@ -20,6 +20,7 @@ import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.exception.ProcessTimeoutException;
+import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class RequestTimeoutListener implements Runnable {
@@ -27,13 +28,16 @@ public class RequestTimeoutListener implements Runnable {
 	private static final Logger logger = LoggerLoader.getLogger(RequestTimeoutListener.class);
 	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
 	private Map<InvocationRequest, ProviderContext> requestContextMap;
+	private RequestProcessor requestProcessor;
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private long timeoutInterval = configManager.getLongValue(Constants.KEY_TIMEOUT_INTERVAL,
 			Constants.DEFAULT_TIMEOUT_INTERVAL);
 	private boolean defaultCancelTimeout = configManager.getBooleanValue(Constants.KEY_TIMEOUT_CANCEL,
 			Constants.DEFAULT_TIMEOUT_CANCEL);
-	
-	public RequestTimeoutListener(Map<InvocationRequest, ProviderContext> requestContextMap) {
+
+	public RequestTimeoutListener(RequestProcessor requestProcessor,
+			Map<InvocationRequest, ProviderContext> requestContextMap) {
+		this.requestProcessor = requestProcessor;
 		this.requestContextMap = requestContextMap;
 	}
 
@@ -58,12 +62,14 @@ public class RequestTimeoutListener implements Runnable {
 										.append(rc.getChannel() == null ? "" : rc.getChannel().getRemoteAddress())
 										.append(", to:")
 										.append(ExtensionLoader.getExtension(ConfigManager.class).getLocalIp())
-										.append(", process time:").append(System.currentTimeMillis()).append("\r\n")
-										.append("request:").append(InvocationUtils.toJsonString(request));
+										.append(", process time:").append(System.currentTimeMillis())
+										.append("\r\nrequest:").append(InvocationUtils.toJsonString(request))
+										.append("\r\nprocessor stats:")
+										.append(this.requestProcessor.getProcessorStatistics());
 								ProcessTimeoutException te = null;
 								Thread t = rc.getThread();
 								if (t == null) {
-									msg.append("\r\n the task has not been executed by threadPool");
+									msg.append("\r\nthe task has not been executed");
 									te = new ProcessTimeoutException(msg.toString());
 								} else {
 									te = new ProcessTimeoutException(msg.toString());
@@ -76,7 +82,7 @@ public class RequestTimeoutListener implements Runnable {
 								}
 								Future<?> future = rc.getFuture();
 								if (future != null && !future.isCancelled()) {
-									if(future.cancel(cancelTimeout)) {
+									if (future.cancel(cancelTimeout)) {
 										TimelineManager.removeTimeline(request);
 									}
 								}

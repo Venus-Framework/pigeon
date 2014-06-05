@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -95,8 +94,8 @@ public class LoadBalanceManager {
 		} else {
 			if (loadBalance instanceof String) {
 				if (!loadBalanceMap.containsKey(loadBalance)) {
-					throw new DPSFException("Loadbalance[" + loadBalance + "] registered by service[" + serviceId
-							+ "] is not supported.");
+					throw new IllegalArgumentException("Loadbalance[" + loadBalance + "] registered by service["
+							+ serviceId + "] is not supported.");
 				}
 				loadBlanceObj = loadBalanceMap.get(loadBalance);
 			} else if (loadBalance instanceof Class) {
@@ -104,8 +103,8 @@ public class LoadBalanceManager {
 				try {
 					loadBlanceObj = loadBalanceClass.newInstance();
 				} catch (Exception e) {
-					throw new DPSFException("Register loadbalance[service=" + serviceId + ", class=" + loadBalance
-							+ "] failed.", e);
+					throw new IllegalArgumentException("Register loadbalance[service=" + serviceId + ", class="
+							+ loadBalance + "] failed.", e);
 				}
 			}
 		}

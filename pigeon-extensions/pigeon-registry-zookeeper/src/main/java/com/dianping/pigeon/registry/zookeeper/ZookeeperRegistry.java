@@ -14,9 +14,6 @@ import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.data.Stat;
 
@@ -163,11 +160,6 @@ public class ZookeeperRegistry implements Registry {
 		} catch (Exception e) {
 			throw new RegistryException(e);
 		}
-	}
-
-	@Override
-	public void registerService(String serviceName, String serviceAddress) throws RegistryException {
-		registerService(serviceName, Constants.DEFAULT_GROUP, serviceAddress, Constants.WEIGHT_DEFAULT);
 	}
 
 	@Override

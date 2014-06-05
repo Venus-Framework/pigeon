@@ -12,14 +12,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
@@ -66,9 +64,7 @@ public final class ServiceProviderFactory {
 		return newUrl;
 	}
 
-	public static <T> void addService(ProviderConfig<T> providerConfig) throws ServiceException {
-		String group = configManager.getGroup();
-		providerConfig.getServerConfig().setGroup(group);
+	public static <T> void addService(ProviderConfig<T> providerConfig) {
 		if (logger.isInfoEnabled()) {
 			logger.info("add service:" + providerConfig);
 		}
@@ -98,7 +94,7 @@ public final class ServiceProviderFactory {
 		ServiceMethodFactory.init(url);
 	}
 
-	public static <T> void publishService(ProviderConfig<T> providerConfig) throws ServiceException {
+	public static <T> void publishService(ProviderConfig<T> providerConfig) throws RegistryException {
 		String url = providerConfig.getUrl();
 		boolean existingService = false;
 		for (String key : serviceCache.keySet()) {
@@ -116,11 +112,7 @@ public final class ServiceProviderFactory {
 			List<Server> servers = ProviderBootStrap.getServers(providerConfig);
 			int registerCount = 0;
 			for (Server server : servers) {
-				try {
-					server.addService(providerConfig);
-				} catch (RpcException e) {
-					throw new ServiceException("", e);
-				}
+				server.addService(providerConfig);
 				publishService(server.getRegistryUrl(url), server.getPort(), providerConfig.getServerConfig()
 						.getGroup());
 				registerCount++;
@@ -138,7 +130,7 @@ public final class ServiceProviderFactory {
 		}
 	}
 
-	public static void publishService(String url) throws ServiceException {
+	public static void publishService(String url) throws RegistryException {
 		if (logger.isInfoEnabled()) {
 			logger.info("publish service:" + url);
 		}
@@ -153,46 +145,38 @@ public final class ServiceProviderFactory {
 		}
 	}
 
-	private synchronized static <T> void publishService(String url, int port, String group) throws ServiceException {
-		try {
-			String serverAddress = configManager.getLocalIp() + ":" + port;
-			int weight = WEIGHT_INITIAL;
-			if (logger.isInfoEnabled()) {
-				logger.info("publish service to registry, url:" + url + ", port:" + port + ", group:" + group
-						+ ", address:" + serverAddress + ", weight:" + weight);
-			}
-			RegistryManager.getInstance().registerService(url, group, serverAddress, weight);
-			serverWeightCache.put(serverAddress, weight);
-		} catch (Exception e) {
-			throw new ServiceException("", e);
+	private synchronized static <T> void publishService(String url, int port, String group) throws RegistryException {
+		String serverAddress = configManager.getLocalIp() + ":" + port;
+		int weight = WEIGHT_INITIAL;
+		if (logger.isInfoEnabled()) {
+			logger.info("publish service to registry, url:" + url + ", port:" + port + ", group:" + group
+					+ ", address:" + serverAddress + ", weight:" + weight);
 		}
+		RegistryManager.getInstance().registerService(url, group, serverAddress, weight);
+		serverWeightCache.put(serverAddress, weight);
 	}
 
 	public static Map<String, Integer> getServerWeight() {
 		return serverWeightCache;
 	}
 
-	public synchronized static void setServerWeight(int weight) throws ServiceException {
+	public synchronized static void setServerWeight(int weight) throws RegistryException {
 		if (weight < 0 || weight > 100) {
 			throw new IllegalArgumentException("The weight must be within the range of 0 to 100:" + weight);
 		}
-		try {
-			for (String serverAddress : serverWeightCache.keySet()) {
-				if (logger.isInfoEnabled()) {
-					logger.info("set weight, address:" + serverAddress + ", weight:" + weight);
-				}
-				RegistryManager.getInstance().setServerWeight(serverAddress, weight);
-				serverWeightCache.put(serverAddress, weight);
+		for (String serverAddress : serverWeightCache.keySet()) {
+			if (logger.isInfoEnabled()) {
+				logger.info("set weight, address:" + serverAddress + ", weight:" + weight);
 			}
-			if (weight <= 0) {
-				status = PublishStatus.OFFLINE;
-			}
-		} catch (Exception e) {
-			throw new ServiceException("", e);
+			RegistryManager.getInstance().setServerWeight(serverAddress, weight);
+			serverWeightCache.put(serverAddress, weight);
+		}
+		if (weight <= 0) {
+			status = PublishStatus.OFFLINE;
 		}
 	}
 
-	public synchronized static <T> void unpublishService(ProviderConfig<T> providerConfig) throws ServiceException {
+	public synchronized static <T> void unpublishService(ProviderConfig<T> providerConfig) throws RegistryException {
 		String url = providerConfig.getUrl();
 		boolean existingService = false;
 		for (String key : serviceCache.keySet()) {
@@ -211,13 +195,9 @@ public final class ServiceProviderFactory {
 			List<Server> servers = ProviderBootStrap.getServers(providerConfig);
 			for (Server server : servers) {
 				String serverAddress = configManager.getLocalIp() + ":" + server.getPort();
-				try {
-					RegistryManager.getInstance().unregisterService(server.getRegistryUrl(providerConfig.getUrl()),
-							providerConfig.getServerConfig().getGroup(), serverAddress);
-					serverWeightCache.remove(serverAddress);
-				} catch (RegistryException e) {
-					throw new ServiceException("", e);
-				}
+				RegistryManager.getInstance().unregisterService(server.getRegistryUrl(providerConfig.getUrl()),
+						providerConfig.getServerConfig().getGroup(), serverAddress);
+				serverWeightCache.remove(serverAddress);
 			}
 			boolean isNotify = configManager.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
 			if (isNotify && serviceChangeListener != null) {
@@ -230,7 +210,7 @@ public final class ServiceProviderFactory {
 		}
 	}
 
-	public static void unpublishService(String url) throws ServiceException {
+	public static void unpublishService(String url) throws RegistryException {
 		if (logger.isInfoEnabled()) {
 			logger.info("unpublish service:" + url);
 		}
@@ -250,7 +230,7 @@ public final class ServiceProviderFactory {
 		return providerConfig;
 	}
 
-	public static void removeService(String url) throws ServiceException {
+	public static void removeService(String url) throws RegistryException {
 		if (logger.isInfoEnabled()) {
 			logger.info("remove service:" + url);
 		}
@@ -267,7 +247,7 @@ public final class ServiceProviderFactory {
 		}
 	}
 
-	public static void removeAllServices() throws ServiceException {
+	public static void removeAllServices() throws RegistryException {
 		if (logger.isInfoEnabled()) {
 			logger.info("remove all services");
 		}
@@ -275,10 +255,11 @@ public final class ServiceProviderFactory {
 		serviceCache.clear();
 	}
 
-	public static void unpublishAllServices() throws ServiceException {
+	public static void unpublishAllServices() throws RegistryException {
 		if (logger.isInfoEnabled()) {
 			logger.info("unpublish all services");
 		}
+		ServiceWarmupListener.stop();
 		status = PublishStatus.TOUNPUBLISH;
 		setServerWeight(0);
 		try {
@@ -294,7 +275,7 @@ public final class ServiceProviderFactory {
 		status = PublishStatus.UNPUBLISHED;
 	}
 
-	public static void publishAllServices() throws ServiceException {
+	public static void publishAllServices() throws RegistryException {
 		if (logger.isInfoEnabled()) {
 			logger.info("publish all services");
 		}
@@ -307,7 +288,7 @@ public final class ServiceProviderFactory {
 		status = PublishStatus.PUBLISHED;
 	}
 
-	public static Map<String, ProviderConfig<?>> getAllServices() {
+	public static Map<String, ProviderConfig<?>> getAllServiceProviders() {
 		return serviceCache;
 	}
 

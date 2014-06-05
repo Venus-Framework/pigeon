@@ -8,11 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.commons.lang.SerializationException;
-
 import com.caucho.hessian.io.HessianInput;
 import com.caucho.hessian.io.HessianOutput;
 import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
+import com.dianping.pigeon.remoting.common.exception.SerializationException;
 
 /**
  * @author xiangwu

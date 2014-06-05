@@ -120,7 +120,7 @@ public class ProxyBeanFactory implements FactoryBean {
 	/**
 	 * @deprecated
 	 */
-	private String group;
+	private String group = configManager.getGroup();
 
 	/**
 	 * @deprecated

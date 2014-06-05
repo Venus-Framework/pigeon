@@ -98,7 +98,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 					  (timeout || TimelineManager.isAbnormalTimeline(request))) {
 						Timeline timeline = TimelineManager.getTimeline(request);
 						transaction.addData("Timeline", timeline);
-						RemoteCallMonitorInvokeFilter.logger.warn(String.format("request %s, timeline %s", request, timeline));
+						RemoteCallMonitorInvokeFilter.logger.warn(String.format("request- %s, timeline- %s", request, timeline));
 					}
 					transaction.complete();
 				} catch (Exception e) {

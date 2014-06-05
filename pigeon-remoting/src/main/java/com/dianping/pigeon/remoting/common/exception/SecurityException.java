@@ -20,4 +20,10 @@ public class SecurityException extends RpcException {
 		super(msg, cause);
 	}
 
+	public String getErrorCode() {
+		if (errorCode == null) {
+			return "0400";
+		}
+		return errorCode;
+	}
 }

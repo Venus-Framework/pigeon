@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.DPSFException;
-import com.dianping.dpsf.exception.NetException;
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -17,6 +15,7 @@ import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
+import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
 import com.dianping.pigeon.remoting.invoker.route.context.ClientContext;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
@@ -41,14 +40,7 @@ public class FailoverCluster implements Cluster {
 		int invokeTimes = 0;
 		for (int index = 0; index < maxInvokeTimes; index++) {
 			InvocationRequest request = InvokerUtils.createRemoteCallRequest(invocationContext, invokerConfig);
-			Client clientSelected = null;
-			try {
-				clientSelected = clientManager.getClient(invokerConfig, request, selectedClients);
-			} catch (NetException e) {
-				if (index > 0) {
-					throw new NetException("After " + (index + 1) + " times invocation: " + e.getMessage());
-				}
-			}
+			Client clientSelected = clientManager.getClient(invokerConfig, request, selectedClients);
 			selectedClients.add(clientSelected);
 			try {
 				invokeTimes++;
@@ -80,7 +72,7 @@ public class FailoverCluster implements Cluster {
 				}
 			}
 		}
-		throw new DPSFException("Invoke method[" + invocationContext.getMethodName() + "] on service["
+		throw new RemoteInvocationException("Invoke method[" + invocationContext.getMethodName() + "] on service["
 				+ invokerConfig.getUrl() + "] failed with " + invokeTimes + " times, last error: "
 				+ (lastError != null ? lastError.getMessage() : ""),
 				lastError != null && lastError.getCause() != null ? lastError.getCause() : lastError);

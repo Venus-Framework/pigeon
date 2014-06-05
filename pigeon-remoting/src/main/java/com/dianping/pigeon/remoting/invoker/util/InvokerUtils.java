@@ -4,10 +4,12 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.dianping.dpsf.exception.DPSFException;
-import com.dianping.dpsf.exception.NetException;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.ApplicationException;
+import com.dianping.pigeon.remoting.common.exception.NetworkException;
+import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
@@ -16,11 +18,15 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
+import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
+import com.dianping.pigeon.remoting.invoker.process.InvokerExceptionTranslator;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 
 public class InvokerUtils {
 
 	private static ServiceInvocationRepository invocationRepository = ServiceInvocationRepository.getInstance();
+
+	private static InvokerExceptionTranslator invokerExceptionTranslator = new InvokerExceptionTranslator();
 
 	private static AtomicLong requestSequenceMaker = new AtomicLong();
 
@@ -40,7 +46,7 @@ public class InvokerUtils {
 		} catch (RuntimeException e) {
 			invocationRepository.remove(request.getSequence());
 			TimelineManager.removeTimeline(request);
-			throw new NetException("remote call failed:" + request, e);
+			throw new NetworkException("remote call failed:" + request, e);
 		} finally {
 			if (response != null) {
 				invocationRepository.remove(request.getSequence());
@@ -74,21 +80,59 @@ public class InvokerUtils {
 		}
 	}
 
-	public static Throwable toInvocationThrowable(Object responseReturn) {
+	public static RuntimeException toApplicationRuntimeException(InvocationResponse response) {
+		Throwable t = toApplicationException(response);
+		if (t instanceof RuntimeException) {
+			return (RuntimeException) t;
+		} else {
+			return new ApplicationException(t);
+		}
+	}
+
+	public static Throwable toApplicationException(InvocationResponse response) {
+		Object responseReturn = response.getReturn();
 		if (responseReturn == null) {
-			return null;
+			return new ApplicationException(response.getCause());
+		} else if (responseReturn instanceof DPSFException) {
+			return new ApplicationException(invokerExceptionTranslator.translate((DPSFException) responseReturn));
+		} else if (responseReturn instanceof RpcException) {
+			return new ApplicationException((RpcException) responseReturn);
 		} else if (responseReturn instanceof Throwable) {
 			return (Throwable) responseReturn;
 		} else if (responseReturn instanceof Map) {
 			Map errors = (Map) responseReturn;
 			String detailMessage = (String) errors.get("detailMessage");
 			StackTraceElement[] stackTrace = (StackTraceElement[]) errors.get("stackTrace");
-			DPSFException e = new DPSFException(detailMessage);
+			ApplicationException e = new ApplicationException(detailMessage);
 			e.setStackTrace(stackTrace);
 			return e;
 		} else {
-			return new DPSFException(responseReturn.toString());
+			return new ApplicationException(responseReturn.toString());
 		}
+	}
+
+	public static RpcException toRpcException(InvocationResponse response) {
+		Throwable e = null;
+		Object responseReturn = response.getReturn();
+		if (responseReturn == null) {
+			return new RemoteInvocationException(response.getCause());
+		} else if (responseReturn instanceof DPSFException) {
+			e = invokerExceptionTranslator.translate((DPSFException) responseReturn);
+		} else if (responseReturn instanceof Throwable) {
+			e = (Throwable) responseReturn;
+		} else if (responseReturn instanceof Map) {
+			Map errors = (Map) responseReturn;
+			String detailMessage = (String) errors.get("detailMessage");
+			StackTraceElement[] stackTrace = (StackTraceElement[]) errors.get("stackTrace");
+			e = new RemoteInvocationException(detailMessage);
+			e.setStackTrace(stackTrace);
+		} else {
+			e = new RemoteInvocationException(responseReturn.toString());
+		}
+		if (!(e instanceof RpcException)) {
+			return new RemoteInvocationException(e);
+		}
+		return (RpcException) e;
 	}
 
 	static class NoReturnResponse implements InvocationResponse {

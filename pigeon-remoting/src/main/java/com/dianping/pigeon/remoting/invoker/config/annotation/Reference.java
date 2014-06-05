@@ -15,35 +15,35 @@ import com.dianping.pigeon.remoting.invoker.route.balance.RoundRobinLoadBalance;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target({ ElementType.FIELD, ElementType.METHOD })
 public @interface Reference {
 
 	Class<?> interfaceClass() default void.class;
-	
-    String vip() default "";
-    
-    String url() default "";
 
-    String protocol() default Constants.PROTOCOL_DEFAULT;
-    
-    String serialize() default Constants.SERIALIZE_HESSIAN;
+	String vip() default "";
 
-    String callType() default Constants.CALL_SYNC;
+	String url() default "";
 
-    int timeout() default 2000;
+	String protocol() default Constants.PROTOCOL_DEFAULT;
 
-    String callback() default "";
+	String serialize() default Constants.SERIALIZE_HESSIAN;
 
-    String loadbalance() default RoundRobinLoadBalance.NAME;
+	String callType() default Constants.CALL_SYNC;
 
-    String cluster() default Constants.CLUSTER_FAILFAST;
+	int timeout() default 2000;
 
-    int retries() default 1;
+	String callback() default "";
 
-    boolean timeoutRetry() default false;
-    
-    String version() default "";
-    
-    String group() default "";
+	String loadbalance() default RoundRobinLoadBalance.NAME;
+
+	String cluster() default Constants.CLUSTER_FAILFAST;
+
+	int retries() default 1;
+
+	boolean timeoutRetry() default false;
+
+	String version() default "";
+
+	String group() default "";
 
 }

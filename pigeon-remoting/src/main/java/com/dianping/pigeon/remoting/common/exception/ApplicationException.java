@@ -5,7 +5,7 @@
 package com.dianping.pigeon.remoting.common.exception;
 
 
-public class RpcException extends RuntimeException {
+public class ApplicationException extends RuntimeException {
 
 	private static final long serialVersionUID = -4052834884778586750L;
 
@@ -19,24 +19,24 @@ public class RpcException extends RuntimeException {
 		this.errorCode = errorCode;
 	}
 
-	public RpcException() {
+	public ApplicationException() {
 		super();
 	}
 
-	public RpcException(String msg) {
+	public ApplicationException(String msg) {
 		super(msg);
 	}
 
-	public RpcException(Throwable cause) {
+	public ApplicationException(Throwable cause) {
 		super(cause);
 	}
 
-	public RpcException(String msg, String errorCode, Throwable cause) {
+	public ApplicationException(String msg, String errorCode, Throwable cause) {
 		super(msg, cause);
 		this.errorCode = errorCode;
 	}
 
-	public RpcException(String msg, Throwable cause) {
+	public ApplicationException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
 

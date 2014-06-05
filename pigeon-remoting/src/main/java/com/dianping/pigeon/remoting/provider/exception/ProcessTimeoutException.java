@@ -1,6 +1,8 @@
 package com.dianping.pigeon.remoting.provider.exception;
 
-public class ProcessTimeoutException extends RuntimeException {
+import com.dianping.pigeon.remoting.common.exception.RpcException;
+
+public class ProcessTimeoutException extends RpcException {
 
 	/**
 	 * 
@@ -23,4 +25,10 @@ public class ProcessTimeoutException extends RuntimeException {
 		super(message, cause);
 	}
 
+	public String getErrorCode() {
+		if (errorCode == null) {
+			return "0900";
+		}
+		return errorCode;
+	}
 }

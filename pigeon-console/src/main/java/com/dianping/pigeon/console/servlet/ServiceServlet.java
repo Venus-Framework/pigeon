@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigConstants;
@@ -27,10 +28,14 @@ import com.dianping.pigeon.console.domain.Service;
 import com.dianping.pigeon.console.domain.ServiceMethod;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.common.process.ServiceStatusChecker;
+import com.dianping.pigeon.remoting.invoker.process.ServiceInvokerStatusChecker;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
+import com.dianping.pigeon.remoting.provider.service.PublishStatus;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 import com.dianping.pigeon.util.RandomUtils;
 
@@ -58,6 +63,11 @@ public class ServiceServlet extends HttpServlet {
 	protected final Logger logger = LoggerLoader.getLogger(this.getClass());
 
 	protected static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	private static final String VALID_PACKAGES = configManager.getStringValue("pigeon.service.packages",
+			"com.dianping,com.dp");
+	
+	private static final ServiceStatusChecker serviceInvokerStatusChecker = new ServiceInvokerStatusChecker();
 
 	protected static String token;
 
@@ -90,8 +100,8 @@ public class ServiceServlet extends HttpServlet {
 		ServiceServlet.token = token;
 	}
 
-	public Map<String, ProviderConfig<?>> getServices() {
-		return ServiceProviderFactory.getAllServices();
+	public Map<String, ProviderConfig<?>> getServiceProviders() {
+		return ServiceFactory.getAllServiceProviders();
 	}
 
 	protected void initServicePage(HttpServletRequest request) {
@@ -108,43 +118,35 @@ public class ServiceServlet extends HttpServlet {
 			page.setPort(ports.toString());
 		}
 		page.setHttpPort(this.port);
-		int publishedCount = 0;
-		int unpublishedCount = 0;
-		Map<String, ProviderConfig<?>> services = getServices();
-		for (Entry<String, ProviderConfig<?>> entry : services.entrySet()) {
+		Map<String, ProviderConfig<?>> serviceProviders = getServiceProviders();
+		for (Entry<String, ProviderConfig<?>> entry : serviceProviders.entrySet()) {
 			String serviceName = entry.getKey();
 			ProviderConfig<?> providerConfig = entry.getValue();
 			Service s = new Service();
 			s.setName(serviceName);
 			s.setType(providerConfig.getService().getClass());
 			s.setPublished(providerConfig.isPublished() + "");
-			if (providerConfig.isPublished()) {
-				publishedCount++;
-			} else {
-				unpublishedCount++;
-			}
 			Map<String, Method> allMethods = new HashMap<String, Method>();
-			// Class<?>[] ifaces =
-			// providerConfig.getService().getClass().getInterfaces();
-			// for (Class<?> iface : ifaces) {
-			// String facename = iface.getName();
-			// if (facename.startsWith("com.dianping") ||
-			// facename.startsWith("com.dp")) {
-			// Method[] methods = iface.getMethods();
-			// for (Method method : methods) {
-			// String key = method.getName() + ":" +
-			// Arrays.toString(method.getParameterTypes());
-			// if (!ingoreMethods.contains(key)) {
-			// allMethods.put(key, method);
-			// }
-			// }
-			// }
-			// }
-			Method[] methods = providerConfig.getServiceInterface().getMethods();
-			for (Method method : methods) {
-				String key = method.getName() + ":" + Arrays.toString(method.getParameterTypes());
-				if (!ingoreMethods.contains(key)) {
-					allMethods.put(key, method);
+			Class<?>[] ifaces = providerConfig.getService().getClass().getInterfaces();
+			String[] validPackages = VALID_PACKAGES.split(",");
+			for (Class<?> iface : ifaces) {
+				String facename = iface.getName();
+				logger.info("service interface:" + facename);
+				boolean isValid = false;
+				for (String pkg : validPackages) {
+					if (facename.startsWith(pkg)) {
+						isValid = true;
+						break;
+					}
+				}
+				if (isValid) {
+					Method[] methods = iface.getMethods();
+					for (Method method : methods) {
+						String key = method.getName() + ":" + Arrays.toString(method.getParameterTypes());
+						if (!ingoreMethods.contains(key)) {
+							allMethods.put(key, method);
+						}
+					}
 				}
 			}
 			for (Entry<String, Method> methodEntry : allMethods.entrySet()) {
@@ -153,22 +155,37 @@ public class ServiceServlet extends HttpServlet {
 			}
 			page.addService(s);
 		}
-		page.setStatus("ok");
-		if (services.isEmpty()) {
+		if (serviceProviders.isEmpty()) {
 			page.setPublished("none");
+			page.setStatus("ok");
 		} else {
-			if (publishedCount > 0 && unpublishedCount == 0) {
+			String status = makeStatus();
+			page.setStatus(status);
+			if (status.equals("ok")) {
 				page.setPublished("true");
-			} else if (publishedCount == 0 && unpublishedCount > 0) {
-				page.setPublished("false");
 			} else {
-				page.setPublished("inprocess");
+				page.setPublished("false");
 			}
+		}
+		String error = serviceInvokerStatusChecker.check();
+		if(!StringUtils.isBlank(error)) {
+			page.setError(error);
+			page.setStatus("error");
 		}
 		page.setDirect(request.getParameter("direct"));
 		page.setEnvironment(configManager.getEnv());
 		page.setGroup(configManager.getGroup());
+		page.setServiceWeights(ServiceProviderFactory.getServerWeight());
 		this.model = page;
+	}
+
+	private String makeStatus() {
+		PublishStatus status = ServiceProviderFactory.getPublishStatus();
+		if (status.equals(PublishStatus.PUBLISHED) || status.equals(PublishStatus.WARMINGUP)
+				|| status.equals(PublishStatus.WARMEDUP)) {
+			return "ok";
+		}
+		return status.toString();
 	}
 
 	public String getView() {

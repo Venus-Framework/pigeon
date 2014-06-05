@@ -18,8 +18,6 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.event.EventManager;
-import com.dianping.pigeon.event.RuntimeServiceEvent;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -32,14 +30,13 @@ import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
-import com.dianping.pigeon.remoting.invoker.domain.RpcInvokeInfo;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 
 public class NettyClient extends AbstractClient {
-	
+
 	private static final Logger logger = LoggerLoader.getLogger(NettyClient.class);
 
 	private ClientBootstrap bootstrap;
@@ -194,28 +191,15 @@ public class NettyClient extends AbstractClient {
 				try {
 					Callback callback = (Callback) msg[1];
 					if (client != null) {
-						error(request, client);
 						client.write(request, callback);
 					} else {
-						logger.error("no client for use to " + request.getServiceName());
+						logger.error("no client found with service:" + request.getServiceName());
 					}
-				} catch (Exception ne) {
-					logger.error(ne.getMessage(), ne);
+				} catch (Exception ex) {
+					logger.error("", ex);
 				}
-				logger.error(e.getMessage(), e);
+				logger.error("", e);
 			}
-		}
-	}
-
-	private void error(InvocationRequest request, Client client) {
-		if (EventManager.IS_EVENT_ENABLED) {
-			RpcInvokeInfo rpcInvokeInfo = new RpcInvokeInfo();
-			rpcInvokeInfo.setServiceName(request.getServiceName());
-			rpcInvokeInfo.setAddressIp(client.getAddress());
-			rpcInvokeInfo.setRequest(request);
-			RuntimeServiceEvent event = new RuntimeServiceEvent(
-					RuntimeServiceEvent.Type.RUNTIME_RPC_INVOKE_CONNECT_EXCEPTION, rpcInvokeInfo);
-			EventManager.getInstance().publishEvent(event);
 		}
 	}
 

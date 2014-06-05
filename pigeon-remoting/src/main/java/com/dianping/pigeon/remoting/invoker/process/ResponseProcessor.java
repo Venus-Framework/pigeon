@@ -13,4 +13,5 @@ public interface ResponseProcessor {
 
 	public void processResponse(final InvocationResponse response, final Client client);
 
+	public String getProcessorStatistics();
 }

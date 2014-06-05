@@ -4,20 +4,22 @@
  */
 package com.dianping.pigeon.remoting.invoker.domain;
 
-import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
 import com.dianping.avatar.tracker.TrackerContext;
-import com.dianping.dpsf.exception.DPSFException;
-import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.util.ContextUtils;
@@ -32,6 +34,8 @@ public class CallbackFuture implements Callback, CallFuture {
 
 	private static final Logger logger = LoggerLoader.getLogger(CallbackFuture.class);
 
+	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
+
 	private InvocationResponse response;
 	private CallFuture future;
 	private boolean done = false;
@@ -43,11 +47,9 @@ public class CallbackFuture implements Callback, CallFuture {
 	public void run() {
 		synchronized (this) {
 			this.done = true;
-
 			if (this.response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 				this.success = true;
 			}
-
 			this.notifyAll();
 		}
 	}
@@ -73,8 +75,8 @@ public class CallbackFuture implements Callback, CallFuture {
 
 					RpcEventUtils.clientTimeOutEvent(request, client.getAddress());
 
-					NetTimeoutException netTimeoutException = new NetTimeoutException(sb.toString());
-					throw netTimeoutException;
+					RequestTimeoutException e = new RequestTimeoutException(sb.toString());
+					throw e;
 				} else {
 					this.wait(timeoutMillis_);
 				}
@@ -82,28 +84,22 @@ public class CallbackFuture implements Callback, CallFuture {
 
 			processContext();
 
-			if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION
-					|| response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
-				Throwable cause = null;
-				if (response instanceof InvocationResponse) {
-					cause = InvokerUtils.toInvocationThrowable(response.getReturn());
-				}
-				if (cause == null) {
-					cause = new DPSFException(response.getCause());
-				}
+			if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
+				RpcException cause = InvokerUtils.toRpcException(response);
+				StringBuilder sb = new StringBuilder();
+				sb.append("remote call exception\r\nrequest:").append(InvocationUtils.toJsonString(request))
+						.append("\r\nhost:").append(client.getHost()).append(":").append(client.getPort())
+						.append("\r\nresponse:").append(InvocationUtils.toJsonString(response));
+				logger.error(sb.toString(), cause);
+				monitorLogger.logError(sb.toString(), cause);
+			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
+				Throwable cause = InvokerUtils.toApplicationException(response);
 				StringBuilder sb = new StringBuilder();
 				sb.append("remote service exception\r\nrequest:").append(InvocationUtils.toJsonString(request))
 						.append("\r\nhost:").append(client.getHost()).append(":").append(client.getPort())
 						.append("\r\nresponse:").append(InvocationUtils.toJsonString(response));
-				Field field;
-				try {
-					field = Throwable.class.getDeclaredField("detailMessage");
-					field.setAccessible(true);
-					field.set(cause, sb.toString());
-				} catch (Exception e) {
-					logger.error("can not be happened.....", e);
-				}
-				logger.error(cause.getMessage(), cause);
+				logger.error(sb.toString(), cause);
+				monitorLogger.logError(sb.toString(), cause);
 			}
 			return this.response;
 		}

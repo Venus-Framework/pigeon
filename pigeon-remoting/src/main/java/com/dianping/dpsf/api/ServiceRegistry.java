@@ -12,7 +12,6 @@ import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
@@ -72,11 +71,7 @@ public class ServiceRegistry extends ServiceInitializeListener {
 			providerConfigList.add(providerConfig);
 		}
 
-		try {
-			ServiceFactory.addServices(providerConfigList);
-		} catch (RpcException e) {
-			throw new ServiceException("", e);
-		}
+		ServiceFactory.addServices(providerConfigList);
 	}
 
 	public boolean isCancelTimeout() {
@@ -131,7 +126,7 @@ public class ServiceRegistry extends ServiceInitializeListener {
 			this.services = new HashMap<String, Object>();
 		}
 		if (this.services.containsKey(serviceName)) {
-			throw new ServiceException("service:" + serviceName + " has been existent");
+			throw new ServiceException("existing service:" + serviceName);
 		}
 		this.services.put(serviceName, service);
 	}

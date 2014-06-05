@@ -25,4 +25,10 @@ public class RemoteInvocationException extends RpcException {
 		super(message, cause);
 	}
 
+	public String getErrorCode() {
+		if (errorCode == null) {
+			return "0700";
+		}
+		return errorCode;
+	}
 }

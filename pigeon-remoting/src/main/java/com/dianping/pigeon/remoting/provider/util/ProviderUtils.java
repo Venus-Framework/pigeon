@@ -14,11 +14,14 @@ import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.provider.process.ProviderExceptionTranslator;
 import com.dianping.pigeon.util.VersionUtils;
 
 public final class ProviderUtils {
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	private static ProviderExceptionTranslator exceptionTranslator = new ProviderExceptionTranslator();
 
 	private ProviderUtils() {
 	}
@@ -29,16 +32,16 @@ public final class ProviderUtils {
 		response.setSequence(seq);
 		response.setSerialize(serialization);
 		response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
-		response.setReturn(e);
+		response.setReturn(exceptionTranslator.translate(e));
 
 		return response;
 	}
 
 	public static InvocationResponse createFailResponse(InvocationRequest request, Throwable e) {
 		InvocationResponse response = null;
-		byte serialization = request.getSerialize();
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
-			response = new DefaultResponse(serialization, request.getSequence(), Constants.MESSAGE_TYPE_HEART, e);
+			response = new DefaultResponse(request.getSerialize(), request.getSequence(), Constants.MESSAGE_TYPE_HEART,
+					exceptionTranslator.translate(e));
 		} else {
 			response = createThrowableResponse(request.getSequence(), request.getSerialize(), e);
 		}

@@ -19,5 +19,15 @@ public class NetworkException extends RpcException {
 	public NetworkException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
+	
+	public NetworkException(Throwable cause) {
+		super(cause);
+	}
 
+	public String getErrorCode() {
+		if (errorCode == null) {
+			return "0200";
+		}
+		return errorCode;
+	}
 }

@@ -201,7 +201,8 @@ public class DefaultRequest implements InvocationRequest {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("serialize", serialize)
 				.append("seq", seq).append("messageType", messageType).append("callType", callType)
 				.append("timeout", timeout).append("url", serviceName).append("methodName", methodName)
-				.append("parameters", InvocationUtils.toJsonString(parameters)).append("version", version).toString();
+				.append("parameters", InvocationUtils.toJsonString(parameters)).append("createTime", createMillisTime)
+				.toString();
 	}
 
 	@Override

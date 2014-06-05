@@ -25,4 +25,10 @@ public class RequestTimeoutException extends RpcException {
 		super(message, cause);
 	}
 
+	public String getErrorCode() {
+		if (errorCode == null) {
+			return "0500";
+		}
+		return errorCode;
+	}
 }

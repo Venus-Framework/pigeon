@@ -12,10 +12,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceCallback;
-import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -49,6 +49,14 @@ public class ServiceFactory {
 
 	public static synchronized void setCacheService(boolean isCacheService) {
 		ServiceFactory.isCacheService = isCacheService;
+	}
+
+	public static Map<InvokerConfig<?>, Object> getAllServiceInvokers() {
+		return services;
+	}
+
+	public static Map<String, ProviderConfig<?>> getAllServiceProviders() {
+		return ServiceProviderFactory.getAllServiceProviders();
 	}
 
 	public static <T> String getServiceUrl(Class<T> serviceInterface) {
@@ -139,15 +147,13 @@ public class ServiceFactory {
 				throw new RpcException("error while trying to get service:" + invokerConfig, t);
 			}
 			try {
-				ClientManager.getInstance().registerServiceInvokers(invokerConfig.getUrl(), configManager.getGroup(),
+				ClientManager.getInstance().registerServiceInvokers(invokerConfig.getUrl(), invokerConfig.getGroup(),
 						invokerConfig.getVip());
 			} catch (Throwable t) {
 				logger.warn("error while trying to setup service client:" + invokerConfig + ", caused by:"
 						+ t.getMessage());
 			}
-			if (isCacheService) {
-				services.put(invokerConfig, service);
-			}
+			services.put(invokerConfig, service);
 		}
 		return (T) service;
 	}
@@ -215,7 +221,7 @@ public class ServiceFactory {
 			ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig.getServerConfig());
 			providerConfig.setServerConfig(serverConfig);
 			ServiceProviderFactory.publishService(providerConfig);
-		} catch (ServiceException t) {
+		} catch (RegistryException t) {
 			throw new RpcException("error while adding service:" + providerConfig, t);
 		}
 	}
@@ -241,7 +247,7 @@ public class ServiceFactory {
 					providerConfig.setServerConfig(serverConfig);
 					ServiceProviderFactory.publishService(providerConfig);
 				}
-			} catch (ServiceException t) {
+			} catch (RegistryException t) {
 				throw new RpcException("error while adding services:" + providerConfigList, t);
 			}
 		}
@@ -259,7 +265,7 @@ public class ServiceFactory {
 		}
 		try {
 			ServiceProviderFactory.publishService(providerConfig);
-		} catch (ServiceException t) {
+		} catch (RegistryException t) {
 			throw new RpcException("error while publishing service:" + providerConfig, t);
 		}
 	}
@@ -273,7 +279,7 @@ public class ServiceFactory {
 	public static <T> void publishService(String url) throws RpcException {
 		try {
 			ServiceProviderFactory.publishService(url);
-		} catch (ServiceException t) {
+		} catch (RegistryException t) {
 			throw new RpcException("error while publishing service:" + url, t);
 		}
 	}
@@ -287,7 +293,7 @@ public class ServiceFactory {
 	public static <T> void unpublishService(ProviderConfig<T> providerConfig) throws RpcException {
 		try {
 			ServiceProviderFactory.unpublishService(providerConfig);
-		} catch (ServiceException e) {
+		} catch (RegistryException e) {
 			throw new RpcException("error while unpublishing service:" + providerConfig, e);
 		}
 	}
@@ -301,7 +307,7 @@ public class ServiceFactory {
 	public static <T> void unpublishService(String url) throws RpcException {
 		try {
 			ServiceProviderFactory.unpublishService(url);
-		} catch (ServiceException e) {
+		} catch (RegistryException e) {
 			throw new RpcException("error while unpublishing service:" + url, e);
 		}
 	}
@@ -314,7 +320,7 @@ public class ServiceFactory {
 	public static void unpublishAllServices() throws RpcException {
 		try {
 			ServiceProviderFactory.unpublishAllServices();
-		} catch (ServiceException e) {
+		} catch (RegistryException e) {
 			throw new RpcException("error while unpublishing all services", e);
 		}
 	}
@@ -327,7 +333,7 @@ public class ServiceFactory {
 	public static void publishAllServices() throws RpcException {
 		try {
 			ServiceProviderFactory.publishAllServices();
-		} catch (ServiceException e) {
+		} catch (RegistryException e) {
 			throw new RpcException("error while publishing all services", e);
 		}
 	}
@@ -341,7 +347,7 @@ public class ServiceFactory {
 	public static void removeAllServices() throws RpcException {
 		try {
 			ServiceProviderFactory.removeAllServices();
-		} catch (ServiceException e) {
+		} catch (RegistryException e) {
 			throw new RpcException("error while removing all services", e);
 		}
 	}
@@ -356,7 +362,7 @@ public class ServiceFactory {
 	public static void removeService(String url) throws RpcException {
 		try {
 			ServiceProviderFactory.removeService(url);
-		} catch (ServiceException e) {
+		} catch (RegistryException e) {
 			throw new RpcException("error while removing service:" + url, e);
 		}
 	}
@@ -379,7 +385,7 @@ public class ServiceFactory {
 	public static void setServerWeight(int weight) throws RpcException {
 		try {
 			ServiceProviderFactory.setServerWeight(weight);
-		} catch (ServiceException e) {
+		} catch (RegistryException e) {
 			throw new RpcException("error while setting server weight:" + weight, e);
 		}
 	}

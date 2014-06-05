@@ -135,7 +135,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 
 	private Object proxyInvoke(String serviceName, String methodName, String[] types, String[] values, int timeout)
 			throws Exception {
-		ProviderConfig<?> service = getServices().get(serviceName);
+		ProviderConfig<?> service = getServiceProviders().get(serviceName);
 		if (service == null) {
 			return null;
 		}
@@ -153,7 +153,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 	private Object directInvoke(String serviceName, String methodName, String[] types, String[] values)
 			throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException,
 			IllegalAccessException, InvocationTargetException {
-		ProviderConfig<?> providerConfig = getServices().get(serviceName);
+		ProviderConfig<?> providerConfig = getServiceProviders().get(serviceName);
 		if (providerConfig == null || providerConfig.getService() == null) {
 			return null;
 		}

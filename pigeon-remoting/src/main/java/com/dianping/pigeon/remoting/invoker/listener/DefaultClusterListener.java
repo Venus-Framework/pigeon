@@ -17,13 +17,13 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetException;
-import com.dianping.dpsf.exception.NoConnectionException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.ClientSelector;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 import com.dianping.pigeon.util.CollectionUtils;
 
@@ -69,7 +69,7 @@ public class DefaultClusterListener implements ClusterListener {
 							invokerConfig.getGroup(), invokerConfig.getVip());
 					clientList = this.serviceClients.get(invokerConfig.getUrl());
 					if (CollectionUtils.isEmpty(clientList)) {
-						throw new NoConnectionException("no available provider for service:" + invokerConfig.getUrl());
+						throw new ServiceUnavailableException("no available provider for service:" + invokerConfig.getUrl());
 					} else {
 						logger.info("found service providers:[" + clientList + "] for service:"
 								+ invokerConfig.getUrl());

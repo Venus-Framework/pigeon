@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.NoConnectionException;
 import com.dianping.pigeon.domain.phase.Disposable;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
@@ -20,6 +19,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListenerManager;
 import com.dianping.pigeon.remoting.invoker.route.balance.ConsistentHashLoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LeastSuccessLoadBalance;
@@ -78,7 +78,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		}
 
 		if (!selectedClient.isConnected()) {
-			throw new NoConnectionException("no available server exists for service[" + invokerConfig + "]");
+			throw new ServiceUnavailableException("no available server exists for service[" + invokerConfig + "]");
 		}
 		return selectedClient;
 	}
@@ -107,7 +107,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 			}
 		}
 		if (filteredClients.isEmpty()) {
-			throw new NoConnectionException("no available server exists for service[" + invokerConfig.getUrl()
+			throw new ServiceUnavailableException("no available server exists for service[" + invokerConfig.getUrl()
 					+ "] and group[" + invokerConfig.getGroup() + "]"
 					+ (existClientBuffToLimit ? ", and exists some server's write buffer reach limit" : "") + ".");
 		}
@@ -116,7 +116,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 
 	private void checkClientNotNull(Client client, InvokerConfig<?> invokerConfig) {
 		if (client == null) {
-			throw new NoConnectionException("no available server exists for service[" + invokerConfig + "]");
+			throw new ServiceUnavailableException("no available server exists for service[" + invokerConfig + "]");
 		}
 	}
 

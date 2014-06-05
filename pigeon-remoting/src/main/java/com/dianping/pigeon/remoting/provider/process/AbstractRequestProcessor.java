@@ -8,10 +8,19 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
+import org.apache.log4j.Logger;
+
+import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.listener.RequestTimeoutListener;
+import com.dianping.pigeon.remoting.provider.process.threadpool.RequestThreadPoolProcessor;
+import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
 
@@ -19,10 +28,14 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 
 	private static ThreadPool timeCheckThreadPool = new DefaultThreadPool("pigeon-provider-timeout-checker");
 
-	protected static Map<InvocationRequest, ProviderContext> requestContextMap = new ConcurrentHashMap<InvocationRequest, ProviderContext>();
+	protected Map<InvocationRequest, ProviderContext> requestContextMap = new ConcurrentHashMap<InvocationRequest, ProviderContext>();
 
-	static {
-		timeCheckThreadPool.execute(new RequestTimeoutListener(requestContextMap));
+	protected static final Logger logger = LoggerLoader.getLogger(RequestThreadPoolProcessor.class);
+
+	protected static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
+
+	public AbstractRequestProcessor() {
+		timeCheckThreadPool.execute(new RequestTimeoutListener(this, requestContextMap));
 	}
 
 	public abstract Future<InvocationResponse> doProcessRequest(final InvocationRequest request,
@@ -40,7 +53,18 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		if (request.getCreateMillisTime() == 0) {
 			request.setCreateMillisTime(System.currentTimeMillis());
 		}
-		Future<InvocationResponse> invocationResponse = doProcessRequest(request, providerContext);
+		Future<InvocationResponse> invocationResponse = null;
+		try {
+			invocationResponse = doProcessRequest(request, providerContext);
+		} catch (Throwable e) {
+			String msg = "process request failed:" + request;
+			if (request.getCallType() == Constants.CALLTYPE_REPLY
+					&& request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
+				providerContext.getChannel().write(ProviderUtils.createFailResponse(request, e));
+			}
+			logger.error(msg, e);
+			monitorLogger.logError(msg, e);
+		}
 		providerContext.setFuture(invocationResponse);
 		return invocationResponse;
 	}

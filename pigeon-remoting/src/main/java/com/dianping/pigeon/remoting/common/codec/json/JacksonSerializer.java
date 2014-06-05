@@ -9,13 +9,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.commons.lang.SerializationException;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
+import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerationException;

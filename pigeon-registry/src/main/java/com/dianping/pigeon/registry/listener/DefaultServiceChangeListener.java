@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
-import com.dianping.pigeon.registry.util.Constants;
 
 public class DefaultServiceChangeListener implements ServiceChangeListener {
 
@@ -37,7 +36,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 				toAddHpSet = new HashSet<HostInfo>(newHpSet);
 				toAddHpSet.removeAll(oldHpSet);
 			}
-			if(logger.isInfoEnabled()) {
+			if (logger.isInfoEnabled()) {
 				logger.info("service hosts changed, to added hosts:" + toAddHpSet);
 				logger.info("service hosts changed, to removed hosts:" + toRemoveHpSet);
 			}
@@ -61,12 +60,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 				String port = parts[1];
 				String serviceAddress = host + ":" + port;
 
-				int weight = Constants.WEIGHT_DEFAULT;
-				try {
-					weight = RegistryManager.getInstance().getServiceWeight(serviceAddress);
-				} catch (Exception e) {
-					logger.error("error get weight from PigeonClient for host " + host + ", use default weight", e);
-				}
+				int weight = RegistryManager.getInstance().getServiceWeight(serviceAddress);
 				hpSet.add(new HostInfo(host, Integer.parseInt(port), weight));
 			}
 		}

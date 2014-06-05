@@ -12,12 +12,12 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.NetException;
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.AbstractClient;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
@@ -94,9 +94,9 @@ public class HttpInvokerClient extends AbstractClient {
 			return invocationResponse;
 		} catch (ConnectException e) {
 			this.isConnected = false;
-			throw new NetException(e);
+			throw new NetworkException(e);
 		} catch (Exception e) {
-			throw new NetException(e);
+			throw new NetworkException(e);
 		}
 	}
 
@@ -161,7 +161,7 @@ public class HttpInvokerClient extends AbstractClient {
 
 	@Override
 	public void dispose() {
-		
+
 	}
 
 }

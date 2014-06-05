@@ -9,13 +9,15 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceFuture;
-import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
+import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
 public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 
@@ -40,34 +42,36 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 
 	@Override
 	public Object _get(long timeoutMillis) throws InterruptedException {
-		InvocationResponse res = null;
+		InvocationResponse response = null;
 		monitorLogger.logEvent("PigeonCall.future", "", "timeout=" + timeoutMillis);
 		try {
-			res = super.get(timeoutMillis);
+			response = super.get(timeoutMillis);
 		} catch (Exception e) {
-			DPSFException dpsfException = null;
-			if (e instanceof DPSFException) {
-				dpsfException = (DPSFException) e;
+			RpcException rpcEx = null;
+			if (e instanceof RpcException) {
+				rpcEx = (RpcException) e;
 			} else {
-				dpsfException = new DPSFException(e);
+				rpcEx = new RpcException(e);
 			}
-			logger.error(dpsfException);
-			monitorLogger.logError(dpsfException);
-			throw dpsfException;
+			logger.error(rpcEx);
+			monitorLogger.logError(rpcEx);
+			throw rpcEx;
 		}
-		if (res.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-			return res.getReturn();
-		} else if (res.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
-			logger.error(res.getCause());
-			DPSFException dpsfE = new DPSFException(res.getCause());
-			monitorLogger.logError(dpsfE);
-			throw dpsfE;
-		} else if (res.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-			DPSFException dpsfE = new DPSFException((Throwable) res.getReturn());
-			monitorLogger.logError(dpsfE);
-			throw dpsfE;
+		if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+			return response.getReturn();
+		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
+			RpcException cause = InvokerUtils.toRpcException(response);
+			logger.error("error with future call", cause);
+			monitorLogger.logError("error with future call", cause);
+			throw cause;
+		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
+			RuntimeException cause = InvokerUtils.toApplicationRuntimeException(response);
+			logger.error("error with remote business future call", cause);
+			monitorLogger.logError("error with remote business future call", cause);
+			throw cause;
 		} else {
-			DPSFException e = new DPSFException("error messageType:" + res.getMessageType());
+			RpcException e = new RemoteInvocationException("unsupported response with message type:"
+					+ response.getMessageType());
 			monitorLogger.logError(e);
 			throw e;
 		}

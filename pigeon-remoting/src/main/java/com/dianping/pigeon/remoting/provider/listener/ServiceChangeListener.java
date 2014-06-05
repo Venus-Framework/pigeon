@@ -4,12 +4,11 @@
  */
 package com.dianping.pigeon.remoting.provider.listener;
 
-import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 
 public interface ServiceChangeListener {
 
-	void notifyServicePublished(ProviderConfig<?> providerConfig) throws ServiceException;
+	void notifyServicePublished(ProviderConfig<?> providerConfig);
 
-	void notifyServiceUnpublished(ProviderConfig<?> providerConfig) throws ServiceException;
+	void notifyServiceUnpublished(ProviderConfig<?> providerConfig);
 }

@@ -13,10 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
 import com.dianping.pigeon.remoting.provider.process.filter.ContextTransferProcessFilter;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 
@@ -40,7 +40,7 @@ public final class ServiceMethodFactory {
 		}
 	}
 
-	public static ServiceMethod getMethod(InvocationRequest request) throws ServiceException {
+	public static ServiceMethod getMethod(InvocationRequest request) throws InvocationFailureException {
 		String serviceName = request.getServiceName();
 		String methodName = request.getMethodName();
 		if (StringUtils.isBlank(methodName)) {
@@ -59,7 +59,7 @@ public final class ServiceMethodFactory {
 			serviceMethodCache = getServiceMethodCache(serviceName);
 		}
 		if (serviceMethodCache == null) {
-			throw new ServiceException("cannot find serivce for request:" + request);
+			throw new InvocationFailureException("cannot find serivce for request:" + request);
 		}
 		return serviceMethodCache.getMethod(methodName, new ServiceParam(paramClassNames));
 	}
@@ -67,7 +67,7 @@ public final class ServiceMethodFactory {
 	public static ServiceMethodCache getServiceMethodCache(String url) {
 		ServiceMethodCache serviceMethodCache = methods.get(url);
 		if (serviceMethodCache == null) {
-			Map<String, ProviderConfig<?>> services = ServiceProviderFactory.getAllServices();
+			Map<String, ProviderConfig<?>> services = ServiceProviderFactory.getAllServiceProviders();
 			ProviderConfig<?> providerConfig = services.get(url);
 			if (providerConfig != null) {
 				Object service = providerConfig.getService();
