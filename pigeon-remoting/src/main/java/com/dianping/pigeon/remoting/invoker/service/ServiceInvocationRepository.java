@@ -68,8 +68,8 @@ public class ServiceInvocationRepository {
 				TimelineManager.removeTimeline(response);
 			}
 		} else {
-			TimelineManager.removeTimeline(response);
-			String msg = "the response has expired:" + InvocationUtils.toJsonString(response);
+			String msg = "the response has expired:" + InvocationUtils.toJsonString(response) + ",timeline:"
+					+ TimelineManager.removeTimeline(response);
 			logger.error(msg);
 			// ResponseExpiredException e = new ResponseExpiredException(msg);
 			// monitorLogger.logError(e);

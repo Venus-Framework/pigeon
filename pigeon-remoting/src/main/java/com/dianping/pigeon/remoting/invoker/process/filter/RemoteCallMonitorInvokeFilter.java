@@ -6,7 +6,6 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
@@ -21,6 +20,7 @@ import com.dianping.pigeon.remoting.common.util.TimelineManager.Timeline;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
+import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 
 public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 
@@ -66,7 +66,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		}
 		try {
 			return handler.handle(invocationContext);
-		} catch(NetTimeoutException e) {
+		} catch(RequestTimeoutException e) {
 			timeout = true;
 			if (transaction != null) {
 				try {
