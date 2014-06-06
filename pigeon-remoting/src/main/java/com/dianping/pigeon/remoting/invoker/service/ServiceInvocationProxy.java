@@ -11,11 +11,11 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.DefaultInvokerContext;
-import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
 public class ServiceInvocationProxy implements InvocationHandler {
@@ -60,7 +60,7 @@ public class ServiceInvocationProxy implements InvocationHandler {
 			} else if (messageType == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 				throw InvokerUtils.toApplicationException(response);
 			}
-			throw new RemoteInvocationException("unsupported response with message type:" + messageType);
+			throw new InvalidParameterException("unsupported response with message type:" + messageType);
 		}
 		return getReturn(returnType);
 	}

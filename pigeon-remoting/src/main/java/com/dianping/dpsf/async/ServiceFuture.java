@@ -5,8 +5,6 @@ package com.dianping.dpsf.async;
 
 import java.util.concurrent.TimeUnit;
 
-import com.dianping.dpsf.exception.DPSFException;
-
 /**
  * <p>
  * Title: DPSFFuture.java
@@ -26,18 +24,16 @@ public interface ServiceFuture {
 	 * 
 	 * @return
 	 * @throws InterruptedException
-	 * @throws DPSFException
 	 */
-	Object _get() throws InterruptedException, DPSFException;
+	Object _get() throws InterruptedException;
 
 	/**
 	 * @param timeoutMillis
 	 *            阻塞超时时间，单位毫秒
 	 * @return
 	 * @throws InterruptedException
-	 * @throws DPSFException
 	 */
-	Object _get(long timeoutMillis) throws InterruptedException, DPSFException;
+	Object _get(long timeoutMillis) throws InterruptedException;
 
 	/**
 	 * @param timeout
@@ -45,9 +41,8 @@ public interface ServiceFuture {
 	 * @param unit
 	 * @return
 	 * @throws InterruptedException
-	 * @throws DPSFException
 	 */
-	Object _get(long timeout, TimeUnit unit) throws InterruptedException, DPSFException;
+	Object _get(long timeout, TimeUnit unit) throws InterruptedException;
 
 	/**
 	 * @return 是否完成

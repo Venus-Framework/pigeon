@@ -14,9 +14,9 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
 public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
@@ -70,7 +70,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 			monitorLogger.logError("error with remote business future call", cause);
 			throw cause;
 		} else {
-			RpcException e = new RemoteInvocationException("unsupported response with message type:"
+			RpcException e = new InvalidParameterException("unsupported response with message type:"
 					+ response.getMessageType());
 			monitorLogger.logError(e);
 			throw e;

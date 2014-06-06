@@ -65,7 +65,7 @@ public class ServiceInvocationRepository {
 				}
 			} finally {
 				invocations.remove(response.getSequence());
-				TimelineManager.removeTimeline(response);
+				//TimelineManager.removeTimeline(response);
 			}
 		} else {
 			String msg = "the response has expired:" + InvocationUtils.toJsonString(response) + ",timeline:"
