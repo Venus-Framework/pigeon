@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -147,14 +146,7 @@ public final class ServiceRegistry extends ServiceInitializeListener {
 		this.port = port;
 	}
 
-	/**
-	 * 要确保只是启动一次！，调用Pigeon启动器，通过事件的机制来并行初始化，确保快速的启动。
-	 * 
-	 * @throws ServiceException
-	 * 
-	 * @throws ClassNotFoundException
-	 */
-	public void init() throws ServiceException {
+	public void init() throws Exception {
 		ServerConfig serverConfig = new ServerConfig();
 		serverConfig.setPort(port);
 		serverConfig.setHttpPort(httpPort);
@@ -165,7 +157,7 @@ public final class ServiceRegistry extends ServiceInitializeListener {
 		serverConfig.setEnableTest(enableTest);
 		List<ProviderConfig<?>> providerConfigList = new ArrayList<ProviderConfig<?>>();
 		for (String url : services.keySet()) {
-			ProviderConfig providerConfig = new ProviderConfig(services.get(url));
+			ProviderConfig<Object> providerConfig = new ProviderConfig<Object>(services.get(url));
 			providerConfig.setUrl(url);
 			providerConfig.setServerConfig(serverConfig);
 			providerConfig.setCancelTimeout(cancelTimeout);

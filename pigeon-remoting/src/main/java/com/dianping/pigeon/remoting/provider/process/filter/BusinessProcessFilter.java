@@ -8,10 +8,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -64,7 +64,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			}
 			return response;
 		}
-		throw new DPSFException("message type[" + request.getMessageType() + "] is not supported!");
+		throw new InvalidParameterException("message type[" + request.getMessageType() + "] is not supported!");
 	}
 
 }

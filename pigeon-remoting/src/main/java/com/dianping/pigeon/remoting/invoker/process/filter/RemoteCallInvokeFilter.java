@@ -8,10 +8,10 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceFuture;
 import com.dianping.dpsf.async.ServiceFutureFactory;
-import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -64,7 +64,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 			InvokerUtils.sendRequest(client, invocationContext.getRequest(), null);
 			response = NO_RETURN_RESPONSE;
 		} else {
-			throw new DPSFException("Call type[" + callMethod + "] is not supported!");
+			throw new InvalidParameterException("Call type[" + callMethod + "] is not supported!");
 		}
 		afterInvoke(request, response, client);
 		return response;

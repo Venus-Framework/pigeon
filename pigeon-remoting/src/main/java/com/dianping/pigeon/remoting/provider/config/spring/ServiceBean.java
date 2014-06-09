@@ -9,7 +9,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -75,11 +74,6 @@ public class ServiceBean {
 		this.serviceImpl = serviceImpl;
 	}
 
-	/**
-	 * 要确保只是启动一次！，调用Pigeon启动器，通过事件的机制来并行初始化，确保快速的启动。
-	 * 
-	 * @throws ServiceException
-	 */
 	public void init() throws Exception {
 		if (serviceImpl == null) {
 			throw new IllegalArgumentException("service not found:" + this);

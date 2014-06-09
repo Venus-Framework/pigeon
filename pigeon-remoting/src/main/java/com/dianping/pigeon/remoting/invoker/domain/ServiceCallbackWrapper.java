@@ -14,6 +14,7 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -62,6 +63,10 @@ public class ServiceCallbackWrapper implements Callback {
 				logger.error("error with remote business callback", businessException);
 				monitorLogger.logError("error with remote business callback", businessException);
 				this.callback.serviceException(businessException);
+			} else {
+				RpcException e = new InvalidParameterException("unsupported response with message type:"
+						+ response.getMessageType());
+				monitorLogger.logError(e);
 			}
 		} catch (Exception e) {
 			logger.error("error while executing service callback", e);

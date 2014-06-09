@@ -27,7 +27,7 @@ import com.dianping.pigeon.threadpool.NamedThreadFactory;
 import com.dianping.pigeon.util.NetUtils;
 
 public class NettyServer extends AbstractServer implements Disposable {
-	
+
 	private String ip = null;
 	private int port = ServerConfig.DEFAULT_PORT;
 	private ServerBootstrap bootstrap;
@@ -52,7 +52,7 @@ public class NettyServer extends AbstractServer implements Disposable {
 
 	@Override
 	public boolean support(ServerConfig serverConfig) {
-		if (serverConfig.getProtocols().contains(Constants.PROTOCOL_DEFAULT)) {
+		if (serverConfig.getProtocol().equals(this.getProtocol())) {
 			return true;
 		}
 		return false;
@@ -173,4 +173,10 @@ public class NettyServer extends AbstractServer implements Disposable {
 	public boolean isStarted() {
 		return started;
 	}
+
+	@Override
+	public String getProtocol() {
+		return Constants.PROTOCOL_DEFAULT;
+	}
+
 }

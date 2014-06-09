@@ -5,8 +5,8 @@ package com.dianping.dpsf.async;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 
 /**
  * <p>
@@ -31,12 +31,12 @@ public class ServiceFutureFactory {
 		return future;
 	}
 
-	public static void setFuture(ServiceFuture future) throws DPSFException {
+	public static void setFuture(ServiceFuture future) {
 		if (threadFuture.get() != null) {
 			threadFuture.remove();
 			String msg = "you must call \"ServiceFutureFactory.getFuture()\" before second call service if you use future call";
 			log.error(msg);
-			throw new DPSFException(msg);
+			throw new InvalidParameterException(msg);
 		}
 		threadFuture.set(future);
 	}
@@ -54,9 +54,8 @@ public class ServiceFutureFactory {
 	 *            返回值类
 	 * @return 调用结果
 	 * @throws InterruptedException
-	 * @throws DPSFException
 	 */
-	public static <T> T getResult(Class<T> res) throws InterruptedException, DPSFException {
+	public static <T> T getResult(Class<T> res) throws InterruptedException {
 		return (T) getFuture()._get();
 	}
 
@@ -65,9 +64,8 @@ public class ServiceFutureFactory {
 	 * 
 	 * @return 调用结果
 	 * @throws InterruptedException
-	 * @throws DPSFException
 	 */
-	public static Object getResult() throws InterruptedException, DPSFException {
+	public static Object getResult() throws InterruptedException {
 		return getFuture()._get();
 	}
 

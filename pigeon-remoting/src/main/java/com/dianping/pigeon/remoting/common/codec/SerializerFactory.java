@@ -8,13 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.hessian.Hessian1Serializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
 import com.dianping.pigeon.remoting.common.codec.java.JavaSerializer;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.common.codec.protobuf.ProtobufSerializer;
+import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 
 /**
  * @author xiangwu
@@ -81,13 +81,13 @@ public final class SerializerFactory {
 		} else if (JSON.equalsIgnoreCase(serialize)) {
 			return SerializerFactory.SERIALIZE_JSON;
 		} else {
-			throw new IllegalArgumentException("Only hessian, java, protobuf, json serialize type supported now!");
+			throw new InvalidParameterException("Only hessian, java, protobuf, json serialize type supported now!");
 		}
 	}
 
 	public static void registerSerializer(byte serializerType, Serializer serializer) {
 		if (serializer == null) {
-			throw new IllegalArgumentException("the serializer is null");
+			throw new InvalidParameterException("the serializer is null");
 		}
 		serializers.putIfAbsent(serializerType, serializer);
 	}
@@ -95,7 +95,7 @@ public final class SerializerFactory {
 	public static Serializer getSerializer(byte serializerType) {
 		Serializer serializer = serializers.get(serializerType);
 		if (serializer == null) {
-			throw new DPSFException("no serializer found for type:" + serializerType);
+			throw new InvalidParameterException("no serializer found for type:" + serializerType);
 		} else {
 			return serializer;
 		}

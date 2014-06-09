@@ -16,7 +16,7 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
 import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
-import com.dianping.pigeon.remoting.invoker.route.context.ClientContext;
+import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
 public class FailoverCluster implements Cluster {
@@ -33,14 +33,24 @@ public class FailoverCluster implements Cluster {
 		Throwable lastError = null;
 		int retry = invokerConfig.getRetries();
 
-		int maxInvokeTimes = retry;
+		int maxInvokeTimes = retry + 1;
 		boolean timeoutRetry = invokerConfig.isTimeoutRetry();
 
-		boolean nextInvokeErrorExit = false;
 		int invokeTimes = 0;
 		for (int index = 0; index < maxInvokeTimes; index++) {
 			InvocationRequest request = InvokerUtils.createRemoteCallRequest(invocationContext, invokerConfig);
-			Client clientSelected = clientManager.getClient(invokerConfig, request, selectedClients);
+			Client clientSelected = null;
+			try {
+				clientSelected = clientManager.getClient(invokerConfig, request, selectedClients);
+			} catch (ServiceUnavailableException e) {
+				if (invokeTimes > 0) {
+					logger.error("Invoke method[" + invocationContext.getMethodName() + "] on service["
+							+ invokerConfig.getUrl() + "] failed with " + invokeTimes + " times");
+					throw lastError;
+				} else {
+					throw e;
+				}
+			}
 			selectedClients.add(clientSelected);
 			try {
 				invokeTimes++;
@@ -50,32 +60,28 @@ public class FailoverCluster implements Cluster {
 					logger.warn(
 							"Retry method[" + invocationContext.getMethodName() + "] on service["
 									+ invokerConfig.getUrl() + "] succeed after " + invokeTimes
-									+ " times, last failed invoke's error: " + lastError.getMessage(), lastError);
+									+ " times, last failed error: " + lastError.getMessage(), lastError);
 				}
 				return response;
 			} catch (Throwable e) {
-				// 若指定强制调用某机器，则不再重试
-				if (ClientContext.getUseClientAddress() != null) {
-					throw e;
-				}
-
 				lastError = e;
-				if (nextInvokeErrorExit) {
-					break;
-				}
 				if (e instanceof RequestTimeoutException) {
 					if (!timeoutRetry) {
 						throw e;
-					} else {
-						nextInvokeErrorExit = true; // 超时最多重试一次
 					}
 				}
 			}
 		}
-		throw new RemoteInvocationException("Invoke method[" + invocationContext.getMethodName() + "] on service["
-				+ invokerConfig.getUrl() + "] failed with " + invokeTimes + " times, last error: "
-				+ (lastError != null ? lastError.getMessage() : ""),
-				lastError != null && lastError.getCause() != null ? lastError.getCause() : lastError);
+		if (lastError != null) {
+			logger.error("Invoke method[" + invocationContext.getMethodName() + "] on service["
+					+ invokerConfig.getUrl() + "] failed with " + invokeTimes + " times");
+			throw lastError;
+		} else {
+			throw new RemoteInvocationException("Invoke method[" + invocationContext.getMethodName() + "] on service["
+					+ invokerConfig.getUrl() + "] failed with " + invokeTimes + " times, last error: "
+					+ (lastError != null ? lastError.getMessage() : ""), lastError != null
+					&& lastError.getCause() != null ? lastError.getCause() : lastError);
+		}
 	}
 
 	@Override

@@ -6,10 +6,8 @@ package com.dianping.pigeon.remoting.provider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -30,7 +28,7 @@ public final class ProviderBootStrap {
 
 	private static Logger logger = LoggerLoader.getLogger(ServiceProviderFactory.class);
 	static Server httpServer = null;
-	static volatile Map<Integer, Server> serversMap = new HashMap<Integer, Server>();
+	static volatile Map<String, Server> serversMap = new HashMap<String, Server>();
 	static volatile boolean isInitialized = false;
 
 	public static void init() {
@@ -47,16 +45,14 @@ public final class ProviderBootStrap {
 			Runtime.getRuntime().addShutdownHook(shutdownHook);
 
 			ServerConfig config = new ServerConfig();
-			Set<String> protocols = new HashSet<String>();
-			protocols.add(Constants.PROTOCOL_HTTP);
-			config.setProtocols(protocols);
+			config.setProtocol(Constants.PROTOCOL_HTTP);
 			List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
 			for (Server server : servers) {
 				if (!server.isStarted()) {
 					if (server.support(config)) {
 						server.start(config);
 						httpServer = server;
-						serversMap.put(server.getPort(), server);
+						serversMap.put(server.getProtocol() + server.getPort(), server);
 						if (logger.isInfoEnabled()) {
 							logger.info("pigeon server[version:" + VersionUtils.VERSION + "] has been started at port:"
 									+ server.getPort());
@@ -72,7 +68,7 @@ public final class ProviderBootStrap {
 		if (serverConfig == null) {
 			throw new IllegalArgumentException("server config is required");
 		}
-		Server server = serversMap.get(serverConfig.getPort());
+		Server server = serversMap.get(serverConfig.getProtocol() + serverConfig.getPort());
 		if (server != null) {
 			return server.getServerConfig();
 		} else {
@@ -82,7 +78,7 @@ public final class ProviderBootStrap {
 					if (!s.isStarted()) {
 						if (s.support(serverConfig)) {
 							s.start(serverConfig);
-							serversMap.put(s.getPort(), s);
+							serversMap.put(s.getProtocol() + s.getPort(), s);
 							if (logger.isInfoEnabled()) {
 								logger.info("pigeon server[version:" + VersionUtils.VERSION
 										+ "] has been started at port:" + s.getPort());
@@ -91,7 +87,7 @@ public final class ProviderBootStrap {
 						}
 					}
 				}
-				server = serversMap.get(serverConfig.getPort());
+				server = serversMap.get(serverConfig.getProtocol() + serverConfig.getPort());
 				if (server != null) {
 					return server.getServerConfig();
 				}
@@ -116,13 +112,14 @@ public final class ProviderBootStrap {
 	public static List<Server> getServers(ProviderConfig<?> providerConfig) {
 		List<Server> servers = new ArrayList<Server>();
 		servers.add(httpServer);
+		String protocol = providerConfig.getServerConfig().getProtocol();
 		int port = providerConfig.getServerConfig().getPort();
-		servers.add(serversMap.get(port));
-		
+		servers.add(serversMap.get(protocol + port));
+
 		return servers;
 	}
-	
-	public static Map<Integer, Server> getServersMap() {
+
+	public static Map<String, Server> getServersMap() {
 		return serversMap;
 	}
 }

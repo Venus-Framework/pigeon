@@ -39,72 +39,64 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 
 	@Override
 	public boolean support(ServerConfig serverConfig) {
-		if (serverConfig.getProtocols().contains(Constants.PROTOCOL_HTTP)) {
+		if (serverConfig.getProtocol().equals(this.getProtocol())) {
 			return true;
 		}
 		return false;
 	}
 
+	private Server newServer(ServerConfig serverConfig) {
+		// if (serverConfig.isAutoSelectPort()) {
+		int availablePort = NetUtils.getAvailablePort(serverConfig.getHttpPort());
+		this.port = availablePort;
+		// } else {
+		// if (NetUtils.isPortInUse(serverConfig.getHttpPort())) {
+		// logger.error("unable to start jetty server on port " +
+		// serverConfig.getHttpPort()
+		// + ", the port is in use");
+		// System.exit(0);
+		// }
+		// this.port = serverConfig.getHttpPort();
+		// }
+
+		DispatcherServlet.addHttpHandler(port, new HttpServerHandler(this));
+		QueuedThreadPool threadPool = new QueuedThreadPool();
+		threadPool.setDaemon(true);
+		threadPool.setMaxThreads(serverConfig.getMaxPoolSize());
+		threadPool.setMinThreads(serverConfig.getCorePoolSize());
+		Server server = new Server(port);
+		server.setThreadPool(threadPool);
+		Context context = new Context(Context.SESSIONS);
+		context.setContextPath("/");
+		server.addHandler(context);
+		context.addServlet(new ServletHolder(new DispatcherServlet()), "/service");
+		List<JettyHttpServerProcessor> processors = ExtensionLoader.getExtensionList(JettyHttpServerProcessor.class);
+		if (processors != null) {
+			for (JettyHttpServerProcessor processor : processors) {
+				processor.preStart(serverConfig, server, context);
+			}
+		}
+		return server;
+	}
+
 	@Override
 	public void doStart(ServerConfig serverConfig) {
 		if (!started) {
-			// if (serverConfig.isAutoSelectPort()) {
-			int availablePort = NetUtils.getAvailablePort(serverConfig.getHttpPort());
-			this.port = availablePort;
-			// } else {
-			// if (NetUtils.isPortInUse(serverConfig.getHttpPort())) {
-			// logger.error("unable to start jetty server on port " +
-			// serverConfig.getHttpPort()
-			// + ", the port is in use");
-			// System.exit(0);
-			// }
-			// this.port = serverConfig.getHttpPort();
-			// }
-
-			DispatcherServlet.addHttpHandler(port, new HttpServerHandler(this));
-
-			QueuedThreadPool threadPool = new QueuedThreadPool();
-			threadPool.setDaemon(true);
-			threadPool.setMaxThreads(serverConfig.getMaxPoolSize());
-			threadPool.setMinThreads(serverConfig.getCorePoolSize());
-
-			// SelectChannelConnector connector = new SelectChannelConnector();
-			// ConfigManager configManager =
-			// ExtensionLoader.getExtension(ConfigManager.class);
-			// connector.setHost(configManager.getLocalIp());
-			// connector.setPort(port);
-
-			server = new Server(port);
-			server.setThreadPool(threadPool);
-			// server.addConnector(connector);
-
-			Context context = new Context(Context.SESSIONS);
-			context.setContextPath("/");
-			server.addHandler(context);
-
-			context.addServlet(new ServletHolder(new DispatcherServlet()), "/service");
-
-			// ServletHandler servletHandler = new ServletHandler();
-			// ServletHolder servletHolder =
-			// servletHandler.addServletWithMapping(DispatcherServlet.class,
-			// "/service");
-			// servletHolder.setInitOrder(1);
-			// server.addHandler(servletHandler);
-
-			List<JettyHttpServerProcessor> processors = ExtensionLoader
-					.getExtensionList(JettyHttpServerProcessor.class);
-			if (processors != null) {
-				for (JettyHttpServerProcessor processor : processors) {
-					processor.preStart(serverConfig, server, context);
-				}
-			}
+			server = newServer(serverConfig);
 			try {
 				server.start();
 				serverConfig.setHttpPort(this.port);
 				started = true;
 			} catch (Exception e) {
-				throw new IllegalStateException("failed to start jetty server on " + serverConfig.getHttpPort()
-						+ ", cause: " + e.getMessage(), e);
+				server = newServer(serverConfig);
+				try {
+					server.start();
+					serverConfig.setHttpPort(this.port);
+					started = true;
+				} catch (Exception e2) {
+					throw new IllegalStateException("failed to start jetty server on " + serverConfig.getHttpPort()
+							+ ", cause: " + e.getMessage(), e2);
+				}
 			}
 		}
 	}
@@ -147,5 +139,10 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 	@Override
 	public boolean isStarted() {
 		return started;
+	}
+
+	@Override
+	public String getProtocol() {
+		return Constants.PROTOCOL_HTTP;
 	}
 }

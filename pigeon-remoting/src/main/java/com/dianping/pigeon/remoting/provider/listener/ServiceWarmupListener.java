@@ -49,11 +49,13 @@ public class ServiceWarmupListener implements Runnable {
 	}
 
 	public static void stop() {
-		currentWarmupListener.setStop(true);
-		while (isServiceWarmupListenerStarted) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
+		if (currentWarmupListener != null) {
+			currentWarmupListener.setStop(true);
+			while (isServiceWarmupListenerStarted) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+				}
 			}
 		}
 	}

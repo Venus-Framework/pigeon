@@ -57,25 +57,6 @@ public final class ProviderUtils {
 		response.setMessageType(Constants.MESSAGE_TYPE_SERVICE_EXCEPTION);
 		response.setReturn(e);
 
-		// switch (serialization) {
-		// case SerializerFactory.SERIALIZE_JAVA:
-		// response = new DefaultResponse(serialization, request.getSequence(),
-		// Constants.MESSAGE_TYPE_SERVICE_EXCEPTION, e);
-		// break;
-		// case SerializerFactory.SERIALIZE_HESSIAN:
-		// response = new DefaultResponse(serialization, request.getSequence(),
-		// Constants.MESSAGE_TYPE_SERVICE_EXCEPTION, e);
-		// break;
-		// case SerializerFactory.SERIALIZE_HESSIAN1:
-		// String stackTrace = "UnknownTrace";
-		// stackTrace = extractStackTrace(e);
-		// RemoteServiceError serviceException = new
-		// RemoteServiceError(e.getClass().getName(), e.getMessage(),
-		// stackTrace);
-		// response = new DefaultResponse(serialization, request.getSequence(),
-		// Constants.MESSAGE_TYPE_SERVICE_EXCEPTION, serviceException);
-		// break;
-		// }
 		return response;
 	}
 

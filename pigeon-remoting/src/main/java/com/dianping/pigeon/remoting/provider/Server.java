@@ -36,4 +36,6 @@ public interface Server {
 	public <T> void addService(ProviderConfig<T> providerConfig) throws RpcException;
 
 	public List<String> getInvokerMetaInfo();
+	
+	public String getProtocol();
 }

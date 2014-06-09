@@ -8,10 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.dianping.dpsf.exception.ServiceException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
@@ -64,7 +64,7 @@ public class ServiceRegistry extends ServiceInitializeListener {
 
 		List<ProviderConfig<?>> providerConfigList = new ArrayList<ProviderConfig<?>>();
 		for (String url : services.keySet()) {
-			ProviderConfig providerConfig = new ProviderConfig(services.get(url));
+			ProviderConfig<Object> providerConfig = new ProviderConfig<Object>(services.get(url));
 			providerConfig.setUrl(url);
 			providerConfig.setServerConfig(serverConfig);
 			providerConfig.setCancelTimeout(cancelTimeout);
@@ -121,12 +121,12 @@ public class ServiceRegistry extends ServiceInitializeListener {
 		this.services = services;
 	}
 
-	public void register(String serviceName, Object service) throws ServiceException {
+	public void register(String serviceName, Object service) {
 		if (this.services == null) {
 			this.services = new HashMap<String, Object>();
 		}
 		if (this.services.containsKey(serviceName)) {
-			throw new ServiceException("existing service:" + serviceName);
+			throw new InvalidParameterException("existing service:" + serviceName);
 		}
 		this.services.put(serviceName, service);
 	}
