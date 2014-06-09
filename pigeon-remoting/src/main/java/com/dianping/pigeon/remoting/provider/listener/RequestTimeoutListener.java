@@ -83,7 +83,6 @@ public class RequestTimeoutListener implements Runnable {
 								Future<?> future = rc.getFuture();
 								if (future != null && !future.isCancelled()) {
 									if (future.cancel(cancelTimeout)) {
-										TimelineManager.removeTimeline(request);
 									}
 								}
 							}

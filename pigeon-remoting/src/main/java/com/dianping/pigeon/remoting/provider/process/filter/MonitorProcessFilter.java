@@ -20,6 +20,7 @@ import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.common.util.TimelineManager.Timeline;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.util.ContextUtils;
 
 public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
@@ -87,9 +88,9 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			}
 			if (transaction != null) {
 				try {
+					Timeline timeline = TimelineManager.tryRemoveTimeline(request, TimelineManager.getRemoteIp());
 					if(TimelineManager.isEnabled() && 
-					  (timeout || TimelineManager.isAbnormalTimeline(request))) {
-						Timeline timeline = TimelineManager.getTimeline(request);
+					  (timeout || TimelineManager.isAbnormalTimeline(request, TimelineManager.getRemoteIp()))) {
 						transaction.addData("Timeline", timeline);
 						logger.warn(String.format("request- %s, timeline- %s", request, timeline));
 					}
@@ -98,6 +99,8 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					monitorLogger.logMonitorError(e);
 				}
 			}
+			ContextUtils.clearContext();
+			ContextUtils.clearLocalContext();
 		}
 		return null;
 	}

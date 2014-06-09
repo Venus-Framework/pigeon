@@ -38,19 +38,19 @@ public class InvokerUtils {
 			callback.setRequest(request);
 			callback.setClient(client);
 			invocationRepository.put(request.getSequence(), invocationBean);
-			TimelineManager.time(request, Phase.Start);
+			TimelineManager.time(request, TimelineManager.getLocalIp(), Phase.Start);
 		}
 		InvocationResponse response = null;
 		try {
 			response = client.write(request, callback);
 		} catch (RuntimeException e) {
 			invocationRepository.remove(request.getSequence());
-			TimelineManager.removeTimeline(request);
+			TimelineManager.removeTimeline(request, TimelineManager.getLocalIp());
 			throw new NetworkException("remote call failed:" + request, e);
 		} finally {
 			if (response != null) {
 				invocationRepository.remove(request.getSequence());
-				TimelineManager.removeTimeline(request);
+				TimelineManager.removeTimeline(request, TimelineManager.getLocalIp());
 			}
 		}
 		return response;

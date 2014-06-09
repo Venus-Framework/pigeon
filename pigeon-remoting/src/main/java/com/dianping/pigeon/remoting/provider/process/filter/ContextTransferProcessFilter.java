@@ -63,7 +63,13 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 				processContext.putContextValue(entry.getKey(), entry.getValue());
 			}
 		}
-		ContextUtils.putLocalContext("CLIENT_IP", processContext.getChannel().getRemoteAddress());
+		String clientIp = getClientIp(processContext.getChannel().getRemoteAddress());
+		ContextUtils.putLocalContext("CLIENT_IP", clientIp);
+	}
+
+	private String getClientIp(String remoteAddress) {
+		int idx = remoteAddress.indexOf(':');
+		return remoteAddress.substring(0, idx);
 	}
 
 	private void transferContextValueToResponse(final ProviderContext processContext, final InvocationResponse response) {

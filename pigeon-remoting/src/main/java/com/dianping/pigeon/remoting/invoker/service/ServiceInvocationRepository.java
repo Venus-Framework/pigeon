@@ -65,11 +65,11 @@ public class ServiceInvocationRepository {
 				}
 			} finally {
 				invocations.remove(response.getSequence());
-				TimelineManager.removeTimeline(response);
+				TimelineManager.removeTimeline(response, TimelineManager.getLocalIp());
 			}
 		} else {
 			String msg = "the response has expired:" + InvocationUtils.toJsonString(response) + ",timeline:"
-					+ TimelineManager.removeTimeline(response);
+					+ TimelineManager.removeTimeline(response, TimelineManager.getLocalIp());
 			logger.error(msg);
 			// ResponseExpiredException e = new ResponseExpiredException(msg);
 			// monitorLogger.logError(e);

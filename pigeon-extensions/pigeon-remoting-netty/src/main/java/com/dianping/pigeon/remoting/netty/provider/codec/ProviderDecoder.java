@@ -5,6 +5,7 @@
 package com.dianping.pigeon.remoting.netty.provider.codec;
 
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.util.DebugUtil;
@@ -20,17 +21,18 @@ import com.dianping.pigeon.remoting.netty.provider.NettyChannel;
 public class ProviderDecoder extends AbstractDecoder {
 
 	@Override
-	public Object doInitMsg(Object message, long receiveTime) {
+	public Object doInitMsg(Object message, Channel channel, long receiveTime) {
 		if (message == null) {
 			return null;
 		}
 		InvocationRequest request = (InvocationRequest) message;
 		// TIMELINE_server_received: DebugUtil.getTimestamp()
+		String remoteIp = ((InetSocketAddress)channel.getRemoteAddress()).getAddress().getHostAddress();
 		if(isNettyTimelineEnabled) {
-			TimelineManager.time(request, Phase.ServerReceived, DebugUtil.getTimestamp());
+			TimelineManager.time(request, remoteIp, Phase.ServerReceived, DebugUtil.getTimestamp());
 		}
 		// TIMELINE_server_decoded
-		TimelineManager.time(request, Phase.ServerDecoded);
+		TimelineManager.time(request, remoteIp, Phase.ServerDecoded);
 		request.setCreateMillisTime(receiveTime);
 		return request;
 	}                                                                                       

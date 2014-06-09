@@ -48,7 +48,6 @@ public class InvocationTimeoutListener implements Runnable {
 								RpcEventUtils.channelExceptionCaughtEvent(request, callback.getClient().getAddress());
 							}
 							invocations.remove(sequence);
-							TimelineManager.removeTimeline(request);
 							StringBuilder msg = new StringBuilder();
 							msg.append("remove timeout request, process time:").append(System.currentTimeMillis())
 									.append("\r\n").append("request:").append(request);

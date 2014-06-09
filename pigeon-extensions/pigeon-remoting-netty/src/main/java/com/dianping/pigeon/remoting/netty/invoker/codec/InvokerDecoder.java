@@ -22,13 +22,13 @@ import com.dianping.pigeon.remoting.netty.codec.AbstractDecoder;
 public class InvokerDecoder extends AbstractDecoder {
 
 	@Override
-	public Object doInitMsg(Object message, long receiveTime) {
+	public Object doInitMsg(Object message, Channel channel, long receiveTime) {
 		// TIMELINE_client_received: DebugUtil.getTimestamp()
 		if (isNettyTimelineEnabled) {
-			TimelineManager.time((InvocationSerializable) message, Phase.ClientReceived, DebugUtil.getTimestamp());
+			TimelineManager.time((InvocationSerializable) message, TimelineManager.getLocalIp(), Phase.ClientReceived, DebugUtil.getTimestamp());
 		}
 		// TIMELINE_client_decoded
-		TimelineManager.time((InvocationSerializable) message, Phase.ClientDecoded);
+		TimelineManager.time((InvocationSerializable) message, TimelineManager.getLocalIp(), Phase.ClientDecoded);
 		return message;
 	}
 

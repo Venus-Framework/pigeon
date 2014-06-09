@@ -37,9 +37,9 @@ public class NettyChannel implements ProviderChannel {
 			@Override
 			public void operationComplete(ChannelFuture future)
 					throws Exception {
+				String ip = ((InetSocketAddress)channel.getRemoteAddress()).getAddress().getHostAddress();
 				// TIMELINE_server_sent
-				TimelineManager.time(response, Phase.ServerSent);
-				TimelineManager.removeTimeline(response);
+				TimelineManager.time(response, ip, Phase.ServerSent);
 			}
 			
 		});

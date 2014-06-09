@@ -61,8 +61,8 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 			}
 			return response;
 		} finally {
-			ContextUtils.clearContext();
-			ContextUtils.clearLocalContext();
+//			ContextUtils.clearContext();
+//			ContextUtils.clearLocalContext();
 		}
 	}
 

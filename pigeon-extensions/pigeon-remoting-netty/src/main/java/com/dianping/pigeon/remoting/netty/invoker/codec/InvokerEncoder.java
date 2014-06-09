@@ -40,7 +40,7 @@ public class InvokerEncoder extends AbstractEncoder {
 		Object[] message = (Object[]) msg;
 		Object encoded = super.encode(ctx, channel, message[0]);
 		// TIMELINE_client_encoded
-		TimelineManager.time((InvocationSerializable)message[0], Phase.ClientEncoded);
+		TimelineManager.time((InvocationSerializable)message[0], TimelineManager.getLocalIp(), Phase.ClientEncoded);
 		int size = ((ChannelBuffer)encoded).readableBytes();
 		if(size > SIZE_1M) {
 			MonitorTransaction transaction = monitor.getCurrentTransaction();

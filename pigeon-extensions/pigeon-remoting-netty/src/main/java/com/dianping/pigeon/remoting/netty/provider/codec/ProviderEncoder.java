@@ -5,6 +5,7 @@
 package com.dianping.pigeon.remoting.netty.provider.codec;
 
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
@@ -34,7 +35,8 @@ public class ProviderEncoder extends AbstractEncoder {
 	public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 		Object encoded = super.encode(ctx, channel, msg);
 		// TIMELINE_server_encoded
-		TimelineManager.time((InvocationSerializable)msg, Phase.ServerEncoded);
+		String ip = ((InetSocketAddress)channel.getRemoteAddress()).getAddress().getHostAddress();
+		TimelineManager.time((InvocationSerializable)msg, ip, Phase.ServerEncoded);
 		int size = ((ChannelBuffer)encoded).readableBytes();
 		if(size > SIZE_1M) {
 			MonitorTransaction transaction = monitor.getCurrentTransaction();

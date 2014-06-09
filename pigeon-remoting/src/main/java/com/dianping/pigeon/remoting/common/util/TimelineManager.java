@@ -10,6 +10,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
+import com.dianping.pigeon.util.ContextUtils;
 
 /**
  * TODO log improvement
@@ -38,18 +39,20 @@ public class TimelineManager {
     
     private static Logger logger = LoggerLoader.getLogger(TimelineManager.class);
     
-    private static ConcurrentHashMap<Long, Timeline> sequenceMap = new ConcurrentHashMap<Long, Timeline>();
+    private static ConcurrentHashMap<String, Timeline> sequenceMap = new ConcurrentHashMap<String, Timeline>();
 
     private static boolean enabled;
     private static long abnormalThreshold;
     private static long legacyThreshold; 
     private static long lastRemoveTime;
+    private static String localIp;
     
     static {
     	ConfigManager config = ExtensionLoader.getExtension(ConfigManager.class);
     	enabled = config.getBooleanValue("pigeon.timeline.enabled", false);
     	abnormalThreshold = config.getLongValue("pigeon.timeline.abnormal.threshold", 50);
     	legacyThreshold = config.getLongValue("pigeon.timeline.legacy.threshold", 60000);
+    	localIp = config.getLocalIp();
     }
     
     public static class Timeline {
@@ -94,9 +97,17 @@ public class TimelineManager {
     	return enabled;
     }
     
-    public static void time(InvocationSerializable message, Phase phase) {
+    public static String getLocalIp() {
+    	return localIp;
+    }
+    
+    public static String getRemoteIp() {
+    	return (String)ContextUtils.getLocalContext("CLIENT_IP");
+    }
+
+    public static void time(InvocationSerializable message, String ip, Phase phase) {
         if(shouldTime(message)) {
-	        Timeline tl = _getTimeline(message.getSequence());
+	        Timeline tl = _getTimeline(ip + message.getSequence());
 	        if(phase.ordinal() == 2 && tl.getTimeline()[0] == 0) {
 	        	logger.error("invalid timeline: " + message);
 	        } else {
@@ -105,9 +116,9 @@ public class TimelineManager {
         }
     }
     
-    public static void time(InvocationSerializable message, Phase phase, long timestamp) {
+    public static void time(InvocationSerializable message, String ip, Phase phase, long timestamp) {
         if(shouldTime(message)) {
-	        Timeline tl = _getTimeline(message.getSequence());
+	        Timeline tl = _getTimeline(ip + message.getSequence());
 	        tl.time(phase, timestamp);
         }
     }
@@ -118,11 +129,11 @@ public class TimelineManager {
         	   message.getMessageType() != Constants.MESSAGE_TYPE_HEALTHCHECK;
     }
     
-    private static Timeline _getTimeline(long sequence) {
-        Timeline tl = sequenceMap.get(sequence);
+    private static Timeline _getTimeline(String key) {
+        Timeline tl = sequenceMap.get(key);
         if(tl == null) {
             tl = new Timeline();
-            Timeline _tl = sequenceMap.putIfAbsent(sequence, tl);
+            Timeline _tl = sequenceMap.putIfAbsent(key, tl);
             if(_tl != null) {
                 tl = _tl;
             }
@@ -130,18 +141,26 @@ public class TimelineManager {
         return tl;
     }
 
-    public static Timeline getTimeline(InvocationSerializable message) {
-        Timeline tl = sequenceMap.get(message.getSequence());
+    public static Timeline getTimeline(InvocationSerializable message, String ip) {
+        Timeline tl = sequenceMap.get(ip + message.getSequence());
         return tl;
     }
     
-    public static Timeline removeTimeline(InvocationSerializable message) {
-    	Timeline tl = sequenceMap.remove(message.getSequence());
+    public static Timeline tryRemoveTimeline(InvocationSerializable message, String ip) {
+    	Timeline tl = sequenceMap.get(ip + message.getSequence());
+    	if(tl != null && tl.getTimeline()[10] != 0) {
+    		sequenceMap.remove(ip + message.getSequence());
+    	}
+    	return tl;
+    }
+    
+    public static Timeline removeTimeline(InvocationSerializable message, String ip) {
+    	Timeline tl = sequenceMap.remove(ip + message.getSequence());
     	return tl;
     }
 
-    public static boolean isAbnormalTimeline(InvocationSerializable message) {
-    	Timeline tl = sequenceMap.get(message.getSequence());
+    public static boolean isAbnormalTimeline(InvocationSerializable message, String ip) {
+    	Timeline tl = sequenceMap.get(ip + message.getSequence());
     	if(tl != null) {
     		long[] timeline = tl.getTimeline();
     		return (timeline[2] - timeline[1] > abnormalThreshold) || 
@@ -158,9 +177,9 @@ public class TimelineManager {
     		return;
     	}
     	int count = 0;
-    	Iterator<Entry<Long, Timeline>> it = sequenceMap.entrySet().iterator();
+    	Iterator<Entry<String, Timeline>> it = sequenceMap.entrySet().iterator();
     	while(it.hasNext()) {
-    		Entry<Long, Timeline> entry = it.next();
+    		Entry<String, Timeline> entry = it.next();
     		if(isLegacyTimeline(entry.getValue(), lastRemoveTime)) {
     			it.remove();
     			count++;

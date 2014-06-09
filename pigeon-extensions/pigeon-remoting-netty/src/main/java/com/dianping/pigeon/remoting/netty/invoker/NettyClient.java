@@ -283,7 +283,7 @@ public class NettyClient extends AbstractClient {
 
 		public void operationComplete(ChannelFuture future) throws Exception {
 			// TIMELINE_client_sent
-			TimelineManager.time(request, Phase.ClientSent);
+			TimelineManager.time(request, TimelineManager.getLocalIp(), Phase.ClientSent);
 			if (future.isSuccess()) {
 				return;
 			}

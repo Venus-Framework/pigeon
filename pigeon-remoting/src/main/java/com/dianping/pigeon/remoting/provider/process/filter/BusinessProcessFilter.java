@@ -55,9 +55,9 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			InvocationResponse response = null;
 			ServiceMethod method = ServiceMethodFactory.getMethod(request);
 			// TIMELINE_biz_start
-			TimelineManager.time(request, Phase.BusinessStart);
+			TimelineManager.time(request, TimelineManager.getRemoteIp(), Phase.BusinessStart);
 			Object returnObj = method.invoke(request.getParameters());
-			TimelineManager.time(request, Phase.BusinessEnd);
+			TimelineManager.time(request, TimelineManager.getRemoteIp(), Phase.BusinessEnd);
 			// TIMELINE_biz_end
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 				response = ProviderUtils.createSuccessResponse(request, returnObj);
