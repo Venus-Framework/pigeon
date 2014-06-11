@@ -12,6 +12,7 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.invoker.process.InvokerProcessHandlerFactory;
+import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 import com.dianping.pigeon.util.VersionUtils;
 
@@ -32,6 +33,7 @@ public final class InvokerBootStrap {
 					ServiceInvocationRepository.getInstance().init();
 					InvokerProcessHandlerFactory.init();
 					SerializerFactory.init();
+					LoadBalanceManager.init();
 					Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 					if(monitor != null) {
 						monitor.init();
