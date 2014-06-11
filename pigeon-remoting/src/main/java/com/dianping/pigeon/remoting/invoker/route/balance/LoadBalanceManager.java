@@ -5,16 +5,24 @@
 package com.dianping.pigeon.remoting.invoker.route.balance;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.listener.RegistryEventListener;
+import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
+import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.threadpool.DefaultThreadPool;
+import com.dianping.pigeon.threadpool.ThreadPool;
 
 public class LoadBalanceManager {
 
@@ -26,7 +34,19 @@ public class LoadBalanceManager {
 
 	private static String loadBalanceFromConfigServer = configManager.getStringValue(Constants.KEY_LOADBALANCE,
 			RoundRobinLoadBalance.NAME);
+	
+	private static ConcurrentHashMap<String, Integer> weightFactors = new ConcurrentHashMap<String, Integer>();
 
+	private static ConcurrentHashMap<String, Integer> weights = new ConcurrentHashMap<String, Integer>();
+	
+	private static int initialFactor = configManager.getIntValue("pigeon.loadbalance.initialFactor", 0);
+	private static int defaultFactor = configManager.getIntValue("pigeon.loadbalance.defaultFactor", 100);
+	private static long interval = configManager.getLongValue("pigeon.loadbalance.interval", 3000);
+	private static int step = configManager.getIntValue("pigeon.loadbalance.step", 10);
+	
+	private static ThreadPool weightFacotrMaintainThreadPool = new DefaultThreadPool(
+			"Pigeon-Client-Weight-Factor-Maintain-ThreadPool");
+	
 	private static volatile int errorLogSeed = 0;
 
 	/**
@@ -114,6 +134,25 @@ public class LoadBalanceManager {
 		}
 	}
 
+	public static int getEffectiveWeight(String clientAddress) {
+		Integer w = weights.get(clientAddress);
+		if(w == null) {
+			w = 1;
+		}
+		Integer wf = weightFactors.get(clientAddress);
+		if(wf == null) {
+			return w * defaultFactor;
+		} else {
+			return w * wf.intValue();
+		}
+	}
+	
+	public static void init() {
+		WeightFactorMaintainer weightFactoryMaintainer = new WeightFactorMaintainer();
+		RegistryEventListener.addListener(weightFactoryMaintainer);
+		weightFacotrMaintainThreadPool.execute(weightFactoryMaintainer);
+	}
+	
 	private static void logError(String message, Throwable t) {
 		if (errorLogSeed++ % 1000 == 0) {
 			if (t != null) {
@@ -125,4 +164,63 @@ public class LoadBalanceManager {
 		}
 	}
 
+	private static class WeightFactorMaintainer implements Runnable, ServiceProviderChangeListener {
+
+		public WeightFactorMaintainer() {
+			if(initialFactor < 0) {
+				initialFactor = 0;
+			}
+			if(interval < 0) {
+				interval = 1000;
+			}
+			if(initialFactor > defaultFactor || step < 0) {
+				throw new IllegalArgumentException("Invalid weight factor params");
+			}
+		}
+		
+		@Override
+		public void run() {
+			while(!Thread.interrupted()) {
+				try {
+					Thread.sleep(interval);
+					adjustFactor();
+				} catch (InterruptedException e) {
+					break;
+				}
+			}
+		}
+
+		private void adjustFactor() {
+			Iterator<Entry<String, Integer>> it = weightFactors.entrySet().iterator();
+			while(it.hasNext()) {
+				Entry<String, Integer> entry = it.next();
+				if(entry.getValue() < defaultFactor) {
+					int factor = Math.min(defaultFactor, entry.getValue() + step);
+					entry.setValue(factor);
+				}
+			}
+		}
+
+		@Override
+		public void providerAdded(ServiceProviderChangeEvent event) {
+			weights.put(event.getConnect(), event.getWeight());
+			weightFactors.put(event.getConnect(), initialFactor);
+		}
+
+		@Override
+		public void providerRemoved(ServiceProviderChangeEvent event) {
+			weights.remove(event.getConnect());
+			weightFactors.remove(event.getConnect());
+		}
+
+		@Override
+		public void hostWeightChanged(ServiceProviderChangeEvent event) {
+			Integer originalWeight = weights.get(event.getConnect());
+			weights.put(event.getConnect(), event.getWeight());
+			if((originalWeight == null || originalWeight.intValue() == 0) && event.getWeight() > 0) {
+				weightFactors.put(event.getConnect(), initialFactor);
+			}
+		}
+		
+	}
 }

@@ -91,7 +91,7 @@ public class LoggerLoader {
 			Appender appender = (Appender) appenders.nextElement();
 			if (FileAppender.class.isInstance(appender)) {
 				FileAppender logFileAppender = (FileAppender) appender;
-				logFileAppender.setThreshold(level);
+//				logFileAppender.setThreshold(level);
 				String logFileName = logFileAppender.getFile();
 				File deleteFile = new File(logFileName);
 				if (logSuffix != null) {
@@ -111,7 +111,7 @@ public class LoggerLoader {
 				}
 			} else if (ConsoleAppender.class.isInstance(appender)) {
 				ConsoleAppender consoleAppender = (ConsoleAppender) appender;
-				consoleAppender.setThreshold(level);
+//				consoleAppender.setThreshold(level);
 			}
 		}
 
@@ -128,7 +128,7 @@ public class LoggerLoader {
 			initLogger(name);
 		}
 		Logger logger = loggerRepository.getLogger(name);
-		logger.setLevel(level);
+//		logger.setLevel(level);
 		return logger;
 	}
 

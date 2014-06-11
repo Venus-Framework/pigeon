@@ -4,8 +4,10 @@
  */
 package com.dianping.pigeon.remoting.invoker.route.balance;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
@@ -22,7 +24,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 	private static final Logger logger = LoggerLoader.getLogger(AbstractLoadBalance.class);
 
 	protected Random random = new Random();
-
+	
 	@Override
 	public Client select(List<Client> clients, InvocationRequest request) {
 		if (clients == null || clients.isEmpty()) {
@@ -76,13 +78,17 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 		int maxWeightIdx = 0;
 		int maxWeight = Integer.MIN_VALUE;
 		for (int i = 0; i < clientSize; i++) {
-			weights[i] = RegistryManager.getInstance().getServiceWeight(clients.get(i).getAddress());
+			int effectiveWeight = LoadBalanceManager.getEffectiveWeight(clients.get(i).getAddress());
+			weights[i] = effectiveWeight;
 			if (weights[i] > maxWeight) {
 				maxWeight = weights[i];
 				maxWeightIdx = i;
 			}
 		}
 		weights[clientSize] = maxWeightIdx;
+		if(logger.isDebugEnabled()) {
+			logger.debug("effective weights: "+ Arrays.toString(weights));
+		}
 		return weights;
 	}
 
