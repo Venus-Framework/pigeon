@@ -103,7 +103,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 					}
 				}
 				sleepTime = interval - (System.currentTimeMillis() - now);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("[heartbeat] task failed", e);
 			} finally {
 				if (sleepTime < 1000) {
@@ -135,7 +135,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			if (response != null) {
 				processResponse(response, client);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			heartBeatStat.incrFailed();
 			notifyHeartBeatStatChanged(client);
 			logger.warn("[heartbeat] send heartbeat to server[" + client.getAddress() + "] failed. detail["
@@ -244,7 +244,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 				}
 				heartStat.resetCounter();
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("[heartbeat] notify heartbeat stat changed failed", e);
 		}
 	}

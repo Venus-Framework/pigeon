@@ -127,7 +127,7 @@ public class LoadBalanceManager {
 				Class<? extends LoadBalance> loadBalanceClass = (Class<? extends LoadBalance>) loadBalance;
 				try {
 					loadBlanceObj = loadBalanceClass.newInstance();
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					throw new InvalidParameterException("Register loadbalance[service=" + serviceId + ", class="
 							+ loadBalance + "] failed.", e);
 				}

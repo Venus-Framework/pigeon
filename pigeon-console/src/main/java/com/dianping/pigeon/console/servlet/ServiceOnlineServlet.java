@@ -16,7 +16,6 @@ import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
-import com.dianping.pigeon.remoting.provider.listener.ServiceWarmupListener;
 
 public class ServiceOnlineServlet extends HttpServlet {
 
@@ -37,7 +36,7 @@ public class ServiceOnlineServlet extends HttpServlet {
 			try {
 				ServiceFactory.online();
 				response.getWriter().println("ok");
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("Error with online all services", e);
 				response.getWriter().println("error:" + e.getMessage());
 			}

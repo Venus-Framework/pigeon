@@ -70,7 +70,7 @@ public class ServiceCallbackWrapper implements Callback {
 						+ response.getMessageType());
 				monitorLogger.logError(e);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("error while executing service callback", e);
 		}
 		// TIMELINE_remove

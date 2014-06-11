@@ -62,7 +62,7 @@ public class InvocationTimeoutListener implements Runnable {
 				}
 				TimelineManager.removeLegacyTimelines();
 				Thread.sleep(timeoutInterval);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("checking remote call timeout failed", e);
 			}
 		}

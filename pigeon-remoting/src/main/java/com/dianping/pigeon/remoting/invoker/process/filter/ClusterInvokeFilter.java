@@ -30,7 +30,7 @@ public class ClusterInvokeFilter extends InvocationInvokeFilter {
 		}
 		try {
 			return cluster.invoke(handler, invocationContext);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("Invoke remote call failed.", e);
 			throw e;
 		}

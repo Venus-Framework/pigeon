@@ -46,7 +46,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		monitorLogger.logEvent("PigeonCall.future", "", "timeout=" + timeoutMillis);
 		try {
 			response = super.get(timeoutMillis);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			RpcException rpcEx = null;
 			if (e instanceof RpcException) {
 				rpcEx = (RpcException) e;

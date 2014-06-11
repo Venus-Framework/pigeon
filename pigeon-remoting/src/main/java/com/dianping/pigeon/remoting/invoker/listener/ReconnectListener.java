@@ -52,7 +52,7 @@ public class ReconnectListener implements Runnable, ClusterListener {
 						if (!client.isConnected()) {
 							try {
 								client.connect();
-							} catch (Exception e) {
+							} catch (Throwable e) {
 								logger.error("[reconnect] connect server[" + providerUrl + "] failed", e);
 							}
 						}
@@ -67,7 +67,7 @@ public class ReconnectListener implements Runnable, ClusterListener {
 					closedClients.remove(providerUrl);
 				}
 				sleepTime = interval - (System.currentTimeMillis() - now);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("[reconnect] task failed", e);
 			} finally {
 				if (sleepTime < 1000) {

@@ -47,7 +47,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			for (HostInfo hostPort : toRemoveHpSet) {
 				RegistryEventListener.providerRemoved(serviceName, hostPort.getHost(), hostPort.getPort());
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("error change service host", e);
 		}
 	}

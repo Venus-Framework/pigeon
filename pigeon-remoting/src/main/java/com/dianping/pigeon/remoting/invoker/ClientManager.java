@@ -112,7 +112,7 @@ public class ClientManager implements Disposable {
 			} else {
 				serviceAddress = RegistryManager.getInstance().getServiceAddress(serviceName, group);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new ServiceUnavailableException("cannot get service provider for service:" + serviceName, e);
 		}
 
@@ -144,7 +144,7 @@ public class ClientManager implements Disposable {
 						int port = Integer.parseInt(parts[1]);
 						int weight = RegistryManager.getInstance().getServiceWeight(address);
 						RegistryEventListener.providerAdded(serviceName, host, port, weight);
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						throw new ServiceUnavailableException("error while registering service invoker:" + serviceName
 								+ ", address:" + address, e);
 					}

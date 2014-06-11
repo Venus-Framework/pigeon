@@ -72,7 +72,7 @@ public class HttpServerHandler implements HttpHandler {
 				if (invocationResponse != null) {
 					invocationResponse.get();
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				String msg = "process request failed:" + request;
 				// 心跳消息只返回正常的, 异常不返回
 				if (invocationRequest.getCallType() == Constants.CALLTYPE_REPLY

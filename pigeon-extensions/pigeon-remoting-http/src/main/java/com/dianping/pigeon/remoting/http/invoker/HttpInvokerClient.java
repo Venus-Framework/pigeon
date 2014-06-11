@@ -76,7 +76,7 @@ public class HttpInvokerClient extends AbstractClient {
 			if (response != null && response.getSequence() == 0) {
 				isConnected = true;
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			isConnected = false;
 		}
 	}
@@ -97,7 +97,7 @@ public class HttpInvokerClient extends AbstractClient {
 		} catch (ConnectException e) {
 			this.isConnected = false;
 			throw new NetworkException(e);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new NetworkException(e);
 		}
 	}

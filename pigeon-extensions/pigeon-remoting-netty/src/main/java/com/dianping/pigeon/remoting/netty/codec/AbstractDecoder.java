@@ -84,7 +84,7 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 			Object message = null;
 			try {
 				message = _decode(serializable, ctx, channel, cb);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				isException = true;
 				try {
 					// 解析对端encoder扩展的seq字段
@@ -97,7 +97,7 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 						logger.error(errorMsg, e);
 						doFailResponse(channel, ProviderUtils.createThrowableResponse(seq, serializable, e));
 					}
-				} catch (Exception e1) {
+				} catch (Throwable e1) {
 					logger.error("", e1);
 				}
 			}

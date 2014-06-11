@@ -44,7 +44,7 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 			if (response != null) {
 				try {
 					transferContextValueToResponse(invocationContext, response);
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					logger.error(e.getMessage(), e);
 				}
 			}

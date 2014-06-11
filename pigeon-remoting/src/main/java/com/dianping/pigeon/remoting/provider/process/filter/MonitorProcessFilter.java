@@ -46,7 +46,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 				transaction = monitorLogger.createTransaction("PigeonService", InvocationUtils.getRemoteCallFullName(
 						request.getServiceName(), request.getMethodName(), request.getParamClassName()),
 						invocationContext);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				monitorLogger.logError(e);
 			}
 		}
@@ -63,7 +63,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 				if (transaction != null) {
 					try {
 						transaction.setStatusError(e);
-					} catch (Exception e2) {
+					} catch (Throwable e2) {
 						monitorLogger.logMonitorError(e2);
 					}
 				}
@@ -78,7 +78,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					monitorLogger.logEvent("PigeonService.client", channel.getRemoteAddress(), event.toString());
 					transaction.writeMonitorContext();
 					transaction.setStatusOk();
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					monitorLogger.logError(e);
 				}
 			}
@@ -95,7 +95,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 						logger.warn(String.format("request- %s, timeline- %s", request, timeline));
 					}
 					transaction.complete();
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					monitorLogger.logMonitorError(e);
 				}
 			}

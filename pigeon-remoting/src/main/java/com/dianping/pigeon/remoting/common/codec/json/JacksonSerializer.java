@@ -18,10 +18,8 @@ import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JacksonSerializer extends DefaultAbstractSerializer {
@@ -69,7 +67,7 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 				logger.debug("deserialize:" + new String(sw.toByteArray()));
 			}
 			return mapper.readValue(sw.toByteArray(), clazz);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new SerializationException(e);
 		} finally {
 			try {
@@ -82,7 +80,7 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 	public String serializeObject(Object obj) throws SerializationException {
 		try {
 			return mapper.writeValueAsString(obj);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new SerializationException(e);
 		}
 	}
@@ -90,7 +88,7 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 	public <T> T deserializeObject(Class<T> objType, String content) throws SerializationException {
 		try {
 			return mapper.readValue(content, objType);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new SerializationException(e);
 		}
 	}
@@ -100,7 +98,7 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 		try {
 			JavaType javaType = mapper.getTypeFactory().constructParametricType(collectionClass, componentType);
 			return (T) mapper.readValue(content, javaType);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new SerializationException(e);
 		}
 	}
@@ -109,11 +107,7 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 	public void serializeRequest(OutputStream os, Object obj) throws SerializationException {
 		try {
 			mapper.writeValue(os, obj);
-		} catch (JsonGenerationException e) {
-			throw new SerializationException(e);
-		} catch (JsonMappingException e) {
-			throw new SerializationException(e);
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			throw new SerializationException(e);
 		}
 	}

@@ -58,13 +58,13 @@ public class LoggerLoader {
 			logPro.load(LoggerLoader.class.getClassLoader().getResourceAsStream("config/applicationContext.properties"));
 			logLevel = logPro.getProperty("pigeon.logLevel") == null ? null : logPro.getProperty("pigeon.logLevel");
 			logSuffix = logPro.getProperty("pigeon.logSuffix");
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.warn("no pigeon log config found in config/applicationContext.properties");
 		}
 		if (logSuffix == null || logSuffix.length() < 1) {
 			try {
 				logSuffix = logPro.get("app.prefix").toString();
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.warn("no app.prefix found in config/applicationContext.properties");
 			}
 		}

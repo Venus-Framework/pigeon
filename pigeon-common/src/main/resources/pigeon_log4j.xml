@@ -2,7 +2,6 @@
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 	<appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
-		<param name="threshold" value="info" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss}:%p %t %c - %m%n" />
 		</layout>
@@ -12,7 +11,6 @@
 		<param name="file" value="/data/applogs/dpsflog/pigeon.log" />
 		<param name="append" value="true" />
 		<param name="encoding" value="GBK" />
-		<param name="threshold" value="info" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n" />
 		</layout>
@@ -22,6 +20,12 @@
 		<appender-ref ref="FileAppender" />
 		<appender-ref ref="ConsoleAppender" />
 		<priority value="info" />
+	</logger>
+	
+	<logger name="com.dianping.pigeon.remoting.invoker.route.balance" additivity="true">
+		<appender-ref ref="FileAppender" />
+		<appender-ref ref="ConsoleAppender" />
+		<priority value="debug" />
 	</logger>
 
 </log4j:configuration>

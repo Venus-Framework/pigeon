@@ -26,7 +26,7 @@ public class CatMonitor implements Monitor {
 		try {
 			cat = Cat.getProducer();
 			return new CatLogger(cat);
-		} catch (Exception e2) {
+		} catch (Throwable e2) {
 			innerLogger.logMonitorError(e2);
 		}
 		return null;

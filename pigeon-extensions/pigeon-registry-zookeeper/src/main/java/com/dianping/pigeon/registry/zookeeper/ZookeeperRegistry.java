@@ -67,7 +67,7 @@ public class ZookeeperRegistry implements Registry {
 							CreateMode.PERSISTENT);
 				}
 				this.zkWatcher = new ZookeeperWatcher(this);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("", e);
 				throw new RuntimeException("Failed to initialize zookeeper registery", e);
 			}
@@ -93,7 +93,7 @@ public class ZookeeperRegistry implements Registry {
 				}
 				return value;
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("", e);
 			throw new RegistryException(e);
 		}
@@ -149,7 +149,7 @@ public class ZookeeperRegistry implements Registry {
 	private boolean zkExists(String path) throws RegistryException {
 		try {
 			return zkClient.exists(path, false) != null;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new RegistryException(e);
 		}
 	}
@@ -157,7 +157,7 @@ public class ZookeeperRegistry implements Registry {
 	public void watchZkPath(String path) throws RegistryException {
 		try {
 			zkClient.exists(path, zkWatcher);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new RegistryException(e);
 		}
 	}
@@ -179,7 +179,7 @@ public class ZookeeperRegistry implements Registry {
 		try {
 			String weightPath = Utils.getWeightPath(serverAddress);
 			zkClient.updateData(weightPath, "" + weight);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("error while setting weight:" + serverAddress + " to " + weight, e);
 			throw new RegistryException(e);
 		}
@@ -210,7 +210,7 @@ public class ZookeeperRegistry implements Registry {
 			} else {
 				zkClient.updateData(servicePath, serviceAddress);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("error while registering service to registry:" + serviceName, e);
 			throw new RegistryException(e);
 		}
@@ -258,7 +258,7 @@ public class ZookeeperRegistry implements Registry {
 
 			logger.info("Registry meta for " + serviceAddress + " is " + props);
 			return props;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("Failed to get regsitry meta for " + serviceAddress, e);
 			throw new RegistryException(e);
 		}
@@ -349,7 +349,7 @@ public class ZookeeperRegistry implements Registry {
 					}
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("error while unregistering service from registry:" + serviceName, e);
 			throw new RegistryException(e);
 		}
@@ -365,7 +365,7 @@ public class ZookeeperRegistry implements Registry {
 			throw new RegistryException(e);
 		} catch (IOException e) {
 			throw new RegistryException(e);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new RegistryException(e);
 		}
 	}

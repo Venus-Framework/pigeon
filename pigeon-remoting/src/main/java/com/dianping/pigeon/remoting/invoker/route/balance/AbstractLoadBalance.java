@@ -49,7 +49,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 			} else {
 				try {
 					selectedClient = doSelect(clients, request, getWeights(clients, request.getServiceName()));
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					logger.error("Failed to do load balance[" + getClass().getName() + "], detail: " + e.getMessage()
 							+ ", use random instead.", e);
 					selectedClient = clients.get(random.nextInt(clients.size()));

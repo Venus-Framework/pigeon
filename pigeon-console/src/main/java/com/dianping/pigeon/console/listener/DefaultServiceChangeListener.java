@@ -147,7 +147,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		try {
 			notifyServiceChange("unpublish", providerConfig);
 			logger.info("succeed to notify service unpublished:" + providerConfig);
-		} catch (Exception t) {
+		} catch (Throwable t) {
 			logger.warn(t.getMessage());
 		}
 	}

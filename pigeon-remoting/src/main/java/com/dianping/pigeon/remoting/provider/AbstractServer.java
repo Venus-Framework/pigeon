@@ -68,7 +68,7 @@ public abstract class AbstractServer implements Server {
 				if (StringUtils.isNotBlank(strLastPort)) {
 					lastPort = Integer.parseInt(strLastPort);
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 			}
 		}
 		lastPort = NetUtils.getAvailablePort(lastPort);

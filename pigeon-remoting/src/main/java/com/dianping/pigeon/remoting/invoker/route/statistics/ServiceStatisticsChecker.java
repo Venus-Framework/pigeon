@@ -41,12 +41,12 @@ public class ServiceStatisticsChecker implements Runnable {
 							for (Entry<Long, Float> expiredEntry : expiredRequests.entrySet()) {
 								barrel.flowOut(expiredEntry.getKey(), expiredEntry.getValue());
 							}
-						} catch (Exception e) {
+						} catch (Throwable e) {
 							logger.error("Check expired request in service statistics failed, detail[" + e.getMessage()
 									+ "].", e);
 						}
 					}
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					logger.error("Check expired request in service statistics failed, detail[" + e.getMessage() + "].",
 							e);
 				}

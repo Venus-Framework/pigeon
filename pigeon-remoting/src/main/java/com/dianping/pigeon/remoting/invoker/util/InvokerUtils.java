@@ -72,12 +72,8 @@ public class InvokerUtils {
 	}
 
 	public static boolean isHeartErrorResponse(InvocationResponse response) {
-		try {
-			return response != null && response.getMessageType() == Constants.MESSAGE_TYPE_HEART
-					&& response.getCause() != null;
-		} catch (Exception e) {
-			return false;
-		}
+		return response != null && response.getMessageType() == Constants.MESSAGE_TYPE_HEART
+				&& response.getCause() != null;
 	}
 
 	public static RuntimeException toApplicationRuntimeException(InvocationResponse response) {
