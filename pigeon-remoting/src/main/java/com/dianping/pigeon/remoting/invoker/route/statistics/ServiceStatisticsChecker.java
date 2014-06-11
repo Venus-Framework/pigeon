@@ -1,4 +1,4 @@
-package com.dianping.pigeon.remoting.invoker.route.stat.barrel;
+package com.dianping.pigeon.remoting.invoker.route.statistics;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,14 +9,13 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 
-public class ServiceBarrelExpiredRequestChecker extends Thread {
+public class ServiceStatisticsChecker extends Thread {
 
-	private static final Logger logger = LoggerLoader.getLogger(ServiceBarrelExpiredRequestChecker.class);
-	private static int nextThreadNumber = 0;
+	private static final Logger logger = LoggerLoader.getLogger(ServiceStatisticsChecker.class);
 
-	public ServiceBarrelExpiredRequestChecker() {
+	public ServiceStatisticsChecker() {
 		setDaemon(true);
-		setName("Pigeon-Client-Service-Barrel-Expire-Thread-" + getClass().getSimpleName() + "-" + nextThreadNumber++);
+		setName("Pigeon-Client-Service-Statistics-Checker-Thread");
 	}
 
 	@Override
@@ -26,10 +25,10 @@ public class ServiceBarrelExpiredRequestChecker extends Thread {
 				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 			}
-			if (ServerStatBarrelsHolder.serverStatBarrels != null) {
+			if (ServiceStatisticsHolder.serverStatBarrels != null) {
 				try {
 					long currentTimeMillis = System.currentTimeMillis();
-					for (ServiceBarrel barrel : ServerStatBarrelsHolder.serverStatBarrels.values()) {
+					for (ServiceStatistics barrel : ServiceStatisticsHolder.serverStatBarrels.values()) {
 						barrel.resetRequestInSecondCounter();
 						try {
 							Map<Long, Float> expiredRequests = new HashMap<Long, Float>();
@@ -48,12 +47,13 @@ public class ServiceBarrelExpiredRequestChecker extends Thread {
 								barrel.flowOut(expiredEntry.getKey(), expiredEntry.getValue());
 							}
 						} catch (Exception e) {
-							logger.error("Check expired request in service barrel failed, detail[" + e.getMessage()
+							logger.error("Check expired request in service statistics failed, detail[" + e.getMessage()
 									+ "].", e);
 						}
 					}
 				} catch (Exception e) {
-					logger.error("Check expired request in service barrel failed, detail[" + e.getMessage() + "].", e);
+					logger.error("Check expired request in service statistics failed, detail[" + e.getMessage() + "].",
+							e);
 				}
 			}
 		}

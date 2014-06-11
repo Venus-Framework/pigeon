@@ -38,6 +38,6 @@ public interface InvocationRequest extends InvocationSerializable {
 
 	String getVersion();
 
-	void setVersion(String version);
+	String getLoadbalance();
 
 }

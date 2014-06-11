@@ -1,4 +1,4 @@
-package com.dianping.pigeon.remoting.invoker.route.stat.barrel;
+package com.dianping.pigeon.remoting.invoker.route.statistics;
 
 import java.io.Serializable;
 import java.util.Calendar;
@@ -19,8 +19,8 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 
 @SuppressWarnings("serial")
-public class ServiceBarrel implements Serializable {
-	private static final Logger logger = LoggerLoader.getLogger(ServiceBarrel.class);
+public class ServiceStatistics implements Serializable {
+	private static final Logger logger = LoggerLoader.getLogger(ServiceStatistics.class);
 
 	private String address;
 	private volatile float capacity = 0f;
@@ -37,7 +37,7 @@ public class ServiceBarrel implements Serializable {
 
 	private Lock capacityLock = new ReentrantLock();
 
-	public ServiceBarrel(String address) {
+	public ServiceStatistics(String address) {
 		this.address = address;
 		preFillData(); // 为了更优地计算每秒请求数, 使用预填数据代替同步数据结构
 	}

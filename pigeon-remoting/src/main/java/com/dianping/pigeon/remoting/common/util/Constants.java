@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.remoting.common.util;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
+
 /**
  * Pigeon使用到的静态变量
  * 
@@ -155,4 +157,16 @@ public final class Constants {
 	public static final int DEFAULT_WEIGHT_DEFAULT = 1;
 	public static final String KEY_STATUS_CHECKINVOKERAVAILABLE = "pigeon.status.checkinvokeravailable";
 	public static final boolean DEFAULT_STATUS_CHECKINVOKERAVAILABLE = true;
+	public static final String KEY_SERVICEWARMUP_ENABLE = "pigeon.servicewarmup.enable";
+	public static final String KEY_AUTOREGISTER_ENABLE = "pigeon.autoregister.enable";
+
+	public static final int WEIGHT_INITIAL = ConfigManagerLoader.getConfigManager().getIntValue(
+			Constants.KEY_WEIGHT_INITIAL, Constants.DEFAULT_WEIGHT_INITIAL);
+	
+	public static final int WEIGHT_START = ConfigManagerLoader.getConfigManager().getIntValue(Constants.KEY_WEIGHT_START,
+			Constants.DEFAULT_WEIGHT_START);
+
+	public static final int WEIGHT_DEFAULT = ConfigManagerLoader.getConfigManager().getIntValue(Constants.KEY_WEIGHT_DEFAULT,
+			Constants.DEFAULT_WEIGHT_DEFAULT);
+
 }

@@ -35,8 +35,7 @@ public class ServiceOfflineServlet extends HttpServlet {
 		logger.info("offline all services, from " + ip);
 		if (Utils.isGranted(request)) {
 			try {
-				ServiceWarmupListener.stop();
-				ServiceFactory.setServerWeight(0);
+				ServiceFactory.offline();
 				response.getWriter().println("ok");
 			} catch (Exception e) {
 				logger.error("Error with offline all services", e);
@@ -44,6 +43,7 @@ public class ServiceOfflineServlet extends HttpServlet {
 			}
 		} else {
 			logger.warn("Forbidden!");
+			response.getWriter().println("forbidden");
 		}
 	}
 

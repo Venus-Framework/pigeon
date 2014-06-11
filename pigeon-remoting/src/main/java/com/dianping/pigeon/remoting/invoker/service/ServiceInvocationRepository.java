@@ -21,7 +21,7 @@ import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
 import com.dianping.pigeon.remoting.invoker.listener.InvocationTimeoutListener;
-import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
+import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
 
@@ -58,7 +58,7 @@ public class ServiceInvocationRepository {
 				if (callback != null) {
 					Client client = callback.getClient();
 					if (client != null) {
-						RpcEventUtils.clientReceiveResponse(request, client.getAddress());
+						ServiceStatisticsHolder.flowOut(request, client.getAddress());
 					}
 					callback.callback(response);
 					callback.run();

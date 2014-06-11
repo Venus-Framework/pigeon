@@ -13,13 +13,14 @@ public class Echo2ServiceImpl implements EchoService {
 
 	Logger logger = LoggerLoader.getLogger(Echo2ServiceImpl.class);
 
+	int count = 0;
 	@Override
 	public String echo(String input) {
 		// System.out.println(input);
-		if (input.equals("200000")) {
+		if (++count % 10 == 0) {
 			System.out.println("sleep......");
 			try {
-				Thread.currentThread().sleep(10000);
+				Thread.currentThread().sleep(1000);
 			} catch (InterruptedException e) {
 			}
 		}

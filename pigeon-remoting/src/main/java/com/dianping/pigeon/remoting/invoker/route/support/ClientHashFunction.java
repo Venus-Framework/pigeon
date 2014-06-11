@@ -1,4 +1,4 @@
-package com.dianping.pigeon.remoting.invoker.route.balance;
+package com.dianping.pigeon.remoting.invoker.route.support;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;

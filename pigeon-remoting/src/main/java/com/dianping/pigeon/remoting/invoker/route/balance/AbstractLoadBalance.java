@@ -7,7 +7,6 @@ package com.dianping.pigeon.remoting.invoker.route.balance;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
@@ -17,7 +16,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
-import com.dianping.pigeon.remoting.invoker.route.context.ClientContext;
+import com.dianping.pigeon.remoting.invoker.route.support.RouterHelper;
 
 public abstract class AbstractLoadBalance implements LoadBalance {
 
@@ -31,7 +30,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 			return null;
 		}
 		Client selectedClient = null;
-		String forceAddress = ClientContext.getUseClientAddress();
+		String forceAddress = RouterHelper.getUseClientAddress();
 		if (forceAddress != null && forceAddress.length() > 0) {
 			// 客户端强制路由
 			for (Client client : clients) {

@@ -25,6 +25,7 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
+import com.dianping.pigeon.remoting.provider.listener.ServiceWarmupListener;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 
 /**
@@ -390,4 +391,13 @@ public class ServiceFactory {
 		}
 	}
 
+	public static void online() throws RegistryException {
+		ServiceProviderFactory.setServerWeight(Constants.WEIGHT_START);
+		ServiceWarmupListener.start();
+	}
+
+	public static void offline() throws RegistryException {
+		ServiceWarmupListener.stop();
+		ServiceProviderFactory.setServerWeight(0);
+	}
 }

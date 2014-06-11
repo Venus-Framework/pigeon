@@ -21,7 +21,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
+import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.remoting.netty.codec.NettyCodecUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
@@ -30,8 +30,8 @@ public class NettyClientHandler extends SimpleChannelUpstreamHandler {
 
 	private static final Logger logger = LoggerLoader.getLogger(NettyClientHandler.class);
 
-	private static ThreadPool exceptionProcessThreadPool = new DefaultThreadPool("Pigeon-Exception-Processor", 2,
-			50, new LinkedBlockingQueue<Runnable>(50), new CallerRunsPolicy());
+	private static ThreadPool exceptionProcessThreadPool = new DefaultThreadPool("Pigeon-Exception-Processor", 2, 50,
+			new LinkedBlockingQueue<Runnable>(50), new CallerRunsPolicy());
 
 	private NettyClient client;
 
@@ -62,7 +62,10 @@ public class NettyClientHandler extends SimpleChannelUpstreamHandler {
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
 		final ExceptionEvent e_ = e;
 		final Object attachment = NettyCodecUtils.getAttachment(ctx, Constants.ATTACHMENT_RETRY);
-		flowOutexceptionCaughtRequest(attachment);
+		InvocationRequest request = getRequest(attachment);
+		if (request != null) {
+			ServiceStatisticsHolder.flowOut(request, client.getAddress());
+		}
 		if (e.getCause() instanceof IOException) {
 			e.getChannel().close();
 			Runnable task = new Runnable() {
@@ -71,13 +74,6 @@ public class NettyClientHandler extends SimpleChannelUpstreamHandler {
 				}
 			};
 			exceptionProcessThreadPool.execute(task);
-		}
-	}
-
-	private void flowOutexceptionCaughtRequest(final Object attachment) {
-		InvocationRequest request = getRequest(attachment);
-		if (request != null) {
-			RpcEventUtils.channelExceptionCaughtEvent(request, client.getAddress());
 		}
 	}
 

@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -28,12 +29,6 @@ public class ServiceWarmupListener implements Runnable {
 
 	private static final int START_DELAY = configManager.getIntValue(Constants.KEY_WEIGHT_STARTDELAY, CHECK_INTERVAL);
 
-	private static final int WEIGHT_START = configManager.getIntValue(Constants.KEY_WEIGHT_START,
-			Constants.DEFAULT_WEIGHT_START);
-
-	private static final int WEIGHT_DEFAULT = configManager.getIntValue(Constants.KEY_WEIGHT_DEFAULT,
-			Constants.DEFAULT_WEIGHT_DEFAULT);
-
 	private static volatile boolean isServiceWarmupListenerStarted = false;
 
 	private static ServiceWarmupListener currentWarmupListener = null;
@@ -41,9 +36,14 @@ public class ServiceWarmupListener implements Runnable {
 	private volatile boolean isStop = false;
 
 	public static void start() {
-		if (!isServiceWarmupListenerStarted) {
+		boolean warmupEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
+				Constants.KEY_SERVICEWARMUP_ENABLE, true);
+		if (!isServiceWarmupListenerStarted && warmupEnable) {
 			currentWarmupListener = new ServiceWarmupListener();
-			new Thread(currentWarmupListener).start();
+			Thread t = new Thread(currentWarmupListener);
+			t.setDaemon(true);
+			t.setName("Pigeon-Service-Warmup-Listener");
+			t.start();
 			isServiceWarmupListenerStarted = true;
 		}
 	}
@@ -57,6 +57,7 @@ public class ServiceWarmupListener implements Runnable {
 				} catch (InterruptedException e) {
 				}
 			}
+			currentWarmupListener = null;
 		}
 	}
 
@@ -71,7 +72,9 @@ public class ServiceWarmupListener implements Runnable {
 	public void run() {
 		try {
 			Thread.sleep(START_DELAY);
-			ServiceProviderFactory.setServerWeight(WEIGHT_START);
+			if (!isStop) {
+				ServiceProviderFactory.setServerWeight(Constants.WEIGHT_START);
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -100,8 +103,8 @@ public class ServiceWarmupListener implements Runnable {
 				}
 			}
 		}
-		int weight = WEIGHT_START;
-		while (!isStop && weight < WEIGHT_DEFAULT) {
+		int weight = Constants.WEIGHT_START;
+		while (!isStop && weight < Constants.WEIGHT_DEFAULT) {
 			ServiceProviderFactory.setPublishStatus(PublishStatus.WARMINGUP);
 			try {
 				Thread.sleep(CHECK_INTERVAL);
@@ -115,7 +118,7 @@ public class ServiceWarmupListener implements Runnable {
 				logger.error(e.getMessage(), e);
 			}
 		}
-		if (weight == WEIGHT_DEFAULT) {
+		if (weight == Constants.WEIGHT_DEFAULT) {
 			ServiceProviderFactory.setPublishStatus(PublishStatus.WARMEDUP);
 		}
 		logger.info("Warm-up task end, current weight:" + ServiceProviderFactory.getServerWeight());

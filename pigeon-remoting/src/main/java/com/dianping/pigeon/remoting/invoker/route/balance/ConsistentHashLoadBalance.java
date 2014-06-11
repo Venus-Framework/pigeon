@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.route.support.ClientHashFunction;
+import com.dianping.pigeon.remoting.invoker.route.support.ConsistentHash;
 
 public class ConsistentHashLoadBalance extends AbstractLoadBalance {
 

@@ -81,11 +81,13 @@ public class HttpInvokerClient extends AbstractClient {
 		}
 	}
 
-	public InvocationResponse write(InvocationRequest invocationRequest, Callback callback) {
+	@Override
+	public InvocationResponse doWrite(InvocationRequest invocationRequest, Callback callback) throws NetworkException {
 		return write(defaultServiceUrl, invocationRequest, callback);
 	}
 
-	public InvocationResponse write(String url, InvocationRequest invocationRequest, Callback callback) {
+	public InvocationResponse write(String url, InvocationRequest invocationRequest, Callback callback)
+			throws NetworkException {
 		final int timeout = invocationRequest.getTimeout();
 		httpInvokerExecutor.setReadTimeout(timeout);
 		try {
@@ -98,10 +100,6 @@ public class HttpInvokerClient extends AbstractClient {
 		} catch (Exception e) {
 			throw new NetworkException(e);
 		}
-	}
-
-	public InvocationResponse write(InvocationRequest invocationRequest) {
-		return write(invocationRequest, null);
 	}
 
 	@Override

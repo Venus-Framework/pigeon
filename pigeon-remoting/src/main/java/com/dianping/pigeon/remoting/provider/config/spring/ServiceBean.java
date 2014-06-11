@@ -91,7 +91,6 @@ public class ServiceBean {
 			providerConfig.setServerConfig(serverBean.init());
 		}
 		ServiceFactory.addService(providerConfig);
-		ServiceWarmupListener.start();
 	}
 
 	@Override

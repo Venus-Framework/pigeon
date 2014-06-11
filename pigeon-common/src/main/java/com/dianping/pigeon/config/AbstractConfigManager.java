@@ -42,6 +42,8 @@ public abstract class AbstractConfigManager implements ConfigManager {
 
 	private static final String PROPERTIES_PATH = "config/pigeon.properties";
 
+	private static final String GLOBAL_PROPERTIES_PATH = "/data/webapps/config/pigeon/pigeon.properties";
+
 	private static List<ConfigChangeListener> configChangeListeners = new ArrayList<ConfigChangeListener>();
 
 	protected Map<String, Object> localCache = new HashMap<String, Object>();
@@ -63,6 +65,12 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	public abstract void doDeleteKey(String key) throws Exception;
 
 	public AbstractConfigManager() {
+		try {
+			init(FileUtils.readFile(Thread.currentThread().getContextClassLoader()
+					.getResourceAsStream(GLOBAL_PROPERTIES_PATH)));
+		} catch (Exception e) {
+			logger.error("", e);
+		}
 		try {
 			init(FileUtils
 					.readFile(Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPERTIES_PATH)));
@@ -186,9 +194,9 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		String strValue = null;
 		if (localCache.containsKey(key)) {
 			Object value = localCache.get(key);
-			if (value != null && logger.isInfoEnabled()) {
-				logger.info("read from local cache with key[" + key + "]:" + value);
-			}
+//			if (value != null && logger.isInfoEnabled()) {
+//				logger.info("read from local cache with key[" + key + "]:" + value);
+//			}
 			if (value.getClass() == type) {
 				return (T) value;
 			} else {
@@ -275,9 +283,9 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	public String getLocalProperty(String key) {
 		if (localCache.containsKey(key)) {
 			String value = "" + localCache.get(key);
-			if (logger.isInfoEnabled()) {
-				logger.info("read from local cache with key[" + key + "]:" + value);
-			}
+//			if (logger.isInfoEnabled()) {
+//				logger.info("read from local cache with key[" + key + "]:" + value);
+//			}
 			return value;
 		}
 		if (logger.isInfoEnabled()) {

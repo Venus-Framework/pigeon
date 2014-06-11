@@ -66,8 +66,9 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 			throw cause;
 		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 			RuntimeException cause = InvokerUtils.toApplicationRuntimeException(response);
-			logger.error("error with remote business future call", cause);
-			monitorLogger.logError("error with remote business future call", cause);
+			// logger.error("error with remote business future call", cause);
+			// monitorLogger.logError("error with remote business future call",
+			// cause);
 			throw cause;
 		} else {
 			RpcException e = new InvalidParameterException("unsupported response with message type:"

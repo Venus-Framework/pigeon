@@ -22,7 +22,6 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListenerManager;
 import com.dianping.pigeon.remoting.invoker.route.balance.ConsistentHashLoadBalance;
-import com.dianping.pigeon.remoting.invoker.route.balance.LeastSuccessLoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadAutoawareLoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
@@ -41,7 +40,6 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		RegistryEventListener.addListener(providerChangeListener);
 		LoadBalanceManager.register(RandomLoadBalance.NAME, null, RandomLoadBalance.instance);
 		LoadBalanceManager.register(LoadAutoawareLoadBalance.NAME, null, LoadAutoawareLoadBalance.instance);
-		LoadBalanceManager.register(LeastSuccessLoadBalance.NAME, null, LeastSuccessLoadBalance.instance);
 		LoadBalanceManager.register(RoundRobinLoadBalance.NAME, null, RoundRobinLoadBalance.instance);
 		LoadBalanceManager.register(ConsistentHashLoadBalance.NAME, null, ConsistentHashLoadBalance.instance);
 	}

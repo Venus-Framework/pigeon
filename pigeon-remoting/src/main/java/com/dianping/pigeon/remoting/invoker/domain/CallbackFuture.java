@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.dianping.avatar.tracker.TrackerContext;
+import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
@@ -19,17 +20,10 @@ import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
+import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
-import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.util.ContextUtils;
 
-/**
- * 
- * @author jianhuihuang
- * @version $Id: CallbackFuture.java, v 0.1 2013-6-29 下午8:53:13 jianhuihuang Exp
- *          $
- */
 public class CallbackFuture implements Callback, CallFuture {
 
 	private static final Logger logger = LoggerLoader.getLogger(CallbackFuture.class);
@@ -72,10 +66,8 @@ public class CallbackFuture implements Callback, CallFuture {
 					sb.append("request timeout, current time:").append(System.currentTimeMillis())
 							.append("\r\nrequest:").append(InvocationUtils.toJsonString(request)).append("\r\nhost:")
 							.append(client.getHost()).append(":").append(client.getPort());
-
-					RpcEventUtils.clientTimeOutEvent(request, client.getAddress());
-
-					RequestTimeoutException e = new RequestTimeoutException(sb.toString());
+					ServiceStatisticsHolder.flowOut(request, client.getAddress());
+					NetTimeoutException e = new NetTimeoutException(sb.toString());
 					throw e;
 				} else {
 					this.wait(timeoutMillis_);
@@ -93,13 +85,14 @@ public class CallbackFuture implements Callback, CallFuture {
 				logger.error(sb.toString(), cause);
 				monitorLogger.logError(sb.toString(), cause);
 			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-				Throwable cause = InvokerUtils.toApplicationException(response);
-				StringBuilder sb = new StringBuilder();
-				sb.append("remote service exception\r\nrequest:").append(InvocationUtils.toJsonString(request))
-						.append("\r\nhost:").append(client.getHost()).append(":").append(client.getPort())
-						.append("\r\nresponse:").append(InvocationUtils.toJsonString(response));
-				logger.error(sb.toString(), cause);
-				monitorLogger.logError(sb.toString(), cause);
+				// Throwable cause =
+				// InvokerUtils.toApplicationException(response);
+				// StringBuilder sb = new StringBuilder();
+				// sb.append("remote service exception\r\nrequest:").append(InvocationUtils.toJsonString(request))
+				// .append("\r\nhost:").append(client.getHost()).append(":").append(client.getPort())
+				// .append("\r\nresponse:").append(InvocationUtils.toJsonString(response));
+				// logger.error(sb.toString(), cause);
+				// monitorLogger.logError(sb.toString(), cause);
 			}
 			return this.response;
 		}

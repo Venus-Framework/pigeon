@@ -117,9 +117,6 @@ public class ProxyBeanFactory implements FactoryBean {
 		this.version = version;
 	}
 
-	/**
-	 * @deprecated
-	 */
 	private String group = configManager.getGroup();
 
 	/**
@@ -275,7 +272,6 @@ public class ProxyBeanFactory implements FactoryBean {
 	}
 
 	/**
-	 * @deprecated
 	 * @param group
 	 *            the group to set
 	 */

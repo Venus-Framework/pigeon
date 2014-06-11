@@ -13,6 +13,7 @@ public class Echo1ServiceImpl implements EchoService {
 
 	Logger logger = LoggerLoader.getLogger(Echo1ServiceImpl.class);
 
+	int count = 0;
 	String str = null;
 	{
 		StringBuilder s = new StringBuilder();
@@ -25,7 +26,7 @@ public class Echo1ServiceImpl implements EchoService {
 	@Override
 	public String echo(String input) {
 		// System.out.println(input);
-		if (input.equals("aaa2000000000")) {
+		if (++count % 10 == 0) {
 			System.out.println("sleep......");
 			// int i = 0;
 			// while(i++ < 99999999) {
@@ -35,7 +36,7 @@ public class Echo1ServiceImpl implements EchoService {
 			// }
 			// }
 			try {
-				Thread.currentThread().sleep(10000);
+				Thread.currentThread().sleep(1000);
 				System.out.println("end sleep, input......" + input);
 			} catch (InterruptedException e) {
 				System.out.println("interrupted......");

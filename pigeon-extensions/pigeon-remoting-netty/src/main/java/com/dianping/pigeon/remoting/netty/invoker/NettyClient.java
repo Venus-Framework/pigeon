@@ -22,6 +22,7 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
@@ -30,7 +31,6 @@ import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
-import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
@@ -76,9 +76,8 @@ public class NettyClient extends AbstractClient {
 
 	private static ChannelFactory channelFactory = new NioClientSocketChannelFactory(bossExecutor, workExecutor);
 
-	public int getConnectTimeout() {
-		return configManager.getIntValue(Constants.KEY_CONNECT_TIMEOUT, Constants.DEFAULT_CONNECT_TIMEOUT);
-	}
+	private static final int connectTimeout = configManager.getIntValue(Constants.KEY_CONNECT_TIMEOUT,
+			Constants.DEFAULT_CONNECT_TIMEOUT);
 
 	public int getWriteBufferHighWater() {
 		return configManager.getIntValue(Constants.KEY_WRITE_BUFFER_HIGH_WATER,
@@ -101,7 +100,7 @@ public class NettyClient extends AbstractClient {
 		this.bootstrap.setOption("tcpNoDelay", true);
 		this.bootstrap.setOption("keepAlive", true);
 		this.bootstrap.setOption("reuseAddress", true);
-		this.bootstrap.setOption("connectTimeoutMillis", getConnectTimeout());
+		this.bootstrap.setOption("connectTimeoutMillis", connectTimeout);
 		this.bootstrap.setOption("writeBufferHighWaterMark", getWriteBufferHighWater());
 		this.bootstrap.setOption("writeBufferLowWaterMark", getWriteBufferLowWater());
 	}
@@ -118,7 +117,7 @@ public class NettyClient extends AbstractClient {
 		ChannelFuture future = null;
 		try {
 			future = bootstrap.connect(new InetSocketAddress(host, port));
-			if (future.awaitUninterruptibly(getConnectTimeout(), TimeUnit.MILLISECONDS)) {
+			if (future.awaitUninterruptibly(connectTimeout, TimeUnit.MILLISECONDS)) {
 				if (future.isSuccess()) {
 					Channel newChannel = future.getChannel();
 					try {
@@ -152,11 +151,8 @@ public class NettyClient extends AbstractClient {
 		}
 	}
 
-	public InvocationResponse write(InvocationRequest request) {
-		return write(request, null);
-	}
-
-	public InvocationResponse write(InvocationRequest request, Callback callback) {
+	@Override
+	public InvocationResponse doWrite(InvocationRequest request, Callback callback) throws NetworkException {
 		Object[] msg = new Object[] { request, callback };
 		ChannelFuture future = null;
 		if (channel == null) {
@@ -290,8 +286,6 @@ public class NettyClient extends AbstractClient {
 			if (request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
 				connected = false;
 			}
-
-			RpcEventUtils.channelOperationComplete(request, NettyClient.this.address);
 			InvocationResponse response = ProviderUtils.createFailResponse(request, future.getCause());
 			processResponse(response);
 		}

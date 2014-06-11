@@ -13,7 +13,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
 
 /**
- * 随即负载均衡策略
+ * 随机负载均衡策略
  * 
  * @author jianhuihuang
  * @version $Id: RandomLoadBalance.java, v 0.1 2013-7-5 上午8:30:36 jianhuihuang

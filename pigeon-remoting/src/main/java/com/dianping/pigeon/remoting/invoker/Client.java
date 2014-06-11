@@ -6,6 +6,7 @@ package com.dianping.pigeon.remoting.invoker;
 
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 
@@ -21,9 +22,9 @@ public interface Client {
 
 	void connect();
 
-	InvocationResponse write(InvocationRequest request, Callback callback);
+	InvocationResponse write(InvocationRequest request, Callback callback) throws NetworkException;
 
-	InvocationResponse write(InvocationRequest request);
+	InvocationResponse write(InvocationRequest request) throws NetworkException;
 
 	void connectionException(Object attachment, Throwable e);
 
@@ -48,7 +49,7 @@ public interface Client {
 	void close();
 
 	boolean isDisposable();
-	
+
 	void dispose();
-	
+
 }

@@ -1,4 +1,4 @@
-package com.dianping.pigeon.remoting.invoker.route.balance;
+package com.dianping.pigeon.remoting.invoker.route.support;
 
 import java.util.Collection;
 import java.util.SortedMap;

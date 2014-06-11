@@ -41,6 +41,9 @@ public class DefaultRequest implements InvocationRequest {
 	@JsonIgnore
 	private transient long createMillisTime;
 
+	@JsonIgnore
+	private transient String loadbalance;
+
 	@JsonProperty("url")
 	private String serviceName;
 
@@ -86,11 +89,20 @@ public class DefaultRequest implements InvocationRequest {
 				} else {
 					this.setCallType(Constants.CALLTYPE_REPLY);
 				}
+				this.setLoadbalance(invokerConfig.getLoadbalance());
 			}
 			this.methodName = invokerContext.getMethodName();
 			this.parameters = invokerContext.getArguments();
 			this.messageType = Constants.MESSAGE_TYPE_SERVICE;
 		}
+	}
+
+	public String getLoadbalance() {
+		return loadbalance;
+	}
+
+	public void setLoadbalance(String loadbalance) {
+		this.loadbalance = loadbalance;
 	}
 
 	public String getVersion() {

@@ -1,4 +1,4 @@
-package com.dianping.pigeon.remoting.invoker.route.stat.barrel;
+package com.dianping.pigeon.remoting.invoker.route.statistics;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -8,21 +8,22 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.route.balance.LoadAutoawareLoadBalance;
 
-public final class ServerStatBarrelsHolder {
+public final class ServiceStatisticsHolder {
 
-	private static final Logger logger = LoggerLoader.getLogger(ServerStatBarrelsHolder.class);
-	public static ConcurrentMap<String, ServiceBarrel> serverStatBarrels = new ConcurrentHashMap<String, ServiceBarrel>();
+	private static final Logger logger = LoggerLoader.getLogger(ServiceStatisticsHolder.class);
+	public static ConcurrentMap<String, ServiceStatistics> serverStatBarrels = new ConcurrentHashMap<String, ServiceStatistics>();
 
 	public static float getCapacity(String server) {
-		ServiceBarrel barrel = serverStatBarrels.get(server);
+		ServiceStatistics barrel = serverStatBarrels.get(server);
 		return barrel != null ? barrel.getCapacity() : 0f;
 	}
 
-	private static ServiceBarrel getServerBarrel(String server) {
-		ServiceBarrel barrel = serverStatBarrels.get(server);
+	private static ServiceStatistics getServerBarrel(String server) {
+		ServiceStatistics barrel = serverStatBarrels.get(server);
 		if (barrel == null) {
-			ServiceBarrel newBarrel = new ServiceBarrel(server);
+			ServiceStatistics newBarrel = new ServiceStatistics(server);
 			barrel = serverStatBarrels.putIfAbsent(server, newBarrel);
 			if (barrel == null) {
 				barrel = newBarrel;
@@ -33,7 +34,7 @@ public final class ServerStatBarrelsHolder {
 
 	public static void flowIn(InvocationRequest request, String toServer) {
 		if (checkRequestNeedStat(request)) {
-			ServiceBarrel barrel = getServerBarrel(toServer);
+			ServiceStatistics barrel = getServerBarrel(toServer);
 			if (barrel != null) {
 				barrel.flowIn(request);
 			} else {
@@ -44,7 +45,7 @@ public final class ServerStatBarrelsHolder {
 
 	public static void flowOut(InvocationRequest request, String fromServer) {
 		if (checkRequestNeedStat(request)) {
-			ServiceBarrel barrel = getServerBarrel(fromServer);
+			ServiceStatistics barrel = getServerBarrel(fromServer);
 			if (barrel != null) {
 				barrel.flowOut(request);
 			} else {
@@ -54,6 +55,7 @@ public final class ServerStatBarrelsHolder {
 	}
 
 	private static boolean checkRequestNeedStat(InvocationRequest request) {
-		return request != null && request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE;
+		return request != null && request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE
+				&& LoadAutoawareLoadBalance.NAME.equals(request.getLoadbalance());
 	}
 }

@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.route.context;
+package com.dianping.pigeon.remoting.invoker.route.support;
 
 /**
  * 
@@ -11,7 +11,7 @@ package com.dianping.pigeon.remoting.invoker.route.context;
  * @version $Id: ClientContext.java, v 0.1 2013-6-29 下午7:25:39 jianhuihuang Exp
  *          $
  */
-public final class ClientContext {
+public final class RouterHelper {
 
 	private static ThreadLocal<String> used_tl = new ThreadLocal<String>();
 

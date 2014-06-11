@@ -47,6 +47,7 @@ public class ServiceUnpublishServlet extends HttpServlet {
 			}
 		} else {
 			logger.warn("Forbidden!");
+			response.getWriter().println("forbidden");
 		}
 	}
 

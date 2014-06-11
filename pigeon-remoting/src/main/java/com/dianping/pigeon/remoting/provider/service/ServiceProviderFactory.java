@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
@@ -52,9 +53,6 @@ public final class ServiceProviderFactory {
 
 	private static final int UNPUBLISH_WAITTIME = configManager.getIntValue(Constants.KEY_UNPUBLISH_WAITTIME,
 			Constants.DEFAULT_UNPUBLISH_WAITTIME);
-
-	private static final int WEIGHT_INITIAL = configManager.getIntValue(Constants.KEY_WEIGHT_INITIAL,
-			Constants.DEFAULT_WEIGHT_INITIAL);
 
 	public static String getServiceUrlWithVersion(String url, String version) {
 		String newUrl = url;
@@ -123,7 +121,12 @@ public final class ServiceProviderFactory {
 					serviceChangeListener.notifyServicePublished(providerConfig);
 				}
 				status = PublishStatus.PUBLISHING;
-				ServiceWarmupListener.start();
+
+				boolean autoRegisterEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
+						Constants.KEY_AUTOREGISTER_ENABLE, true);
+				if (autoRegisterEnable) {
+					ServiceWarmupListener.start();
+				}
 
 				providerConfig.setPublished(true);
 			}
@@ -147,7 +150,17 @@ public final class ServiceProviderFactory {
 
 	private synchronized static <T> void publishService(String url, int port, String group) throws RegistryException {
 		String serverAddress = configManager.getLocalIp() + ":" + port;
-		int weight = WEIGHT_INITIAL;
+		int weight = Constants.WEIGHT_INITIAL;
+		boolean autoRegisterEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
+				Constants.KEY_AUTOREGISTER_ENABLE, true);
+		if (!autoRegisterEnable) {
+			weight = 0;
+		}
+		boolean warmupEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
+				Constants.KEY_SERVICEWARMUP_ENABLE, true);
+		if (!warmupEnable) {
+			weight = Constants.WEIGHT_DEFAULT;
+		}
 		if (logger.isInfoEnabled()) {
 			logger.info("publish service to registry, url:" + url + ", port:" + port + ", group:" + group
 					+ ", address:" + serverAddress + ", weight:" + weight);

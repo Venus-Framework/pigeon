@@ -18,7 +18,7 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
-import com.dianping.pigeon.remoting.invoker.util.RpcEventUtils;
+import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 
 public class InvocationTimeoutListener implements Runnable {
 
@@ -27,7 +27,7 @@ public class InvocationTimeoutListener implements Runnable {
 	private Map<Long, RemoteInvocationBean> invocations;
 	private long timeoutInterval = ExtensionLoader.getExtension(ConfigManager.class).getLongValue(
 			Constants.KEY_TIMEOUT_INTERVAL, Constants.DEFAULT_TIMEOUT_INTERVAL);
-	
+
 	public InvocationTimeoutListener(Map<Long, RemoteInvocationBean> invocations) {
 		this.invocations = invocations;
 	}
@@ -45,17 +45,18 @@ public class InvocationTimeoutListener implements Runnable {
 								&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
 							Callback callback = invocationBean.callback;
 							if (callback != null && callback.getClient() != null) {
-								RpcEventUtils.channelExceptionCaughtEvent(request, callback.getClient().getAddress());
+								ServiceStatisticsHolder.flowOut(request, callback.getClient().getAddress());
 							}
 							invocations.remove(sequence);
 							StringBuilder msg = new StringBuilder();
 							msg.append("remove timeout request, process time:").append(System.currentTimeMillis())
 									.append("\r\n").append("request:").append(request);
 							logger.error(msg.toString());
-//							RequestTimeoutException e = new RequestTimeoutException(msg.toString());
-//							if (monitorLogger != null) {
-//								monitorLogger.logError(e);
-//							}
+							// RequestTimeoutException e = new
+							// RequestTimeoutException(msg.toString());
+							// if (monitorLogger != null) {
+							// monitorLogger.logError(e);
+							// }
 						}
 					}
 				}

@@ -64,6 +64,16 @@ public class ProtobufRequest implements InvocationRequest {
 
 	private String version;
 
+	private transient String loadbalance;
+
+	public String getLoadbalance() {
+		return loadbalance;
+	}
+
+	public void setLoadbalance(String loadbalance) {
+		this.loadbalance = loadbalance;
+	}
+
 	public void setMethodName(String methodName) {
 		this.methodName = methodName;
 	}
@@ -144,6 +154,7 @@ public class ProtobufRequest implements InvocationRequest {
 		} else {
 			this.setCallType(Constants.CALLTYPE_REPLY);
 		}
+		this.setLoadbalance(invokerConfig.getLoadbalance());
 	}
 
 	// Server
@@ -406,10 +417,10 @@ public class ProtobufRequest implements InvocationRequest {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-				.append("seq", sequence).append("messageType", messageType).append("callType", callType)
-				.append("timeout", timeout).append("url", serviceName).append("methodName", methodName)
-				.append("parameterClass", parameterClass).append("version", version).toString();
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("seq", sequence)
+				.append("messageType", messageType).append("callType", callType).append("timeout", timeout)
+				.append("url", serviceName).append("methodName", methodName).append("parameterClass", parameterClass)
+				.append("version", version).toString();
 	}
 
 }

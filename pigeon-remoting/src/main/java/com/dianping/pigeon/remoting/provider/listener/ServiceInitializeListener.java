@@ -6,8 +6,8 @@ import org.springframework.context.event.ContextRefreshedEvent;
 public class ServiceInitializeListener {
 
 	public void onApplicationEvent(ApplicationEvent event) {
-		if(event instanceof ContextRefreshedEvent) {
-			ServiceWarmupListener.start();
+		if (event instanceof ContextRefreshedEvent) {
+
 		}
 	}
 

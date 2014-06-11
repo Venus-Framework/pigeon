@@ -42,6 +42,7 @@ public class ServicePublishServlet extends HttpServlet {
 			}
 		} else {
 			logger.warn("Forbidden!");
+			response.getWriter().println("forbidden");
 		}
 	}
 
