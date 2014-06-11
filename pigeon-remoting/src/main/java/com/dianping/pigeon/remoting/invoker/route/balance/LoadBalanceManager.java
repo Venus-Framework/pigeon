@@ -15,12 +15,17 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.listener.ClusterListener;
+import com.dianping.pigeon.remoting.invoker.listener.ClusterListenerManager;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsChecker;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
@@ -152,9 +157,10 @@ public class LoadBalanceManager {
 	}
 
 	public static void init() {
-		WeightFactorMaintainer weightFactoryMaintainer = new WeightFactorMaintainer();
-		RegistryEventListener.addListener(weightFactoryMaintainer);
-		weightFacotrMaintainThreadPool.execute(weightFactoryMaintainer);
+		WeightFactorMaintainer weightFactorMaintainer = new WeightFactorMaintainer();
+		RegistryEventListener.addListener(weightFactorMaintainer);
+		ClusterListenerManager.getInstance().addListener(weightFactorMaintainer);
+		weightFacotrMaintainThreadPool.execute(weightFactorMaintainer);
 		ServiceStatisticsChecker serviceStatisticsChecker = new ServiceStatisticsChecker();
 		serviceStatisticsCheckerThreadPool.execute(serviceStatisticsChecker);
 	}
@@ -170,7 +176,7 @@ public class LoadBalanceManager {
 		}
 	}
 
-	private static class WeightFactorMaintainer implements Runnable, ServiceProviderChangeListener {
+	private static class WeightFactorMaintainer implements Runnable, ServiceProviderChangeListener, ClusterListener {
 
 		public WeightFactorMaintainer() {
 			if (initialFactor < 0) {
@@ -209,14 +215,12 @@ public class LoadBalanceManager {
 
 		@Override
 		public void providerAdded(ServiceProviderChangeEvent event) {
-			weights.put(event.getConnect(), event.getWeight());
-			weightFactors.put(event.getConnect(), initialFactor);
+			addWeight(event.getConnect(), event.getWeight());
 		}
 
 		@Override
 		public void providerRemoved(ServiceProviderChangeEvent event) {
-			weights.remove(event.getConnect());
-			weightFactors.remove(event.getConnect());
+			removeWeight(event.getConnect());
 		}
 
 		@Override
@@ -226,6 +230,35 @@ public class LoadBalanceManager {
 			if ((originalWeight == null || originalWeight.intValue() == 0) && event.getWeight() > 0) {
 				weightFactors.put(event.getConnect(), initialFactor);
 			}
+		}
+
+		@Override
+		public void addConnect(ConnectInfo cmd) {
+		}
+
+		@Override
+		public void addConnect(ConnectInfo cmd, Client client) {
+			addWeight(cmd.getConnect(), RegistryManager.getInstance().getServiceWeight(cmd.getConnect()));
+		}
+
+		@Override
+		public void removeConnect(Client client) {
+			removeWeight(client.getAddress());
+		}
+
+		@Override
+		public void doNotUse(String serviceName, String host, int port) {
+			removeWeight(host + ":" + port);
+		}
+		
+		private void addWeight(String address, int weight) {
+			weights.put(address, weight);
+			weightFactors.put(address, initialFactor);
+		}
+		
+		private void removeWeight(String address) {
+			weights.remove(address);
+			weightFactors.remove(address);
 		}
 
 	}
