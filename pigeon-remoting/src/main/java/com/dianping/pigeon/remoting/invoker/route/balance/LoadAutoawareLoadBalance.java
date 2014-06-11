@@ -27,7 +27,7 @@ public class LoadAutoawareLoadBalance extends AbstractLoadBalance {
 	private static final Logger logger = LoggerLoader.getLogger(LoadAutoawareLoadBalance.class);
 	public static final String NAME = "autoaware";
 	public static final LoadBalance instance = new LoadAutoawareLoadBalance();
-	private static Map<String, AtomicInteger> clientCountMap = new HashMap<String, AtomicInteger>();
+	private static Map<String, AtomicInteger> clientHitsMap = new HashMap<String, AtomicInteger>();
 	private static int logCount = 0;
 
 	@Override
@@ -49,21 +49,21 @@ public class LoadAutoawareLoadBalance extends AbstractLoadBalance {
 		}
 		Client client = candidateIdx == 1 ? candidates[0] : candidates[random.nextInt(candidateIdx)];
 		if (logger.isDebugEnabled()) {
+			logClient(client);
 			logger.debug("select address:" + client.getAddress());
 		}
-		logClient(client);
 		return client;
 	}
 
 	private void logClient(Client client) {
-		AtomicInteger count = clientCountMap.get(client.getAddress());
+		AtomicInteger count = clientHitsMap.get(client.getAddress());
 		if (count == null) {
 			count = new AtomicInteger(0);
-			clientCountMap.put(client.getAddress(), count);
+			clientHitsMap.put(client.getAddress(), count);
 		}
 		count.incrementAndGet();
 		if (++logCount % 10000 == 0) {
-			logger.info("select address:" + clientCountMap);
+			logger.info("client hits:" + clientHitsMap);
 		}
 	}
 
