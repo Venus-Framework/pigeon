@@ -9,14 +9,9 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 
-public class ServiceStatisticsChecker extends Thread {
+public class ServiceStatisticsChecker implements Runnable {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceStatisticsChecker.class);
-
-	public ServiceStatisticsChecker() {
-		setDaemon(true);
-		setName("Pigeon-Client-Service-Statistics-Checker-Thread");
-	}
 
 	@Override
 	public void run() {
