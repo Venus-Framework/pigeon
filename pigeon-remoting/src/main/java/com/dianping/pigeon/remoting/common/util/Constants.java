@@ -143,6 +143,10 @@ public final class Constants {
 	public static final boolean DEFAULT_ONLINE_WHILE_INITIALIZED = false;
 	public static final boolean DEFAULT_TIMEOUT_CANCEL = false;
 	public static final String KEY_TIMEOUT_CANCEL = "pigeon.timeout.cancel";
+	public static final String KEY_FORCE_CANCEL_MULTIPLE = "pigoen.timeout.forcecancel.multiple";
+	public static final int DEFAULT_FORCE_CANCEL_MULTIPLE = 5;
+	public static final String KEY_FORCE_CANCEL_MINIMUM = "pigeon.timeout.forcecancel.minimum";
+	public static final int DEFAULT_FORCE_CANCEL_MINIMUM = 5000;
 	public static final int DEFAULT_STRING_MAXLENGTH = 1000;
 	public static final String KEY_STRING_MAXLENGTH = "pigeon.string.maxlength";
 	public static final int DEFAULT_STRING_MAXITEMS = 500;

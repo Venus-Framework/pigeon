@@ -32,8 +32,8 @@ public class RequestTimeoutListener implements Runnable {
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private long timeoutInterval = configManager.getLongValue(Constants.KEY_TIMEOUT_INTERVAL,
 			Constants.DEFAULT_TIMEOUT_INTERVAL);
-	private boolean defaultCancelTimeout = configManager.getBooleanValue(Constants.KEY_TIMEOUT_CANCEL,
-			Constants.DEFAULT_TIMEOUT_CANCEL);
+	private int forceCancelMultiple = configManager.getIntValue(Constants.KEY_FORCE_CANCEL_MULTIPLE, Constants.DEFAULT_FORCE_CANCEL_MULTIPLE);
+	private int forceCancelMinimum = configManager.getIntValue(Constants.KEY_FORCE_CANCEL_MINIMUM, Constants.DEFAULT_FORCE_CANCEL_MINIMUM);
 
 	public RequestTimeoutListener(RequestProcessor requestProcessor,
 			Map<InvocationRequest, ProviderContext> requestContextMap) {
@@ -46,52 +46,48 @@ public class RequestTimeoutListener implements Runnable {
 			try {
 				long currentTime = System.currentTimeMillis();
 				for (InvocationRequest request : requestContextMap.keySet()) {
+					long timespan = currentTime - request.getCreateMillisTime();
 					if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
-							&& (request.getCreateMillisTime() + request.getTimeout()) < currentTime) {
-						try {
-							ProviderContext rc = requestContextMap.get(request);
-							if (rc != null) {
-								boolean cancelTimeout = defaultCancelTimeout;
-								if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
-									Future<?> future = rc.getFuture();
-									if (future != null && !future.isCancelled()) {
-										future.cancel(cancelTimeout);
-									}
-								} else {
-									StringBuilder msg = new StringBuilder();
-									msg.append("timeout while processing request, from:")
-											.append(rc.getChannel() == null ? "" : rc.getChannel().getRemoteAddress())
-											.append(", to:")
-											.append(ExtensionLoader.getExtension(ConfigManager.class).getLocalIp())
-											.append(", process time:").append(System.currentTimeMillis())
-											.append("\r\nrequest:").append(InvocationUtils.toJsonString(request))
-											.append("\r\nprocessor stats:")
-											.append(this.requestProcessor.getProcessorStatistics());
-									ProcessTimeoutException te = null;
-									Thread t = rc.getThread();
-									if (t == null) {
-										msg.append("\r\nthe task has not been executed");
-										te = new ProcessTimeoutException(msg.toString());
-									} else {
-										te = new ProcessTimeoutException(msg.toString());
-										te.setStackTrace(t.getStackTrace());
-									}
-									ContextUtils.setContext(request.getContext());
-									logger.error(te.getMessage(), te);
-									if (monitorLogger != null) {
-										monitorLogger.logError(te);
-									}
-									Future<?> future = rc.getFuture();
-									if (future != null && !future.isCancelled()) {
-										if (future.cancel(cancelTimeout)) {
-										}
-									}
-								}
+							&& (timespan > request.getTimeout())) {
+						ProviderContext rc = requestContextMap.get(request);
+						if (rc != null) {
+							if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
+								cancel(rc.getFuture(), false);
+								requestContextMap.remove(request);
 							} else {
-								logger.error("provider context is null with request:" + request);
+								StringBuilder msg = new StringBuilder();
+								msg.append("timeout while processing request, from:")
+										.append(rc.getChannel() == null ? "" : rc.getChannel().getRemoteAddress())
+										.append(", to:")
+										.append(ExtensionLoader.getExtension(ConfigManager.class).getLocalIp())
+										.append(", process time:").append(System.currentTimeMillis())
+										.append("\r\nrequest:").append(InvocationUtils.toJsonString(request))
+										.append("\r\nprocessor stats:")
+										.append(this.requestProcessor.getProcessorStatistics());
+								ProcessTimeoutException te = null;
+								Thread t = rc.getThread();
+								if (t == null) {
+									msg.append("\r\nthe task has not been executed");
+									te = new ProcessTimeoutException(msg.toString());
+								} else {
+									te = new ProcessTimeoutException(msg.toString());
+									te.setStackTrace(t.getStackTrace());
+								}
+								ContextUtils.setContext(request.getContext());
+								logger.error(te.getMessage(), te);
+								if (monitorLogger != null) {
+									monitorLogger.logError(te);
+								}
+								long forceCancelMillis = Math.max(request.getTimeout() * forceCancelMultiple, forceCancelMinimum);
+								if(timespan > forceCancelMillis) {
+									cancel(rc.getFuture(), true);
+									requestContextMap.remove(request);
+								} else {
+									cancel(rc.getFuture(), false);
+								}
 							}
-						} finally {
-							requestContextMap.remove(request);
+						} else {
+							logger.error("provider context is null with request:" + request);
 						}
 					}
 				}
@@ -100,6 +96,12 @@ public class RequestTimeoutListener implements Runnable {
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
+		}
+	}
+
+	private void cancel(Future<?> future, boolean falseCancel) {
+		if (future != null && !future.isCancelled()) {
+			future.cancel(falseCancel);
 		}
 	}
 }
