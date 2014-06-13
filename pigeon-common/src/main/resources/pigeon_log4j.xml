@@ -22,11 +22,5 @@
 		<priority value="info" />
 	</logger>
 	
-	<logger name="com.dianping.pigeon.remoting.invoker.route.balance" additivity="true">
-		<appender-ref ref="FileAppender" />
-		<appender-ref ref="ConsoleAppender" />
-		<priority value="debug" />
-	</logger>
-
 </log4j:configuration>
 

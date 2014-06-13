@@ -23,6 +23,7 @@ import org.jboss.netty.util.DebugUtil;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 
@@ -86,6 +87,7 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 				message = _decode(serializable, ctx, channel, cb);
 			} catch (Throwable e) {
 				isException = true;
+				SerializationException se = new SerializationException(e);
 				try {
 					// 解析对端encoder扩展的seq字段
 					Object seqObj = NettyCodecUtils.getAttachment(ctx, Constants.ATTACHMENT_REQUEST_SEQ);
@@ -94,8 +96,8 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 						String errorMsg = "Deserialize Exception>>>>host:"
 								+ ((InetSocketAddress) channel.getRemoteAddress()).getAddress().getHostAddress()
 								+ " seq:" + seq + "\n" + e.getMessage();
-						logger.error(errorMsg, e);
-						doFailResponse(channel, ProviderUtils.createThrowableResponse(seq, serializable, e));
+						logger.error(errorMsg, se);
+						doFailResponse(channel, ProviderUtils.createThrowableResponse(seq, serializable, se));
 					}
 				} catch (Throwable e1) {
 					logger.error("", e1);

@@ -10,12 +10,13 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
+import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.remoting.invoker.route.support.RouterHelper;
 
 public abstract class AbstractLoadBalance implements LoadBalance {
@@ -23,7 +24,10 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 	private static final Logger logger = LoggerLoader.getLogger(AbstractLoadBalance.class);
 
 	protected Random random = new Random();
-	
+
+	private static int defaultFactor = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.loadbalance.defaultFactor", 100);
+
 	@Override
 	public Client select(List<Client> clients, InvocationRequest request) {
 		if (clients == null || clients.isEmpty()) {
@@ -57,8 +61,13 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 			}
 		}
 		if (selectedClient != null) {
-			int weight = RegistryManager.getInstance().getServiceWeight(selectedClient.getAddress());
-			request.setAttachment(Constants.REQ_ATTACH_FLOW, 1.0f / (weight > 0 ? weight : 1));
+			int weight = LoadBalanceManager.getEffectiveWeight(selectedClient.getAddress());
+			request.setAttachment(Constants.REQ_ATTACH_FLOW, 1.0f * defaultFactor
+					/ (weight > 0 ? weight : defaultFactor));
+		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("total requests to " + selectedClient.getAddress() + " in last second:"
+					+ ServiceStatisticsHolder.getCapacityBucket(selectedClient.getAddress()).getLastSecondRequest());
 		}
 		return selectedClient;
 	}
@@ -85,8 +94,8 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 			}
 		}
 		weights[clientSize] = maxWeightIdx;
-		if(logger.isDebugEnabled()) {
-			logger.debug("effective weights: "+ Arrays.toString(weights));
+		if (logger.isDebugEnabled()) {
+			logger.debug("effective weights: " + Arrays.toString(weights));
 		}
 		return weights;
 	}
