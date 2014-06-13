@@ -50,7 +50,7 @@ public class ZookeeperWatcher implements Watcher {
 				// TODO Deal with weight add & delete when auto registering
 				weightChanged(pathInfo);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("Error in ZookeeperWatcher.process()", e);
 			return;
 		}

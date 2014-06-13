@@ -68,20 +68,20 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		try {
 			init(FileUtils.readFile(Thread.currentThread().getContextClassLoader()
 					.getResourceAsStream(GLOBAL_PROPERTIES_PATH)));
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("", e);
 		}
 		try {
 			init(FileUtils
 					.readFile(Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPERTIES_PATH)));
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("", e);
 		}
 		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(getEnv())) {
 			try {
 				init(FileUtils.readFile(Thread.currentThread().getContextClassLoader()
 						.getResourceAsStream(DEV_PROPERTIES_PATH)));
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("", e);
 			}
 		}
@@ -156,7 +156,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				if (strValue != null && logger.isInfoEnabled()) {
 					logger.info("read from local config with key[" + key + "]:" + strValue);
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("error while reading local config[" + key + "]:" + e.getMessage());
 			}
 		}
@@ -194,9 +194,10 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		String strValue = null;
 		if (localCache.containsKey(key)) {
 			Object value = localCache.get(key);
-//			if (value != null && logger.isInfoEnabled()) {
-//				logger.info("read from local cache with key[" + key + "]:" + value);
-//			}
+			// if (value != null && logger.isInfoEnabled()) {
+			// logger.info("read from local cache with key[" + key + "]:" +
+			// value);
+			// }
 			if (value.getClass() == type) {
 				return (T) value;
 			} else {
@@ -212,7 +213,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				if (strValue != null && logger.isInfoEnabled()) {
 					logger.info("read from local config with key[" + key + "]:" + strValue);
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("error while reading local config[" + key + "]:" + e.getMessage());
 			}
 		}
@@ -222,7 +223,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				if (strValue != null && logger.isInfoEnabled()) {
 					logger.info("read from config server with key[" + key + "]:" + strValue);
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("error while reading property[" + key + "]:" + e.getMessage());
 			}
 		}
@@ -283,9 +284,10 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	public String getLocalProperty(String key) {
 		if (localCache.containsKey(key)) {
 			String value = "" + localCache.get(key);
-//			if (logger.isInfoEnabled()) {
-//				logger.info("read from local cache with key[" + key + "]:" + value);
-//			}
+			// if (logger.isInfoEnabled()) {
+			// logger.info("read from local cache with key[" + key + "]:" +
+			// value);
+			// }
 			return value;
 		}
 		if (logger.isInfoEnabled()) {
@@ -302,7 +304,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			} else {
 				logger.info("config[key=" + key + "] not found in local config");
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("error while reading property[" + key + "]:" + e.getMessage());
 		}
 		return null;
@@ -322,7 +324,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		if (value == null) {
 			try {
 				value = doGetEnv();
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("error while reading env:" + e.getMessage());
 			}
 			if (value != null) {
@@ -337,7 +339,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		if (value == null) {
 			try {
 				value = doGetAppName();
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("error while reading app name:" + e.getMessage());
 			}
 			if (value != null) {
@@ -352,7 +354,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		if (value == null) {
 			try {
 				value = doGetLocalIp();
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("error while reading local ip:" + e.getMessage());
 			}
 			if (StringUtils.isBlank(value)) {
@@ -370,7 +372,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		if (value == null) {
 			try {
 				value = doGetGroup();
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("error while reading group:" + e.getMessage());
 			}
 			if (value != null) {
@@ -392,7 +394,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		try {
 			doSetStringValue(key, value);
 			setLocalStringValue(key, value);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new ConfigException("error while setting key:" + key, e);
 		}
 	}
@@ -402,7 +404,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		try {
 			doDeleteKey(key);
 			localCache.remove(key);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new ConfigException("error while deleting key:" + key, e);
 		}
 	}

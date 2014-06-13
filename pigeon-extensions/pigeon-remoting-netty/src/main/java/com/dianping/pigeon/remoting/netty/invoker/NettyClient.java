@@ -144,7 +144,7 @@ public class NettyClient extends AbstractClient {
 			} else if (isLog()) {
 				logger.error("timeout while connecting to " + this.host + ":" + this.port);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (isLog()) {
 				logger.error("error while connecting to " + this.host + ":" + this.port, e);
 			}
@@ -191,7 +191,7 @@ public class NettyClient extends AbstractClient {
 					} else {
 						logger.error("no client found with service:" + request.getServiceName());
 					}
-				} catch (Exception ex) {
+				} catch (Throwable ex) {
 					logger.error("", ex);
 				}
 				logger.error("", e);

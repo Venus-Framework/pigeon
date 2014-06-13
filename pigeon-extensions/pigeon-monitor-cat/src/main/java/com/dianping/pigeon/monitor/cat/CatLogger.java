@@ -62,7 +62,7 @@ public class CatLogger implements MonitorLogger {
 				if (producer != null && t != null) {
 					producer.logError(t);
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logMonitorError(e);
 			}
 		}
@@ -77,7 +77,7 @@ public class CatLogger implements MonitorLogger {
 				if (producer != null && t != null) {
 					producer.logError(msg, t);
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logMonitorError(e);
 			}
 		}
@@ -98,7 +98,7 @@ public class CatLogger implements MonitorLogger {
 			if (producer != null) {
 				producer.logEvent(name, source, Event.SUCCESS, event);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logMonitorError(e);
 		}
 	}
@@ -114,7 +114,7 @@ public class CatLogger implements MonitorLogger {
 			} else if (errorCounter % 200 == 0) {
 				logger.error(errorMsg, t);
 			}
-		} catch (Exception e2) {/* do nothing */
+		} catch (Throwable e2) {/* do nothing */
 		}
 		errorCounter++;
 	}

@@ -9,9 +9,9 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 
-public class ServiceStatisticsChecker implements Runnable {
+public class CapacityChecker implements Runnable {
 
-	private static final Logger logger = LoggerLoader.getLogger(ServiceStatisticsChecker.class);
+	private static final Logger logger = LoggerLoader.getLogger(CapacityChecker.class);
 
 	@Override
 	public void run() {
@@ -20,14 +20,14 @@ public class ServiceStatisticsChecker implements Runnable {
 				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 			}
-			if (ServiceStatisticsHolder.serverStatBarrels != null) {
+			if (ServiceStatisticsHolder.getCapacityBuckets() != null) {
 				try {
 					long currentTimeMillis = System.currentTimeMillis();
-					for (ServiceStatistics barrel : ServiceStatisticsHolder.serverStatBarrels.values()) {
-						barrel.resetRequestInSecondCounter();
+					for (CapacityBucket bucket : ServiceStatisticsHolder.getCapacityBuckets().values()) {
+						bucket.resetRequestInSecondCounter();
 						try {
 							Map<Long, Float> expiredRequests = new HashMap<Long, Float>();
-							for (Iterator<Entry<Long, Object[]>> iter = barrel.requestSeqDetails.entrySet().iterator(); iter
+							for (Iterator<Entry<Long, Object[]>> iter = bucket.requestSeqDetails.entrySet().iterator(); iter
 									.hasNext();) {
 								Entry<Long, Object[]> detailEntry = iter.next();
 								Object[] details = detailEntry.getValue();
@@ -39,14 +39,14 @@ public class ServiceStatisticsChecker implements Runnable {
 								}
 							}
 							for (Entry<Long, Float> expiredEntry : expiredRequests.entrySet()) {
-								barrel.flowOut(expiredEntry.getKey(), expiredEntry.getValue());
+								bucket.flowOut(expiredEntry.getKey(), expiredEntry.getValue());
 							}
-						} catch (Exception e) {
+						} catch (Throwable e) {
 							logger.error("Check expired request in service statistics failed, detail[" + e.getMessage()
 									+ "].", e);
 						}
 					}
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					logger.error("Check expired request in service statistics failed, detail[" + e.getMessage() + "].",
 							e);
 				}

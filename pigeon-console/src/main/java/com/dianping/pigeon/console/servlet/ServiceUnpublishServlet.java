@@ -41,7 +41,7 @@ public class ServiceUnpublishServlet extends HttpServlet {
 					ProviderBootStrap.shutdown();
 				}
 				response.getWriter().println("ok");
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("Error while unpublishing all services", e);
 				response.getWriter().println("error:" + e.getMessage());
 			}

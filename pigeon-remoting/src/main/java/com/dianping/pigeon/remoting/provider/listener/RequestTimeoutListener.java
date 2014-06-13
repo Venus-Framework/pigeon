@@ -93,7 +93,7 @@ public class RequestTimeoutListener implements Runnable {
 				}
 				TimelineManager.removeLegacyTimelines();
 				Thread.sleep(timeoutInterval);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
 		}

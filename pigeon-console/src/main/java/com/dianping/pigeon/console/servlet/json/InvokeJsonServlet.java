@@ -105,7 +105,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 					} else {
 						result = e.toString();
 					}
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					logger.error("console invoke error", e);
 					result = e.toString();
 				}
@@ -119,7 +119,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 					} else {
 						result = e.toString();
 					}
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					result = e.toString();
 				}
 			}

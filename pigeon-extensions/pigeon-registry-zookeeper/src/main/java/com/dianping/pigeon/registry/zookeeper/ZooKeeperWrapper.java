@@ -253,7 +253,7 @@ public class ZooKeeperWrapper implements Watcher {
 		if (event.getType() == EventType.None) {
             try {
                 processStateChange(event);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 logger.error("", e);
             }
             return;

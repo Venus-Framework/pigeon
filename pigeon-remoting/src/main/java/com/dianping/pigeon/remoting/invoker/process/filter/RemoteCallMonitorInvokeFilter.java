@@ -59,7 +59,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 
 						transaction.readMonitorContext();
 					}
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					logger.logMonitorError(e);
 				}
 			}
@@ -71,7 +71,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 			if (transaction != null) {
 				try {
 					transaction.setStatusError(e);
-				} catch (Exception e2) {
+				} catch (Throwable e2) {
 					logger.logMonitorError(e2);
 				}
 			}
@@ -83,7 +83,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 			if (transaction != null) {
 				try {
 					transaction.setStatusError(e);
-				} catch (Exception e2) {
+				} catch (Throwable e2) {
 					logger.logMonitorError(e2);
 				}
 			}
@@ -101,7 +101,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						RemoteCallMonitorInvokeFilter.logger.warn(String.format("request- %s, timeline- %s", request, timeline));
 					}
 					transaction.complete();
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					logger.logMonitorError(e);
 				}
 			}

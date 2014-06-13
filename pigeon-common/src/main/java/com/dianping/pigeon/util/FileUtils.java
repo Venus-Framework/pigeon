@@ -32,7 +32,7 @@ public class FileUtils {
 						properties.put(key.trim(), value.trim());
 					}
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("", e);
 			} finally {
 				if (br != null) {

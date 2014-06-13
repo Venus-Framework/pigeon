@@ -41,7 +41,7 @@ public class NotifyFailureListener implements Runnable {
 					}
 				}
 				Thread.sleep(CHECK_INTERVAL);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
 		}

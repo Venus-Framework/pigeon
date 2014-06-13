@@ -89,7 +89,7 @@ public final class ContextUtils {
 			addExtensionMethod.setAccessible(true);
 
 			flag = true;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.info("App does not have ExecutionContext", e);
 		}
 	}
@@ -103,7 +103,7 @@ public final class ContextUtils {
 				// setContext(new TrackerContext());
 				// }
 				return createContextMethod.invoke(null, new Object[] { sb.toString() });
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -114,7 +114,7 @@ public final class ContextUtils {
 		if (flag && context != null) {
 			try {
 				setContextMethod.invoke(null, new Object[] { context });
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -124,7 +124,7 @@ public final class ContextUtils {
 		if (flag) {
 			try {
 				return getContextMethod.invoke(null, defObjs);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -140,7 +140,7 @@ public final class ContextUtils {
 		if (flag && context != null && isTrackRequired()) {
 			try {
 				addSuccessContextMethod.invoke(null, new Object[] { context });
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -150,7 +150,7 @@ public final class ContextUtils {
 		if (flag && context != null && isTrackRequired()) {
 			try {
 				addFailedContextMethod.invoke(null, new Object[] { context });
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -160,7 +160,7 @@ public final class ContextUtils {
 		if (flag && context != null) {
 			try {
 				return (String) getTokenMethod.invoke(context, defObjs);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -171,7 +171,7 @@ public final class ContextUtils {
 		if (flag && context != null) {
 			try {
 				return (Integer) getExtensionMethod.invoke(context, new Object[] { TRAC_ORDER });
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -182,7 +182,7 @@ public final class ContextUtils {
 		if (flag && context != null) {
 			try {
 				addExtensionMethod.invoke(context, new Object[] { TRAC_ORDER, order });
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -201,7 +201,7 @@ public final class ContextUtils {
 		if (flag && context != null) {
 			try {
 				addExtensionMethod.invoke(context, new Object[] { key, value });
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -215,7 +215,7 @@ public final class ContextUtils {
 		if (flag && context != null) {
 			try {
 				return (T) getExtensionMethod.invoke(context, new Object[] { key });
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -226,7 +226,7 @@ public final class ContextUtils {
 		if (flag && context != null) {
 			try {
 				return (T) getExtensionsMethod.invoke(context, new Object[] {});
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -237,7 +237,7 @@ public final class ContextUtils {
 		if (flag) {
 			try {
 				clearContextMethod.invoke(null, new Object[0]);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		}

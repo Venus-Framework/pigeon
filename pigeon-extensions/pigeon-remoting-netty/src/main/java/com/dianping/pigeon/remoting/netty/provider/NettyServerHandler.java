@@ -63,7 +63,7 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 			ProviderContext invocationContext = new DefaultProviderContext(request, new NettyChannel(ctx.getChannel()));
 			try {
 				this.server.processRequest(request, invocationContext);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				String msg = "process request failed:" + request;
 				// 心跳消息只返回正常的, 异常不返回
 				if (request.getCallType() == Constants.CALLTYPE_REPLY

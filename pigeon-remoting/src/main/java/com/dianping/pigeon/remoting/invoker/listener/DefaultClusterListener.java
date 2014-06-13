@@ -244,7 +244,7 @@ public class DefaultClusterListener implements ClusterListener {
 			if (waitTimeStr != null) {
 				try {
 					waitTime = Integer.parseInt(waitTimeStr);
-				} catch (Exception e) {
+				} catch (RuntimeException e) {
 					logger.error("error parsing com.dianping.pigeon.invoker.closewaittime", e);
 				}
 			}
@@ -252,7 +252,7 @@ public class DefaultClusterListener implements ClusterListener {
 				waitTime = 3000;
 			}
 			closeExecutor.schedule(command, waitTime, TimeUnit.MILLISECONDS);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("error schedule task to close client", e);
 		}
 	}

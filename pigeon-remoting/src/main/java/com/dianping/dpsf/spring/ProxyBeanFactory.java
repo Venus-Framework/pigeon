@@ -16,14 +16,7 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
-import com.dianping.pigeon.remoting.invoker.route.balance.RoundRobinLoadBalance;
 
-/**
- * 
- * @author jianhuihuang
- * @version $Id: ProxyBeanFactory.java, v 0.1 2013-6-18 上午11:13:51 jianhuihuang
- *          Exp $
- */
 public class ProxyBeanFactory implements FactoryBean {
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
@@ -40,22 +33,20 @@ public class ProxyBeanFactory implements FactoryBean {
 	private String callMethod = Constants.CALL_SYNC;
 
 	/**
-	 * 支持4种负责均衡方式： 1. Random LoadBalance：随机，按权重设置随机概率，在一个截面上碰撞的概率高，但调用量越大分布越均匀，
-	 * 而且按概率使用权重后也比较均匀，有利于动态调整提供者权重。已经实现..
+	 * 1. Random LoadBalance：随机，按权重设置随机概率，在一个截面上碰撞的概率高，但调用量越大分布越均匀，
+	 * 而且按概率使用权重后也比较均匀，有利于动态调整提供者权重。
 	 * 
 	 * 2. RoundRobin LoadBalance 轮循，按公约后的权重设置轮循比率，存在慢的提供者累积请求问题，
-	 * 比如：第二台机器很慢，但没挂，当请求调到第二台时就卡在那，久而久之，所有请求都卡在调到第二台上。--未实现
+	 * 比如：第二台机器很慢，但没挂，当请求调到第二台时就卡在那，久而久之，所有请求都卡在调到第二台上。
 	 * 
 	 * 3. AutoAware LoadBalance： 最少活跃调用数，相同活跃数的随机，活跃数指调用前后计数差。
-	 * 使慢的提供者收到更少请求，因为越慢的提供者的调用前后计数差会越大。---已经实现，默认的
+	 * 使慢的提供者收到更少请求，因为越慢的提供者的调用前后计数差会越大。
 	 * 
 	 * 4. ConsistentHash LoadBalance 一致性Hash，相同参数的请求总是发到同一提供者。
-	 * 当某一台提供者挂时，原本发往该提供者的请求，基于虚拟节点，平摊到其它提供者，不会引起剧烈变动。---未实现
+	 * 当某一台提供者挂时，原本发往该提供者的请求，基于虚拟节点，平摊到其它提供者，不会引起剧烈变动。
 	 * 
-	 * 5. LeastSuccess LoadBalance，
-	 * 当前调用成功率最高的优先分配（为了避免负载不均，成功率前80%再按照AutoAware的方式选择）
 	 */
-	private String loadbalance = configManager.getStringValue(Constants.KEY_LOADBALANCE, RoundRobinLoadBalance.NAME);
+	private String loadbalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
 
 	/**
 	 * server 端和client端都有该逻辑。 1. Failover:失败自动切换，当出现失败，重试其它服务器。(缺省),

@@ -12,7 +12,6 @@ import java.io.OutputStream;
 import org.apache.log4j.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferOutputStream;
-import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
@@ -20,33 +19,35 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
+import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 
 public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder {
 
 	private static final Logger log = LoggerLoader.getLogger(AbstractEncoder.class);
-	
+
 	public abstract void serialize(byte serializerType, OutputStream os, Object obj);
-	
+
 	public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 		if (msg instanceof InvocationSerializable) {
 			InvocationSerializable message = (InvocationSerializable) msg;
 			try {
-				ChannelBuffer buffer = (ChannelBuffer) _encode(message.getSerialize(), ctx, channel, message.getObject());
+				ChannelBuffer buffer = (ChannelBuffer) _encode(message.getSerialize(), ctx, channel,
+						message.getObject());
 				buffer.setBytes(0, Constants.MESSAGE_HEAD);
 				buffer.setByte(2, message.getSerialize());
 				buffer.readerIndex(0);
 				return buffer;
-			} catch (Exception e) {
+			} catch (Throwable e) {
+				SerializationException se = new SerializationException(e);
 				doFailResponse(channel,
-						ProviderUtils.createThrowableResponse(message.getSequence(), message.getSerialize(), e));
-
-				log.error(e.getMessage(), e);
-				throw e;
+						ProviderUtils.createThrowableResponse(message.getSequence(), message.getSerialize(), se));
+				log.error(e.getMessage(), se);
+				throw se;
 			}
 		} else {
-			throw new IllegalArgumentException("invalid message format");
+			throw new SerializationException("invalid message format");
 		}
 	}
 

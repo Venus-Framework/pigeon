@@ -75,7 +75,7 @@ public class ServiceWarmupListener implements Runnable {
 			if (!isStop) {
 				ServiceProviderFactory.setServerWeight(Constants.WEIGHT_START);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		}
 		int publishedCount = 0;
@@ -114,7 +114,7 @@ public class ServiceWarmupListener implements Runnable {
 					break;
 				}
 				ServiceProviderFactory.setServerWeight(++weight);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
 		}

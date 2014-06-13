@@ -98,7 +98,7 @@ public class RegistryManager {
 			if (addr == null) {
 				try {
 					addr = configManager.getLocalStringValue(serviceKey);
-				} catch (Exception e) {
+				} catch (Throwable e) {
 				}
 			}
 			if (!StringUtils.isBlank(addr)) {
@@ -133,7 +133,7 @@ public class RegistryManager {
 		if (registry != null) {
 			try {
 				weight = registry.getServiceWeigth(serviceAddress);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("Failed to get weight for " + serviceAddress, e);
 			}
 		}

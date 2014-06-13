@@ -17,13 +17,13 @@ public class Echo2ServiceImpl implements EchoService {
 	@Override
 	public String echo(String input) {
 		// System.out.println(input);
-		if (++count % 10 == 0) {
-			System.out.println("sleep......");
-			try {
-				Thread.currentThread().sleep(1000);
-			} catch (InterruptedException e) {
-			}
-		}
+//		if (++count % 10 == 0) {
+//			System.out.println("sleep......");
+//			try {
+//				Thread.currentThread().sleep(1000);
+//			} catch (InterruptedException e) {
+//			}
+//		}
 		return "echo2:" + input;
 	}
 

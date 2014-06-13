@@ -40,7 +40,7 @@ public class ProtobufSerializer implements Serializer {
 		MessageLite request;
 		try {
 			request = requestPrototype.newBuilderForType().mergeFrom(is).build();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new SerializationException(e);
 		}
 		return new ProtobufRequest(request);
@@ -51,7 +51,7 @@ public class ProtobufSerializer implements Serializer {
 		MessageLite response;
 		try {
 			response = responsePrototype.newBuilderForType().mergeFrom(is).build();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new SerializationException(e);
 		}
 		return new ProtobufResponse(response);
@@ -78,7 +78,7 @@ public class ProtobufSerializer implements Serializer {
 		byte[] bytes = ((MessageLite) msg).toByteArray();
 		try {
 			os.write(bytes);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new SerializationException(e);
 		}
 	}
@@ -97,7 +97,7 @@ public class ProtobufSerializer implements Serializer {
 			Constructor<?> constructor = objType.getDeclaredConstructor(channelClass);
 			constructor.setAccessible(true);
 			return constructor.newInstance(channel);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new SerializationException(e);
 		}
 	}

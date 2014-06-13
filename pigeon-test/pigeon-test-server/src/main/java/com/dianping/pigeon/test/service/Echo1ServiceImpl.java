@@ -35,12 +35,12 @@ public class Echo1ServiceImpl implements EchoService {
 			// System.out.println("sleep......");
 			// }
 			// }
-			try {
-				Thread.currentThread().sleep(1000);
-				System.out.println("end sleep, input......" + input);
-			} catch (InterruptedException e) {
-				System.out.println("interrupted......");
-			}
+//			try {
+//				Thread.currentThread().sleep(1000);
+//				System.out.println("end sleep, input......" + input);
+//			} catch (InterruptedException e) {
+//				System.out.println("interrupted......");
+//			}
 			System.out.println("end......" + input);
 		}
 		if (input.startsWith("big ")) {

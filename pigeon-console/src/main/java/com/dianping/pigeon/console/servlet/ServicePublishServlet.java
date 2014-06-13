@@ -36,7 +36,7 @@ public class ServicePublishServlet extends HttpServlet {
 			try {
 				ServiceFactory.publishAllServices();
 				response.getWriter().println("ok");
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("Error while publishing all services", e);
 				response.getWriter().println("error:" + e.getMessage());
 			}

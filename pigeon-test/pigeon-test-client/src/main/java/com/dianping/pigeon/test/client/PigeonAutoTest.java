@@ -33,7 +33,7 @@ public @interface PigeonAutoTest {
 
     String callback() default "null";
 
-    String loadbalance() default "autoaware";
+    String loadbalance() default "";
 
     String cluster() default "failFast";
 

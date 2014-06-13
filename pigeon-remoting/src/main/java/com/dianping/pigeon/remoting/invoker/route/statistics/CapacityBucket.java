@@ -19,8 +19,8 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 
 @SuppressWarnings("serial")
-public class ServiceStatistics implements Serializable {
-	private static final Logger logger = LoggerLoader.getLogger(ServiceStatistics.class);
+public class CapacityBucket implements Serializable {
+	private static final Logger logger = LoggerLoader.getLogger(CapacityBucket.class);
 
 	private String address;
 	private volatile float capacity = 0f;
@@ -37,7 +37,7 @@ public class ServiceStatistics implements Serializable {
 
 	private Lock capacityLock = new ReentrantLock();
 
-	public ServiceStatistics(String address) {
+	public CapacityBucket(String address) {
 		this.address = address;
 		preFillData(); // 为了更优地计算每秒请求数, 使用预填数据代替同步数据结构
 	}
@@ -81,17 +81,15 @@ public class ServiceStatistics implements Serializable {
 	}
 
 	private void incrementTotalRequestInSecond(int second) {
-
 		AtomicInteger counter = totalRequestInSecond.get(second);
 		if (counter != null) {
 			counter.incrementAndGet();
 		} else {
 			logger.error("Impossible case happended, second[" + second + "]'s request counter is null.");
 		}
-
 	}
 
-	private void refreshCapacity(float addition) {
+	public void refreshCapacity(float addition) {
 		capacityLock.lock();
 		try {
 			this.capacity += addition;
