@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -18,7 +19,6 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
-import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
@@ -46,7 +46,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 				StringBuilder msg = new StringBuilder();
 				msg.append("the request has been canceled by timeout checking processor:").append(
 						InvocationUtils.toJsonString(request));
-				throw new RequestTimeoutException(msg.toString());
+				throw new NetTimeoutException(msg.toString());
 			}
 			List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
 			for (ProviderProcessInterceptor interceptor : interceptors) {
