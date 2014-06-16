@@ -9,6 +9,7 @@ import com.dianping.cat.CatConstants;
 import com.dianping.cat.message.MessageProducer;
 import com.dianping.cat.message.Transaction;
 import com.dianping.cat.message.internal.DefaultMessageManager;
+import com.dianping.cat.message.spi.MessageManager;
 import com.dianping.cat.message.spi.MessageTree;
 import com.dianping.phoenix.environment.PhoenixContext;
 import com.dianping.pigeon.monitor.MonitorLogger;
@@ -86,8 +87,7 @@ public class CatMonitorTransaction implements MonitorTransaction {
 			CatLogger logger = (CatLogger) getLogger();
 			MessageProducer producer = logger.getMessageProducer();
 			String serverMessageId = logger.getMessageProducer().createMessageId();
-			DefaultMessageManager messageManager = (DefaultMessageManager) Cat.getManager();
-			String metricType = messageManager.getMetricType();
+			MessageManager messageManager = Cat.getManager();
 			MessageTree tree = messageManager.getThreadLocalMessageTree();
 			if (tree == null) {
 				Cat.setup(null);
@@ -99,7 +99,6 @@ public class CatMonitorTransaction implements MonitorTransaction {
 			invocationContext.putContextValue(CatConstants.PIGEON_ROOT_MESSAGE_ID, rootMessageId);
 			invocationContext.putContextValue(CatConstants.PIGEON_CURRENT_MESSAGE_ID, currentMessageId);
 			invocationContext.putContextValue(CatConstants.PIGEON_SERVER_MESSAGE_ID, serverMessageId);
-			invocationContext.putContextValue("metricType", metricType);
 			// Transfer requestId and referRequestId
 			invocationContext.putContextValue(REQUEST_ID, PhoenixContext.getInstance().getRequestId());
 			invocationContext.putContextValue(REFER_REQUEST_ID, PhoenixContext.getInstance().getReferRequestId());

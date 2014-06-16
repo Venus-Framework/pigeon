@@ -67,11 +67,11 @@
 					<xsd:attribute name="autoSelectPort" type="xsd:boolean"
 						default="true" />
 					<xsd:attribute name="corePoolSize" type="xsd:int"
-						default="100" />
+						default="150" />
 					<xsd:attribute name="maxPoolSize" type="xsd:int"
 						default="300" />
 					<xsd:attribute name="workQueueSize" type="xsd:int"
-						default="100" />
+						default="300" />
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>

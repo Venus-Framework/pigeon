@@ -30,7 +30,7 @@ public @interface Reference {
 
 	String callType() default Constants.CALL_SYNC;
 
-	int timeout() default 2000;
+	int timeout() default Constants.DEFAULT_INVOKER_TIMEOUT;
 
 	String callback() default "";
 
