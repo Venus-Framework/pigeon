@@ -8,7 +8,6 @@ import com.dianping.cat.Cat;
 import com.dianping.cat.CatConstants;
 import com.dianping.cat.message.MessageProducer;
 import com.dianping.cat.message.Transaction;
-import com.dianping.cat.message.internal.DefaultMessageManager;
 import com.dianping.cat.message.spi.MessageManager;
 import com.dianping.cat.message.spi.MessageTree;
 import com.dianping.phoenix.environment.PhoenixContext;
@@ -119,7 +118,6 @@ public class CatMonitorTransaction implements MonitorTransaction {
 			String rootMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_ROOT_MESSAGE_ID);
 			String serverMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_CURRENT_MESSAGE_ID);
 			String currentMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_SERVER_MESSAGE_ID);
-			String metricType = ContextUtils.getContextValue(context, "metricType");
 			// Set requestId & referRequestId
 			String requestId = ContextUtils.getContextValue(context, REQUEST_ID);
 			String referRequestId = ContextUtils.getContextValue(context, REFER_REQUEST_ID);
@@ -128,13 +126,12 @@ public class CatMonitorTransaction implements MonitorTransaction {
 			PhoenixContext.getInstance().setReferRequestId(referRequestId);
 			PhoenixContext.getInstance().setGuid(guid);
 
-			DefaultMessageManager messageManager = (DefaultMessageManager) Cat.getManager();
+			MessageManager messageManager = Cat.getManager();
 			MessageTree tree = messageManager.getThreadLocalMessageTree();
 			if (tree == null) {
 				Cat.setup(null);
 				tree = Cat.getManager().getThreadLocalMessageTree();
 			}
-			messageManager.setMetricType(metricType);
 			tree.setRootMessageId(rootMessageId);
 			tree.setParentMessageId(serverMessageId);
 			tree.setMessageId(currentMessageId);
