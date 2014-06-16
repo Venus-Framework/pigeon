@@ -25,29 +25,7 @@ public class Echo1ServiceImpl implements EchoService {
 
 	@Override
 	public String echo(String input) {
-		// System.out.println(input);
-		if (++count % 10 == 0) {
-			System.out.println("sleep......");
-			// int i = 0;
-			// while(i++ < 99999999) {
-			// if(i == 99999998) {
-			// i = 0;
-			// System.out.println("sleep......");
-			// }
-			// }
-//			try {
-//				Thread.currentThread().sleep(1000);
-//				System.out.println("end sleep, input......" + input);
-//			} catch (InterruptedException e) {
-//				System.out.println("interrupted......");
-//			}
-			System.out.println("end......" + input);
-		}
-		if (input.startsWith("big ")) {
-			return "echo1:" + input + "," + str;
-		} else {
-			return "echo1:" + input;
-		}
+		return "echo1:" + input;
 	}
 
 	@Override

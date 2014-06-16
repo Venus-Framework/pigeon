@@ -13,6 +13,7 @@ import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
 
 public interface Server {
 
@@ -38,4 +39,6 @@ public interface Server {
 	public List<String> getInvokerMetaInfo();
 	
 	public String getProtocol();
+	
+	public RequestProcessor getRequestProcessor();
 }

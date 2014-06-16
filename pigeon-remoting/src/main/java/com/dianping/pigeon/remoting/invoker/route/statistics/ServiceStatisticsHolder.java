@@ -5,14 +5,20 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.route.balance.LoadAutoawareLoadBalance;
 
 public final class ServiceStatisticsHolder {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceStatisticsHolder.class);
+
 	private static ConcurrentHashMap<String, CapacityBucket> serverCapacityBuckets = new ConcurrentHashMap<String, CapacityBucket>();
+
+	public static final boolean statEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.routestat.enable", true);
 
 	public static float getCapacity(String server) {
 		CapacityBucket barrel = serverCapacityBuckets.get(server);
@@ -57,10 +63,17 @@ public final class ServiceStatisticsHolder {
 		}
 	}
 
-	private static boolean checkRequestNeedStat(InvocationRequest request) {
-		return request != null && request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE;
+	public static boolean checkRequestNeedStat(InvocationRequest request) {
+		if (request == null || request.getMessageType() != Constants.MESSAGE_TYPE_SERVICE) {
+			return false;
+		}
+		if (LoadAutoawareLoadBalance.NAME.equals(request.getLoadbalance())) {
+			return true;
+		} else {
+			return statEnable;
+		}
 	}
-	
+
 	public static void removeCapacityBucket(String server) {
 		serverCapacityBuckets.remove(server);
 	}

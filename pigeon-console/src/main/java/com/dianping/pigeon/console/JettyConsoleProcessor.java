@@ -21,6 +21,7 @@ import com.dianping.pigeon.console.servlet.json.DependencyJsonServlet;
 import com.dianping.pigeon.console.servlet.json.InvokeJsonServlet;
 import com.dianping.pigeon.console.servlet.json.ServiceJsonServlet;
 import com.dianping.pigeon.console.servlet.json.ServiceStatusJsonServlet;
+import com.dianping.pigeon.console.servlet.json.StatisticsJsonServlet;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.http.provider.JettyHttpServerProcessor;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
@@ -41,7 +42,8 @@ public class JettyConsoleProcessor implements JettyHttpServerProcessor {
 		context.addServlet(new ServletHolder(new DependencyJsonServlet(serverConfig, port)), "/dependencies.json");
 		context.addServlet(new ServletHolder(new ServiceOnlineServlet(serverConfig, port)), "/services.online");
 		context.addServlet(new ServletHolder(new ServiceOfflineServlet(serverConfig, port)), "/services.offline");
-		
+		context.addServlet(new ServletHolder(new StatisticsJsonServlet(serverConfig, port)), "/stats.json");
+
 		ServletHolder holder = new ServletHolder(new DefaultServlet());
 		URL url = JettyConsoleProcessor.class.getClassLoader().getResource("statics");
 		if (url == null) {

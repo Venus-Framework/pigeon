@@ -44,6 +44,10 @@ public abstract class AbstractServer implements Server {
 			requestProcessor.stop();
 		}
 	}
+	
+	public RequestProcessor getRequestProcessor() {
+		return requestProcessor;
+	}
 
 	@Override
 	public ServerConfig getServerConfig() {

@@ -20,7 +20,7 @@ import com.dianping.pigeon.test.service.EchoService;
  */
 public class DefaultTest extends BaseInvokerTest {
 
-	@PigeonAutoTest(callMethod = "sync", protocol = "default", serialize = "hessian", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 500)
+	@PigeonAutoTest(callMethod = "sync", protocol = "default", serialize = "hessian", url = "http://service.dianping.com/testService/echoService_1.0.0", timeout = 100)
 	public EchoService echoService;
 
 	static AtomicLong counter = new AtomicLong(0);
@@ -29,7 +29,7 @@ public class DefaultTest extends BaseInvokerTest {
 
 	@Test
 	public void test() throws Throwable {
-		int threads = 10;
+		int threads = 50;
 		System.out.println("threads:" + threads);
 		Assert.notNull(echoService);
 		for (int i = 0; i < threads; i++) {

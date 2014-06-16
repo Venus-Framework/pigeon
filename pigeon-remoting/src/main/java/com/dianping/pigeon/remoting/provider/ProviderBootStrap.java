@@ -11,6 +11,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
@@ -46,6 +48,16 @@ public final class ProviderBootStrap {
 
 			ServerConfig config = new ServerConfig();
 			config.setProtocol(Constants.PROTOCOL_HTTP);
+			ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+			boolean useStandalonePool = configManager.getBooleanValue("pigeon.provider.pool.standalone", false);
+			if (useStandalonePool) {
+				int corePoolSize = configManager.getIntValue("pigeon.provider.http.corePoolSize", 5);
+				int maxPoolSize = configManager.getIntValue("pigeon.provider.http.maxPoolSize", 300);
+				int workQueueSize = configManager.getIntValue("pigeon.provider.http.workQueueSize", 300);
+				config.setCorePoolSize(corePoolSize);
+				config.setMaxPoolSize(maxPoolSize);
+				config.setWorkQueueSize(workQueueSize);
+			}
 			List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
 			for (Server server : servers) {
 				if (!server.isStarted()) {

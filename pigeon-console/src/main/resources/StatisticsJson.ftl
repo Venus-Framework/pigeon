@@ -1,0 +1,17 @@
+{"requestsSendInLastSecond": [
+<#list requestsInLastSecond?keys as key>
+	{
+		"address": "${key}",
+		"requestsInLastSecond": "${requestsInLastSecond[key]}"
+	}<#if key_has_next>,</#if>
+</#list>
+],"serverProcessorStatistics": [
+<#list serverProcessorStatistics?keys as key>
+	{
+		"server": "${key}",
+		"processorStatistics": "${serverProcessorStatistics[key]}"
+	}<#if key_has_next>,</#if>
+</#list>
+]
+}
+

@@ -10,9 +10,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.apache.log4j.Logger;
-
-import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.RejectedException;
@@ -26,12 +24,24 @@ import com.dianping.pigeon.threadpool.ThreadPool;
 
 public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
-	private static ThreadPool requestProcessThreadPool = null;
+	private static final boolean useStandalonePool = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.provider.pool.standalone", false);
+
+	private static ThreadPool sharedRequestProcessThreadPool = null;
+
+	private ThreadPool requestProcessThreadPool = null;
 
 	public RequestThreadPoolProcessor(ServerConfig serverConfig) {
-		requestProcessThreadPool = new DefaultThreadPool("Pigeon-Server-Request-Processor",
-				serverConfig.getCorePoolSize(), serverConfig.getMaxPoolSize(), new LinkedBlockingQueue<Runnable>(
-						serverConfig.getWorkQueueSize()));
+		if (useStandalonePool) {
+			requestProcessThreadPool = new DefaultThreadPool("Pigeon-Server-Request-Processor-"
+					+ serverConfig.getProtocol() + "-" + serverConfig.getPort(), serverConfig.getCorePoolSize(),
+					serverConfig.getMaxPoolSize(), new LinkedBlockingQueue<Runnable>(serverConfig.getWorkQueueSize()));
+		} else {
+			sharedRequestProcessThreadPool = new DefaultThreadPool("Pigeon-Server-Request-Processor",
+					serverConfig.getCorePoolSize(), serverConfig.getMaxPoolSize(), new LinkedBlockingQueue<Runnable>(
+							serverConfig.getWorkQueueSize()));
+			requestProcessThreadPool = sharedRequestProcessThreadPool;
+		}
 	}
 
 	public void doStop() {
@@ -60,8 +70,14 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 			}
 		};
 
+		ThreadPool pool = null;
+		if (useStandalonePool) {
+			pool = requestProcessThreadPool;
+		} else {
+			pool = sharedRequestProcessThreadPool;
+		}
 		try {
-			return requestProcessThreadPool.submit(requestExecutor);
+			return pool.submit(requestExecutor);
 		} catch (RejectedExecutionException e) {
 			throw new RejectedException(getProcessorStatistics(), e);
 		}
@@ -69,7 +85,13 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 	@Override
 	public String getProcessorStatistics() {
-		ThreadPoolExecutor e = requestProcessThreadPool.getExecutor();
+		ThreadPool pool = null;
+		if (useStandalonePool) {
+			pool = requestProcessThreadPool;
+		} else {
+			pool = sharedRequestProcessThreadPool;
+		}
+		ThreadPoolExecutor e = pool.getExecutor();
 		String stats = String.format(
 				"request pool size:%d(active:%d,core:%d,max:%d,largest:%d),task count:%d(completed:%d),queue size:%d",
 				e.getPoolSize(), e.getActiveCount(), e.getCorePoolSize(), e.getMaximumPoolSize(),

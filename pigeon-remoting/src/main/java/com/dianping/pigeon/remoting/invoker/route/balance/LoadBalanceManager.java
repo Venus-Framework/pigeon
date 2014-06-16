@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
@@ -27,6 +28,7 @@ import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListener;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListenerManager;
 import com.dianping.pigeon.remoting.invoker.route.statistics.CapacityChecker;
+import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
 
@@ -41,14 +43,19 @@ public class LoadBalanceManager {
 	public static final String DEFAULT_LOADBALANCE = configManager.getStringValue(Constants.KEY_LOADBALANCE,
 			RoundRobinLoadBalance.NAME);
 
-	private static ConcurrentHashMap<String, Integer> weightFactors = new ConcurrentHashMap<String, Integer>();
+	private static ConcurrentHashMap<String, WeightFactor> weightFactors = new ConcurrentHashMap<String, WeightFactor>();
 
 	private static ConcurrentHashMap<String, Integer> weights = new ConcurrentHashMap<String, Integer>();
 
 	private static int initialFactor = configManager.getIntValue("pigeon.loadbalance.initialFactor", 0);
 	private static int defaultFactor = configManager.getIntValue("pigeon.loadbalance.defaultFactor", 100);
-	private static long interval = configManager.getLongValue("pigeon.loadbalance.interval", 3000);
+	private static long interval = configManager.getLongValue("pigeon.loadbalance.interval", 200);
 	private static int step = configManager.getIntValue("pigeon.loadbalance.step", 10);
+	private static String stepTicks = configManager
+			.getStringValue(
+					"pigeon.loadbalance.stepticks",
+					"0:15;1:15;2:15;3:15;4:15;5:10;6:10;7:10;8:10;9:10;10:5;11:5;12:5;13:5;14:5;15:3;16:3;17:3;18:3;19:3;20:2;21:2;22:2;23:2;24:2");
+	private static Map<Integer, Integer> stepTicksMap = new HashMap<Integer, Integer>();
 
 	private static ThreadPool loadbalanceThreadPool = new DefaultThreadPool("Pigeon-Client-Loadbalance-ThreadPool");
 
@@ -82,8 +89,9 @@ public class LoadBalanceManager {
 				loadBalanceMap.put(invokerConfig.getLoadbalance(), loadBalance);
 				return loadBalance;
 			} else {
-				logError("the loadbalance[" + DEFAULT_LOADBALANCE + "] is invalid, only support "
-						+ loadBalanceMap.keySet() + ".", null);
+				logError(
+						"the loadbalance[" + DEFAULT_LOADBALANCE + "] is invalid, only support "
+								+ loadBalanceMap.keySet() + ".", null);
 			}
 		}
 		return loadBalance;
@@ -128,11 +136,11 @@ public class LoadBalanceManager {
 		if (w == null) {
 			w = 1;
 		}
-		Integer wf = weightFactors.get(clientAddress);
+		WeightFactor wf = weightFactors.get(clientAddress);
 		if (wf == null) {
 			return w * defaultFactor;
 		} else {
-			return w * wf.intValue();
+			return w * wf.getFactor();
 		}
 	}
 
@@ -143,6 +151,23 @@ public class LoadBalanceManager {
 		loadbalanceThreadPool.execute(weightFactorMaintainer);
 		CapacityChecker serviceStatisticsChecker = new CapacityChecker();
 		loadbalanceThreadPool.execute(serviceStatisticsChecker);
+
+		// initialize step ticks
+		if (StringUtils.isNotBlank(stepTicks)) {
+			try {
+				String[] ticks = stepTicks.split(";");
+				for (String tick : ticks) {
+					if (StringUtils.isNotBlank(tick)) {
+						String[] kv = tick.split(":");
+						if (kv.length == 2) {
+							stepTicksMap.put(Integer.valueOf(kv[0]), Integer.valueOf(kv[1]));
+						}
+					}
+				}
+			} catch (RuntimeException e) {
+				logger.error("", e);
+			}
+		}
 	}
 
 	private static void logError(String message, Throwable t) {
@@ -154,6 +179,32 @@ public class LoadBalanceManager {
 			}
 			errorLogSeed = 0;
 		}
+	}
+
+	private static class WeightFactor {
+		private int factor;
+		private int currentStepTicks;
+
+		public WeightFactor(int initialFactor) {
+			factor = initialFactor;
+		}
+
+		public int getFactor() {
+			return factor;
+		}
+
+		public void setFactor(int factor) {
+			this.factor = factor;
+		}
+
+		public int getCurrentStepTicks() {
+			return currentStepTicks;
+		}
+
+		public void setCurrentStepTicks(int currentStepTicks) {
+			this.currentStepTicks = currentStepTicks;
+		}
+
 	}
 
 	private static class WeightFactorMaintainer implements Runnable, ServiceProviderChangeListener, ClusterListener {
@@ -183,12 +234,23 @@ public class LoadBalanceManager {
 		}
 
 		private void adjustFactor() {
-			Iterator<Entry<String, Integer>> it = weightFactors.entrySet().iterator();
+			Iterator<Entry<String, WeightFactor>> it = weightFactors.entrySet().iterator();
 			while (it.hasNext()) {
-				Entry<String, Integer> entry = it.next();
-				if (entry.getValue() < defaultFactor) {
-					int factor = Math.min(defaultFactor, entry.getValue() + step);
-					entry.setValue(factor);
+				Entry<String, WeightFactor> entry = it.next();
+				WeightFactor weightFactor = entry.getValue();
+				if (weightFactor.getFactor() < defaultFactor) {
+					Integer ticks = stepTicksMap.get(weightFactor.getFactor());
+					if (ticks == null) {
+						ticks = 1;
+					}
+					int currentStepTicks = weightFactor.getCurrentStepTicks();
+					weightFactor.setCurrentStepTicks(currentStepTicks + 1);
+					if (weightFactor.getCurrentStepTicks() >= ticks) {
+						int factor = Math.min(defaultFactor, weightFactor.getFactor() + step);
+						weightFactor.setFactor(factor);
+						weightFactor.setCurrentStepTicks(0);
+						entry.setValue(weightFactor);
+					}
 				}
 			}
 		}
@@ -208,12 +270,13 @@ public class LoadBalanceManager {
 			Integer originalWeight = weights.get(event.getConnect());
 			weights.put(event.getConnect(), event.getWeight());
 			if ((originalWeight == null || originalWeight.intValue() == 0) && event.getWeight() > 0) {
-				weightFactors.put(event.getConnect(), initialFactor);
+				weightFactors.put(event.getConnect(), new WeightFactor(initialFactor));
 			}
 		}
 
 		@Override
 		public void addConnect(ConnectInfo cmd) {
+			addWeight(cmd.getConnect(), RegistryManager.getInstance().getServiceWeight(cmd.getConnect()));
 		}
 
 		@Override
@@ -233,12 +296,13 @@ public class LoadBalanceManager {
 
 		private void addWeight(String address, int weight) {
 			weights.put(address, weight);
-			weightFactors.put(address, initialFactor);
+			weightFactors.put(address, new WeightFactor(initialFactor));
 		}
 
 		private void removeWeight(String address) {
 			weights.remove(address);
 			weightFactors.remove(address);
+			ServiceStatisticsHolder.removeCapacityBucket(address);
 		}
 
 	}

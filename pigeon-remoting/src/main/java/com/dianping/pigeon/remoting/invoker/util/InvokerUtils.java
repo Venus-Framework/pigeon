@@ -38,8 +38,8 @@ public class InvokerUtils {
 			callback.setRequest(request);
 			callback.setClient(client);
 			invocationRepository.put(request.getSequence(), invocationBean);
-			TimelineManager.time(request, TimelineManager.getLocalIp(), Phase.Start);
 		}
+		TimelineManager.time(request, TimelineManager.getLocalIp(), Phase.Start);
 		InvocationResponse response = null;
 		try {
 			response = client.write(request, callback);

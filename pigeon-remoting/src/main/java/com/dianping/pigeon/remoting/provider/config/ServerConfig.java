@@ -4,8 +4,6 @@
  */
 package com.dianping.pigeon.remoting.provider.config;
 
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;

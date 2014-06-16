@@ -66,8 +66,10 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 					/ (weight > 0 ? weight : defaultFactor));
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("total requests to " + selectedClient.getAddress() + " in last second:"
-					+ ServiceStatisticsHolder.getCapacityBucket(selectedClient.getAddress()).getLastSecondRequest());
+			if (ServiceStatisticsHolder.checkRequestNeedStat(request)) {
+				logger.debug("total requests to " + selectedClient.getAddress() + " in last second:"
+						+ ServiceStatisticsHolder.getCapacityBucket(selectedClient.getAddress()).getLastSecondRequest());
+			}
 		}
 		return selectedClient;
 	}
