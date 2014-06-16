@@ -81,21 +81,18 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 
 	@Override
 	public void doStart(ServerConfig serverConfig) {
-		if (!started) {
+		int retries = 0;
+		while (!started) {
 			server = newServer(serverConfig);
+			retries++;
 			try {
 				server.start();
 				serverConfig.setHttpPort(this.port);
 				started = true;
 			} catch (Throwable e) {
-				server = newServer(serverConfig);
-				try {
-					server.start();
-					serverConfig.setHttpPort(this.port);
-					started = true;
-				} catch (Throwable e2) {
+				if (retries > 3) {
 					throw new IllegalStateException("failed to start jetty server on " + serverConfig.getHttpPort()
-							+ ", cause: " + e.getMessage(), e2);
+							+ ", cause: " + e.getMessage(), e);
 				}
 			}
 		}
