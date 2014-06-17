@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceFuture;
+import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
@@ -47,8 +48,10 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		try {
 			response = super.get(timeoutMillis);
 		} catch (Throwable e) {
-			RpcException rpcEx = null;
-			if (e instanceof RpcException) {
+			RuntimeException rpcEx = null;
+			if (e instanceof DPSFException) {
+				rpcEx = (DPSFException) e;
+			} else if (e instanceof RpcException) {
 				rpcEx = (RpcException) e;
 			} else {
 				rpcEx = new RpcException(e);
@@ -66,9 +69,10 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 			throw cause;
 		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 			RuntimeException cause = InvokerUtils.toApplicationRuntimeException(response);
-			// logger.error("error with remote business future call", cause);
-			// monitorLogger.logError("error with remote business future call",
-			// cause);
+			if (Constants.LOG_APP_EXCEPTION) {
+				logger.error("error with remote business future call", cause);
+				monitorLogger.logError("error with remote business future call", cause);
+			}
 			throw cause;
 		} else {
 			RpcException e = new InvalidParameterException("unsupported response with message type:"

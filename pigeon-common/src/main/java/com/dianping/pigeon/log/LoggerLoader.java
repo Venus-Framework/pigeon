@@ -7,8 +7,6 @@ import java.io.File;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Appender;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
@@ -36,7 +34,6 @@ public class LoggerLoader {
 	}
 
 	private static final String LOGGER_NAME = "com.dianping.pigeon";
-	public static final Log log = LogFactory.getLog(LOGGER_NAME);
 	public static final Logger rootLogger = new RootLogger(Level.INFO);
 	private static LoggerRepository loggerRepository = null;
 	private static Level level = Level.INFO;
@@ -49,23 +46,25 @@ public class LoggerLoader {
 		Properties logPro = new Properties();
 		String logLevel = "info";
 		String logSuffix = "default";
-		/*ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
-		if(configManager != null) {
-			logLevel = configManager.getStringValue("pigeon.log.defaultlevel", logLevel);
-		}*/
-		
+		/*
+		 * ConfigManager configManager =
+		 * ExtensionLoader.getExtension(ConfigManager.class); if(configManager
+		 * != null) { logLevel =
+		 * configManager.getStringValue("pigeon.log.defaultlevel", logLevel); }
+		 */
+
 		try {
 			logPro.load(LoggerLoader.class.getClassLoader().getResourceAsStream("config/applicationContext.properties"));
 			logLevel = logPro.getProperty("pigeon.logLevel") == null ? null : logPro.getProperty("pigeon.logLevel");
 			logSuffix = logPro.getProperty("pigeon.logSuffix");
 		} catch (Throwable e) {
-			log.warn("no pigeon log config found in config/applicationContext.properties");
+			System.out.println("no pigeon log config found in config/applicationContext.properties");
 		}
 		if (logSuffix == null || logSuffix.length() < 1) {
 			try {
 				logSuffix = logPro.get("app.prefix").toString();
 			} catch (Throwable e) {
-				log.warn("no app.prefix found in config/applicationContext.properties");
+				System.out.println("no app.prefix found in config/applicationContext.properties");
 			}
 		}
 
@@ -81,7 +80,7 @@ public class LoggerLoader {
 		LoggerRepository lr = new Hierarchy(rootLogger);
 		new DOMConfigurator().doConfigure(LoggerLoader.class.getClassLoader().getResource("pigeon_log4j.xml"), lr);
 		rootLogger.setLevel(level);
-		
+
 		String osName = System.getProperty("os.name");
 		String bizLogDir = null;
 		if (osName != null && osName.toLowerCase().indexOf("windows") > -1) {
@@ -91,7 +90,7 @@ public class LoggerLoader {
 			Appender appender = (Appender) appenders.nextElement();
 			if (FileAppender.class.isInstance(appender)) {
 				FileAppender logFileAppender = (FileAppender) appender;
-//				logFileAppender.setThreshold(level);
+				// logFileAppender.setThreshold(level);
 				String logFileName = logFileAppender.getFile();
 				File deleteFile = new File(logFileName);
 				if (logSuffix != null) {
@@ -107,11 +106,11 @@ public class LoggerLoader {
 					if (deleteFile.exists()) {
 						deleteFile.delete();
 					}
-					log.warn(logFileAppender.getFile() + "的输出路径改变为:" + logFileName);
+					System.out.println(logFileAppender.getFile() + "的输出路径改变为:" + logFileName);
 				}
 			} else if (ConsoleAppender.class.isInstance(appender)) {
 				ConsoleAppender consoleAppender = (ConsoleAppender) appender;
-//				consoleAppender.setThreshold(level);
+				// consoleAppender.setThreshold(level);
 			}
 		}
 
@@ -128,7 +127,7 @@ public class LoggerLoader {
 			initLogger(name);
 		}
 		Logger logger = loggerRepository.getLogger(name);
-//		logger.setLevel(level);
+		// logger.setLevel(level);
 		return logger;
 	}
 

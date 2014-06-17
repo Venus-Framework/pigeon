@@ -60,10 +60,10 @@ public class ServiceCallbackWrapper implements Callback {
 			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 				Throwable cause = InvokerUtils.toApplicationException(response);
 				Exception businessException = (Exception) cause;
-				// logger.error("error with remote business callback",
-				// businessException);
-				// monitorLogger.logError("error with remote business callback",
-				// businessException);
+				if (Constants.LOG_APP_EXCEPTION) {
+					logger.error("error with remote business callback", businessException);
+					monitorLogger.logError("error with remote business callback", businessException);
+				}
 				this.callback.serviceException(businessException);
 			} else {
 				RpcException e = new InvalidParameterException("unsupported response with message type:"

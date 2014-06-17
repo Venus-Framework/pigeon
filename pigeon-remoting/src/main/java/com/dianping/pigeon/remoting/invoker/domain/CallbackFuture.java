@@ -85,14 +85,15 @@ public class CallbackFuture implements Callback, CallFuture {
 				logger.error(sb.toString(), cause);
 				monitorLogger.logError(sb.toString(), cause);
 			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-				// Throwable cause =
-				// InvokerUtils.toApplicationException(response);
-				// StringBuilder sb = new StringBuilder();
-				// sb.append("remote service exception\r\nrequest:").append(InvocationUtils.toJsonString(request))
-				// .append("\r\nhost:").append(client.getHost()).append(":").append(client.getPort())
-				// .append("\r\nresponse:").append(InvocationUtils.toJsonString(response));
-				// logger.error(sb.toString(), cause);
-				// monitorLogger.logError(sb.toString(), cause);
+				if (Constants.LOG_APP_EXCEPTION) {
+					Throwable cause = InvokerUtils.toApplicationException(response);
+					StringBuilder sb = new StringBuilder();
+					sb.append("remote service exception\r\nrequest:").append(InvocationUtils.toJsonString(request))
+							.append("\r\nhost:").append(client.getHost()).append(":").append(client.getPort())
+							.append("\r\nresponse:").append(InvocationUtils.toJsonString(response));
+					logger.error(sb.toString(), cause);
+					monitorLogger.logError(sb.toString(), cause);
+				}
 			}
 			return this.response;
 		}
