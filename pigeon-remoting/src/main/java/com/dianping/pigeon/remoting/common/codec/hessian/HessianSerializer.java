@@ -20,6 +20,8 @@ import com.dianping.pigeon.remoting.common.exception.SerializationException;
  */
 public class HessianSerializer extends DefaultAbstractSerializer {
 
+	HessianSerializerFactory sessianSerializerFactory = new HessianSerializerFactory();
+	
 	@Override
 	public Object deserializeResponse(InputStream is) throws SerializationException {
 		return deserializeRequest(is);
@@ -28,6 +30,7 @@ public class HessianSerializer extends DefaultAbstractSerializer {
 	@Override
 	public Object deserializeRequest(InputStream is) throws SerializationException {
 		Hessian2Input h2in = new Hessian2Input(is);
+		h2in.setSerializerFactory(sessianSerializerFactory);
 		try {
 			return h2in.readObject();
 		} catch (Throwable t) {
@@ -49,6 +52,7 @@ public class HessianSerializer extends DefaultAbstractSerializer {
 	@Override
 	public void serializeRequest(OutputStream os, Object obj) throws SerializationException {
 		Hessian2Output h2out = new Hessian2Output(os);
+		h2out.setSerializerFactory(sessianSerializerFactory);
 		try {
 			h2out.writeObject(obj);
 			h2out.flush();

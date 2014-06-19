@@ -69,20 +69,15 @@ public class LoadBalanceManager {
 	 * @return
 	 */
 	public static LoadBalance getLoadBalance(InvokerConfig<?> invokerConfig, int callType) {
-		LoadBalance loadBalance = loadBalanceMap.get(invokerConfig.getLoadbalance());
+		String serviceId = getServiceId(invokerConfig.getUrl(), invokerConfig.getGroup());
+		LoadBalance loadBalance = loadBalanceMap.get(serviceId);
 		if (loadBalance != null) {
 			return loadBalance;
 		}
-
-		String serviceId = invokerConfig.getUrl();
-		if (invokerConfig.getGroup() != null) {
-			serviceId = serviceId + ":" + invokerConfig.getGroup();
-		}
-		loadBalance = loadBalanceMap.get(serviceId);
+		loadBalance = loadBalanceMap.get(invokerConfig.getLoadbalance());
 		if (loadBalance != null) {
 			return loadBalance;
 		}
-
 		if (DEFAULT_LOADBALANCE != null) {
 			loadBalance = loadBalanceMap.get(DEFAULT_LOADBALANCE);
 			if (loadBalance != null) {
@@ -97,12 +92,17 @@ public class LoadBalanceManager {
 		return loadBalance;
 	}
 
-	@SuppressWarnings("unchecked")
-	public static void register(String serviceName, String group, Object loadBalance) {
+	private static String getServiceId(String serviceName, String group) {
 		String serviceId = serviceName;
-		if (group != null) {
+		if (StringUtils.isNotBlank(group)) {
 			serviceId = serviceId + ":" + group;
 		}
+		return serviceId;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static void register(String serviceName, String group, Object loadBalance) {
+		String serviceId = getServiceId(serviceName, group);
 		if (loadBalanceMap.containsKey(serviceId)) {
 			logger.warn("Duplicate loadbalance already registered with service[" + serviceId + "], replace it.");
 		}
