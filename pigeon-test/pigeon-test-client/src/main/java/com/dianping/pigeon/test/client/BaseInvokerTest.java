@@ -70,7 +70,7 @@ public class BaseInvokerTest {
 				factory.setTimeoutRetry(test.timeoutRetry());
 				factory.setRetries(test.retries());
 				factory.setProtocol(test.protocol());
-				factory.setLoadbalance(test.loadbalance());
+				factory.setLoadBalance(test.loadbalance());
 				factory.setVip(test.vip());
 				if (!test.callback().equals("null")) {
 					callback = (ServiceCallback) Class.forName(test.callback()).newInstance();

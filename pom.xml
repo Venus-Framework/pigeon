@@ -5,7 +5,7 @@
 	<groupId>com.dianping</groupId>
 	<artifactId>pigeon-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>2.1.21</version>
+	<version>2.1.22</version>
 	<name>pigeon-parent</name>
 	<organization>
 		<name>dianping</name>
@@ -13,7 +13,7 @@
 	</organization>
 	<inceptionYear>2010.08</inceptionYear>
 	<properties>
-		<pigeon.version>2.1.21</pigeon.version>
+		<pigeon.version>2.1.22</pigeon.version>
 		<spring_version>2.5.6</spring_version>
 		<jetty_version>6.1.26</jetty_version>
 	</properties>
