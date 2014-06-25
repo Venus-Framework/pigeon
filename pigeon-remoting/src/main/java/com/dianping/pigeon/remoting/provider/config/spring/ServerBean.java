@@ -29,7 +29,7 @@ public class ServerBean {
 			Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
 	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
 			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
-	private String group;
+	private String group = configManager.getGroup();
 	private volatile ServerConfig serverConfig;
 
 	public boolean isAutoSelectPort() {
@@ -94,7 +94,7 @@ public class ServerBean {
 				if (serverConfig == null) {
 					serverConfig = new ServerConfig();
 					serverConfig.setPort(port);
-					serverConfig.setHttpPort(httpPort);
+					serverConfig.setGroup(group);
 					serverConfig.setAutoSelectPort(autoSelectPort);
 					serverConfig.setCorePoolSize(corePoolSize);
 					serverConfig.setMaxPoolSize(maxPoolSize);

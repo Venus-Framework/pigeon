@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.remoting.invoker.config;
 
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -65,6 +67,16 @@ public class InvokerConfig<T> {
 	private int maxRequests = configManager.getIntValue(Constants.KEY_INVOKER_MAXREQUESTS, 0);
 
 	private String protocol = Constants.PROTOCOL_DEFAULT;
+
+	private Map<String, InvokerMethodConfig> methods;
+
+	public Map<String, InvokerMethodConfig> getMethods() {
+		return methods;
+	}
+
+	public void setMethods(Map<String, InvokerMethodConfig> methods) {
+		this.methods = methods;
+	}
 
 	public String getProtocol() {
 		return protocol;

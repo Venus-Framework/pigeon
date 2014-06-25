@@ -10,23 +10,21 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.provider.config.ProviderMethodConfig;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: PigeonBeanDefinitionParser.java, v 0.1 2013-6-24 下午9:58:37
- *          jianhuihuang Exp $
- */
 public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 
 	/** Default placeholder prefix: "${" */
@@ -91,9 +89,67 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 		if (element.hasAttribute("cancelTimeout")) {
 			properties.addPropertyValue("cancelTimeout", resolveReference(element, "cancelTimeout"));
 		}
+		if (element.hasAttribute("useSharedPool")) {
+			properties.addPropertyValue("useSharedPool", resolveReference(element, "useSharedPool"));
+		}
+		if (element.hasChildNodes()) {
+			parseMethods(id, element.getChildNodes(), beanDefinition, parserContext);
+		}
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
 
 		return beanDefinition;
+	}
+
+	private static BeanDefinition parseMethod(Element element, ParserContext parserContext, Class<?> beanClass,
+			boolean required) {
+		RootBeanDefinition beanDefinition = new RootBeanDefinition();
+		beanDefinition.setLazyInit(false);
+		String id = element.getAttribute("id");
+		if (StringUtils.isBlank(id)) {
+			id = "pigeonService_" + idCounter.incrementAndGet();
+		}
+		beanDefinition.setBeanClass(beanClass);
+		MutablePropertyValues properties = beanDefinition.getPropertyValues();
+		if (element.hasAttribute("name")) {
+			properties.addPropertyValue("name", resolveReference(element, "name"));
+		}
+		if (element.hasAttribute("actives")) {
+			properties.addPropertyValue("actives", resolveReference(element, "actives"));
+		}
+		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
+
+		return beanDefinition;
+	}
+
+	private static void parseMethods(String id, NodeList nodeList, RootBeanDefinition beanDefinition,
+			ParserContext parserContext) {
+		if (nodeList != null && nodeList.getLength() > 0) {
+			ManagedList methods = null;
+			for (int i = 0; i < nodeList.getLength(); i++) {
+				Node node = nodeList.item(i);
+				if (node instanceof Element) {
+					Element element = (Element) node;
+					if ("method".equals(node.getNodeName()) || "method".equals(node.getLocalName())) {
+						String methodName = element.getAttribute("name");
+						if (methodName == null || methodName.length() == 0) {
+							throw new IllegalStateException("<pigeon:method> name attribute == null");
+						}
+						if (methods == null) {
+							methods = new ManagedList();
+						}
+						BeanDefinition methodBeanDefinition = parseMethod(((Element) node), parserContext,
+								ProviderMethodConfig.class, false);
+						String name = id + "." + methodName;
+						BeanDefinitionHolder methodBeanDefinitionHolder = new BeanDefinitionHolder(
+								methodBeanDefinition, name);
+						methods.add(methodBeanDefinitionHolder);
+					}
+				}
+			}
+			if (methods != null) {
+				beanDefinition.getPropertyValues().addPropertyValue("methods", methods);
+			}
+		}
 	}
 
 	private static String resolveReference(Element element, String attribute) {

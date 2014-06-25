@@ -2,7 +2,11 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.dpsf.spring;
+package com.dianping.pigeon.remoting.invoker.config.spring;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -15,28 +19,23 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.config.InvokerMethodConfig;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
+import com.dianping.pigeon.util.CollectionUtils;
 
-public class ProxyBeanFactory implements FactoryBean {
+public class ReferenceBean implements FactoryBean {
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	private String serviceName;
+	private String url;
 
-	private String iface;
+	private String interfaceName;
 
 	private String serialize = Constants.SERIALIZE_HESSIAN;
 
-	private String callMethod = Constants.CALL_SYNC;
+	private String callType = Constants.CALL_SYNC;
 
-	/**
-	 * server 端和client端都有该逻辑。 1. Failover:失败自动切换，当出现失败，重试其它服务器。(缺省),
-	 * 重试几次，使用retries参数 2. Failfast:快速失败，只发起一次调用，失败立即报错 3.
-	 * Failsafe:失败安全，出现异常时，直接忽略 4. Failback:失败自动恢复，后台记录失败请求，定时重发,
-	 * 重发次数，使用retries参数 5. Forking:并行调用多个服务器，只要一个成功即返回。 6.
-	 * Broadcast:广播调用所有提供者，逐个调用，任意一台报错则报错。
-	 */
 	private String cluster = Constants.CLUSTER_FAILFAST;
 
 	/**
@@ -53,18 +52,6 @@ public class ProxyBeanFactory implements FactoryBean {
 
 	private boolean timeoutRetry;
 
-	/**
-	 * @deprecated 后续不在支持调用配置
-	 */
-	@SuppressWarnings("unused")
-	private String hosts;
-
-	/**
-	 * @deprecated 后续不在支持配置权重
-	 */
-	@SuppressWarnings("unused")
-	private String weight;
-
 	private int timeout = configManager.getIntValue(Constants.KEY_INVOKER_TIMEOUT, Constants.DEFAULT_INVOKER_TIMEOUT);
 
 	private Object obj;
@@ -76,6 +63,16 @@ public class ProxyBeanFactory implements FactoryBean {
 	private String version;
 
 	private String protocol;
+
+	private List<InvokerMethodConfig> methods;
+
+	public List<InvokerMethodConfig> getMethods() {
+		return methods;
+	}
+
+	public void setMethods(List<InvokerMethodConfig> methods) {
+		this.methods = methods;
+	}
 
 	public String getProtocol() {
 		return protocol;
@@ -113,9 +110,6 @@ public class ProxyBeanFactory implements FactoryBean {
 	 * @deprecated
 	 */
 	private LoadBalance loadBalanceObj;
-
-	@SuppressWarnings("unused")
-	private boolean isTest = false;
 
 	/**
 	 * 是否对写Buffer限制大小(对于channel使用到的queue buffer的大小限制, 避免OutOfMemoryError)
@@ -180,27 +174,15 @@ public class ProxyBeanFactory implements FactoryBean {
 	}
 
 	/**
-	 * @param serviceName
-	 *            the serviceName to set
+	 * @param url
+	 *            the url to set
 	 */
-	public void setServiceName(String serviceName) {
-		this.serviceName = serviceName;
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
-	/**
-	 * @param callMethod
-	 *            the callMethod to set
-	 */
-	public void setCallMethod(String callMethod) {
-		this.callMethod = callMethod;
-	}
-
-	/**
-	 * @param hosts
-	 *            the hosts to set
-	 */
-	public void setHosts(String hosts) {
-		this.hosts = hosts;
+	public void setCallType(String callType) {
+		this.callType = callType;
 	}
 
 	/**
@@ -211,12 +193,8 @@ public class ProxyBeanFactory implements FactoryBean {
 		this.timeout = timeout;
 	}
 
-	/**
-	 * @param iface
-	 *            the iface to set
-	 */
-	public void setIface(String iface) {
-		this.iface = iface;
+	public void setInterfaceName(String interfaceName) {
+		this.interfaceName = interfaceName;
 	}
 
 	/**
@@ -225,14 +203,6 @@ public class ProxyBeanFactory implements FactoryBean {
 	 */
 	public void setSerialize(String serialize) {
 		this.serialize = serialize;
-	}
-
-	/**
-	 * @param weight
-	 *            the weight to set
-	 */
-	public void setWeight(String weight) {
-		this.weight = weight;
 	}
 
 	/**
@@ -263,28 +233,25 @@ public class ProxyBeanFactory implements FactoryBean {
 		this.loadBalanceObj = loadBalanceObj;
 	}
 
-	/**
-	 * @deprecated
-	 * 
-	 * @param isTest
-	 */
-	public void setIsTest(boolean isTest) {
-		this.isTest = isTest;
-	}
-
 	public void setWriteBufferLimit(boolean writeBufferLimit) {
 		this.writeBufferLimit = writeBufferLimit;
 	}
 
 	public void init() throws Exception {
-		if (StringUtils.isBlank(iface)) {
-			throw new IllegalArgumentException("invalid interface:" + iface);
+		if (StringUtils.isBlank(interfaceName)) {
+			throw new IllegalArgumentException("invalid interface:" + interfaceName);
 		}
-		this.objType = Class.forName(this.iface.trim());
-		InvokerConfig invokerConfig = new InvokerConfig(this.objType, this.serviceName, this.timeout, this.callMethod,
+		this.objType = Class.forName(this.interfaceName.trim());
+		InvokerConfig<?> invokerConfig = new InvokerConfig(this.objType, this.url, this.timeout, this.callType,
 				this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadBalance, this.cluster,
 				this.retries, this.timeoutRetry, this.vip, this.version, this.protocol);
-
+		if (!CollectionUtils.isEmpty(methods)) {
+			Map<String, InvokerMethodConfig> methodMap = new HashMap<String, InvokerMethodConfig>();
+			invokerConfig.setMethods(methodMap);
+			for (InvokerMethodConfig method : methods) {
+				methodMap.put(method.getName(), method);
+			}
+		}
 		this.obj = ServiceFactory.getService(invokerConfig);
 		configLoadBalance();
 	}
@@ -293,7 +260,7 @@ public class ProxyBeanFactory implements FactoryBean {
 		Object loadBalanceToSet = loadBalanceObj != null ? loadBalanceObj
 				: (loadBalanceClass != null ? loadBalanceClass : (loadBalance != null ? loadBalance : null));
 		if (loadBalanceToSet != null) {
-			LoadBalanceManager.register(serviceName, group, loadBalanceToSet);
+			LoadBalanceManager.register(url, group, loadBalanceToSet);
 		}
 	}
 

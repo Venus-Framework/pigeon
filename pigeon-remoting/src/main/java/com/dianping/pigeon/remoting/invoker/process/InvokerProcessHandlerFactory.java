@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.DefaultExtension;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -24,7 +23,7 @@ import com.dianping.pigeon.remoting.invoker.process.filter.InvocationInvokeFilte
 import com.dianping.pigeon.remoting.invoker.process.filter.RemoteCallInvokeFilter;
 import com.dianping.pigeon.remoting.invoker.process.filter.RemoteCallMonitorInvokeFilter;
 
-public final class InvokerProcessHandlerFactory extends DefaultExtension {
+public final class InvokerProcessHandlerFactory {
 
 	private static List<InvocationInvokeFilter> bizProcessFilters = new LinkedList<InvocationInvokeFilter>();
 
@@ -83,8 +82,4 @@ public final class InvokerProcessHandlerFactory extends DefaultExtension {
 		bizProcessFilters.clear();
 	}
 
-	@Override
-	public void registerContribution(Object contribution, String extensionPoint) {
-		System.out.println("register contribution: " + contribution + "@" + extensionPoint);
-	}
 }

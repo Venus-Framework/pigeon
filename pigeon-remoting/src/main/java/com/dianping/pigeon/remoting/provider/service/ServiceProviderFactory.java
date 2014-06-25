@@ -62,7 +62,7 @@ public final class ServiceProviderFactory {
 		return newUrl;
 	}
 
-	public static <T> void addService(ProviderConfig<T> providerConfig) {
+	public static <T> void addService(ProviderConfig<T> providerConfig) throws Exception {
 		if (logger.isInfoEnabled()) {
 			logger.info("add service:" + providerConfig);
 		}
@@ -89,6 +89,10 @@ public final class ServiceProviderFactory {
 				serviceCache.put(url, providerConfig);
 			}
 		}
+		T service = providerConfig.getService();
+		if (service instanceof InitializingService) {
+			((InitializingService) service).initialize();
+		}
 		ServiceMethodFactory.init(url);
 	}
 
@@ -110,7 +114,6 @@ public final class ServiceProviderFactory {
 			List<Server> servers = ProviderBootStrap.getServers(providerConfig);
 			int registerCount = 0;
 			for (Server server : servers) {
-				server.addService(providerConfig);
 				publishService(server.getRegistryUrl(url), server.getPort(), providerConfig.getServerConfig()
 						.getGroup());
 				registerCount++;
@@ -253,6 +256,14 @@ public final class ServiceProviderFactory {
 			if (pc.getUrl().equals(url)) {
 				unpublishService(pc);
 				toRemovedUrls.add(key);
+				Object service = pc.getService();
+				if (service instanceof DisposableService) {
+					try {
+						((DisposableService) service).destroy();
+					} catch (Throwable e) {
+						logger.warn("error while destroy service:" + url + ", caused by " + e.getMessage());
+					}
+				}
 			}
 		}
 		for (String key : toRemovedUrls) {

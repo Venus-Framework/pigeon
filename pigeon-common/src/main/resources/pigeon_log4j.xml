@@ -21,6 +21,6 @@
 		<appender-ref ref="ConsoleAppender" />
 		<priority value="info" />
 	</logger>
-
+	
 </log4j:configuration>
 

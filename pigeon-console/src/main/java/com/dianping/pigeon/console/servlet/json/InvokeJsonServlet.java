@@ -142,7 +142,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 		ProxyBeanFactory beanFactory = new ProxyBeanFactory();
 		beanFactory.setServiceName(serviceName);
 		beanFactory.setIface(service.getServiceInterface().getName());
-		beanFactory.setVip("localhost:" + serverConfig.getPort());
+		beanFactory.setVip("localhost:" + serverConfig.getActualPort());
 		beanFactory.setTimeout(timeout);
 		beanFactory.init();
 		Object proxy = beanFactory.getObject();

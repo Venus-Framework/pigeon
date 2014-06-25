@@ -15,7 +15,6 @@ import org.mortbay.thread.QueuedThreadPool;
 import com.dianping.pigeon.domain.phase.Disposable;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.http.HttpUtils;
 import com.dianping.pigeon.remoting.provider.AbstractServer;
@@ -110,7 +109,11 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 	}
 
 	@Override
-	public <T> void addService(ProviderConfig<T> providerConfig) throws RpcException {
+	public <T> void doAddService(ProviderConfig<T> providerConfig) {
+	}
+	
+	@Override
+	public <T> void doRemoveService(ProviderConfig<T> providerConfig) {
 	}
 
 	@Override

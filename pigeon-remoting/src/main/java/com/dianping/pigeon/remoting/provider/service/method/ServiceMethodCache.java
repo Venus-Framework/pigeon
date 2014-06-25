@@ -147,4 +147,8 @@ public class ServiceMethodCache {
 		}
 		return k;
 	}
+
+	public Map<String, Map<Integer, List<ServiceMethod>>> getMethodMap() {
+		return methods;
+	}
 }

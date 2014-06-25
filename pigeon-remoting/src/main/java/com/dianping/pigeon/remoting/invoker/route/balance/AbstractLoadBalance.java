@@ -34,7 +34,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 			return null;
 		}
 		Client selectedClient = null;
-		String forceAddress = RouterHelper.getUseClientAddress();
+		String forceAddress = RouterHelper.getAddress();
 		if (forceAddress != null && forceAddress.length() > 0) {
 			// 客户端强制路由
 			for (Client client : clients) {

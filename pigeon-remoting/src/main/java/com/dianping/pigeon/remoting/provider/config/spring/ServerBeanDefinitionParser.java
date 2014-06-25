@@ -19,13 +19,6 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: PigeonBeanDefinitionParser.java, v 0.1 2013-6-24 下午9:58:37
- *          jianhuihuang Exp $
- */
 public class ServerBeanDefinitionParser implements BeanDefinitionParser {
 
 	/** Default placeholder prefix: "${" */
@@ -69,9 +62,6 @@ public class ServerBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		if (element.hasAttribute("port")) {
 			properties.addPropertyValue("port", resolveReference(element, "port"));
-		}
-		if (element.hasAttribute("httpPort")) {
-			properties.addPropertyValue("httpPort", resolveReference(element, "httpPort"));
 		}
 		if (element.hasAttribute("autoSelectPort")) {
 			properties.addPropertyValue("autoSelectPort", resolveReference(element, "autoSelectPort"));

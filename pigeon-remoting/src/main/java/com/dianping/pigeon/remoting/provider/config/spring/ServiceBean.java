@@ -4,16 +4,23 @@
  */
 package com.dianping.pigeon.remoting.provider.config.spring;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
-import com.dianping.pigeon.remoting.provider.listener.ServiceWarmupListener;
+import com.dianping.pigeon.remoting.provider.config.ProviderMethodConfig;
+import com.dianping.pigeon.util.CollectionUtils;
 
 public class ServiceBean {
 
@@ -25,6 +32,26 @@ public class ServiceBean {
 	private String interfaceName;
 	private ServerBean serverBean;
 	private boolean cancelTimeout = Constants.DEFAULT_TIMEOUT_CANCEL;
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private boolean useSharedPool = configManager.getBooleanValue(Constants.KEY_SERVICE_SHARED,
+			Constants.DEFAULT_SERVICE_SHARED);
+	private List<ProviderMethodConfig> methods;
+
+	public List<ProviderMethodConfig> getMethods() {
+		return methods;
+	}
+
+	public void setMethods(List<ProviderMethodConfig> methods) {
+		this.methods = methods;
+	}
+
+	public boolean isUseSharedPool() {
+		return useSharedPool;
+	}
+
+	public void setUseSharedPool(boolean useSharedPool) {
+		this.useSharedPool = useSharedPool;
+	}
 
 	public boolean isCancelTimeout() {
 		return cancelTimeout;
@@ -78,15 +105,23 @@ public class ServiceBean {
 		if (serviceImpl == null) {
 			throw new IllegalArgumentException("service not found:" + this);
 		}
-		ProviderConfig providerConfig = null;
+		ProviderConfig<?> providerConfig = null;
 		if (StringUtils.isBlank(interfaceName)) {
-			providerConfig = new ProviderConfig(serviceImpl);
+			providerConfig = new ProviderConfig<Object>(serviceImpl);
 		} else {
 			providerConfig = new ProviderConfig(Class.forName(interfaceName), serviceImpl);
 		}
 		providerConfig.setVersion(version);
 		providerConfig.setUrl(url);
 		providerConfig.setCancelTimeout(cancelTimeout);
+		providerConfig.setSharedPool(useSharedPool);
+		if (!CollectionUtils.isEmpty(methods)) {
+			Map<String, ProviderMethodConfig> methodMap = new HashMap<String, ProviderMethodConfig>();
+			providerConfig.setMethods(methodMap);
+			for (ProviderMethodConfig method : methods) {
+				methodMap.put(method.getName(), method);
+			}
+		}
 		if (serverBean != null) {
 			providerConfig.setServerConfig(serverBean.init());
 		}

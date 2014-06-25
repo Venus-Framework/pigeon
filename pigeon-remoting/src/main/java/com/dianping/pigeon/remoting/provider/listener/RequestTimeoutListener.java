@@ -66,7 +66,7 @@ public class RequestTimeoutListener implements Runnable {
 											.append(", process time:").append(System.currentTimeMillis())
 											.append("\r\nrequest:").append(InvocationUtils.toJsonString(request))
 											.append("\r\nprocessor stats:")
-											.append(this.requestProcessor.getProcessorStatistics());
+											.append(this.requestProcessor.getProcessorStatistics(request));
 									ProcessTimeoutException te = null;
 									Thread t = rc.getThread();
 									if (t == null) {

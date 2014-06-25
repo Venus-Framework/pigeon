@@ -18,7 +18,6 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import com.dianping.pigeon.domain.phase.Disposable;
-import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.AbstractServer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
@@ -79,7 +78,7 @@ public class NettyServer extends AbstractServer implements Disposable {
 				address = new InetSocketAddress(this.ip, this.port);
 			}
 			channel = this.bootstrap.bind(address);
-			serverConfig.setPort(this.port);
+			serverConfig.setActualPort(this.port);
 			this.started = true;
 		}
 	}
@@ -134,7 +133,11 @@ public class NettyServer extends AbstractServer implements Disposable {
 	}
 
 	@Override
-	public <T> void addService(ProviderConfig<T> providerConfig) throws RpcException {
+	public <T> void doAddService(ProviderConfig<T> providerConfig) {
+	}
+	
+	@Override
+	public <T> void doRemoveService(ProviderConfig<T> providerConfig) {
 	}
 
 	@Override

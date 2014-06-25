@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
@@ -29,6 +30,10 @@ public abstract class AbstractServer implements Server {
 
 	public abstract void doStop();
 
+	public abstract <T> void doAddService(ProviderConfig<T> providerConfig);
+
+	public abstract <T> void doRemoveService(ProviderConfig<T> providerConfig);
+
 	public void start(ServerConfig serverConfig) {
 		if (logger.isInfoEnabled()) {
 			logger.info("server config:" + serverConfig);
@@ -44,7 +49,19 @@ public abstract class AbstractServer implements Server {
 			requestProcessor.stop();
 		}
 	}
-	
+
+	@Override
+	public <T> void addService(ProviderConfig<T> providerConfig) {
+		requestProcessor.addService(providerConfig);
+		doAddService(providerConfig);
+	}
+
+	@Override
+	public <T> void removeService(ProviderConfig<T> providerConfig) {
+		requestProcessor.removeService(providerConfig);
+		doRemoveService(providerConfig);
+	}
+
 	public RequestProcessor getRequestProcessor() {
 		return requestProcessor;
 	}

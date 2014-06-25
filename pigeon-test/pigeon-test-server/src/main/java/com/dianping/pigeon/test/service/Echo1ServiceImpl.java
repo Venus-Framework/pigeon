@@ -14,17 +14,15 @@ public class Echo1ServiceImpl implements EchoService {
 	Logger logger = LoggerLoader.getLogger(Echo1ServiceImpl.class);
 
 	int count = 0;
-	String str = null;
-	{
-		StringBuilder s = new StringBuilder();
-		for (int i = 0; i < 999999; i++) {
-			s.append("i=").append(i).append(",");
-		}
-		str = s.toString();
-	}
 
 	@Override
 	public String echo(String input) {
+//		if (++count % 1000 == 0) {
+//			try {
+//				Thread.sleep(1000);
+//			} catch (InterruptedException e) {
+//			}
+//		}
 		return "echo1:" + input;
 	}
 

@@ -50,11 +50,11 @@ public class LoadBalanceManager {
 	private static int initialFactor = configManager.getIntValue("pigeon.loadbalance.initialFactor", 0);
 	private static int defaultFactor = configManager.getIntValue("pigeon.loadbalance.defaultFactor", 100);
 	private static long interval = configManager.getLongValue("pigeon.loadbalance.interval", 200);
-	private static int step = configManager.getIntValue("pigeon.loadbalance.step", 10);
+	private static int step = configManager.getIntValue("pigeon.loadbalance.step", 1);
 	private static String stepTicks = configManager
 			.getStringValue(
 					"pigeon.loadbalance.stepticks",
-					"0:15;1:15;2:15;3:15;4:15;5:10;6:10;7:10;8:10;9:10;10:5;11:5;12:5;13:5;14:5;15:3;16:3;17:3;18:3;19:3;20:2;21:2;22:2;23:2;24:2");
+					"0:15;1:15;2:15;3:15;4:15;5:10;6:10;7:10;8:10;9:10;10:7;11:7;12:7;13:7;14:7;15:5;16:5;17:5;18:5;19:5;20:3;21:3;22:3;23:3;24:3;25:2;26:2;27:2;28:2;29:2");
 	private static Map<Integer, Integer> stepTicksMap = new HashMap<Integer, Integer>();
 
 	private static ThreadPool loadbalanceThreadPool = new DefaultThreadPool("Pigeon-Client-Loadbalance-ThreadPool");
@@ -110,7 +110,7 @@ public class LoadBalanceManager {
 		if (loadBalance instanceof LoadBalance) {
 			loadBlanceObj = (LoadBalance) loadBalance;
 		} else {
-			if (loadBalance instanceof String) {
+			if (loadBalance instanceof String && StringUtils.isNotBlank((String) loadBalance)) {
 				if (!loadBalanceMap.containsKey(loadBalance)) {
 					throw new InvalidParameterException("Loadbalance[" + loadBalance + "] registered by service["
 							+ serviceId + "] is not supported.");

@@ -219,10 +219,12 @@ public class ServiceFactory {
 		}
 		try {
 			ServiceProviderFactory.addService(providerConfig);
-			ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig.getServerConfig());
+			ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig);
 			providerConfig.setServerConfig(serverConfig);
 			ServiceProviderFactory.publishService(providerConfig);
 		} catch (RegistryException t) {
+			throw new RpcException("error while adding service:" + providerConfig, t);
+		} catch (Throwable t) {
 			throw new RpcException("error while adding service:" + providerConfig, t);
 		}
 	}
@@ -244,11 +246,13 @@ public class ServiceFactory {
 						providerConfig.setUrl(getServiceUrl(providerConfig));
 					}
 					ServiceProviderFactory.addService(providerConfig);
-					ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig.getServerConfig());
+					ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig);
 					providerConfig.setServerConfig(serverConfig);
 					ServiceProviderFactory.publishService(providerConfig);
 				}
 			} catch (RegistryException t) {
+				throw new RpcException("error while adding services:" + providerConfigList, t);
+			} catch (Throwable t) {
 				throw new RpcException("error while adding services:" + providerConfigList, t);
 			}
 		}

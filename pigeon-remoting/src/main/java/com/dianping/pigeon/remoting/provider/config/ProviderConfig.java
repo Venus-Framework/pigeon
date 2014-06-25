@@ -4,9 +4,13 @@
  */
 package com.dianping.pigeon.remoting.provider.config;
 
+import java.util.Map;
+
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 
 public class ProviderConfig<T> {
@@ -18,6 +22,26 @@ public class ProviderConfig<T> {
 	private ServerConfig serverConfig = new ServerConfig();
 	private boolean published = false;
 	private boolean cancelTimeout = Constants.DEFAULT_TIMEOUT_CANCEL;
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private boolean useSharedPool = configManager.getBooleanValue(Constants.KEY_SERVICE_SHARED,
+			Constants.DEFAULT_SERVICE_SHARED);
+	private Map<String, ProviderMethodConfig> methods;
+
+	public Map<String, ProviderMethodConfig> getMethods() {
+		return methods;
+	}
+
+	public void setMethods(Map<String, ProviderMethodConfig> methods) {
+		this.methods = methods;
+	}
+
+	public boolean isUseSharedPool() {
+		return useSharedPool;
+	}
+
+	public void setSharedPool(boolean useSharedPool) {
+		this.useSharedPool = useSharedPool;
+	}
 
 	public boolean isCancelTimeout() {
 		return cancelTimeout;

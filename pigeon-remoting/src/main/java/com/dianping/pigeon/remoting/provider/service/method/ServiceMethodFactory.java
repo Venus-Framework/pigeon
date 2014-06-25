@@ -89,4 +89,8 @@ public final class ServiceMethodFactory {
 		getServiceMethodCache(url);
 	}
 
+	public static Map<String, ServiceMethodCache> getAllMethods() {
+		return methods;
+	}
+
 }

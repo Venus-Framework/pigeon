@@ -155,20 +155,27 @@ public final class Constants {
 	public static final int DEFAULT_WEIGHT_START = 1;
 	public static final String KEY_WEIGHT_DEFAULT = "pigeon.weight.default";
 	public static final int DEFAULT_WEIGHT_DEFAULT = 1;
-	public static final String KEY_STATUS_CHECKINVOKERAVAILABLE = "pigeon.status.checkinvokeravailable";
-	public static final boolean DEFAULT_STATUS_CHECKINVOKERAVAILABLE = true;
 	public static final String KEY_SERVICEWARMUP_ENABLE = "pigeon.servicewarmup.enable";
 	public static final String KEY_AUTOREGISTER_ENABLE = "pigeon.autoregister.enable";
 
 	public static final int WEIGHT_INITIAL = ConfigManagerLoader.getConfigManager().getIntValue(
 			Constants.KEY_WEIGHT_INITIAL, Constants.DEFAULT_WEIGHT_INITIAL);
-	
-	public static final int WEIGHT_START = ConfigManagerLoader.getConfigManager().getIntValue(Constants.KEY_WEIGHT_START,
-			Constants.DEFAULT_WEIGHT_START);
 
-	public static final int WEIGHT_DEFAULT = ConfigManagerLoader.getConfigManager().getIntValue(Constants.KEY_WEIGHT_DEFAULT,
-			Constants.DEFAULT_WEIGHT_DEFAULT);
+	public static final int WEIGHT_START = ConfigManagerLoader.getConfigManager().getIntValue(
+			Constants.KEY_WEIGHT_START, Constants.DEFAULT_WEIGHT_START);
 
-	public static final boolean LOG_APP_EXCEPTION = ConfigManagerLoader.getConfigManager().getBooleanValue("pigeon.log.appexception",
-			false);
+	public static final int WEIGHT_DEFAULT = ConfigManagerLoader.getConfigManager().getIntValue(
+			Constants.KEY_WEIGHT_DEFAULT, Constants.DEFAULT_WEIGHT_DEFAULT);
+
+	public static final boolean LOG_APP_EXCEPTION = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.log.appexception", false);
+
+	public static final String KEY_SERVICE_COREPOOLSIZE = "pigeon.provider.service.corePoolSize";
+	public static final String KEY_SERVICE_MAXPOOLSIZE = "pigeon.provider.service.maxPoolSize";
+	public static final String KEY_SERVICE_WORKQUEUESIZE = "pigeon.provider.service.workQueueSize";
+	public static final String KEY_SERVICE_SHARED = "pigeon.provider.service.shared";
+	public static final int DEFAULT_SERVICE_COREPOOLSIZE = 20;
+	public static final int DEFAULT_SERVICE_MAXPOOLSIZE = 50;
+	public static final int DEFAULT_SERVICE_WORKQUEUESIZE = 50;
+	public static final boolean DEFAULT_SERVICE_SHARED = true;
 }

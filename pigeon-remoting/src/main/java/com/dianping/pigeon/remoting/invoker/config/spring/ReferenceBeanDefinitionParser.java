@@ -10,17 +10,21 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
+import com.dianping.pigeon.remoting.invoker.config.InvokerMethodConfig;
 
 /**
  * 
@@ -63,16 +67,16 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.isBlank(id)) {
 			id = "pigeonRef_" + idCounter.incrementAndGet();
 		}
-		beanDefinition.setBeanClass(ProxyBeanFactory.class);
+		beanDefinition.setBeanClass(ReferenceBean.class);
 		beanDefinition.setInitMethodName("init");
 		InvokerBootStrap.startup();
 
 		MutablePropertyValues properties = beanDefinition.getPropertyValues();
 		if (element.hasAttribute("url")) {
-			properties.addPropertyValue("serviceName", resolveReference(element, "url"));
+			properties.addPropertyValue("url", resolveReference(element, "url"));
 		}
 		if (element.hasAttribute("interface")) {
-			properties.addPropertyValue("iface", resolveReference(element, "interface"));
+			properties.addPropertyValue("interfaceName", resolveReference(element, "interface"));
 		}
 		if (element.hasAttribute("serialize")) {
 			properties.addPropertyValue("serialize", resolveReference(element, "serialize"));
@@ -81,13 +85,23 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 			properties.addPropertyValue("protocol", resolveReference(element, "protocol"));
 		}
 		if (element.hasAttribute("callType")) {
-			properties.addPropertyValue("callMethod", resolveReference(element, "callType"));
+			properties.addPropertyValue("callType", resolveReference(element, "callType"));
 		}
 		if (element.hasAttribute("timeout")) {
 			properties.addPropertyValue("timeout", resolveReference(element, "timeout"));
 		}
-		if (element.hasAttribute("loadbalance")) {
-			properties.addPropertyValue("loadbalance", resolveReference(element, "loadbalance"));
+		if (element.hasAttribute("loadBalance")) {
+			properties.addPropertyValue("loadBalance", resolveReference(element, "loadBalance"));
+		}
+		if (element.hasAttribute("loadBalanceClass")) {
+			String clazz = resolveReference(element, "loadBalanceClass");
+			if (StringUtils.isNotBlank(clazz)) {
+				try {
+					properties.addPropertyValue("loadBalanceClass", Class.forName(clazz));
+				} catch (ClassNotFoundException e) {
+					logger.warn("invalid loadBalanceClass:" + clazz + ", caused by " + e.getMessage());
+				}
+			}
 		}
 		if (element.hasAttribute("cluster")) {
 			properties.addPropertyValue("cluster", resolveReference(element, "cluster"));
@@ -111,10 +125,73 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 			}
 			properties.addPropertyValue("callback", new RuntimeBeanReference(callback));
 		}
-
+		if (element.hasChildNodes()) {
+			parseMethods(id, element.getChildNodes(), beanDefinition, parserContext);
+		}
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
 
 		return beanDefinition;
+	}
+
+	private static BeanDefinition parseMethod(Element element, ParserContext parserContext, Class<?> beanClass,
+			boolean required) {
+		RootBeanDefinition beanDefinition = new RootBeanDefinition();
+		beanDefinition.setLazyInit(false);
+		String id = element.getAttribute("id");
+		if (StringUtils.isBlank(id)) {
+			id = "pigeonService_" + idCounter.incrementAndGet();
+		}
+		beanDefinition.setBeanClass(beanClass);
+		MutablePropertyValues properties = beanDefinition.getPropertyValues();
+		if (element.hasAttribute("name")) {
+			properties.addPropertyValue("name", resolveReference(element, "name"));
+		}
+		if (element.hasAttribute("timeout")) {
+			properties.addPropertyValue("timeout", resolveReference(element, "timeout"));
+		}
+		if (element.hasAttribute("retries")) {
+			properties.addPropertyValue("retries", resolveReference(element, "retries"));
+		}
+		if (element.hasAttribute("actives")) {
+			properties.addPropertyValue("actives", resolveReference(element, "actives"));
+		}
+		if (element.hasAttribute("callType")) {
+			properties.addPropertyValue("callType", resolveReference(element, "callType"));
+		}
+		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
+
+		return beanDefinition;
+	}
+
+	private static void parseMethods(String id, NodeList nodeList, RootBeanDefinition beanDefinition,
+			ParserContext parserContext) {
+		if (nodeList != null && nodeList.getLength() > 0) {
+			ManagedList methods = null;
+			for (int i = 0; i < nodeList.getLength(); i++) {
+				Node node = nodeList.item(i);
+				if (node instanceof Element) {
+					Element element = (Element) node;
+					if ("method".equals(node.getNodeName()) || "method".equals(node.getLocalName())) {
+						String methodName = element.getAttribute("name");
+						if (methodName == null || methodName.length() == 0) {
+							throw new IllegalStateException("<pigeon:method> name attribute == null");
+						}
+						if (methods == null) {
+							methods = new ManagedList();
+						}
+						BeanDefinition methodBeanDefinition = parseMethod(((Element) node), parserContext,
+								InvokerMethodConfig.class, false);
+						String name = id + "." + methodName;
+						BeanDefinitionHolder methodBeanDefinitionHolder = new BeanDefinitionHolder(
+								methodBeanDefinition, name);
+						methods.add(methodBeanDefinitionHolder);
+					}
+				}
+			}
+			if (methods != null) {
+				beanDefinition.getPropertyValues().addPropertyValue("methods", methods);
+			}
+		}
 	}
 
 	private static String resolveReference(Element element, String attribute) {

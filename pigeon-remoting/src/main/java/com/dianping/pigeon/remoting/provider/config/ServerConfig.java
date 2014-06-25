@@ -14,12 +14,12 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 
 public class ServerConfig {
 
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	public static final int DEFAULT_PORT = 4040;
 	public static final int DEFAULT_HTTP_PORT = 4080;
-	private int port = DEFAULT_PORT;
-	private int httpPort = DEFAULT_HTTP_PORT;
+	private int port = configManager.getIntValue("pigeon.server.defaultport", DEFAULT_PORT);
+	private int httpPort = configManager.getIntValue("pigeon.httpserver.defaultport", DEFAULT_HTTP_PORT);
 	private boolean autoSelectPort = true;
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private boolean enableTest = configManager
 			.getBooleanValue(Constants.KEY_TEST_ENABLE, Constants.DEFAULT_TEST_ENABLE);
 	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
@@ -32,8 +32,17 @@ public class ServerConfig {
 	private String protocol = Constants.PROTOCOL_DEFAULT;
 	private String env;
 	private String ip;
+	private int actualPort = port;
 
 	public ServerConfig() {
+	}
+
+	public int getActualPort() {
+		return actualPort;
+	}
+
+	public void setActualPort(int actualPort) {
+		this.actualPort = actualPort;
 	}
 
 	public String getEnv() {
@@ -103,6 +112,9 @@ public class ServerConfig {
 	}
 
 	public int getCorePoolSize() {
+		if (corePoolSize <= 0) {
+			corePoolSize = 1;
+		}
 		return corePoolSize;
 	}
 
@@ -111,6 +123,9 @@ public class ServerConfig {
 	}
 
 	public int getMaxPoolSize() {
+		if (maxPoolSize <= 0) {
+			maxPoolSize = 5;
+		}
 		return maxPoolSize;
 	}
 

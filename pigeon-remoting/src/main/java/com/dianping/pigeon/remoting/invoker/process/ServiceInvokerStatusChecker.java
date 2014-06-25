@@ -10,7 +10,6 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.process.ServiceStatusChecker;
-import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
@@ -22,8 +21,11 @@ public class ServiceInvokerStatusChecker implements ServiceStatusChecker {
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	private static final boolean CHECK_INVOKER_AVAILABLE = configManager.getBooleanValue(
-			Constants.KEY_STATUS_CHECKINVOKERAVAILABLE, Constants.DEFAULT_STATUS_CHECKINVOKERAVAILABLE);
+	private static final boolean CHECK_PROVIDER_EXIST = configManager.getBooleanValue(
+			"pigeon.status.checkproviderexist", false);
+
+	private static final boolean CHECK_PROVIDER_AVAILABLE = configManager.getBooleanValue(
+			"pigeon.status.checkprovideravailable", false);
 
 	@Override
 	public String check() {
@@ -31,9 +33,11 @@ public class ServiceInvokerStatusChecker implements ServiceStatusChecker {
 		if (!serviceInvokers.isEmpty()) {
 			for (InvokerConfig<?> invokerConfig : serviceInvokers.keySet()) {
 				try {
-					ClientManager.getInstance().getServiceAddress(invokerConfig.getUrl(), invokerConfig.getGroup(),
-							invokerConfig.getVip());
-					if (CHECK_INVOKER_AVAILABLE) {
+					if (CHECK_PROVIDER_EXIST) {
+						ClientManager.getInstance().getServiceAddress(invokerConfig.getUrl(), invokerConfig.getGroup(),
+								invokerConfig.getVip());
+					}
+					if (CHECK_PROVIDER_AVAILABLE) {
 						Map<String, List<Client>> clientsMap = ClientManager.getInstance().getHeartTask()
 								.getWorkingClients();
 						List<Client> clients = clientsMap.get(invokerConfig.getUrl());

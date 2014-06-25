@@ -54,26 +54,29 @@ public class InvocationUtils {
 			List<String> serviceFrags = Splitters.by("/").noEmptyItem().split(serviceName);
 			int fragLenght = serviceFrags.size();
 			name = "Unknown";
+			StringBuilder sb = new StringBuilder(128);
 			if (fragLenght > 2) {
-				StringBuilder sb = new StringBuilder(128);
 				sb.append(serviceFrags.get(fragLenght - 2)).append(':').append(serviceFrags.get(fragLenght - 1))
 						.append(':').append(methodName);
-				sb.append('(');
-				int pLen = parameterTypes.length;
-				for (int i = 0; i < pLen; i++) {
-					String parameter = parameterTypes[i];
-					int idx = parameter.lastIndexOf(".");
-					if (idx > -1) {
-						parameter = parameter.substring(idx + 1);
-					}
-					sb.append(parameter);
-					if (i < pLen - 1) {
-						sb.append(',');
-					}
-				}
-				sb.append(')');
-				name = sb.toString();
+			} else {
+				sb.append(serviceName).append(':').append(methodName);
 			}
+			sb.append('(');
+			int pLen = parameterTypes.length;
+			for (int i = 0; i < pLen; i++) {
+				String parameter = parameterTypes[i];
+				int idx = parameter.lastIndexOf(".");
+				if (idx > -1) {
+					parameter = parameter.substring(idx + 1);
+				}
+				sb.append(parameter);
+				if (i < pLen - 1) {
+					sb.append(',');
+				}
+			}
+			sb.append(')');
+			name = sb.toString();
+
 			remoteCallNameCache.putIfAbsent(cacheKey, name);
 		}
 		return name;

@@ -6,10 +6,49 @@
 
 	<xsd:import namespace="http://www.springframework.org/schema/beans" />
 
+	<xsd:element name="method" type="methodType">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[ The service method config ]]></xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+
+	<xsd:complexType name="methodType">
+		<xsd:attribute name="name" type="xsd:string" use="required">
+			<xsd:annotation>
+				<xsd:documentation><![CDATA[ The method name. ]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="timeout" type="xsd:int" use="optional"
+			default="5000">
+			<xsd:annotation>
+				<xsd:documentation><![CDATA[ The method invoke timeout. ]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="retries" type="xsd:int" use="optional">
+			<xsd:annotation>
+				<xsd:documentation><![CDATA[ The method retry times. ]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="actives" type="xsd:int" use="optional">
+			<xsd:annotation>
+				<xsd:documentation><![CDATA[ The max active requests. ]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="callType" type="xsd:string" use="optional"
+			default="sync">
+			<xsd:annotation>
+				<xsd:documentation><![CDATA[ Call type: sync/callback/future/oneway. ]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
 	<xsd:element name="reference">
 		<xsd:complexType>
 			<xsd:complexContent>
 				<xsd:extension base="beans:identifiedType">
+					<xsd:choice>
+						<xsd:element ref="method" minOccurs="0" maxOccurs="unbounded" />
+					</xsd:choice>
 					<xsd:attribute name="url" type="xsd:string" />
 					<xsd:attribute name="interface" type="xsd:string"
 						use="required" />
@@ -20,8 +59,10 @@
 					<xsd:attribute name="callType" type="xsd:string"
 						default="sync" />
 					<xsd:attribute name="timeout" type="xsd:int" default="5000" />
-					<xsd:attribute name="loadbalance" type="xsd:string"
+					<xsd:attribute name="loadBalance" type="xsd:string"
 						default="roundRobin" />
+					<xsd:attribute name="loadBalanceClass" type="xsd:string"
+						default="" />
 					<xsd:attribute name="cluster" type="xsd:string"
 						default="failfast" />
 					<xsd:attribute name="retries" type="xsd:int" default="1" />
@@ -40,6 +81,9 @@
 		<xsd:complexType>
 			<xsd:complexContent>
 				<xsd:extension base="beans:identifiedType">
+					<xsd:choice>
+						<xsd:element ref="method" minOccurs="0" maxOccurs="unbounded" />
+					</xsd:choice>
 					<xsd:attribute name="url" type="xsd:string" />
 					<xsd:attribute name="interface" type="xsd:string"
 						use="required" />
@@ -47,10 +91,10 @@
 					<xsd:attribute name="server" type="xsd:string" />
 					<xsd:attribute name="port" type="xsd:int" default="4040" />
 					<xsd:attribute name="version" type="xsd:string" />
-					<xsd:attribute name="autoRegister" type="xsd:boolean"
-						default="true" />
 					<xsd:attribute name="cancelTimeout" type="xsd:boolean"
 						default="false" />
+					<xsd:attribute name="useSharedPool" type="xsd:boolean"
+						default="true" />
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>

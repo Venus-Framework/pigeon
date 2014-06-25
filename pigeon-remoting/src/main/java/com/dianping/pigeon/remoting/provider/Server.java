@@ -9,7 +9,6 @@ import java.util.concurrent.Future;
 
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
-import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
@@ -34,7 +33,9 @@ public interface Server {
 	public Future<InvocationResponse> processRequest(final InvocationRequest request,
 			final ProviderContext providerContext);
 
-	public <T> void addService(ProviderConfig<T> providerConfig) throws RpcException;
+	public <T> void addService(ProviderConfig<T> providerConfig);
+	
+	public <T> void removeService(ProviderConfig<T> providerConfig);
 
 	public List<String> getInvokerMetaInfo();
 	

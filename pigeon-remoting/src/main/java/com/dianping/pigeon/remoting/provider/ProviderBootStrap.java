@@ -49,8 +49,9 @@ public final class ProviderBootStrap {
 			ServerConfig config = new ServerConfig();
 			config.setProtocol(Constants.PROTOCOL_HTTP);
 			ConfigManager configManager = ConfigManagerLoader.getConfigManager();
-			boolean useStandalonePool = configManager.getBooleanValue("pigeon.provider.pool.standalone", false);
-			if (useStandalonePool) {
+			String poolStrategy = ConfigManagerLoader.getConfigManager().getStringValue(
+					"pigeon.provider.pool.strategy", "shared");
+			if ("server".equals(poolStrategy)) {
 				int corePoolSize = configManager.getIntValue("pigeon.provider.http.corePoolSize", 5);
 				int maxPoolSize = configManager.getIntValue("pigeon.provider.http.maxPoolSize", 300);
 				int workQueueSize = configManager.getIntValue("pigeon.provider.http.workQueueSize", 300);
@@ -76,12 +77,14 @@ public final class ProviderBootStrap {
 		}
 	}
 
-	public static ServerConfig startup(ServerConfig serverConfig) {
+	public static ServerConfig startup(ProviderConfig<?> providerConfig) {
+		ServerConfig serverConfig = providerConfig.getServerConfig();
 		if (serverConfig == null) {
 			throw new IllegalArgumentException("server config is required");
 		}
 		Server server = serversMap.get(serverConfig.getProtocol() + serverConfig.getPort());
 		if (server != null) {
+			server.addService(providerConfig);
 			return server.getServerConfig();
 		} else {
 			synchronized (ProviderBootStrap.class) {
@@ -90,7 +93,8 @@ public final class ProviderBootStrap {
 					if (!s.isStarted()) {
 						if (s.support(serverConfig)) {
 							s.start(serverConfig);
-							serversMap.put(s.getProtocol() + s.getPort(), s);
+							s.addService(providerConfig);
+							serversMap.put(s.getProtocol() + serverConfig.getPort(), s);
 							if (logger.isInfoEnabled()) {
 								logger.info("pigeon server[version:" + VersionUtils.VERSION
 										+ "] has been started at port:" + s.getPort());

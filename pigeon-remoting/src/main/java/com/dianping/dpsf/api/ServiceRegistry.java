@@ -56,7 +56,6 @@ public class ServiceRegistry extends ServiceInitializeListener {
 	public void init() throws Exception {
 		ServerConfig serverConfig = new ServerConfig();
 		serverConfig.setPort(port);
-		serverConfig.setHttpPort(httpPort);
 		serverConfig.setAutoSelectPort(autoSelectPort);
 		serverConfig.setCorePoolSize(corePoolSize);
 		serverConfig.setMaxPoolSize(maxPoolSize);

@@ -42,11 +42,11 @@ public class StatisticsJsonServlet extends ServiceServlet {
 		}
 		Map<String, Server> servers = ProviderBootStrap.getServersMap();
 		Map<String, String> serverProcessorStatistics = stat.getServerProcessorStatistics();
-		for (String key : servers.keySet()) {
-			Server server = servers.get(key);
+		for (Server server : servers.values()) {
 			RequestProcessor processor = server.getRequestProcessor();
 			if (processor != null) {
-				serverProcessorStatistics.put(key, processor.getProcessorStatistics());
+				serverProcessorStatistics.put(server.getProtocol() + "-" + server.getPort(),
+						processor.getProcessorStatistics());
 			}
 		}
 		this.model = stat;

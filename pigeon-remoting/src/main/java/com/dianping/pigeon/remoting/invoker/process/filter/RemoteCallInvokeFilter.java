@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceFuture;
@@ -16,11 +18,13 @@ import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.config.InvokerMethodConfig;
 import com.dianping.pigeon.remoting.invoker.domain.CallbackFuture;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.ServiceCallbackWrapper;
 import com.dianping.pigeon.remoting.invoker.domain.ServiceFutureImpl;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
+import com.dianping.pigeon.util.CollectionUtils;
 
 /**
  * 执行实际的Remote Call，包括Sync, Future，Callback，Oneway
@@ -42,29 +46,37 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 		Client client = invocationContext.getClient();
 		InvocationRequest request = invocationContext.getRequest();
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
-		String callMethod = invokerConfig.getCallType();
+		String callType = invokerConfig.getCallType();
 		beforeInvoke(request, client);
 		InvocationResponse response = null;
-		if (Constants.CALL_SYNC.equalsIgnoreCase(callMethod)) {
+		int timeout = request.getTimeout();
+		Map<String, InvokerMethodConfig> methods = invokerConfig.getMethods();
+		if (!CollectionUtils.isEmpty(methods)) {
+			InvokerMethodConfig methodConfig = methods.get(request.getMethodName());
+			if (methodConfig != null && methodConfig.getTimeout() > 0) {
+				timeout = methodConfig.getTimeout();
+			}
+		}
+		if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
 			CallbackFuture future = new CallbackFuture();
 			response = InvokerUtils.sendRequest(client, invocationContext.getRequest(), future);
 			if (response == null) {
-				response = future.get(request.getTimeout());
+				response = future.get(timeout);
 			}
-		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callMethod)) {
+		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
 			InvokerUtils.sendRequest(client, invocationContext.getRequest(),
 					new ServiceCallbackWrapper(invokerConfig.getCallback()));
 			response = NO_RETURN_RESPONSE;
-		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callMethod)) {
-			CallbackFuture future = new ServiceFutureImpl(request.getTimeout());
+		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
+			CallbackFuture future = new ServiceFutureImpl(timeout);
 			InvokerUtils.sendRequest(client, invocationContext.getRequest(), future);
 			ServiceFutureFactory.setFuture((ServiceFuture) future);
 			response = NO_RETURN_RESPONSE;
-		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callMethod)) {
+		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callType)) {
 			InvokerUtils.sendRequest(client, invocationContext.getRequest(), null);
 			response = NO_RETURN_RESPONSE;
 		} else {
-			throw new InvalidParameterException("Call type[" + callMethod + "] is not supported!");
+			throw new InvalidParameterException("Call type[" + callType + "] is not supported!");
 		}
 		afterInvoke(request, response, client);
 		return response;

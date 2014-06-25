@@ -66,7 +66,7 @@ public class ServiceServlet extends HttpServlet {
 
 	private static final String VALID_PACKAGES = configManager.getStringValue("pigeon.service.packages",
 			"com.dianping,com.dp");
-	
+
 	private static final ServiceStatusChecker serviceInvokerStatusChecker = new ServiceInvokerStatusChecker();
 
 	protected static String token;
@@ -155,9 +155,10 @@ public class ServiceServlet extends HttpServlet {
 			}
 			page.addService(s);
 		}
-		if (serviceProviders.isEmpty()) {
-			page.setPublished("none");
-			page.setStatus("ok");
+		String error = serviceInvokerStatusChecker.check();
+		if (!StringUtils.isBlank(error)) {
+			page.setError(error);
+			page.setStatus("error");
 		} else {
 			String status = makeStatus();
 			page.setStatus(status);
@@ -167,10 +168,8 @@ public class ServiceServlet extends HttpServlet {
 				page.setPublished("false");
 			}
 		}
-		String error = serviceInvokerStatusChecker.check();
-		if(!StringUtils.isBlank(error)) {
-			page.setError(error);
-			page.setStatus("error");
+		if (serviceProviders.isEmpty()) {
+			page.setPublished("none");
 		}
 		page.setDirect(request.getParameter("direct"));
 		page.setEnvironment(configManager.getEnv());
