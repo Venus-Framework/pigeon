@@ -155,22 +155,7 @@ public class ServiceServlet extends HttpServlet {
 			}
 			page.addService(s);
 		}
-		String error = serviceInvokerStatusChecker.check();
-		if (!StringUtils.isBlank(error)) {
-			page.setError(error);
-			page.setStatus("error");
-		} else {
-			String status = makeStatus();
-			page.setStatus(status);
-			if (status.equals("ok")) {
-				page.setPublished("true");
-			} else {
-				page.setPublished("false");
-			}
-		}
-		if (serviceProviders.isEmpty()) {
-			page.setPublished("none");
-		}
+		setStatus(page, serviceProviders.isEmpty());
 		page.setDirect(request.getParameter("direct"));
 		page.setEnvironment(configManager.getEnv());
 		page.setGroup(configManager.getGroup());
@@ -178,13 +163,37 @@ public class ServiceServlet extends HttpServlet {
 		this.model = page;
 	}
 
-	private String makeStatus() {
-		PublishStatus status = ServiceProviderFactory.getPublishStatus();
-		if (status.equals(PublishStatus.PUBLISHED) || status.equals(PublishStatus.WARMINGUP)
-				|| status.equals(PublishStatus.WARMEDUP)) {
-			return "ok";
+	private void setStatus(ServicePage page, boolean isClientSide) {
+		String error = serviceInvokerStatusChecker.check();
+		if (!StringUtils.isBlank(error)) {
+			page.setError(error);
+			page.setStatus("error");
 		}
-		return status.toString();
+		if (isClientSide) {// client-side
+			// set published
+			page.setPublished("none");
+			// set status
+			if (!"error".equals(page.getStatus())) {
+				page.setStatus("ok");
+			}
+		} else {// server-side
+			// set published
+			PublishStatus status = ServiceProviderFactory.getPublishStatus();
+			if (status.equals(PublishStatus.PUBLISHED) || status.equals(PublishStatus.WARMINGUP)
+					|| status.equals(PublishStatus.WARMEDUP)) {
+				page.setPublished("true");
+			} else {
+				page.setPublished("false");
+			}
+			// set status
+			if (!"error".equals(page.getStatus())) {
+				if ("true".equals(page.getPublished())) {
+					page.setStatus("ok");
+				} else {
+					page.setStatus(status.toString());
+				}
+			}
+		}
 	}
 
 	public String getView() {
