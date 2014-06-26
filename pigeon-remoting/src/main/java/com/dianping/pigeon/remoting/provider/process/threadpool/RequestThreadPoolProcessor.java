@@ -45,6 +45,12 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 	private int DEFAULT_POOL_ACTIVES = ConfigManagerLoader.getConfigManager().getIntValue(
 			"pigeon.provider.pool.actives", 60);
 
+	private int DEFAULT_POOL_RATIO_CORE = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.provider.pool.ratio.core", 3);
+
+	private int DEFAULT_POOL_RATIO_QUEUE = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.provider.pool.ratio.queue", 2);
+
 	public RequestThreadPoolProcessor(ServerConfig serverConfig) {
 		if ("server".equals(poolStrategy)) {
 			requestProcessThreadPool = new DefaultThreadPool("Pigeon-Server-Request-Processor-"
@@ -149,9 +155,11 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 							actives = methodConfig.getActives();
 						}
 					}
-					int coreSize = (actives / 3) > 0 ? (actives / 3) : actives;
+					int coreSize = (actives / DEFAULT_POOL_RATIO_CORE) > 0 ? (actives / DEFAULT_POOL_RATIO_CORE)
+							: actives;
 					int maxSize = actives;
-					int queueSize = (actives / 2) > 0 ? (actives / 2) : actives;
+					int queueSize = (actives / DEFAULT_POOL_RATIO_QUEUE) > 0 ? (actives / DEFAULT_POOL_RATIO_QUEUE)
+							: actives;
 					pool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method", coreSize, maxSize,
 							new LinkedBlockingQueue<Runnable>(queueSize));
 					methodThreadPools.putIfAbsent(key, pool);

@@ -387,12 +387,8 @@ public class ServiceFactory {
 		return ServiceProviderFactory.getServiceConfig(url);
 	}
 
-	public static void setServerWeight(int weight) throws RpcException {
-		try {
-			ServiceProviderFactory.setServerWeight(weight);
-		} catch (RegistryException e) {
-			throw new RpcException("error while setting server weight:" + weight, e);
-		}
+	public static void setServerWeight(int weight) throws RegistryException {
+		ServiceProviderFactory.setServerWeight(weight);
 	}
 
 	public static void online() throws RegistryException {
