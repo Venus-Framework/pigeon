@@ -12,9 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
 public class ServiceOnlineServlet extends HttpServlet {
@@ -33,12 +35,19 @@ public class ServiceOnlineServlet extends HttpServlet {
 		String ip = Utils.getIpAddr(request);
 		logger.info("online all services, from " + ip);
 		if (Utils.isGranted(request)) {
-			try {
-				ServiceFactory.online();
+			boolean autoRegisterEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
+					Constants.KEY_AUTOREGISTER_ENABLE, true);
+			if (autoRegisterEnable) {
+				try {
+					ServiceFactory.online();
+					response.getWriter().println("ok");
+				} catch (Throwable e) {
+					logger.error("Error with online all services", e);
+					response.getWriter().println("error:" + e.getMessage());
+				}
+			} else {
+				logger.warn("auto register is disabled!");
 				response.getWriter().println("ok");
-			} catch (Throwable e) {
-				logger.error("Error with online all services", e);
-				response.getWriter().println("error:" + e.getMessage());
 			}
 		} else {
 			logger.warn("Forbidden!");

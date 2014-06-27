@@ -36,9 +36,11 @@ public class ServiceWarmupListener implements Runnable {
 	private volatile boolean isStop = false;
 
 	public static void start() {
+		boolean autoRegisterEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
+				Constants.KEY_AUTOREGISTER_ENABLE, true);
 		boolean warmupEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
 				Constants.KEY_SERVICEWARMUP_ENABLE, true);
-		if (!isServiceWarmupListenerStarted && warmupEnable) {
+		if (!isServiceWarmupListenerStarted && warmupEnable && autoRegisterEnable) {
 			currentWarmupListener = new ServiceWarmupListener();
 			Thread t = new Thread(currentWarmupListener);
 			t.setDaemon(true);
