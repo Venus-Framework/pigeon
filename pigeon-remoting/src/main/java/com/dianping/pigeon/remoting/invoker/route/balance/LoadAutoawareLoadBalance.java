@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.util.LangUtils;
 
@@ -27,7 +28,8 @@ public class LoadAutoawareLoadBalance extends AbstractLoadBalance {
 	public static final LoadBalance instance = new LoadAutoawareLoadBalance();
 
 	@Override
-	public Client doSelect(List<Client> clients, InvocationRequest request, int[] weights) {
+	public Client doSelect(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest request,
+			int[] weights) {
 		float minCapacity = Float.MAX_VALUE;
 		int clientSize = clients.size();
 		Client[] candidates = new Client[clientSize];

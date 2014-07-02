@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 /**
  * 随机负载均衡策略
@@ -26,7 +27,8 @@ public class RandomLoadBalance extends AbstractLoadBalance {
 	public static final LoadBalance instance = new RandomLoadBalance();
 
 	@Override
-	public Client doSelect(List<Client> clients, InvocationRequest request, int[] weights) {
+	public Client doSelect(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest request,
+			int[] weights) {
 		int clientSize = clients.size();
 		int totalWeight = 0;
 		boolean weightAllSame = true;

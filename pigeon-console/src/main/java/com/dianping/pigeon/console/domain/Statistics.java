@@ -3,11 +3,23 @@ package com.dianping.pigeon.console.domain;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager.WeightFactor;
+
 public class Statistics {
 
 	public Map<String, Integer> requestsInLastSecond = new HashMap<String, Integer>();
 
 	Map<String, String> serverProcessorStatistics = new HashMap<String, String>();
+
+	Map<String, WeightFactor> weightFactors = new HashMap<String, WeightFactor>();
+
+	public Map<String, WeightFactor> getWeightFactors() {
+		return weightFactors;
+	}
+
+	public void setWeightFactors(Map<String, WeightFactor> weightFactors) {
+		this.weightFactors = weightFactors;
+	}
 
 	public Map<String, String> getServerProcessorStatistics() {
 		return serverProcessorStatistics;

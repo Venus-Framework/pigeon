@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.dianping.pigeon.console.domain.Statistics;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
+import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.remoting.invoker.route.statistics.CapacityBucket;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
@@ -49,6 +50,7 @@ public class StatisticsJsonServlet extends ServiceServlet {
 						processor.getProcessorStatistics());
 			}
 		}
+		stat.setWeightFactors(LoadBalanceManager.getWeightFactors());
 		this.model = stat;
 	}
 }

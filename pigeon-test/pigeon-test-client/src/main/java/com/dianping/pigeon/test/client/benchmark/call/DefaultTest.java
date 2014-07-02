@@ -29,7 +29,7 @@ public class DefaultTest extends BaseInvokerTest {
 
 	@Test
 	public void test() throws Throwable {
-		int threads = 50;
+		int threads = 1;
 		System.out.println("threads:" + threads);
 		Assert.notNull(echoService);
 		for (int i = 0; i < threads; i++) {

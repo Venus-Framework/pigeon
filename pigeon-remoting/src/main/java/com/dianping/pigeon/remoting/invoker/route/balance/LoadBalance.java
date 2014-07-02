@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 /**
  * 负载均衡策略接口, 负责分派请求到指定的服务端
@@ -17,5 +18,5 @@ import com.dianping.pigeon.remoting.invoker.Client;
  */
 public interface LoadBalance {
 
-	Client select(List<Client> clients, InvocationRequest request);
+	Client select(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest request);
 }

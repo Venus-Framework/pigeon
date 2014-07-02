@@ -15,6 +15,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.remoting.invoker.route.support.RouterHelper;
@@ -29,7 +30,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 			"pigeon.loadbalance.defaultFactor", 100);
 
 	@Override
-	public Client select(List<Client> clients, InvocationRequest request) {
+	public Client select(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest request) {
 		if (clients == null || clients.isEmpty()) {
 			return null;
 		}
@@ -52,7 +53,8 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 				selectedClient = clients.get(0);
 			} else {
 				try {
-					selectedClient = doSelect(clients, request, getWeights(clients, request.getServiceName()));
+					selectedClient = doSelect(clients, invokerConfig, request,
+							getWeights(clients, request.getServiceName()));
 				} catch (Throwable e) {
 					logger.error("Failed to do load balance[" + getClass().getName() + "], detail: " + e.getMessage()
 							+ ", use random instead.", e);
@@ -102,6 +104,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 		return weights;
 	}
 
-	protected abstract Client doSelect(List<Client> clients, InvocationRequest request, int[] weights);
+	protected abstract Client doSelect(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest request,
+			int[] weights);
 
 }

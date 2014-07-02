@@ -92,7 +92,7 @@ public class LoadBalanceManager {
 		return loadBalance;
 	}
 
-	private static String getServiceId(String serviceName, String group) {
+	public static String getServiceId(String serviceName, String group) {
 		String serviceId = serviceName;
 		if (StringUtils.isNotBlank(group)) {
 			serviceId = serviceId + ":" + group;
@@ -181,7 +181,7 @@ public class LoadBalanceManager {
 		}
 	}
 
-	private static class WeightFactor {
+	public static class WeightFactor {
 		private int factor;
 		private int currentStepTicks;
 
@@ -205,6 +205,9 @@ public class LoadBalanceManager {
 			this.currentStepTicks = currentStepTicks;
 		}
 
+		public String toString() {
+			return factor + ":" + currentStepTicks;
+		}
 	}
 
 	private static class WeightFactorMaintainer implements Runnable, ServiceProviderChangeListener, ClusterListener {
@@ -228,7 +231,8 @@ public class LoadBalanceManager {
 					Thread.sleep(interval);
 					adjustFactor();
 				} catch (InterruptedException e) {
-					break;
+				} catch (RuntimeException e) {
+					logger.warn("error with weight factor maintainer:" + e.getMessage());
 				}
 			}
 		}
@@ -249,8 +253,8 @@ public class LoadBalanceManager {
 						int factor = Math.min(defaultFactor, weightFactor.getFactor() + step);
 						weightFactor.setFactor(factor);
 						weightFactor.setCurrentStepTicks(0);
-						entry.setValue(weightFactor);
 					}
+					entry.setValue(weightFactor);
 				}
 			}
 		}
@@ -305,5 +309,9 @@ public class LoadBalanceManager {
 			ServiceStatisticsHolder.removeCapacityBucket(address);
 		}
 
+	}
+
+	public static Map<String, WeightFactor> getWeightFactors() {
+		return weightFactors;
 	}
 }
