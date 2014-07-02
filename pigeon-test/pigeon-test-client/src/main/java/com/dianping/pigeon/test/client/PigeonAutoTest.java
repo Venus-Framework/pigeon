@@ -33,7 +33,7 @@ public @interface PigeonAutoTest {
 
     String callback() default "null";
 
-    String loadbalance() default "consistentHash";
+    String loadbalance() default "roundRobin";
 
     String cluster() default "failFast";
 

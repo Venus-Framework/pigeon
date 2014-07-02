@@ -81,7 +81,7 @@ public final class Constants {
 	// Deafult value for the above keys
 	public static final String DEFAULT_GROUP = "";
 
-	public static final String KEY_LOADBALANCE = "pigeon.loadbalance.default";
+	public static final String KEY_LOADBALANCE = "pigeon.loadbalance.defaulttype";
 	public static final String KEY_RECONNECT_INTERVAL = "pigeon.reconnect.interval";
 	public static final String KEY_HEARTBEAT_INTERVAL = "pigeon.heartbeat.interval";
 	public static final String KEY_HEARTBEAT_TIMEOUT = "pigeon.heartbeat.timeout";

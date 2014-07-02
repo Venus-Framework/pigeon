@@ -103,9 +103,6 @@ public class LoadBalanceManager {
 	@SuppressWarnings("unchecked")
 	public static void register(String serviceName, String group, Object loadBalance) {
 		String serviceId = getServiceId(serviceName, group);
-		if (loadBalanceMap.containsKey(serviceId)) {
-			logger.warn("Duplicate loadbalance already registered with service[" + serviceId + "], replace it.");
-		}
 		LoadBalance loadBlanceObj = null;
 		if (loadBalance instanceof LoadBalance) {
 			loadBlanceObj = (LoadBalance) loadBalance;

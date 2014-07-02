@@ -73,7 +73,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 			boolean direct = request.getParameter("direct") == null ? true : request.getParameter("direct").equals(
 					"true") ? true : false;
 			String timeoutKey = request.getParameter("timeout");
-			int timeout = timeoutKey == null ? 10 * 1000 : Integer.parseInt(timeoutKey);
+			int timeout = timeoutKey == null ? 15 * 1000 : Integer.parseInt(timeoutKey);
 			String serviceName = request.getParameter("url");
 			String methodName = request.getParameter("method");
 			String[] types = request.getParameterValues("parameterTypes");
