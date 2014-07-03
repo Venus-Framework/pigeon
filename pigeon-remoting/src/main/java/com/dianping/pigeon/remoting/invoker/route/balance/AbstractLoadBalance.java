@@ -10,7 +10,6 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -26,9 +25,6 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 	private static final Logger logger = LoggerLoader.getLogger(AbstractLoadBalance.class);
 
 	protected Random random = new Random();
-
-	private static int defaultFactor = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.loadbalance.defaultFactor", 100);
 
 	@Override
 	public Client select(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest request) {

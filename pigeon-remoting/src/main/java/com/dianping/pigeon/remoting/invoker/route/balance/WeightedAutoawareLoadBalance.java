@@ -43,13 +43,6 @@ public class WeightedAutoawareLoadBalance extends AbstractLoadBalance {
 			if (weights[i] < defaultFactor) {
 				if (!isHit(weights[i])) {
 					capacity = Float.MAX_VALUE;
-					if (logger.isDebugEnabled()) {
-						logger.debug("reset capacity to max value for address:" + client.getAddress());
-					}
-				} else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("hited for address:" + client.getAddress());
-					}
 				}
 			}
 			if (capacity < minCapacity) {
