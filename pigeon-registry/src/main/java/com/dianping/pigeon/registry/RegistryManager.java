@@ -93,7 +93,8 @@ public class RegistryManager {
 			}
 			return props.getProperty(serviceKey);
 		}
-		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv())) {
+		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv())
+				|| ConfigConstants.ENV_ALPHA.equalsIgnoreCase(configManager.getEnv())) {
 			String addr = configManager.getLocalStringValue(Utils.escapeServiceName(serviceKey));
 			if (addr == null) {
 				try {

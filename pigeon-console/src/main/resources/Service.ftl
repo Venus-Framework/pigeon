@@ -56,7 +56,7 @@
 						});
 						<#else>
 						$.ajax({
-							url:"/invoke.json?validate=true&direct=false&token=" + $("#token").val(),
+							url:"/invoke.json?validate=true&direct=true&token=" + $("#token").val(),
 							data: pdata,
 							success: function(m){
 								result.text(m).show();

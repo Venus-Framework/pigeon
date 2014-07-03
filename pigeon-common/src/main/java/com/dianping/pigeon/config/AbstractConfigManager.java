@@ -77,7 +77,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		} catch (Throwable e) {
 			logger.error("", e);
 		}
-		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(getEnv())) {
+		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(getEnv()) || ConfigConstants.ENV_ALPHA.equalsIgnoreCase(getEnv())) {
 			try {
 				init(FileUtils.readFile(Thread.currentThread().getContextClassLoader()
 						.getResourceAsStream(DEV_PROPERTIES_PATH)));

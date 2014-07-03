@@ -107,7 +107,9 @@ public class ClientManager implements Disposable {
 	public String getServiceAddress(String serviceName, String group, String vip) {
 		String serviceAddress = null;
 		try {
-			if (!StringUtils.isBlank(vip) && ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv())) {
+			if (!StringUtils.isBlank(vip)
+					&& (ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv()) || ConfigConstants.ENV_ALPHA
+							.equalsIgnoreCase(configManager.getEnv()))) {
 				serviceAddress = vip;
 			} else {
 				serviceAddress = RegistryManager.getInstance().getServiceAddress(serviceName, group);
