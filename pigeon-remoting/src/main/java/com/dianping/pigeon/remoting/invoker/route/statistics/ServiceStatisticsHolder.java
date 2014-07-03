@@ -9,7 +9,7 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.route.balance.LoadAutoawareLoadBalance;
+import com.dianping.pigeon.remoting.invoker.route.balance.AutoawareLoadBalance;
 
 public final class ServiceStatisticsHolder {
 
@@ -67,7 +67,7 @@ public final class ServiceStatisticsHolder {
 		if (request == null || request.getMessageType() != Constants.MESSAGE_TYPE_SERVICE) {
 			return false;
 		}
-		if (LoadAutoawareLoadBalance.NAME.equals(request.getLoadbalance())) {
+		if (AutoawareLoadBalance.NAME.equals(request.getLoadbalance())) {
 			return true;
 		} else {
 			return statEnable;

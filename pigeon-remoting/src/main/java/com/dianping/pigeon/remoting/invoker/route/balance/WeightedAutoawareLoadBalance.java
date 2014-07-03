@@ -5,9 +5,11 @@
 package com.dianping.pigeon.remoting.invoker.route.balance;
 
 import java.util.List;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -15,17 +17,14 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.util.LangUtils;
 
-/**
- * 感知服务端负载情况, 将请求路由到负载较低的服务端
- * 
- * @author danson.liu
- * 
- */
-public class LoadAutoawareLoadBalance extends AbstractLoadBalance {
+public class WeightedAutoawareLoadBalance extends AbstractLoadBalance {
 
-	private static final Logger logger = LoggerLoader.getLogger(LoadAutoawareLoadBalance.class);
-	public static final String NAME = "autoaware";
-	public static final LoadBalance instance = new LoadAutoawareLoadBalance();
+	private static final Logger logger = LoggerLoader.getLogger(WeightedAutoawareLoadBalance.class);
+	public static final String NAME = "weightedAutoaware";
+	public static final LoadBalance instance = new WeightedAutoawareLoadBalance();
+	private static int defaultFactor = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.loadbalance.defaultFactor", 100);
+	private static Random random = new Random();
 
 	@Override
 	public Client doSelect(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest request,
@@ -38,7 +37,20 @@ public class LoadAutoawareLoadBalance extends AbstractLoadBalance {
 			Client client = clients.get(i);
 			float capacity = ServiceStatisticsHolder.getCapacity(client.getAddress());
 			if (logger.isDebugEnabled()) {
-				logger.debug("capacity:" + LangUtils.toString(capacity, 4) + " for address:" + client.getAddress());
+				logger.debug("capacity:" + LangUtils.toString(capacity, 4) + ", weight:" + weights[i] + " for address:"
+						+ client.getAddress());
+			}
+			if (weights[i] < defaultFactor) {
+				if (!isHit(weights[i])) {
+					capacity = Float.MAX_VALUE;
+					if (logger.isDebugEnabled()) {
+						logger.debug("reset capacity to max value for address:" + client.getAddress());
+					}
+				} else {
+					if (logger.isDebugEnabled()) {
+						logger.debug("hited for address:" + client.getAddress());
+					}
+				}
 			}
 			if (capacity < minCapacity) {
 				minCapacity = capacity;
@@ -55,4 +67,7 @@ public class LoadAutoawareLoadBalance extends AbstractLoadBalance {
 		return client;
 	}
 
+	private boolean isHit(int weight) {
+		return random.nextInt(defaultFactor) < weight;
+	}
 }

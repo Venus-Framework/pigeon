@@ -21,11 +21,12 @@ import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListenerManager;
-import com.dianping.pigeon.remoting.invoker.route.balance.LoadAutoawareLoadBalance;
+import com.dianping.pigeon.remoting.invoker.route.balance.AutoawareLoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.remoting.invoker.route.balance.RandomLoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.RoundRobinLoadBalance;
+import com.dianping.pigeon.remoting.invoker.route.balance.WeightedAutoawareLoadBalance;
 
 public class DefaultRouteManager implements RouteManager, Disposable {
 
@@ -38,8 +39,9 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	public DefaultRouteManager() {
 		RegistryEventListener.addListener(providerChangeListener);
 		LoadBalanceManager.register(RandomLoadBalance.NAME, null, RandomLoadBalance.instance);
-		LoadBalanceManager.register(LoadAutoawareLoadBalance.NAME, null, LoadAutoawareLoadBalance.instance);
+		LoadBalanceManager.register(AutoawareLoadBalance.NAME, null, AutoawareLoadBalance.instance);
 		LoadBalanceManager.register(RoundRobinLoadBalance.NAME, null, RoundRobinLoadBalance.instance);
+		LoadBalanceManager.register(WeightedAutoawareLoadBalance.NAME, null, WeightedAutoawareLoadBalance.instance);
 	}
 
 	public Client route(List<Client> clientList, InvokerConfig<?> invokerConfig, InvocationRequest request) {

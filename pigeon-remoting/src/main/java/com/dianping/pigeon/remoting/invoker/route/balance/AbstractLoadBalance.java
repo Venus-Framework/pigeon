@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -63,9 +64,8 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 			}
 		}
 		if (selectedClient != null) {
-			int weight = LoadBalanceManager.getEffectiveWeight(selectedClient.getAddress());
-			request.setAttachment(Constants.REQ_ATTACH_FLOW, 1.0f * defaultFactor
-					/ (weight > 0 ? weight : defaultFactor));
+			int weight = RegistryManager.getInstance().getServiceWeight(selectedClient.getAddress());
+			request.setAttachment(Constants.REQ_ATTACH_FLOW, 1.0f / (weight > 0 ? weight : 1));
 		}
 		if (logger.isDebugEnabled()) {
 			if (ServiceStatisticsHolder.checkRequestNeedStat(request)) {
