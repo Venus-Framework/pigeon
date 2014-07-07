@@ -139,16 +139,24 @@ public class ClientManager implements Disposable {
 			if (StringUtils.isNotBlank(addressArray[i])) {
 				// addressList.add(addressArray[i]);
 				String address = addressArray[i];
-				String[] parts = address.split(":");
-				if (parts.length == 2) {
+				int idx = address.lastIndexOf(":");
+				if (idx != -1) {
+					String host = null;
+					int port = -1;
 					try {
-						String host = parts[0];
-						int port = Integer.parseInt(parts[1]);
-						int weight = RegistryManager.getInstance().getServiceWeight(address);
-						RegistryEventListener.providerAdded(serviceName, host, port, weight);
-					} catch (Throwable e) {
-						throw new ServiceUnavailableException("error while registering service invoker:" + serviceName
-								+ ", address:" + address, e);
+						host = address.substring(0, idx);
+						port = Integer.parseInt(address.substring(idx + 1));
+					} catch (RuntimeException e) {
+						logger.warn("invalid address:" + address + " for service:" + serviceName);
+					}
+					if (host != null && port > 0) {
+						try {
+							int weight = RegistryManager.getInstance().getServiceWeight(address);
+							RegistryEventListener.providerAdded(serviceName, host, port, weight);
+						} catch (Throwable e) {
+							throw new ServiceUnavailableException("error while registering service invoker:"
+									+ serviceName + ", address:" + address, e);
+						}
 					}
 				} else {
 					logger.warn("invalid address:" + address + " for service:" + serviceName);
