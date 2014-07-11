@@ -124,10 +124,19 @@ public class ServiceServlet extends HttpServlet {
 			ProviderConfig<?> providerConfig = entry.getValue();
 			Service s = new Service();
 			s.setName(serviceName);
-			s.setType(providerConfig.getService().getClass());
+			Class<?> beanClass = providerConfig.getService().getClass();
+			int idxCglib = beanClass.getName().indexOf("$$EnhancerByCGLIB");
+			if (idxCglib != -1) {
+				try {
+					beanClass = Class.forName(beanClass.getName().substring(0, idxCglib));
+				} catch (ClassNotFoundException e) {
+					throw new IllegalStateException("Failed to export remote service class " + beanClass.getName(), e);
+				}
+			}
+			s.setType(beanClass);
 			s.setPublished(providerConfig.isPublished() + "");
 			Map<String, Method> allMethods = new HashMap<String, Method>();
-			Class<?>[] ifaces = providerConfig.getService().getClass().getInterfaces();
+			Class<?>[] ifaces = beanClass.getInterfaces();
 			String[] validPackages = VALID_PACKAGES.split(",");
 			for (Class<?> iface : ifaces) {
 				String facename = iface.getName();
