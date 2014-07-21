@@ -168,8 +168,13 @@ public final class ServiceProviderFactory {
 			logger.info("publish service to registry, url:" + url + ", port:" + port + ", group:" + group
 					+ ", address:" + serverAddress + ", weight:" + weight);
 		}
+		if (serverWeightCache.containsKey(serverAddress)) {
+			weight = -1;
+		}
 		RegistryManager.getInstance().registerService(url, group, serverAddress, weight);
-		serverWeightCache.put(serverAddress, weight);
+		if (weight >= 0) {
+			serverWeightCache.put(serverAddress, weight);
+		}
 	}
 
 	public static Map<String, Integer> getServerWeight() {

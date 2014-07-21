@@ -191,7 +191,9 @@ public class ZookeeperRegistry implements Registry {
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
 			// 1. Register weight
-			zkClient.updateData(weightPath, "" + weight);
+			if (weight >= 0) {
+				zkClient.updateData(weightPath, "" + weight);
+			}
 			// 2. Register address
 			if (zkClient.exists(servicePath, false) != null) {
 				String addressValue = new String(zkClient.getData(servicePath, false, null), Constants.CHARSET);
@@ -269,23 +271,23 @@ public class ZookeeperRegistry implements Registry {
 		return "zookeeper";
 	}
 
-//	class ZkStateWatcher implements Watcher {
-//		@Override
-//		public void process(WatchedEvent event) {
-//			if (event.getState() == KeeperState.Expired) {
-//				if (logger.isInfoEnabled()) {
-//					logger.info("Zookeeper session expried");
-//				}
-//				try {
-//					zkClient.reconnectSession();
-//					logger.info("Zookeeper session reconnected");
-//				} catch (Exception e) {
-//					logger.error("Failed to reconnect to zookeeper", e);
-//				}
-//				return;
-//			}
-//		}
-//	}
+	// class ZkStateWatcher implements Watcher {
+	// @Override
+	// public void process(WatchedEvent event) {
+	// if (event.getState() == KeeperState.Expired) {
+	// if (logger.isInfoEnabled()) {
+	// logger.info("Zookeeper session expried");
+	// }
+	// try {
+	// zkClient.reconnectSession();
+	// logger.info("Zookeeper session reconnected");
+	// } catch (Exception e) {
+	// logger.error("Failed to reconnect to zookeeper", e);
+	// }
+	// return;
+	// }
+	// }
+	// }
 
 	@Override
 	public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {

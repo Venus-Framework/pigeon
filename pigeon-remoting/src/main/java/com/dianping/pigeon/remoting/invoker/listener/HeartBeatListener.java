@@ -50,17 +50,19 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	long heartBeatDeadCount = configManager.getLongValue(Constants.KEY_HEARTBEAT_DEADTHRESHOLD,
+	private final long heartBeatDeadCount = configManager.getLongValue(Constants.KEY_HEARTBEAT_DEADTHRESHOLD,
 			Constants.DEFAULT_HEARTBEAT_DEADCOUNT);
-	long heartBeatHealthCount = configManager.getLongValue(Constants.KEY_HEARTBEAT_HEALTHTHRESHOLD,
+	private final long heartBeatHealthCount = configManager.getLongValue(Constants.KEY_HEARTBEAT_HEALTHTHRESHOLD,
 			Constants.DEFAULT_HEARTBEAT_HEALTHCOUNT);
-	boolean isHeartBeatAutoPickOff = configManager.getBooleanValue(Constants.KEY_HEARTBEAT_AUTOPICKOFF,
+	private final boolean isHeartBeatAutoPickOff = configManager.getBooleanValue(Constants.KEY_HEARTBEAT_AUTOPICKOFF,
 			Constants.DEFAULT_HEARTBEAT_AUTOPICKOFF);
-	String serviceNameSpace = configManager.getStringValue(Constants.KEY_SERVICE_NAMESPACE,
+	private final String serviceNameSpace = configManager.getStringValue(Constants.KEY_SERVICE_NAMESPACE,
 			Constants.DEFAULT_SERVICE_NAMESPACE);
-	long interval = configManager.getLongValue(Constants.KEY_HEARTBEAT_INTERVAL, Constants.DEFAULT_HEARTBEAT_INTERVAL);
-	long heartBeatTimeout = configManager.getLongValue(Constants.KEY_HEARTBEAT_TIMEOUT,
+	private final long interval = configManager.getLongValue(Constants.KEY_HEARTBEAT_INTERVAL,
+			Constants.DEFAULT_HEARTBEAT_INTERVAL);
+	private final long heartBeatTimeout = configManager.getLongValue(Constants.KEY_HEARTBEAT_TIMEOUT,
 			Constants.DEFAULT_HEARTBEAT_TIMEOUT);
+	private final float pickoffRatio = configManager.getFloatValue("pigeon.heartbeat.pickoffratio", 0.5f);
 
 	public void run() {
 		long sleepTime = interval;
@@ -239,7 +241,6 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 						logger.error("@service-deactivate:" + client.getAddress());
 					} else {
 						logger.error("@service-dieaway:" + client.getAddress());
-
 					}
 				}
 				heartStat.resetCounter();
@@ -272,10 +273,10 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			if (hostInfos.contains(hostInfo)) {
 				int total = hostInfos.size();
 				/**
-				 * 目前自动摘除策略： 1. 确保2/3该Service的机器正常可用的前提下，可摘除探测到的不健康的机器 2.
+				 * 目前自动摘除策略： 1. 确保1/2该Service的机器正常可用的前提下，可摘除探测到的不健康的机器 2.
 				 * 特例：当只有两台机器时，确保该Service一台机器正常可用即可
 				 */
-				int leastAvailable = total != 2 ? total - (int) Math.floor(total / 3) : 1;
+				int leastAvailable = total != 2 ? total - (int) Math.floor(total * pickoffRatio) : 1;
 				List<Client> workingClients_ = getWorkingClients().get(serviceName);
 				int working = 0;
 				if (workingClients_ != null) {
@@ -287,11 +288,12 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 					}
 				}
 				if (working <= leastAvailable) {
+					logger.warn("can not pick off:" + client + ", working:" + working + ", least:" + leastAvailable);
 					return false;
 				}
 			}
 		}
-		logger.error("can pick off...");
+		logger.error("can pick off:" + client);
 		return true;
 	}
 
