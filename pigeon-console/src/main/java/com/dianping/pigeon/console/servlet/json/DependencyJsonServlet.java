@@ -58,7 +58,7 @@ public class DependencyJsonServlet extends ServiceServlet {
 				List<Client> clients = heartbeats.get(key);
 				StringBuilder sb = new StringBuilder();
 				for (Client client : clients) {
-					sb.append(clients.toString()).append("-weight:")
+					sb.append(client.toString()).append("-weight:")
 							.append(RegistryManager.getInstance().getServiceWeight(client.getAddress()));
 				}
 				heartbeatsResults.put(key, sb.toString());

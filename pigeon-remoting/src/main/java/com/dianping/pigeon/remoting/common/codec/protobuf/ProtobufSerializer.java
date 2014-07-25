@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 
+import org.apache.commons.lang.ClassUtils;
+
 import com.dianping.pigeon.remoting.common.codec.Serializer;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -28,7 +30,7 @@ public class ProtobufSerializer implements Serializer {
 
 	public static boolean support() {
 		try {
-			Class.forName("com.google.protobuf.MessageOrBuilder");
+			ClassUtils.getClass("com.google.protobuf.MessageOrBuilder");
 			return true;
 		} catch (ClassNotFoundException e) {
 			return false;
@@ -93,7 +95,7 @@ public class ProtobufSerializer implements Serializer {
 		Class<?> channelClass = com.google.protobuf.BlockingRpcChannel.class;
 		Object channel = new ProtobufBlockingRpcChannel(invokerConfig);
 		try {
-			Class<?> objType = Class.forName(stubName);
+			Class<?> objType = ClassUtils.getClass(stubName);
 			Constructor<?> constructor = objType.getDeclaredConstructor(channelClass);
 			constructor.setAccessible(true);
 			return constructor.newInstance(channel);

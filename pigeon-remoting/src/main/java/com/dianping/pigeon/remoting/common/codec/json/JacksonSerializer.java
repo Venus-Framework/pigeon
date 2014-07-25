@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
@@ -30,7 +31,7 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 
 	public static boolean support() {
 		try {
-			Class.forName("com.fasterxml.jackson.databind.ObjectMapper");
+			ClassUtils.getClass("com.fasterxml.jackson.databind.ObjectMapper");
 			return true;
 		} catch (ClassNotFoundException e) {
 			return false;

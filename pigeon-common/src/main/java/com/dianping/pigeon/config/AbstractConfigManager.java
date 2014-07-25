@@ -154,7 +154,8 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			try {
 				strValue = doGetLocalProperty(key);
 				if (strValue != null && logger.isInfoEnabled()) {
-					logger.info("read from local config with key[" + key + "]:" + strValue);
+					// logger.info("read from local config with key[" + key +
+					// "]:" + strValue);
 				}
 			} catch (Throwable e) {
 				logger.error("error while reading local config[" + key + "]:" + e.getMessage());
@@ -180,7 +181,8 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			}
 			return (T) value;
 		} else {
-			logger.info("config[key=" + key + "] not found, use default value");
+			// logger.info("config[key=" + key +
+			// "] not found, use default value");
 		}
 		return null;
 	}
@@ -211,7 +213,8 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			try {
 				strValue = doGetLocalProperty(key);
 				if (strValue != null && logger.isInfoEnabled()) {
-					logger.info("read from local config with key[" + key + "]:" + strValue);
+					// logger.info("read from local config with key[" + key +
+					// "]:" + strValue);
 				}
 			} catch (Throwable e) {
 				logger.error("error while reading local config[" + key + "]:" + e.getMessage());
@@ -247,7 +250,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			}
 			return (T) value;
 		} else {
-			logger.info("config[key=" + key + "] not found");
+			// logger.info("config[key=" + key + "] not found");
 		}
 		return null;
 	}
@@ -291,7 +294,8 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			return value;
 		}
 		if (logger.isInfoEnabled()) {
-			logger.info("try to read from local config with key[" + key + "]");
+			// logger.info("try to read from local config with key[" + key +
+			// "]");
 		}
 		try {
 			String value = doGetLocalProperty(key);
@@ -302,7 +306,8 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				}
 				return value;
 			} else {
-				logger.info("config[key=" + key + "] not found in local config");
+				// logger.info("config[key=" + key +
+				// "] not found in local config");
 			}
 		} catch (Throwable e) {
 			logger.error("error while reading property[" + key + "]:" + e.getMessage());

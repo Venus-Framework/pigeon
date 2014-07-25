@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -309,7 +310,7 @@ public class ProtobufRequest implements InvocationRequest {
 		if (gml == null) {
 			Class<?> paramClass = null;
 			try {
-				paramClass = Class.forName(this.parameterClass);
+				paramClass = ClassUtils.getClass(this.parameterClass);
 			} catch (ClassNotFoundException e) {
 				throw new SerializationException(e);
 			}

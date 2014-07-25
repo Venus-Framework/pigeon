@@ -17,6 +17,7 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
+import com.dianping.pigeon.util.ClassUtils;
 
 public class ProxyBeanFactory implements FactoryBean {
 
@@ -76,6 +77,16 @@ public class ProxyBeanFactory implements FactoryBean {
 	private String version;
 
 	private String protocol;
+	
+	private ClassLoader classLoader;
+
+	public ClassLoader getClassLoader() {
+		return classLoader;
+	}
+
+	public void setClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
 
 	public String getProtocol() {
 		return protocol;
@@ -280,7 +291,7 @@ public class ProxyBeanFactory implements FactoryBean {
 		if (StringUtils.isBlank(iface)) {
 			throw new IllegalArgumentException("invalid interface:" + iface);
 		}
-		this.objType = Class.forName(this.iface.trim());
+		this.objType = ClassUtils.loadClass(classLoader, this.iface.trim());
 		InvokerConfig invokerConfig = new InvokerConfig(this.objType, this.serviceName, this.timeout, this.callMethod,
 				this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadBalance, this.cluster,
 				this.retries, this.timeoutRetry, this.vip, this.version, this.protocol);

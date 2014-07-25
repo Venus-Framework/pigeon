@@ -48,7 +48,10 @@ public class FileUtils {
 
 	public static void writeFile(File file, Properties properties) throws IOException {
 		if (!file.exists()) {
-			file.mkdirs();
+			File dir = file.getParentFile();
+			if (!dir.exists()) {
+				dir.mkdirs();
+			}
 		}
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), "utf-8"));
 		for (Entry<Object, Object> entry : properties.entrySet()) {

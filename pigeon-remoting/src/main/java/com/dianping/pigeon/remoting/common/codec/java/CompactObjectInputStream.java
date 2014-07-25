@@ -11,6 +11,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 import java.io.StreamCorruptedException;
 
+import com.dianping.pigeon.util.ClassUtils;
+
 public class CompactObjectInputStream extends ObjectInputStream {
 
 	private final ClassLoader classLoader;
@@ -61,18 +63,7 @@ public class CompactObjectInputStream extends ObjectInputStream {
 	}
 
 	protected Class<?> loadClass(String className) throws ClassNotFoundException {
-		Class<?> clazz;
-		ClassLoader classLoader = this.classLoader;
-		if (classLoader == null) {
-			classLoader = Thread.currentThread().getContextClassLoader();
-		}
-
-		if (classLoader != null) {
-			clazz = classLoader.loadClass(className);
-		} else {
-			clazz = Class.forName(className);
-		}
-		return clazz;
+		return ClassUtils.loadClass(classLoader, className);
 	}
 
 }

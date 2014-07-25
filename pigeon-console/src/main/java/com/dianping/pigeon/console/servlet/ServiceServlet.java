@@ -26,11 +26,11 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.console.domain.Service;
 import com.dianping.pigeon.console.domain.ServiceMethod;
+import com.dianping.pigeon.console.status.checker.ProviderStatusChecker;
+import com.dianping.pigeon.console.status.checker.StatusChecker;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.common.process.ServiceStatusChecker;
-import com.dianping.pigeon.remoting.invoker.process.ServiceInvokerStatusChecker;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
@@ -67,7 +67,7 @@ public class ServiceServlet extends HttpServlet {
 	private static final String VALID_PACKAGES = configManager.getStringValue("pigeon.service.packages",
 			"com.dianping,com.dp");
 
-	private static final ServiceStatusChecker serviceInvokerStatusChecker = new ServiceInvokerStatusChecker();
+	private static final StatusChecker providerStatusChecker = new ProviderStatusChecker();
 
 	protected static String token;
 
@@ -173,7 +173,7 @@ public class ServiceServlet extends HttpServlet {
 	}
 
 	private void setStatus(ServicePage page, boolean isClientSide) {
-		String error = serviceInvokerStatusChecker.check();
+		String error = providerStatusChecker.checkError();
 		if (!StringUtils.isBlank(error)) {
 			page.setError(error);
 			page.setStatus("error");

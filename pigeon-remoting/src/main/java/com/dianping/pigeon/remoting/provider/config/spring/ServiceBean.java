@@ -20,6 +20,7 @@ import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ProviderMethodConfig;
+import com.dianping.pigeon.util.ClassUtils;
 import com.dianping.pigeon.util.CollectionUtils;
 
 public class ServiceBean {
@@ -36,6 +37,15 @@ public class ServiceBean {
 	private boolean useSharedPool = configManager.getBooleanValue(Constants.KEY_SERVICE_SHARED,
 			Constants.DEFAULT_SERVICE_SHARED);
 	private List<ProviderMethodConfig> methods;
+	private ClassLoader classLoader;
+
+	public ClassLoader getClassLoader() {
+		return classLoader;
+	}
+
+	public void setClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
 
 	public List<ProviderMethodConfig> getMethods() {
 		return methods;
@@ -109,7 +119,8 @@ public class ServiceBean {
 		if (StringUtils.isBlank(interfaceName)) {
 			providerConfig = new ProviderConfig<Object>(serviceImpl);
 		} else {
-			providerConfig = new ProviderConfig(Class.forName(interfaceName), serviceImpl);
+			Class<?> cl = ClassUtils.loadClass(interfaceName);
+			providerConfig = new ProviderConfig(cl, serviceImpl);
 		}
 		providerConfig.setVersion(version);
 		providerConfig.setUrl(url);

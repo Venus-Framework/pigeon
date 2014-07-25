@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
+import com.dianping.pigeon.util.ClassUtils;
 
 public class ServiceMethodCache {
 
@@ -133,8 +134,7 @@ public class ServiceMethodCache {
 			}
 			Class<?> paramClass = null;
 			try {
-				paramClass = Class.forName(paramClassNames[i]);
-
+				paramClass = ClassUtils.loadClass(paramClassNames[i]);
 			} catch (ClassNotFoundException e) {
 				throw new InvocationFailureException("no class found for parameter:" + paramClassNames[i]);
 			}

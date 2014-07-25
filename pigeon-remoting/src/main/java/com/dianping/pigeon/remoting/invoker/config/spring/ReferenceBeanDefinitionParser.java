@@ -25,6 +25,7 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
 import com.dianping.pigeon.remoting.invoker.config.InvokerMethodConfig;
+import com.dianping.pigeon.util.ClassUtils;
 
 /**
  * 
@@ -97,7 +98,8 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 			String clazz = resolveReference(element, "loadBalanceClass");
 			if (StringUtils.isNotBlank(clazz)) {
 				try {
-					properties.addPropertyValue("loadBalanceClass", Class.forName(clazz));
+					Class<?> cl = ClassUtils.loadClass(clazz);
+					properties.addPropertyValue("loadBalanceClass", cl);
 				} catch (ClassNotFoundException e) {
 					logger.warn("invalid loadBalanceClass:" + clazz + ", caused by " + e.getMessage());
 				}

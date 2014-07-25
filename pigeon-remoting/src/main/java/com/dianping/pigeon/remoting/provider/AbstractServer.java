@@ -80,23 +80,29 @@ public abstract class AbstractServer implements Server {
 		int lastPort = port;
 		String filePath = "/data/applogs/dpsflog/pigeon-port";
 		File file = new File(filePath);
-		String key = this.getClass().getResource("/").getPath() + port;
 		Properties properties = null;
-		if (file.exists()) {
-			try {
-				properties = FileUtils.readFile(new FileInputStream(file));
-				String strLastPort = properties.getProperty(key);
-				if (StringUtils.isNotBlank(strLastPort)) {
-					lastPort = Integer.parseInt(strLastPort);
+		String key = null;
+		try {
+			key = this.getClass().getResource("/").getPath() + port;
+			if (file.exists()) {
+				try {
+					properties = FileUtils.readFile(new FileInputStream(file));
+					String strLastPort = properties.getProperty(key);
+					if (StringUtils.isNotBlank(strLastPort)) {
+						lastPort = Integer.parseInt(strLastPort);
+					}
+				} catch (Throwable e) {
 				}
-			} catch (Throwable e) {
 			}
+		} catch (RuntimeException e) {
 		}
 		lastPort = NetUtils.getAvailablePort(lastPort);
 		if (properties == null) {
 			properties = new Properties();
 		}
-		properties.put(key, lastPort);
+		if (key != null) {
+			properties.put(key, lastPort);
+		}
 		try {
 			FileUtils.writeFile(file, properties);
 		} catch (IOException e) {

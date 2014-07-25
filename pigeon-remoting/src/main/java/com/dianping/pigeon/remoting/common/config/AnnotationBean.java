@@ -30,6 +30,7 @@ import com.dianping.pigeon.remoting.invoker.config.annotation.Reference;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
+import com.dianping.pigeon.util.ClassUtils;
 
 public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor, BeanPostProcessor,
 		ApplicationContextAware {
@@ -67,16 +68,16 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 		if (beanFactory instanceof BeanDefinitionRegistry) {
 			try {
 				// init scanner
-				Class<?> scannerClass = Class
-						.forName("org.springframework.context.annotation.ClassPathBeanDefinitionScanner");
+				Class<?> scannerClass = ClassUtils
+						.loadClass("org.springframework.context.annotation.ClassPathBeanDefinitionScanner");
 				Object scanner = scannerClass.getConstructor(
 						new Class<?>[] { BeanDefinitionRegistry.class, boolean.class }).newInstance(
 						new Object[] { (BeanDefinitionRegistry) beanFactory, true });
 				// add filter
-				Class<?> filterClass = Class.forName("org.springframework.core.type.filter.AnnotationTypeFilter");
+				Class<?> filterClass = ClassUtils.loadClass("org.springframework.core.type.filter.AnnotationTypeFilter");
 				Object filter = filterClass.getConstructor(Class.class).newInstance(Service.class);
 				Method addIncludeFilter = scannerClass.getMethod("addIncludeFilter",
-						Class.forName("org.springframework.core.type.filter.TypeFilter"));
+						ClassUtils.loadClass("org.springframework.core.type.filter.TypeFilter"));
 				addIncludeFilter.invoke(scanner, filter);
 				// scan packages
 				String[] packages = COMMA_SPLIT_PATTERN.split(annotationPackage);
@@ -96,7 +97,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 		int idxCglib = beanClass.getName().indexOf("$$EnhancerByCGLIB");
 		if (idxCglib != -1) {
 			try {
-				beanClass = Class.forName(beanClass.getName().substring(0, idxCglib));
+				beanClass = ClassUtils.loadClass(beanClass.getName().substring(0, idxCglib));
 			} catch (ClassNotFoundException e) {
 				throw new IllegalStateException("Failed to export remote service class " + beanClass.getName(), e);
 			}
@@ -193,7 +194,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 		if (StringUtils.isNotBlank(callbackClassName)) {
 			Class<?> clazz;
 			try {
-				clazz = Class.forName(callbackClassName);
+				clazz = ClassUtils.loadClass(callbackClassName);
 			} catch (ClassNotFoundException e) {
 				throw new IllegalStateException("The @Reference undefined callback " + callbackClassName
 						+ ", is not a ServiceCallback interface.");
