@@ -17,6 +17,7 @@ import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
 public class ServiceOnlineServlet extends HttpServlet {
@@ -37,7 +38,12 @@ public class ServiceOnlineServlet extends HttpServlet {
 		if (Utils.isGranted(request)) {
 			boolean autoRegisterEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
 					Constants.KEY_AUTOREGISTER_ENABLE, true);
-			if (autoRegisterEnable) {
+			boolean isOnline = autoRegisterEnable;
+			String force = request.getParameter("force");
+			if ("true".equalsIgnoreCase(force)) {
+				isOnline = true;
+			}
+			if (isOnline) {
 				try {
 					ServiceFactory.online();
 					response.getWriter().println("ok");

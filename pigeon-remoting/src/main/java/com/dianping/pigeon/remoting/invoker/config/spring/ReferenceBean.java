@@ -256,6 +256,8 @@ public class ReferenceBean implements FactoryBean {
 		InvokerConfig<?> invokerConfig = new InvokerConfig(this.objType, this.url, this.timeout, this.callType,
 				this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadBalance, this.cluster,
 				this.retries, this.timeoutRetry, this.vip, this.version, this.protocol);
+		invokerConfig.setClassLoader(classLoader);
+		
 		if (!CollectionUtils.isEmpty(methods)) {
 			Map<String, InvokerMethodConfig> methodMap = new HashMap<String, InvokerMethodConfig>();
 			invokerConfig.setMethods(methodMap);

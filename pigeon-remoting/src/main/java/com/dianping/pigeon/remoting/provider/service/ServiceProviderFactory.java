@@ -49,7 +49,7 @@ public final class ServiceProviderFactory {
 
 	private static ConcurrentHashMap<String, Integer> serverWeightCache = new ConcurrentHashMap<String, Integer>();
 
-	private static volatile PublishStatus status = PublishStatus.TOPUBLISH;
+	private static volatile Phase phase = Phase.TOPUBLISH;
 
 	private static final int UNPUBLISH_WAITTIME = configManager.getIntValue(Constants.KEY_UNPUBLISH_WAITTIME,
 			Constants.DEFAULT_UNPUBLISH_WAITTIME);
@@ -123,7 +123,7 @@ public final class ServiceProviderFactory {
 				if (isNotify && serviceChangeListener != null) {
 					serviceChangeListener.notifyServicePublished(providerConfig);
 				}
-				status = PublishStatus.PUBLISHING;
+				phase = Phase.PUBLISHING;
 
 				boolean autoRegisterEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
 						Constants.KEY_AUTOREGISTER_ENABLE, true);
@@ -193,7 +193,9 @@ public final class ServiceProviderFactory {
 			serverWeightCache.put(serverAddress, weight);
 		}
 		if (weight <= 0) {
-			status = PublishStatus.OFFLINE;
+			phase = Phase.OFFLINE;
+		} else {
+			phase = Phase.ONLINE;
 		}
 	}
 
@@ -212,7 +214,7 @@ public final class ServiceProviderFactory {
 					+ existingService);
 		}
 		if (existingService) {
-			status = PublishStatus.TOUNPUBLISH;
+			phase = Phase.TOUNPUBLISH;
 			List<Server> servers = ProviderBootStrap.getServers(providerConfig);
 			for (Server server : servers) {
 				String serverAddress = configManager.getLocalIp() + ":" + server.getPort();
@@ -289,7 +291,7 @@ public final class ServiceProviderFactory {
 			logger.info("unpublish all services");
 		}
 		ServiceWarmupListener.stop();
-		status = PublishStatus.TOUNPUBLISH;
+		phase = Phase.TOUNPUBLISH;
 		setServerWeight(0);
 		try {
 			Thread.sleep(UNPUBLISH_WAITTIME);
@@ -301,7 +303,7 @@ public final class ServiceProviderFactory {
 				unpublishService(providerConfig);
 			}
 		}
-		status = PublishStatus.UNPUBLISHED;
+		phase = Phase.UNPUBLISHED;
 	}
 
 	public static void publishAllServices() throws RegistryException {
@@ -314,19 +316,19 @@ public final class ServiceProviderFactory {
 				publishService(providerConfig);
 			}
 		}
-		status = PublishStatus.PUBLISHED;
+		phase = Phase.PUBLISHED;
 	}
 
 	public static Map<String, ProviderConfig<?>> getAllServiceProviders() {
 		return serviceCache;
 	}
 
-	public synchronized static void setPublishStatus(PublishStatus publishStatus) {
-		status = publishStatus;
+	public synchronized static void setPhase(Phase phase) {
+		ServiceProviderFactory.phase = phase;
 	}
 
-	public static PublishStatus getPublishStatus() {
-		return status;
+	public static Phase getPhase() {
+		return phase;
 	}
 
 }

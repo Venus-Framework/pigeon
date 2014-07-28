@@ -19,6 +19,10 @@ public class ServicePage {
 
 	private String published = "";
 
+	private String online = "";
+
+	private String phase = "";
+
 	private List<String> invokers;
 
 	private Map<String, String> heartbeats;
@@ -32,6 +36,22 @@ public class ServicePage {
 	private Map<String, Integer> serviceWeights;
 
 	private String error = "";
+
+	public String getPhase() {
+		return phase;
+	}
+
+	public void setPhase(String phase) {
+		this.phase = phase;
+	}
+
+	public String getOnline() {
+		return online;
+	}
+
+	public void setOnline(String online) {
+		this.online = online;
+	}
 
 	public String getError() {
 		return error;

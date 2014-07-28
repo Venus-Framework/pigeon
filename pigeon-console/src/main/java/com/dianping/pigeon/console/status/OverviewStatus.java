@@ -2,8 +2,11 @@ package com.dianping.pigeon.console.status;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.dianping.phoenix.status.AbstractComponentStatus;
 import com.dianping.pigeon.console.status.checker.GlobalStatusChecker;
+import com.dianping.pigeon.remoting.provider.service.Phase;
 
 public class OverviewStatus extends AbstractComponentStatus {
 
@@ -16,10 +19,12 @@ public class OverviewStatus extends AbstractComponentStatus {
 	@Override
 	public State getState() {
 		Map<String, Object> properties = GlobalStatusChecker.getGlobalStatusProperties();
-		String status = (String) properties.get("status");
-		if ("ok".equalsIgnoreCase(status)) {
+		String phase = (String) properties.get("phase");
+		String error = (String) properties.get("error");
+		if (phase.equals(Phase.PUBLISHED.toString()) || phase.equals(Phase.WARMINGUP.toString())
+				|| phase.equals(Phase.WARMEDUP.toString()) || phase.equals(Phase.ONLINE.toString())) {
 			return State.INITIALIZED;
-		} else if ("error".equalsIgnoreCase(status)) {
+		} else if (StringUtils.isNotBlank(error)) {
 			return State.FAILED;
 		} else {
 			return State.INITIALIZING;

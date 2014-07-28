@@ -70,6 +70,16 @@ public class InvokerConfig<T> {
 
 	private Map<String, InvokerMethodConfig> methods;
 
+	private ClassLoader classLoader;
+
+	public ClassLoader getClassLoader() {
+		return classLoader;
+	}
+
+	public void setClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
+	
 	public Map<String, InvokerMethodConfig> getMethods() {
 		return methods;
 	}

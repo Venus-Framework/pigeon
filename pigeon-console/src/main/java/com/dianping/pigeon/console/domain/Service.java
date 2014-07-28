@@ -10,7 +10,7 @@ public class Service {
 
 	private String published;
 
-	private List<ServiceMethod> methods;
+	private List<ServiceMethod> methods = new ArrayList<ServiceMethod>();
 
 	public String getPublished() {
 		return published;

@@ -26,6 +26,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.console.domain.Service;
 import com.dianping.pigeon.console.domain.ServiceMethod;
+import com.dianping.pigeon.console.status.checker.GlobalStatusChecker;
 import com.dianping.pigeon.console.status.checker.ProviderStatusChecker;
 import com.dianping.pigeon.console.status.checker.StatusChecker;
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -35,7 +36,7 @@ import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
-import com.dianping.pigeon.remoting.provider.service.PublishStatus;
+import com.dianping.pigeon.remoting.provider.service.Phase;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 import com.dianping.pigeon.util.RandomUtils;
 
@@ -164,6 +165,8 @@ public class ServiceServlet extends HttpServlet {
 			}
 			page.addService(s);
 		}
+		page.setOnline("" + GlobalStatusChecker.isOnline());
+		page.setPhase(ServiceProviderFactory.getPhase().toString());
 		setStatus(page, serviceProviders.isEmpty());
 		page.setDirect(request.getParameter("direct"));
 		page.setEnvironment(configManager.getEnv());
@@ -187,9 +190,10 @@ public class ServiceServlet extends HttpServlet {
 			}
 		} else {// server-side
 			// set published
-			PublishStatus status = ServiceProviderFactory.getPublishStatus();
-			if (status.equals(PublishStatus.PUBLISHED) || status.equals(PublishStatus.WARMINGUP)
-					|| status.equals(PublishStatus.WARMEDUP)) {
+			Phase phase = ServiceProviderFactory.getPhase();
+			page.setPublished(phase.toString());
+			// set status
+			if (phase.equals(Phase.PUBLISHED) || phase.equals(Phase.WARMINGUP) || phase.equals(Phase.WARMEDUP)) {
 				page.setPublished("true");
 			} else {
 				page.setPublished("false");
@@ -199,7 +203,7 @@ public class ServiceServlet extends HttpServlet {
 				if ("true".equals(page.getPublished())) {
 					page.setStatus("ok");
 				} else {
-					page.setStatus(status.toString());
+					page.setStatus(phase.toString());
 				}
 			}
 		}

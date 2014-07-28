@@ -78,7 +78,7 @@ public abstract class AbstractServer implements Server {
 
 	public int getAvailablePort(int port) {
 		int lastPort = port;
-		String filePath = "/data/applogs/dpsflog/pigeon-port";
+		String filePath = "/data/applogs/dpsflog/pigeon-port.conf";
 		File file = new File(filePath);
 		Properties properties = null;
 		String key = null;

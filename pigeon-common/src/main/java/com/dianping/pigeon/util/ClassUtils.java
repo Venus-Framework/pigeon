@@ -12,4 +12,15 @@ public class ClassUtils {
 	public static Class loadClass(String className) throws ClassNotFoundException {
 		return loadClass(null, className);
 	}
+
+	public static ClassLoader getCurrentClassLoader(ClassLoader classLoader) {
+		if(classLoader != null) {
+			return classLoader;
+		}
+		ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
+		if (currentLoader != null) {
+			return currentLoader;
+		}
+		return ClassUtils.class.getClassLoader();
+	}
 }
