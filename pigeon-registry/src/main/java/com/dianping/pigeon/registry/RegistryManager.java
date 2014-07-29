@@ -31,7 +31,9 @@ public class RegistryManager {
 
 	private Properties props = new Properties();
 
-	private static boolean isInit = false;
+	private static volatile boolean isInit = false;
+
+	private static Throwable initializeException = null;
 
 	private static RegistryManager instance = new RegistryManager();
 
@@ -48,9 +50,18 @@ public class RegistryManager {
 	private RegistryManager() {
 	}
 
+	public static boolean isInitialized() {
+		return isInit;
+	}
+
+	public static Throwable getInitializeException() {
+		return initializeException;
+	}
+
 	public static RegistryManager getInstance() {
 		if (!isInit) {
 			instance.init(registryConfigManager.getRegistryConfig());
+			initializeException = null;
 			isInit = true;
 		}
 		return instance;
@@ -61,7 +72,12 @@ public class RegistryManager {
 		String registryType = properties.getProperty(Constants.KEY_REGISTRY_TYPE);
 		if (!Constants.REGISTRY_TYPE_LOCAL.equalsIgnoreCase(registryType)) {
 			if (registry != null) {
-				registry.init(properties);
+				try {
+					registry.init(properties);
+				} catch (Throwable t) {
+					initializeException = t;
+					throw new RuntimeException(t);
+				}
 			}
 		} else {
 		}

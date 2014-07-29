@@ -13,9 +13,9 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.Phase;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
-import com.dianping.pigeon.remoting.provider.service.Phase;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 
 public class ServiceWarmupListener implements Runnable {

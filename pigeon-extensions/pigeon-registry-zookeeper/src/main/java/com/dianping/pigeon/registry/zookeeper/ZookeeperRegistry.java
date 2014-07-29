@@ -69,7 +69,7 @@ public class ZookeeperRegistry implements Registry {
 				this.zkWatcher = new ZookeeperWatcher(this);
 			} catch (Throwable e) {
 				logger.error("", e);
-				throw new RuntimeException("Failed to initialize zookeeper registery", e);
+				throw new RuntimeException("Failed to initialize zookeeper registry", e);
 			}
 			this.isInit = true;
 		}

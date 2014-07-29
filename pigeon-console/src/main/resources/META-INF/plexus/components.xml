@@ -8,6 +8,12 @@
 		</component>
 		<component>
 			<role>com.dianping.phoenix.status.ComponentStatus</role>
+			<role-hint>framework.pigeon.services</role-hint>
+			<implementation>com.dianping.pigeon.console.status.ServiceStatus
+			</implementation>
+		</component>
+		<component>
+			<role>com.dianping.phoenix.status.ComponentStatus</role>
 			<role-hint>framework.pigeon.invokers</role-hint>
 			<implementation>com.dianping.pigeon.console.status.InvokerStatus
 			</implementation>

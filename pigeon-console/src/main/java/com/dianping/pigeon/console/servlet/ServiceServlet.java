@@ -32,11 +32,11 @@ import com.dianping.pigeon.console.status.checker.StatusChecker;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.common.Phase;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
-import com.dianping.pigeon.remoting.provider.service.Phase;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 import com.dianping.pigeon.util.RandomUtils;
 

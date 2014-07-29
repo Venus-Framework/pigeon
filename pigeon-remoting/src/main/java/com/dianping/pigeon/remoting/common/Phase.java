@@ -1,4 +1,4 @@
-package com.dianping.pigeon.remoting.provider.service;
+package com.dianping.pigeon.remoting.common;
 
 public enum Phase {
 
