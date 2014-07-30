@@ -31,6 +31,7 @@ import com.dianping.pigeon.console.status.checker.ProviderStatusChecker;
 import com.dianping.pigeon.console.status.checker.StatusChecker;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.Phase;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
@@ -172,6 +173,7 @@ public class ServiceServlet extends HttpServlet {
 		page.setEnvironment(configManager.getEnv());
 		page.setGroup(configManager.getGroup());
 		page.setServiceWeights(ServiceProviderFactory.getServerWeight());
+		page.setRegistry(RegistryManager.getInstance().getRegistry().getName());
 		this.model = page;
 	}
 

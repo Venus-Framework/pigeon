@@ -36,6 +36,16 @@ public class ServicePage {
 	private Map<String, Integer> serviceWeights;
 
 	private String error = "";
+	
+	private String registry = "";
+
+	public String getRegistry() {
+		return registry;
+	}
+
+	public void setRegistry(String registry) {
+		this.registry = registry;
+	}
 
 	public String getPhase() {
 		return phase;

@@ -30,18 +30,22 @@ public class GlobalStatusChecker {
 		if (!GlobalStatusChecker.isInitialized()) {
 			return State.INITIALIZING;
 		} else {
-			if (properties.get("services.count").equals("0")) {
-				return State.INITIALIZED;
+			String phase = (String) properties.get("phase");
+			if (phase.equals(Phase.TOUNPUBLISH.toString()) || phase.equals(Phase.UNPUBLISHED.toString())
+					|| phase.equals(Phase.OFFLINE.toString())) {
+				return State.MARKED_DOWN;
+			} else if (phase.equals(Phase.PUBLISHING.toString()) || phase.equals(Phase.TOPUBLISH.toString())) {
+				return State.INITIALIZING;
 			} else {
-				String phase = (String) properties.get("phase");
-				if (phase.equals(Phase.TOUNPUBLISH.toString()) || phase.equals(Phase.UNPUBLISHED.toString())
-						|| phase.equals(Phase.OFFLINE.toString())) {
-					return State.MARKED_DOWN;
-				} else if (phase.equals(Phase.PUBLISHING.toString()) || phase.equals(Phase.TOPUBLISH.toString())) {
-					return State.INITIALIZING;
-				} else {
-					return State.INITIALIZED;
+				if (phase.equals(Phase.INVOKER_READY.toString())) {
+					Map weightMap = (Map) properties.get("weight");
+					if (weightMap.isEmpty()) {// client-side
+						return State.INITIALIZED;
+					} else {
+						return State.INITIALIZING;
+					}
 				}
+				return State.INITIALIZED;
 			}
 		}
 	}
@@ -107,6 +111,12 @@ public class GlobalStatusChecker {
 			String error = providerStatusChecker.checkError();
 			if (!StringUtils.isBlank(error)) {
 				props.put("error", error);
+			}
+
+			try {
+				props.put("registry", RegistryManager.getInstance().getRegistry().getName());
+			} catch (Throwable e) {
+				props.put("error", e.getMessage());
 			}
 		} else if (RegistryManager.getInitializeException() != null) {
 			Throwable t = RegistryManager.getInitializeException();

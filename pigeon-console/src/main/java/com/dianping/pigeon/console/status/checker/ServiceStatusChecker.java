@@ -39,7 +39,7 @@ public class ServiceStatusChecker implements StatusChecker {
 						}
 						Map<String, Object> item = new LinkedHashMap<String, Object>();
 						item.put("name", serviceName);
-						item.put("type", beanClass);
+						item.put("type", beanClass.getName());
 						item.put("published", providerConfig.isPublished());
 						services.add(item);
 					}
