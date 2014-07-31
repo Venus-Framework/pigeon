@@ -66,7 +66,7 @@ public class OverviewStatus extends AbstractComponentStatus {
 		// services provided
 		List<Map<String, Object>> servicesProvided = serviceStatusChecker.collectStatusInfo();
 		if (!CollectionUtils.isEmpty(servicesProvided)) {
-			tableBuilder.caption("Pigeon Services Provided");
+			tableBuilder.caption("Pigeon Services");
 			tableBuilder.header(servicesProvided.get(0).keySet().toArray(new String[0]));
 			for (Map<String, Object> item : servicesProvided) {
 				tableBuilder.row(item.values().toArray());
@@ -77,7 +77,7 @@ public class OverviewStatus extends AbstractComponentStatus {
 		// services invoked
 		List<Map<String, Object>> servicesInvoked = providerStatusChecker.collectStatusInfo();
 		if (!CollectionUtils.isEmpty(servicesInvoked)) {
-			tableBuilder.caption("Pigeon Services Invoked");
+			tableBuilder.caption("Pigeon Invocations");
 			tableBuilder.header(servicesInvoked.get(0).keySet().toArray(new String[0]));
 			for (Map<String, Object> item : servicesInvoked) {
 				tableBuilder.row(item.values().toArray());
