@@ -19,6 +19,7 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.remoting.common.Phase;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
@@ -164,12 +165,12 @@ public final class ServiceProviderFactory {
 		if (!warmupEnable) {
 			weight = Constants.WEIGHT_DEFAULT;
 		}
+		if (serverWeightCache.containsKey(serverAddress)) {
+			weight = -1;
+		}
 		if (logger.isInfoEnabled()) {
 			logger.info("publish service to registry, url:" + url + ", port:" + port + ", group:" + group
 					+ ", address:" + serverAddress + ", weight:" + weight);
-		}
-		if (serverWeightCache.containsKey(serverAddress)) {
-			weight = -1;
 		}
 		RegistryManager.getInstance().registerService(url, group, serverAddress, weight);
 		if (weight >= 0) {

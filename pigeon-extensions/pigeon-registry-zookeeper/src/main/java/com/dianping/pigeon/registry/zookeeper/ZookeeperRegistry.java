@@ -36,6 +36,7 @@ public class ZookeeperRegistry implements Registry {
 
 	private boolean isInit = false;
 	private int timeout = 20000;
+	private String address = null;
 
 	private Properties properties;
 
@@ -45,7 +46,7 @@ public class ZookeeperRegistry implements Registry {
 	private void _init() {
 		if (!this.isInit) {
 			String zookeeperAddress = properties.getProperty(Constants.KEY_REGISTRY_ADDRESS);
-
+			address = zookeeperAddress;
 			logger.info("Zookeeper address " + zookeeperAddress);
 			logger.info("Zookeeper timeout " + timeout);
 
@@ -69,7 +70,7 @@ public class ZookeeperRegistry implements Registry {
 				this.zkWatcher = new ZookeeperWatcher(this);
 			} catch (Throwable e) {
 				logger.error("", e);
-				throw new RuntimeException("Failed to initialize zookeeper registery", e);
+				throw new RuntimeException("Failed to initialize zookeeper registry", e);
 			}
 			this.isInit = true;
 		}
@@ -268,7 +269,7 @@ public class ZookeeperRegistry implements Registry {
 
 	@Override
 	public String getName() {
-		return "zookeeper";
+		return "zookeeper-" + address;
 	}
 
 	// class ZkStateWatcher implements Watcher {

@@ -1,9 +1,9 @@
-package com.dianping.pigeon.remoting.provider.service;
+package com.dianping.pigeon.remoting.common;
 
 public enum Phase {
 
 	TOPUBLISH("topublish"), PUBLISHING("publishing"), PUBLISHED("published"), WARMINGUP("warmingup"), WARMEDUP(
-			"warmedup"), TOUNPUBLISH("tounpublish"), UNPUBLISHED("unpublished"), OFFLINE("offline"), ONLINE("online");
+			"warmedup"), TOUNPUBLISH("tounpublish"), UNPUBLISHED("unpublished"), OFFLINE("offline"), ONLINE("online"), INVOKER_READY("invoker-ready");
 
 	private String phase;
 

@@ -6,17 +6,5 @@
 			<implementation>com.dianping.pigeon.console.status.OverviewStatus
 			</implementation>
 		</component>
-		<component>
-			<role>com.dianping.phoenix.status.ComponentStatus</role>
-			<role-hint>framework.pigeon.invokers</role-hint>
-			<implementation>com.dianping.pigeon.console.status.InvokerStatus
-			</implementation>
-		</component>
-		<component>
-			<role>com.dianping.phoenix.status.ComponentStatus</role>
-			<role-hint>framework.pigeon.providers</role-hint>
-			<implementation>com.dianping.pigeon.console.status.ProviderStatus
-			</implementation>
-		</component>
 	</components>
 </plexus>

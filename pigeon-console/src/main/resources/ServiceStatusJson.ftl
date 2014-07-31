@@ -1,1 +1,1 @@
-{"status": "${status}","size": "${services?size}","version": "${version}","env": "${environment}","group": "${group}","published": "${published}","online": "${online}","error": "${error}"}
+{"status": "${status}","size": "${services?size}","version": "${version}","env": "${environment}","group": "${group}","published": "${published}","online": "${online}","error": "${error}","registry": "${registry}"}
