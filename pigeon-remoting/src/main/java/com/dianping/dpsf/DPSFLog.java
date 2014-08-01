@@ -36,7 +36,6 @@ public class DPSFLog {
 	}
 
 	public static synchronized void initDPSFLog() {
-		LoggerLoader.initLogger(LOGGER_NAME);
 	}
 
 	public static void centralLogWarn(String key1, String key2, String key3) {
