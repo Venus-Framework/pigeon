@@ -141,17 +141,17 @@ public class RegistryManager {
 		}
 	}
 
-	public int getServiceWeight(String serviceAddress) {
-		HostInfo hostInfo = serviceAddrToHostInfo.get(serviceAddress);
+	public int getServiceWeight(String serverAddress) {
+		HostInfo hostInfo = serviceAddrToHostInfo.get(serverAddress);
 		if (hostInfo != null) {
 			return hostInfo.getWeight();
 		}
 		int weight = Constants.WEIGHT_DEFAULT;
 		if (registry != null) {
 			try {
-				weight = registry.getServiceWeigth(serviceAddress);
+				weight = registry.getServerWeight(serverAddress);
 			} catch (Throwable e) {
-				logger.error("Failed to get weight for " + serviceAddress, e);
+				logger.error("Failed to get weight for " + serverAddress, e);
 			}
 		}
 		return weight;
@@ -250,13 +250,6 @@ public class RegistryManager {
 
 	public Map<String, Set<HostInfo>> getAllServiceServers() {
 		return serviceNameToHostInfos;
-	}
-
-	public Properties getRegistryMeta() throws RegistryException {
-		if (registry != null) {
-			return registry.getRegistryMeta(NetUtils.getFirstLocalIp());
-		}
-		return null;
 	}
 
 }

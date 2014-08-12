@@ -1,15 +1,17 @@
 package com.dianping.pigeon.registry.zookeeper;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.registry.util.Constants;
 
 public class Utils {
-
-	public static boolean isEmpty(String string) {
-		return string == null || string.length() == 0;
-	}
-
+	
+    private static final Logger logger = Logger.getLogger(Utils.class);
+    
 	public static String unescapeServiceName(String serviceName) {
 		return serviceName.replace(Constants.PLACEHOLDER, Constants.PATH_SEPARATOR);
 	}
@@ -20,7 +22,7 @@ public class Utils {
 
 	public static String getServicePath(String serviceName, String group) {
 		String path = Constants.SERVICE_PATH + Constants.PATH_SEPARATOR + escapeServiceName(serviceName);
-		if (!isEmpty(group)) {
+		if (!StringUtils.isBlank(group)) {
 			path = path + Constants.PATH_SEPARATOR + group;
 		}
 		return path;
@@ -32,64 +34,40 @@ public class Utils {
 	}
 
 	public static String normalizeGroup(String group) {
-		return group == null ? Constants.DEFAULT_GROUP : group;
+		return StringUtils.isBlank(group) ? Constants.DEFAULT_GROUP : group;
 	}
-
-	public static String getRegistryPath(String serviceAddress) {
-		String path = Constants.REGISTRY_PATH + Constants.PATH_SEPARATOR + serviceAddress;
-		return path;
-	}
-
-	public static String getRegistryPath(String serviceAddress, String key) {
-		String path = Constants.REGISTRY_PATH + Constants.PATH_SEPARATOR + serviceAddress;
-		if (!isEmpty(key)) {
-			path = path + Constants.PATH_SEPARATOR + key;
-		}
-		return path;
-	}
-
-	public static boolean isBlank(String str) {
-        int strLen;
-        if (str == null || (strLen = str.length()) == 0) {
-            return true;
+	
+	public static String getEphemeralServicePath(String serviceName, String group) {
+	    StringBuilder sb = new StringBuilder(Constants.EPHEMERAL_SERVICE_PATH);
+        sb.append(Constants.PATH_SEPARATOR).append(escapeServiceName(serviceName));
+        if(!StringUtils.isBlank(group)) {
+            sb.append('@').append(group);
         }
-        for (int i = 0; i < strLen; i++) {
-            if ((Character.isWhitespace(str.charAt(i)) == false)) {
-                return false;
+        return sb.toString();
+	}
+
+    public static String getEphemeralServicePath(String serviceName, String group, String serviceAddress) {
+        StringBuilder sb = new StringBuilder(Constants.EPHEMERAL_SERVICE_PATH);
+        sb.append(Constants.PATH_SEPARATOR).append(escapeServiceName(serviceName));
+        if(!StringUtils.isBlank(group)) {
+            sb.append('@').append(group);
+        }
+        sb.append(Constants.PATH_SEPARATOR).append(serviceAddress);
+        return sb.toString();
+    }
+
+    public static List<String[]> getServiceIpPortList(String serviceAddress) {
+        List<String[]> result = new ArrayList<String[]>();
+        if (serviceAddress != null && serviceAddress.length() > 0) {
+            String[] hostArray = serviceAddress.split(",");
+            for (String host : hostArray) {
+                String[] ipPort = host.split(":");
+                if(ipPort.length != 2) {
+                    logger.error("****** invalid host: " + ipPort + ", ignored!");
+                }
+                result.add(ipPort);
             }
         }
-        return true;
+        return result;
     }
-	
-	public static String join(Iterator iterator, String separator) {
-		// handle null, zero and one elements before building a buffer
-		if (iterator == null) {
-			return null;
-		}
-		if (!iterator.hasNext()) {
-			return "";
-		}
-		Object first = iterator.next();
-		if (!iterator.hasNext()) {
-			return first == null ? "" : first.toString();
-		}
-
-		// two or more elements
-		StringBuffer buf = new StringBuffer(256); // Java default is 16,
-													// probably too small
-		if (first != null) {
-			buf.append(first);
-		}
-
-		while (iterator.hasNext()) {
-			if (separator != null) {
-				buf.append(separator);
-			}
-			Object obj = iterator.next();
-			if (obj != null) {
-				buf.append(obj);
-			}
-		}
-		return buf.toString();
-	}
 }

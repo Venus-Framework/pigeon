@@ -14,8 +14,8 @@ public final class Constants {
 	public static final String CONFIG_PATH = "/DP/CONFIG";
 	public static final String CONFIG_TIMESTAMP = "TIMESTAMP";
 	public static final String SERVICE_PATH = "/DP/SERVER";
+	public static final String EPHEMERAL_SERVICE_PATH = "/DP/SERVICE";
 	public static final String WEIGHT_PATH = "/DP/WEIGHT";
-	public static final String REGISTRY_PATH = "/DP/REGISTRY";
 	public static final String PATH_SEPARATOR = "/";
 	public static final String PLACEHOLDER = "^";
 

@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -63,10 +64,6 @@ public class ZookeeperRegistry implements Registry {
 					this.zkClient
 							.create(Constants.WEIGHT_PATH, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 				}
-				if (this.zkClient.exists(Constants.REGISTRY_PATH, false) == null) {
-					this.zkClient.create(Constants.REGISTRY_PATH, new byte[0], Ids.OPEN_ACL_UNSAFE,
-							CreateMode.PERSISTENT);
-				}
 				this.zkWatcher = new ZookeeperWatcher(this);
 			} catch (Throwable e) {
 				logger.error("", e);
@@ -101,22 +98,6 @@ public class ZookeeperRegistry implements Registry {
 		return null;
 	}
 
-	// serviceAddress 规范为1.1.1.1:8080,2.2.2.2:8080,
-	// FIXME refactor this code
-	public List<String[]> getServiceIpPortWeight(String serviceAddress) {
-		List<String[]> result = new ArrayList<String[]>();
-		if (serviceAddress != null && serviceAddress.length() > 0) {
-			String[] temp = serviceAddress.split(",");
-			if (temp != null && temp.length > 0) {
-				for (String total : temp) {
-					String[] resultTemp = total.split(":");
-					result.add(resultTemp);
-				}
-			}
-		}
-		return result;
-	}
-
 	public ZooKeeperWrapper getZkClient() {
 		return zkClient;
 	}
@@ -134,7 +115,7 @@ public class ZookeeperRegistry implements Registry {
 	@Override
 	public String getServiceAddress(String serviceName, String group) throws RegistryException {
 		String path = Utils.getServicePath(serviceName, group);
-		if (!Utils.isEmpty(group) && getZkValue(path) == null) {
+		if (!StringUtils.isBlank(group) && getZkValue(path) == null) {
 			logger.info(path + " does not exist. Fallback to default group");
 			path = Utils.getServicePath(serviceName, Constants.DEFAULT_GROUP);
 		}
@@ -166,7 +147,7 @@ public class ZookeeperRegistry implements Registry {
 	@Override
 	public void registerService(String serviceName, String group, String serviceAddress, int weight)
 			throws RegistryException {
-		if (Utils.isBlank(group)) {
+		if (StringUtils.isBlank(group)) {
 			group = Constants.DEFAULT_GROUP;
 		}
 		registerServiceToZookeeper(serviceName, group, serviceAddress, weight);
@@ -201,14 +182,14 @@ public class ZookeeperRegistry implements Registry {
 				String[] addressArray = addressValue.split(",");
 				List<String> addressList = new ArrayList<String>();
 				for (String addr : addressArray) {
-					if (!Utils.isBlank(addr) && !addressList.contains(addr)) {
+					if (!StringUtils.isBlank(addr) && !addressList.contains(addr)) {
 						addressList.add(addr);
 					}
 				}
 				if (!addressList.contains(serviceAddress)) {
 					addressList.add(serviceAddress);
 					Collections.sort(addressList);
-					zkClient.updateData(servicePath, Utils.join(addressList.iterator(), ","));
+					zkClient.updateData(servicePath, StringUtils.join(addressList.iterator(), ","));
 				}
 			} else {
 				zkClient.updateData(servicePath, serviceAddress);
@@ -220,8 +201,8 @@ public class ZookeeperRegistry implements Registry {
 	}
 
 	@Override
-	public int getServiceWeigth(String serviceAddress) throws RegistryException {
-		String path = Utils.getWeightPath(serviceAddress);
+	public int getServerWeight(String serverAddress) throws RegistryException {
+		String path = Utils.getWeightPath(serverAddress);
 		String strWeight = getZkValue(path);
 		int result = Constants.WEIGHT_DEFAULT;
 		if (strWeight != null) {
@@ -231,64 +212,9 @@ public class ZookeeperRegistry implements Registry {
 	}
 
 	@Override
-	public Properties getRegistryMeta(String serviceAddress) throws RegistryException {
-		Properties props = new Properties();
-		try {
-			String path = Utils.getRegistryPath(serviceAddress);
-			if (zkClient.exists(path, false) == null) {
-				return props;
-			}
-
-			path = Utils.getRegistryPath(serviceAddress, Constants.KEY_GROUP);
-			String value = new String(zkClient.getData(path, false, null), Constants.CHARSET);
-			if (!Utils.isEmpty(value)) {
-				props.put(Constants.KEY_GROUP, value);
-			}
-
-			path = Utils.getRegistryPath(serviceAddress, Constants.KEY_WEIGHT);
-			value = new String(zkClient.getData(path, false, null), Constants.CHARSET);
-			if (!Utils.isEmpty(value)) {
-				int weight = Integer.parseInt(value);
-				props.put(Constants.KEY_WEIGHT, weight);
-			}
-
-			path = Utils.getRegistryPath(serviceAddress, Constants.KEY_AUTO_REGISTER);
-			value = new String(zkClient.getData(path, false, null), Constants.CHARSET);
-			if (!Utils.isEmpty(value)) {
-				boolean autoRegister = Boolean.parseBoolean(value);
-				props.put(Constants.KEY_AUTO_REGISTER, autoRegister);
-			}
-
-			logger.info("Registry meta for " + serviceAddress + " is " + props);
-			return props;
-		} catch (Throwable e) {
-			logger.error("Failed to get regsitry meta for " + serviceAddress, e);
-			throw new RegistryException(e);
-		}
-	}
-
-	@Override
 	public String getName() {
 		return "zookeeper-" + address;
 	}
-
-	// class ZkStateWatcher implements Watcher {
-	// @Override
-	// public void process(WatchedEvent event) {
-	// if (event.getState() == KeeperState.Expired) {
-	// if (logger.isInfoEnabled()) {
-	// logger.info("Zookeeper session expried");
-	// }
-	// try {
-	// zkClient.reconnectSession();
-	// logger.info("Zookeeper session reconnected");
-	// } catch (Exception e) {
-	// logger.error("Failed to reconnect to zookeeper", e);
-	// }
-	// return;
-	// }
-	// }
-	// }
 
 	@Override
 	public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
@@ -297,7 +223,7 @@ public class ZookeeperRegistry implements Registry {
 
 	@Override
 	public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
-		if (Utils.isBlank(group)) {
+		if (StringUtils.isBlank(group)) {
 			group = Constants.DEFAULT_GROUP;
 		}
 		unregisterServiceFromZookeeper(serviceName, group, serviceAddress);
@@ -328,7 +254,7 @@ public class ZookeeperRegistry implements Registry {
 				String[] addressArray = addressValue.split(",");
 				List<String> addressList = new ArrayList<String>();
 				for (String addr : addressArray) {
-					if (!Utils.isBlank(addr) && !addressList.contains(addr)) {
+					if (!StringUtils.isBlank(addr) && !addressList.contains(addr)) {
 						addressList.add(addr);
 					}
 				}
@@ -336,7 +262,7 @@ public class ZookeeperRegistry implements Registry {
 					addressList.remove(serviceAddress);
 					if (!addressList.isEmpty()) {
 						Collections.sort(addressList);
-						zkClient.updateData(servicePath, Utils.join(addressList.iterator(), ","));
+						zkClient.updateData(servicePath, StringUtils.join(addressList.iterator(), ","));
 					} else {
 						List<String> children = zkClient.getChildren(servicePath, false);
 						if (CollectionUtils.isEmpty(children)) {

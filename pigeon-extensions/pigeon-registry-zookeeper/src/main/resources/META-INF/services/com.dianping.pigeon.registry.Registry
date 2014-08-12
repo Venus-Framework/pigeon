@@ -1,1 +1,1 @@
-com.dianping.pigeon.registry.zookeeper.ZookeeperRegistry
+com.dianping.pigeon.registry.zookeeper.CuratorRegistry

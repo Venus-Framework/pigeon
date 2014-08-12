@@ -33,12 +33,6 @@ public class RegistryConfigLoader {
 		if (!isInitialized) {
 			// Properties config = loadDefaultConfig();
 			Properties config = new Properties();
-			try {
-				Properties props = loadFromRegistry();
-				config.putAll(props);
-			} catch (RegistryException e) {
-				logger.error("Failed to load config from registry", e);
-			}
 
 			try {
 				Properties props = loadFromFile();
@@ -62,10 +56,6 @@ public class RegistryConfigLoader {
 			newProps.put(key, value.trim());
 		}
 		return newProps;
-	}
-
-	private static Properties loadFromRegistry() throws RegistryException {
-		return RegistryManager.getInstance().getRegistryMeta();
 	}
 
 	private static Properties loadFromFile() throws IOException {

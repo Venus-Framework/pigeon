@@ -2,6 +2,7 @@ package com.dianping.pigeon.registry.zookeeper;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -65,7 +66,7 @@ public class ZookeeperWatcher implements Watcher {
 		if (shouldNotify(pathInfo)) {
 			String newValue = zookeeperRegistry.getZkValue(pathInfo.path);
 			logger.info("Service address changed, path " + pathInfo.path + " value " + newValue);
-			List<String[]> hostDetail = zookeeperRegistry.getServiceIpPortWeight(newValue);
+			List<String[]> hostDetail = Utils.getServiceIpPortList(newValue);
 			zookeeperRegistry.getServiceChangeListener().onServiceHostChange(pathInfo.serviceName, hostDetail);
 		} else {
 			// Watch again
@@ -78,9 +79,9 @@ public class ZookeeperWatcher implements Watcher {
 		currentGroup = Utils.normalizeGroup(currentGroup);
 		if (currentGroup.equals(pathInfo.group))
 			return true;
-		if (Utils.isEmpty(currentGroup) && !Utils.isEmpty(pathInfo.group))
+		if (StringUtils.isEmpty(currentGroup) && !StringUtils.isEmpty(pathInfo.group))
 			return false;
-		if (!Utils.isEmpty(currentGroup) && Utils.isEmpty(pathInfo.group)) {
+		if (!StringUtils.isEmpty(currentGroup) && StringUtils.isEmpty(pathInfo.group)) {
 			String servicePath = Utils.getServicePath(pathInfo.serviceName, currentGroup);
 			return zookeeperRegistry.getZkClient().exists(servicePath, true) == null;
 		}

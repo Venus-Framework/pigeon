@@ -13,4 +13,9 @@ public interface ServiceChangeListener {
 
 	// 当服务新增机器、修改机器。 String[]默认1维数组，ip+port
 	void onServiceHostChange(String serviceName, List<String[]> hostList);
+	
+	void onHostAdded(String serviceName, String host);
+	
+	void onHostRemoved(String serviceName, String host);
+	
 }

@@ -23,9 +23,7 @@ public interface Registry {
 
 	void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException;
 
-	int getServiceWeigth(String serviceAddress) throws RegistryException;
-
-	Properties getRegistryMeta(String serviceAddress) throws RegistryException;
+	int getServerWeight(String serverAddress) throws RegistryException;
 
 	List<String> getChildren(String key) throws RegistryException;
 
