@@ -66,7 +66,6 @@ public class CuratorEventListener implements CuratorListener {
                 weightChanged(pathInfo);
             } else if(pathInfo.type == EPHEMERAL_ADDRESS) {
                 if(EventType.NodeCreated == event.getType()) {
-                    this.client.watchChildren(event.getPath());
                     ephemeralAddressChanged(pathInfo);
                 } else if(EventType.NodeDeleted == event.getType()) {
                     this.client.watch(event.getPath());
