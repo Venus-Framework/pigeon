@@ -33,7 +33,8 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.common.Phase;
+import com.dianping.pigeon.remoting.common.status.Phase;
+import com.dianping.pigeon.remoting.common.status.StatusContainer;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
@@ -167,7 +168,7 @@ public class ServiceServlet extends HttpServlet {
 			page.addService(s);
 		}
 		page.setOnline("" + GlobalStatusChecker.isOnline());
-		page.setPhase(ServiceProviderFactory.getPhase().toString());
+		page.setPhase(StatusContainer.getPhase().toString());
 		setStatus(page, serviceProviders.isEmpty());
 		page.setDirect(request.getParameter("direct"));
 		page.setEnvironment(configManager.getEnv());
@@ -192,7 +193,7 @@ public class ServiceServlet extends HttpServlet {
 			}
 		} else {// server-side
 			// set published
-			Phase phase = ServiceProviderFactory.getPhase();
+			Phase phase = StatusContainer.getPhase();
 			page.setPublished(phase.toString());
 			// set status
 			if (phase.equals(Phase.PUBLISHED) || phase.equals(Phase.WARMINGUP) || phase.equals(Phase.WARMEDUP)) {

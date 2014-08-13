@@ -10,12 +10,12 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
-import com.dianping.pigeon.remoting.common.Phase;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
+import com.dianping.pigeon.remoting.common.status.Phase;
+import com.dianping.pigeon.remoting.common.status.StatusContainer;
 import com.dianping.pigeon.remoting.invoker.process.InvokerProcessHandlerFactory;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
-import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 import com.dianping.pigeon.util.VersionUtils;
 
 public final class InvokerBootStrap {
@@ -45,7 +45,7 @@ public final class InvokerBootStrap {
 						monitor.init();
 					}
 					isStartup = true;
-					ServiceProviderFactory.setPhase(Phase.INVOKER_READY);
+					StatusContainer.setPhase(Phase.INVOKER_READY);
 					if (logger.isInfoEnabled()) {
 						logger.info("pigeon client[version:" + VersionUtils.VERSION + "] has been started");
 					}

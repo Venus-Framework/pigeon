@@ -41,15 +41,6 @@ public class ClusterListenerManager implements Disposable {
 		RegistryEventListener.addListener(providerChangeListener);
 	}
 
-	public synchronized void addConnect(String connect, Client client) {
-		ConnectInfo cmd = this.connectInfoMap.get(connect);
-		if (cmd != null) {
-			for (ClusterListener listener : listeners) {
-				listener.addConnect(client.getConnectInfo(), client);
-			}
-		}
-	}
-
 	public synchronized void addConnect(ConnectInfo cmd) {
 		ConnectInfo connectInfo = this.connectInfoMap.get(cmd.getConnect());
 		if (connectInfo == null) {

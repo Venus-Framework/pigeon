@@ -109,17 +109,12 @@ public class HttpInvokerClient extends AbstractClient {
 
 	@Override
 	public boolean isActive() {
-		return isActive;
+		return isActive && HeartBeatListener.isActiveAddress(getAddress());
 	}
 
 	@Override
 	public void setActive(boolean isActive) {
 		this.isActive = isActive;
-	}
-
-	@Override
-	public void setActiveSetable(boolean activesetable) {
-
 	}
 
 	@Override
@@ -162,4 +157,17 @@ public class HttpInvokerClient extends AbstractClient {
 
 	}
 
+	public boolean equals(Object obj) {
+		if (obj instanceof HttpInvokerClient) {
+			HttpInvokerClient nc = (HttpInvokerClient) obj;
+			return this.getAddress().equals(nc.getAddress());
+		} else {
+			return super.equals(obj);
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		return getAddress().hashCode();
+	}
 }

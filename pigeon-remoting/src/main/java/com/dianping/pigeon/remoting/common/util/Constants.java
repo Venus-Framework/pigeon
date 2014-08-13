@@ -118,11 +118,10 @@ public final class Constants {
 	public static final int DEFAULT_RESPONSE_WORKQUEUESIZE = 200;
 	public static final long DEFAULT_RECONNECT_INTERVAL = 1000;
 	public static final long DEFAULT_HEARTBEAT_INTERVAL = 1000;
-	public static final long DEFAULT_HEARTBEAT_TIMEOUT = 3000;
+	public static final int DEFAULT_HEARTBEAT_TIMEOUT = 3000;
 	public static final long DEFAULT_HEARTBEAT_DEADCOUNT = 5;
 	public static final long DEFAULT_HEARTBEAT_HEALTHCOUNT = 5;
 	public static final boolean DEFAULT_HEARTBEAT_AUTOPICKOFF = true;
-	public static final String DEFAULT_SERVICE_NAMESPACE = "http://service.dianping.com/";
 	public static final int DEFAULT_WRITE_BUFFER_HIGH_WATER = 35 * 1024 * 1024;
 	public static final int DEFAULT_WRITE_BUFFER_LOW_WATER = 25 * 1024 * 1024;
 	public static final boolean DEFAULT_WRITE_BUFF_LIMIT = false;
@@ -157,6 +156,7 @@ public final class Constants {
 	public static final int DEFAULT_WEIGHT_DEFAULT = 1;
 	public static final String KEY_SERVICEWARMUP_ENABLE = "pigeon.servicewarmup.enable";
 	public static final String KEY_AUTOREGISTER_ENABLE = "pigeon.autoregister.enable";
+	public static final String KEY_AUTOPUBLISH_ENABLE = "pigeon.autopublish.enable";
 
 	public static final int WEIGHT_INITIAL = ConfigManagerLoader.getConfigManager().getIntValue(
 			Constants.KEY_WEIGHT_INITIAL, Constants.DEFAULT_WEIGHT_INITIAL);

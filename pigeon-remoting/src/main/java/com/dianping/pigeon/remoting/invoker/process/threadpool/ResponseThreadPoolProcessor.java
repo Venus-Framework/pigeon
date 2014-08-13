@@ -15,7 +15,6 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.RejectedException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.process.AbstractResponseProcessor;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
@@ -24,7 +23,6 @@ import com.dianping.pigeon.threadpool.ThreadPool;
 public class ResponseThreadPoolProcessor extends AbstractResponseProcessor {
 
 	private static ThreadPool responseProcessThreadPool;
-	private static ClientManager clientManager = ClientManager.getInstance();
 
 	public ResponseThreadPoolProcessor() {
 		ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
@@ -44,11 +42,7 @@ public class ResponseThreadPoolProcessor extends AbstractResponseProcessor {
 	public void doProcessResponse(final InvocationResponse response, final Client client) {
 		Runnable task = new Runnable() {
 			public void run() {
-				if (response.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
-					clientManager.getHeartTask().processResponse(response, client);
-				} else {
-					ServiceInvocationRepository.getInstance().receiveResponse(response);
-				}
+				ServiceInvocationRepository.getInstance().receiveResponse(response);
 			}
 		};
 		try {

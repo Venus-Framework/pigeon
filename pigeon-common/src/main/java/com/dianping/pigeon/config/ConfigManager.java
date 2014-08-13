@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.config;
 
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -56,4 +57,6 @@ public interface ConfigManager {
 	public void setStringValue(String key, String value);
 
 	public void deleteKey(String key);
+
+	public List<ConfigChangeListener> getConfigChangeListeners();
 }

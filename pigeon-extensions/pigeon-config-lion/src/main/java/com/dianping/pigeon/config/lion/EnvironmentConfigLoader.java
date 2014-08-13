@@ -2,19 +2,17 @@ package com.dianping.pigeon.config.lion;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
-import com.dianping.pigeon.log.LoggerLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EnvironmentConfigLoader {
-	private static Logger logger = LoggerLoader.getLogger(EnvironmentConfigLoader.class);
+	private static Logger logger = LoggerFactory.getLogger(EnvironmentConfigLoader.class);
 
 	private static String FILENAME = "appenv";
 	private static String DEFAULT_LOCATION = "/data/webapps/appenv";

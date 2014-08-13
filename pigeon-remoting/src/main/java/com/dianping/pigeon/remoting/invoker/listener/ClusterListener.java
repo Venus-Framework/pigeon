@@ -11,8 +11,6 @@ public interface ClusterListener {
 
 	void addConnect(ConnectInfo cmd);
 
-	void addConnect(ConnectInfo cmd, Client client);
-
 	void removeConnect(Client client);
 
 	void doNotUse(String serviceName, String host, int port);

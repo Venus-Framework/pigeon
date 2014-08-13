@@ -4,11 +4,12 @@
  */
 package com.dianping.pigeon.config.lion;
 
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.dianping.lion.client.ConfigCache;
 import com.dianping.pigeon.config.AbstractConfigManager;
-import com.dianping.pigeon.log.LoggerLoader;
 
 /**
  * @author xiangwu
@@ -17,7 +18,7 @@ import com.dianping.pigeon.log.LoggerLoader;
  */
 public class LionConfigManager extends AbstractConfigManager {
 
-	private static Logger logger = LoggerLoader.getLogger(LionConfigManager.class);
+	private static Logger logger = LoggerFactory.getLogger(LionConfigManager.class);
 
 	/*
 	 * (non-Javadoc)
@@ -27,9 +28,6 @@ public class LionConfigManager extends AbstractConfigManager {
 	 */
 	@Override
 	public String doGetProperty(String key) throws Exception {
-		if (logger.isInfoEnabled()) {
-			// logger.info("read from lion config with key[" + key + "]");
-		}
 		return ConfigCache.getInstance(getConfigServerAddress()).getProperty(key);
 	}
 
@@ -63,10 +61,9 @@ public class LionConfigManager extends AbstractConfigManager {
 
 	@Override
 	public void doSetStringValue(String key, String value) {
-		if (logger.isInfoEnabled()) {
-			logger.info("set key[" + key + "]");
-		}
 		/*
+		 * if (logger.isInfoEnabled()) { logger.info("set key[" + key + "]"); }
+		 * 
 		 * ZooKeeperWrapper zk; try { zk =
 		 * ConfigCache.getInstance(getConfigServerAddress()).getZk();
 		 * 

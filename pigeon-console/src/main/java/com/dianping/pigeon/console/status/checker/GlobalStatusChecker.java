@@ -10,7 +10,8 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.common.Phase;
+import com.dianping.pigeon.remoting.common.status.Phase;
+import com.dianping.pigeon.remoting.common.status.StatusContainer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 import com.dianping.pigeon.util.CollectionUtils;
@@ -87,7 +88,7 @@ public class GlobalStatusChecker {
 
 		if (isInitialized()) {
 			try {
-				props.put("phase", ServiceProviderFactory.getPhase().toString());
+				props.put("phase", StatusContainer.getPhase().toString());
 			} catch (Throwable e) {
 				props.put("error", e.getMessage());
 			}

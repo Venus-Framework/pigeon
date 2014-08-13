@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
@@ -29,6 +28,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
+import com.dianping.pigeon.remoting.invoker.domain.CallbackFuture;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
@@ -56,13 +56,13 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			Constants.DEFAULT_HEARTBEAT_HEALTHCOUNT);
 	private final boolean isHeartBeatAutoPickOff = configManager.getBooleanValue(Constants.KEY_HEARTBEAT_AUTOPICKOFF,
 			Constants.DEFAULT_HEARTBEAT_AUTOPICKOFF);
-	private final String serviceNameSpace = configManager.getStringValue(Constants.KEY_SERVICE_NAMESPACE,
-			Constants.DEFAULT_SERVICE_NAMESPACE);
 	private final long interval = configManager.getLongValue(Constants.KEY_HEARTBEAT_INTERVAL,
 			Constants.DEFAULT_HEARTBEAT_INTERVAL);
-	private final long heartBeatTimeout = configManager.getLongValue(Constants.KEY_HEARTBEAT_TIMEOUT,
+	private final int heartBeatTimeout = configManager.getIntValue(Constants.KEY_HEARTBEAT_TIMEOUT,
 			Constants.DEFAULT_HEARTBEAT_TIMEOUT);
 	private final float pickoffRatio = configManager.getFloatValue("pigeon.heartbeat.pickoffratio", 0.5f);
+
+	private static volatile Set<String> inactiveAddresses = new HashSet<String>();
 
 	public void run() {
 		long sleepTime = interval;
@@ -85,18 +85,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 						}
 						if (RegistryManager.getInstance().getServiceWeight(client.getAddress()) > 0) {
 							if (client.isConnected()) {
-								String connect = client.getAddress();
-								if (!hasHeartBeatRequestExists(connect)) {
-									sendHeartBeatRequest(client);
-								} else {
-									HeartBeatStat heartBeatStat = heartBeatStats.get(connect);
-									InvocationRequest heartRequest = heartBeatStat.currentHeartRequest;
-									if (isHeartRequestTimeout(heartRequest, heartBeatTimeout)) {
-										heartBeatStat.incrFailed();
-										notifyHeartBeatStatChanged(client);
-										sendHeartBeatRequest(client);
-									}
-								}
+								sendHeartBeatRequest(client);
 							} else {
 								logger.error("[heartbeat] remove connect:" + client.getAddress());
 								clusterListenerManager.removeConnect(client);
@@ -115,34 +104,26 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 		}
 	}
 
-	private boolean hasHeartBeatRequestExists(String connect) {
-		if (connect != null) {
-			HeartBeatStat heartBeatStat = heartBeatStats.get(connect);
-			return heartBeatStat != null && heartBeatStat.currentHeartRequest != null;
-		}
-		return false;
-	}
-
-	private boolean isHeartRequestTimeout(InvocationRequest heartRequest, long heartBeatTimeout) {
-		return System.currentTimeMillis() - heartRequest.getCreateMillisTime() >= heartBeatTimeout;
-	}
-
 	private void sendHeartBeatRequest(Client client) {
 		HeartBeatStat heartBeatStat = getHeartBeatStatWithCreate(client.getAddress());
-		heartBeatStat.currentHeartRequest = null; // 在write之前需要先置空currentHeartRequest
 		InvocationRequest heartRequest = createHeartRequest(client);
 		try {
-			InvocationResponse response = client.write(heartRequest);
-			heartBeatStat.currentHeartRequest = heartRequest;
+			InvocationResponse response = null;
+			CallbackFuture future = new CallbackFuture();
+			response = InvokerUtils.sendRequest(client, heartRequest, future);
+			if (response == null) {
+				response = future.get(heartBeatTimeout);
+			}
 			if (response != null) {
-				processResponse(response, client);
+				processResponse(heartRequest, response, client);
 			}
 		} catch (Throwable e) {
 			heartBeatStat.incrFailed();
 			notifyHeartBeatStatChanged(client);
-			logger.warn("[heartbeat] send heartbeat to server[" + client.getAddress() + "] failed. detail["
-					+ e.getMessage() + "].");
-
+			if (client.isActive()) {
+				logger.warn("[heartbeat] send heartbeat to server[" + client.getAddress() + "] failed. detail["
+						+ e.getMessage() + "].");
+			}
 		}
 	}
 
@@ -160,7 +141,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 	private InvocationRequest createHeartRequest(Client client) {
 		InvocationRequest request = new DefaultRequest(HEART_TASK_SERVICE, HEART_TASK_METHOD, null,
-				SerializerFactory.SERIALIZE_HESSIAN, Constants.MESSAGE_TYPE_HEART, 5000, null);
+				SerializerFactory.SERIALIZE_HESSIAN, Constants.MESSAGE_TYPE_HEART, heartBeatTimeout, null);
 		request.setSequence(generateHeartSeq(client));
 		request.setCreateMillisTime(System.currentTimeMillis());
 		request.setCallType(Constants.CALLTYPE_REPLY);
@@ -169,15 +150,6 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 	private long generateHeartSeq(Client client) {
 		return heartBeatSeq.getAndIncrement();
-	}
-
-	@Override
-	public void addConnect(ConnectInfo cmd, Client client) {
-		if (logger.isInfoEnabled()) {
-			logger.info("[heartbeat] add service provider:" + client);
-			// logger.info("[heartbeat] current checking providers:" +
-			// this.getWorkingClients());
-		}
 	}
 
 	public void addConnect(ConnectInfo cmd) {
@@ -204,24 +176,18 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 		}
 	}
 
-	public void processResponse(InvocationResponse response, Client client) {
+	public void processResponse(InvocationRequest request, InvocationResponse response, Client client) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("response:" + response);
 			logger.debug("client:" + client);
 		}
-		// 兼容老版本
-		if (!InvokerUtils.isHeartErrorResponse(response)) {
-			Object heartReturn = response.getReturn();
-			if (heartReturn instanceof Integer && (Integer) heartReturn >= Constants.VERSION_150) {
-				client.setActiveSetable(true);
-			}
-		}
 		HeartBeatStat heartStat = getHeartBeatStatWithCreate(client.getAddress());
-		if (heartStat.currentHeartRequest == null
-				|| heartStat.currentHeartRequest.getSequence() == response.getSequence()) {
-			heartStat.currentHeartRequest = null;
+		if (request.getSequence() == response.getSequence()) {
 			heartStat.incrSucceed();
 			notifyHeartBeatStatChanged(client);
+		} else {
+			logger.warn("[heartbeat] inconsistent heartbeat sequence " + request.getSequence() + ":"
+					+ response.getSequence() + " from:" + client);
 		}
 	}
 
@@ -231,16 +197,19 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			if (heartStat.succeedCounter.longValue() >= heartBeatHealthCount) {
 				if (!client.isActive()) {
 					client.setActive(true);
-					logger.error("@service-activate:" + client.getAddress() + ", service:" + getServiceName(client));
+					inactiveAddresses.remove(client.getAddress());
+					logger.error("@service-activate:" + client + ", service:" + getServiceName(client)
+							+ ", inactive addresses:" + inactiveAddresses);
 				}
 				heartStat.resetCounter();
 			} else if (heartStat.failedCounter.longValue() >= heartBeatDeadCount) {
 				if (client.isActive()) {
 					if (isHeartBeatAutoPickOff && canPickOff(client)) {
 						client.setActive(false);
-						logger.error("@service-deactivate:" + client.getAddress());
+						inactiveAddresses.add(client.getAddress());
+						logger.error("@service-deactivate:" + client + ", inactive addresses:" + inactiveAddresses);
 					} else {
-						logger.error("@service-dieaway:" + client.getAddress());
+						logger.error("@service-dieaway:" + client + ", inactive addresses:" + inactiveAddresses);
 					}
 				}
 				heartStat.resetCounter();
@@ -254,7 +223,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 		for (Iterator<Entry<String, List<Client>>> iter = getWorkingClients().entrySet().iterator(); iter.hasNext();) {
 			Entry<String, List<Client>> entry = iter.next();
 			if (entry.getValue() != null && entry.getValue().contains(client)) {
-				return StringUtils.substringBetween(entry.getKey(), serviceNameSpace, "/");
+				return entry.getKey();
 			}
 		}
 		return "unknown";
@@ -288,7 +257,8 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 					}
 				}
 				if (working <= leastAvailable) {
-					logger.warn("can not pick off:" + client + ", working:" + working + ", least:" + leastAvailable);
+					logger.warn("can not pick off:" + client + ", working:" + working + ", least:" + leastAvailable
+							+ ", total:" + total);
 					return false;
 				}
 			}
@@ -312,7 +282,6 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 	class HeartBeatStat {
 		String address;
-		InvocationRequest currentHeartRequest;
 		AtomicLong succeedCounter = new AtomicLong(); // 连续成功计数器
 		AtomicLong failedCounter = new AtomicLong(); // 连续失败计数器
 
@@ -336,4 +305,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 		}
 	}
 
+	public static boolean isActiveAddress(String address) {
+		return !inactiveAddresses.contains(address);
+	}
 }

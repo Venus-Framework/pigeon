@@ -36,6 +36,7 @@ public class InvocationTimeoutListener implements Runnable {
 	public void run() {
 		while (true) {
 			try {
+				Thread.sleep(timeoutInterval);
 				long currentTime = System.currentTimeMillis();
 				for (Long sequence : invocations.keySet()) {
 					RemoteInvocationBean invocationBean = invocations.get(sequence);
@@ -61,7 +62,6 @@ public class InvocationTimeoutListener implements Runnable {
 					}
 				}
 				TimelineManager.removeLegacyTimelines();
-				Thread.sleep(timeoutInterval);
 			} catch (Throwable e) {
 				logger.error("checking remote call timeout failed", e);
 			}

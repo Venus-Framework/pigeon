@@ -4,8 +4,8 @@
  */
 package com.dianping.pigeon.remoting.invoker.domain;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -14,16 +14,14 @@ public class ConnectInfo {
 
 	private String host;
 	private int port;
-	private Map<String, Integer> serviceNames;
-
-	// private Map<String, Integer> serviceNameAndWeights;
+	private ConcurrentHashMap<String, Integer> serviceNames;
 
 	public ConnectInfo(String serviceName, String host, int port, int weight) {
-		this(new HashMap<String, Integer>(), host, port);
+		this(new ConcurrentHashMap<String, Integer>(), host, port);
 		this.serviceNames.put(serviceName, weight);
 	}
 
-	public ConnectInfo(Map<String, Integer> serviceNames, String host, int port) {
+	private ConnectInfo(ConcurrentHashMap<String, Integer> serviceNames, String host, int port) {
 		this.serviceNames = serviceNames;
 		this.host = host;
 		this.port = port;

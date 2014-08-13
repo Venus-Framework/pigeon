@@ -281,11 +281,6 @@ public class LoadBalanceManager {
 		}
 
 		@Override
-		public void addConnect(ConnectInfo cmd, Client client) {
-			addWeight(cmd.getConnect(), RegistryManager.getInstance().getServiceWeight(cmd.getConnect()));
-		}
-
-		@Override
 		public void removeConnect(Client client) {
 			removeWeight(client.getAddress());
 		}

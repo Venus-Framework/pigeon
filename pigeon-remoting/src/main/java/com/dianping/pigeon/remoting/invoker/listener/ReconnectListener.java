@@ -58,7 +58,8 @@ public class ReconnectListener implements Runnable, ClusterListener {
 						}
 						if (client.isConnected()) {
 							// 加回去时active设置为true
-							clusterListenerManager.addConnect(providerUrl, client);
+							clusterListenerManager.addConnect(client.getConnectInfo());
+							client.setActive(true);
 							toRemovedClients.add(providerUrl);
 						}
 					}
@@ -83,16 +84,6 @@ public class ReconnectListener implements Runnable, ClusterListener {
 
 	@Override
 	public void addConnect(ConnectInfo cmd) {
-		if (logger.isInfoEnabled()) {
-			logger.info("[reconnect] current checking providers:" + closedClients);
-		}
-	}
-
-	@Override
-	public void addConnect(ConnectInfo cmd, Client client) {
-		if (logger.isInfoEnabled()) {
-			logger.info("[reconnect] current checking providers:" + closedClients);
-		}
 	}
 
 	@Override
@@ -125,6 +116,7 @@ public class ReconnectListener implements Runnable, ClusterListener {
 		for (List<Client> clientList : getWorkingClients().values()) {
 			if (clientList.contains(client)) {
 				isClientInUse = true;
+				break;
 			}
 		}
 		if (!isClientInUse) {

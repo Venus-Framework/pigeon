@@ -12,7 +12,7 @@ import com.dianping.pigeon.console.status.checker.GlobalStatusChecker;
 import com.dianping.pigeon.console.status.checker.ProviderStatusChecker;
 import com.dianping.pigeon.console.status.checker.ServiceStatusChecker;
 import com.dianping.pigeon.console.status.checker.StatusChecker;
-import com.dianping.pigeon.remoting.common.Phase;
+import com.dianping.pigeon.remoting.common.status.Phase;
 import com.dianping.pigeon.util.CollectionUtils;
 
 public class OverviewStatus extends AbstractComponentStatus {

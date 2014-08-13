@@ -13,7 +13,8 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.Phase;
+import com.dianping.pigeon.remoting.common.status.Phase;
+import com.dianping.pigeon.remoting.common.status.StatusContainer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
@@ -36,11 +37,13 @@ public class ServiceWarmupListener implements Runnable {
 	private volatile boolean isStop = false;
 
 	public static void start() {
+		boolean autoPublishEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
+				Constants.KEY_AUTOPUBLISH_ENABLE, true);
 		boolean autoRegisterEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
 				Constants.KEY_AUTOREGISTER_ENABLE, true);
 		boolean warmupEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
 				Constants.KEY_SERVICEWARMUP_ENABLE, true);
-		if (!isServiceWarmupListenerStarted && warmupEnable && autoRegisterEnable) {
+		if (!isServiceWarmupListenerStarted && warmupEnable && autoRegisterEnable && autoPublishEnable) {
 			currentWarmupListener = new ServiceWarmupListener();
 			Thread t = new Thread(currentWarmupListener);
 			t.setDaemon(true);
@@ -83,9 +86,9 @@ public class ServiceWarmupListener implements Runnable {
 		int publishedCount = 0;
 		int unpublishedCount = 0;
 		while (!isStop
-				&& (ServiceProviderFactory.getPhase().equals(Phase.TOPUBLISH)
-						|| ServiceProviderFactory.getPhase().equals(Phase.PUBLISHING) || ServiceProviderFactory
-						.getPhase().equals(Phase.PUBLISHED))) {
+				&& (StatusContainer.getPhase().equals(Phase.TOPUBLISH)
+						|| StatusContainer.getPhase().equals(Phase.PUBLISHING) || StatusContainer.getPhase().equals(
+						Phase.PUBLISHED))) {
 			Map<String, ProviderConfig<?>> services = ServiceProviderFactory.getAllServiceProviders();
 			for (Entry<String, ProviderConfig<?>> entry : services.entrySet()) {
 				ProviderConfig<?> providerConfig = entry.getValue();
@@ -96,7 +99,7 @@ public class ServiceWarmupListener implements Runnable {
 				}
 			}
 			if (publishedCount > 0 && unpublishedCount == 0) {
-				ServiceProviderFactory.setPhase(Phase.PUBLISHED);
+				StatusContainer.setPhase(Phase.PUBLISHED);
 				break;
 			} else {
 				try {
@@ -107,12 +110,12 @@ public class ServiceWarmupListener implements Runnable {
 		}
 		int weight = Constants.WEIGHT_START;
 		while (!isStop && weight < Constants.WEIGHT_DEFAULT) {
-			ServiceProviderFactory.setPhase(Phase.WARMINGUP);
+			StatusContainer.setPhase(Phase.WARMINGUP);
 			try {
 				Thread.sleep(CHECK_INTERVAL);
-				if (!ServiceProviderFactory.getPhase().equals(Phase.WARMINGUP)
-						&& !ServiceProviderFactory.getPhase().equals(Phase.PUBLISHED)) {
-					logger.warn("Warm-up task will be end, current status:" + ServiceProviderFactory.getPhase());
+				if (!StatusContainer.getPhase().equals(Phase.WARMINGUP)
+						&& !StatusContainer.getPhase().equals(Phase.PUBLISHED)) {
+					logger.warn("Warm-up task will be end, current status:" + StatusContainer.getPhase());
 					break;
 				}
 				ServiceProviderFactory.setServerWeight(++weight);
@@ -121,7 +124,7 @@ public class ServiceWarmupListener implements Runnable {
 			}
 		}
 		if (weight == Constants.WEIGHT_DEFAULT) {
-			ServiceProviderFactory.setPhase(Phase.WARMEDUP);
+			StatusContainer.setPhase(Phase.WARMEDUP);
 		}
 		logger.info("Warm-up task end, current weight:" + ServiceProviderFactory.getServerWeight());
 		isServiceWarmupListenerStarted = false;

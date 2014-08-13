@@ -81,10 +81,7 @@ public class DefaultClusterListener implements ClusterListener {
 	}
 
 	public void addConnect(ConnectInfo connectInfo) {
-		addConnect(connectInfo, this.allClients.get(connectInfo.getConnect()));
-	}
-
-	public void addConnect(ConnectInfo connectInfo, Client client) {
+		Client client = this.allClients.get(connectInfo.getConnect());
 		if (clientExisted(connectInfo)) {
 			if (client != null) {
 				for (List<Client> clientList : serviceClients.values()) {
@@ -117,8 +114,9 @@ public class DefaultClusterListener implements ClusterListener {
 						clientList = new ArrayList<Client>();
 						this.serviceClients.put(serviceName, clientList);
 					}
-					if (!clientList.contains(client))
+					if (!clientList.contains(client)) {
 						clientList.add(client);
+					}
 				}
 			} else {
 				clusterListenerManager.removeConnect(client);
@@ -128,51 +126,40 @@ public class DefaultClusterListener implements ClusterListener {
 		}
 	}
 
-	/**
-	 * 检查是否已经有cmd对应的Client，避免重复添加Client
-	 * 
-	 * @param cmd
-	 * @return
-	 */
 	private boolean clientExisted(ConnectInfo connectInfo) {
 		for (String serviceName : connectInfo.getServiceNames().keySet()) {
 			List<Client> clientList = serviceClients.get(serviceName);
-			if (clientList == null) {
-				return false;
-			}
-			boolean findClient = false;
-			for (Client client : clientList) {
-				if (client.getAddress().equals(connectInfo.getConnect())) {
-					findClient = true;
+			if (clientList != null) {
+				for (Client client : clientList) {
+					if (client.getAddress().equals(connectInfo.getConnect())) {
+						return true;
+					}
 				}
 			}
-			if (!findClient) {
-				return false;
-			}
 		}
-		return true;
+		return false;
 	}
 
-	public synchronized void removeConnect(Client client) {
+	public void removeConnect(Client client) {
 		if (logger.isInfoEnabled()) {
 			logger.info("[cluster listener] remove service provider:" + client);
 		}
 		if (logger.isInfoEnabled()) {
 			logger.info("[cluster listener] service providers:" + serviceClients);
 		}
-		Client clientRemoved = this.allClients.remove(client.getAddress());
-		if (clientRemoved != null) {
-			for (String serviceName : this.serviceClients.keySet()) {
-				List<Client> clientList = this.serviceClients.get(serviceName);
-				if (clientList != null && clientList.contains(client)) {
-					clientList.remove(client);
-				}
+		for (String serviceName : this.serviceClients.keySet()) {
+			List<Client> clientList = this.serviceClients.get(serviceName);
+			if (clientList != null && clientList.contains(client)) {
+				clientList.remove(client);
 			}
 		}
 	}
 
 	@Override
-	public synchronized void doNotUse(String serviceName, String host, int port) {
+	public void doNotUse(String serviceName, String host, int port) {
+		if (logger.isInfoEnabled()) {
+			logger.info("[cluster listener] do not use service provider:" + serviceName + ":" + host + ":" + port);
+		}
 		List<Client> cs = serviceClients.get(serviceName);
 		List<Client> newCS = new ArrayList<Client>();
 		if (cs != null && !cs.isEmpty()) {
@@ -217,14 +204,6 @@ public class DefaultClusterListener implements ClusterListener {
 			}
 		}
 		return false;
-	}
-
-	public Map<String, List<Client>> getServiceClients() {
-		return serviceClients;
-	}
-
-	public void setServiceClients(Map<String, List<Client>> serviceClients) {
-		this.serviceClients = serviceClients;
 	}
 
 	private void closeClientInFuture(final Client client) {

@@ -19,7 +19,8 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.remoting.common.Phase;
+import com.dianping.pigeon.remoting.common.status.Phase;
+import com.dianping.pigeon.remoting.common.status.StatusContainer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
@@ -49,8 +50,6 @@ public final class ServiceProviderFactory {
 			: Constants.DEFAULT_NOTIFY_ENABLE;
 
 	private static ConcurrentHashMap<String, Integer> serverWeightCache = new ConcurrentHashMap<String, Integer>();
-
-	private static volatile Phase phase = Phase.TOPUBLISH;
 
 	private static final int UNPUBLISH_WAITTIME = configManager.getIntValue(Constants.KEY_UNPUBLISH_WAITTIME,
 			Constants.DEFAULT_UNPUBLISH_WAITTIME);
@@ -112,27 +111,34 @@ public final class ServiceProviderFactory {
 					+ existingService);
 		}
 		if (existingService) {
-			List<Server> servers = ProviderBootStrap.getServers(providerConfig);
-			int registerCount = 0;
-			for (Server server : servers) {
-				publishService(server.getRegistryUrl(url), server.getPort(), providerConfig.getServerConfig()
-						.getGroup());
-				registerCount++;
-			}
-			if (registerCount > 0) {
-				boolean isNotify = configManager.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
-				if (isNotify && serviceChangeListener != null) {
-					serviceChangeListener.notifyServicePublished(providerConfig);
+			boolean autoPublishEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
+					Constants.KEY_AUTOPUBLISH_ENABLE, true);
+			if (autoPublishEnable) {
+				List<Server> servers = ProviderBootStrap.getServers(providerConfig);
+				int registerCount = 0;
+				for (Server server : servers) {
+					publishService(server.getRegistryUrl(url), server.getPort(), providerConfig.getServerConfig()
+							.getGroup());
+					registerCount++;
 				}
-				phase = Phase.PUBLISHING;
+				if (registerCount > 0) {
+					boolean isNotify = configManager
+							.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
+					if (isNotify && serviceChangeListener != null) {
+						serviceChangeListener.notifyServicePublished(providerConfig);
+					}
+					StatusContainer.setPhase(Phase.PUBLISHING);
 
-				boolean autoRegisterEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
-						Constants.KEY_AUTOREGISTER_ENABLE, true);
-				if (autoRegisterEnable) {
-					ServiceWarmupListener.start();
+					boolean autoRegisterEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
+							Constants.KEY_AUTOREGISTER_ENABLE, true);
+					if (autoRegisterEnable) {
+						ServiceWarmupListener.start();
+					}
+
+					providerConfig.setPublished(true);
 				}
-
-				providerConfig.setPublished(true);
+			} else {
+				logger.info("auto publish is disabled");
 			}
 		}
 	}
@@ -194,9 +200,9 @@ public final class ServiceProviderFactory {
 			serverWeightCache.put(serverAddress, weight);
 		}
 		if (weight <= 0) {
-			phase = Phase.OFFLINE;
+			StatusContainer.setPhase(Phase.OFFLINE);
 		} else {
-			phase = Phase.ONLINE;
+			StatusContainer.setPhase(Phase.ONLINE);
 		}
 	}
 
@@ -215,7 +221,7 @@ public final class ServiceProviderFactory {
 					+ existingService);
 		}
 		if (existingService) {
-			phase = Phase.TOUNPUBLISH;
+			StatusContainer.setPhase(Phase.TOUNPUBLISH);
 			List<Server> servers = ProviderBootStrap.getServers(providerConfig);
 			for (Server server : servers) {
 				String serverAddress = configManager.getLocalIp() + ":" + server.getPort();
@@ -292,7 +298,7 @@ public final class ServiceProviderFactory {
 			logger.info("unpublish all services");
 		}
 		ServiceWarmupListener.stop();
-		phase = Phase.TOUNPUBLISH;
+		StatusContainer.setPhase(Phase.TOUNPUBLISH);
 		setServerWeight(0);
 		try {
 			Thread.sleep(UNPUBLISH_WAITTIME);
@@ -304,7 +310,7 @@ public final class ServiceProviderFactory {
 				unpublishService(providerConfig);
 			}
 		}
-		phase = Phase.UNPUBLISHED;
+		StatusContainer.setPhase(Phase.UNPUBLISHED);
 	}
 
 	public static void publishAllServices() throws RegistryException {
@@ -317,19 +323,11 @@ public final class ServiceProviderFactory {
 				publishService(providerConfig);
 			}
 		}
-		phase = Phase.PUBLISHED;
+		StatusContainer.setPhase(Phase.PUBLISHED);
 	}
 
 	public static Map<String, ProviderConfig<?>> getAllServiceProviders() {
 		return serviceCache;
-	}
-
-	public synchronized static void setPhase(Phase phase) {
-		ServiceProviderFactory.phase = phase;
-	}
-
-	public static Phase getPhase() {
-		return phase;
 	}
 
 }

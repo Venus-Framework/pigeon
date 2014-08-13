@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.dianping.pigeon.util.FileUtils;
 import com.dianping.pigeon.util.NetUtils;
 
 /**
@@ -24,7 +24,7 @@ import com.dianping.pigeon.util.NetUtils;
  */
 public abstract class AbstractConfigManager implements ConfigManager {
 
-	private static Logger logger = Logger.getLogger(AbstractConfigManager.class);
+	private static Logger logger = LoggerFactory.getLogger(AbstractConfigManager.class);
 
 	public static final String KEY_GROUP = "swimlane";
 
@@ -37,12 +37,6 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	public static final String DEFAULT_GROUP = "";
 
 	public static final int DEFAULT_WEIGHT = 1;
-
-	private static final String DEV_PROPERTIES_PATH = "config/applicationContext.properties";
-
-	private static final String PROPERTIES_PATH = "config/pigeon.properties";
-
-	private static final String GLOBAL_PROPERTIES_PATH = "/data/webapps/config/pigeon/pigeon.properties";
 
 	private static List<ConfigChangeListener> configChangeListeners = new ArrayList<ConfigChangeListener>();
 
@@ -65,26 +59,8 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	public abstract void doDeleteKey(String key) throws Exception;
 
 	public AbstractConfigManager() {
-		try {
-			init(FileUtils.readFile(Thread.currentThread().getContextClassLoader()
-					.getResourceAsStream(GLOBAL_PROPERTIES_PATH)));
-		} catch (Throwable e) {
-			logger.error("", e);
-		}
-		try {
-			init(FileUtils
-					.readFile(Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPERTIES_PATH)));
-		} catch (Throwable e) {
-			logger.error("", e);
-		}
-		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(getEnv()) || ConfigConstants.ENV_ALPHA.equalsIgnoreCase(getEnv())) {
-			try {
-				init(FileUtils.readFile(Thread.currentThread().getContextClassLoader()
-						.getResourceAsStream(DEV_PROPERTIES_PATH)));
-			} catch (Throwable e) {
-				logger.error("", e);
-			}
-		}
+		Map<String, Object> properties = LocalConfigLoader.load(this);
+		localCache.putAll(properties);
 	}
 
 	public boolean getBooleanValue(String key, boolean defaultValue) {
@@ -137,10 +113,6 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		String strValue = null;
 		if (localCache.containsKey(key)) {
 			Object value = localCache.get(key);
-			// if (value != null && logger.isInfoEnabled()) {
-			// logger.info("read from local cache with key[" + key + "]:" +
-			// value);
-			// }
 			if (value.getClass() == type) {
 				return (T) value;
 			} else {
@@ -153,10 +125,6 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		if (strValue == null) {
 			try {
 				strValue = doGetLocalProperty(key);
-				if (strValue != null && logger.isInfoEnabled()) {
-					// logger.info("read from local config with key[" + key +
-					// "]:" + strValue);
-				}
 			} catch (Throwable e) {
 				logger.error("error while reading local config[" + key + "]:" + e.getMessage());
 			}
@@ -181,8 +149,6 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			}
 			return (T) value;
 		} else {
-			// logger.info("config[key=" + key +
-			// "] not found, use default value");
 		}
 		return null;
 	}
@@ -196,10 +162,6 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		String strValue = null;
 		if (localCache.containsKey(key)) {
 			Object value = localCache.get(key);
-			// if (value != null && logger.isInfoEnabled()) {
-			// logger.info("read from local cache with key[" + key + "]:" +
-			// value);
-			// }
 			if (value.getClass() == type) {
 				return (T) value;
 			} else {
@@ -212,10 +174,6 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		if (strValue == null) {
 			try {
 				strValue = doGetLocalProperty(key);
-				if (strValue != null && logger.isInfoEnabled()) {
-					// logger.info("read from local config with key[" + key +
-					// "]:" + strValue);
-				}
 			} catch (Throwable e) {
 				logger.error("error while reading local config[" + key + "]:" + e.getMessage());
 			}
@@ -250,7 +208,6 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			}
 			return (T) value;
 		} else {
-			// logger.info("config[key=" + key + "] not found");
 		}
 		return null;
 	}
@@ -287,15 +244,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	public String getLocalProperty(String key) {
 		if (localCache.containsKey(key)) {
 			String value = "" + localCache.get(key);
-			// if (logger.isInfoEnabled()) {
-			// logger.info("read from local cache with key[" + key + "]:" +
-			// value);
-			// }
 			return value;
-		}
-		if (logger.isInfoEnabled()) {
-			// logger.info("try to read from local config with key[" + key +
-			// "]");
 		}
 		try {
 			String value = doGetLocalProperty(key);
@@ -306,8 +255,6 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				}
 				return value;
 			} else {
-				// logger.info("config[key=" + key +
-				// "] not found in local config");
 			}
 		} catch (Throwable e) {
 			logger.error("error while reading property[" + key + "]:" + e.getMessage());
@@ -391,6 +338,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	}
 
 	public void registerConfigChangeListener(ConfigChangeListener configChangeListener) {
+		logger.info("register config change listener:" + configChangeListener.getClass().getName());
 		configChangeListeners.add(configChangeListener);
 	}
 
@@ -417,12 +365,13 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	@Override
 	public void setLocalStringValue(String key, String value) {
 		localCache.put(key, value);
-		for (ConfigChangeListener listener : configChangeListeners) {
-			listener.onChange(key, value);
-		}
 	}
 
 	public Map<String, Object> getLocalConfig() {
 		return localCache;
+	}
+
+	public List<ConfigChangeListener> getConfigChangeListeners() {
+		return configChangeListeners;
 	}
 }

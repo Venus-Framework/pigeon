@@ -36,8 +36,6 @@ public interface Client {
 
 	void setActive(boolean active);
 
-	void setActiveSetable(boolean activesetable);
-
 	boolean isWritable();
 
 	String getHost();

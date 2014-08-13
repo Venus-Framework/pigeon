@@ -31,6 +31,7 @@ import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.domain.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
+import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
@@ -54,7 +55,6 @@ public class NettyClient extends AbstractClient {
 	private volatile boolean closed = false;
 
 	private volatile boolean active = true;
-	private volatile boolean activeSetable = false;
 
 	private ConnectInfo connectInfo;
 
@@ -207,17 +207,11 @@ public class NettyClient extends AbstractClient {
 	}
 
 	public boolean isActive() {
-		return active;
+		return active && HeartBeatListener.isActiveAddress(address);
 	}
 
 	public void setActive(boolean active) {
-		if (this.activeSetable) {
-			this.active = active;
-		}
-	}
-
-	public void setActiveSetable(boolean activeSetable) {
-		this.activeSetable = activeSetable;
+		this.active = active;
 	}
 
 	@Override
@@ -266,7 +260,7 @@ public class NettyClient extends AbstractClient {
 
 	@Override
 	public String toString() {
-		return this.getAddress() + ",is connected:" + this.isConnected();
+		return this.getAddress() + ", connected:" + this.isConnected() + ", active:" + this.isActive();
 	}
 
 	public class MsgWriteListener implements ChannelFutureListener {

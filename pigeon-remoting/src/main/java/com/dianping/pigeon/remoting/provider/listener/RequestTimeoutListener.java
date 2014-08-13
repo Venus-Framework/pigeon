@@ -44,6 +44,7 @@ public class RequestTimeoutListener implements Runnable {
 	public void run() {
 		while (true) {
 			try {
+				Thread.sleep(timeoutInterval);
 				long currentTime = System.currentTimeMillis();
 				for (InvocationRequest request : requestContextMap.keySet()) {
 					if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
@@ -97,7 +98,6 @@ public class RequestTimeoutListener implements Runnable {
 					}
 				}
 				TimelineManager.removeLegacyTimelines();
-				Thread.sleep(timeoutInterval);
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
