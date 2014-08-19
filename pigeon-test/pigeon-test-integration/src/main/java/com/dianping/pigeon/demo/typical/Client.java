@@ -4,6 +4,9 @@
  */
 package com.dianping.pigeon.demo.typical;
 
+import com.dianping.avatar.tracker.ExecutionContextHolder;
+import com.dianping.avatar.tracker.TrackerContext;
+import com.dianping.phoenix.environment.PhoenixContext;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.UserService;
@@ -29,9 +32,17 @@ public class Client {
 		User user = new User();
 		user.setUsername("jason");
 		User[] users = new User[] { user };
-		System.out.println(echoService.echo("hi"));
-		System.out.println(userService.getUserDetail(users, true));
-		echoServiceWithCallback.echo("echoServiceWithCallback_input");
+		while (true) {
+			try {
+				// echoService.echo("hi");
+				PhoenixContext.getInstance().setRequestId("aaaa1111111");
+				ExecutionContextHolder.setTrackerContext(new TrackerContext());
+				System.out.println(echoService.echo("hi"));
+			} catch (Exception e) {
+			}
+		}
+		// System.out.println(userService.getUserDetail(users, true));
+		// echoServiceWithCallback.echo("echoServiceWithCallback_input");
 	}
 
 }

@@ -97,23 +97,14 @@ public final class ProviderProcessHandlerFactory {
 	}
 
 	private static void registerBizProcessFilter(ServiceInvocationFilter<ProviderContext> filter) {
-		if (logger.isInfoEnabled()) {
-			logger.info("register process filter:" + filter.getClass());
-		}
 		bizProcessFilters.add(filter);
 	}
 
 	private static void registerHeartBeatProcessFilter(ServiceInvocationFilter<ProviderContext> filter) {
-		if (logger.isInfoEnabled()) {
-			logger.info("register heartbeat filter:" + filter.getClass());
-		}
 		heartBeatProcessFilters.add(filter);
 	}
 
 	private static void registerHealthCheckProcessFilter(ServiceInvocationFilter<ProviderContext> filter) {
-		if (logger.isInfoEnabled()) {
-			logger.info("register healthcheck filter:" + filter.getClass());
-		}
 		healthCheckProcessFilters.add(filter);
 	}
 

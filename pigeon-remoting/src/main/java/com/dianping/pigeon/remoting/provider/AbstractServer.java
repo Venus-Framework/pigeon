@@ -40,6 +40,9 @@ public abstract class AbstractServer implements Server {
 		}
 		requestProcessor = RequestProcessorFactory.selectProcessor(serverConfig);
 		doStart(serverConfig);
+		if (requestProcessor != null) {
+			requestProcessor.start();
+		}
 		this.serverConfig = serverConfig;
 	}
 

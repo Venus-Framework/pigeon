@@ -4,11 +4,20 @@
  */
 package com.dianping.pigeon.demo;
 
+
 public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public String echo(String input) {
 		// throw new InvocationFailureException("error raised:" + input);
+		// System.out.println(PhoenixContext.getInstance().getRequestId());
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			System.out.println("#########");
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
 		return "echo:" + input;
 	}
 

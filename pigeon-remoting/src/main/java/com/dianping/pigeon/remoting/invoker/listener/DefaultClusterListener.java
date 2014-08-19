@@ -18,7 +18,6 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.ClientSelector;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
@@ -34,20 +33,22 @@ public class DefaultClusterListener implements ClusterListener {
 
 	private Map<String, Client> allClients = new ConcurrentHashMap<String, Client>();
 
-	private HeartBeatListener heartTask;
+	private HeartBeatListener heartbeatListener;
 
-	private ReconnectListener reconnectTask;
+	private ReconnectListener reconnectListener;
 
 	private ScheduledThreadPoolExecutor closeExecutor = new ScheduledThreadPoolExecutor(5, new DefaultThreadFactory(
 			"Pigeon-Client-Cache-Close-ThreadPool"));
 
 	private ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
-	public DefaultClusterListener(HeartBeatListener heartTask, ReconnectListener reconnectTask) {
-		this.heartTask = heartTask;
-		this.reconnectTask = reconnectTask;
-		this.reconnectTask.setWorkingClients(serviceClients);
-		this.heartTask.setWorkingClients(serviceClients);
+	public DefaultClusterListener(HeartBeatListener heartbeatListener, ReconnectListener reconnectListener,
+			ProviderAvailableListener providerAvailableListener) {
+		this.heartbeatListener = heartbeatListener;
+		this.reconnectListener = reconnectListener;
+		this.reconnectListener.setWorkingClients(serviceClients);
+		this.heartbeatListener.setWorkingClients(serviceClients);
+		providerAvailableListener.setWorkingClients(serviceClients);
 	}
 
 	public void clear() {
@@ -58,24 +59,8 @@ public class DefaultClusterListener implements ClusterListener {
 	public List<Client> getClientList(InvokerConfig<?> invokerConfig) {
 		List<Client> clientList = this.serviceClients.get(invokerConfig.getUrl());
 		if (CollectionUtils.isEmpty(clientList)) {
-			synchronized (this) {
-				clientList = this.serviceClients.get(invokerConfig.getUrl());
-				if (CollectionUtils.isEmpty(clientList)) {
-					if (logger.isInfoEnabled()) {
-						logger.info("try to find service providers for service:" + invokerConfig.getUrl());
-					}
-					ClientManager.getInstance().registerServiceInvokers(invokerConfig.getUrl(),
-							invokerConfig.getGroup(), invokerConfig.getVip());
-					clientList = this.serviceClients.get(invokerConfig.getUrl());
-					if (CollectionUtils.isEmpty(clientList)) {
-						throw new ServiceUnavailableException("no available provider for service:"
-								+ invokerConfig.getUrl());
-					} else {
-						logger.info("found service providers:[" + clientList + "] for service:"
-								+ invokerConfig.getUrl());
-					}
-				}
-			}
+			throw new ServiceUnavailableException("no available provider for service:" + invokerConfig.getUrl()
+					+ ", group:" + invokerConfig.getGroup());
 		}
 		return clientList;
 	}
@@ -186,7 +171,7 @@ public class DefaultClusterListener implements ClusterListener {
 
 	// move to HeartTask?
 	private void removeClientFromReconnectTask(Client clientToRemove) {
-		Map<String, Client> closedClients = reconnectTask.getClosedClients();
+		Map<String, Client> closedClients = reconnectListener.getClosedClients();
 		Set<String> keySet = closedClients.keySet();
 		Iterator<String> iterator = keySet.iterator();
 		while (iterator.hasNext()) {

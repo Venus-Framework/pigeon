@@ -29,6 +29,7 @@ import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableExceptio
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListenerManager;
 import com.dianping.pigeon.remoting.invoker.listener.DefaultClusterListener;
 import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;
+import com.dianping.pigeon.remoting.invoker.listener.ProviderAvailableListener;
 import com.dianping.pigeon.remoting.invoker.listener.ReconnectListener;
 import com.dianping.pigeon.remoting.invoker.route.RouteManager;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
@@ -46,15 +47,15 @@ public class ClientManager implements Disposable {
 
 	private ReconnectListener reconnectTask;
 
+	private ProviderAvailableListener providerAvailableListener;
+
 	private RouteManager routerManager = ExtensionLoader.getExtension(RouteManager.class);
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	private ServiceProviderChangeListener providerChangeListener = new InnerServiceProviderChangeListener();
 
-	private static ThreadPool heartBeatThreadPool = new DefaultThreadPool("Pigeon-Client-Heartbeat-ThreadPool");
-
-	private static ThreadPool reconnectThreadPool = new DefaultThreadPool("Pigeon-Client-Reconnect-ThreadPool");
+	private static ThreadPool listenerThreadPool = new DefaultThreadPool("Pigeon-Client-Listener-ThreadPool");
 
 	private static ClientManager instance = new ClientManager();
 
@@ -69,12 +70,14 @@ public class ClientManager implements Disposable {
 	private ClientManager() {
 		this.heartBeatTask = new HeartBeatListener();
 		this.reconnectTask = new ReconnectListener();
-		this.clusterListener = new DefaultClusterListener(heartBeatTask, reconnectTask);
+		this.providerAvailableListener = new ProviderAvailableListener();
+		this.clusterListener = new DefaultClusterListener(heartBeatTask, reconnectTask, providerAvailableListener);
 		this.clusterListenerManager.addListener(this.clusterListener);
 		this.clusterListenerManager.addListener(this.heartBeatTask);
 		this.clusterListenerManager.addListener(this.reconnectTask);
-		heartBeatThreadPool.execute(this.heartBeatTask);
-		reconnectThreadPool.execute(this.reconnectTask);
+		listenerThreadPool.execute(this.heartBeatTask);
+		listenerThreadPool.execute(this.reconnectTask);
+		listenerThreadPool.execute(this.providerAvailableListener);
 		RegistryEventListener.addListener(providerChangeListener);
 	}
 

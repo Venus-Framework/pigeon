@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
@@ -65,18 +66,9 @@ public class CustomLog4jFactory {
 	private static synchronized void initLogger() {
 		System.out.println("initializing pigeon logger");
 		String logLevel = configManager.getStringValue("pigeon.log.level", "info");
-		String logSuffix = configManager.getStringValue("pigeon.log.suffix", "default");
 		boolean logConsole = configManager.getBooleanValue("pigeon.log.console", true);
-		if (logSuffix == null || logSuffix.length() < 1) {
-			try {
-				logSuffix = (String) configManager.getStringValue("app.prefix");
-			} catch (Throwable e) {
-				System.out.println("no app.prefix found in config/pigeon.properties");
-			}
-		}
-
+		String logSuffix = configManager.getAppName();
 		Level level = parseLevel(logLevel);
-
 		LoggerRepository lr = new Hierarchy(rootLogger);
 		new DOMConfigurator()
 				.doConfigure(CustomLog4jFactory.class.getClassLoader().getResource("pigeon_log4j.xml"), lr);
@@ -94,20 +86,20 @@ public class CustomLog4jFactory {
 				// logFileAppender.setThreshold(level);
 				String logFileName = logFileAppender.getFile();
 				File deleteFile = new File(logFileName);
-				if (logSuffix != null) {
+				if (StringUtils.isNotBlank(logSuffix)) {
 					logFileName = logFileName.replace(".log", "." + logSuffix + ".log");
 				}
 				if (bizLogDir != null) {
 					File logFile = new File(bizLogDir, logFileName);
 					logFileName = logFile.getAbsolutePath();
 				}
-				if (logSuffix != null || bizLogDir != null) {
+				if (StringUtils.isNotBlank(logSuffix) || bizLogDir != null) {
 					logFileAppender.setFile(logFileName);
 					logFileAppender.activateOptions();
 					if (deleteFile.exists()) {
 						deleteFile.delete();
 					}
-					System.out.println(logFileAppender.getFile() + ":" + logFileName);
+					System.out.println("pigeon log file:" + logFileName);
 				}
 			} else if (ConsoleAppender.class.isInstance(appender)) {
 				ConsoleAppender consoleAppender = (ConsoleAppender) appender;

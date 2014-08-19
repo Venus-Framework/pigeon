@@ -51,6 +51,9 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 	private int DEFAULT_POOL_RATIO_QUEUE = ConfigManagerLoader.getConfigManager().getIntValue(
 			"pigeon.provider.pool.ratio.queue", 2);
 
+	private final float cancelRatio = ConfigManagerLoader.getConfigManager().getFloatValue(
+			"pigeon.timeout.cancelratio", 1f);
+
 	public RequestThreadPoolProcessor(ServerConfig serverConfig) {
 		if ("server".equals(poolStrategy)) {
 			requestProcessThreadPool = new DefaultThreadPool("Pigeon-Server-Request-Processor-"
@@ -202,5 +205,16 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 				}
 			}
 		}
+	}
+
+	@Override
+	public boolean needCancelRequest(InvocationRequest request) {
+		ThreadPool pool = selectThreadPool(request);
+		return pool.getExecutor().getPoolSize() >= pool.getExecutor().getMaximumPoolSize() * cancelRatio;
+	}
+
+	@Override
+	public void doStart() {
+
 	}
 }

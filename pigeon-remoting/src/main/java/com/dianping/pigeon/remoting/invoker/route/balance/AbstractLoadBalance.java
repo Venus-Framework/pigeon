@@ -18,7 +18,7 @@ import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
-import com.dianping.pigeon.remoting.invoker.route.support.RouterHelper;
+import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 
 public abstract class AbstractLoadBalance implements LoadBalance {
 
@@ -32,7 +32,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 			return null;
 		}
 		Client selectedClient = null;
-		String forceAddress = RouterHelper.getAddress();
+		String forceAddress = InvokerHelper.getAddress();
 		if (forceAddress != null && forceAddress.length() > 0) {
 			// 客户端强制路由
 			for (Client client : clients) {

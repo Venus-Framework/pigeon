@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -297,6 +298,18 @@ public class ZookeeperRegistry implements Registry {
 		} catch (Throwable e) {
 			throw new RegistryException(e);
 		}
+	}
+
+	@Override
+	public Set<String> getReferencedServices() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<String> getRegisteredServices() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

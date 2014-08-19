@@ -4,11 +4,11 @@
  */
 package com.dianping.pigeon.config.lion;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dianping.lion.client.ConfigCache;
+import com.dianping.phoenix.config.ConfigServiceManager;
 import com.dianping.pigeon.config.AbstractConfigManager;
 
 /**
@@ -19,6 +19,8 @@ import com.dianping.pigeon.config.AbstractConfigManager;
 public class LionConfigManager extends AbstractConfigManager {
 
 	private static Logger logger = LoggerFactory.getLogger(LionConfigManager.class);
+
+	private static String appName = null;
 
 	/*
 	 * (non-Javadoc)
@@ -41,7 +43,16 @@ public class LionConfigManager extends AbstractConfigManager {
 
 	@Override
 	public String doGetAppName() throws Exception {
-		return "";
+		if (appName == null) {
+			try {
+				appName = ConfigServiceManager.getConfig().getAppName();
+			} catch (Throwable e) {
+			}
+			if ("NONAME".equals(appName)) {
+				return "";
+			}
+		}
+		return appName;
 	}
 
 	@Override

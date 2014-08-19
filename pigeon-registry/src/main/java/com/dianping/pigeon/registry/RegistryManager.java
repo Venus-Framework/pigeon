@@ -23,7 +23,6 @@ import com.dianping.pigeon.registry.config.RegistryConfigManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.util.Utils;
-import com.dianping.pigeon.util.NetUtils;
 
 public class RegistryManager {
 
@@ -163,11 +162,12 @@ public class RegistryManager {
 	public void setServiceWeight(String serviceAddress, int weight) {
 		HostInfo hostInfo = serviceAddrToHostInfo.get(serviceAddress);
 		if (hostInfo == null) {
-			logger.warn("Server " + serviceAddress + " does not exist");
+			if (!serviceAddress.startsWith(configManager.getLocalIp())) {
+				logger.warn("weight not found for address:" + serviceAddress);
+			}
 			return;
 		}
 		hostInfo.setWeight(weight);
-		// TODO deal with weight 0
 		logger.info("Set " + serviceAddress + " weight to " + weight);
 	}
 

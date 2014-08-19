@@ -35,11 +35,17 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 	protected static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
 
 	public AbstractRequestProcessor() {
-		timeCheckThreadPool.execute(new RequestTimeoutListener(this, requestContextMap));
 	}
 
 	public abstract Future<InvocationResponse> doProcessRequest(final InvocationRequest request,
 			final ProviderContext providerContext);
+
+	public abstract void doStart();
+
+	public void start() {
+		timeCheckThreadPool.execute(new RequestTimeoutListener(this, requestContextMap));
+		doStart();
+	}
 
 	public abstract void doStop();
 

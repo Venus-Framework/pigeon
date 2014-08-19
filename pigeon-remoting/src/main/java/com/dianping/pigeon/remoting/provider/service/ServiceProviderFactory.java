@@ -22,6 +22,7 @@ import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.status.Phase;
 import com.dianping.pigeon.remoting.common.status.StatusContainer;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.SecurityUtils;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
@@ -159,7 +160,11 @@ public final class ServiceProviderFactory {
 	}
 
 	private synchronized static <T> void publishService(String url, int port, String group) throws RegistryException {
-		String serverAddress = configManager.getLocalIp() + ":" + port;
+		String ip = configManager.getLocalIp();
+		if (!SecurityUtils.canRegister(ip)) {
+			throw new SecurityException("service registration of " + ip + " is not allowed!");
+		}
+		String serverAddress = ip + ":" + port;
 		int weight = Constants.WEIGHT_INITIAL;
 		boolean autoRegisterEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
 				Constants.KEY_AUTOREGISTER_ENABLE, true);

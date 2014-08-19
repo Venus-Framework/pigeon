@@ -13,6 +13,7 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.Channels;
 
+import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
@@ -28,9 +29,10 @@ import com.dianping.pigeon.remoting.netty.codec.NettyCodecUtils;
 
 public class InvokerEncoder extends AbstractEncoder {
 
-	private MonitorLogger monitor = ExtensionLoader.getExtension(Monitor.class).getLogger();
-	private static final int SIZE_1M = 2 << 20;
-	
+	private static MonitorLogger monitor = ExtensionLoader.getExtension(Monitor.class).getLogger();
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static final int requestSizeThreshold = configManager.getIntValue("pigeon.requestsize.threshold", 2 << 20);
+
 	public InvokerEncoder() {
 		super();
 	}
@@ -40,11 +42,11 @@ public class InvokerEncoder extends AbstractEncoder {
 		Object[] message = (Object[]) msg;
 		Object encoded = super.encode(ctx, channel, message[0]);
 		// TIMELINE_client_encoded
-		TimelineManager.time((InvocationSerializable)message[0], TimelineManager.getLocalIp(), Phase.ClientEncoded);
-		int size = ((ChannelBuffer)encoded).readableBytes();
-		if(size > SIZE_1M) {
+		TimelineManager.time((InvocationSerializable) message[0], TimelineManager.getLocalIp(), Phase.ClientEncoded);
+		int size = ((ChannelBuffer) encoded).readableBytes();
+		if (size > requestSizeThreshold) {
 			MonitorTransaction transaction = monitor.getCurrentTransaction();
-			if(transaction != null) {
+			if (transaction != null) {
 				transaction.addData("RequestSize", size);
 			}
 		}

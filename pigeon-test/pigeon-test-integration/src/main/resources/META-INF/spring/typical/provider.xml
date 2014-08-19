@@ -22,7 +22,7 @@
 		</property>
 	</bean>
 
-	<bean class="com.dianping.dpsf.spring.ServiceRegistry"
+	<!-- <bean class="com.dianping.dpsf.spring.ServiceRegistry"
 		init-method="init">
 		<property name="port">
 			<value>4050</value>
@@ -38,7 +38,7 @@
 		<property name="maxPoolSize">
 			<value>500</value>
 		</property>
-	</bean>
+	</bean> -->
 
 	<bean id="defaultUserServiceImpl" class="com.dianping.pigeon.demo.UserServiceDefaultImpl" />
 

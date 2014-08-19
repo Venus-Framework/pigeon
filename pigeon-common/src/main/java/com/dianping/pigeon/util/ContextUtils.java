@@ -12,19 +12,13 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.dianping.avatar.tracker.TrackerContext;
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 
-/**
- * 
- * 
- * @author jianhuihuang,saber miao
- * @version $Id: ContextUtil.java, v 0.1 2013-6-18 上午10:33:40 jianhuihuang Exp $
- */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public final class ContextUtils {
 
 	private ContextUtils() {
-
 	}
 
 	private static final Logger logger = LoggerLoader.getLogger(ContextUtils.class);
@@ -47,6 +41,10 @@ public final class ContextUtils {
 	private static Object[] defObjs = new Object[] {};
 
 	private static ThreadLocal<Map> localContext = new ThreadLocal<Map>();
+	
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+	
+	private static final boolean createContextIfNotExists = configManager.getBooleanValue("pigeon.context.createifnotexists", false);
 
 	static {
 
@@ -99,9 +97,9 @@ public final class ContextUtils {
 			StringBuilder sb = new StringBuilder();
 			sb.append(serviceName).append(".").append(methodName).append("@").append(host).append(":").append(port);
 			try {
-				// if (getContext() == null) {
-				// setContext(new TrackerContext());
-				// }
+				if (createContextIfNotExists && getContext() == null) {
+					setContext(new TrackerContext());
+				}
 				return createContextMethod.invoke(null, new Object[] { sb.toString() });
 			} catch (Throwable e) {
 				throw new RuntimeException(e);

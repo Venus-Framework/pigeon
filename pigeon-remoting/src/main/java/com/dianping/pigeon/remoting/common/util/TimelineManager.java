@@ -28,6 +28,7 @@ public class TimelineManager {
 	private static volatile ConcurrentHashMap<String, Timeline> sequenceMap = new ConcurrentHashMap<String, Timeline>();
 
 	private static boolean enabled;
+	private static boolean enabledLocalLog;
 	private static long abnormalThreshold;
 	private static long legacyThreshold;
 	private static long lastRemoveTime;
@@ -36,6 +37,7 @@ public class TimelineManager {
 	static {
 		ConfigManager config = ExtensionLoader.getExtension(ConfigManager.class);
 		enabled = config.getBooleanValue("pigeon.timeline.enabled", false);
+		enabledLocalLog = config.getBooleanValue("pigeon.timeline.locallog.enabled", false);
 		abnormalThreshold = config.getLongValue("pigeon.timeline.abnormal.threshold", 50);
 		legacyThreshold = config.getLongValue("pigeon.timeline.legacy.threshold", 60000);
 		localIp = config.getLocalIp();
@@ -81,6 +83,10 @@ public class TimelineManager {
 
 	public static boolean isEnabled() {
 		return enabled;
+	}
+
+	public static boolean isEnabledLocalLog() {
+		return enabledLocalLog;
 	}
 
 	public static String getLocalIp() {

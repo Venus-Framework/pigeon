@@ -23,6 +23,7 @@ import com.dianping.pigeon.remoting.invoker.domain.CallbackFuture;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.ServiceCallbackWrapper;
 import com.dianping.pigeon.remoting.invoker.domain.ServiceFutureImpl;
+import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.util.CollectionUtils;
 
@@ -56,6 +57,10 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 			if (methodConfig != null && methodConfig.getTimeout() > 0) {
 				timeout = methodConfig.getTimeout();
 			}
+		}
+		Integer timeoutThreadLocal = InvokerHelper.getTimeout();
+		if(timeoutThreadLocal != null) {
+			timeout = timeoutThreadLocal;
 		}
 		if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
 			CallbackFuture future = new CallbackFuture();

@@ -14,7 +14,7 @@
 		<property name="iface" value="com.dianping.pigeon.demo.EchoService" />
 		<property name="serialize" value="hessian" />
 		<property name="callMethod" value="sync" />
-		<property name="timeout" value="1000" />
+		<property name="timeout" value="800" />
 	</bean>
 
 	<bean id="echoServiceWithCallback" class="com.dianping.dpsf.spring.ProxyBeanFactory"

@@ -113,12 +113,6 @@ public class GlobalStatusChecker {
 			if (!StringUtils.isBlank(error)) {
 				props.put("error", error);
 			}
-
-			try {
-				props.put("registry", RegistryManager.getInstance().getRegistry().getName());
-			} catch (Throwable e) {
-				props.put("error", e.getMessage());
-			}
 		} else if (RegistryManager.getInitializeException() != null) {
 			Throwable t = RegistryManager.getInitializeException();
 			StringBuilder error = new StringBuilder(t.getMessage());

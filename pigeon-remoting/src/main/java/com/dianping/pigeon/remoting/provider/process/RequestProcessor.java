@@ -13,6 +13,8 @@ import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 
 public interface RequestProcessor {
 
+	public void start();
+	
 	public void stop();
 
 	public Future<InvocationResponse> processRequest(final InvocationRequest request, final ProviderContext providerContext);
@@ -24,4 +26,6 @@ public interface RequestProcessor {
 	public <T> void addService(ProviderConfig<T> providerConfig);
 	
 	public <T> void removeService(ProviderConfig<T> providerConfig);
+	
+	public boolean needCancelRequest(InvocationRequest request);
 }

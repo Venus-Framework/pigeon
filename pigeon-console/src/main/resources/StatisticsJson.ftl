@@ -12,7 +12,7 @@
 		"processorStatistics": "${serverProcessorStatistics[key]}"
 	}<#if key_has_next>,</#if>
 </#list>
-],"serverProcessorStatistics": [
+],"serverWeightStatistics": [
 <#list weightFactors?keys as key>
 	{
 		"server": "${key}",

@@ -66,7 +66,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		}
 		try {
 			return handler.handle(invocationContext);
-		} catch(NetTimeoutException e) {
+		} catch (NetTimeoutException e) {
 			timeout = true;
 			if (transaction != null) {
 				try {
@@ -94,11 +94,14 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		} finally {
 			if (transaction != null) {
 				try {
-					if(TimelineManager.isEnabled() && 
-					  (timeout || TimelineManager.isAbnormalTimeline(request, TimelineManager.getLocalIp()))) {
+					if (TimelineManager.isEnabled()
+							&& (timeout || TimelineManager.isAbnormalTimeline(request, TimelineManager.getLocalIp()))) {
 						Timeline timeline = TimelineManager.getTimeline(request, TimelineManager.getLocalIp());
 						transaction.addData("Timeline", timeline);
-						RemoteCallMonitorInvokeFilter.logger.warn(String.format("request- %s, timeline- %s", request, timeline));
+						if (TimelineManager.isEnabledLocalLog()) {
+							RemoteCallMonitorInvokeFilter.logger.warn(String.format("request- %s, timeline- %s",
+									request, timeline));
+						}
 					}
 					transaction.complete();
 				} catch (Throwable e) {

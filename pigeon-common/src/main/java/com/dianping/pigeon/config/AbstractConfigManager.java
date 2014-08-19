@@ -123,6 +123,9 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			strValue = System.getProperty(key);
 		}
 		if (strValue == null) {
+			strValue = System.getenv(key);
+		}
+		if (strValue == null) {
 			try {
 				strValue = doGetLocalProperty(key);
 			} catch (Throwable e) {
@@ -172,10 +175,25 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			strValue = System.getProperty(key);
 		}
 		if (strValue == null) {
+			strValue = System.getenv(key);
+		}
+		if (strValue == null) {
 			try {
 				strValue = doGetLocalProperty(key);
 			} catch (Throwable e) {
 				logger.error("error while reading local config[" + key + "]:" + e.getMessage());
+			}
+		}
+		if (strValue == null && StringUtils.isNotBlank(getAppName())) {
+			if (!key.startsWith(getAppName())) {
+				try {
+					strValue = doGetProperty(getAppName() + "." + key);
+					if (strValue != null && logger.isInfoEnabled()) {
+						logger.info("read from config server with key[" + getAppName() + "." + key + "]:" + strValue);
+					}
+				} catch (Throwable e) {
+					logger.error("error while reading property[" + getAppName() + "." + key + "]:" + e.getMessage());
+				}
 			}
 		}
 		if (strValue == null) {
@@ -296,6 +314,9 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			}
 			if (value != null) {
 				localCache.put(KEY_APP_NAME, value);
+			}
+			if (StringUtils.isNotBlank(value)) {
+				logger.info("app name:" + value);
 			}
 		}
 		return value;
