@@ -1,6 +1,8 @@
-package com.dianping.pigeon.governor.task;
+package com.dianping.pigeon.governor.service;
 
 import org.apache.log4j.Logger;
+
+import com.dianping.pigeon.governor.task.HealthCheckManager;
 
 public class HealthCheckBean {
 

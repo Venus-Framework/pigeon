@@ -1,4 +1,4 @@
-package com.dianping.pigeon.governor.task;
+package com.dianping.pigeon.governor.util;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -11,8 +11,8 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.governor.task.Constants.Action;
-import com.dianping.pigeon.governor.task.Constants.Host;
+import com.dianping.pigeon.governor.util.Constants.Action;
+import com.dianping.pigeon.governor.util.Constants.Host;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
 

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.commons.lang.ClassUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
@@ -28,15 +27,6 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 	private static final Logger logger = LoggerLoader.getLogger(JacksonSerializer.class);
 
 	ObjectMapper mapper = new ObjectMapper();
-
-	public static boolean support() {
-		try {
-			ClassUtils.getClass("com.fasterxml.jackson.databind.ObjectMapper");
-			return true;
-		} catch (ClassNotFoundException e) {
-			return false;
-		}
-	}
 
 	public JacksonSerializer() {
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);

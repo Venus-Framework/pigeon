@@ -24,8 +24,9 @@ import com.dianping.lion.client.ConfigCache;
 import com.dianping.lion.client.ConfigChange;
 import com.dianping.lion.client.LionException;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.governor.task.Constants.Action;
-import com.dianping.pigeon.governor.task.Constants.Environment;
+import com.dianping.pigeon.governor.util.Constants;
+import com.dianping.pigeon.governor.util.Constants.Action;
+import com.dianping.pigeon.governor.util.Constants.Environment;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
 

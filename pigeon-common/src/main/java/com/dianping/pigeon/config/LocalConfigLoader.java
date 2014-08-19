@@ -7,13 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import com.dianping.pigeon.util.FileUtils;
 
 public class LocalConfigLoader {
-
-	private static Logger logger = Logger.getLogger(LocalConfigLoader.class);
 
 	private static final String DEV_PROPERTIES_PATH = "config/applicationContext.properties";
 
@@ -96,7 +92,7 @@ public class LocalConfigLoader {
 			boolean changed = loadProperties(results, FileUtils.readFile(new FileInputStream(GLOBAL_PROPERTIES_PATH)));
 			hasChange = !hasChange ? changed : hasChange;
 		} catch (Throwable e) {
-			logger.error("", e);
+			System.out.println("load pigeon config:" + e.getMessage());
 		}
 		try {
 			boolean changed = loadProperties(
@@ -105,7 +101,7 @@ public class LocalConfigLoader {
 							.getResourceAsStream(PROPERTIES_PATH)));
 			hasChange = !hasChange ? changed : hasChange;
 		} catch (Throwable e) {
-			logger.error("", e);
+			System.out.println("load pigeon config:" + e.getMessage());
 		}
 		if (configManager != null) {
 			String env = configManager.getEnv();
@@ -117,7 +113,7 @@ public class LocalConfigLoader {
 									.getResourceAsStream(DEV_PROPERTIES_PATH)));
 					hasChange = !hasChange ? changed : hasChange;
 				} catch (Throwable e) {
-					logger.error("", e);
+					System.out.println("load pigeon config:" + e.getMessage());
 				}
 			}
 			try {
@@ -127,7 +123,7 @@ public class LocalConfigLoader {
 								.getResourceAsStream("config/pigeon_" + env + ".properties")));
 				hasChange = !hasChange ? changed : hasChange;
 			} catch (Throwable e) {
-				logger.error("", e);
+				System.out.println("load pigeon config:" + e.getMessage());
 			}
 		}
 		recentCache = results;

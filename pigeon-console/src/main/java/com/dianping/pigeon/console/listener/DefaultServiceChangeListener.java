@@ -92,6 +92,9 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		url.append("&group=").append(group);
 		url.append("&ip=").append(ip);
 		url.append("&port=").append(providerConfig.getServerConfig().getActualPort());
+		if (StringUtils.isNotBlank(configManager.getAppName())) {
+			url.append("&app=").append(configManager.getAppName());
+		}
 
 		failedNotifyEvents.remove(providerConfig.getUrl());
 		boolean isSuccess = false;

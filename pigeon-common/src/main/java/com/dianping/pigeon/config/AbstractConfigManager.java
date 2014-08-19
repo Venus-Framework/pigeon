@@ -316,7 +316,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				localCache.put(KEY_APP_NAME, value);
 			}
 			if (StringUtils.isNotBlank(value)) {
-				logger.info("app name:" + value);
+				System.out.println("app name:" + value);
 			}
 		}
 		return value;

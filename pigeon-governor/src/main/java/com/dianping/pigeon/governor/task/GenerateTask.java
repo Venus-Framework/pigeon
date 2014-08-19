@@ -10,9 +10,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.governor.task.Constants.Environment;
-import com.dianping.pigeon.governor.task.Constants.Host;
-import com.dianping.pigeon.governor.task.Constants.Service;
+import com.dianping.pigeon.governor.util.Constants.Environment;
+import com.dianping.pigeon.governor.util.Constants.Host;
+import com.dianping.pigeon.governor.util.Constants.Service;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
 

@@ -6,6 +6,7 @@ package com.dianping.pigeon.remoting.common.codec;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
@@ -51,14 +52,26 @@ public final class SerializerFactory {
 			registerSerializer(SERIALIZE_JAVA, new JavaSerializer());
 			registerSerializer(SERIALIZE_HESSIAN, new HessianSerializer());
 			registerSerializer(SERIALIZE_HESSIAN1, new Hessian1Serializer());
-			if (ProtobufSerializer.support()) {
+			boolean supportProtobuf = false;
+			try {
+				ClassUtils.getClass("com.google.protobuf.MessageOrBuilder");
+				supportProtobuf = true;
+			} catch (ClassNotFoundException e) {
+			}
+			if (supportProtobuf) {
 				try {
 					registerSerializer(SERIALIZE_PROTOBUF, new ProtobufSerializer());
 				} catch (Throwable t) {
 					logger.warn("failed to initialize protobuf serializer:" + t.getMessage());
 				}
 			}
-			if (JacksonSerializer.support()) {
+			boolean supportJackson = true;
+			try {
+				ClassUtils.getClass("com.fasterxml.jackson.databind.ObjectMapper");
+			} catch (ClassNotFoundException e) {
+				supportJackson = false;
+			}
+			if (supportJackson) {
 				try {
 					registerSerializer(SERIALIZE_JSON, new JacksonSerializer());
 				} catch (Throwable t) {

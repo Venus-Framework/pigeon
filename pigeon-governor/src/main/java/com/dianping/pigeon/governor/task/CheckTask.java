@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.dpsf.protocol.DefaultRequest;
-import com.dianping.pigeon.governor.task.Constants.Host;
+import com.dianping.pigeon.governor.util.Constants.Host;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
