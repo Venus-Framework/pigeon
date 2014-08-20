@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -14,15 +12,12 @@ import org.apache.zookeeper.KeeperException.NoNodeException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.registry.Registry;
-import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.registry.listener.ServiceSiblingChangeListener;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.zookeeper.Utils;
 import com.dianping.pigeon.util.CollectionUtils;
 
-public class CuratorRegistry implements Registry {
+public class CuratorRegistry {
 
 	private static Logger logger = LoggerLoader.getLogger(CuratorRegistry.class);
 
@@ -34,53 +29,31 @@ public class CuratorRegistry implements Registry {
 
 	private boolean inited = false;
 
-	private ConcurrentHashMap<String, Object> registeredServices = new ConcurrentHashMap<String, Object>();
-
 	private final int expirationTime = configManager.getIntValue("pigeon.registry.ephemeralnode.expirationtime", 5000);
 
-	private ConcurrentHashMap<String, Object> referencedServices = new ConcurrentHashMap<String, Object>();
+	private ServiceOfflineListener serviceOfflineListener;
 
-	private ServiceSiblingChangeListener serviceSiblingChangeListener;
-
-	@Override
 	public void init(Properties properties) {
 		this.properties = properties;
 		if (!inited) {
 			try {
-				serviceSiblingChangeListener = new ServiceSiblingChangeListener() {
-
-					private String localIp = configManager.getLocalIp();
-					private String group = configManager.getGroup();
+				serviceOfflineListener = new ServiceOfflineListener() {
 
 					@Override
-					public void siblingAdded(String serviceName, String host) {
-						// do nothing
-					}
-
-					@Override
-					public void siblingRemoved(String serviceName, String host) {
-						if (registeredServices.containsKey(serviceName)) {
-							try {
-								List<String> hostList = getNewServiceAddress(serviceName, group);
-								Collections.sort(hostList);
-								if (hostList.size() > 0 && hostList.get(0).startsWith(localIp)) {
-									for (String h : hostList) {
-										if (h.equals(host)) {
-											unregisterEphemeralNode(serviceName, group, h);
-											return;
-										}
-									}
-									unregisterPersistentNode(serviceName, group, host);
+					public void offline(String serviceName, String host, String group) {
+						try {
+							List<String> hostList = getNewServiceAddress(serviceName, group);
+							Collections.sort(hostList);
+							for (String h : hostList) {
+								if (h.equals(host)) {
+									unregisterEphemeralNode(serviceName, group, h);
+									return;
 								}
-							} catch (Exception e) {
-								logger.error("", e);
 							}
+							unregisterPersistentNode(serviceName, group, host);
+						} catch (Exception e) {
+							logger.error("", e);
 						}
-					}
-
-					@Override
-					public void siblingWeightChanged(String serviceName, String host) {
-						// do nothing
 					}
 
 				};
@@ -94,79 +67,14 @@ public class CuratorRegistry implements Registry {
 		}
 	}
 
-	@Override
 	public String getName() {
 		return "curator";
 	}
 
-	@Override
 	public String getValue(String key) {
 		return properties.getProperty(key);
 	}
 
-	@Override
-	public String getServiceAddress(String serviceName) throws RegistryException {
-		return getServiceAddress(serviceName, Constants.DEFAULT_GROUP);
-	}
-
-	@Override
-	public String getServiceAddress(String serviceName, String group) throws RegistryException {
-		String addr = getServiceActualAddress(serviceName, group);
-		addReferencedService(serviceName, group);
-		return addr;
-	}
-
-	public String getServiceActualAddress(String serviceName, String group) throws RegistryException {
-		try {
-			String oldSrvAddr = getOldServiceAddress(serviceName, group);
-			// List<String> newSrvAddr = getNewServiceAddress(serviceName,
-			// group);
-			// String addr = mergeServiceAddress(oldSrvAddr, newSrvAddr);
-			return oldSrvAddr;
-		} catch (Exception e) {
-			logger.error("failed to get service address for " + serviceName + "/" + group, e);
-			throw new RegistryException(e);
-		}
-	}
-
-	private void addReferencedService(String serviceName, String group) {
-		if (StringUtils.isBlank(group)) {
-			group = Constants.DEFAULT_GROUP;
-		}
-		referencedServices.put(serviceName, group);
-	}
-
-	public Set<String> getReferencedServices() {
-		return referencedServices.keySet();
-	}
-
-	public boolean isRefefrencedService(String serviceName, String group) {
-		// String g = (String) referencedServices.get(serviceName);
-		// if (StringUtils.isBlank(group)) {
-		// group = Constants.DEFAULT_GROUP;
-		// }
-		return referencedServices.containsKey(serviceName);
-	}
-
-	public Set<String> getRegisteredServices() {
-		return registeredServices.keySet();
-	}
-
-	private String mergeServiceAddress(String oldSrvAddr, List<String> newSrvAddr) {
-		List<String> mergedList = (newSrvAddr == null ? new ArrayList<String>() : newSrvAddr);
-		if (oldSrvAddr != null) {
-			String[] addrList = oldSrvAddr.split(",");
-			for (String addr : addrList) {
-				addr = addr.trim();
-				if (addr.length() > 0 && !mergedList.contains(addr)) {
-					mergedList.add(addr);
-				}
-			}
-		}
-		return StringUtils.join(mergedList.iterator(), ',');
-	}
-
-	@SuppressWarnings("unchecked")
 	List<String> getNewServiceAddress(String serviceName, String group) throws Exception {
 		String path = Utils.getEphemeralServicePath(serviceName, group);
 		List<String> serverList = client.getChildren(path);
@@ -178,49 +86,7 @@ public class CuratorRegistry implements Registry {
 		return serverList;
 	}
 
-	String getOldServiceAddress(String serviceName, String group) throws Exception {
-		String path = Utils.getServicePath(serviceName, group);
-		String address = client.get(path);
-		if (!StringUtils.isBlank(group)) {
-			boolean fallback2DefaultGroup = false;
-			if (StringUtils.isBlank(address)) {
-				fallback2DefaultGroup = true;
-			} else {
-				String[] addressArray = address.split(",");
-				int weightCount = 0;
-				for (String addr : addressArray) {
-					addr = addr.trim();
-					if (addr.length() > 0) {
-						int weight = RegistryManager.getInstance().getServiceWeight(addr);
-						if (weight > 0) {
-							weightCount += weight;
-						}
-					}
-				}
-				if (weightCount == 0) {
-					fallback2DefaultGroup = true;
-					logger.info("weight is 0 with address:" + address);
-				}
-			}
-			if (fallback2DefaultGroup) {
-				logger.info("node " + path + " does not exist, fallback to default group");
-				path = Utils.getServicePath(serviceName, Constants.DEFAULT_GROUP);
-				address = client.get(path);
-			}
-		}
-		return address;
-	}
-
-	@Override
-	public void registerService(String serviceName, String group, String serviceAddress, int weight)
-			throws RegistryException {
-		registerEphemeralNode(serviceName, group, serviceAddress, weight);
-		registerPersistentNode(serviceName, group, serviceAddress, weight);
-		watchSelf(serviceName, group, serviceAddress);
-	}
-
 	void watchSelf(String serviceName, String group, String serviceAddress) throws RegistryException {
-		registeredServices.putIfAbsent(serviceName, serviceAddress);
 		String parentPath = Utils.getEphemeralServicePath(serviceName, group);
 		try {
 			client.watchChildren(parentPath);
@@ -287,16 +153,13 @@ public class CuratorRegistry implements Registry {
 		}
 	}
 
-	@Override
 	public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
 		unregisterService(serviceName, Constants.DEFAULT_GROUP, serviceAddress);
 	}
 
-	@Override
 	public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
 		unregisterEphemeralNode(serviceName, group, serviceAddress);
 		unregisterPersistentNode(serviceName, group, serviceAddress);
-		registeredServices.remove(serviceName);
 	}
 
 	void unregisterEphemeralNode(String serviceName, String group, String serviceAddress) throws RegistryException {
@@ -363,7 +226,6 @@ public class CuratorRegistry implements Registry {
 		}
 	}
 
-	@Override
 	public int getServerWeight(String serverAddress) throws RegistryException {
 		String path = Utils.getWeightPath(serverAddress);
 		String strWeight;
@@ -384,20 +246,7 @@ public class CuratorRegistry implements Registry {
 		}
 	}
 
-	@Override
-	public void setServerWeight(String serverAddress, int weight) throws RegistryException {
-		String path = Utils.getWeightPath(serverAddress);
-		try {
-			client.set(path, weight);
-		} catch (Throwable e) {
-			logger.error("failed to set weight of " + serverAddress + " to " + weight);
-			throw new RegistryException(e);
-		}
-	}
-
-	@Override
 	public List<String> getChildren(String path) throws RegistryException {
-		// FIXME where is this used?
 		try {
 			List<String> children = client.getChildren(path);
 			return children;
@@ -415,7 +264,7 @@ public class CuratorRegistry implements Registry {
 		return client;
 	}
 
-	public ServiceSiblingChangeListener getServiceSiblingChangeListener() {
-		return serviceSiblingChangeListener;
+	public ServiceOfflineListener getServiceOfflineListener() {
+		return serviceOfflineListener;
 	}
 }

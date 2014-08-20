@@ -32,16 +32,19 @@ public class Client {
 		User user = new User();
 		user.setUsername("jason");
 		User[] users = new User[] { user };
-		while (true) {
-			try {
-				// echoService.echo("hi");
-				PhoenixContext.getInstance().setRequestId("aaaa1111111");
-				ExecutionContextHolder.setTrackerContext(new TrackerContext());
-				System.out.println(echoService.echo("hi"));
-			} catch (Exception e) {
-			}
+//		while (true) {
+//			try {
+//				// echoService.echo("hi");
+//				PhoenixContext.getInstance().setRequestId("aaaa1111111");
+//				ExecutionContextHolder.setTrackerContext(new TrackerContext());
+//				System.out.println(echoService.echo("hi"));
+//			} catch (Exception e) {
+//			}
+//		}
+		User[] results = userService.getUserDetail(users, true);
+		for(User u : results) {
+			System.out.println(u);
 		}
-		// System.out.println(userService.getUserDetail(users, true));
 		// echoServiceWithCallback.echo("echoServiceWithCallback_input");
 	}
 

@@ -5,15 +5,27 @@
 package com.dianping.pigeon.demo;
 
 import java.io.Serializable;
+import java.util.List;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 public interface UserService {
 
 	User[] getUserDetail(User[] users, boolean withPassword);
 
-	public static class User implements Serializable {
+	public static class User<T> implements Serializable {
 		private String username;
 		private String email;
 		private String password;
+		private List<T> roles;
+
+		public List<T> getRoles() {
+			return roles;
+		}
+
+		public void setRoles(List<T> roles) {
+			this.roles = roles;
+		}
 
 		public String getUsername() {
 			return username;
@@ -40,7 +52,27 @@ public interface UserService {
 		}
 
 		public String toString() {
-			return username + "," + email + "," + password;
+			return ToStringBuilder.reflectionToString(this);
+		}
+	}
+
+	public static class Role implements Serializable {
+		private String roleName;
+
+		public Role(String name) {
+			roleName = name;
+		}
+
+		public String getRoleName() {
+			return roleName;
+		}
+
+		public void setRoleName(String roleName) {
+			this.roleName = roleName;
+		}
+
+		public String toString() {
+			return ToStringBuilder.reflectionToString(this);
 		}
 	}
 

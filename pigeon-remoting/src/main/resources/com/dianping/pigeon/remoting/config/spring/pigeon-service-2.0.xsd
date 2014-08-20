@@ -18,18 +18,18 @@
 				<xsd:documentation><![CDATA[ The method name. ]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="timeout" type="xsd:int" use="optional"
+		<xsd:attribute name="timeout" type="xsd:string" use="optional"
 			default="5000">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[ The method invoke timeout. ]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="retries" type="xsd:int" use="optional">
+		<xsd:attribute name="retries" type="xsd:string" use="optional">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[ The method retry times. ]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="actives" type="xsd:int" use="optional">
+		<xsd:attribute name="actives" type="xsd:string" use="optional">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[ The max active requests. ]]></xsd:documentation>
 			</xsd:annotation>
@@ -58,15 +58,15 @@
 						default="default" />
 					<xsd:attribute name="callType" type="xsd:string"
 						default="sync" />
-					<xsd:attribute name="timeout" type="xsd:int" default="5000" />
+					<xsd:attribute name="timeout" type="xsd:string" default="5000" />
 					<xsd:attribute name="loadBalance" type="xsd:string"
 						default="roundRobin" />
 					<xsd:attribute name="loadBalanceClass" type="xsd:string"
 						default="" />
 					<xsd:attribute name="cluster" type="xsd:string"
 						default="failfast" />
-					<xsd:attribute name="retries" type="xsd:int" default="1" />
-					<xsd:attribute name="timeoutRetry" type="xsd:boolean"
+					<xsd:attribute name="retries" type="xsd:string" default="1" />
+					<xsd:attribute name="timeoutRetry" type="xsd:string"
 						default="false" />
 					<xsd:attribute name="callback" type="xsd:string" />
 					<xsd:attribute name="group" type="xsd:string" />
@@ -89,11 +89,11 @@
 						use="required" />
 					<xsd:attribute name="ref" type="xsd:string" use="required" />
 					<xsd:attribute name="server" type="xsd:string" />
-					<xsd:attribute name="port" type="xsd:int" default="4040" />
+					<xsd:attribute name="port" type="xsd:string" default="4040" />
 					<xsd:attribute name="version" type="xsd:string" />
-					<xsd:attribute name="cancelTimeout" type="xsd:boolean"
+					<xsd:attribute name="cancelTimeout" type="xsd:string"
 						default="false" />
-					<xsd:attribute name="useSharedPool" type="xsd:boolean"
+					<xsd:attribute name="useSharedPool" type="xsd:string"
 						default="true" />
 				</xsd:extension>
 			</xsd:complexContent>
@@ -105,16 +105,16 @@
 			<xsd:complexContent>
 				<xsd:extension base="beans:identifiedType">
 					<xsd:attribute name="group" type="xsd:string" />
-					<xsd:attribute name="port" type="xsd:int" default="4040" />
-					<xsd:attribute name="httpPort" type="xsd:int"
+					<xsd:attribute name="port" type="xsd:string" default="4040" />
+					<xsd:attribute name="httpPort" type="xsd:string"
 						default="4080" />
-					<xsd:attribute name="autoSelectPort" type="xsd:boolean"
+					<xsd:attribute name="autoSelectPort" type="xsd:string"
 						default="true" />
-					<xsd:attribute name="corePoolSize" type="xsd:int"
+					<xsd:attribute name="corePoolSize" type="xsd:string"
 						default="150" />
-					<xsd:attribute name="maxPoolSize" type="xsd:int"
+					<xsd:attribute name="maxPoolSize" type="xsd:string"
 						default="300" />
-					<xsd:attribute name="workQueueSize" type="xsd:int"
+					<xsd:attribute name="workQueueSize" type="xsd:string"
 						default="300" />
 				</xsd:extension>
 			</xsd:complexContent>

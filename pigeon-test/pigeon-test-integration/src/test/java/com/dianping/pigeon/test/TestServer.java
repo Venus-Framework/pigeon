@@ -39,7 +39,7 @@ public class TestServer extends JettyServer {
 		// open the page in the default browser
 		display("/inspect/status");
 
-		new SpringContainer("classpath*:META-INF/spring/typical/provider.xml").start();
+		new SpringContainer("classpath*:META-INF/spring/typical/invoker.xml").start();
 
 		waitForAnyKey();
 	}
