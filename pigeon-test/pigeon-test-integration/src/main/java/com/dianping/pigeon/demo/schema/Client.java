@@ -23,7 +23,7 @@ public class Client {
 		EchoService echoServiceWithCallback = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithCallback");
 
 		System.out.println(echoService.echo("echoService_input"));
-		echoServiceWithCallback.echo("echoServiceWithCallback_input");
+		//echoServiceWithCallback.echo("echoServiceWithCallback_input");
 	}
 
 }

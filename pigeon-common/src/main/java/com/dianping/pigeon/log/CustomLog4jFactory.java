@@ -19,8 +19,7 @@ import org.apache.log4j.spi.LoggerRepository;
 import org.apache.log4j.spi.RootLogger;
 import org.apache.log4j.xml.DOMConfigurator;
 
-import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.config.LocalConfigLoader;
 
 /**
  * <p>
@@ -39,7 +38,6 @@ public class CustomLog4jFactory {
 	private CustomLog4jFactory() {
 	}
 
-	private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 	private static final String LOGGER_NAME = "com.dianping.pigeon";
 	public static final Logger rootLogger = new RootLogger(Level.WARN);
 	private static LoggerRepository loggerRepository = null;
@@ -65,9 +63,20 @@ public class CustomLog4jFactory {
 
 	private static synchronized void initLogger() {
 		System.out.println("initializing pigeon logger");
-		String logLevel = configManager.getStringValue("pigeon.log.level", "info");
-		boolean logConsole = configManager.getBooleanValue("pigeon.log.console", true);
-		String logSuffix = configManager.getAppName();
+		Map<String, Object> properties = LocalConfigLoader.load(null);
+		String logLevel = (String) properties.get("pigeon.log.level");
+		if (StringUtils.isBlank(logLevel)) {
+			logLevel = "info";
+		}
+		boolean logConsole = true;
+		String strlogConsole = (String) properties.get("pigeon.log.console");
+		if (StringUtils.isNotBlank(strlogConsole)) {
+			logConsole = Boolean.valueOf(strlogConsole);
+		}
+		String logSuffix = (String) properties.get("app.name");
+		if (StringUtils.isBlank(logSuffix)) {
+			logLevel = "";
+		}
 		Level level = parseLevel(logLevel);
 		LoggerRepository lr = new Hierarchy(rootLogger);
 		new DOMConfigurator()
