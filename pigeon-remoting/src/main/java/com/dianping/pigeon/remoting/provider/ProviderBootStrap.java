@@ -16,6 +16,7 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -59,6 +60,7 @@ public final class ProviderBootStrap {
 				config.setMaxPoolSize(maxPoolSize);
 				config.setWorkQueueSize(workQueueSize);
 			}
+			RegistryManager.getInstance();
 			List<Server> servers = ExtensionLoader.getExtensionList(Server.class);
 			for (Server server : servers) {
 				if (!server.isStarted()) {

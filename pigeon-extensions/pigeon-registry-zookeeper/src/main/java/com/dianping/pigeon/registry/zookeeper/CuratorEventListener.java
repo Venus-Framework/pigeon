@@ -102,7 +102,7 @@ public class CuratorEventListener implements CuratorListener {
 			String hosts = client.get(pathInfo.path);
 			logger.info("Service address changed, path " + pathInfo.path + " value " + hosts);
 			List<String[]> hostDetail = Utils.getServiceIpPortList(hosts);
-			if (registry.isRefefrencedService(pathInfo.serviceName, pathInfo.group)) {
+			if (registry.isReferencedService(pathInfo.serviceName, pathInfo.group)) {
 				serviceChangeListener.onServiceHostChange(pathInfo.serviceName, hostDetail);
 			}
 		}
@@ -120,7 +120,7 @@ public class CuratorEventListener implements CuratorListener {
 			String hosts = registry.getServiceActualAddress(pathInfo.serviceName, pathInfo.group);
 			logger.info("ephemeral service address changed, path " + pathInfo.path + " value " + hosts);
 			List<String[]> hostDetail = Utils.getServiceIpPortList(hosts);
-			if (registry.isRefefrencedService(pathInfo.serviceName, pathInfo.group)) {
+			if (registry.isReferencedService(pathInfo.serviceName, pathInfo.group)) {
 				serviceChangeListener.onServiceHostChange(pathInfo.serviceName, hostDetail);
 			}
 		}
@@ -149,13 +149,13 @@ public class CuratorEventListener implements CuratorListener {
 			logger.info("ephemeral service address changed, path " + pathInfo.path + ", added:" + added + ", removed:"
 					+ removed);
 			for (String host : removed) {
-				if (registry.isRefefrencedService(pathInfo.serviceName, pathInfo.group)) {
+				if (registry.isReferencedService(pathInfo.serviceName, pathInfo.group)) {
 					serviceChangeListener.onHostRemoved(pathInfo.serviceName, host);
 				}
 				registry.getServiceSiblingChangeListener().siblingRemoved(pathInfo.serviceName, host);
 			}
 			for (String host : added) {
-				if (registry.isRefefrencedService(pathInfo.serviceName, pathInfo.group)) {
+				if (registry.isReferencedService(pathInfo.serviceName, pathInfo.group)) {
 					serviceChangeListener.onHostAdded(pathInfo.serviceName, host);
 				}
 			}
@@ -220,9 +220,15 @@ public class CuratorEventListener implements CuratorListener {
 			pathInfo = new PathInfo(path);
 			pathInfo.type = EPHEMERAL_ADDRESS;
 			pathInfo.serviceName = path.substring(Constants.EPHEMERAL_SERVICE_PATH.length() + 1);
-			int idx = pathInfo.serviceName.indexOf('@');
+			int idx = pathInfo.serviceName.lastIndexOf("@@");
 			if (idx != -1) {
-				pathInfo.group = pathInfo.serviceName.substring(idx + 1);
+				String group = pathInfo.serviceName.substring(idx + 2);
+				int i = group.indexOf("/");
+				int k = group.indexOf(":");
+				if (i != -1 && k != -1) {
+					group = group.substring(0, i);
+				}
+				pathInfo.group = group;
 				pathInfo.serviceName = pathInfo.serviceName.substring(0, idx);
 			}
 			pathInfo.serviceName = Utils.unescapeServiceName(pathInfo.serviceName);

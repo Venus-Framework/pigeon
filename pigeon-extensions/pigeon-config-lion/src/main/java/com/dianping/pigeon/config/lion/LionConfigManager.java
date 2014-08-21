@@ -7,7 +7,9 @@ package com.dianping.pigeon.config.lion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
+import com.dianping.lion.client.LionException;
 import com.dianping.phoenix.config.ConfigServiceManager;
 import com.dianping.pigeon.config.AbstractConfigManager;
 
@@ -22,6 +24,23 @@ public class LionConfigManager extends AbstractConfigManager {
 
 	private static String appName = null;
 
+	private ConfigCache configCache = null;
+
+	private ConfigCache getConfigCache() throws LionException {
+		if (configCache == null) {
+			synchronized (this) {
+				if (configCache == null) {
+					try {
+						configCache = ConfigCache.getInstance();
+					} catch (Exception e) {
+						configCache = ConfigCache.getInstance(getConfigServerAddress());
+					}
+				}
+			}
+		}
+		return configCache;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -30,15 +49,15 @@ public class LionConfigManager extends AbstractConfigManager {
 	 */
 	@Override
 	public String doGetProperty(String key) throws Exception {
-		return ConfigCache.getInstance(getConfigServerAddress()).getProperty(key);
+		return getConfigCache().getProperty(key);
 	}
 
 	public String getConfigServerAddress() {
-		return EnvironmentConfigLoader.getConfigServerAddress();
+		return EnvZooKeeperConfig.getZKAddress();
 	}
 
 	public String doGetEnv() throws Exception {
-		return EnvironmentConfigLoader.getEnv();
+		return EnvZooKeeperConfig.getEnv();
 	}
 
 	@Override
@@ -62,7 +81,7 @@ public class LionConfigManager extends AbstractConfigManager {
 
 	@Override
 	public String doGetGroup() throws Exception {
-		return EnvironmentConfigLoader.getSwimlane();
+		return EnvZooKeeperConfig.getSwimlane();
 	}
 
 	@Override

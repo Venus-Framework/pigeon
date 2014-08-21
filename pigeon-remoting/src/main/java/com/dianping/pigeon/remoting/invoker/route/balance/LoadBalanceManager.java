@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -138,6 +139,18 @@ public class LoadBalanceManager {
 			return w * defaultFactor;
 		} else {
 			return w * wf.getFactor();
+		}
+	}
+
+	public static void destroy() throws Exception {
+		if (loadbalanceThreadPool != null) {
+			try {
+				loadbalanceThreadPool.getExecutor().shutdown();
+				loadbalanceThreadPool.getExecutor().awaitTermination(2, TimeUnit.SECONDS);
+				loadbalanceThreadPool = null;
+			} catch (InterruptedException e) {
+				logger.warn("interrupted when shuting down the query executor:\n{}", e);
+			}
 		}
 	}
 

@@ -86,6 +86,7 @@ public class CuratorRegistry implements Registry {
 				String zkAddress = properties.getProperty(Constants.KEY_REGISTRY_ADDRESS);
 				logger.info("start to initialize zookeeper client:" + zkAddress);
 				client = new CuratorClient(zkAddress, this);
+				logger.info("succeed to initialize zookeeper client:" + zkAddress);
 			} catch (Exception ex) {
 				logger.error("failed to initialize zookeeper client", ex);
 			}
@@ -139,7 +140,7 @@ public class CuratorRegistry implements Registry {
 		return referencedServices.keySet();
 	}
 
-	public boolean isRefefrencedService(String serviceName, String group) {
+	public boolean isReferencedService(String serviceName, String group) {
 		// String g = (String) referencedServices.get(serviceName);
 		// if (StringUtils.isBlank(group)) {
 		// group = Constants.DEFAULT_GROUP;

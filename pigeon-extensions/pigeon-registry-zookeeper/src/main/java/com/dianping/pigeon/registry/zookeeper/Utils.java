@@ -41,7 +41,7 @@ public class Utils {
 		StringBuilder sb = new StringBuilder(Constants.EPHEMERAL_SERVICE_PATH);
 		sb.append(Constants.PATH_SEPARATOR).append(escapeServiceName(serviceName));
 		if (!StringUtils.isBlank(group)) {
-			sb.append('@').append(group);
+			sb.append("@@").append(group);
 		}
 		return sb.toString();
 	}
@@ -50,7 +50,7 @@ public class Utils {
 		StringBuilder sb = new StringBuilder(Constants.EPHEMERAL_SERVICE_PATH);
 		sb.append(Constants.PATH_SEPARATOR).append(escapeServiceName(serviceName));
 		if (!StringUtils.isBlank(group)) {
-			sb.append('@').append(group);
+			sb.append("@@").append(group);
 		}
 		sb.append(Constants.PATH_SEPARATOR).append(serviceAddress);
 		return sb.toString();

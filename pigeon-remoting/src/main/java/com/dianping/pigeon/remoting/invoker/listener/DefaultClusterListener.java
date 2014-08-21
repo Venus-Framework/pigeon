@@ -16,8 +16,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.ClientSelector;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
@@ -42,6 +45,11 @@ public class DefaultClusterListener implements ClusterListener {
 
 	private ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
+	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	private boolean isRetryIfUnavailableAddress = configManager.getBooleanValue("pigeon.unavailableaddress.retry",
+			false);
+
 	public DefaultClusterListener(HeartBeatListener heartbeatListener, ReconnectListener reconnectListener,
 			ProviderAvailableListener providerAvailableListener) {
 		this.heartbeatListener = heartbeatListener;
@@ -59,8 +67,29 @@ public class DefaultClusterListener implements ClusterListener {
 	public List<Client> getClientList(InvokerConfig<?> invokerConfig) {
 		List<Client> clientList = this.serviceClients.get(invokerConfig.getUrl());
 		if (CollectionUtils.isEmpty(clientList)) {
-			throw new ServiceUnavailableException("no available provider for service:" + invokerConfig.getUrl()
-					+ ", group:" + invokerConfig.getGroup());
+			if (isRetryIfUnavailableAddress) {
+				synchronized (this) {
+					clientList = this.serviceClients.get(invokerConfig.getUrl());
+					if (CollectionUtils.isEmpty(clientList)) {
+						if (logger.isInfoEnabled()) {
+							logger.info("try to find service providers for service:" + invokerConfig.getUrl());
+						}
+						ClientManager.getInstance().registerServiceInvokers(invokerConfig.getUrl(),
+								invokerConfig.getGroup(), invokerConfig.getVip());
+						clientList = this.serviceClients.get(invokerConfig.getUrl());
+						if (CollectionUtils.isEmpty(clientList)) {
+							throw new ServiceUnavailableException("no available provider for service:"
+									+ invokerConfig.getUrl());
+						} else {
+							logger.info("found service providers:[" + clientList + "] for service:"
+									+ invokerConfig.getUrl());
+						}
+					}
+				}
+			} else {
+				throw new ServiceUnavailableException("no available provider for service:" + invokerConfig.getUrl()
+						+ ", group:" + invokerConfig.getGroup());
+			}
 		}
 		return clientList;
 	}

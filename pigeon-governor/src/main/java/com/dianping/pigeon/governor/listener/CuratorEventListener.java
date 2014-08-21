@@ -1,9 +1,7 @@
 package com.dianping.pigeon.governor.listener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CuratorEvent;
@@ -26,6 +24,7 @@ public class CuratorEventListener implements CuratorListener {
 	private static final int ADDRESS = 1;
 	private static final int WEIGHT = 2;
 	private static final int EPHEMERAL_ADDRESS = 3;
+	private static final int SERVICE = 4;
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
@@ -33,8 +32,6 @@ public class CuratorEventListener implements CuratorListener {
 	private CuratorClient client;
 
 	private ServiceOfflineListener serviceOfflineListener = null;
-
-	private Map<String, List<String>> ephemeralAddresses = new HashMap<String, List<String>>();
 
 	public CuratorEventListener(CuratorRegistry registry, CuratorClient client) {
 		this.registry = registry;
@@ -62,16 +59,21 @@ public class CuratorEventListener implements CuratorListener {
 				return;
 			}
 
-			if (pathInfo.type == EPHEMERAL_ADDRESS) {
-				if (EventType.NodeCreated == event.getType()) {
-					ephemeralAddressCreated(pathInfo);
-				} else if (EventType.NodeDeleted == event.getType()) {
-					this.client.watch(event.getPath());
-				} else if (EventType.NodeChildrenChanged == event.getType()) {
+			if (pathInfo.type == SERVICE) {
+				registry.getServices().addAll(this.client.getChildren(pathInfo.path));
+				for (String service : registry.getServices()) {
+					System.out.println(service);
+					String servicePath = "/DP/SERVICE/" + service;
+					List<String> nodes = this.client.getChildren(servicePath);
+					registry.getEphemeralAddresses().put(servicePath, nodes);
+					System.out.println(nodes);
+				}
+			} else if (pathInfo.type == EPHEMERAL_ADDRESS) {
+				if (EventType.NodeChildrenChanged == event.getType()) {
 					ephemeralAddressChanged(pathInfo);
 				}
 				String servicePath = Utils.getServicePath(pathInfo.path);
-				ephemeralAddresses.put(servicePath, this.client.getChildren(servicePath));
+				registry.getEphemeralAddresses().put(servicePath, this.client.getChildren(servicePath));
 			}
 		} catch (Throwable e) {
 			logger.error("Error in ZookeeperWatcher.process()", e);
@@ -86,14 +88,8 @@ public class CuratorEventListener implements CuratorListener {
 		logger.info(sb);
 	}
 
-	private void ephemeralAddressCreated(PathInfo pathInfo) throws Exception {
-
-		String parentPath = Utils.getEphemeralServicePath(pathInfo.serviceName, pathInfo.group);
-		client.watchChildren(parentPath);
-	}
-
 	private void ephemeralAddressChanged(PathInfo pathInfo) throws Exception {
-		List<String> lastChildren = ephemeralAddresses.get(pathInfo.path);
+		List<String> lastChildren = registry.getEphemeralAddresses().get(pathInfo.path);
 		List<String> children = client.getChildren(pathInfo.path);
 		List<String> removed = new ArrayList<String>();
 		if (!CollectionUtils.isEmpty(lastChildren)) {
@@ -130,13 +126,22 @@ public class CuratorEventListener implements CuratorListener {
 			pathInfo = new PathInfo(path);
 			pathInfo.type = WEIGHT;
 			pathInfo.server = path.substring(Constants.WEIGHT_PATH.length() + 1);
+		} else if (path.equals(Constants.EPHEMERAL_SERVICE_PATH)) {
+			pathInfo = new PathInfo(path);
+			pathInfo.type = SERVICE;
 		} else if (path.startsWith(Constants.EPHEMERAL_SERVICE_PATH)) {
 			pathInfo = new PathInfo(path);
 			pathInfo.type = EPHEMERAL_ADDRESS;
 			pathInfo.serviceName = path.substring(Constants.EPHEMERAL_SERVICE_PATH.length() + 1);
-			int idx = pathInfo.serviceName.indexOf('@');
+			int idx = pathInfo.serviceName.lastIndexOf("@@");
 			if (idx != -1) {
-				pathInfo.group = pathInfo.serviceName.substring(idx + 1);
+				String group = pathInfo.serviceName.substring(idx + 2);
+				int i = group.indexOf("/");
+				int k = group.indexOf(":");
+				if (i != -1 && k != -1) {
+					group = group.substring(0, i);
+				}
+				pathInfo.group = group;
 				pathInfo.serviceName = pathInfo.serviceName.substring(0, idx);
 			}
 			pathInfo.serviceName = Utils.unescapeServiceName(pathInfo.serviceName);

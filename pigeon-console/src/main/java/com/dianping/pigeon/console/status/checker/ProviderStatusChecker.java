@@ -46,7 +46,10 @@ public class ProviderStatusChecker implements StatusChecker {
 							item.put("service", key);
 							item.put("to", client.getAddress());
 							item.put("weight", RegistryManager.getInstance().getServiceWeight(client.getAddress()));
-							int requests = buckets.get(client.getAddress()).getLastSecondRequest();
+							int requests = 0;
+							if (client.getAddress() != null && buckets.get(client.getAddress()) != null) {
+								requests = buckets.get(client.getAddress()).getLastSecondRequest();
+							}
 							item.put("requestsInLastSecond", requests);
 							providers.add(item);
 						}

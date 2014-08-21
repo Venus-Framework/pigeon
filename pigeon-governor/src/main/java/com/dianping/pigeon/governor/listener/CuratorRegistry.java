@@ -2,8 +2,11 @@ package com.dianping.pigeon.governor.listener;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -25,16 +28,25 @@ public class CuratorRegistry {
 
 	private CuratorClient client;
 
-	private Properties properties;
-
 	private boolean inited = false;
 
 	private final int expirationTime = configManager.getIntValue("pigeon.registry.ephemeralnode.expirationtime", 5000);
 
 	private ServiceOfflineListener serviceOfflineListener;
 
-	public void init(Properties properties) {
-		this.properties = properties;
+	private Map<String, List<String>> ephemeralAddresses = new HashMap<String, List<String>>();
+
+	private Set<String> services = new HashSet<String>();
+
+	public Map<String, List<String>> getEphemeralAddresses() {
+		return ephemeralAddresses;
+	}
+
+	public Set<String> getServices() {
+		return services;
+	}
+
+	public void init(String address) {
 		if (!inited) {
 			try {
 				serviceOfflineListener = new ServiceOfflineListener() {
@@ -57,9 +69,8 @@ public class CuratorRegistry {
 					}
 
 				};
-				String zkAddress = properties.getProperty(Constants.KEY_REGISTRY_ADDRESS);
-				logger.info("start to initialize zookeeper client:" + zkAddress);
-				client = new CuratorClient(zkAddress, this);
+				logger.info("start to initialize zookeeper client:" + address);
+				client = new CuratorClient(address, this);
 			} catch (Exception ex) {
 				logger.error("failed to initialize zookeeper client", ex);
 			}
@@ -69,10 +80,6 @@ public class CuratorRegistry {
 
 	public String getName() {
 		return "curator";
-	}
-
-	public String getValue(String key) {
-		return properties.getProperty(key);
 	}
 
 	List<String> getNewServiceAddress(String serviceName, String group) throws Exception {

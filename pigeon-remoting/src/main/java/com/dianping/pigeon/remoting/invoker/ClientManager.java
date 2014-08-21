@@ -108,6 +108,13 @@ public class ClientManager implements Disposable {
 	}
 
 	public String getServiceAddress(String serviceName, String group, String vip) {
+		while (!RegistryManager.isInitialized()) {
+			logger.info("waitting for registry initialized");
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+			}
+		}
 		String serviceAddress = null;
 		try {
 			if (!StringUtils.isBlank(vip)
@@ -118,6 +125,7 @@ public class ClientManager implements Disposable {
 				serviceAddress = RegistryManager.getInstance().getServiceAddress(serviceName, group);
 			}
 		} catch (Throwable e) {
+			logger.error("cannot get service provider for service:" + serviceName, e);
 			throw new ServiceUnavailableException("cannot get service provider for service:" + serviceName, e);
 		}
 
