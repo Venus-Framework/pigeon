@@ -2,7 +2,6 @@ package com.dianping.pigeon.remoting.provider.listener;
 
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -11,7 +10,7 @@ import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 
-public class ServiceInitializeListener implements ApplicationListener {
+public class ServiceInitializeListener {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceInitializeListener.class);
 

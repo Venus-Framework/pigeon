@@ -37,10 +37,11 @@ public class OverviewStatus extends AbstractComponentStatus {
 		if (StringUtils.isNotBlank(error)) {
 			return State.FAILED;
 		}
+		String phase = (String) props.get("phase");
+
 		if (!GlobalStatusChecker.isInitialized()) {
-			return State.INITIALIZING;
-		} else {
-			String phase = (String) props.get("phase");
+			return State.INITIALIZED;
+		} else if (StringUtils.isNotBlank(phase)) {
 			if (phase.equals(Phase.TOUNPUBLISH.toString()) || phase.equals(Phase.UNPUBLISHED.toString())
 					|| phase.equals(Phase.OFFLINE.toString())) {
 				return State.MARKED_DOWN;
@@ -57,6 +58,8 @@ public class OverviewStatus extends AbstractComponentStatus {
 				}
 				return State.INITIALIZED;
 			}
+		} else {
+			return State.INITIALIZED;
 		}
 	}
 

@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -25,6 +26,7 @@ public abstract class AbstractServer implements Server {
 	protected final Logger logger = LoggerLoader.getLogger(this.getClass());
 	RequestProcessor requestProcessor = null;
 	ServerConfig serverConfig = null;
+	boolean useLastPort = ConfigManagerLoader.getConfigManager().getBooleanValue("pigeon.port.uselast", true);
 
 	public abstract void doStart(ServerConfig serverConfig);
 
@@ -81,34 +83,38 @@ public abstract class AbstractServer implements Server {
 
 	public int getAvailablePort(int port) {
 		int lastPort = port;
-		String filePath = "/data/applogs/dpsflog/pigeon-port.conf";
-		File file = new File(filePath);
-		Properties properties = null;
-		String key = null;
-		try {
-			key = this.getClass().getResource("/").getPath() + port;
-			if (file.exists()) {
-				try {
-					properties = FileUtils.readFile(new FileInputStream(file));
-					String strLastPort = properties.getProperty(key);
-					if (StringUtils.isNotBlank(strLastPort)) {
-						lastPort = Integer.parseInt(strLastPort);
+		if (!useLastPort) {
+			lastPort = NetUtils.getAvailablePort(lastPort);
+		} else {
+			String filePath = "/data/applogs/dpsflog/pigeon-port.conf";
+			File file = new File(filePath);
+			Properties properties = null;
+			String key = null;
+			try {
+				key = this.getClass().getResource("/").getPath() + port;
+				if (file.exists()) {
+					try {
+						properties = FileUtils.readFile(new FileInputStream(file));
+						String strLastPort = properties.getProperty(key);
+						if (StringUtils.isNotBlank(strLastPort)) {
+							lastPort = Integer.parseInt(strLastPort);
+						}
+					} catch (Throwable e) {
 					}
-				} catch (Throwable e) {
 				}
+			} catch (RuntimeException e) {
 			}
-		} catch (RuntimeException e) {
-		}
-		lastPort = NetUtils.getAvailablePort(lastPort);
-		if (properties == null) {
-			properties = new Properties();
-		}
-		if (key != null) {
-			properties.put(key, lastPort);
-		}
-		try {
-			FileUtils.writeFile(file, properties);
-		} catch (IOException e) {
+			lastPort = NetUtils.getAvailablePort(lastPort);
+			if (properties == null) {
+				properties = new Properties();
+			}
+			if (key != null) {
+				properties.put(key, lastPort);
+			}
+			try {
+				FileUtils.writeFile(file, properties);
+			} catch (IOException e) {
+			}
 		}
 		return lastPort;
 	}

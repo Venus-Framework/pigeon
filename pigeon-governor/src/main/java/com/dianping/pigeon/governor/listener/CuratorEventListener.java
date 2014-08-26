@@ -10,8 +10,6 @@ import org.apache.log4j.Logger;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
 
-import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.zookeeper.Utils;
@@ -25,8 +23,6 @@ public class CuratorEventListener implements CuratorListener {
 	private static final int WEIGHT = 2;
 	private static final int EPHEMERAL_ADDRESS = 3;
 	private static final int SERVICE = 4;
-
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	private CuratorRegistry registry;
 	private CuratorClient client;
@@ -49,7 +45,7 @@ public class CuratorEventListener implements CuratorListener {
 			return;
 		}
 
-		if (logger.isInfoEnabled())
+		if (logger.isDebugEnabled())
 			logEvent(event);
 
 		try {
@@ -62,11 +58,9 @@ public class CuratorEventListener implements CuratorListener {
 			if (pathInfo.type == SERVICE) {
 				registry.getServices().addAll(this.client.getChildren(pathInfo.path));
 				for (String service : registry.getServices()) {
-					System.out.println(service);
 					String servicePath = "/DP/SERVICE/" + service;
 					List<String> nodes = this.client.getChildren(servicePath);
 					registry.getEphemeralAddresses().put(servicePath, nodes);
-					System.out.println(nodes);
 				}
 			} else if (pathInfo.type == EPHEMERAL_ADDRESS) {
 				if (EventType.NodeChildrenChanged == event.getType()) {
@@ -85,7 +79,7 @@ public class CuratorEventListener implements CuratorListener {
 		StringBuilder sb = new StringBuilder();
 		sb.append("zookeeper event received, type: ").append(event.getType()).append(", path: ")
 				.append(event.getPath());
-		logger.info(sb);
+		logger.debug(sb);
 	}
 
 	private void ephemeralAddressChanged(PathInfo pathInfo) throws Exception {
@@ -98,7 +92,8 @@ public class CuratorEventListener implements CuratorListener {
 		if (!CollectionUtils.isEmpty(children)) {
 			removed.removeAll(children);
 		}
-		logger.info("ephemeral service address changed, path " + pathInfo.path + ", removed:" + removed);
+		if (logger.isDebugEnabled())
+			logger.debug("ephemeral service address changed, path " + pathInfo.path + ", removed:" + removed);
 		for (String host : removed) {
 			serviceOfflineListener.offline(pathInfo.serviceName, host, pathInfo.group);
 		}

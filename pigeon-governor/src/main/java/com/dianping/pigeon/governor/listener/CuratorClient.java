@@ -40,8 +40,8 @@ public class CuratorClient {
         if(exists(path)) {
             byte[] bytes = client.getData().forPath(path);
             String value = new String(bytes, CHARSET);
-            if(logger.isInfoEnabled()) {
-                logger.info("get value of node " + path + ", value " + value);
+            if(logger.isDebugEnabled()) {
+                logger.debug("get value of node " + path + ", value " + value);
             }
             return value;
         } else {
@@ -99,8 +99,8 @@ public class CuratorClient {
     public List<String> getChildren(String path) throws Exception {
         try {
             List<String> children = client.getChildren().watched().forPath(path);
-            if(logger.isInfoEnabled()) {
-                logger.info("get children of node " + path + ": " + StringUtils.join(children.iterator(), ','));
+            if(logger.isDebugEnabled()) {
+				logger.debug("get children of node " + path + ": " + StringUtils.join(children.iterator(), ','));
             }
             return children;
         } catch(KeeperException.NoNodeException e) {

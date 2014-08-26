@@ -60,13 +60,13 @@ public class ProviderAvailableListener implements Runnable {
 					for (String serviceName : this.getWorkingClients().keySet()) {
 						boolean isAvailable = isAvailableClients(this.getWorkingClients().get(serviceName));
 						if (!isAvailable) {
-							logger.info("check provider available, no available provider for service:" + serviceName);
+							logger.warn("check provider available, no available provider for service:" + serviceName);
 							ClientManager.getInstance().registerServiceInvokers(serviceName, configManager.getGroup(),
 									null);
 							if (StringUtils.isNotBlank(configManager.getGroup())) {
 								isAvailable = isAvailableClients(this.getWorkingClients().get(serviceName));
 								if (!isAvailable) {
-									logger.info("check provider available with default group, no available provider for service:"
+									logger.warn("check provider available with default group, no available provider for service:"
 											+ serviceName);
 									ClientManager.getInstance().registerServiceInvokers(serviceName,
 											Constants.DEFAULT_GROUP, null);
@@ -78,13 +78,13 @@ public class ProviderAvailableListener implements Runnable {
 				Map<String, Set<HostInfo>> serviceHosts = RegistryManager.getInstance().getAllServiceServers();
 				for (String serviceName : serviceHosts.keySet()) {
 					if (!this.getWorkingClients().containsKey(serviceName)) {
-						logger.info("check provider available, no available provider for service:" + serviceName);
+						logger.warn("check provider available, no available provider for service:" + serviceName);
 						ClientManager.getInstance()
 								.registerServiceInvokers(serviceName, configManager.getGroup(), null);
 						if (StringUtils.isNotBlank(configManager.getGroup())) {
 							boolean isAvailable = isAvailableClients(this.getWorkingClients().get(serviceName));
 							if (!isAvailable) {
-								logger.info("check provider available with default group, no available provider for service:"
+								logger.warn("check provider available with default group, no available provider for service:"
 										+ serviceName);
 								ClientManager.getInstance().registerServiceInvokers(serviceName,
 										Constants.DEFAULT_GROUP, null);

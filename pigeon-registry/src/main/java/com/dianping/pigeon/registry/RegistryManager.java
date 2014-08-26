@@ -59,9 +59,13 @@ public class RegistryManager {
 
 	public static RegistryManager getInstance() {
 		if (!isInit) {
-			instance.init(registryConfigManager.getRegistryConfig());
-			initializeException = null;
-			isInit = true;
+			synchronized (RegistryManager.class) {
+				if (!isInit) {
+					instance.init(registryConfigManager.getRegistryConfig());
+					initializeException = null;
+					isInit = true;
+				}
+			}
 		}
 		return instance;
 	}

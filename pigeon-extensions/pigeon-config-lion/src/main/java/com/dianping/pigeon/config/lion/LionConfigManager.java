@@ -81,7 +81,7 @@ public class LionConfigManager extends AbstractConfigManager {
 
 	@Override
 	public String doGetGroup() throws Exception {
-		return EnvZooKeeperConfig.getSwimlane();
+		return getConfigCache().getAppenv("swimlane");
 	}
 
 	@Override

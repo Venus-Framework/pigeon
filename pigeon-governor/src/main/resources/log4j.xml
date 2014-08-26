@@ -1,49 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration PUBLIC "-//log4j/log4j Configuration//EN" "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/"
-    threshold="null" debug="null">
+	threshold="null" debug="null">
 
-    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-        <param name="Target" value="System.out" />
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %t %-5p [%c{1}:%L] %m%n" />
-        </layout>
-    </appender>
+	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %t %-5p [%c{1}:%L] %m%n" />
+		</layout>
+	</appender>
 
-    <appender name="FILE" class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="/data/applogs/dpsflog/pigeon-governor.log" />
-        <param name="MaxFileSize" value="5MB" />
-        <param name="MaxBackupIndex" value="5" />
-        <param name="Append" value="true" />
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %t %-5p [%c:%L] %m%n" />
-        </layout>
-    </appender>
+	<appender name="FILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="/data/applogs/dpsflog/pigeon-governor.log" />
+		<param name="MaxFileSize" value="5MB" />
+		<param name="MaxBackupIndex" value="5" />
+		<param name="Append" value="true" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %t %-5p [%c:%L] %m%n" />
+		</layout>
+	</appender>
 
-<!--     <logger name="com.dianping" additivity="true"> -->
-<!--         <level value ="INFO"/> -->
-<!--     </logger> -->
+	<logger name="com.dianping.pigeon.governor" additivity="true">
+		<level value="INFO" />
+	</logger>
 
-    <logger name="com.dianping.pigeon.config" additivity="true">
-        <level value ="ERROR"/>
-    </logger>
+	<logger name="com.dianping.pigeon.config" additivity="true">
+		<level value="ERROR" />
+	</logger>
 
-    <logger name="com.dianping.lion.client" additivity="true">
-        <level value ="ERROR"/>
-    </logger>
+	<logger name="com.dianping.pigeon.registry" additivity="true">
+		<level value="ERROR" />
+	</logger>
 
-    <logger name="com.dianping.pigeon.registry.zookeeper" additivity="true">
-        <level value ="ERROR"/>
-    </logger>
+	<logger name="com.dianping.lion.client" additivity="true">
+		<level value="ERROR" />
+	</logger>
 
-    <logger name="org.apache" additivity="true">
-        <level value ="ERROR"/>
-    </logger>
+	<logger name="com.dianping.pigeon.registry.zookeeper"
+		additivity="true">
+		<level value="ERROR" />
+	</logger>
 
-    <root>
-        <level value="INFO" />
-        <appender-ref ref="CONSOLE" />
-        <appender-ref ref="FILE" />
-    </root>
+	<logger name="org.apache" additivity="true">
+		<level value="ERROR" />
+	</logger>
+
+	<root>
+		<level value="WARN" />
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="FILE" />
+	</root>
 
 </log4j:configuration>

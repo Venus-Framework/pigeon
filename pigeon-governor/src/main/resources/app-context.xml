@@ -60,17 +60,24 @@
 	<tx:annotation-driven />
 
 	<!-- define the SqlSessionFactory -->
-<!-- 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"> -->
-<!-- 		<property name="dataSource" ref="dataSource" /> -->
-<!-- 		<property name="typeAliasesPackage" value="com.dianping.pigeon.governor.domain" /> -->
-<!-- 		<property name="mapperLocations" -->
-<!-- 			value="classpath:com/dianping/pigeon/governor/persistence/*.xml" /> -->
-<!-- 	</bean> -->
+	<!-- <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"> -->
+	<!-- <property name="dataSource" ref="dataSource" /> -->
+	<!-- <property name="typeAliasesPackage" value="com.dianping.pigeon.governor.domain" 
+		/> -->
+	<!-- <property name="mapperLocations" -->
+	<!-- value="classpath:com/dianping/pigeon/governor/persistence/*.xml" /> -->
+	<!-- </bean> -->
 
 	<!-- enable component scanning (beware that this does not enable mapper 
 		scanning!) -->
 	<context:component-scan base-package="com.dianping.pigeon.governor.service" />
 
-    <bean id="healthCheck" class="com.dianping.pigeon.governor.service.HealthCheckBean" lazy-init="false" init-method="init">
-    </bean>
+	<bean id="healthCheck" class="com.dianping.pigeon.governor.task.HealthCheckBean"
+		lazy-init="false" init-method="init">
+	</bean>
+
+	<bean id="offlineListener"
+		class="com.dianping.pigeon.governor.listener.OfflineListenerBean"
+		lazy-init="false" init-method="init">
+	</bean>
 </beans>

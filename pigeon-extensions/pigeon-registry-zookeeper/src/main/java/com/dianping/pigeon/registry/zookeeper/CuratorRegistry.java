@@ -31,11 +31,17 @@ public class CuratorRegistry implements Registry {
 
 	private Properties properties;
 
-	private boolean inited = false;
+	private volatile boolean inited = false;
 
 	private ConcurrentHashMap<String, Object> registeredServices = new ConcurrentHashMap<String, Object>();
 
 	private final int expirationTime = configManager.getIntValue("pigeon.registry.ephemeralnode.expirationtime", 5000);
+
+	private final boolean enableSiblingChange = configManager.getBooleanValue("pigeon.registry.siblingchange.enable",
+			true);
+
+	private final boolean delEmptyNode = configManager.getBooleanValue("pigeon.registry.siblingchange.delemptynode",
+			true);
 
 	private ConcurrentHashMap<String, Object> referencedServices = new ConcurrentHashMap<String, Object>();
 
@@ -45,52 +51,60 @@ public class CuratorRegistry implements Registry {
 	public void init(Properties properties) {
 		this.properties = properties;
 		if (!inited) {
-			try {
-				serviceSiblingChangeListener = new ServiceSiblingChangeListener() {
+			synchronized (this) {
+				if (!inited) {
+					try {
+						serviceSiblingChangeListener = new ServiceSiblingChangeListener() {
 
-					private String localIp = configManager.getLocalIp();
-					private String group = configManager.getGroup();
+							private String localIp = configManager.getLocalIp();
+							private String group = configManager.getGroup();
 
-					@Override
-					public void siblingAdded(String serviceName, String host) {
-						// do nothing
-					}
-
-					@Override
-					public void siblingRemoved(String serviceName, String host) {
-						if (registeredServices.containsKey(serviceName)) {
-							try {
-								List<String> hostList = getNewServiceAddress(serviceName, group);
-								Collections.sort(hostList);
-								if (hostList.size() > 0 && hostList.get(0).startsWith(localIp)) {
-									for (String h : hostList) {
-										if (h.equals(host)) {
-											unregisterEphemeralNode(serviceName, group, h);
-											return;
-										}
-									}
-									unregisterPersistentNode(serviceName, group, host);
-								}
-							} catch (Exception e) {
-								logger.error("", e);
+							@Override
+							public void siblingAdded(String serviceName, String host) {
+								// do nothing
 							}
-						}
-					}
 
-					@Override
-					public void siblingWeightChanged(String serviceName, String host) {
-						// do nothing
-					}
+							@Override
+							public void siblingRemoved(String serviceName, String host) {
+								if (enableSiblingChange && registeredServices.containsKey(serviceName)) {
+									try {
+										List<String> hostList = getEphemeralServiceAddress(serviceName, group);
+										if (!CollectionUtils.isEmpty(hostList)) {
+											Collections.sort(hostList);
+											if (hostList.get(0).startsWith(localIp)) {
+												for (String h : hostList) {
+													if (h.equals(host)) {
+														// unregisterEphemeralNode(serviceName,
+														// group, h);
+														logger.info("existing sibling node:" + host);
+														return;
+													}
+												}
+												unregisterPersistentNode(serviceName, group, host);
+											}
+										}
+									} catch (Exception e) {
+										logger.error("", e);
+									}
+								}
+							}
 
-				};
-				String zkAddress = properties.getProperty(Constants.KEY_REGISTRY_ADDRESS);
-				logger.info("start to initialize zookeeper client:" + zkAddress);
-				client = new CuratorClient(zkAddress, this);
-				logger.info("succeed to initialize zookeeper client:" + zkAddress);
-			} catch (Exception ex) {
-				logger.error("failed to initialize zookeeper client", ex);
+							@Override
+							public void siblingWeightChanged(String serviceName, String host) {
+								// do nothing
+							}
+
+						};
+						String zkAddress = properties.getProperty(Constants.KEY_REGISTRY_ADDRESS);
+						logger.info("start to initialize zookeeper client:" + zkAddress);
+						client = new CuratorClient(zkAddress, this);
+						logger.info("succeed to initialize zookeeper client:" + zkAddress);
+					} catch (Exception ex) {
+						logger.error("failed to initialize zookeeper client", ex);
+					}
+					inited = true;
+				}
 			}
-			inited = true;
 		}
 	}
 
@@ -150,6 +164,12 @@ public class CuratorRegistry implements Registry {
 
 	public Set<String> getRegisteredServices() {
 		return registeredServices.keySet();
+	}
+
+	private List<String> getEphemeralServiceAddress(String serviceName, String group) throws Exception {
+		String path = Utils.getEphemeralServicePath(serviceName, group);
+		List<String> serverList = client.getChildren(path);
+		return serverList;
 	}
 
 	private String mergeServiceAddress(String oldSrvAddr, List<String> newSrvAddr) {
@@ -299,7 +319,7 @@ public class CuratorRegistry implements Registry {
 		registeredServices.remove(serviceName);
 	}
 
-	void unregisterEphemeralNode(String serviceName, String group, String serviceAddress) throws RegistryException {
+	public void unregisterEphemeralNode(String serviceName, String group, String serviceAddress) throws RegistryException {
 		String path = Utils.getEphemeralServicePath(serviceName, group, serviceAddress);
 		try {
 			boolean exists = client.exists(path);
@@ -321,7 +341,7 @@ public class CuratorRegistry implements Registry {
 		}
 	}
 
-	void unregisterPersistentNode(String serviceName, String group, String serviceAddress) throws RegistryException {
+	public void unregisterPersistentNode(String serviceName, String group, String serviceAddress) throws RegistryException {
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
 			if (client.exists(servicePath)) {
@@ -342,10 +362,14 @@ public class CuratorRegistry implements Registry {
 					} else {
 						List<String> children = client.getChildren(servicePath);
 						if (CollectionUtils.isEmpty(children)) {
-							try {
-								client.delete(servicePath);
-							} catch (NoNodeException e) {
-								logger.warn("Already deleted path:" + servicePath + ":" + e.getMessage());
+							if (delEmptyNode) {
+								try {
+									client.delete(servicePath);
+								} catch (NoNodeException e) {
+									logger.warn("Already deleted path:" + servicePath + ":" + e.getMessage());
+								}
+							} else {
+								client.set(servicePath, "");
 							}
 						} else {
 							logger.warn("Existing children [" + children + "] under path:" + servicePath);

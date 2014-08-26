@@ -158,9 +158,6 @@ public class DefaultClusterListener implements ClusterListener {
 		if (logger.isInfoEnabled()) {
 			logger.info("[cluster listener] remove service provider:" + client);
 		}
-		if (logger.isInfoEnabled()) {
-			logger.info("[cluster listener] service providers:" + serviceClients);
-		}
 		for (String serviceName : this.serviceClients.keySet()) {
 			List<Client> clientList = this.serviceClients.get(serviceName);
 			if (clientList != null && clientList.contains(client)) {

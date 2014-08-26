@@ -14,9 +14,9 @@ import org.apache.zookeeper.KeeperException.NoNodeException;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.governor.util.Constants.Action;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.zookeeper.Utils;
 import com.dianping.pigeon.util.CollectionUtils;
 
@@ -38,6 +38,30 @@ public class CuratorRegistry {
 
 	private Set<String> services = new HashSet<String>();
 
+	private final boolean delEmptyNode = configManager.getBooleanValue("pigeon-governor.registry.delemptynode", false);
+
+	private String env;
+
+	private String address;
+
+	private Action action;
+
+	public String getEnv() {
+		return env;
+	}
+
+	public void setEnv(String env) {
+		this.env = env;
+	}
+
+	public Action getAction() {
+		return action;
+	}
+
+	public void setAction(Action action) {
+		this.action = action;
+	}
+
 	public Map<String, List<String>> getEphemeralAddresses() {
 		return ephemeralAddresses;
 	}
@@ -46,33 +70,18 @@ public class CuratorRegistry {
 		return services;
 	}
 
-	public void init(String address) {
+	public void init(String env, String address, Action action) {
 		if (!inited) {
 			try {
-				serviceOfflineListener = new ServiceOfflineListener() {
-
-					@Override
-					public void offline(String serviceName, String host, String group) {
-						try {
-							List<String> hostList = getNewServiceAddress(serviceName, group);
-							Collections.sort(hostList);
-							for (String h : hostList) {
-								if (h.equals(host)) {
-									unregisterEphemeralNode(serviceName, group, h);
-									return;
-								}
-							}
-							unregisterPersistentNode(serviceName, group, host);
-						} catch (Exception e) {
-							logger.error("", e);
-						}
-					}
-
-				};
-				logger.info("start to initialize zookeeper client:" + address);
+				serviceOfflineListener = new ServiceOfflineListener(this);
+				logger.warn(env + "#start to initialize zookeeper client:" + address);
 				client = new CuratorClient(address, this);
+				logger.warn(env + "#succeed to initialize zookeeper client:" + address);
+				this.env = env;
+				this.address = address;
+				this.action = action;
 			} catch (Exception ex) {
-				logger.error("failed to initialize zookeeper client", ex);
+				logger.error(env + "#failed to initialize zookeeper client", ex);
 			}
 			inited = true;
 		}
@@ -82,113 +91,10 @@ public class CuratorRegistry {
 		return "curator";
 	}
 
-	List<String> getNewServiceAddress(String serviceName, String group) throws Exception {
+	public List<String> getEphemeralServiceAddress(String serviceName, String group) throws Exception {
 		String path = Utils.getEphemeralServicePath(serviceName, group);
 		List<String> serverList = client.getChildren(path);
-		if (!StringUtils.isBlank(group) && CollectionUtils.isEmpty(serverList)) {
-			logger.info("node " + path + " does not exist or has no child, fallback to default group");
-			path = Utils.getEphemeralServicePath(serviceName, Constants.DEFAULT_GROUP);
-			serverList = client.getChildren(path);
-		}
 		return serverList;
-	}
-
-	void watchSelf(String serviceName, String group, String serviceAddress) throws RegistryException {
-		String parentPath = Utils.getEphemeralServicePath(serviceName, group);
-		try {
-			client.watchChildren(parentPath);
-		} catch (Exception e) {
-			logger.error("failed to watch " + parentPath, e);
-			throw new RegistryException(e);
-		}
-	}
-
-	void registerEphemeralNode(String serviceName, String group, String serviceAddress, int weight)
-			throws RegistryException {
-		String weightPath = Utils.getWeightPath(serviceAddress);
-		String servicePath = Utils.getEphemeralServicePath(serviceName, group, serviceAddress);
-		try {
-			if (weight >= 0) {
-				client.set(weightPath, weight);
-			}
-			boolean exists = client.exists(servicePath);
-			if (exists) {
-				if (logger.isInfoEnabled()) {
-					logger.info("delete existing ephemeral node: " + servicePath);
-				}
-				client.delete(servicePath);
-				Thread.sleep(expirationTime);
-			}
-			client.createEphemeral(servicePath);
-			if (logger.isInfoEnabled()) {
-				logger.info("registered service to ephemeral node: " + servicePath);
-			}
-		} catch (Exception e) {
-			logger.error("failed to register service to " + servicePath, e);
-			throw new RegistryException(e);
-		}
-	}
-
-	void registerPersistentNode(String serviceName, String group, String serviceAddress, int weight)
-			throws RegistryException {
-		String servicePath = Utils.getServicePath(serviceName, group);
-		try {
-			if (client.exists(servicePath)) {
-				String addressValue = client.get(servicePath);
-				String[] addressArray = addressValue.split(",");
-				List<String> addressList = new ArrayList<String>();
-				for (String addr : addressArray) {
-					addr = addr.trim();
-					if (addr.length() > 0 && !addressList.contains(addr)) {
-						addressList.add(addr.trim());
-					}
-				}
-				if (!addressList.contains(serviceAddress)) {
-					addressList.add(serviceAddress);
-					Collections.sort(addressList);
-					client.set(servicePath, StringUtils.join(addressList.iterator(), ","));
-				}
-			} else {
-				client.create(servicePath, serviceAddress);
-			}
-			if (logger.isInfoEnabled()) {
-				logger.info("registered service to persistent node: " + servicePath);
-			}
-		} catch (Throwable e) {
-			logger.error("failed to register service to " + servicePath, e);
-			throw new RegistryException(e);
-		}
-	}
-
-	public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
-		unregisterService(serviceName, Constants.DEFAULT_GROUP, serviceAddress);
-	}
-
-	public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
-		unregisterEphemeralNode(serviceName, group, serviceAddress);
-		unregisterPersistentNode(serviceName, group, serviceAddress);
-	}
-
-	void unregisterEphemeralNode(String serviceName, String group, String serviceAddress) throws RegistryException {
-		String path = Utils.getEphemeralServicePath(serviceName, group, serviceAddress);
-		try {
-			boolean exists = client.exists(path);
-			if (exists) {
-				client.delete(path);
-			}
-			// remove parent node if no child is there
-			String parentPath = Utils.getEphemeralServicePath(serviceName, group);
-			List<String> children = client.getChildren(parentPath);
-			if (CollectionUtils.isEmpty(children)) {
-				client.delete(parentPath);
-			}
-			if (logger.isInfoEnabled()) {
-				logger.info("unregistered service from " + path);
-			}
-		} catch (Throwable e) {
-			logger.error("failed to unregister service from " + path);
-			throw new RegistryException(e);
-		}
 	}
 
 	void unregisterPersistentNode(String serviceName, String group, String serviceAddress) throws RegistryException {
@@ -212,43 +118,25 @@ public class CuratorRegistry {
 					} else {
 						List<String> children = client.getChildren(servicePath);
 						if (CollectionUtils.isEmpty(children)) {
-							try {
-								client.delete(servicePath);
-							} catch (NoNodeException e) {
-								logger.warn("Already deleted path:" + servicePath + ":" + e.getMessage());
+							if (delEmptyNode) {
+								try {
+									client.delete(servicePath);
+								} catch (NoNodeException e) {
+									logger.warn(env + "#Already deleted path:" + servicePath + ":" + e.getMessage());
+								}
+							} else {
+								client.set(servicePath, "");
 							}
 						} else {
-							logger.warn("Existing children [" + children + "] under path:" + servicePath);
+							logger.warn(env + "#Existing children [" + children + "] under path:" + servicePath);
 							client.set(servicePath, "");
 						}
 					}
 				}
-				if (logger.isInfoEnabled()) {
-					logger.info("unregistered service from " + servicePath);
-				}
+				logger.warn(env + "#[" + this.address + "]unregistered service from " + servicePath);
 			}
 		} catch (Throwable e) {
-			logger.error("failed to unregister service from " + servicePath, e);
-			throw new RegistryException(e);
-		}
-	}
-
-	public int getServerWeight(String serverAddress) throws RegistryException {
-		String path = Utils.getWeightPath(serverAddress);
-		String strWeight;
-		try {
-			strWeight = client.get(path);
-			int result = Constants.WEIGHT_DEFAULT;
-			if (strWeight != null) {
-				try {
-					result = Integer.parseInt(strWeight);
-				} catch (NumberFormatException e) {
-					logger.warn("invalid weight for " + serverAddress + ": " + strWeight);
-				}
-			}
-			return result;
-		} catch (Throwable e) {
-			logger.error("failed to get weight for " + serverAddress);
+			logger.error(env + "#failed to unregister service from " + servicePath, e);
 			throw new RegistryException(e);
 		}
 	}
@@ -259,6 +147,24 @@ public class CuratorRegistry {
 			return children;
 		} catch (Throwable e) {
 			logger.error("failed to get children of node: " + path, e);
+			throw new RegistryException(e);
+		}
+	}
+
+	public boolean exists(String path) throws RegistryException {
+		try {
+			return client.exists(path);
+		} catch (Throwable e) {
+			logger.error("failed to get exists status of node: " + path, e);
+			throw new RegistryException(e);
+		}
+	}
+
+	public void create(String path) throws RegistryException {
+		try {
+			client.create(path);
+		} catch (Throwable e) {
+			logger.error("failed to create path: " + path, e);
 			throw new RegistryException(e);
 		}
 	}

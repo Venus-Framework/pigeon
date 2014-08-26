@@ -22,7 +22,6 @@ import org.apache.log4j.xml.DOMConfigurator;
 import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
 import com.dianping.lion.client.ConfigChange;
-import com.dianping.lion.client.LionException;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.governor.util.Constants;
 import com.dianping.pigeon.governor.util.Constants.Action;
@@ -66,11 +65,11 @@ public class HealthCheckManager extends Thread {
 			hostInterval = Long.parseLong(tmp);
 			tmp = configManager.getProperty(Constants.KEY_DEAD_THRESHOLD);
 			deadThreshold = Integer.parseInt(tmp);
-		} catch (LionException e) {
+		} catch (Exception e) {
 			logger.error("", e);
-			action = "alpha:remove,qa:log";
-			interval = 30*60*1000;
-			hostInterval = 60*1000;
+			action = "dev:remove";
+			interval = 10*1000;
+			hostInterval = 5*1000;
 			deadThreshold = 5;
 		}
         actionMap = new LinkedHashMap<Environment, Action>();

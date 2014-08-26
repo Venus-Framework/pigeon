@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.log4j.Logger;
+import org.springframework.util.CollectionUtils;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -88,11 +89,11 @@ public class ReconnectListener implements Runnable, ClusterListener {
 
 	@Override
 	public void removeConnect(Client client) {
-		if (logger.isInfoEnabled()) {
-			logger.info("[reconnect] add service provider to reconnect listener:" + client);
+		if (logger.isInfoEnabled() && !CollectionUtils.isEmpty(closedClients)) {
+			logger.info("[reconnect] current checking providers:" + closedClients);
 		}
 		if (logger.isInfoEnabled()) {
-			logger.info("[reconnect] current checking providers:" + closedClients);
+			logger.info("[reconnect] add service provider to reconnect listener:" + client);
 		}
 		closedClients.putIfAbsent(client.getConnectInfo().getConnect(), client);
 	}

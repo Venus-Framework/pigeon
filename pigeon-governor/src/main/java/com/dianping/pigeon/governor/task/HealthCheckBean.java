@@ -1,8 +1,6 @@
-package com.dianping.pigeon.governor.service;
+package com.dianping.pigeon.governor.task;
 
 import org.apache.log4j.Logger;
-
-import com.dianping.pigeon.governor.task.HealthCheckManager;
 
 public class HealthCheckBean {
 
@@ -15,4 +13,10 @@ public class HealthCheckBean {
         new HealthCheckManager().start();
         logger.info("HealthCheckManager started");
     }
+    
+    public static void main(String[] args) throws Exception {
+    	HealthCheckBean bean = new HealthCheckBean();
+		bean.init();
+		System.in.read();
+	}
 }
