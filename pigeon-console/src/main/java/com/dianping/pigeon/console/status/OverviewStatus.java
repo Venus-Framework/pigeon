@@ -46,7 +46,7 @@ public class OverviewStatus extends AbstractComponentStatus {
 					|| phase.equals(Phase.OFFLINE.toString())) {
 				return State.MARKED_DOWN;
 			} else if (phase.equals(Phase.PUBLISHING.toString()) || phase.equals(Phase.TOPUBLISH.toString())) {
-				return State.INITIALIZING;
+				return State.INITIALIZED;
 			} else {
 				if (phase.equals(Phase.INVOKER_READY.toString())) {
 					Map weightMap = (Map) props.get("weight");
