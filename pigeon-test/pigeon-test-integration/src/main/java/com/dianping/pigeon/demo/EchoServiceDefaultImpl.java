@@ -10,7 +10,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 	@Override
 	public String echo(String input) {
 		// throw new InvocationFailureException("error raised:" + input);
-		// System.out.println(PhoenixContext.getInstance().getRequestId());
+		System.out.println(input);
 //		try {
 //			Thread.sleep(1000);
 //		} catch (InterruptedException e) {

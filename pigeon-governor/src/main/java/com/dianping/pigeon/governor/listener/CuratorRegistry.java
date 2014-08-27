@@ -15,22 +15,19 @@ import org.apache.zookeeper.KeeperException.NoNodeException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.governor.util.Constants.Action;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.zookeeper.Utils;
 import com.dianping.pigeon.util.CollectionUtils;
 
 public class CuratorRegistry {
 
-	private static Logger logger = LoggerLoader.getLogger(CuratorRegistry.class);
+	private static Logger logger = Logger.getLogger(CuratorRegistry.class);
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	private CuratorClient client;
 
 	private boolean inited = false;
-
-	private final int expirationTime = configManager.getIntValue("pigeon.registry.ephemeralnode.expirationtime", 5000);
 
 	private ServiceOfflineListener serviceOfflineListener;
 

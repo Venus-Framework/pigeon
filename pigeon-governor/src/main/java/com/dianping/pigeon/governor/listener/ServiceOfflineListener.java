@@ -6,12 +6,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.governor.util.Constants.Action;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.util.CollectionUtils;
 
 public class ServiceOfflineListener {
 
-	private static Logger logger = LoggerLoader.getLogger(ServiceOfflineListener.class);
+	private static Logger logger = Logger.getLogger(ServiceOfflineListener.class);
 
 	private CuratorRegistry curatorRegistry;
 

@@ -12,7 +12,7 @@ public class Constants {
 	
 	public enum Environment {
         test("127.0.0.1:2181"),
-        dev("127.0.0.1:2181"),
+        dev("192.168.7.41:2181"),
         alpha("192.168.7.41:2182"),
         qa("192.168.213.144:2181"),
         prelease("10.2.8.143:2181"),

@@ -52,7 +52,6 @@ public class CheckTask implements Runnable {
 				host.setAlive(false);
 				if (host.getDeadCount() < Integer.MAX_VALUE)
 					host.increaseDeadCount();
-				System.out.println("check:" + host.getAddress() + "-" + host.getDeadCount());
 			}
 			host.updateCheckTime();
 			manager.getResultQueue().add(this);

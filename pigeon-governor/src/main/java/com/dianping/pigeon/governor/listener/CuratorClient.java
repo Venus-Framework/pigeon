@@ -13,13 +13,11 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 
-import com.dianping.pigeon.log.LoggerLoader;
-
 public class CuratorClient {
 
     private static final String CHARSET = "UTF-8";
     
-    private static Logger logger = LoggerLoader.getLogger(CuratorClient.class);
+    private static Logger logger = Logger.getLogger(CuratorClient.class);
     
     private CuratorFramework client;
     

@@ -10,14 +10,13 @@ import org.apache.log4j.Logger;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
 
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.zookeeper.Utils;
 import com.dianping.pigeon.util.CollectionUtils;
 
 public class CuratorEventListener implements CuratorListener {
 
-	private static Logger logger = LoggerLoader.getLogger(CuratorEventListener.class);
+	private static Logger logger = Logger.getLogger(CuratorEventListener.class);
 
 	private static final int ADDRESS = 1;
 	private static final int WEIGHT = 2;

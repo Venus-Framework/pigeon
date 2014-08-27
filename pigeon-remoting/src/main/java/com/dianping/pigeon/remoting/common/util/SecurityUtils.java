@@ -13,6 +13,9 @@ public class SecurityUtils {
 
 	private static final String registryWhiteList = configManager.getStringValue("pigeon.registry.whitelist", "");
 
+	private static final boolean canRegisterDefault = configManager.getBooleanValue(
+			"pigeon.registry.canregister.default", true);
+
 	public static boolean canRegister(String ip) {
 		String[] whiteArray = registryWhiteList.split(",");
 		for (String addr : whiteArray) {
@@ -32,6 +35,6 @@ public class SecurityUtils {
 				return false;
 			}
 		}
-		return true;
+		return canRegisterDefault;
 	}
 }

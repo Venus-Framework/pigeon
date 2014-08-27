@@ -50,7 +50,7 @@ public class OfflineListenerBean {
 			logger.error("", e);
 		}
 		if(StringUtils.isBlank(action)) {
-			action = "dev:log,alpha:log,qa:log";
+			action = "dev:remove,alpha:remove,qa:remove";
 		}
 		actionMap = new LinkedHashMap<Environment, Action>();
 		registryMap = new LinkedHashMap<Environment, CuratorRegistry>();

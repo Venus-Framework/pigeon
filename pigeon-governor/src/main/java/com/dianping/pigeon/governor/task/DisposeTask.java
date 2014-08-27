@@ -51,10 +51,8 @@ public class DisposeTask implements Runnable {
 			return;
 		if (task.getHost().isAlive())
 			return;
-		
-		Host host = task.getHost();
-		System.out.println("dispose:" + host.getAddress() + "-" + host.getDeadCount());
-		
+
+		System.out.println(task.getHost().getAddress() + ":" + task.getHost().getDeadCount());
 		if (task.getHost().getDeadCount() >= manager.getDeadThreshold()) {
 			disposeAddress(task);
 		} else {

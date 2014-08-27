@@ -36,7 +36,7 @@ public class TimelineManager {
 
 	static {
 		ConfigManager config = ExtensionLoader.getExtension(ConfigManager.class);
-		enabled = config.getBooleanValue("pigeon.timeline.enabled", false);
+		enabled = config.getBooleanValue("pigeon.timeline.log.enabled", true);
 		enabledLocalLog = config.getBooleanValue("pigeon.timeline.locallog.enabled", false);
 		abnormalThreshold = config.getLongValue("pigeon.timeline.abnormal.threshold", 50);
 		legacyThreshold = config.getLongValue("pigeon.timeline.legacy.threshold", 60000);
