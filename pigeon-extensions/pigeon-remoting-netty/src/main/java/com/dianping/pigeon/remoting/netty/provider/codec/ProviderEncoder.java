@@ -29,7 +29,7 @@ public class ProviderEncoder extends AbstractEncoder {
 	private static MonitorLogger monitor = ExtensionLoader.getExtension(Monitor.class).getLogger();
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private static final int responseSizeThreshold = configManager
-			.getIntValue("pigeon.responsesize.threshold", 2 << 18);
+			.getIntValue("pigeon.responsesize.threshold", 2 << 17);
 
 	public ProviderEncoder() {
 		super();

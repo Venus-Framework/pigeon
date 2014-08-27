@@ -31,7 +31,7 @@ public class InvokerEncoder extends AbstractEncoder {
 
 	private static MonitorLogger monitor = ExtensionLoader.getExtension(Monitor.class).getLogger();
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
-	private static final int requestSizeThreshold = configManager.getIntValue("pigeon.requestsize.threshold", 2 << 18);
+	private static final int requestSizeThreshold = configManager.getIntValue("pigeon.requestsize.threshold", 2 << 17);
 
 	public InvokerEncoder() {
 		super();
