@@ -395,4 +395,32 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	public List<ConfigChangeListener> getConfigChangeListeners() {
 		return configChangeListeners;
 	}
+
+	public void onConfigUpdated(String key, String value) {
+		List<ConfigChangeListener> listeners = getConfigChangeListeners();
+		for (ConfigChangeListener listener : listeners) {
+			listener.onKeyUpdated(key, value);
+		}
+	}
+
+	public void onConfigAdded(String key, String value) {
+		List<ConfigChangeListener> listeners = getConfigChangeListeners();
+		for (ConfigChangeListener listener : listeners) {
+			listener.onKeyAdded(key, value);
+		}
+	}
+
+	public void onConfigRemoved(String key, String value) {
+		List<ConfigChangeListener> listeners = getConfigChangeListeners();
+		for (ConfigChangeListener listener : listeners) {
+			listener.onKeyRemoved(key);
+		}
+	}
+
+	public void onConfigChanged(Map<String, Object> properties) {
+		List<ConfigChangeListener> listeners = getConfigChangeListeners();
+		for (ConfigChangeListener listener : listeners) {
+			listener.onConfigChange(properties);
+		}
+	}
 }

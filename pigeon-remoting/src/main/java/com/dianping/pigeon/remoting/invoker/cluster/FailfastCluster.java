@@ -27,6 +27,7 @@ public class FailfastCluster implements Cluster {
 			throws Throwable {
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		InvocationRequest request = InvokerUtils.createRemoteCallRequest(invocationContext, invokerConfig);
+		
 		boolean timeoutRetry = invokerConfig.isTimeoutRetry();
 		if (!timeoutRetry) {
 			Client remoteClient = clientManager.getClient(invokerConfig, request, null);

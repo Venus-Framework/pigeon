@@ -3,7 +3,6 @@ package com.dianping.pigeon.config;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -36,52 +35,20 @@ public class LocalConfigLoader {
 				oldValue = oldValue.trim();
 				if (oldValue != null && value != null) {
 					if (!oldValue.equals(value)) {
-						onConfigUpdated(key, value);
+						if (configManager != null) {
+							((AbstractConfigManager) configManager).onConfigUpdated(key, value);
+						}
 						hasChange = true;
 					}
 				}
 			} else {
-				onConfigAdded(key, value);
+				if (configManager != null) {
+					((AbstractConfigManager) configManager).onConfigAdded(key, value);
+				}
 				hasChange = true;
 			}
 		}
 		return hasChange;
-	}
-
-	private static void onConfigUpdated(String key, String value) {
-		if (configManager != null) {
-			List<ConfigChangeListener> listeners = configManager.getConfigChangeListeners();
-			for (ConfigChangeListener listener : listeners) {
-				listener.onKeyUpdated(key, value);
-			}
-		}
-	}
-
-	private static void onConfigAdded(String key, String value) {
-		if (configManager != null) {
-			List<ConfigChangeListener> listeners = configManager.getConfigChangeListeners();
-			for (ConfigChangeListener listener : listeners) {
-				listener.onKeyAdded(key, value);
-			}
-		}
-	}
-
-	private static void onConfigRemoved(String key, String value) {
-		if (configManager != null) {
-			List<ConfigChangeListener> listeners = configManager.getConfigChangeListeners();
-			for (ConfigChangeListener listener : listeners) {
-				listener.onKeyRemoved(key);
-			}
-		}
-	}
-
-	private static void onConfigChanged(Map<String, Object> properties) {
-		if (configManager != null) {
-			List<ConfigChangeListener> listeners = configManager.getConfigChangeListeners();
-			for (ConfigChangeListener listener : listeners) {
-				listener.onConfigChange(properties);
-			}
-		}
 	}
 
 	public static Map<String, Object> load(ConfigManager configManager) {
@@ -124,7 +91,9 @@ public class LocalConfigLoader {
 		}
 		recentCache = results;
 		if (hasChange) {
-			onConfigChanged(results);
+			if (configManager != null) {
+				((AbstractConfigManager) configManager).onConfigChanged(results);
+			}
 		}
 		return results;
 	}

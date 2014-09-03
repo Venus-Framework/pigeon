@@ -59,4 +59,5 @@ public interface ConfigManager {
 	public void deleteKey(String key);
 
 	public List<ConfigChangeListener> getConfigChangeListeners();
+	
 }
