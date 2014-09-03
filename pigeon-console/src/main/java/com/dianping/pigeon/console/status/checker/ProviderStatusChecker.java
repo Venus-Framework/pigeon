@@ -63,12 +63,11 @@ public class ProviderStatusChecker implements StatusChecker {
 	}
 
 	public String checkError() {
-		if (GlobalStatusChecker.isInitialized()) {
+		if (GlobalStatusChecker.isInitialized() && (CHECK_PROVIDER_EXIST || CHECK_PROVIDER_AVAILABLE)) {
 			try {
 				Map<InvokerConfig<?>, Object> serviceInvokers = ServiceFactory.getAllServiceInvokers();
 				if (!serviceInvokers.isEmpty()) {
 					for (InvokerConfig<?> invokerConfig : serviceInvokers.keySet()) {
-
 						if (CHECK_PROVIDER_EXIST) {
 							ClientManager.getInstance().getServiceAddress(invokerConfig.getUrl(),
 									invokerConfig.getGroup(), invokerConfig.getVip());
@@ -83,7 +82,6 @@ public class ProviderStatusChecker implements StatusChecker {
 								return error;
 							}
 						}
-
 					}
 				}
 			} catch (Throwable t) {

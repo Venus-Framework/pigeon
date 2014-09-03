@@ -52,7 +52,6 @@ public class DisposeTask implements Runnable {
 		if (task.getHost().isAlive())
 			return;
 
-		System.out.println(task.getHost().getAddress() + ":" + task.getHost().getDeadCount());
 		if (task.getHost().getDeadCount() >= manager.getDeadThreshold()) {
 			disposeAddress(task);
 		} else {
@@ -120,10 +119,10 @@ public class DisposeTask implements Runnable {
 	private void removeAddress(CheckTask task) throws RegistryException {
 		Host host = task.getHost();
 		CuratorRegistry registry = (CuratorRegistry) manager.getRegistry(host.getService().getEnv());
-		registry.unregisterPersistentNode("@HTTP@" + host.getService().getUrl(), host.getService().getGroup(),
-				host.getIp() + ":4080");
 		registry.unregisterPersistentNode(host.getService().getUrl(), host.getService().getGroup(), host.getAddress());
-		notifyLionApi(task);
+		if (!host.getService().getUrl().startsWith("@HTTP@")) {
+			notifyLionApi(task);
+		}
 	}
 
 	private void notifyLionApi(CheckTask task) {
@@ -131,12 +130,12 @@ public class DisposeTask implements Runnable {
 		try {
 			String message = doHttpGet(url);
 			if (message.startsWith("0|")) {
-				logger.info("removed address " + task.getHost());
+				logger.info("removed address:" + task.getHost());
 			} else {
-				logger.error("failed to remove address " + task.getHost() + ", message: " + message);
+				logger.error("failed to remove address:" + task.getHost() + ", message: " + message);
 			}
 		} catch (IOException e) {
-			logger.error("failed to remove address " + task.getHost(), e);
+			logger.error("failed to remove address:" + task.getHost(), e);
 		}
 	}
 

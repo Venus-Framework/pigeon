@@ -12,6 +12,8 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.phase.Disposable;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -28,6 +30,9 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 	private Server server;
 	private int port;
 	private volatile boolean started = false;
+	private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+	private final int minThreads = configManager.getIntValue("pigeon.provider.http.minthreads", 2);
+	private final int maxThreads = configManager.getIntValue("pigeon.provider.http.maxthreads", 300);
 
 	public JettyHttpServer() {
 	}
@@ -61,8 +66,8 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 		DispatcherServlet.addHttpHandler(port, new HttpServerHandler(this));
 		QueuedThreadPool threadPool = new QueuedThreadPool();
 		threadPool.setDaemon(true);
-		threadPool.setMaxThreads(serverConfig.getMaxPoolSize());
-		threadPool.setMinThreads(serverConfig.getCorePoolSize());
+		threadPool.setMaxThreads(maxThreads);
+		threadPool.setMinThreads(minThreads);
 		Server server = new Server(port);
 		server.setThreadPool(threadPool);
 		Context context = new Context(Context.SESSIONS);
@@ -111,7 +116,7 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 	@Override
 	public <T> void doAddService(ProviderConfig<T> providerConfig) {
 	}
-	
+
 	@Override
 	public <T> void doRemoveService(ProviderConfig<T> providerConfig) {
 	}

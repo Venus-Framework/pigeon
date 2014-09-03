@@ -42,7 +42,7 @@ public class LoadBalanceManager {
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	public static final String DEFAULT_LOADBALANCE = configManager.getStringValue(Constants.KEY_LOADBALANCE,
-			RoundRobinLoadBalance.NAME);
+			WeightedAutoawareLoadBalance.NAME);
 
 	private static ConcurrentHashMap<String, WeightFactor> weightFactors = new ConcurrentHashMap<String, WeightFactor>();
 

@@ -7,8 +7,10 @@ package com.dianping.pigeon.remoting.invoker.route;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.phase.Disposable;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
@@ -36,12 +38,27 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 
 	private ServiceProviderChangeListener providerChangeListener = new InnerServiceProviderChangeListener();
 
+	private static List<String> preferAddresses = new ArrayList<String>();
+
+	private static boolean enablePreferAddresses = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.route.preferaddresses.enable", false);
+
 	public DefaultRouteManager() {
 		RegistryEventListener.addListener(providerChangeListener);
 		LoadBalanceManager.register(RandomLoadBalance.NAME, null, RandomLoadBalance.instance);
 		LoadBalanceManager.register(AutoawareLoadBalance.NAME, null, AutoawareLoadBalance.instance);
 		LoadBalanceManager.register(RoundRobinLoadBalance.NAME, null, RoundRobinLoadBalance.instance);
 		LoadBalanceManager.register(WeightedAutoawareLoadBalance.NAME, null, WeightedAutoawareLoadBalance.instance);
+		if (enablePreferAddresses) {
+			String preferAddressesConfig = ConfigManagerLoader.getConfigManager().getStringValue(
+					"pigeon.route.preferaddresses", "");
+			String[] preferAddressesArray = preferAddressesConfig.split(",");
+			for (String addr : preferAddressesArray) {
+				if (StringUtils.isNotBlank(addr)) {
+					preferAddresses.add(addr.trim());
+				}
+			}
+		}
 	}
 
 	public Client route(List<Client> clientList, InvokerConfig<?> invokerConfig, InvocationRequest request) {
@@ -59,8 +76,6 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 
 		Client selectedClient = select(availableClients, invokerConfig, request);
 
-		checkClientNotNull(selectedClient, invokerConfig);
-
 		if (!selectedClient.isConnected()) {
 			selectedClient.connect();
 		}
@@ -72,7 +87,6 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 				break;
 			}
 			selectedClient = select(availableClients, invokerConfig, request);
-			checkClientNotNull(selectedClient, invokerConfig);
 		}
 
 		if (!selectedClient.isConnected()) {
@@ -127,10 +141,31 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 			loadBalance = LoadBalanceManager.getLoadBalance(invokerConfig, request.getCallType());
 		}
 		if (loadBalance == null) {
-			loadBalance = RandomLoadBalance.instance;
+			loadBalance = WeightedAutoawareLoadBalance.instance;
 		}
+		List<Client> preferClients = null;
+		if (enablePreferAddresses) {
+			if (availableClients != null && availableClients.size() > 1) {
+				preferClients = new ArrayList<Client>();
+				for (String addr : preferAddresses) {
+					for (Client client : availableClients) {
+						if (client.getHost().startsWith(addr)) {
+							preferClients.add(client);
+						}
+					}
+					if (preferClients.size() > 0) {
+						break;
+					}
+				}
+			}
+		}
+		if (preferClients == null || preferClients.size() == 0) {
+			preferClients = availableClients;
+		}
+		Client selectedClient = loadBalance.select(preferClients, invokerConfig, request);
+		checkClientNotNull(selectedClient, invokerConfig);
 
-		return loadBalance.select(availableClients, invokerConfig, request);
+		return selectedClient;
 	}
 
 	@Override

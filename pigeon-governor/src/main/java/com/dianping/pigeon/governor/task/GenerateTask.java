@@ -7,9 +7,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.codehaus.plexus.util.StringUtils;
 
+import com.dianping.pigeon.governor.util.AddressUtils;
+import com.dianping.pigeon.governor.util.AddressUtils.Address;
 import com.dianping.pigeon.governor.util.Constants.Environment;
 import com.dianping.pigeon.governor.util.Constants.Host;
 import com.dianping.pigeon.governor.util.Constants.Service;
@@ -57,7 +59,9 @@ public class GenerateTask implements Runnable {
 				String message = String.format("active threads: %d, queue size: %d, completed task: %d", manager
 						.getWorkerPool().getActiveCount(), manager.getWorkerPool().getQueue().size(), manager
 						.getWorkerPool().getCompletedTaskCount());
-				logger.info(message);
+				if (logger.isDebugEnabled()) {
+					logger.debug(message);
+				}
 			}
 			Thread.sleep(1000);
 		}
@@ -85,6 +89,7 @@ public class GenerateTask implements Runnable {
 		String service = path.replace('^', '/');
 		String hosts = registry.getServiceAddress(path);
 		generateTasks(env, service, "", hosts, pigeon2hosts);
+		generateTasks(env, "@HTTP@" + service, "", pigeon2hosts, pigeon2hosts);
 
 		if (hosts != null) {
 			List<String> groups = registry.getChildren(ROOT + "/" + path);
@@ -93,6 +98,17 @@ public class GenerateTask implements Runnable {
 					String groupPath = ROOT + "/" + path + "/" + group;
 					String groupHosts = registry.getServiceAddress(groupPath);
 					generateTasks(env, service, group, groupHosts, pigeon2hosts);
+				}
+			}
+		}
+
+		if (pigeon2hosts != null) {
+			List<String> groups = registry.getChildren(ROOT + "/@HTTP@" + path);
+			if (groups != null && groups.size() > 0) {
+				for (String group : groups) {
+					String groupPath = ROOT + "/@HTTP@" + path + "/" + group;
+					String groupHosts = registry.getServiceAddress(groupPath);
+					generateTasks(env, "@HTTP@" + service, group, groupHosts, pigeon2hosts);
 				}
 			}
 		}
@@ -105,29 +121,23 @@ public class GenerateTask implements Runnable {
 		String[] addrArray = hosts.split(",");
 		Service service = new Service(env, url, group);
 		for (String address : addrArray) {
-			if (!StringUtils.isBlank(address)) {
-				int idx = address.lastIndexOf(":");
-				if (idx != -1) {
-					String ip = null;
-					int port = -1;
-					try {
-						ip = address.substring(0, idx);
-						port = Integer.parseInt(address.substring(idx + 1));
-					} catch (RuntimeException e) {
-						logger.warn("invalid address:" + address + " for service:" + url);
+			if (StringUtils.isBlank(address)) {
+				continue;
+			}
+			Address ad = AddressUtils.toAddress(address);
+			if (ad.isValid()) {
+				if (!addrRepo.contains(env, address)) {
+					addrRepo.add(env, address);
+					Host host = new Host(service, ad.getIp(), ad.getPort());
+					if (pigeon2hosts.indexOf(ad.getIp()) == -1) {
+						host.setCheckResponse(false);
 					}
-					if (ip != null && port > 0) {
-						if (pigeon2hosts.indexOf(ip) != -1 && !addrRepo.contains(env, address)) {
-							addrRepo.add(env, address);
-							Host host = new Host(service, ip, port);
-							service.addHost(host);
-							CheckTask task = new CheckTask(manager, host);
-							manager.getWorkerPool().submit(task);
-						}
-					}
-				} else {
-					logger.warn("invalid address:" + address + " for service:" + url);
+					service.addHost(host);
+					CheckTask task = new CheckTask(manager, host);
+					manager.getWorkerPool().submit(task);
 				}
+			} else {
+				logger.warn("invalid address:" + address + " for service:" + url);
 			}
 		}
 	}
@@ -143,8 +153,9 @@ public class GenerateTask implements Runnable {
 			for (Map.Entry<Environment, Set<String>> entry : addrRepo.entrySet()) {
 				Environment env = entry.getKey();
 				Set<String> addrSet = entry.getValue();
-				logger.info(String.format("generated %d health check tasks for env %s[%s]", addrSet.size(), env,
-						env.getZkAddress()));
+				if (logger.isDebugEnabled())
+					logger.debug(String.format("generated %d health check tasks for env %s[%s]", addrSet.size(), env,
+							env.getZkAddress()));
 				addrSet.clear();
 			}
 		}

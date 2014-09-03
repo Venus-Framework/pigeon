@@ -61,11 +61,22 @@ public class Utils {
 		if (serviceAddress != null && serviceAddress.length() > 0) {
 			String[] hostArray = serviceAddress.split(",");
 			for (String host : hostArray) {
-				String[] ipPort = host.split(":");
-				if (ipPort.length != 2) {
-					logger.error("****** invalid host: " + ipPort + ", ignored!");
+				int idx = host.lastIndexOf(":");
+				if (idx != -1) {
+					String ip = null;
+					int port = -1;
+					try {
+						ip = host.substring(0, idx);
+						port = Integer.parseInt(host.substring(idx + 1));
+					} catch (RuntimeException e) {
+						logger.error("****** invalid host: " + host + ", ignored!");
+					}
+					if (ip != null && port > 0) {
+						result.add(new String[] { ip, port + "" });
+					}
+				} else {
+					logger.error("****** invalid host: " + host + ", ignored!");
 				}
-				result.add(ipPort);
 			}
 		}
 		return result;

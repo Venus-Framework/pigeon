@@ -67,6 +67,12 @@ public class CheckTask implements Runnable {
 			if (!isPortAvailable()) {
 				return false;
 			}
+			if (host.getService().getUrl().startsWith("@HTTP@")) {
+				return true;
+			}
+			if (!host.isCheckResponse()) {
+				return true;
+			}
 			InvocationRequest request = createHealthCheckRequest();
 			InvocationResponse response = getHealthCheckResponse(request);
 			if (response != null) {

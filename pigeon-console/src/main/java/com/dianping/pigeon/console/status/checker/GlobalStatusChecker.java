@@ -92,11 +92,11 @@ public class GlobalStatusChecker {
 			} catch (Throwable e) {
 				props.put("error", e.getMessage());
 			}
-			try {
-				props.put("online", isOnline());
-			} catch (Throwable e) {
-				props.put("error", e.getMessage());
-			}
+			// try {
+			// props.put("online", isOnline());
+			// } catch (Throwable e) {
+			// props.put("error", e.getMessage());
+			// }
 			try {
 				props.put("weight", ServiceProviderFactory.getServerWeight());
 			} catch (Throwable e) {
