@@ -3,18 +3,33 @@ package com.dianping.pigeon.governor.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
+
 public class Constants {
 
-	public static final String KEY_ACTION = "pigeon.healthcheck.action";
-	public static final String KEY_INTERVAL = "pigeon.healthcheck.interval";
-	public static final String KEY_HOST_INTERVAL = "pigeon.healthcheck.host.interval";
-	public static final String KEY_DEAD_THRESHOLD = "pigeon.healthcheck.dead.threshold";
+	public static final String KEY_ACTION = "pigeon.governor.healthcheck.action";
+	public static final String KEY_INTERVAL = "pigeon.governor.healthcheck.interval";
+	public static final String KEY_HOST_INTERVAL = "pigeon.governor.healthcheck.host.interval";
+	public static final String KEY_DEAD_THRESHOLD = "pigeon.governor.healthcheck.dead.threshold";
+	private static final String testAddress = ConfigManagerLoader.getConfigManager().getStringValue(
+			"pigeon.governor.address.test", "127.0.0.1:2181");
+	private static final String devAddress = ConfigManagerLoader.getConfigManager().getStringValue(
+			"pigeon.governor.address.dev", "192.168.7.41:2181");
+	private static final String alphaAddress = ConfigManagerLoader.getConfigManager().getStringValue(
+			"pigeon.governor.address.alpha", "192.168.7.41:2182");
+	private static final String qaAddress = ConfigManagerLoader.getConfigManager().getStringValue(
+			"pigeon.governor.address.qa", "192.168.213.144:2181");
+	private static final String preleaseAddress = ConfigManagerLoader.getConfigManager().getStringValue(
+			"pigeon.governor.address.prelease", "10.2.8.143:2181");
+	private static final String productAddress = ConfigManagerLoader.getConfigManager().getStringValue(
+			"pigeon.governor.address.product",
+			"10.1.2.32:2181,10.1.2.37:2181,10.1.2.62:2181,10.1.2.67:2181,10.1.2.58:2181");
+	private static final String performanceAddress = ConfigManagerLoader.getConfigManager().getStringValue(
+			"pigeon.governor.address.performance", "192.168.219.211:2181");
 
 	public enum Environment {
-		test("127.0.0.1:2181"), dev("192.168.7.41:2181"), alpha("192.168.7.41:2182"), qa("192.168.213.144:2181"), prelease(
-				"10.2.8.143:2181"), product(
-				"10.1.2.32:2181,10.1.2.37:2181,10.1.2.62:2181,10.1.2.67:2181,10.1.2.58:2181"), performance(
-				"192.168.219.211:2181");
+		test(testAddress), dev(devAddress), alpha(alphaAddress), qa(qaAddress), prelease(preleaseAddress), product(
+				productAddress), performance(performanceAddress);
 
 		private String zkAddress;
 

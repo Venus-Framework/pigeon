@@ -137,7 +137,7 @@ public class GenerateTask implements Runnable {
 					manager.getWorkerPool().submit(task);
 				}
 			} else {
-				logger.warn("invalid address:" + address + " for service:" + url);
+				logger.warn(env.name() + "#invalid address:" + address + " for service:" + url);
 			}
 		}
 	}
