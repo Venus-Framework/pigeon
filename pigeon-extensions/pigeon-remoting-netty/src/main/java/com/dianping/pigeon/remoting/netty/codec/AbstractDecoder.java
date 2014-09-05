@@ -24,6 +24,7 @@ import org.jboss.netty.util.DebugUtil;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
+import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 
@@ -36,6 +37,8 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 	public abstract void doFailResponse(Channel channel, InvocationResponse response);
 
 	public abstract Object deserialize(byte serializerType, InputStream is);
+
+	public abstract String getEventName();
 
 	protected boolean isNettyTimelineEnabled = true;
 
@@ -62,6 +65,13 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 		} else {
 			cb.writeBytes(cb_);
 		}
+
+//		if (SizeMonitor.isEnable()) {
+//			int size = cb_.readableBytes();
+//			String ip = ((InetSocketAddress) channel.getRemoteAddress()).getAddress().getHostAddress();
+//			SizeMonitor.getInstance().logSize(size, getEventName(), ip);
+//		}
+
 		List<Object> messages = null;
 		int lastReadIndex = cb.readerIndex();
 		while (cb.readable()) {

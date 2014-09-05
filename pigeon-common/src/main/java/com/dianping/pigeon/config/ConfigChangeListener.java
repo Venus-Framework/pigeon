@@ -1,6 +1,5 @@
 package com.dianping.pigeon.config;
 
-import java.util.Map;
 
 public interface ConfigChangeListener {
 
@@ -10,5 +9,4 @@ public interface ConfigChangeListener {
 
 	void onKeyRemoved(String key);
 
-	void onConfigChange(Map<String, Object> properties);
 }

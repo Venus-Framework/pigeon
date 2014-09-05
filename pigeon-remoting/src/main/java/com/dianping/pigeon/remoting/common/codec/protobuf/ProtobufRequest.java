@@ -13,6 +13,7 @@ import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -66,6 +67,8 @@ public class ProtobufRequest implements InvocationRequest {
 	private String version;
 
 	private transient String loadbalance;
+
+	private String app = ConfigManagerLoader.getConfigManager().getAppName();
 
 	public String getLoadbalance() {
 		return loadbalance;
@@ -422,6 +425,14 @@ public class ProtobufRequest implements InvocationRequest {
 				.append("messageType", messageType).append("callType", callType).append("timeout", timeout)
 				.append("url", serviceName).append("methodName", methodName).append("parameterClass", parameterClass)
 				.append("version", version).toString();
+	}
+
+	public String getApp() {
+		return app;
+	}
+
+	public void setApp(String app) {
+		this.app = app;
 	}
 
 }

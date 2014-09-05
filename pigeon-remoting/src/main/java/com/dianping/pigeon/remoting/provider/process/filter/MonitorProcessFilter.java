@@ -76,6 +76,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					StringBuilder event = new StringBuilder();
 					event.append(InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
 					monitorLogger.logEvent("PigeonService.client", channel.getRemoteAddress(), event.toString());
+					monitorLogger.logEvent("PigeonService.app", request.getApp(), "");
 					transaction.writeMonitorContext();
 					transaction.setStatusOk();
 				} catch (Throwable e) {

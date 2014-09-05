@@ -21,11 +21,14 @@ import com.dianping.pigeon.remoting.netty.codec.AbstractDecoder;
 
 public class InvokerDecoder extends AbstractDecoder {
 
+	private static final String eventName = "PigeonCall.responseSize";
+
 	@Override
 	public Object doInitMsg(Object message, Channel channel, long receiveTime) {
 		// TIMELINE_client_received: DebugUtil.getTimestamp()
 		if (isNettyTimelineEnabled) {
-			TimelineManager.time((InvocationSerializable) message, TimelineManager.getLocalIp(), Phase.ClientReceived, DebugUtil.getTimestamp());
+			TimelineManager.time((InvocationSerializable) message, TimelineManager.getLocalIp(), Phase.ClientReceived,
+					DebugUtil.getTimestamp());
 		}
 		// TIMELINE_client_decoded
 		TimelineManager.time((InvocationSerializable) message, TimelineManager.getLocalIp(), Phase.ClientDecoded);
@@ -43,6 +46,11 @@ public class InvokerDecoder extends AbstractDecoder {
 	public Object deserialize(byte serializerType, InputStream is) {
 		Object decoded = SerializerFactory.getSerializer(serializerType).deserializeResponse(is);
 		return decoded;
+	}
+
+	@Override
+	public String getEventName() {
+		return eventName;
 	}
 
 }

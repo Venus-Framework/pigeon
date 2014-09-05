@@ -14,6 +14,7 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
@@ -44,7 +45,10 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 	@Override
 	public Object _get(long timeoutMillis) throws InterruptedException {
 		InvocationResponse response = null;
-		monitorLogger.logEvent("PigeonCall.future", "", "timeout=" + timeoutMillis);
+		MonitorTransaction transaction = monitorLogger.getCurrentTransaction();
+		if (transaction != null) {
+			transaction.addData("PigeonCall.future", "timeout=" + timeoutMillis);
+		}
 		try {
 			response = super.get(timeoutMillis);
 		} catch (Throwable e) {

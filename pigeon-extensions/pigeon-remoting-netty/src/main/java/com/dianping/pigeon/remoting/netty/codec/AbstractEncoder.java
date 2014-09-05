@@ -7,7 +7,7 @@ package com.dianping.pigeon.remoting.netty.codec;
 import static org.jboss.netty.buffer.ChannelBuffers.dynamicBuffer;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.net.InetSocketAddress;
 
 import org.apache.log4j.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -20,6 +20,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
+import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 
@@ -27,7 +28,10 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 
 	private static final Logger log = LoggerLoader.getLogger(AbstractEncoder.class);
 
-	public abstract void serialize(byte serializerType, OutputStream os, Object obj);
+	public abstract void serialize(byte serializerType, ChannelBufferOutputStream os, Object obj, Channel channel)
+			throws IOException;
+
+	public abstract String getEventName();
 
 	public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 		if (msg instanceof InvocationSerializable) {
@@ -38,6 +42,13 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 				buffer.setBytes(0, Constants.MESSAGE_HEAD);
 				buffer.setByte(2, message.getSerialize());
 				buffer.readerIndex(0);
+
+				if (SizeMonitor.isEnable()) {
+					int size = buffer.readableBytes();
+					String ip = ((InetSocketAddress) channel.getRemoteAddress()).getAddress().getHostAddress();
+					SizeMonitor.getInstance().logSize(size, getEventName(), ip);
+				}
+
 				return buffer;
 			} catch (Throwable e) {
 				SerializationException se = new SerializationException(e);
@@ -59,7 +70,7 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 		ChannelBufferOutputStream bout = new ChannelBufferOutputStream(dynamicBuffer(estimatedLength, ctx.getChannel()
 				.getConfig().getBufferFactory()));
 		beforeDo(bout);
-		serialize(serializerType, bout, msg);
+		serialize(serializerType, bout, msg, channel);
 		ChannelBuffer encoded = bout.buffer();
 		afterDo(encoded, msg);
 		return encoded;

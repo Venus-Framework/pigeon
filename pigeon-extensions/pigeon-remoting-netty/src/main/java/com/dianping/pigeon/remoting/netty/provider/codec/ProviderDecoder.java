@@ -20,6 +20,8 @@ import com.dianping.pigeon.remoting.netty.provider.NettyChannel;
 
 public class ProviderDecoder extends AbstractDecoder {
 
+	private static final String eventName = "PigeonService.requestSize";
+
 	@Override
 	public Object doInitMsg(Object message, Channel channel, long receiveTime) {
 		if (message == null) {
@@ -27,15 +29,15 @@ public class ProviderDecoder extends AbstractDecoder {
 		}
 		InvocationRequest request = (InvocationRequest) message;
 		// TIMELINE_server_received: DebugUtil.getTimestamp()
-		String remoteIp = ((InetSocketAddress)channel.getRemoteAddress()).getAddress().getHostAddress();
-		if(isNettyTimelineEnabled) {
+		String remoteIp = ((InetSocketAddress) channel.getRemoteAddress()).getAddress().getHostAddress();
+		if (isNettyTimelineEnabled) {
 			TimelineManager.time(request, remoteIp, Phase.ServerReceived, DebugUtil.getTimestamp());
 		}
 		// TIMELINE_server_decoded
 		TimelineManager.time(request, remoteIp, Phase.ServerDecoded);
 		request.setCreateMillisTime(receiveTime);
 		return request;
-	}                                                                                       
+	}
 
 	@Override
 	public void doFailResponse(Channel channel, InvocationResponse response) {
@@ -47,6 +49,11 @@ public class ProviderDecoder extends AbstractDecoder {
 	public Object deserialize(byte serializerType, InputStream is) {
 		Object decoded = SerializerFactory.getSerializer(serializerType).deserializeRequest(is);
 		return decoded;
+	}
+
+	@Override
+	public String getEventName() {
+		return eventName;
 	}
 
 }

@@ -17,7 +17,7 @@ public interface MonitorLogger {
 	
 	void logError(Throwable t);
 
-	void logEvent(String name, String source, String event);
+	void logEvent(String name, String event, String desc);
 
 	/**
 	 * write monitor's own error to local log files or console

@@ -86,7 +86,7 @@ public class RequestTimeoutListener implements Runnable {
 									if (t == null) {
 										msg.append("\r\nthe task has not been executed");
 										te = new ProcessTimeoutException(msg.toString());
-										te.setStackTrace(null);
+										te.setStackTrace(new StackTraceElement[] {});
 									} else {
 										te = new ProcessTimeoutException(msg.toString());
 										te.setStackTrace(t.getStackTrace());

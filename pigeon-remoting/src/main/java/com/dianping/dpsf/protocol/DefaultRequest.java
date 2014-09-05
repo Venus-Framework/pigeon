@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
@@ -61,6 +62,8 @@ public class DefaultRequest implements InvocationRequest {
 
 	@JsonIgnore
 	private transient Map<String, Object> attachments = new HashMap<String, Object>();
+
+	private String app = ConfigManagerLoader.getConfigManager().getAppName();
 
 	public DefaultRequest(String serviceName, String methodName, Object[] parameters, byte serialize, int messageType,
 			int timeout, Class<?>[] parameterClasses) {
@@ -230,6 +233,14 @@ public class DefaultRequest implements InvocationRequest {
 	@Override
 	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
+	}
+
+	public String getApp() {
+		return app;
+	}
+
+	public void setApp(String app) {
+		this.app = app;
 	}
 
 }

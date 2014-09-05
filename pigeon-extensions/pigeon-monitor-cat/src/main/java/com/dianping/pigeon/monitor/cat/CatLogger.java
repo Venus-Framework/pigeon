@@ -90,13 +90,13 @@ public class CatLogger implements MonitorLogger {
 	 * java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void logEvent(String name, String source, String event) {
+	public void logEvent(String name, String event, String desc) {
 		try {
 			if (producer == null) {
 				producer = Cat.getProducer();
 			}
 			if (producer != null) {
-				producer.logEvent(name, source, Event.SUCCESS, event);
+				producer.logEvent(name, event, Event.SUCCESS, desc);
 			}
 		} catch (Throwable e) {
 			logMonitorError(e);

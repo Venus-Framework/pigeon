@@ -56,7 +56,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						Client client = invocationContext.getClient();
 						logger.logEvent("PigeonCall.server", client.getAddress(),
 								InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
-
+						logger.logEvent("PigeonCall.app", request.getApp(), "");
 						transaction.readMonitorContext();
 					}
 				} catch (Throwable e) {

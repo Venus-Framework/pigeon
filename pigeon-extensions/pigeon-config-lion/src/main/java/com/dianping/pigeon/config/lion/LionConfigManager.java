@@ -9,9 +9,11 @@ import org.slf4j.LoggerFactory;
 
 import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
+import com.dianping.lion.client.ConfigChange;
 import com.dianping.lion.client.LionException;
 import com.dianping.phoenix.config.ConfigServiceManager;
 import com.dianping.pigeon.config.AbstractConfigManager;
+import com.dianping.pigeon.config.ConfigChangeListener;
 
 /**
  * @author xiangwu
@@ -119,6 +121,17 @@ public class LionConfigManager extends AbstractConfigManager {
 		 * statWeight = zk.exists(key, false); if (statWeight != null) {
 		 * zk.delete(key, statWeight.getVersion()); }
 		 */
+	}
+
+	@Override
+	public void doRegisterConfigChangeListener(ConfigChangeListener configChangeListener) throws Exception {
+		getConfigCache().addChange(new ConfigChange() {
+
+			@Override
+			public void onChange(String key, String value) {
+				onConfigUpdated(key, value);
+			}
+		});
 	}
 
 }

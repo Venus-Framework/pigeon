@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.demo.typical;
 
+import java.util.Random;
+
 import com.dianping.avatar.tracker.ExecutionContextHolder;
 import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.phoenix.environment.PhoenixContext;
@@ -37,7 +39,12 @@ public class Client {
 				// echoService.echo("hi");
 				PhoenixContext.getInstance().setRequestId("aaaa1111111");
 				ExecutionContextHolder.setTrackerContext(new TrackerContext());
-				System.out.println(echoService.echo("hi"));
+				int size = (int)(new Random().nextDouble() * 4 * 1024);
+				StringBuilder sb = new StringBuilder();
+				for(int i = 0; i< size; i++) {
+					sb.append("i");
+				}
+				System.out.println(echoService.echo(sb.toString()));
 			} catch (Exception e) {
 			}
 		}

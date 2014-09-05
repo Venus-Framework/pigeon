@@ -359,9 +359,15 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	}
 
 	public void registerConfigChangeListener(ConfigChangeListener configChangeListener) {
-		logger.info("register config change listener:" + configChangeListener.getClass().getName());
 		configChangeListeners.add(configChangeListener);
+		try {
+			doRegisterConfigChangeListener(configChangeListener);
+		} catch (Exception e) {
+			logger.error("", e);
+		}
 	}
+
+	public abstract void doRegisterConfigChangeListener(ConfigChangeListener configChangeListener) throws Exception;
 
 	@Override
 	public void setStringValue(String key, String value) {
@@ -417,10 +423,4 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		}
 	}
 
-	public void onConfigChanged(Map<String, Object> properties) {
-		List<ConfigChangeListener> listeners = getConfigChangeListeners();
-		for (ConfigChangeListener listener : listeners) {
-			listener.onConfigChange(properties);
-		}
-	}
 }

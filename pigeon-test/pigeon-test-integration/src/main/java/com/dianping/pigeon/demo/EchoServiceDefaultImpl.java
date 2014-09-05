@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.demo;
 
+import com.dianping.pigeon.util.ContextUtils;
+
 
 public class EchoServiceDefaultImpl implements EchoService {
 
@@ -11,6 +13,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 	public String echo(String input) {
 		// throw new InvocationFailureException("error raised:" + input);
 		System.out.println(input);
+		System.out.println(ContextUtils.getLocalContext("CLIENT_APP"));
 //		try {
 //			Thread.sleep(1000);
 //		} catch (InterruptedException e) {

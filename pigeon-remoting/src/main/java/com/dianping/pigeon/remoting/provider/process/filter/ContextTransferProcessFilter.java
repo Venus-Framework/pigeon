@@ -21,8 +21,8 @@ import com.dianping.pigeon.util.ContextUtils;
  * 
  * 
  * @author jianhuihuang
- * @version $Id: ContextTransferProcessFilter.java, v 0.1 2013-6-18 ������11:11:34
- *          jianhuihuang Exp $
+ * @version $Id: ContextTransferProcessFilter.java, v 0.1 2013-6-18
+ *          ������11:11:34 jianhuihuang Exp $
  */
 public class ContextTransferProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
@@ -65,6 +65,7 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 		}
 		String clientIp = getClientIp(processContext.getChannel().getRemoteAddress());
 		ContextUtils.putLocalContext("CLIENT_IP", clientIp);
+		ContextUtils.putLocalContext("CLIENT_APP", request.getApp());
 	}
 
 	private String getClientIp(String remoteAddress) {

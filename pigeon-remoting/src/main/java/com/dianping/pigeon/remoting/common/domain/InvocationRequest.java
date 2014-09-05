@@ -40,4 +40,5 @@ public interface InvocationRequest extends InvocationSerializable {
 
 	String getLoadbalance();
 
+	String getApp();
 }
