@@ -75,8 +75,8 @@ public class SizeMonitor {
 		if (rangeArray != null && rangeArray.length > 0) {
 			String value = ">" + rangeArray[rangeArray.length - 1] + "k";
 			int sizeK = (int) Math.ceil(size * 1d / 1024);
-			if (rangeArray.length >= sizeK) {
-				value = "<" + rangeArray[sizeK - 1] + "k";
+			if (rangeArray.length > sizeK) {
+				value = "<" + rangeArray[sizeK] + "k";
 			}
 			monitor.logEvent(eventName, value, size + "");
 		}
