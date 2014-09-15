@@ -39,6 +39,9 @@ public class CuratorEventListener implements CuratorListener {
 
 	private Map<String, List<String>> ephemeralAddresses = new HashMap<String, List<String>>();
 
+	private final boolean enableListenEphemeralNode = configManager.getBooleanValue(
+			"pigeon.registry.ephemeralnode.listen.enable", false);
+
 	public CuratorEventListener(CuratorRegistry registry, CuratorClient client) {
 		this.registry = registry;
 		this.client = client;
@@ -69,15 +72,17 @@ public class CuratorEventListener implements CuratorListener {
 			} else if (pathInfo.type == WEIGHT) {
 				weightChanged(pathInfo);
 			} else if (pathInfo.type == EPHEMERAL_ADDRESS) {
-				if (EventType.NodeCreated == event.getType()) {
-					ephemeralAddressCreated(pathInfo);
-				} else if (EventType.NodeDeleted == event.getType()) {
-					this.client.watch(event.getPath());
-				} else if (EventType.NodeChildrenChanged == event.getType()) {
-					ephemeralAddressChanged(pathInfo);
+				if (enableListenEphemeralNode) {
+					if (EventType.NodeCreated == event.getType()) {
+						ephemeralAddressCreated(pathInfo);
+					} else if (EventType.NodeDeleted == event.getType()) {
+						this.client.watch(event.getPath());
+					} else if (EventType.NodeChildrenChanged == event.getType()) {
+						ephemeralAddressChanged(pathInfo);
+					}
+					String servicePath = Utils.getServicePath(pathInfo.path);
+					ephemeralAddresses.put(servicePath, this.client.getChildren(servicePath));
 				}
-				String servicePath = Utils.getServicePath(pathInfo.path);
-				ephemeralAddresses.put(servicePath, this.client.getChildren(servicePath));
 			}
 		} catch (Throwable e) {
 			logger.error("Error in ZookeeperWatcher.process()", e);

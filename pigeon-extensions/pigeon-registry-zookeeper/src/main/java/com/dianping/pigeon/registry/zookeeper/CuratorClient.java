@@ -53,13 +53,13 @@ public class CuratorClient {
 		if (exists(path)) {
 			byte[] bytes = client.getData().forPath(path);
 			String value = new String(bytes, CHARSET);
-			if (logger.isInfoEnabled()) {
-				logger.info("get value of node " + path + ", value " + value);
+			if (logger.isDebugEnabled()) {
+				logger.debug("get value of node " + path + ", value " + value);
 			}
 			return value;
 		} else {
-			if (logger.isInfoEnabled()) {
-				logger.info("node " + path + " does not exist");
+			if (logger.isDebugEnabled()) {
+				logger.debug("node " + path + " does not exist");
 			}
 			return null;
 		}
@@ -69,13 +69,13 @@ public class CuratorClient {
 		byte[] bytes = (value == null ? new byte[0] : value.toString().getBytes(CHARSET));
 		if (exists(path)) {
 			client.setData().forPath(path, bytes);
-			if (logger.isInfoEnabled()) {
-				logger.info("set value of node " + path + " to " + value);
+			if (logger.isDebugEnabled()) {
+				logger.debug("set value of node " + path + " to " + value);
 			}
 		} else {
 			client.create().creatingParentsIfNeeded().forPath(path, bytes);
-			if (logger.isInfoEnabled()) {
-				logger.info("create node " + path + " value " + value);
+			if (logger.isDebugEnabled()) {
+				logger.debug("create node " + path + " value " + value);
 			}
 		}
 	}
@@ -109,15 +109,20 @@ public class CuratorClient {
 		return stat != null;
 	}
 
+	public boolean exists(String path, boolean watch) throws Exception {
+		Stat stat = watch ? client.checkExists().watched().forPath(path) : client.checkExists().forPath(path);
+		return stat != null;
+	}
+
 	public List<String> getChildren(String path) throws Exception {
 		try {
 			List<String> children = client.getChildren().watched().forPath(path);
-			if (logger.isInfoEnabled()) {
-				logger.info("get children of node " + path + ": " + StringUtils.join(children.iterator(), ','));
+			if (logger.isDebugEnabled()) {
+				logger.debug("get children of node " + path + ": " + StringUtils.join(children.iterator(), ','));
 			}
 			return children;
 		} catch (KeeperException.NoNodeException e) {
-			logger.info("node " + path + " does not exist");
+			logger.debug("node " + path + " does not exist");
 			return null;
 		}
 	}

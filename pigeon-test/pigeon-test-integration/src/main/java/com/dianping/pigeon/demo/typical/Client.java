@@ -39,7 +39,7 @@ public class Client {
 				// echoService.echo("hi");
 				PhoenixContext.getInstance().setRequestId("aaaa1111111");
 				ExecutionContextHolder.setTrackerContext(new TrackerContext());
-				int size = (int)(new Random().nextDouble() * 4 * 1024);
+				int size = (int)(new Random().nextDouble() * 128);
 				StringBuilder sb = new StringBuilder();
 				for(int i = 0; i< size; i++) {
 					sb.append("i");

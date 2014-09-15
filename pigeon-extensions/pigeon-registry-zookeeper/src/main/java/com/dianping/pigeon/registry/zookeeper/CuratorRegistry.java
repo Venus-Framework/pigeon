@@ -38,10 +38,13 @@ public class CuratorRegistry implements Registry {
 	private final int expirationTime = configManager.getIntValue("pigeon.registry.ephemeralnode.expirationtime", 5000);
 
 	private final boolean enableSiblingChange = configManager.getBooleanValue("pigeon.registry.siblingchange.enable",
-			true);
+			false);
 
 	private final boolean delEmptyNode = configManager.getBooleanValue("pigeon.registry.siblingchange.delemptynode",
 			true);
+
+	private final boolean enableRegisterEphemeralNode = configManager.getBooleanValue(
+			"pigeon.registry.ephemeralnode.register.enable", false);
 
 	private ConcurrentHashMap<String, Object> referencedServices = new ConcurrentHashMap<String, Object>();
 
@@ -133,9 +136,6 @@ public class CuratorRegistry implements Registry {
 	public String getServiceActualAddress(String serviceName, String group) throws RegistryException {
 		try {
 			String oldSrvAddr = getOldServiceAddress(serviceName, group);
-			// List<String> newSrvAddr = getNewServiceAddress(serviceName,
-			// group);
-			// String addr = mergeServiceAddress(oldSrvAddr, newSrvAddr);
 			return oldSrvAddr;
 		} catch (Exception e) {
 			logger.error("failed to get service address for " + serviceName + "/" + group, e);
@@ -186,7 +186,6 @@ public class CuratorRegistry implements Registry {
 		return StringUtils.join(mergedList.iterator(), ',');
 	}
 
-	@SuppressWarnings("unchecked")
 	List<String> getNewServiceAddress(String serviceName, String group) throws Exception {
 		String path = Utils.getEphemeralServicePath(serviceName, group);
 		List<String> serverList = client.getChildren(path);
@@ -234,7 +233,9 @@ public class CuratorRegistry implements Registry {
 	@Override
 	public void registerService(String serviceName, String group, String serviceAddress, int weight)
 			throws RegistryException {
-		registerEphemeralNode(serviceName, group, serviceAddress, weight);
+		if (enableRegisterEphemeralNode) {
+			registerEphemeralNode(serviceName, group, serviceAddress, weight);
+		}
 		registerPersistentNode(serviceName, group, serviceAddress, weight);
 		watchSelf(serviceName, group, serviceAddress);
 	}
@@ -258,7 +259,7 @@ public class CuratorRegistry implements Registry {
 			if (weight >= 0) {
 				client.set(weightPath, weight);
 			}
-			boolean exists = client.exists(servicePath);
+			boolean exists = client.exists(servicePath, false);
 			if (exists) {
 				if (logger.isInfoEnabled()) {
 					logger.info("delete existing ephemeral node: " + servicePath);
@@ -319,7 +320,8 @@ public class CuratorRegistry implements Registry {
 		registeredServices.remove(serviceName);
 	}
 
-	public void unregisterEphemeralNode(String serviceName, String group, String serviceAddress) throws RegistryException {
+	public void unregisterEphemeralNode(String serviceName, String group, String serviceAddress)
+			throws RegistryException {
 		String path = Utils.getEphemeralServicePath(serviceName, group, serviceAddress);
 		try {
 			boolean exists = client.exists(path);
@@ -341,7 +343,8 @@ public class CuratorRegistry implements Registry {
 		}
 	}
 
-	public void unregisterPersistentNode(String serviceName, String group, String serviceAddress) throws RegistryException {
+	public void unregisterPersistentNode(String serviceName, String group, String serviceAddress)
+			throws RegistryException {
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
 			if (client.exists(servicePath)) {
