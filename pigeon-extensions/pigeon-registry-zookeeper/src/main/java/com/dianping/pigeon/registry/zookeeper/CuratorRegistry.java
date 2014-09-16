@@ -43,9 +43,6 @@ public class CuratorRegistry implements Registry {
 	private final boolean delEmptyNode = configManager.getBooleanValue("pigeon.registry.siblingchange.delemptynode",
 			true);
 
-	private final boolean enableRegisterEphemeralNode = configManager.getBooleanValue(
-			"pigeon.registry.ephemeralnode.register.enable", false);
-
 	private ConcurrentHashMap<String, Object> referencedServices = new ConcurrentHashMap<String, Object>();
 
 	private ServiceSiblingChangeListener serviceSiblingChangeListener;
@@ -233,9 +230,6 @@ public class CuratorRegistry implements Registry {
 	@Override
 	public void registerService(String serviceName, String group, String serviceAddress, int weight)
 			throws RegistryException {
-		if (enableRegisterEphemeralNode) {
-			registerEphemeralNode(serviceName, group, serviceAddress, weight);
-		}
 		registerPersistentNode(serviceName, group, serviceAddress, weight);
 		watchSelf(serviceName, group, serviceAddress);
 	}
@@ -247,32 +241,6 @@ public class CuratorRegistry implements Registry {
 			client.watchChildren(parentPath);
 		} catch (Exception e) {
 			logger.error("failed to watch " + parentPath, e);
-			throw new RegistryException(e);
-		}
-	}
-
-	void registerEphemeralNode(String serviceName, String group, String serviceAddress, int weight)
-			throws RegistryException {
-		String weightPath = Utils.getWeightPath(serviceAddress);
-		String servicePath = Utils.getEphemeralServicePath(serviceName, group, serviceAddress);
-		try {
-			if (weight >= 0) {
-				client.set(weightPath, weight);
-			}
-			boolean exists = client.exists(servicePath, false);
-			if (exists) {
-				if (logger.isInfoEnabled()) {
-					logger.info("delete existing ephemeral node: " + servicePath);
-				}
-				client.delete(servicePath);
-				Thread.sleep(expirationTime);
-			}
-			client.createEphemeral(servicePath);
-			if (logger.isInfoEnabled()) {
-				logger.info("registered service to ephemeral node: " + servicePath);
-			}
-		} catch (Exception e) {
-			logger.error("failed to register service to " + servicePath, e);
 			throw new RegistryException(e);
 		}
 	}
@@ -315,34 +283,8 @@ public class CuratorRegistry implements Registry {
 
 	@Override
 	public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
-		if (enableRegisterEphemeralNode) {
-			unregisterEphemeralNode(serviceName, group, serviceAddress);
-		}
 		unregisterPersistentNode(serviceName, group, serviceAddress);
 		registeredServices.remove(serviceName);
-	}
-
-	public void unregisterEphemeralNode(String serviceName, String group, String serviceAddress)
-			throws RegistryException {
-		String path = Utils.getEphemeralServicePath(serviceName, group, serviceAddress);
-		try {
-			boolean exists = client.exists(path);
-			if (exists) {
-				client.delete(path);
-			}
-			// remove parent node if no child is there
-			String parentPath = Utils.getEphemeralServicePath(serviceName, group);
-			List<String> children = client.getChildren(parentPath);
-			if (CollectionUtils.isEmpty(children)) {
-				client.delete(parentPath);
-			}
-			if (logger.isInfoEnabled()) {
-				logger.info("unregistered service from " + path);
-			}
-		} catch (Throwable e) {
-			logger.error("failed to unregister service from " + path);
-			throw new RegistryException(e);
-		}
 	}
 
 	public void unregisterPersistentNode(String serviceName, String group, String serviceAddress)

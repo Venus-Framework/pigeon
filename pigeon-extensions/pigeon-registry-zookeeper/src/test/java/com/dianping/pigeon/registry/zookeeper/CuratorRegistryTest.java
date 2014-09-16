@@ -12,9 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.curator.test.TestingServer;
 import org.apache.log4j.xml.DOMConfigurator;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -74,8 +72,6 @@ public class CuratorRegistryTest {
         registry.registerPersistentNode("srv_a", "group_a", "1.1.1.1:1234", 5);
         registry.registerPersistentNode("srv_a", "group_a", "1.1.1.2:1234", 5);
         registry.registerPersistentNode("srv_a", "group_a", "1.1.1.3:1234", 5);
-        registry.registerEphemeralNode("srv_a", "group_a", "1.1.1.4:1234", 5);
-        registry.registerEphemeralNode("srv_a", "group_a", "1.1.1.5:1234", 5);
         String oldHosts = registry.getOldServiceAddress("srv_a", "group_a");
         System.out.println("Old hosts: " + oldHosts);
         assertTrue(oldHosts.contains("1.1.1.2:1234"));
@@ -233,7 +229,6 @@ public class CuratorRegistryTest {
         
         public void register() throws RegistryException {
             if(isEphemeral) {
-                registry.registerEphemeralNode(serviceName, group, serverAddress, weight);
             } else {
                 registry.registerPersistentNode(serviceName, group, serverAddress, weight);
             }
@@ -243,7 +238,6 @@ public class CuratorRegistryTest {
         
         public void unregister() throws RegistryException {
             if(isEphemeral) {
-                registry.unregisterEphemeralNode(serviceName, group, serverAddress);
             } else {
                 registry.unregisterPersistentNode(serviceName, group, serverAddress);
             }
