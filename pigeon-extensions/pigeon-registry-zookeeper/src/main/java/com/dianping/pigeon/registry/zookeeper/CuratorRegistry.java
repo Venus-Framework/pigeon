@@ -315,7 +315,9 @@ public class CuratorRegistry implements Registry {
 
 	@Override
 	public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
-		unregisterEphemeralNode(serviceName, group, serviceAddress);
+		if (enableRegisterEphemeralNode) {
+			unregisterEphemeralNode(serviceName, group, serviceAddress);
+		}
 		unregisterPersistentNode(serviceName, group, serviceAddress);
 		registeredServices.remove(serviceName);
 	}
