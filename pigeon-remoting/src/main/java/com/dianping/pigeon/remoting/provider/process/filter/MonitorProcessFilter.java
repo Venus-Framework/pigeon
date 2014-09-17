@@ -13,6 +13,9 @@ import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.monitor.MonitorHelper;
+import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
+import com.dianping.pigeon.remoting.common.monitor.SizeMonitor.SizeMonitorInfo;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
@@ -77,6 +80,13 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					event.append(InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
 					monitorLogger.logEvent("PigeonService.client", channel.getRemoteAddress(), event.toString());
 					monitorLogger.logEvent("PigeonService.app", request.getApp(), "");
+					if (SizeMonitor.isEnable()) {
+						SizeMonitorInfo sizeInfo = MonitorHelper.getSize();
+						if (sizeInfo != null) {
+							SizeMonitor.getInstance().logSize(sizeInfo.getSize(), sizeInfo.getEvent(),
+									channel.getRemoteAddress());
+						}
+					}
 					transaction.writeMonitorContext();
 					transaction.setStatusOk();
 				} catch (Throwable e) {

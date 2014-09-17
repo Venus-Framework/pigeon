@@ -14,6 +14,9 @@ import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.monitor.MonitorHelper;
+import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
+import com.dianping.pigeon.remoting.common.monitor.SizeMonitor.SizeMonitorInfo;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.common.util.TimelineManager;
@@ -57,6 +60,13 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						logger.logEvent("PigeonCall.server", client.getAddress(),
 								InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
 						logger.logEvent("PigeonCall.app", request.getApp(), "");
+						if (SizeMonitor.isEnable()) {
+							SizeMonitorInfo sizeInfo = MonitorHelper.getSize();
+							if (sizeInfo != null) {
+								SizeMonitor.getInstance().logSize(sizeInfo.getSize(), sizeInfo.getEvent(),
+										client.getAddress());
+							}
+						}
 						transaction.readMonitorContext();
 					}
 				} catch (Throwable e) {

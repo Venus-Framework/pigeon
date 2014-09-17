@@ -7,7 +7,6 @@ package com.dianping.pigeon.remoting.netty.codec;
 import static org.jboss.netty.buffer.ChannelBuffers.dynamicBuffer;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 import org.apache.log4j.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -20,7 +19,9 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
+import com.dianping.pigeon.remoting.common.monitor.MonitorHelper;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
+import com.dianping.pigeon.remoting.common.monitor.SizeMonitor.SizeMonitorInfo;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 
@@ -45,8 +46,7 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 
 				if (SizeMonitor.isEnable()) {
 					int size = buffer.readableBytes();
-					String ip = ((InetSocketAddress) channel.getRemoteAddress()).getAddress().getHostAddress();
-					SizeMonitor.getInstance().logSize(size, getEventName(), ip);
+					MonitorHelper.setSize(new SizeMonitorInfo(size, getEventName()));
 				}
 
 				return buffer;
