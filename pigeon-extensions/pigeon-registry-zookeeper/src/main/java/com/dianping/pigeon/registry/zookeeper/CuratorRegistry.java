@@ -247,8 +247,13 @@ public class CuratorRegistry implements Registry {
 
 	void registerPersistentNode(String serviceName, String group, String serviceAddress, int weight)
 			throws RegistryException {
+		String weightPath = Utils.getWeightPath(serviceAddress);
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
+			// 1. Register weight
+			if (weight >= 0) {
+				client.set(weightPath, "" + weight);
+			}
 			if (client.exists(servicePath)) {
 				String addressValue = client.get(servicePath);
 				String[] addressArray = addressValue.split(",");
