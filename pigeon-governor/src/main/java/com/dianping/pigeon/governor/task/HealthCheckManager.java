@@ -31,33 +31,33 @@ import com.dianping.pigeon.registry.exception.RegistryException;
 
 public class HealthCheckManager extends Thread {
 
-    private static final Logger logger = Logger.getLogger(HealthCheckManager.class);
-    
-    private Registry registryClass = ExtensionLoader.getExtension(Registry.class);
-    
-    private int corePoolSize = Runtime.getRuntime().availableProcessors();
-    private int maxPoolSize = corePoolSize * 10;
-    private int queueSize = 500;
-    
-    private BlockingQueue<CheckTask> resultQueue = new LinkedBlockingQueue<CheckTask>();
-    
-    private ThreadPoolExecutor workerPool;
-    private ExecutorService bossPool;
-    
-    private String action;
-    private volatile long interval;
-    private volatile long hostInterval;
-    private volatile int deadThreshold;
-    
-    private Map<Environment, Action> actionMap;
-    private Map<Environment, Registry> registryMap;
-    
-    private ConfigCache configManager;
-    
-    public HealthCheckManager() {
-        try {
-        	configManager = ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress());
-        	configManager.addChange(new ConfigChangeHandler());
+	private static final Logger logger = Logger.getLogger(HealthCheckManager.class);
+
+	private Registry registryClass = ExtensionLoader.getExtension(Registry.class);
+
+	private int corePoolSize = Runtime.getRuntime().availableProcessors();
+	private int maxPoolSize = corePoolSize * 10;
+	private int queueSize = 500;
+
+	private BlockingQueue<CheckTask> resultQueue = new LinkedBlockingQueue<CheckTask>();
+
+	private ThreadPoolExecutor workerPool;
+	private ExecutorService bossPool;
+
+	private String action;
+	private volatile long interval = 10 * 1000;
+	private volatile long hostInterval = 5 * 1000;
+	private volatile int deadThreshold = 10;
+
+	private Map<Environment, Action> actionMap;
+	private Map<Environment, Registry> registryMap;
+
+	private ConfigCache configManager;
+
+	public HealthCheckManager() {
+		try {
+			configManager = ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress());
+			configManager.addChange(new ConfigChangeHandler());
 			action = configManager.getProperty(Constants.KEY_ACTION);
 			String tmp = configManager.getProperty(Constants.KEY_INTERVAL);
 			interval = Long.parseLong(tmp);
@@ -68,54 +68,59 @@ public class HealthCheckManager extends Thread {
 		} catch (Exception e) {
 			logger.error("", e);
 			action = "dev:remove";
-			interval = 10*1000;
-			hostInterval = 5*1000;
-			deadThreshold = 5;
+			interval = 10 * 1000;
+			hostInterval = 5 * 1000;
+			deadThreshold = 10;
 		}
-        actionMap = new LinkedHashMap<Environment, Action>();
-        registryMap = new LinkedHashMap<Environment, Registry>();
-        parseAction();
-    }
-    
-    public void run() {
-        workerPool = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 60, TimeUnit.SECONDS, 
-        		new ArrayBlockingQueue<Runnable>(queueSize), new NamingThreadFactory("pigeon-healthcheck"), new BlockProviderPolicy());
-        
-        bossPool = Executors.newFixedThreadPool(2);
-        bossPool.submit(new GenerateTask(this));
-        bossPool.submit(new DisposeTask(this));
-    }
+		actionMap = new LinkedHashMap<Environment, Action>();
+		registryMap = new LinkedHashMap<Environment, Registry>();
+		parseAction();
+	}
 
-    private void parseAction() {
-        if(StringUtils.isBlank(action)) {
-            logger.error("action is null");
-            return;
-        }
-        
-        String[] envActionList = action.split(",");
-        for(String envAction : envActionList) {
-            String[] envActionPair = envAction.split(":");
-            Environment env = Environment.valueOf(envActionPair[0].trim());
-            Action act = Action.valueOf(envActionPair[1].trim());
-            actionMap.put(env, act);
-        }
-    }
+	public void run() {
+		workerPool = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 60, TimeUnit.SECONDS,
+				new ArrayBlockingQueue<Runnable>(queueSize), new NamingThreadFactory("pigeon-healthcheck"),
+				new BlockProviderPolicy());
 
-    public ThreadPoolExecutor getWorkerPool() {
-        return workerPool;
-    }
-    
-    public BlockingQueue<CheckTask> getResultQueue() {
-        return resultQueue;
-    }
-    
-    public Set<Environment> getEnvSet() {
-        return actionMap.keySet();
-    }
-    
-    public Action getAction(Environment env) {
-        return actionMap.get(env);
-    }
+		bossPool = Executors.newFixedThreadPool(2);
+		bossPool.submit(new GenerateTask(this));
+		bossPool.submit(new DisposeTask(this));
+	}
+
+	private void parseAction() {
+		if (StringUtils.isBlank(action)) {
+			logger.error("action is null");
+			return;
+		}
+
+		String[] envActionList = action.split(",");
+		for (String envAction : envActionList) {
+			String[] envActionPair = envAction.split(":");
+			String strEnv = envActionPair[0].trim();
+			if (strEnv.indexOf("-") != -1) {
+				strEnv = strEnv.replace("-", "");
+			}
+			Environment env = Environment.valueOf(strEnv);
+			Action act = Action.valueOf(envActionPair[1].trim());
+			actionMap.put(env, act);
+		}
+	}
+
+	public ThreadPoolExecutor getWorkerPool() {
+		return workerPool;
+	}
+
+	public BlockingQueue<CheckTask> getResultQueue() {
+		return resultQueue;
+	}
+
+	public Set<Environment> getEnvSet() {
+		return actionMap.keySet();
+	}
+
+	public Action getAction(Environment env) {
+		return actionMap.get(env);
+	}
 
 	public long getHostInterval() {
 		return hostInterval;
@@ -129,37 +134,37 @@ public class HealthCheckManager extends Thread {
 		return interval;
 	}
 
-    public synchronized Registry getRegistry(Environment env) throws RegistryException {
-        Registry registry = registryMap.get(env);
-        if(registry == null) {
-            try {
-                registry = initRegistry(env);
-                registryMap.put(env, registry);
-            } catch (Exception e) {
-                String message = String.format("failed to init registry for %s[%s]", env.name(), env.getZkAddress());
-                logger.error(message, e);
-                throw new RegistryException(message, e);
-            }
-        }
-        return registry;
-    }
-    
-    private Registry initRegistry(Environment env) throws InstantiationException, IllegalAccessException {
-        Registry registry = registryClass.getClass().newInstance();
-        Properties props = new Properties();
-        props.put(com.dianping.pigeon.registry.util.Constants.KEY_REGISTRY_ADDRESS, env.getZkAddress());
-        registry.init(props);
-        return registry;
-    }
-    
-    public static void main(String[] args) {
-        DOMConfigurator.configureAndWatch(HealthCheckManager.class.getClassLoader().getResource("log4j.xml").getFile());
-        
-        new HealthCheckManager().start();
-        logger.info("HealthCheckManager started");
-    }
-    
-    class BlockProviderPolicy implements RejectedExecutionHandler {
+	public synchronized Registry getRegistry(Environment env) throws RegistryException {
+		Registry registry = registryMap.get(env);
+		if (registry == null) {
+			try {
+				registry = initRegistry(env);
+				registryMap.put(env, registry);
+			} catch (Exception e) {
+				String message = String.format("failed to init registry for %s[%s]", env.name(), env.getZkAddress());
+				logger.error(message, e);
+				throw new RegistryException(message, e);
+			}
+		}
+		return registry;
+	}
+
+	private Registry initRegistry(Environment env) throws InstantiationException, IllegalAccessException {
+		Registry registry = registryClass.getClass().newInstance();
+		Properties props = new Properties();
+		props.put(com.dianping.pigeon.registry.util.Constants.KEY_REGISTRY_ADDRESS, env.getZkAddress());
+		registry.init(props);
+		return registry;
+	}
+
+	public static void main(String[] args) {
+		DOMConfigurator.configureAndWatch(HealthCheckManager.class.getClassLoader().getResource("log4j.xml").getFile());
+
+		new HealthCheckManager().start();
+		logger.info("HealthCheckManager started");
+	}
+
+	class BlockProviderPolicy implements RejectedExecutionHandler {
 
 		@Override
 		public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
@@ -171,46 +176,46 @@ public class HealthCheckManager extends Thread {
 				}
 			}
 		}
-    	
-    }
-    
-    class NamingThreadFactory implements ThreadFactory {
 
-    	private String prefix;
-    	private AtomicInteger n;
+	}
+
+	class NamingThreadFactory implements ThreadFactory {
+
+		private String prefix;
+		private AtomicInteger n;
 
 		public NamingThreadFactory(String prefix) {
-			if(prefix == null) {
+			if (prefix == null) {
 				throw new NullPointerException("Thread name prefix is null");
 			}
-    		this.prefix = prefix;
-    		this.n = new AtomicInteger(0);
-    	}
-    	
+			this.prefix = prefix;
+			this.n = new AtomicInteger(0);
+		}
+
 		@Override
 		public Thread newThread(Runnable r) {
 			Thread t = new Thread(r, prefix + "-" + n.incrementAndGet());
 			t.setDaemon(true);
 			return t;
 		}
-    	
-    }
-    
-    class ConfigChangeHandler implements ConfigChange {
+
+	}
+
+	class ConfigChangeHandler implements ConfigChange {
 
 		@Override
 		public void onChange(String key, String value) {
-			if(Constants.KEY_ACTION.equals(key)) {
+			if (Constants.KEY_ACTION.equals(key)) {
 				action = value;
 				parseAction();
-			} else if(Constants.KEY_INTERVAL.equals(key)) {
+			} else if (Constants.KEY_INTERVAL.equals(key)) {
 				interval = Long.parseLong(value);
-			} else if(Constants.KEY_HOST_INTERVAL.equals(key)) {
+			} else if (Constants.KEY_HOST_INTERVAL.equals(key)) {
 				hostInterval = Long.parseLong(value);
-			} else if(Constants.KEY_DEAD_THRESHOLD.equals(key)) {
+			} else if (Constants.KEY_DEAD_THRESHOLD.equals(key)) {
 				deadThreshold = Integer.parseInt(value);
 			}
 		}
-    	
-    }
+
+	}
 }

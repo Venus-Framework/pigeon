@@ -94,7 +94,7 @@ public class DisposeTask implements Runnable {
 	 * are dead 3. will remove if at least one host is alive
 	 */
 	private int canRemoveHost(List<Host> hostList, Host host) {
-		if (Environment.product.equals(host.getService().getEnv()) && hostList.size() <= 1)
+		if (host.getService().getEnv().toString().startsWith("product") && hostList.size() <= 1)
 			return -1;
 		boolean hasLiveHost = false;
 		boolean isChecking = false;
@@ -106,7 +106,7 @@ public class DisposeTask implements Runnable {
 					isChecking = true;
 			}
 		}
-		if (!hasLiveHost && !isChecking && !Environment.product.equals(host.getService().getEnv())) {
+		if (!hasLiveHost && !isChecking && !host.getService().getEnv().toString().startsWith("product")) {
 			return 1;
 		}
 		return hasLiveHost ? 1 : (isChecking ? 0 : -1);

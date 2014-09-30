@@ -30,6 +30,17 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 	private static final Logger logger = LoggerLoader.getLogger(MonitorProcessFilter.class);
 	private Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 
+	private String getIp(String address) {
+		String ip = address;
+		if (address != null) {
+			int idx = address.indexOf(":");
+			if (idx != -1) {
+				ip = address.substring(0, idx);
+			}
+		}
+		return ip;
+	}
+
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
@@ -78,13 +89,13 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 				try {
 					StringBuilder event = new StringBuilder();
 					event.append(InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
-					monitorLogger.logEvent("PigeonService.client", channel.getRemoteAddress(), event.toString());
+					String ip = getIp(channel.getRemoteAddress());
+					monitorLogger.logEvent("PigeonService.client", ip, event.toString());
 					monitorLogger.logEvent("PigeonService.app", request.getApp(), "");
 					if (SizeMonitor.isEnable()) {
 						SizeMonitorInfo sizeInfo = MonitorHelper.getSize();
 						if (sizeInfo != null) {
-							SizeMonitor.getInstance().logSize(sizeInfo.getSize(), sizeInfo.getEvent(),
-									channel.getRemoteAddress());
+							SizeMonitor.getInstance().logSize(sizeInfo.getSize(), sizeInfo.getEvent(), ip);
 						}
 					}
 					transaction.writeMonitorContext();

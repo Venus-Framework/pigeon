@@ -76,8 +76,4 @@
 		lazy-init="false" init-method="init">
 	</bean>
 
-	<bean id="offlineListener"
-		class="com.dianping.pigeon.governor.listener.OfflineListenerBean"
-		lazy-init="false" init-method="init">
-	</bean>
 </beans>
