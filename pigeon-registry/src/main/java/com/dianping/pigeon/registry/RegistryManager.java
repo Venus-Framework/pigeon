@@ -40,11 +40,13 @@ public class RegistryManager {
 
 	private Registry registry = ExtensionLoader.getExtension(Registry.class);
 
-	private Map<String, Set<HostInfo>> serviceNameToHostInfos = new ConcurrentHashMap<String, Set<HostInfo>>();
+	private Map<String, Set<HostInfo>> referencedServiceAddresses = new ConcurrentHashMap<String, Set<HostInfo>>();
 
-	private Map<String, HostInfo> serviceAddrToHostInfo = new ConcurrentHashMap<String, HostInfo>();
+	private Map<String, HostInfo> referencedAddresses = new ConcurrentHashMap<String, HostInfo>();
 
 	ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	private ConcurrentHashMap<String, Object> registeredServices = new ConcurrentHashMap<String, Object>();
 
 	private RegistryManager() {
 	}
@@ -99,8 +101,16 @@ public class RegistryManager {
 		this.props.putAll(props);
 	}
 
-	public String getServiceAddress(String serviceName) throws RegistryException {
-		return RegistryManager.getInstance().getServiceAddress(serviceName, configManager.getGroup());
+	public Set<String> getReferencedServices() {
+		return referencedServiceAddresses.keySet();
+	}
+
+	public Set<String> getRegisteredServices() {
+		return registeredServices.keySet();
+	}
+
+	public boolean isReferencedService(String serviceName, String group) {
+		return referencedServiceAddresses.containsKey(serviceName);
 	}
 
 	public String getServiceAddress(String serviceName, String group) throws RegistryException {
@@ -130,7 +140,8 @@ public class RegistryManager {
 			}
 		}
 		if (registry != null) {
-			return registry.getServiceAddress(serviceName, group);
+			String addr = registry.getServiceAddress(serviceName, group);
+			return addr;
 		}
 
 		return null;
@@ -145,7 +156,7 @@ public class RegistryManager {
 	}
 
 	public int getServiceWeight(String serverAddress) {
-		HostInfo hostInfo = serviceAddrToHostInfo.get(serverAddress);
+		HostInfo hostInfo = referencedAddresses.get(serverAddress);
 		if (hostInfo != null) {
 			return hostInfo.getWeight();
 		}
@@ -154,7 +165,7 @@ public class RegistryManager {
 			try {
 				weight = registry.getServerWeight(serverAddress);
 			} catch (Throwable e) {
-				logger.error("Failed to get weight for " + serverAddress, e);
+				logger.error("failed to get weight for " + serverAddress, e);
 			}
 		}
 		return weight;
@@ -164,7 +175,7 @@ public class RegistryManager {
 	 * Update service weight in local cache. Will not update to registry center.
 	 */
 	public void setServiceWeight(String serviceAddress, int weight) {
-		HostInfo hostInfo = serviceAddrToHostInfo.get(serviceAddress);
+		HostInfo hostInfo = referencedAddresses.get(serviceAddress);
 		if (hostInfo == null) {
 			if (!serviceAddress.startsWith(configManager.getLocalIp())) {
 				logger.warn("weight not found for address:" + serviceAddress);
@@ -172,13 +183,14 @@ public class RegistryManager {
 			return;
 		}
 		hostInfo.setWeight(weight);
-		logger.info("Set " + serviceAddress + " weight to " + weight);
+		logger.info("set " + serviceAddress + " weight to " + weight);
 	}
 
 	public void registerService(String serviceName, String group, String serviceAddress, int weight)
 			throws RegistryException {
 		if (registry != null) {
 			registry.registerService(serviceName, group, serviceAddress, weight);
+			registeredServices.putIfAbsent(serviceName, serviceAddress);
 		}
 	}
 
@@ -189,71 +201,67 @@ public class RegistryManager {
 	}
 
 	public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
-		if (registry != null) {
-			registry.unregisterService(serviceName, serviceAddress);
-		}
+		unregisterService(serviceName, Constants.DEFAULT_GROUP, serviceAddress);
 	}
 
 	public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
 		if (registry != null) {
 			registry.unregisterService(serviceName, group, serviceAddress);
+			registeredServices.remove(serviceName);
 		}
 	}
 
 	// TODO multi thread support
-	public void addServiceServer(String serviceName, String host, int port, int weight) {
+	public void addServiceAddress(String serviceName, String host, int port, int weight) {
 		Utils.validateWeight(host, port, weight);
 
 		HostInfo hostInfo = new HostInfo(host, port, weight);
 
-		Set<HostInfo> hostInfos = serviceNameToHostInfos.get(serviceName);
+		Set<HostInfo> hostInfos = referencedServiceAddresses.get(serviceName);
 		if (hostInfos == null) {
 			hostInfos = new HashSet<HostInfo>();
-			serviceNameToHostInfos.put(serviceName, hostInfos);
+			referencedServiceAddresses.put(serviceName, hostInfos);
 		}
 		hostInfos.add(hostInfo);
 
-		if (!serviceAddrToHostInfo.containsKey(hostInfo.getConnect())) {
-			serviceAddrToHostInfo.put(hostInfo.getConnect(), hostInfo);
+		if (!referencedAddresses.containsKey(hostInfo.getConnect())) {
+			referencedAddresses.put(hostInfo.getConnect(), hostInfo);
 		}
-
-		logger.info("Add server " + hostInfo + " to service " + serviceName);
 	}
 
-	public void removeServiceServer(String serviceName, HostInfo hostInfo) {
-		Set<HostInfo> hostInfos = serviceNameToHostInfos.get(serviceName);
+	public void removeServiceAddress(String serviceName, HostInfo hostInfo) {
+		Set<HostInfo> hostInfos = referencedServiceAddresses.get(serviceName);
 		if (hostInfos == null || !hostInfos.contains(hostInfo)) {
-			logger.warn("Server " + hostInfo + " is not in server list of service " + serviceName);
+			logger.warn("address:" + hostInfo + " is not in address list of service " + serviceName);
 			return;
 		}
 		hostInfos.remove(hostInfo);
-		logger.info("Remove server " + hostInfo + " from service " + serviceName);
+		logger.info("removed address:" + hostInfo + " from service:" + serviceName);
 
 		// If server is not referencd any more, remove from server list
-		if (!isServerReferenced(hostInfo)) {
-			serviceAddrToHostInfo.remove(hostInfo);
-			logger.info("Remove server from server list");
+		if (!isAddressReferenced(hostInfo)) {
+			referencedAddresses.remove(hostInfo.getConnect());
 		}
 	}
 
-	private boolean isServerReferenced(HostInfo hostInfo) {
-		for (Set<HostInfo> hostInfos : serviceNameToHostInfos.values()) {
+	private boolean isAddressReferenced(HostInfo hostInfo) {
+		for (Set<HostInfo> hostInfos : referencedServiceAddresses.values()) {
 			if (hostInfos.contains(hostInfo))
 				return true;
 		}
 		return false;
 	}
 
-	public Set<HostInfo> getServiceServers(String serviceName) {
-		Set<HostInfo> hostInfos = serviceNameToHostInfos.get(serviceName);
+	public Set<HostInfo> getReferencedServiceAddresses(String serviceName) {
+		Set<HostInfo> hostInfos = referencedServiceAddresses.get(serviceName);
 		if (hostInfos == null || hostInfos.size() == 0) {
-			logger.warn("Server list of service " + serviceName + " is empty");
+			logger.warn("empty address list for service:" + serviceName);
 		}
 		return hostInfos;
 	}
 
-	public Map<String, Set<HostInfo>> getAllServiceServers() {
-		return serviceNameToHostInfos;
+	public Map<String, Set<HostInfo>> getAllReferencedServiceAddresses() {
+		return referencedServiceAddresses;
 	}
 
 }

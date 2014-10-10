@@ -36,20 +36,11 @@ import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 public class ServiceFactory {
 
 	static Logger logger = LoggerLoader.getLogger(ServiceFactory.class);
-	static boolean isCacheService = true;
 	static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	static Map<InvokerConfig<?>, Object> services = new ConcurrentHashMap<InvokerConfig<?>, Object>();
 
 	static {
 		ProviderBootStrap.init();
-	}
-
-	public static boolean isCacheService() {
-		return isCacheService;
-	}
-
-	public static synchronized void setCacheService(boolean isCacheService) {
-		ServiceFactory.isCacheService = isCacheService;
 	}
 
 	public static Map<InvokerConfig<?>, Object> getAllServiceInvokers() {
@@ -137,9 +128,7 @@ public class ServiceFactory {
 			}
 		}
 		Object service = null;
-		if (isCacheService) {
-			service = services.get(invokerConfig);
-		}
+		service = services.get(invokerConfig);
 		if (service == null) {
 			try {
 				InvokerBootStrap.startup();

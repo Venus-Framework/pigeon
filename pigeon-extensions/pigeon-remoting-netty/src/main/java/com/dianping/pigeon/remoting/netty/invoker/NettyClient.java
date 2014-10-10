@@ -111,9 +111,6 @@ public class NettyClient extends AbstractClient {
 			return;
 		}
 		incLogCount();
-		if (logger.isInfoEnabled() && isLog()) {
-			logger.info("client is connecting to " + this.host + ":" + this.port);
-		}
 		ChannelFuture future = null;
 		try {
 			future = bootstrap.connect(new InetSocketAddress(host, port));

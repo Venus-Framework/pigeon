@@ -21,32 +21,44 @@ public class RegistryEventListener {
 
 	private static final Logger logger = LoggerLoader.getLogger(RegistryEventListener.class);
 
-	private static List<ServiceProviderChangeListener> listeners = new ArrayList<ServiceProviderChangeListener>();
+	private static List<ServiceProviderChangeListener> serviceProviderChangeListeners = new ArrayList<ServiceProviderChangeListener>();
+
+	private static List<RegistryConnectionListener> registryConnectionListeners = new ArrayList<RegistryConnectionListener>();
 
 	public synchronized static void addListener(ServiceProviderChangeListener listener) {
-		listeners.add(listener);
+		serviceProviderChangeListeners.add(listener);
 	}
 
 	public synchronized static void removeListener(ServiceProviderChangeListener listener) {
-		listeners.remove(listener);
+		serviceProviderChangeListeners.remove(listener);
+	}
+
+	public synchronized static void addListener(RegistryConnectionListener listener) {
+		registryConnectionListeners.add(listener);
 	}
 
 	public static void providerRemoved(String serviceName, String host, int port) {
-		for (ServiceProviderChangeListener listener : listeners) {
+		for (ServiceProviderChangeListener listener : serviceProviderChangeListeners) {
 			listener.providerRemoved(new ServiceProviderChangeEvent(serviceName, host, port, -1));
 		}
 	}
 
 	public static void providerAdded(String serviceName, String host, int port, int weight) {
-		for (ServiceProviderChangeListener listener : listeners) {
+		for (ServiceProviderChangeListener listener : serviceProviderChangeListeners) {
 			ServiceProviderChangeEvent event = new ServiceProviderChangeEvent(serviceName, host, port, weight);
 			listener.providerAdded(event);
 		}
 	}
 
 	public static void hostWeightChanged(String host, int port, int weight) {
-		for (ServiceProviderChangeListener listener : listeners) {
+		for (ServiceProviderChangeListener listener : serviceProviderChangeListeners) {
 			listener.hostWeightChanged(new ServiceProviderChangeEvent(null, host, port, weight));
+		}
+	}
+
+	public static void connectionReconnected() {
+		for (RegistryConnectionListener listener : registryConnectionListeners) {
+			listener.reconnected();
 		}
 	}
 

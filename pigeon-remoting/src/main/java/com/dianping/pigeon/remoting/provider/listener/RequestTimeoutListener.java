@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -36,12 +37,40 @@ public class RequestTimeoutListener implements Runnable {
 			Constants.DEFAULT_TIMEOUT_INTERVAL);
 	private boolean defaultCancelTimeout = configManager.getBooleanValue(Constants.KEY_TIMEOUT_CANCEL,
 			Constants.DEFAULT_TIMEOUT_CANCEL);
-	private boolean interruptBusy = configManager.getBooleanValue("pigeon.timeout.interruptbuzy", false);
+	private boolean interruptBusy = configManager.getBooleanValue("pigeon.timeout.interruptbusy", true);
+
+	private class InnerConfigChangeListener implements ConfigChangeListener {
+
+		@Override
+		public void onKeyUpdated(String key, String value) {
+			if (key.endsWith("pigeon.timeout.interruptbusy")) {
+				try {
+					interruptBusy = Boolean.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith("pigeon.timeout.cancel")) {
+				try {
+					defaultCancelTimeout = Boolean.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			}
+		}
+
+		@Override
+		public void onKeyAdded(String key, String value) {
+		}
+
+		@Override
+		public void onKeyRemoved(String key) {
+		}
+
+	}
 
 	public RequestTimeoutListener(RequestProcessor requestProcessor,
 			Map<InvocationRequest, ProviderContext> requestContextMap) {
 		this.requestProcessor = requestProcessor;
 		this.requestContextMap = requestContextMap;
+		configManager.registerConfigChangeListener(new InnerConfigChangeListener());
 	}
 
 	public void run() {

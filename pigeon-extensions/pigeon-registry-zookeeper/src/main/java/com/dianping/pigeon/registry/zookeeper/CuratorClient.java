@@ -16,6 +16,8 @@ import org.apache.zookeeper.data.Stat;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.listener.RegistryEventListener;
+import com.dianping.pigeon.registry.util.Constants;
 
 public class CuratorClient {
 
@@ -42,9 +44,24 @@ public class CuratorClient {
 			@Override
 			public void stateChanged(CuratorFramework client, ConnectionState newState) {
 				logger.info("zookeeper state changed to " + newState);
+				if (newState == ConnectionState.LOST) {
+					while (true) {
+						try {
+							if (client.getZookeeperClient().blockUntilConnectedOrTimedOut()) {
+								break;
+							}
+						} catch (InterruptedException e) {
+							break;
+						} catch (Exception e) {
+							logger.error("error with zookeeper connection:" + e.getMessage());
+						}
+					}
+				} else if (newState == ConnectionState.RECONNECTED) {
+					RegistryEventListener.connectionReconnected();
+				}
 			}
 		});
-		client.getCuratorListenable().addListener(new CuratorEventListener(registry, this));
+		client.getCuratorListenable().addListener(new CuratorEventListener(this));
 		client.start();
 		client.getZookeeperClient().blockUntilConnectedOrTimedOut();
 	}
@@ -149,4 +166,5 @@ public class CuratorClient {
 			client = null;
 		}
 	}
+
 }

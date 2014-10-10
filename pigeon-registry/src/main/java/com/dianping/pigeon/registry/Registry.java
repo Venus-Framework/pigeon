@@ -2,7 +2,6 @@ package com.dianping.pigeon.registry;
 
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import com.dianping.pigeon.registry.exception.RegistryException;
 
@@ -30,7 +29,4 @@ public interface Registry {
 
 	public void setServerWeight(String serverAddress, int weight) throws RegistryException;
 
-	public Set<String> getReferencedServices();
-
-	public Set<String> getRegisteredServices();
 }

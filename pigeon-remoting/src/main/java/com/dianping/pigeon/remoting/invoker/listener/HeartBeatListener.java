@@ -153,27 +153,9 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	}
 
 	public void addConnect(ConnectInfo cmd) {
-		if (logger.isInfoEnabled()) {
-			logger.info("[heartbeat] add service provider:" + cmd);
-			// logger.info("[heartbeat] current checking providers:" +
-			// this.getWorkingClients());
-		}
 	}
 
 	public void removeConnect(Client client) {
-		if (logger.isInfoEnabled()) {
-			logger.info("[heartbeat] remove service provider:" + client);
-		}
-		for (Iterator<Entry<String, List<Client>>> iter = workingClients.entrySet().iterator(); iter.hasNext();) {
-			Entry<String, List<Client>> entry = iter.next();
-			if (entry.getValue() != null && entry.getValue().contains(client)) {
-				entry.getValue().remove(client);
-			}
-		}
-		if (logger.isInfoEnabled()) {
-			// logger.info("[heartbeat] current checking providers:" +
-			// this.getWorkingClients());
-		}
 	}
 
 	public void processResponse(InvocationRequest request, InvocationResponse response, Client client) {
@@ -230,7 +212,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	}
 
 	private boolean canPickOff(Client client) {
-		Map<String, Set<HostInfo>> serviceHostInfos = ClientManager.getInstance().getServiceHostInfos();
+		Map<String, Set<HostInfo>> serviceHostInfos = ClientManager.getInstance().getServiceHosts();
 		if (serviceHostInfos.isEmpty()) {
 			// never be here, otherwise no take off
 			return false;

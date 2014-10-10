@@ -4,8 +4,8 @@
  */
 package com.dianping.pigeon.registry.listener;
 
-public interface ConfigChangeListener {
+public interface RegistryConnectionListener {
 
-	void onChange(String key, String value);
+	void reconnected();
 
 }

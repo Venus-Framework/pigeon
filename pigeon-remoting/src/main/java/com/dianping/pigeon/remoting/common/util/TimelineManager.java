@@ -176,7 +176,9 @@ public class TimelineManager {
 			}
 		}
 		if (count > 0) {
-			logger.info(String.format("removed %d legacy timelines", count));
+			if (logger.isDebugEnabled()) {
+				logger.debug(String.format("removed %d legacy timelines", count));
+			}
 		}
 		lastRemoveTime = now;
 	}

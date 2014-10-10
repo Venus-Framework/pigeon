@@ -5,6 +5,7 @@
 package com.dianping.pigeon.remoting.invoker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,9 +20,11 @@ import com.dianping.pigeon.domain.phase.Disposable;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.registry.listener.RegistryConnectionListener;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
+import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
@@ -55,9 +58,16 @@ public class ClientManager implements Disposable {
 
 	private ServiceProviderChangeListener providerChangeListener = new InnerServiceProviderChangeListener();
 
-	private static ThreadPool listenerThreadPool = new DefaultThreadPool("Pigeon-Client-Listener-ThreadPool");
+	private static ThreadPool heartBeatThreadPool = new DefaultThreadPool("Pigeon-Client-HeartBeat-ThreadPool");
+
+	private static ThreadPool reconnectThreadPool = new DefaultThreadPool("Pigeon-Client-Reconnect-ThreadPool");
+
+	private static ThreadPool providerAvailableThreadPool = new DefaultThreadPool(
+			"Pigeon-Client-ProviderAvailable-ThreadPool");
 
 	private static ClientManager instance = new ClientManager();
+
+	private RegistryConnectionListener registryConnectionListener = new InnerRegistryConnectionListener();
 
 	public static ClientManager getInstance() {
 		return instance;
@@ -75,16 +85,17 @@ public class ClientManager implements Disposable {
 		this.clusterListenerManager.addListener(this.clusterListener);
 		this.clusterListenerManager.addListener(this.heartBeatTask);
 		this.clusterListenerManager.addListener(this.reconnectTask);
-		listenerThreadPool.execute(this.heartBeatTask);
-		listenerThreadPool.execute(this.reconnectTask);
-		listenerThreadPool.execute(this.providerAvailableListener);
+		heartBeatThreadPool.execute(this.heartBeatTask);
+		reconnectThreadPool.execute(this.reconnectTask);
+		providerAvailableThreadPool.execute(this.providerAvailableListener);
 		RegistryEventListener.addListener(providerChangeListener);
+		RegistryEventListener.addListener(registryConnectionListener);
 	}
 
 	public synchronized void registerClient(String serviceName, String host, int port, int weight) {
 		ConnectInfo connectInfo = new ConnectInfo(serviceName, host, port, weight);
 		this.clusterListenerManager.addConnect(connectInfo);
-		RegistryManager.getInstance().addServiceServer(serviceName, host, port, weight);
+		RegistryManager.getInstance().addServiceAddress(serviceName, host, port, weight);
 	}
 
 	public Client getClient(InvokerConfig<?> invokerConfig, InvocationRequest request, List<Client> excludeClients) {
@@ -108,10 +119,10 @@ public class ClientManager implements Disposable {
 	}
 
 	public String getServiceAddress(String serviceName, String group, String vip) {
-		while (!RegistryManager.isInitialized()) {
+		if (!RegistryManager.isInitialized()) {
 			logger.info("waitting for registry initialized");
 			try {
-				Thread.sleep(50);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
 		}
@@ -131,12 +142,12 @@ public class ClientManager implements Disposable {
 
 		if (StringUtils.isBlank(serviceAddress)) {
 			throw new ServiceUnavailableException("no service provider found for service:" + serviceName + ",group:"
-					+ group + ",vip:" + vip);
+					+ group);
 		}
 
 		if (logger.isInfoEnabled()) {
 			logger.info("selected service provider address is:" + serviceAddress + " with service:" + serviceName
-					+ ",group:" + group + ",vip:" + vip);
+					+ ",group:" + group);
 		}
 		serviceAddress = serviceAddress.trim();
 		return serviceAddress;
@@ -174,42 +185,10 @@ public class ClientManager implements Disposable {
 				}
 			}
 		}
-
-		// final CountDownLatch latch = new CountDownLatch(addressList.size());
-		// for (final String address : addressList) {
-		// final String url = serviceName;
-		// Runnable r = new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// String[] parts = address.split(":");
-		// try {
-		// String host = parts[0];
-		// int port = Integer.parseInt(parts[1]);
-		// int weight = RegistryManager.getInstance().getServiceWeight(address);
-		// RegistryEventListener.providerAdded(url, host, port, weight);
-		// latch.countDown();
-		// } catch (Exception e) {
-		// throw new RuntimeException("error while registering service invoker:"
-		// + url + ", address:"
-		// + address, e);
-		// }
-		// }
-		//
-		// };
-		// registerServiceInvokerThreadPool.submit(r);
-		// }
-		// try {
-		// latch.await(1000, TimeUnit.MILLISECONDS);
-		// } catch (InterruptedException e) {
-		// throw new
-		// RuntimeException("error while registering service invokers:" +
-		// serviceName, e);
-		// }
 	}
 
-	public Map<String, Set<HostInfo>> getServiceHostInfos() {
-		return RegistryManager.getInstance().getAllServiceServers();
+	public Map<String, Set<HostInfo>> getServiceHosts() {
+		return RegistryManager.getInstance().getAllReferencedServiceAddresses();
 	}
 
 	/**
@@ -242,12 +221,33 @@ public class ClientManager implements Disposable {
 		@Override
 		public void providerRemoved(ServiceProviderChangeEvent event) {
 			HostInfo hostInfo = new HostInfo(event.getHost(), event.getPort(), event.getWeight());
-			RegistryManager.getInstance().removeServiceServer(event.getServiceName(), hostInfo);
+			RegistryManager.getInstance().removeServiceAddress(event.getServiceName(), hostInfo);
 		}
 
 		@Override
 		public void hostWeightChanged(ServiceProviderChangeEvent event) {
 		}
+	}
+
+	class InnerRegistryConnectionListener implements RegistryConnectionListener {
+
+		@Override
+		public void reconnected() {
+			Set<InvokerConfig<?>> services = ServiceFactory.getAllServiceInvokers().keySet();
+			Map<String, String> serviceGroupMap = new HashMap<String, String>();
+			for (InvokerConfig<?> invokerConfig : services) {
+				serviceGroupMap.put(invokerConfig.getUrl(), invokerConfig.getGroup());
+			}
+			for (String url : serviceGroupMap.keySet()) {
+				try {
+					registerServiceInvokers(url, serviceGroupMap.get(url), null);
+				} catch (Throwable t) {
+					logger.warn("error while trying to register service client:" + url + ", caused by:"
+							+ t.getMessage());
+				}
+			}
+		}
+
 	}
 
 	public void clear() {

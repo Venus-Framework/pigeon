@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.springframework.util.CollectionUtils;
 
 public class ConnectInfo {
 
@@ -28,7 +29,9 @@ public class ConnectInfo {
 	}
 
 	public void addServiceNames(Map<String, Integer> serviceNames) {
-		this.serviceNames.putAll(serviceNames);
+		if (!CollectionUtils.isEmpty(serviceNames)) {
+			this.serviceNames.putAll(serviceNames);
+		}
 	}
 
 	public Map<String, Integer> getServiceNames() {

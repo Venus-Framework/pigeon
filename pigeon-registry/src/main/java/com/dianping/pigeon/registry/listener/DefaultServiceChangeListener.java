@@ -22,7 +22,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 	public synchronized void onServiceHostChange(String serviceName, List<String[]> hostList) {
 		try {
 			Set<HostInfo> newHpSet = parseHostPortList(serviceName, hostList);
-			Set<HostInfo> oldHpSet = RegistryManager.getInstance().getServiceServers(serviceName);
+			Set<HostInfo> oldHpSet = RegistryManager.getInstance().getReferencedServiceAddresses(serviceName);
 			Set<HostInfo> toAddHpSet = Collections.emptySet();
 			Set<HostInfo> toRemoveHpSet = Collections.emptySet();
 			if (oldHpSet == null) {

@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.remoting.invoker.listener;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,14 +13,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
+import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.util.Constants;
+import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 public class ProviderAvailableListener implements Runnable {
 
@@ -27,24 +31,53 @@ public class ProviderAvailableListener implements Runnable {
 
 	private Map<String, List<Client>> workingClients;
 
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	private final long interval = configManager.getLongValue("pigeon.providerlistener.interval", 3000);
+	private static long interval = configManager.getLongValue("pigeon.providerlistener.interval", 3000);
 
-	private boolean isAvailableClients(List<Client> clientList) {
-		boolean available = true;
+	private static int providerAvailableLeast = configManager.getIntValue("pigeon.providerlistener.availableleast", 1);
+
+	public ProviderAvailableListener() {
+		configManager.registerConfigChangeListener(new InnerConfigChangeListener());
+	}
+
+	private static class InnerConfigChangeListener implements ConfigChangeListener {
+
+		@Override
+		public void onKeyUpdated(String key, String value) {
+			if (key.endsWith("pigeon.providerlistener.availableleast")) {
+				try {
+					providerAvailableLeast = Integer.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith("pigeon.providerlistener.interval")) {
+				try {
+					interval = Long.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			}
+		}
+
+		@Override
+		public void onKeyAdded(String key, String value) {
+		}
+
+		@Override
+		public void onKeyRemoved(String key) {
+		}
+
+	}
+
+	private int getAvailableClients(List<Client> clientList) {
+		int available = 0;
 		if (CollectionUtils.isEmpty(clientList)) {
-			available = false;
+			available = 0;
 		} else {
-			int weight = 0;
 			for (Client client : clientList) {
 				int w = RegistryManager.getInstance().getServiceWeight(client.getAddress());
 				if (w > 0 && client.isConnected() && client.isActive()) {
-					weight += w;
+					available += w;
 				}
-			}
-			if (weight == 0) {
-				available = false;
 			}
 		}
 		return available;
@@ -55,44 +88,27 @@ public class ProviderAvailableListener implements Runnable {
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				Thread.sleep(sleepTime);
+				Set<InvokerConfig<?>> services = ServiceFactory.getAllServiceInvokers().keySet();
+				Map<String, String> serviceGroupMap = new HashMap<String, String>();
+				for (InvokerConfig<?> invokerConfig : services) {
+					serviceGroupMap.put(invokerConfig.getUrl(), invokerConfig.getGroup());
+				}
 				long now = System.currentTimeMillis();
-				if (!CollectionUtils.isEmpty(this.getWorkingClients())) {
-					for (String serviceName : this.getWorkingClients().keySet()) {
-						boolean isAvailable = isAvailableClients(this.getWorkingClients().get(serviceName));
-						if (!isAvailable) {
-							logger.warn("check provider available, no available provider for service:" + serviceName);
-							ClientManager.getInstance().registerServiceInvokers(serviceName, configManager.getGroup(),
-									null);
-							if (StringUtils.isNotBlank(configManager.getGroup())) {
-								isAvailable = isAvailableClients(this.getWorkingClients().get(serviceName));
-								if (!isAvailable) {
-									logger.warn("check provider available with default group, no available provider for service:"
-											+ serviceName);
-									ClientManager.getInstance().registerServiceInvokers(serviceName,
-											Constants.DEFAULT_GROUP, null);
-								}
+				for (String url : serviceGroupMap.keySet()) {
+					String group = serviceGroupMap.get(url);
+					int available = getAvailableClients(this.getWorkingClients().get(url));
+					if (available < providerAvailableLeast) {
+						logger.warn("check provider available for service:" + url);
+						ClientManager.getInstance().registerServiceInvokers(url, group, null);
+						if (StringUtils.isNotBlank(group)) {
+							available = getAvailableClients(this.getWorkingClients().get(url));
+							if (available < providerAvailableLeast) {
+								logger.warn("check provider available with default group for service:" + url);
+								ClientManager.getInstance().registerServiceInvokers(url, Constants.DEFAULT_GROUP, null);
 							}
 						}
 					}
 				}
-				Map<String, Set<HostInfo>> serviceHosts = RegistryManager.getInstance().getAllServiceServers();
-				for (String serviceName : serviceHosts.keySet()) {
-					if (!this.getWorkingClients().containsKey(serviceName)) {
-						logger.warn("check provider available, no available provider for service:" + serviceName);
-						ClientManager.getInstance()
-								.registerServiceInvokers(serviceName, configManager.getGroup(), null);
-						if (StringUtils.isNotBlank(configManager.getGroup())) {
-							boolean isAvailable = isAvailableClients(this.getWorkingClients().get(serviceName));
-							if (!isAvailable) {
-								logger.warn("check provider available with default group, no available provider for service:"
-										+ serviceName);
-								ClientManager.getInstance().registerServiceInvokers(serviceName,
-										Constants.DEFAULT_GROUP, null);
-							}
-						}
-					}
-				}
-
 				sleepTime = interval - (System.currentTimeMillis() - now);
 			} catch (Throwable e) {
 				logger.error("[provideravailable] task failed:" + e.getCause());

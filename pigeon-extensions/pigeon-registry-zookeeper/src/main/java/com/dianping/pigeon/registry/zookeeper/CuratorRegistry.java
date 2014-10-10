@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -17,7 +15,6 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.registry.listener.ServiceSiblingChangeListener;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.util.CollectionUtils;
 
@@ -33,19 +30,8 @@ public class CuratorRegistry implements Registry {
 
 	private volatile boolean inited = false;
 
-	private ConcurrentHashMap<String, Object> registeredServices = new ConcurrentHashMap<String, Object>();
-
-	private final int expirationTime = configManager.getIntValue("pigeon.registry.ephemeralnode.expirationtime", 5000);
-
-	private final boolean enableSiblingChange = configManager.getBooleanValue("pigeon.registry.siblingchange.enable",
-			false);
-
 	private final boolean delEmptyNode = configManager.getBooleanValue("pigeon.registry.siblingchange.delemptynode",
 			true);
-
-	private ConcurrentHashMap<String, Object> referencedServices = new ConcurrentHashMap<String, Object>();
-
-	private ServiceSiblingChangeListener serviceSiblingChangeListener;
 
 	@Override
 	public void init(Properties properties) {
@@ -54,47 +40,6 @@ public class CuratorRegistry implements Registry {
 			synchronized (this) {
 				if (!inited) {
 					try {
-						serviceSiblingChangeListener = new ServiceSiblingChangeListener() {
-
-							private String localIp = configManager.getLocalIp();
-							private String group = configManager.getGroup();
-
-							@Override
-							public void siblingAdded(String serviceName, String host) {
-								// do nothing
-							}
-
-							@Override
-							public void siblingRemoved(String serviceName, String host) {
-								if (enableSiblingChange && registeredServices.containsKey(serviceName)) {
-									try {
-										List<String> hostList = getEphemeralServiceAddress(serviceName, group);
-										if (!CollectionUtils.isEmpty(hostList)) {
-											Collections.sort(hostList);
-											if (hostList.get(0).startsWith(localIp)) {
-												for (String h : hostList) {
-													if (h.equals(host)) {
-														// unregisterEphemeralNode(serviceName,
-														// group, h);
-														logger.info("existing sibling node:" + host);
-														return;
-													}
-												}
-												unregisterPersistentNode(serviceName, group, host);
-											}
-										}
-									} catch (Exception e) {
-										logger.error("", e);
-									}
-								}
-							}
-
-							@Override
-							public void siblingWeightChanged(String serviceName, String host) {
-								// do nothing
-							}
-
-						};
 						String zkAddress = properties.getProperty(Constants.KEY_REGISTRY_ADDRESS);
 						logger.info("start to initialize zookeeper client:" + zkAddress);
 						client = new CuratorClient(zkAddress, this);
@@ -126,7 +71,6 @@ public class CuratorRegistry implements Registry {
 	@Override
 	public String getServiceAddress(String serviceName, String group) throws RegistryException {
 		String addr = getServiceActualAddress(serviceName, group);
-		addReferencedService(serviceName, group);
 		return addr;
 	}
 
@@ -138,49 +82,6 @@ public class CuratorRegistry implements Registry {
 			logger.error("failed to get service address for " + serviceName + "/" + group, e);
 			throw new RegistryException(e);
 		}
-	}
-
-	private void addReferencedService(String serviceName, String group) {
-		if (StringUtils.isBlank(group)) {
-			group = Constants.DEFAULT_GROUP;
-		}
-		referencedServices.put(serviceName, group);
-	}
-
-	public Set<String> getReferencedServices() {
-		return referencedServices.keySet();
-	}
-
-	public boolean isReferencedService(String serviceName, String group) {
-		// String g = (String) referencedServices.get(serviceName);
-		// if (StringUtils.isBlank(group)) {
-		// group = Constants.DEFAULT_GROUP;
-		// }
-		return referencedServices.containsKey(serviceName);
-	}
-
-	public Set<String> getRegisteredServices() {
-		return registeredServices.keySet();
-	}
-
-	private List<String> getEphemeralServiceAddress(String serviceName, String group) throws Exception {
-		String path = Utils.getEphemeralServicePath(serviceName, group);
-		List<String> serverList = client.getChildren(path);
-		return serverList;
-	}
-
-	private String mergeServiceAddress(String oldSrvAddr, List<String> newSrvAddr) {
-		List<String> mergedList = (newSrvAddr == null ? new ArrayList<String>() : newSrvAddr);
-		if (oldSrvAddr != null) {
-			String[] addrList = oldSrvAddr.split(",");
-			for (String addr : addrList) {
-				addr = addr.trim();
-				if (addr.length() > 0 && !mergedList.contains(addr)) {
-					mergedList.add(addr);
-				}
-			}
-		}
-		return StringUtils.join(mergedList.iterator(), ',');
 	}
 
 	List<String> getNewServiceAddress(String serviceName, String group) throws Exception {
@@ -231,18 +132,6 @@ public class CuratorRegistry implements Registry {
 	public void registerService(String serviceName, String group, String serviceAddress, int weight)
 			throws RegistryException {
 		registerPersistentNode(serviceName, group, serviceAddress, weight);
-		watchSelf(serviceName, group, serviceAddress);
-	}
-
-	void watchSelf(String serviceName, String group, String serviceAddress) throws RegistryException {
-		registeredServices.putIfAbsent(serviceName, serviceAddress);
-		String parentPath = Utils.getEphemeralServicePath(serviceName, group);
-		try {
-			client.watchChildren(parentPath);
-		} catch (Exception e) {
-			logger.error("failed to watch " + parentPath, e);
-			throw new RegistryException(e);
-		}
 	}
 
 	void registerPersistentNode(String serviceName, String group, String serviceAddress, int weight)
@@ -250,10 +139,6 @@ public class CuratorRegistry implements Registry {
 		String weightPath = Utils.getWeightPath(serviceAddress);
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
-			// 1. Register weight
-			if (weight >= 0) {
-				client.set(weightPath, "" + weight);
-			}
 			if (client.exists(servicePath)) {
 				String addressValue = client.get(servicePath);
 				String[] addressArray = addressValue.split(",");
@@ -272,6 +157,9 @@ public class CuratorRegistry implements Registry {
 			} else {
 				client.create(servicePath, serviceAddress);
 			}
+			if (weight >= 0) {
+				client.set(weightPath, "" + weight);
+			}
 			if (logger.isInfoEnabled()) {
 				logger.info("registered service to persistent node: " + servicePath);
 			}
@@ -289,7 +177,6 @@ public class CuratorRegistry implements Registry {
 	@Override
 	public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
 		unregisterPersistentNode(serviceName, group, serviceAddress);
-		registeredServices.remove(serviceName);
 	}
 
 	public void unregisterPersistentNode(String serviceName, String group, String serviceAddress)
@@ -373,7 +260,6 @@ public class CuratorRegistry implements Registry {
 
 	@Override
 	public List<String> getChildren(String path) throws RegistryException {
-		// FIXME where is this used?
 		try {
 			List<String> children = client.getChildren(path);
 			return children;
@@ -391,7 +277,4 @@ public class CuratorRegistry implements Registry {
 		return client;
 	}
 
-	public ServiceSiblingChangeListener getServiceSiblingChangeListener() {
-		return serviceSiblingChangeListener;
-	}
 }

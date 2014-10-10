@@ -44,7 +44,7 @@ public class Client {
 				for(int i = 0; i< size; i++) {
 					sb.append("i");
 				}
-				System.out.println(echoService.echo(sb.toString()));
+				echoService.echo(sb.toString());
 			} catch (Exception e) {
 			}
 		}

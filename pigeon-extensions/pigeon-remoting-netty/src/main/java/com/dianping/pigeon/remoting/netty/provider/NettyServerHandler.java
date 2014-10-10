@@ -15,10 +15,7 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.domain.DefaultProviderContext;
@@ -28,7 +25,6 @@ import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 
 	private static final Logger log = LoggerLoader.getLogger(NettyServerHandler.class);
-	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
 
 	private NettyServer server;
 
@@ -38,9 +34,9 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 
 	@Override
 	public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
-		if (e instanceof ChannelStateEvent && ((ChannelStateEvent) e).getState() != ChannelState.INTEREST_OPS) {
-			if (log.isInfoEnabled()) {
-				log.info(e.toString());
+		if (log.isDebugEnabled()) {
+			if (e instanceof ChannelStateEvent && ((ChannelStateEvent) e).getState() != ChannelState.INTEREST_OPS) {
+				log.debug(e.toString());
 			}
 		}
 		super.handleUpstream(ctx, e);
@@ -77,9 +73,6 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 
 	@Override
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) {
-		if (log.isInfoEnabled()) {
-			log.info("pigeon server channel connected....");
-		}
 	}
 
 	@Override

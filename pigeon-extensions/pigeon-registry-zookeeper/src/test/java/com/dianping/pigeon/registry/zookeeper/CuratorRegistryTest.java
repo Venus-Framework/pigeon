@@ -232,7 +232,6 @@ public class CuratorRegistryTest {
             } else {
                 registry.registerPersistentNode(serviceName, group, serverAddress, weight);
             }
-            registry.watchSelf(serviceName, group, serverAddress);
             System.out.println("register " + (isEphemeral?"ephemeral ":"persistent ") + serverAddress);
         }
         
