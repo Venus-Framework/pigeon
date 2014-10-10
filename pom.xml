@@ -174,7 +174,7 @@
 			<dependency>
 				<groupId>com.dianping.lion</groupId>
 				<artifactId>lion-client</artifactId>
-				<version>0.4.3</version>
+				<version>0.4.5</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
