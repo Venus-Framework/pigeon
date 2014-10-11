@@ -11,8 +11,10 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.dianping.lion.EnvZooKeeperConfig;
+import com.dianping.lion.client.ConfigCache;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.governor.util.Constants.Action;
-import com.dianping.pigeon.governor.util.Constants.Environment;
 import com.dianping.pigeon.governor.util.Constants.Host;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
@@ -94,7 +96,8 @@ public class DisposeTask implements Runnable {
 	 * are dead 3. will remove if at least one host is alive
 	 */
 	private int canRemoveHost(List<Host> hostList, Host host) {
-		if (host.getService().getEnv().toString().startsWith("product") && hostList.size() <= 1)
+		int minHosts = manager.getMinhosts(host.getService().getEnv());
+		if (minHosts > 0 && hostList.size() <= minHosts)
 			return -1;
 		boolean hasLiveHost = false;
 		boolean isChecking = false;
@@ -106,7 +109,7 @@ public class DisposeTask implements Runnable {
 					isChecking = true;
 			}
 		}
-		if (!hasLiveHost && !isChecking && !host.getService().getEnv().toString().startsWith("product")) {
+		if (!hasLiveHost && !isChecking && minHosts == 0) {
 			return 1;
 		}
 		return hasLiveHost ? 1 : (isChecking ? 0 : -1);
@@ -130,12 +133,12 @@ public class DisposeTask implements Runnable {
 		try {
 			String message = doHttpGet(url);
 			if (message.startsWith("0|")) {
-				logger.info("removed address:" + task.getHost());
+				logger.info("removed:" + task.getHost());
 			} else {
-				logger.error("failed to remove address:" + task.getHost() + ", message: " + message);
+				logger.error("failed to remove:" + task.getHost() + ", message: " + message);
 			}
 		} catch (IOException e) {
-			logger.error("failed to remove address:" + task.getHost(), e);
+			logger.error("failed to remove:" + task.getHost(), e);
 		}
 	}
 

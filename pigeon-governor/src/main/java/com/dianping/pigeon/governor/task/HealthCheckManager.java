@@ -19,9 +19,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
-import com.dianping.lion.EnvZooKeeperConfig;
-import com.dianping.lion.client.ConfigCache;
-import com.dianping.lion.client.ConfigChange;
+import com.dianping.pigeon.config.ConfigChangeListener;
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.governor.util.Constants;
 import com.dianping.pigeon.governor.util.Constants.Action;
@@ -45,36 +45,29 @@ public class HealthCheckManager extends Thread {
 	private ExecutorService bossPool;
 
 	private String action;
+	private String minhosts;
 	private volatile long interval = 10 * 1000;
 	private volatile long hostInterval = 5 * 1000;
 	private volatile int deadThreshold = 10;
 
 	private Map<Environment, Action> actionMap;
+	private Map<Environment, Integer> minhostsMap;
 	private Map<Environment, Registry> registryMap;
 
-	private ConfigCache configManager;
+	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	public HealthCheckManager() {
-		try {
-			configManager = ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress());
-			configManager.addChange(new ConfigChangeHandler());
-			action = configManager.getProperty(Constants.KEY_ACTION);
-			String tmp = configManager.getProperty(Constants.KEY_INTERVAL);
-			interval = Long.parseLong(tmp);
-			tmp = configManager.getProperty(Constants.KEY_HOST_INTERVAL);
-			hostInterval = Long.parseLong(tmp);
-			tmp = configManager.getProperty(Constants.KEY_DEAD_THRESHOLD);
-			deadThreshold = Integer.parseInt(tmp);
-		} catch (Exception e) {
-			logger.error("", e);
-			action = "dev:remove";
-			interval = 10 * 1000;
-			hostInterval = 5 * 1000;
-			deadThreshold = 10;
-		}
+		configManager.registerConfigChangeListener(new ConfigChangeHandler());
+		action = configManager.getStringValue(Constants.KEY_ACTION, "dev:remove");
+		interval = configManager.getLongValue(Constants.KEY_INTERVAL, 10 * 1000);
+		hostInterval = configManager.getLongValue(Constants.KEY_HOST_INTERVAL, 5 * 1000);
+		deadThreshold = configManager.getIntValue(Constants.KEY_DEAD_THRESHOLD, 10);
+		minhosts = configManager.getStringValue(Constants.KEY_MINHOSTS, "qa:1,prelease:1,product:2,producthm:1");
 		actionMap = new LinkedHashMap<Environment, Action>();
 		registryMap = new LinkedHashMap<Environment, Registry>();
+		minhostsMap = new LinkedHashMap<Environment, Integer>();
 		parseAction();
+		parseMinhosts();
 	}
 
 	public void run() {
@@ -106,6 +99,25 @@ public class HealthCheckManager extends Thread {
 		}
 	}
 
+	private void parseMinhosts() {
+		if (StringUtils.isBlank(minhosts)) {
+			logger.error("minhosts is null");
+			return;
+		}
+
+		String[] envActionList = minhosts.split(",");
+		for (String envAction : envActionList) {
+			String[] envActionPair = envAction.split(":");
+			String strEnv = envActionPair[0].trim();
+			if (strEnv.indexOf("-") != -1) {
+				strEnv = strEnv.replace("-", "");
+			}
+			Environment env = Environment.valueOf(strEnv);
+			int min = Integer.valueOf(envActionPair[1].trim());
+			minhostsMap.put(env, min);
+		}
+	}
+
 	public ThreadPoolExecutor getWorkerPool() {
 		return workerPool;
 	}
@@ -120,6 +132,14 @@ public class HealthCheckManager extends Thread {
 
 	public Action getAction(Environment env) {
 		return actionMap.get(env);
+	}
+
+	public int getMinhosts(Environment env) {
+		if (minhostsMap.containsKey(env)) {
+			return minhostsMap.get(env);
+		} else {
+			return 0;
+		}
 	}
 
 	public long getHostInterval() {
@@ -201,10 +221,10 @@ public class HealthCheckManager extends Thread {
 
 	}
 
-	class ConfigChangeHandler implements ConfigChange {
+	class ConfigChangeHandler implements ConfigChangeListener {
 
 		@Override
-		public void onChange(String key, String value) {
+		public void onKeyUpdated(String key, String value) {
 			if (Constants.KEY_ACTION.equals(key)) {
 				action = value;
 				parseAction();
@@ -214,7 +234,18 @@ public class HealthCheckManager extends Thread {
 				hostInterval = Long.parseLong(value);
 			} else if (Constants.KEY_DEAD_THRESHOLD.equals(key)) {
 				deadThreshold = Integer.parseInt(value);
+			} else if (Constants.KEY_MINHOSTS.equals(key)) {
+				minhosts = value;
+				parseMinhosts();
 			}
+		}
+
+		@Override
+		public void onKeyAdded(String key, String value) {
+		}
+
+		@Override
+		public void onKeyRemoved(String key) {
 		}
 
 	}

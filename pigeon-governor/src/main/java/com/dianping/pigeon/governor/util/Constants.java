@@ -11,6 +11,8 @@ public class Constants {
 	public static final String KEY_INTERVAL = "pigeon.governor.healthcheck.interval";
 	public static final String KEY_HOST_INTERVAL = "pigeon.governor.healthcheck.host.interval";
 	public static final String KEY_DEAD_THRESHOLD = "pigeon.governor.healthcheck.dead.threshold";
+	public static final String KEY_MINHOSTS = "pigeon.governor.healthcheck.minhosts";
+
 	private static final String testAddress = ConfigManagerLoader.getConfigManager().getStringValue(
 			"pigeon.governor.address.test", "127.0.0.1:2181");
 	private static final String devAddress = ConfigManagerLoader.getConfigManager().getStringValue(
