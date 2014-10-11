@@ -97,8 +97,10 @@ public class DisposeTask implements Runnable {
 	 */
 	private int canRemoveHost(List<Host> hostList, Host host) {
 		int minHosts = manager.getMinhosts(host.getService().getEnv());
-		if (minHosts > 0 && hostList.size() <= minHosts)
+		if (minHosts > 0 && hostList.size() <= minHosts) {
+			logger.info("will not be deleted, dead server " + host + ", in " + hostList);
 			return -1;
+		}
 		boolean hasLiveHost = false;
 		boolean isChecking = false;
 		for (Host hh : hostList) {
