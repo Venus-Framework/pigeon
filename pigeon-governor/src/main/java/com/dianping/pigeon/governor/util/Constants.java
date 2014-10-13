@@ -29,9 +29,8 @@ public class Constants {
 	private static final String performanceAddress = ConfigManagerLoader.getConfigManager().getStringValue(
 			"pigeon.governor.address.performance", "192.168.219.211:2181");
 	private static final String producthmAddress = ConfigManagerLoader.getConfigManager().getStringValue(
-			"pigeon.governor.address.producthm",
-			"10.2.21.141:2181,10.2.26.107:2181,10.2.26.146:2181");
-	
+			"pigeon.governor.address.producthm", "10.2.21.141:2181,10.2.26.107:2181,10.2.26.146:2181");
+
 	public enum Environment {
 		test(testAddress), dev(devAddress), alpha(alphaAddress), qa(qaAddress), prelease(preleaseAddress), product(
 				productAddress), performance(performanceAddress), producthm(producthmAddress);
@@ -123,7 +122,7 @@ public class Constants {
 
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
-			sb.append("address:").append(getAddress()).append(",").append(service);
+			sb.append(getAddress()).append(",").append(service).append(",dead:").append(deadCount);
 			return sb.toString();
 		}
 

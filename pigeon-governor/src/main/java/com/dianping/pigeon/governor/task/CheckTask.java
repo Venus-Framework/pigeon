@@ -11,6 +11,9 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.dpsf.protocol.DefaultRequest;
+import com.dianping.pigeon.config.ConfigChangeListener;
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.governor.util.Constants.Host;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -27,10 +30,36 @@ public class CheckTask implements Runnable {
 
 	private HealthCheckManager manager;
 	private Host host;
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+	private static boolean logDeadServer = configManager.getBooleanValue("pigeon.governor.healthcheck.logdead", false);
+	private static boolean logAliveServer = configManager
+			.getBooleanValue("pigeon.governor.healthcheck.logalive", false);
 
 	public CheckTask(HealthCheckManager manager, Host host) {
 		this.manager = manager;
 		this.host = host;
+		configManager.registerConfigChangeListener(new ConfigChangeHandler());
+	}
+
+	class ConfigChangeHandler implements ConfigChangeListener {
+
+		@Override
+		public void onKeyUpdated(String key, String value) {
+			if ("pigeon.governor.healthcheck.logdead".equals(key)) {
+				logDeadServer = Boolean.parseBoolean(value);
+			} else if ("pigeon.governor.healthcheck.logalive".equals(key)) {
+				logAliveServer = Boolean.parseBoolean(value);
+			}
+		}
+
+		@Override
+		public void onKeyAdded(String key, String value) {
+		}
+
+		@Override
+		public void onKeyRemoved(String key) {
+		}
+
 	}
 
 	@Override
@@ -48,8 +77,14 @@ public class CheckTask implements Runnable {
 		if (System.currentTimeMillis() - host.getLastCheckTime() > manager.getHostInterval()) {
 			if (isServerAlive()) {
 				host.setAlive(true);
+				if (logAliveServer) {
+					logger.info("alive:" + host);
+				}
 			} else {
 				host.setAlive(false);
+				if (logDeadServer) {
+					logger.info("dead:" + host);
+				}
 				if (host.getDeadCount() < Integer.MAX_VALUE)
 					host.increaseDeadCount();
 			}
