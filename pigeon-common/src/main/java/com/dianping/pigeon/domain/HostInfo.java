@@ -7,8 +7,6 @@ package com.dianping.pigeon.domain;
 /**
  * 
  * 
- * @author jianhuihuang
- * @version $Id: HostInfo.java, v 0.1 2013-7-31 上午10:43:05 jianhuihuang Exp $
  */
 public class HostInfo {
 
@@ -16,6 +14,15 @@ public class HostInfo {
 	private String host;
 	private int port;
 	private int weight;
+	private String app;
+
+	public String getApp() {
+		return app;
+	}
+
+	public void setApp(String app) {
+		this.app = app;
+	}
 
 	public HostInfo(String host, int port, int weight) {
 		this.host = host;
@@ -40,7 +47,7 @@ public class HostInfo {
 
 	@Override
 	public String toString() {
-		return "HostInfo [host=" + host + ", port=" + port + ", weight=" + weight + "]";
+		return "HostInfo [host=" + host + ", port=" + port + ", weight=" + weight + ", app=" + app + "]";
 	}
 
 	public String getConnect() {

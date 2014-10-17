@@ -22,8 +22,30 @@ public class Client {
 		EchoService echoService = (EchoService) CLIENT_CONTAINER.getBean("echoService");
 		EchoService echoServiceWithCallback = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithCallback");
 
-		System.out.println(echoService.echo("echoService_input"));
-		//echoServiceWithCallback.echo("echoServiceWithCallback_input");
+		for (int i = 0; i < 30; i++) {
+			new Thread(new Task(echoService)).start();
+		}
+		System.in.read();
+		// echoServiceWithCallback.echo("echoServiceWithCallback_input");
 	}
 
+	static class Task implements Runnable {
+
+		EchoService echoService;
+
+		public Task(EchoService echoService) {
+			this.echoService = echoService;
+		}
+
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					echoService.echo("echoService_input");
+				} catch (Exception e) {
+				}
+			}
+		}
+
+	}
 }

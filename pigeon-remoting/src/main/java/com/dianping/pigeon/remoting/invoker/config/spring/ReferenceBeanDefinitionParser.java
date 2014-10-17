@@ -50,6 +50,9 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 	public static AtomicInteger idCounter = new AtomicInteger();
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	
+	private static boolean checkRefExists = configManager.getBooleanValue(
+			"pigeon.config.spring.checkrefexists", false);
 
 	public ReferenceBeanDefinitionParser(Class<?> beanClass, boolean required) {
 		this.beanClass = beanClass;
@@ -122,7 +125,7 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		String callback = element.getAttribute("callback");
 		if (StringUtils.isNotEmpty(callback)) {
-			if (!parserContext.getRegistry().containsBeanDefinition(callback)) {
+			if (checkRefExists && !parserContext.getRegistry().containsBeanDefinition(callback)) {
 				throw new IllegalStateException("callback reference must have a reference to callback bean");
 			}
 			properties.addPropertyValue("callback", new RuntimeBeanReference(callback));

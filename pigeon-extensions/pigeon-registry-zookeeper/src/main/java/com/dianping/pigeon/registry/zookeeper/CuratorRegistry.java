@@ -30,7 +30,7 @@ public class CuratorRegistry implements Registry {
 
 	private volatile boolean inited = false;
 
-	private final boolean delEmptyNode = configManager.getBooleanValue("pigeon.registry.siblingchange.delemptynode",
+	private final boolean delEmptyNode = configManager.getBooleanValue("pigeon.registry.delemptynode",
 			true);
 
 	@Override
@@ -82,17 +82,6 @@ public class CuratorRegistry implements Registry {
 			logger.error("failed to get service address for " + serviceName + "/" + group, e);
 			throw new RegistryException(e);
 		}
-	}
-
-	List<String> getNewServiceAddress(String serviceName, String group) throws Exception {
-		String path = Utils.getEphemeralServicePath(serviceName, group);
-		List<String> serverList = client.getChildren(path);
-		if (!StringUtils.isBlank(group) && CollectionUtils.isEmpty(serverList)) {
-			logger.info("node " + path + " does not exist or has no child, fallback to default group");
-			path = Utils.getEphemeralServicePath(serviceName, Constants.DEFAULT_GROUP);
-			serverList = client.getChildren(path);
-		}
-		return serverList;
 	}
 
 	String getOldServiceAddress(String serviceName, String group) throws Exception {
@@ -275,6 +264,43 @@ public class CuratorRegistry implements Registry {
 
 	CuratorClient getCuratorClient() {
 		return client;
+	}
+
+	@Override
+	public String getServerApp(String serverAddress) {
+		String path = Utils.getAppPath(serverAddress);
+		String strApp;
+		try {
+			strApp = client.get(path);
+			if (strApp == null) {
+				return "";
+			}
+			return strApp;
+		} catch (Throwable e) {
+			logger.error("failed to get app for " + serverAddress);
+			return "";
+		}
+	}
+
+	@Override
+	public void setServerApp(String serverAddress, String app) {
+		String path = Utils.getAppPath(serverAddress);
+		if (StringUtils.isNotBlank(app)) {
+			try {
+				client.set(path, app);
+			} catch (Throwable e) {
+				logger.error("failed to set app of " + serverAddress + " to " + app);
+			}
+		}
+	}
+
+	public void unregisterServerApp(String serverAddress) {
+		String path = Utils.getAppPath(serverAddress);
+		try {
+			client.delete(path);
+		} catch (Throwable e) {
+			logger.error("failed to delete app:" + path);
+		}
 	}
 
 }

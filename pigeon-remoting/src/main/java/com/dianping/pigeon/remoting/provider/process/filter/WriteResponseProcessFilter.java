@@ -8,10 +8,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
@@ -21,12 +18,10 @@ import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
-import com.dianping.pigeon.util.ContextUtils;
 
 public class WriteResponseProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
 	private static final Logger logger = LoggerLoader.getLogger(WriteResponseProcessFilter.class);
-	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)

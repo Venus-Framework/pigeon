@@ -185,6 +185,9 @@ public final class ServiceProviderFactory {
 		}
 		RegistryManager.getInstance().registerService(url, group, serverAddress, weight);
 		if (weight >= 0) {
+			if (!serverWeightCache.containsKey(serverAddress)) {
+				RegistryManager.getInstance().setServerApp(serverAddress, configManager.getAppName());
+			}
 			serverWeightCache.put(serverAddress, weight);
 		}
 	}
@@ -202,6 +205,9 @@ public final class ServiceProviderFactory {
 				logger.info("set weight, address:" + serverAddress + ", weight:" + weight);
 			}
 			RegistryManager.getInstance().setServerWeight(serverAddress, weight);
+			if (!serverWeightCache.containsKey(serverAddress)) {
+				RegistryManager.getInstance().setServerApp(serverAddress, configManager.getAppName());
+			}
 			serverWeightCache.put(serverAddress, weight);
 		}
 		if (weight <= 0) {
@@ -232,7 +238,10 @@ public final class ServiceProviderFactory {
 				String serverAddress = configManager.getLocalIp() + ":" + server.getPort();
 				RegistryManager.getInstance().unregisterService(server.getRegistryUrl(providerConfig.getUrl()),
 						providerConfig.getServerConfig().getGroup(), serverAddress);
-				serverWeightCache.remove(serverAddress);
+				Integer weight = serverWeightCache.remove(serverAddress);
+				if (weight != null) {
+					RegistryManager.getInstance().unregisterServerApp(serverAddress);
+				}
 			}
 			boolean isNotify = configManager.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
 			if (isNotify && serviceChangeListener != null) {

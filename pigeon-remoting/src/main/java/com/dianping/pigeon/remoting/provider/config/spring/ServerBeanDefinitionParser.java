@@ -18,6 +18,7 @@ import org.w3c.dom.Element;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.provider.process.threadpool.RequestThreadPoolProcessor;
 
 public class ServerBeanDefinitionParser implements BeanDefinitionParser {
 
@@ -31,7 +32,7 @@ public class ServerBeanDefinitionParser implements BeanDefinitionParser {
 	private final Class<?> beanClass;
 
 	private final boolean required;
-	
+
 	public static AtomicInteger idCounter = new AtomicInteger();
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
@@ -68,12 +69,24 @@ public class ServerBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		if (element.hasAttribute("corePoolSize")) {
 			properties.addPropertyValue("corePoolSize", resolveReference(element, "corePoolSize"));
+			String value = element.getAttribute("corePoolSize");
+			if (value.startsWith(DEFAULT_PLACEHOLDER_PREFIX) && value.endsWith(DEFAULT_PLACEHOLDER_SUFFIX)) {
+				RequestThreadPoolProcessor.sharedPoolCoreSizeKey = value.substring(2, value.length() - 1);
+			}
 		}
 		if (element.hasAttribute("maxPoolSize")) {
 			properties.addPropertyValue("maxPoolSize", resolveReference(element, "maxPoolSize"));
+			String value = element.getAttribute("maxPoolSize");
+			if (value.startsWith(DEFAULT_PLACEHOLDER_PREFIX) && value.endsWith(DEFAULT_PLACEHOLDER_SUFFIX)) {
+				RequestThreadPoolProcessor.sharedPoolMaxSizeKey = value.substring(2, value.length() - 1);
+			}
 		}
 		if (element.hasAttribute("workQueueSize")) {
 			properties.addPropertyValue("workQueueSize", resolveReference(element, "workQueueSize"));
+			String value = element.getAttribute("workQueueSize");
+			if (value.startsWith(DEFAULT_PLACEHOLDER_PREFIX) && value.endsWith(DEFAULT_PLACEHOLDER_SUFFIX)) {
+				RequestThreadPoolProcessor.sharedPoolQueueSizeKey = value.substring(2, value.length() - 1);
+			}
 		}
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
 

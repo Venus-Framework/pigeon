@@ -14,16 +14,16 @@
 	<bean id="defaultUserServiceImpl" class="com.dianping.pigeon.demo.UserServiceDefaultImpl" />
 
 	<!-- 如果下面的每个服务的useSharedPool设置为false，则共享池几个参数可以设置小一点 -->
-	<pigeon:server id="pigeonServer" corePoolSize="5"
-		maxPoolSize="20" workQueueSize="${pigeon-test.sharedpool.queuesize}" />
+	<pigeon:server id="pigeonServer" corePoolSize="${pigeon-test.sharedpool.coresize}" port="${pigeon-test.port}"
+		maxPoolSize="${pigeon-test.sharedpool.maxsize}" workQueueSize="${pigeon-test.sharedpool.queuesize}" />
 		
 
 	<!-- useSharedPool设置为false代表每个方法会使用独立的线程池，方法级别的actives属性代表该方法的最大请求并发数-->
 	<pigeon:service useSharedPool="${pigeon-test.sharedpool.use}" server="pigeonServer"
 		url="http://service.dianping.com/com.dianping.pigeon.demo.EchoService"
 		interface="com.dianping.pigeon.demo.EchoService" ref="defaultEchoServiceImpl">
-		<pigeon:method name="echo" actives="30" />
-		<pigeon:method name="echo2" actives="20" />
+		<pigeon:method name="echo" actives="${pigeon-test.methodpool.actives.echo}" />
+		<pigeon:method name="echo2" actives="${pigeon-test.methodpool.actives.echo2}" />
 	</pigeon:service>
 
 	<pigeon:service url="com.dianping.pigeon.demo.UserService"

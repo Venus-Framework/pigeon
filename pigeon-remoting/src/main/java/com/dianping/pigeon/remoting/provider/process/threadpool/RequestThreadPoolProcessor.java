@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.remoting.provider.process.threadpool;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -13,8 +14,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
+import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.RejectedException;
@@ -33,6 +40,8 @@ import com.dianping.pigeon.util.CollectionUtils;
 
 public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
+	private static final Logger logger = LoggerLoader.getLogger(RequestThreadPoolProcessor.class);
+
 	private static final String poolStrategy = ConfigManagerLoader.getConfigManager().getStringValue(
 			"pigeon.provider.pool.strategy", "shared");
 
@@ -42,17 +51,32 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 	private static ConcurrentHashMap<String, ThreadPool> methodThreadPools = null;
 
-	private int DEFAULT_POOL_ACTIVES = ConfigManagerLoader.getConfigManager().getIntValue(
+	private static int DEFAULT_POOL_ACTIVES = ConfigManagerLoader.getConfigManager().getIntValue(
 			"pigeon.provider.pool.actives", 60);
 
-	private int DEFAULT_POOL_RATIO_CORE = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.pool.ratio.core", 3);
+	private static float DEFAULT_POOL_RATIO_CORE = ConfigManagerLoader.getConfigManager().getFloatValue(
+			"pigeon.provider.pool.ratio.coresize", 3f);
 
-	private int DEFAULT_POOL_RATIO_QUEUE = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.pool.ratio.queue", 2);
+	private static float DEFAULT_POOL_RATIO_QUEUE = ConfigManagerLoader.getConfigManager().getFloatValue(
+			"pigeon.provider.pool.ratio.workqueue", 1f);
 
-	private final float cancelRatio = ConfigManagerLoader.getConfigManager().getFloatValue(
+	private static float cancelRatio = ConfigManagerLoader.getConfigManager().getFloatValue(
 			"pigeon.timeout.cancelratio", 1f);
+
+	private static int waitTimeOfClosePool = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.provider.pool.waittimeofclose", 5);
+
+	public static Map<String, String> methodPoolConfigKeys = new HashMap<String, String>();
+
+	public static String sharedPoolCoreSizeKey = null;
+
+	public static String sharedPoolMaxSizeKey = null;
+
+	public static String sharedPoolQueueSizeKey = null;
+
+	static {
+		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
+	}
 
 	public RequestThreadPoolProcessor(ServerConfig serverConfig) {
 		if ("server".equals(poolStrategy)) {
@@ -158,10 +182,10 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 							actives = methodConfig.getActives();
 						}
 					}
-					int coreSize = (actives / DEFAULT_POOL_RATIO_CORE) > 0 ? (actives / DEFAULT_POOL_RATIO_CORE)
+					int coreSize = (int) (actives / DEFAULT_POOL_RATIO_CORE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_CORE)
 							: actives;
 					int maxSize = actives;
-					int queueSize = (actives / DEFAULT_POOL_RATIO_QUEUE) > 0 ? (actives / DEFAULT_POOL_RATIO_QUEUE)
+					int queueSize = (int) (actives / DEFAULT_POOL_RATIO_QUEUE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_QUEUE)
 							: actives;
 					pool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method", coreSize, maxSize,
 							new LinkedBlockingQueue<Runnable>(queueSize));
@@ -215,6 +239,145 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 	@Override
 	public void doStart() {
+
+	}
+
+	private static class InnerConfigChangeListener implements ConfigChangeListener {
+
+		@Override
+		public void onKeyUpdated(String key, String value) {
+			if (key.endsWith("pigeon.provider.pool.waittimeofclose")) {
+				waitTimeOfClosePool = Integer.valueOf(value);
+			} else if (key.endsWith("pigeon.timeout.cancelratio")) {
+				cancelRatio = Float.valueOf(value);
+			} else if (key.endsWith("pigeon.provider.pool.ratio.core")) {
+				DEFAULT_POOL_RATIO_CORE = Integer.valueOf(value);
+			} else if (key.endsWith("pigeon.provider.pool.ratio.queue")) {
+				DEFAULT_POOL_RATIO_QUEUE = Integer.valueOf(value);
+			} else if (StringUtils.isNotBlank(sharedPoolCoreSizeKey) && key.endsWith(sharedPoolCoreSizeKey)) {
+				int size = Integer.valueOf(value);
+				if (size != sharedRequestProcessThreadPool.getExecutor().getCorePoolSize() && size >= 0) {
+					try {
+						ThreadPool oldPool = sharedRequestProcessThreadPool;
+						int queueSize = oldPool.getExecutor().getQueue().remainingCapacity()
+								+ oldPool.getExecutor().getQueue().size();
+						ThreadPool newPool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method", size,
+								oldPool.getExecutor().getMaximumPoolSize(),
+								new LinkedBlockingQueue<Runnable>(queueSize));
+						sharedRequestProcessThreadPool = newPool;
+						try {
+							oldPool.getExecutor().shutdown();
+							oldPool.getExecutor().awaitTermination(waitTimeOfClosePool, TimeUnit.SECONDS);
+							oldPool = null;
+						} catch (Throwable e) {
+							logger.warn("error when shuting down old shared pool", e);
+						}
+						if (logger.isInfoEnabled()) {
+							logger.info("changed shared pool, key:" + key + ", value:" + value);
+						}
+					} catch (RuntimeException e) {
+						logger.error("error while changing shared pool, key:" + key + ", value:" + value, e);
+					}
+				}
+			} else if (StringUtils.isNotBlank(sharedPoolMaxSizeKey) && key.endsWith(sharedPoolMaxSizeKey)) {
+				int size = Integer.valueOf(value);
+				if (size != sharedRequestProcessThreadPool.getExecutor().getMaximumPoolSize() && size >= 0) {
+					try {
+						ThreadPool oldPool = sharedRequestProcessThreadPool;
+						int queueSize = oldPool.getExecutor().getQueue().remainingCapacity()
+								+ oldPool.getExecutor().getQueue().size();
+						ThreadPool newPool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method", oldPool
+								.getExecutor().getCorePoolSize(), size, new LinkedBlockingQueue<Runnable>(queueSize));
+						sharedRequestProcessThreadPool = newPool;
+						try {
+							oldPool.getExecutor().shutdown();
+							oldPool.getExecutor().awaitTermination(waitTimeOfClosePool, TimeUnit.SECONDS);
+							oldPool = null;
+						} catch (Throwable e) {
+							logger.warn("error when shuting down old shared pool", e);
+						}
+						if (logger.isInfoEnabled()) {
+							logger.info("changed shared pool, key:" + key + ", value:" + value);
+						}
+					} catch (RuntimeException e) {
+						logger.error("error while changing shared pool, key:" + key + ", value:" + value, e);
+					}
+				}
+			} else if (StringUtils.isNotBlank(sharedPoolQueueSizeKey) && key.endsWith(sharedPoolQueueSizeKey)) {
+				int size = Integer.valueOf(value);
+				ThreadPool oldPool = sharedRequestProcessThreadPool;
+				int queueSize = oldPool.getExecutor().getQueue().remainingCapacity()
+						+ oldPool.getExecutor().getQueue().size();
+				if (size != queueSize && size >= 0) {
+					try {
+						ThreadPool newPool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method", oldPool
+								.getExecutor().getCorePoolSize(), oldPool.getExecutor().getMaximumPoolSize(),
+								new LinkedBlockingQueue<Runnable>(size));
+						sharedRequestProcessThreadPool = newPool;
+						try {
+							oldPool.getExecutor().shutdown();
+							oldPool.getExecutor().awaitTermination(waitTimeOfClosePool, TimeUnit.SECONDS);
+							oldPool = null;
+						} catch (Throwable e) {
+							logger.warn("error when shuting down old shared pool", e);
+						}
+						if (logger.isInfoEnabled()) {
+							logger.info("changed shared pool, key:" + key + ", value:" + value);
+						}
+					} catch (RuntimeException e) {
+						logger.error("error while changing shared pool, key:" + key + ", value:" + value, e);
+					}
+				}
+			} else {
+				for (String k : methodPoolConfigKeys.keySet()) {
+					String v = methodPoolConfigKeys.get(k);
+					if (key.endsWith(v)) {
+						try {
+							String serviceKey = k;
+							if (StringUtils.isNotBlank(serviceKey)) {
+								ThreadPool pool = null;
+								if (!CollectionUtils.isEmpty(methodThreadPools)) {
+									pool = methodThreadPools.get(serviceKey);
+									int actives = Integer.valueOf(value);
+									if (pool != null && actives != pool.getExecutor().getMaximumPoolSize()
+											&& actives >= 0) {
+										int coreSize = (int) (actives / DEFAULT_POOL_RATIO_CORE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_CORE)
+												: actives;
+										int queueSize = (int) (actives / DEFAULT_POOL_RATIO_QUEUE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_QUEUE)
+												: actives;
+										int maxSize = actives;
+										ThreadPool newPool = new DefaultThreadPool(
+												"Pigeon-Server-Request-Processor-method", coreSize, maxSize,
+												new LinkedBlockingQueue<Runnable>(queueSize));
+										methodThreadPools.put(serviceKey, newPool);
+										try {
+											pool.getExecutor().shutdown();
+											pool.getExecutor().awaitTermination(waitTimeOfClosePool, TimeUnit.SECONDS);
+											pool = null;
+										} catch (Throwable e) {
+											logger.warn("error when shuting down old method pool", e);
+										}
+										if (logger.isInfoEnabled()) {
+											logger.info("changed method pool, key:" + serviceKey + ", value:" + actives);
+										}
+									}
+								}
+							}
+						} catch (RuntimeException e) {
+							logger.error("error while changing method pool, key:" + key + ", value:" + value, e);
+						}
+					}
+				}
+			}
+		}
+
+		@Override
+		public void onKeyAdded(String key, String value) {
+		}
+
+		@Override
+		public void onKeyRemoved(String key) {
+		}
 
 	}
 }

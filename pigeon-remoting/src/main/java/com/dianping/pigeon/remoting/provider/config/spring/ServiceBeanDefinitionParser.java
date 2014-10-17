@@ -24,6 +24,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.provider.config.ProviderMethodConfig;
+import com.dianping.pigeon.remoting.provider.process.threadpool.RequestThreadPoolProcessor;
 
 public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 
@@ -41,6 +42,8 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 	public static AtomicInteger idCounter = new AtomicInteger();
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+
+	private static boolean checkRefExists = configManager.getBooleanValue("pigeon.config.spring.checkrefexists", false);
 
 	public ServiceBeanDefinitionParser(Class<?> beanClass, boolean required) {
 		this.beanClass = beanClass;
@@ -64,7 +67,7 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 
 		MutablePropertyValues properties = beanDefinition.getPropertyValues();
 		String ref = element.getAttribute("ref");
-		if (!parserContext.getRegistry().containsBeanDefinition(ref)) {
+		if (checkRefExists && !parserContext.getRegistry().containsBeanDefinition(ref)) {
 			throw new IllegalStateException("service must have a reference to bean:" + ref);
 		}
 		properties.addPropertyValue("serviceImpl", new RuntimeBeanReference(ref));
@@ -77,11 +80,17 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 			properties.addPropertyValue("serverBean", new RuntimeBeanReference(server));
 		}
 
+		String url = null;
 		if (element.hasAttribute("url")) {
-			properties.addPropertyValue("url", resolveReference(element, "url"));
+			url = resolveReference(element, "url");
+			properties.addPropertyValue("url", url);
 		}
 		if (element.hasAttribute("interface")) {
-			properties.addPropertyValue("interfaceName", resolveReference(element, "interface"));
+			String interfaceName = resolveReference(element, "interface");
+			if (StringUtils.isBlank(url)) {
+				url = interfaceName;
+			}
+			properties.addPropertyValue("interfaceName", interfaceName);
 		}
 		if (element.hasAttribute("version")) {
 			properties.addPropertyValue("version", resolveReference(element, "version"));
@@ -93,15 +102,15 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 			properties.addPropertyValue("useSharedPool", resolveReference(element, "useSharedPool"));
 		}
 		if (element.hasChildNodes()) {
-			parseMethods(id, element.getChildNodes(), beanDefinition, parserContext);
+			parseMethods(url, id, element.getChildNodes(), beanDefinition, parserContext);
 		}
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
 
 		return beanDefinition;
 	}
 
-	private static BeanDefinition parseMethod(Element element, ParserContext parserContext, Class<?> beanClass,
-			boolean required) {
+	private static BeanDefinition parseMethod(String url, String methodName, Element element,
+			ParserContext parserContext, Class<?> beanClass, boolean required) {
 		RootBeanDefinition beanDefinition = new RootBeanDefinition();
 		beanDefinition.setLazyInit(false);
 		String id = element.getAttribute("id");
@@ -115,13 +124,18 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		if (element.hasAttribute("actives")) {
 			properties.addPropertyValue("actives", resolveReference(element, "actives"));
+			String value = element.getAttribute("actives");
+			if (value.startsWith(DEFAULT_PLACEHOLDER_PREFIX) && value.endsWith(DEFAULT_PLACEHOLDER_SUFFIX)) {
+				RequestThreadPoolProcessor.methodPoolConfigKeys.put(url + "#" + methodName,
+						value.substring(2, value.length() - 1));
+			}
 		}
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
 
 		return beanDefinition;
 	}
 
-	private static void parseMethods(String id, NodeList nodeList, RootBeanDefinition beanDefinition,
+	private static void parseMethods(String url, String id, NodeList nodeList, RootBeanDefinition beanDefinition,
 			ParserContext parserContext) {
 		if (nodeList != null && nodeList.getLength() > 0) {
 			ManagedList methods = null;
@@ -137,8 +151,8 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 						if (methods == null) {
 							methods = new ManagedList();
 						}
-						BeanDefinition methodBeanDefinition = parseMethod(((Element) node), parserContext,
-								ProviderMethodConfig.class, false);
+						BeanDefinition methodBeanDefinition = parseMethod(url, methodName, ((Element) node),
+								parserContext, ProviderMethodConfig.class, false);
 						String name = id + "." + methodName;
 						BeanDefinitionHolder methodBeanDefinitionHolder = new BeanDefinitionHolder(
 								methodBeanDefinition, name);

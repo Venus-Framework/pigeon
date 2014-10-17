@@ -12,6 +12,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.monitor.MonitorHelper;
@@ -59,7 +60,8 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						Client client = invocationContext.getClient();
 						logger.logEvent("PigeonCall.server", client.getAddress(),
 								InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
-						logger.logEvent("PigeonCall.app", request.getApp(), "");
+						logger.logEvent("PigeonCall.app",
+								RegistryManager.getInstance().getServerApp(client.getAddress()), "");
 						if (SizeMonitor.isEnable()) {
 							SizeMonitorInfo sizeInfo = MonitorHelper.getSize();
 							if (sizeInfo != null) {

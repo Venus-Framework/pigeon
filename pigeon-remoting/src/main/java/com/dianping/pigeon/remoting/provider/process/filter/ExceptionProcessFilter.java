@@ -20,9 +20,6 @@ import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 /**
  * 
  * 
- * @author jianhuihuang
- * @version $Id: ExceptionProcessFilter.java, v 0.1 2013-6-20 下午5:45:50
- *          jianhuihuang Exp $
  */
 public class ExceptionProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 

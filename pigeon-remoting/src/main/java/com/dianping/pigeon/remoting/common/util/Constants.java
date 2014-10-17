@@ -91,12 +91,12 @@ public final class Constants {
 	public static final String KEY_SERVICE_NAMESPACE = "pigeon.service.namespace";
 	public static final String KEY_MONITOR_ENABLED = "pigeon.monitor.enabled";
 	public static final String KEY_INVOKER_MAXREQUESTS = "pigeon.invoker.maxrequests";
-	public static final String KEY_PROVIDER_COREPOOLSIZE = "pigeon.provider.corePoolSize";
-	public static final String KEY_PROVIDER_MAXPOOLSIZE = "pigeon.provider.maxPoolSize";
-	public static final String KEY_PROVIDER_WORKQUEUESIZE = "pigeon.provider.workQueueSize";
-	public static final String KEY_RESPONSE_COREPOOLSIZE = "pigeon.response.corePoolSize";
-	public static final String KEY_RESPONSE_MAXPOOLSIZE = "pigeon.response.maxPoolSize";
-	public static final String KEY_RESPONSE_WORKQUEUESIZE = "pigeon.response.workQueueSize";
+	public static final String KEY_PROVIDER_COREPOOLSIZE = "pigeon.provider.pool.coresize";
+	public static final String KEY_PROVIDER_MAXPOOLSIZE = "pigeon.provider.pool.maxsize";
+	public static final String KEY_PROVIDER_WORKQUEUESIZE = "pigeon.provider.pool.queuesize";
+	public static final String KEY_RESPONSE_COREPOOLSIZE = "pigeon.response.pool.coresize";
+	public static final String KEY_RESPONSE_MAXPOOLSIZE = "pigeon.response.pool.maxsize";
+	public static final String KEY_RESPONSE_WORKQUEUESIZE = "pigeon.response.pool.queuesize";
 	public static final String KEY_INVOKER_TIMEOUT = "pigeon.invoker.timeout";
 	public static final String KEY_TIMEOUT_INTERVAL = "pigeon.timeout.interval";
 	public static final String KEY_WRITE_BUFFER_HIGH_WATER = "pigeon.channel.writebuff.high";
@@ -111,7 +111,7 @@ public final class Constants {
 
 	public static final int DEFAULT_INVOKER_TIMEOUT = 5000;
 	public static final int DEFAULT_PROVIDER_COREPOOLSIZE = 150;
-	public static final int DEFAULT_PROVIDER_MAXPOOLSIZE = 300;
+	public static final int DEFAULT_PROVIDER_MAXPOOLSIZE = 500;
 	public static final int DEFAULT_PROVIDER_WORKQUEUESIZE = 300;
 	public static final int DEFAULT_RESPONSE_COREPOOLSIZE = 30;
 	public static final int DEFAULT_RESPONSE_MAXPOOLSIZE = 300;

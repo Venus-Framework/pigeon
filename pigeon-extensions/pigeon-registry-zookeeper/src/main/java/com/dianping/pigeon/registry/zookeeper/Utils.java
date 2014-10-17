@@ -33,27 +33,13 @@ public class Utils {
 		return path;
 	}
 
+	public static String getAppPath(String serviceAddress) {
+		String path = Constants.APP_PATH + Constants.PATH_SEPARATOR + serviceAddress;
+		return path;
+	}
+
 	public static String normalizeGroup(String group) {
 		return StringUtils.isBlank(group) ? Constants.DEFAULT_GROUP : group;
-	}
-
-	public static String getEphemeralServicePath(String serviceName, String group) {
-		StringBuilder sb = new StringBuilder(Constants.EPHEMERAL_SERVICE_PATH);
-		sb.append(Constants.PATH_SEPARATOR).append(escapeServiceName(serviceName));
-		if (!StringUtils.isBlank(group)) {
-			sb.append("@@").append(group);
-		}
-		return sb.toString();
-	}
-
-	public static String getEphemeralServicePath(String serviceName, String group, String serviceAddress) {
-		StringBuilder sb = new StringBuilder(Constants.EPHEMERAL_SERVICE_PATH);
-		sb.append(Constants.PATH_SEPARATOR).append(escapeServiceName(serviceName));
-		if (!StringUtils.isBlank(group)) {
-			sb.append("@@").append(group);
-		}
-		sb.append(Constants.PATH_SEPARATOR).append(serviceAddress);
-		return sb.toString();
 	}
 
 	public static List<String[]> getServiceIpPortList(String serviceAddress) {

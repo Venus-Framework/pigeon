@@ -69,7 +69,7 @@ public class LionConfigManager extends AbstractConfigManager {
 				appName = ConfigServiceManager.getConfig().getAppName();
 			} catch (Throwable e) {
 			}
-			if ("NONAME".equals(appName)) {
+			if (appName == null || "NONAME".equals(appName)) {
 				return "";
 			}
 		}

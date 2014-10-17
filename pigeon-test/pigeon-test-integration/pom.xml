@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>pigeon-test</artifactId>
 		<groupId>com.dianping</groupId>
-		<version>2.3.3</version>
+		<version>2.3.4</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<name>pigeon-test-integration</name>
@@ -30,7 +30,7 @@
 		<dependency>
 			<groupId>com.dianping.dpsf</groupId>
 			<artifactId>dpsf-net</artifactId>
-			<version>2.3.3</version>
+			<version>2.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.netty</groupId>

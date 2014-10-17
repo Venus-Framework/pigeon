@@ -25,6 +25,8 @@ public class RegistryEventListener {
 
 	private static List<RegistryConnectionListener> registryConnectionListeners = new ArrayList<RegistryConnectionListener>();
 
+	private static List<ServerInfoListener> serverInfoListeners = new ArrayList<ServerInfoListener>();
+
 	public synchronized static void addListener(ServiceProviderChangeListener listener) {
 		serviceProviderChangeListeners.add(listener);
 	}
@@ -35,6 +37,10 @@ public class RegistryEventListener {
 
 	public synchronized static void addListener(RegistryConnectionListener listener) {
 		registryConnectionListeners.add(listener);
+	}
+
+	public synchronized static void addListener(ServerInfoListener listener) {
+		serverInfoListeners.add(listener);
 	}
 
 	public static void providerRemoved(String serviceName, String host, int port) {
@@ -62,4 +68,9 @@ public class RegistryEventListener {
 		}
 	}
 
+	public static void serverAppChanged(String serverAddress, String app) {
+		for (ServerInfoListener listener : serverInfoListeners) {
+			listener.onServerAppChange(serverAddress, app);
+		}
+	}
 }

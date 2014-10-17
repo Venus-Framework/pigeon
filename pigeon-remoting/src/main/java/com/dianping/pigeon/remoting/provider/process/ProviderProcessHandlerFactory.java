@@ -22,6 +22,7 @@ import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.filter.BusinessProcessFilter;
 import com.dianping.pigeon.remoting.provider.process.filter.ContextTransferProcessFilter;
 import com.dianping.pigeon.remoting.provider.process.filter.ExceptionProcessFilter;
+import com.dianping.pigeon.remoting.provider.process.filter.GatewayProcessFilter;
 import com.dianping.pigeon.remoting.provider.process.filter.HealthCheckProcessFilter;
 import com.dianping.pigeon.remoting.provider.process.filter.HeartbeatProcessFilter;
 import com.dianping.pigeon.remoting.provider.process.filter.MonitorProcessFilter;
@@ -64,6 +65,7 @@ public final class ProviderProcessHandlerFactory {
 		registerBizProcessFilter(new WriteResponseProcessFilter());
 		registerBizProcessFilter(new ContextTransferProcessFilter());
 		registerBizProcessFilter(new ExceptionProcessFilter());
+		registerBizProcessFilter(new GatewayProcessFilter());
 		registerBizProcessFilter(new BusinessProcessFilter());
 		bizInvocationHandler = createInvocationHandler(bizProcessFilters);
 

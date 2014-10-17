@@ -21,6 +21,8 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.config.DefaultRegistryConfigManager;
 import com.dianping.pigeon.registry.config.RegistryConfigManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.registry.listener.RegistryEventListener;
+import com.dianping.pigeon.registry.listener.ServerInfoListener;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.util.Utils;
 
@@ -38,15 +40,15 @@ public class RegistryManager {
 
 	private static RegistryConfigManager registryConfigManager = new DefaultRegistryConfigManager();
 
-	private Registry registry = ExtensionLoader.getExtension(Registry.class);
+	private static Registry registry = ExtensionLoader.getExtension(Registry.class);
 
-	private Map<String, Set<HostInfo>> referencedServiceAddresses = new ConcurrentHashMap<String, Set<HostInfo>>();
+	private static Map<String, Set<HostInfo>> referencedServiceAddresses = new ConcurrentHashMap<String, Set<HostInfo>>();
 
-	private Map<String, HostInfo> referencedAddresses = new ConcurrentHashMap<String, HostInfo>();
+	private static Map<String, HostInfo> referencedAddresses = new ConcurrentHashMap<String, HostInfo>();
 
-	ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	private ConcurrentHashMap<String, Object> registeredServices = new ConcurrentHashMap<String, Object>();
+	private static ConcurrentHashMap<String, Object> registeredServices = new ConcurrentHashMap<String, Object>();
 
 	private RegistryManager() {
 	}
@@ -65,6 +67,7 @@ public class RegistryManager {
 				if (!isInit) {
 					instance.init(registryConfigManager.getRegistryConfig());
 					initializeException = null;
+					RegistryEventListener.addListener(new InnerServerInfoListener());
 					isInit = true;
 				}
 			}
@@ -211,7 +214,6 @@ public class RegistryManager {
 		}
 	}
 
-	// TODO multi thread support
 	public void addServiceAddress(String serviceName, String host, int port, int weight) {
 		Utils.validateWeight(host, port, weight);
 
@@ -226,6 +228,10 @@ public class RegistryManager {
 
 		if (!referencedAddresses.containsKey(hostInfo.getConnect())) {
 			referencedAddresses.put(hostInfo.getConnect(), hostInfo);
+			if (registry != null) {
+				String app = registry.getServerApp(hostInfo.getConnect());
+				hostInfo.setApp(app);
+			}
 		}
 	}
 
@@ -264,4 +270,40 @@ public class RegistryManager {
 		return referencedServiceAddresses;
 	}
 
+	public String getServerApp(String serverAddress) {
+		HostInfo hostInfo = referencedAddresses.get(serverAddress);
+		String app = null;
+		if (hostInfo != null) {
+			app = hostInfo.getApp();
+			if (app == null && registry != null) {
+				app = registry.getServerApp(serverAddress);
+				hostInfo.setApp(app);
+			}
+			return app;
+		}
+		return "";
+	}
+
+	public void setServerApp(String serverAddress, String app) {
+		if (registry != null) {
+			registry.setServerApp(serverAddress, app);
+		}
+	}
+
+	public void unregisterServerApp(String serverAddress) {
+		if (registry != null) {
+			registry.unregisterServerApp(serverAddress);
+		}
+	}
+
+	static class InnerServerInfoListener implements ServerInfoListener {
+
+		@Override
+		public void onServerAppChange(String serverAddress, String app) {
+			HostInfo hostInfo = referencedAddresses.get(serverAddress);
+			if (hostInfo != null) {
+				hostInfo.setApp(app);
+			}
+		}
+	}
 }

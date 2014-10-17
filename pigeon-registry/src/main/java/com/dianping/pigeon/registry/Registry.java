@@ -27,6 +27,12 @@ public interface Registry {
 
 	List<String> getChildren(String key) throws RegistryException;
 
-	public void setServerWeight(String serverAddress, int weight) throws RegistryException;
+	void setServerWeight(String serverAddress, int weight) throws RegistryException;
+
+	String getServerApp(String serverAddress);
+
+	void setServerApp(String serverAddress, String app);
+	
+	void unregisterServerApp(String serverAddress);
 
 }

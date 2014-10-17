@@ -72,27 +72,27 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		RegistryEventListener.hostWeightChanged(host, port, weight);
 	}
 
-    @Override
-    public void onHostAdded(String serviceName, String host) {
-        int idx = host.indexOf(':');
-        String ip = host.substring(0, idx);
-        String port = host.substring(idx + 1);
-        int weight = RegistryManager.getInstance().getServiceWeight(host);
-        RegistryEventListener.providerAdded(serviceName, ip, Integer.parseInt(port), weight);
-        if(logger.isInfoEnabled()) {
-            logger.info("host " + host + " added to service " + serviceName);
-        }
-    }
+	@Override
+	public void onHostAdded(String serviceName, String host) {
+		int idx = host.indexOf(':');
+		String ip = host.substring(0, idx);
+		String port = host.substring(idx + 1);
+		int weight = RegistryManager.getInstance().getServiceWeight(host);
+		RegistryEventListener.providerAdded(serviceName, ip, Integer.parseInt(port), weight);
+		if (logger.isInfoEnabled()) {
+			logger.info("host " + host + " added to service " + serviceName);
+		}
+	}
 
-    @Override
-    public void onHostRemoved(String serviceName, String host) {
-        int idx = host.indexOf(':');
-        String ip = host.substring(0, idx);
-        String port = host.substring(idx + 1);
-        RegistryEventListener.providerRemoved(serviceName, ip, Integer.parseInt(port));
-        if(logger.isInfoEnabled()) {
-            logger.info("host " + host + " removed from service " + serviceName);
-        }
-    }
+	@Override
+	public void onHostRemoved(String serviceName, String host) {
+		int idx = host.indexOf(':');
+		String ip = host.substring(0, idx);
+		String port = host.substring(idx + 1);
+		RegistryEventListener.providerRemoved(serviceName, ip, Integer.parseInt(port));
+		if (logger.isInfoEnabled()) {
+			logger.info("host " + host + " removed from service " + serviceName);
+		}
+	}
 
 }

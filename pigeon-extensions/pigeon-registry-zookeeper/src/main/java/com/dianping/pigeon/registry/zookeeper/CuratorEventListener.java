@@ -16,6 +16,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.listener.DefaultServiceChangeListener;
+import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceChangeListener;
 import com.dianping.pigeon.registry.util.Constants;
 
@@ -25,7 +26,7 @@ public class CuratorEventListener implements CuratorListener {
 
 	private static final int ADDRESS = 1;
 	private static final int WEIGHT = 2;
-	private static final int EPHEMERAL_ADDRESS = 3;
+	private static final int APP = 3;
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
@@ -61,8 +62,8 @@ public class CuratorEventListener implements CuratorListener {
 				addressChanged(pathInfo);
 			} else if (pathInfo.type == WEIGHT) {
 				weightChanged(pathInfo);
-			} else if (pathInfo.type == EPHEMERAL_ADDRESS) {
-
+			} else if (pathInfo.type == APP) {
+				appChanged(pathInfo);
 			}
 		} catch (Throwable e) {
 			logger.error("Error in ZookeeperWatcher.process()", e);
@@ -127,6 +128,17 @@ public class CuratorEventListener implements CuratorListener {
 		}
 	}
 
+	private void appChanged(PathInfo pathInfo) throws RegistryException {
+		try {
+			String app = client.get(pathInfo.path);
+			logger.info("app changed, path " + pathInfo.path + " value " + app);
+			RegistryEventListener.serverAppChanged(pathInfo.server, app);
+			client.watch(pathInfo.path);
+		} catch (Exception e) {
+			throw new RegistryException(e);
+		}
+	}
+
 	public PathInfo parsePath(String path) {
 		if (path == null)
 			return null;
@@ -147,23 +159,10 @@ public class CuratorEventListener implements CuratorListener {
 			pathInfo = new PathInfo(path);
 			pathInfo.type = WEIGHT;
 			pathInfo.server = path.substring(Constants.WEIGHT_PATH.length() + 1);
-		} else if (path.startsWith(Constants.EPHEMERAL_SERVICE_PATH)) {
+		} else if (path.startsWith(Constants.APP_PATH)) {
 			pathInfo = new PathInfo(path);
-			pathInfo.type = EPHEMERAL_ADDRESS;
-			pathInfo.serviceName = path.substring(Constants.EPHEMERAL_SERVICE_PATH.length() + 1);
-			int idx = pathInfo.serviceName.lastIndexOf("@@");
-			if (idx != -1) {
-				String group = pathInfo.serviceName.substring(idx + 2);
-				int i = group.indexOf("/");
-				int k = group.indexOf(":");
-				if (i != -1 && k != -1) {
-					group = group.substring(0, i);
-				}
-				pathInfo.group = group;
-				pathInfo.serviceName = pathInfo.serviceName.substring(0, idx);
-			}
-			pathInfo.serviceName = Utils.unescapeServiceName(pathInfo.serviceName);
-			pathInfo.group = Utils.normalizeGroup(pathInfo.group);
+			pathInfo.type = APP;
+			pathInfo.server = path.substring(Constants.APP_PATH.length() + 1);
 		}
 		return pathInfo;
 	}

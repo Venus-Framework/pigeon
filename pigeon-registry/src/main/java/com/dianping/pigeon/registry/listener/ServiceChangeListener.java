@@ -17,5 +17,5 @@ public interface ServiceChangeListener {
 	void onHostAdded(String serviceName, String host);
 	
 	void onHostRemoved(String serviceName, String host);
-	
+
 }

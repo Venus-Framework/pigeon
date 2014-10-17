@@ -20,9 +20,6 @@ import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 /**
  * 
  * 
- * @author jianhuihuang
- * @version $Id: GatewayInvokeFilter.java, v 0.1 2013-6-20 下午9:50:16
- *          jianhuihuang Exp $
  */
 public class GatewayInvokeFilter extends InvocationInvokeFilter {
 
