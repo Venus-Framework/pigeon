@@ -1,5 +1,5 @@
 /**
- * Dianping.com Inc.
+WS  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
 package com.dianping.pigeon.remoting.invoker.listener;
@@ -15,7 +15,6 @@ import org.springframework.util.CollectionUtils;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
@@ -96,22 +95,29 @@ public class ProviderAvailableListener implements Runnable {
 				long now = System.currentTimeMillis();
 				for (String url : serviceGroupMap.keySet()) {
 					String group = serviceGroupMap.get(url);
-					int available = getAvailableClients(this.getWorkingClients().get(url));
-					if (available < providerAvailableLeast) {
-						logger.warn("check provider available for service:" + url);
-						ClientManager.getInstance().registerServiceInvokers(url, group, null);
-						if (StringUtils.isNotBlank(group)) {
-							available = getAvailableClients(this.getWorkingClients().get(url));
-							if (available < providerAvailableLeast) {
-								logger.warn("check provider available with default group for service:" + url);
-								ClientManager.getInstance().registerServiceInvokers(url, Constants.DEFAULT_GROUP, null);
+					try {
+						int available = getAvailableClients(this.getWorkingClients().get(url));
+						if (available < providerAvailableLeast) {
+							logger.warn("check provider available for service:" + url);
+
+							ClientManager.getInstance().registerServiceInvokers(url, group, null);
+							if (StringUtils.isNotBlank(group)) {
+								available = getAvailableClients(this.getWorkingClients().get(url));
+								if (available < providerAvailableLeast) {
+									logger.warn("check provider available with default group for service:" + url);
+									ClientManager.getInstance().registerServiceInvokers(url, Constants.DEFAULT_GROUP,
+											null);
+								}
 							}
 						}
+					} catch (Throwable e) {
+						logger.error("[provideravailable] failed to get providers for service:" + url + ", caused by "
+								+ e.getMessage());
 					}
 				}
 				sleepTime = interval - (System.currentTimeMillis() - now);
 			} catch (Throwable e) {
-				logger.error("[provideravailable] task failed:" + e.getCause());
+				logger.error("[provideravailable] task failed:" + e.getMessage());
 			} finally {
 				if (sleepTime < 1000) {
 					sleepTime = 1000;

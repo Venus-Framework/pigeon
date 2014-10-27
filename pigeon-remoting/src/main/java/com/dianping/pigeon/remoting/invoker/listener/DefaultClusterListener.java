@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientSelector;
@@ -60,7 +61,8 @@ public class DefaultClusterListener implements ClusterListener {
 		List<Client> clientList = this.serviceClients.get(invokerConfig.getUrl());
 		if (CollectionUtils.isEmpty(clientList)) {
 			throw new ServiceUnavailableException("no available provider for service:" + invokerConfig.getUrl()
-					+ ", group:" + invokerConfig.getGroup());
+					+ ", group:" + invokerConfig.getGroup() + ", env:"
+					+ ConfigManagerLoader.getConfigManager().getEnv());
 		}
 		return clientList;
 	}

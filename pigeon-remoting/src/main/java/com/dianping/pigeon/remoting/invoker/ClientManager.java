@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.domain.phase.Disposable;
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -68,6 +69,9 @@ public class ClientManager implements Disposable {
 	private static ClientManager instance = new ClientManager();
 
 	private RegistryConnectionListener registryConnectionListener = new InnerRegistryConnectionListener();
+
+	private static boolean reloadWeight = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.register.weight.reload", true);
 
 	public static ClientManager getInstance() {
 		return instance;
@@ -137,12 +141,13 @@ public class ClientManager implements Disposable {
 			}
 		} catch (Throwable e) {
 			logger.error("cannot get service provider for service:" + serviceName, e);
-			throw new ServiceUnavailableException("cannot get service provider for service:" + serviceName, e);
+			throw new ServiceUnavailableException("cannot get service provider for service:" + serviceName + ", env:"
+					+ configManager.getEnv(), e);
 		}
 
 		if (StringUtils.isBlank(serviceAddress)) {
-			throw new ServiceUnavailableException("no service provider found for service:" + serviceName + ",group:"
-					+ group);
+			throw new ServiceUnavailableException("empty service address from registry for service:" + serviceName
+					+ ", group:" + group + ", env:" + configManager.getEnv());
 		}
 
 		if (logger.isInfoEnabled()) {
@@ -173,11 +178,11 @@ public class ClientManager implements Disposable {
 					}
 					if (host != null && port > 0) {
 						try {
-							int weight = RegistryManager.getInstance().getServiceWeight(address);
+							int weight = RegistryManager.getInstance().getServiceWeight(address, !reloadWeight);
 							RegistryEventListener.providerAdded(serviceName, host, port, weight);
 						} catch (Throwable e) {
 							throw new ServiceUnavailableException("error while registering service invoker:"
-									+ serviceName + ", address:" + address, e);
+									+ serviceName + ", address:" + address + ", env:" + configManager.getEnv(), e);
 						}
 					}
 				} else {

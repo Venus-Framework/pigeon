@@ -90,7 +90,8 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		}
 
 		if (!selectedClient.isConnected()) {
-			throw new ServiceUnavailableException("no available server exists for service[" + invokerConfig + "]");
+			throw new ServiceUnavailableException("no available server exists for service[" + invokerConfig + "], env:"
+					+ ConfigManagerLoader.getConfigManager().getEnv());
 		}
 		return selectedClient;
 	}
@@ -128,7 +129,8 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 
 	private void checkClientNotNull(Client client, InvokerConfig<?> invokerConfig) {
 		if (client == null) {
-			throw new ServiceUnavailableException("no available server exists for service[" + invokerConfig + "]");
+			throw new ServiceUnavailableException("no available server exists for service[" + invokerConfig + "], env:"
+					+ ConfigManagerLoader.getConfigManager().getEnv());
 		}
 	}
 

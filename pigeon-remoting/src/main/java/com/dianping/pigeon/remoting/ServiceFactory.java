@@ -40,7 +40,12 @@ public class ServiceFactory {
 	static Map<InvokerConfig<?>, Object> services = new ConcurrentHashMap<InvokerConfig<?>, Object>();
 
 	static {
-		ProviderBootStrap.init();
+		try {
+			ProviderBootStrap.init();
+		} catch (Throwable t) {
+			logger.error("error while initializing service factory:", t);
+			System.exit(1);
+		}
 	}
 
 	public static Map<InvokerConfig<?>, Object> getAllServiceInvokers() {

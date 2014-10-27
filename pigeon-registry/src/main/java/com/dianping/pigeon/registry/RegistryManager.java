@@ -158,20 +158,30 @@ public class RegistryManager {
 		}
 	}
 
-	public int getServiceWeight(String serverAddress) {
-		HostInfo hostInfo = referencedAddresses.get(serverAddress);
-		if (hostInfo != null) {
-			return hostInfo.getWeight();
+	public int getServiceWeight(String serverAddress, boolean readCache) {
+		if (readCache) {
+			HostInfo hostInfo = referencedAddresses.get(serverAddress);
+			if (hostInfo != null) {
+				return hostInfo.getWeight();
+			}
 		}
 		int weight = Constants.WEIGHT_DEFAULT;
 		if (registry != null) {
 			try {
 				weight = registry.getServerWeight(serverAddress);
+				HostInfo hostInfo = referencedAddresses.get(serverAddress);
+				if (hostInfo != null) {
+					hostInfo.setWeight(weight);
+				}
 			} catch (Throwable e) {
 				logger.error("failed to get weight for " + serverAddress, e);
 			}
 		}
 		return weight;
+	}
+
+	public int getServiceWeight(String serverAddress) {
+		return getServiceWeight(serverAddress, true);
 	}
 
 	/*

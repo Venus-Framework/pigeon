@@ -42,14 +42,20 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 	}
 
 	private static void parseAppLimitConfig(String appLimitConfig) {
-		try {
-			String[] appLimitConfigPair = appLimitConfig.split(",");
-			for (String str : appLimitConfigPair) {
-				String[] pair = str.split(":");
-				appLimitMap.put(pair[0], Long.valueOf(pair[1]));
+		if (StringUtils.isNotBlank(appLimitConfig)) {
+			try {
+				String[] appLimitConfigPair = appLimitConfig.split(",");
+				for (String str : appLimitConfigPair) {
+					if (StringUtils.isNotBlank(str)) {
+						String[] pair = str.split(":");
+						if (pair != null && pair.length == 2) {
+							appLimitMap.put(pair[0], Long.valueOf(pair[1]));
+						}
+					}
+				}
+			} catch (RuntimeException e) {
+				logger.error("error while parsing app limit configuration:" + appLimitConfig, e);
 			}
-		} catch (RuntimeException e) {
-			logger.error("error while parsing app limit configuration", e);
 		}
 	}
 
