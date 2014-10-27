@@ -36,6 +36,8 @@ public class ProviderAvailableListener implements Runnable {
 
 	private static int providerAvailableLeast = configManager.getIntValue("pigeon.providerlistener.availableleast", 1);
 
+	private static String ignoredServices = configManager.getStringValue("pigeon.providerlistener.ignoredservices", "");
+
 	public ProviderAvailableListener() {
 		configManager.registerConfigChangeListener(new InnerConfigChangeListener());
 	}
@@ -52,6 +54,11 @@ public class ProviderAvailableListener implements Runnable {
 			} else if (key.endsWith("pigeon.providerlistener.interval")) {
 				try {
 					interval = Long.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith("pigeon.providerlistener.ignoredservices")) {
+				try {
+					ignoredServices = value;
 				} catch (RuntimeException e) {
 				}
 			}
@@ -94,12 +101,14 @@ public class ProviderAvailableListener implements Runnable {
 				}
 				long now = System.currentTimeMillis();
 				for (String url : serviceGroupMap.keySet()) {
+					if (StringUtils.isNotBlank(ignoredServices) && ignoredServices.indexOf(url) == -1) {
+						continue;
+					}
 					String group = serviceGroupMap.get(url);
 					try {
 						int available = getAvailableClients(this.getWorkingClients().get(url));
 						if (available < providerAvailableLeast) {
 							logger.warn("check provider available for service:" + url);
-
 							ClientManager.getInstance().registerServiceInvokers(url, group, null);
 							if (StringUtils.isNotBlank(group)) {
 								available = getAvailableClients(this.getWorkingClients().get(url));
@@ -111,8 +120,7 @@ public class ProviderAvailableListener implements Runnable {
 							}
 						}
 					} catch (Throwable e) {
-						logger.error("[provideravailable] failed to get providers for service:" + url + ", caused by "
-								+ e.getMessage());
+						logger.error("[provideravailable] failed to get providers, caused by " + e.getMessage());
 					}
 				}
 				sleepTime = interval - (System.currentTimeMillis() - now);
