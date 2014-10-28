@@ -105,22 +105,31 @@ public class ProviderAvailableListener implements Runnable {
 						continue;
 					}
 					String group = serviceGroupMap.get(url);
-					try {
-						int available = getAvailableClients(this.getWorkingClients().get(url));
-						if (available < providerAvailableLeast) {
-							logger.warn("check provider available for service:" + url);
+
+					int available = getAvailableClients(this.getWorkingClients().get(url));
+					if (available < providerAvailableLeast) {
+						logger.warn("check provider available for service:" + url);
+						String error = null;
+						try {
 							ClientManager.getInstance().registerServiceInvokers(url, group, null);
-							if (StringUtils.isNotBlank(group)) {
-								available = getAvailableClients(this.getWorkingClients().get(url));
-								if (available < providerAvailableLeast) {
-									logger.warn("check provider available with default group for service:" + url);
+						} catch (Throwable e) {
+							error = e.getMessage();
+						}
+						if (StringUtils.isNotBlank(group)) {
+							available = getAvailableClients(this.getWorkingClients().get(url));
+							if (available < providerAvailableLeast) {
+								logger.warn("check provider available with default group for service:" + url);
+								try {
 									ClientManager.getInstance().registerServiceInvokers(url, Constants.DEFAULT_GROUP,
 											null);
+								} catch (Throwable e) {
+									error = e.getMessage();
 								}
 							}
 						}
-					} catch (Throwable e) {
-						logger.error("[provideravailable] failed to get providers, caused by " + e.getMessage());
+						if (error != null) {
+							logger.error("[provideravailable] failed to get providers, caused by " + error);
+						}
 					}
 				}
 				sleepTime = interval - (System.currentTimeMillis() - now);
