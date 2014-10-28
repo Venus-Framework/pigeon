@@ -88,9 +88,7 @@ public class CuratorEventListener implements CuratorListener {
 			String hosts = client.get(pathInfo.path);
 			logger.info("Service address changed, path " + pathInfo.path + " value " + hosts);
 			List<String[]> hostDetail = Utils.getServiceIpPortList(hosts);
-			if (RegistryManager.getInstance().isReferencedService(pathInfo.serviceName, pathInfo.group)) {
-				serviceChangeListener.onServiceHostChange(pathInfo.serviceName, hostDetail);
-			}
+			serviceChangeListener.onServiceHostChange(pathInfo.serviceName, hostDetail);
 		}
 		// Watch again
 		client.watch(pathInfo.path);

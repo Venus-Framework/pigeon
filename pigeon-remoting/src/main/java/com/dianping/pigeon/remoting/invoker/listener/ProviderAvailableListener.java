@@ -101,7 +101,7 @@ public class ProviderAvailableListener implements Runnable {
 				}
 				long now = System.currentTimeMillis();
 				for (String url : serviceGroupMap.keySet()) {
-					if (StringUtils.isNotBlank(ignoredServices) && ignoredServices.indexOf(url) == -1) {
+					if (StringUtils.isNotBlank(ignoredServices) && ignoredServices.indexOf(url) != -1) {
 						continue;
 					}
 					String group = serviceGroupMap.get(url);
