@@ -17,7 +17,6 @@
 		<dependency>
 			<groupId>org.jboss.netty</groupId>
 			<artifactId>netty</artifactId>
-			<version>3.2.18</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

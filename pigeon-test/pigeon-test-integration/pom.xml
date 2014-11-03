@@ -33,6 +33,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>com.dianping.platform</groupId>
+			<artifactId>platform-sdk</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
 			<groupId>org.jboss.netty</groupId>
 			<artifactId>netty</artifactId>
 			<version>3.2.19</version>
