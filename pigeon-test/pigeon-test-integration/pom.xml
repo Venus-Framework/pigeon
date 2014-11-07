@@ -33,9 +33,9 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.dianping.platform</groupId>
-			<artifactId>platform-sdk</artifactId>
-			<version>1.1.1</version>
+			<groupId>com.dianping</groupId>
+			<artifactId>avatar-cache</artifactId>
+			<version>2.5.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.netty</groupId>

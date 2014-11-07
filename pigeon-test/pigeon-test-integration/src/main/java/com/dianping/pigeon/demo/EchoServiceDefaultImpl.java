@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.demo;
 
-import com.dianping.pigeon.util.ContextUtils;
+
 
 public class EchoServiceDefaultImpl implements EchoService {
 

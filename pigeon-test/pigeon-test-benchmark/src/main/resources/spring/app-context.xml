@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:avatar="http://www.dianping.com/schema/avatar"
+	xmlns:pigeon="http://code.dianping.com/schema/pigeon" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+	http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
+	http://www.dianping.com/schema/avatar http://www.dianping.com/schema/avatar/avatar-1.0.xsd
+	http://code.dianping.com/schema/pigeon http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd
+     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
+
+	<bean name="placeholder" lazy-init="false"
+		class="com.dianping.lion.client.InitializeConfig">
+		<property name="propertiesPath" value="config/applicationContext.properties" />
+	</bean>
+
+	<pigeon:annotation />
+
+	<avatar:cache />
+
+	<!-- scan for mappers and let them be autowired -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage"
+			value="com.dianping.pigeon.test.benchmark.persistence" />
+	</bean>
+
+	<jdbc:initialize-database data-source="dataSource"
+		ignore-failures="ALL" enabled="true">
+		<jdbc:script location="classpath:database/mysql-schema.sql" />
+	</jdbc:initialize-database>
+
+	<!-- in-memory database and a datasource -->
+	<!-- <jdbc:embedded-database id="dataSource"> <jdbc:script location="classpath:database/hsqldb-schema.sql" 
+		/> <jdbc:script location="classpath:database/hsqldb-dataload.sql" /> </jdbc:embedded-database> -->
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="${pigeon-test.jdbc.url}" />
+		<property name="username" value="${pigeon-test.jdbc.username}" />
+		<property name="password" value="${pigeon-test.jdbc.password}" />
+		<property name="maxActive" value="5" />
+		<property name="initialSize" value="1" />
+		<property name="maxIdle" value="5" />
+		<property name="minIdle" value="1" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="600" />
+		<property name="validationQuery" value="SELECT 1" />
+		<property name="testOnBorrow" value="true" />
+		<property name="testOnReturn" value="false" />
+		<property name="testWhileIdle" value="true" />
+	</bean>
+
+	<!-- transaction manager, use JtaTransactionManager for global tx -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- enable autowire -->
+	<context:annotation-config />
+
+	<!-- enable transaction demarcation with annotations -->
+	<tx:annotation-driven />
+
+	<!-- define the SqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="typeAliasesPackage" value="com.dianping.pigeon.test.benchmark.domain" />
+		<property name="mapperLocations" value="classpath:mybatis/*.xml" />
+	</bean>
+
+	<!-- enable component scanning (beware that this does not enable mapper 
+		scanning!) -->
+	<context:component-scan base-package="com.dianping.pigeon.test.benchmark.service" />
+
+</beans>
