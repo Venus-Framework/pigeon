@@ -33,12 +33,18 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private static boolean isAppLimitEnabled = configManager.getBooleanValue("pigeon.provider.applimit.enable", false);
 	private static Map<String, Long> appLimitMap = new ConcurrentHashMap<String, Long>();
-	private static Map<String, AtomicLong> appRequestsMap = new ConcurrentHashMap<String, AtomicLong>();
+	private static ConcurrentHashMap<String, AtomicLong> appRequestsMap = new ConcurrentHashMap<String, AtomicLong>();
+	private static boolean isLogAppRequests = configManager.getBooleanValue("pigeon.provider.apprequests.log.enable",
+			false);
 
 	static {
 		String appLimitConfig = configManager.getStringValue("pigeon.provider.applimit");
 		parseAppLimitConfig(appLimitConfig);
 		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
+	}
+
+	public static Map<String, AtomicLong> getAppRequests() {
+		return appRequestsMap;
 	}
 
 	private static void parseAppLimitConfig(String appLimitConfig) {
@@ -70,19 +76,20 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 		InvocationResponse response = null;
 		Long limit = null;
 		AtomicLong requests = null;
+		if (isLogAppRequests || isAppLimitEnabled) {
+			requests = appRequestsMap.get(fromApp);
+			if (requests == null) {
+				requests = new AtomicLong(0);
+				requests = appRequestsMap.putIfAbsent(fromApp, requests);
+			}
+			requests.incrementAndGet();
+		}
 		if (isAppLimitEnabled && StringUtils.isNotBlank(fromApp) && appLimitMap.containsKey(fromApp)) {
 			limit = appLimitMap.get(fromApp);
 			if (limit >= 0) {
-				requests = appRequestsMap.get(fromApp);
-				if (requests == null) {
-					requests = new AtomicLong(0);
-					appRequestsMap.put(fromApp, requests);
-				}
 				if (requests.get() + 1 > limit) {
 					throw new RejectedException("request from app:" + fromApp + " refused, max requests limit reached:"
 							+ limit);
-				} else {
-					requests.incrementAndGet();
 				}
 			}
 		}
@@ -90,7 +97,11 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 			response = handler.handle(invocationContext);
 			return response;
 		} finally {
-			if (isAppLimitEnabled && limit != null && limit >= 0 && requests != null) {
+			// if (isAppLimitEnabled && limit != null && limit >= 0 && requests
+			// != null) {
+			// requests.decrementAndGet();
+			// }
+			if ((isLogAppRequests || isAppLimitEnabled) && requests != null) {
 				requests.decrementAndGet();
 			}
 		}

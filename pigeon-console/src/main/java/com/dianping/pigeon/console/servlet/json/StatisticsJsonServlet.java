@@ -4,6 +4,7 @@
 package com.dianping.pigeon.console.servlet.json;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,6 +17,7 @@ import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
+import com.dianping.pigeon.remoting.provider.process.filter.GatewayProcessFilter;
 
 public class StatisticsJsonServlet extends ServiceServlet {
 
@@ -40,6 +42,11 @@ public class StatisticsJsonServlet extends ServiceServlet {
 		for (String addr : buckets.keySet()) {
 			int requests = buckets.get(addr).getLastSecondRequest();
 			stat.getRequestsInLastSecond().put(addr, requests);
+		}
+		Map<String, AtomicLong> appRequests = GatewayProcessFilter.getAppRequests();
+		for (String app : appRequests.keySet()) {
+			AtomicLong requests = appRequests.get(app);
+			stat.getAppRequests().put(app, requests.intValue());
 		}
 		Map<String, Server> servers = ProviderBootStrap.getServersMap();
 		Map<String, String> serverProcessorStatistics = stat.getServerProcessorStatistics();

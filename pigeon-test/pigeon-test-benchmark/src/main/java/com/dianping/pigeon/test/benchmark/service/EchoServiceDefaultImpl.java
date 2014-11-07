@@ -18,7 +18,8 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public Date now() {
-		return new Date();
+		Date date = new Date();
+		return date;
 	}
 
 }
