@@ -35,18 +35,6 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 			InvocationResponse response = handler.handle(invocationContext);
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 				channel.write(response);
-//				long currentTime = System.currentTimeMillis();
-//				if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
-//						&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
-//					StringBuilder msg = new StringBuilder();
-//					msg.append("request timeout,\r\nrequest:").append(InvocationUtils.toJsonString(request))
-//							.append("\r\nresponse:").append(InvocationUtils.toJsonString(response));
-//					ProcessTimeoutException te = new ProcessTimeoutException(msg.toString());
-//					logger.error(te.getMessage(), te);
-//					if (monitorLogger != null) {
-//						monitorLogger.logError(te);
-//					}
-//				}
 			}
 			if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 				List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();

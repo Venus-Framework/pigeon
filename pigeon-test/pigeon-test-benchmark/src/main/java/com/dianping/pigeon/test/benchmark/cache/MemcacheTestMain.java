@@ -4,17 +4,18 @@
  */
 package com.dianping.pigeon.test.benchmark.cache;
 
+import com.dianping.avatar.cache.CacheService;
 import com.dianping.pigeon.container.SpringContainer;
 
 public class MemcacheTestMain {
 
 	private static SpringContainer SERVER_CONTAINER = new SpringContainer("classpath*:spring/*.xml");
 
-	static MemcacheTestService testService;
+	static MemcacheTestService testService = new MemcacheTestService();
 
 	static {
 		SERVER_CONTAINER.start();
-		testService = ((MemcacheTestService) SERVER_CONTAINER.getBean("MemcacheTestService"));
+		testService.setCacheService((CacheService) SERVER_CONTAINER.getBean("cacheService"));
 	}
 
 	/**
@@ -23,7 +24,9 @@ public class MemcacheTestMain {
 	 */
 	public static void main(String[] args) throws Exception {
 		System.setProperty("os.name", "linux");
-		testService.randomGet();
+		int threads = Integer.valueOf(System.getProperty("threads"));
+		int rows = Integer.valueOf(System.getProperty("rows"));
+		testService.concurrentGet(threads, rows);
 	}
 
 }

@@ -30,8 +30,7 @@ public class CuratorRegistry implements Registry {
 
 	private volatile boolean inited = false;
 
-	private final boolean delEmptyNode = configManager.getBooleanValue("pigeon.registry.delemptynode",
-			true);
+	private final boolean delEmptyNode = configManager.getBooleanValue("pigeon.registry.delemptynode", true);
 
 	@Override
 	public void init(Properties properties) {
@@ -297,9 +296,11 @@ public class CuratorRegistry implements Registry {
 	public void unregisterServerApp(String serverAddress) {
 		String path = Utils.getAppPath(serverAddress);
 		try {
-			client.delete(path);
+			if (client.exists(path)) {
+				client.delete(path);
+			}
 		} catch (Throwable e) {
-			logger.error("failed to delete app:" + path);
+			logger.error("failed to delete app:" + path + ", caused by:" + e.getMessage());
 		}
 	}
 

@@ -21,5 +21,5 @@ public interface CacheTestService {
 
 	public boolean addKeyValue(String key, String value) throws CacheException, TimeoutException;
 
-	public void concurrentGet(int threads);
+	public void concurrentGet(final int threads, final int rows);
 }

@@ -8,6 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigChangeListener;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -24,6 +26,36 @@ import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 public class ExceptionProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
 	private static final Logger logger = LoggerLoader.getLogger(ExceptionProcessFilter.class);
+	private static boolean logServiceException = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.provider.logserviceexception", true);
+
+	public ExceptionProcessFilter() {
+		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
+	}
+
+	private static class InnerConfigChangeListener implements ConfigChangeListener {
+
+		@Override
+		public void onKeyUpdated(String key, String value) {
+			if (key.endsWith("pigeon.provider.logserviceexception")) {
+				try {
+					logServiceException = Boolean.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			}
+		}
+
+		@Override
+		public void onKeyAdded(String key, String value) {
+
+		}
+
+		@Override
+		public void onKeyRemoved(String key) {
+
+		}
+
+	}
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
@@ -37,7 +69,7 @@ public class ExceptionProcessFilter implements ServiceInvocationFilter<ProviderC
 			response = handler.handle(invocationContext);
 		} catch (InvocationTargetException e) {
 			Throwable e2 = e.getTargetException();
-			if (e2 != null) {
+			if (e2 != null && logServiceException) {
 				logger.error(e2.getMessage(), e2);
 			}
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {

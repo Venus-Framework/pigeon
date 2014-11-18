@@ -16,6 +16,7 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
@@ -52,8 +53,11 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 				return buffer;
 			} catch (Throwable e) {
 				SerializationException se = new SerializationException(e);
-				doFailResponse(channel,
-						ProviderUtils.createThrowableResponse(message.getSequence(), message.getSerialize(), se));
+				try {
+					doFailResponse(channel,
+							ProviderUtils.createThrowableResponse(message.getSequence(), message.getSerialize(), se));
+				} catch (Throwable e2) {
+				}
 				log.error(e.getMessage(), se);
 				throw se;
 			}

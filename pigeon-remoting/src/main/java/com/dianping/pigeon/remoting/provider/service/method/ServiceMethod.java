@@ -16,10 +16,16 @@ public class ServiceMethod {
 
 	private Object service;
 
+	private Class<?>[] originalParameterClasses;
+
 	private Class<?>[] parameterClasses;
 
 	public Class<?>[] getParameterClasses() {
 		return parameterClasses;
+	}
+
+	public Class<?>[] getOriginalParameterClasses() {
+		return originalParameterClasses;
 	}
 
 	public void setParameterClasses(Class<?>[] parameterClasses) {
@@ -33,6 +39,7 @@ public class ServiceMethod {
 		this.service = service;
 		this.method = method;
 		this.parameterClasses = regulateTypes(this.method.getParameterTypes());
+		this.originalParameterClasses = this.method.getParameterTypes();
 		this.parameterLength = this.parameterClasses.length;
 	}
 

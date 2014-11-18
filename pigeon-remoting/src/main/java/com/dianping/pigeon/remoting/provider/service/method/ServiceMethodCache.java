@@ -126,7 +126,7 @@ public class ServiceMethodCache {
 	 * @return
 	 * @throws InvocationFailureException
 	 */
-	private int matching(ServiceMethod dpsfm, String[] paramClassNames) throws InvocationFailureException {
+	private int matching(ServiceMethod method, String[] paramClassNames) throws InvocationFailureException {
 		int k = 0;
 		for (int i = 0; i < paramClassNames.length; i++) {
 			if (paramClassNames[i].equals(Constants.TRANSFER_NULL)) {
@@ -138,10 +138,10 @@ public class ServiceMethodCache {
 			} catch (ClassNotFoundException e) {
 				throw new InvocationFailureException("no class found for parameter:" + paramClassNames[i]);
 			}
-			if (paramClass == dpsfm.getParameterClasses()[i]) {
+			if (paramClass == method.getParameterClasses()[i]) {
 				k++;
 			}
-			if (!dpsfm.getParameterClasses()[i].isAssignableFrom(paramClass)) {
+			if (!method.getParameterClasses()[i].isAssignableFrom(paramClass)) {
 				return -1;
 			}
 		}

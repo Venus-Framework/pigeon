@@ -54,8 +54,10 @@ public final class ServiceMethodFactory {
 		}
 		ServiceMethodCache serviceMethodCache = getServiceMethodCache(newUrl);
 		if (serviceMethodCache == null) {
-			logger.warn("no service found for version:" + version + ", use the default version of service:"
-					+ serviceName);
+			if (logger.isDebugEnabled()) {
+				logger.debug("no service found for version:" + version + ", use the default version of service:"
+						+ serviceName);
+			}
 			serviceMethodCache = getServiceMethodCache(serviceName);
 		}
 		if (serviceMethodCache == null) {

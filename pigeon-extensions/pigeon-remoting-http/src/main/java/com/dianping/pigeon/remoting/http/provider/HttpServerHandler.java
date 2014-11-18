@@ -63,6 +63,7 @@ public class HttpServerHandler implements HttpHandler {
 			} else {
 				invocationRequest = (InvocationRequest) obj;
 			}
+			invocationRequest.getParameters();
 			invocationRequest.setServiceName(HttpUtils.getDefaultServiceUrl(invocationRequest.getServiceName()));
 			ProviderContext invocationContext = new DefaultProviderContext(invocationRequest, new HttpChannel(request,
 					response));

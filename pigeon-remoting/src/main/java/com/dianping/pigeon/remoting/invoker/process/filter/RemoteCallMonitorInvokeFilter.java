@@ -110,10 +110,6 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 							&& (timeout || TimelineManager.isAbnormalTimeline(request, TimelineManager.getLocalIp()))) {
 						Timeline timeline = TimelineManager.getTimeline(request, TimelineManager.getLocalIp());
 						transaction.addData("Timeline", timeline);
-						if (TimelineManager.isEnabledLocalLog()) {
-							RemoteCallMonitorInvokeFilter.logger.warn(String.format("request- %s, timeline- %s",
-									request, timeline));
-						}
 					}
 					transaction.complete();
 				} catch (Throwable e) {

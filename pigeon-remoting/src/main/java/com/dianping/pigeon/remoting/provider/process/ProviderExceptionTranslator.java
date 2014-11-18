@@ -6,6 +6,9 @@ import com.dianping.pigeon.remoting.common.exception.RpcException;
 public class ProviderExceptionTranslator {
 
 	public DPSFException translate(Throwable e) {
+		if (e == null) {
+			return null;
+		}
 		if (e instanceof RpcException) {
 			RpcException rpcEx = (RpcException) e;
 			DPSFException newException = new DPSFException(String.format("#%s@%s@%s", rpcEx.getErrorCode(), rpcEx

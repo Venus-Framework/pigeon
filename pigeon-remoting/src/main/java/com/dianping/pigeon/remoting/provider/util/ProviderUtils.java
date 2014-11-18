@@ -15,6 +15,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.process.ProviderExceptionTranslator;
+import com.dianping.pigeon.util.LangUtils;
 import com.dianping.pigeon.util.VersionUtils;
 
 public final class ProviderUtils {
@@ -32,8 +33,11 @@ public final class ProviderUtils {
 		response.setSequence(seq);
 		response.setSerialize(serialization);
 		response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
-		response.setReturn(exceptionTranslator.translate(e));
-
+		if (serialization == SerializerFactory.SERIALIZE_JSON) {
+			response.setReturn(LangUtils.getFullStackTrace(e));
+		} else {
+			response.setReturn(exceptionTranslator.translate(e));
+		}
 		return response;
 	}
 
@@ -55,7 +59,11 @@ public final class ProviderUtils {
 		response.setSequence(request.getSequence());
 		response.setSerialize(serialize);
 		response.setMessageType(Constants.MESSAGE_TYPE_SERVICE_EXCEPTION);
-		response.setReturn(e);
+		if (serialize == SerializerFactory.SERIALIZE_JSON) {
+			response.setReturn(LangUtils.getFullStackTrace(e));
+		} else {
+			response.setReturn(e);
+		}
 
 		return response;
 	}

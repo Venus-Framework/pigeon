@@ -11,11 +11,12 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.util.LangUtils;
 
 public class ServerConfig {
 
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
-	public static final int DEFAULT_PORT = 4040;
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	public static final int DEFAULT_PORT = getDefaultPort();
 	public static final int DEFAULT_HTTP_PORT = 4080;
 	private int port = configManager.getIntValue("pigeon.server.defaultport", DEFAULT_PORT);
 	private int httpPort = configManager.getIntValue("pigeon.httpserver.defaultport", DEFAULT_HTTP_PORT);
@@ -35,6 +36,18 @@ public class ServerConfig {
 	private int actualPort = port;
 
 	public ServerConfig() {
+	}
+
+	public static int getDefaultPort() {
+		int port = 4040;
+		try {
+			String app = configManager.getAppName();
+			if (StringUtils.isNotBlank(app)) {
+				port = LangUtils.hash(app, 6000, 2000);
+			}
+		} catch (Throwable t) {
+		}
+		return port;
 	}
 
 	public int getActualPort() {

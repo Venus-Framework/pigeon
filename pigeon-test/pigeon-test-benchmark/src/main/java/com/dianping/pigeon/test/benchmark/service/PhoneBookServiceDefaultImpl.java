@@ -43,7 +43,7 @@ public class PhoneBookServiceDefaultImpl implements PhoneBookService {
 		phoneBookMapper.deletePhoneCard(id);
 	}
 
-	public void updatePhoneCardRandomly(final int threads, final int rows) {
+	public void updatePhoneCardRandomly(final int threads, final int rows, final int sleepTime) {
 		ExecutorService executor = Executors.newFixedThreadPool(threads);
 		for (int i = 0; i < threads; i++) {
 			executor.submit(new Runnable() {
@@ -52,6 +52,10 @@ public class PhoneBookServiceDefaultImpl implements PhoneBookService {
 				public void run() {
 					while (true) {
 						updatePhoneCardRandomly(rows);
+						try {
+							Thread.sleep(sleepTime);
+						} catch (InterruptedException e) {
+						}
 					}
 				}
 			});
@@ -68,7 +72,7 @@ public class PhoneBookServiceDefaultImpl implements PhoneBookService {
 		phoneBookMapper.updatePhoneCard(card);
 	}
 
-	public void getPhoneCardRandomly(final int threads, final int rows) {
+	public void getPhoneCardRandomly(final int threads, final int rows, final int sleepTime) {
 		ExecutorService executor = Executors.newFixedThreadPool(threads);
 		for (int i = 0; i < threads; i++) {
 			executor.submit(new Runnable() {
@@ -77,6 +81,10 @@ public class PhoneBookServiceDefaultImpl implements PhoneBookService {
 				public void run() {
 					while (true) {
 						getPhoneCardRandomly(rows);
+						try {
+							Thread.sleep(sleepTime);
+						} catch (InterruptedException e) {
+						}
 					}
 				}
 			});

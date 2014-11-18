@@ -3,13 +3,15 @@
  */
 package com.dianping.pigeon.console.servlet.json;
 
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.dianping.pigeon.console.domain.Statistics;
+import com.dianping.pigeon.console.listener.StatusListener;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
+import com.dianping.pigeon.console.status.StatusInfo;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.remoting.invoker.route.statistics.CapacityBucket;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
@@ -17,7 +19,8 @@ import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
-import com.dianping.pigeon.remoting.provider.process.filter.GatewayProcessFilter;
+import com.dianping.pigeon.remoting.provider.process.statistics.AppCapacityBucket;
+import com.dianping.pigeon.remoting.provider.process.statistics.AppStatisticsHolder;
 
 public class StatisticsJsonServlet extends ServiceServlet {
 
@@ -43,10 +46,12 @@ public class StatisticsJsonServlet extends ServiceServlet {
 			int requests = buckets.get(addr).getLastSecondRequest();
 			stat.getRequestsInLastSecond().put(addr, requests);
 		}
-		Map<String, AtomicLong> appRequests = GatewayProcessFilter.getAppRequests();
-		for (String app : appRequests.keySet()) {
-			AtomicLong requests = appRequests.get(app);
-			stat.getAppRequests().put(app, requests.intValue());
+		Map<String, AppCapacityBucket> appCapacityMap = AppStatisticsHolder.getCapacityBuckets();
+		for (String app : appCapacityMap.keySet()) {
+			AppCapacityBucket appCapacity = appCapacityMap.get(app);
+			if (appCapacity != null) {
+				stat.getAppRequests().put(app, appCapacity.toString());
+			}
 		}
 		Map<String, Server> servers = ProviderBootStrap.getServersMap();
 		Map<String, String> serverProcessorStatistics = stat.getServerProcessorStatistics();
@@ -58,6 +63,11 @@ public class StatisticsJsonServlet extends ServiceServlet {
 			}
 		}
 		stat.setWeightFactors(LoadBalanceManager.getWeightFactors());
+
+		List<StatusInfo> infoList = StatusListener.getStatusInfoList();
+		for (StatusInfo info : infoList) {
+			stat.getOthers().put(info.getSource(), "" + info.getStatusInfo());
+		}
 		this.model = stat;
 	}
 }

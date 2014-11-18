@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -44,6 +45,8 @@ public class InvokeJsonServlet extends ServiceServlet {
 	private static final long serialVersionUID = -4886018160888366456L;
 
 	private static Map<String, Class<?>> builtInMap = new HashMap<String, Class<?>>();
+
+	private static boolean registered = false;
 
 	static {
 		builtInMap.put("int", Integer.TYPE);
@@ -132,17 +135,21 @@ public class InvokeJsonServlet extends ServiceServlet {
 			response.getWriter().write("invalid verification code!");
 		}
 	}
-
+	
 	private Object proxyInvoke(String serviceName, String methodName, String[] types, String[] values, int timeout)
 			throws Exception {
 		ProviderConfig<?> service = getServiceProviders().get(serviceName);
 		if (service == null) {
 			return null;
 		}
+//		if (!registered) {
+//			ClientManager.getInstance().registerServiceInvokers(serviceName, configManager.getGroup(),
+//					"console:" + serverConfig.getActualPort());
+//		}
 		ProxyBeanFactory beanFactory = new ProxyBeanFactory();
 		beanFactory.setServiceName(serviceName);
 		beanFactory.setIface(service.getServiceInterface().getName());
-		beanFactory.setVip("localhost:" + serverConfig.getActualPort());
+		beanFactory.setVip("console:" + service.getServerConfig().getActualPort());
 		beanFactory.setTimeout(timeout);
 		beanFactory.init();
 		Object proxy = beanFactory.getObject();
@@ -241,6 +248,53 @@ public class InvokeJsonServlet extends ServiceServlet {
 								valueObj = jacksonSerializer.deserializeCollection(value, type,
 										Class.forName(valueClass));
 							}
+						}
+					}
+				} else if (valueObj instanceof Map) {
+					Map valueObjList = (Map) valueObj;
+					if (!valueObjList.isEmpty()) {
+						Map finalMap = new HashMap(valueObjList.size());
+						valueObj = finalMap;
+						String keyClass = null;
+						String valueClass = null;
+						for (Iterator ir = valueObjList.keySet().iterator(); ir.hasNext();) {
+							Object k = ir.next();
+							Object v = valueObjList.get(k);
+							Object finalKey = k;
+							Object finalValue = v;
+							if (k instanceof String) {
+								try {
+									finalKey = jacksonSerializer.deserializeObject(Map.class, (String) k);
+								} catch (Throwable t) {
+									if (keyClass == null) {
+										Map firstValueMap = jacksonSerializer.deserializeObject(Map.class, (String) k);
+										if (firstValueMap != null) {
+											keyClass = (String) firstValueMap.get("@class");
+										}
+									}
+									if (keyClass != null) {
+										finalKey = jacksonSerializer.deserializeObject(Class.forName(keyClass),
+												(String) k);
+									}
+								}
+							}
+							if (v instanceof String) {
+								try {
+									finalValue = jacksonSerializer.deserializeObject(Map.class, (String) v);
+								} catch (Throwable t) {
+									if (valueClass == null) {
+										Map firstValueMap = jacksonSerializer.deserializeObject(Map.class, (String) v);
+										if (firstValueMap != null) {
+											valueClass = (String) firstValueMap.get("@class");
+										}
+									}
+									if (valueClass != null) {
+										finalValue = jacksonSerializer.deserializeObject(Class.forName(valueClass),
+												(String) v);
+									}
+								}
+							}
+							finalMap.put(finalKey, finalValue);
 						}
 					}
 				}

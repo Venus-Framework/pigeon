@@ -73,7 +73,7 @@ public class MemcacheTestService implements CacheTestService {
 	protected static Random random = new Random();
 	protected static int rows = 0;
 
-	public void concurrentGet(int threads) {
+	public void concurrentGet(final int threads, final int rows) {
 		ExecutorService executor = Executors.newFixedThreadPool(threads);
 		for (int i = 0; i < threads; i++) {
 			executor.submit(new Runnable() {

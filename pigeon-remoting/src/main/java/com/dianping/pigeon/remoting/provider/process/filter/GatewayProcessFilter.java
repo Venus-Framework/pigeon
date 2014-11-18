@@ -6,7 +6,6 @@ package com.dianping.pigeon.remoting.provider.process.filter;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -22,9 +21,13 @@ import com.dianping.pigeon.remoting.common.exception.RejectedException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.process.statistics.AppStatisticsChecker;
+import com.dianping.pigeon.remoting.provider.process.statistics.AppStatisticsHolder;
+import com.dianping.pigeon.threadpool.DefaultThreadPool;
+import com.dianping.pigeon.threadpool.ThreadPool;
 
 /**
- * 
+ * @author xiangwu
  * 
  */
 public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderContext> {
@@ -33,18 +36,14 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private static boolean isAppLimitEnabled = configManager.getBooleanValue("pigeon.provider.applimit.enable", false);
 	private static Map<String, Long> appLimitMap = new ConcurrentHashMap<String, Long>();
-	private static ConcurrentHashMap<String, AtomicLong> appRequestsMap = new ConcurrentHashMap<String, AtomicLong>();
-	private static boolean isLogAppRequests = configManager.getBooleanValue("pigeon.provider.apprequests.log.enable",
-			false);
+	private static ThreadPool statisticsCheckerPool = new DefaultThreadPool("Pigeon-Server-Statistics-Checker");
 
 	static {
 		String appLimitConfig = configManager.getStringValue("pigeon.provider.applimit");
 		parseAppLimitConfig(appLimitConfig);
 		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
-	}
-
-	public static Map<String, AtomicLong> getAppRequests() {
-		return appRequestsMap;
+		AppStatisticsChecker appStatisticsChecker = new AppStatisticsChecker();
+		statisticsCheckerPool.execute(appStatisticsChecker);
 	}
 
 	private static void parseAppLimitConfig(String appLimitConfig) {
@@ -74,36 +73,22 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 		InvocationRequest request = invocationContext.getRequest();
 		String fromApp = request.getApp();
 		InvocationResponse response = null;
-		Long limit = null;
-		AtomicLong requests = null;
-		if (isLogAppRequests || isAppLimitEnabled) {
-			requests = appRequestsMap.get(fromApp);
-			if (requests == null) {
-				requests = new AtomicLong(0);
-				requests = appRequestsMap.putIfAbsent(fromApp, requests);
-			}
-			requests.incrementAndGet();
-		}
-		if (isAppLimitEnabled && StringUtils.isNotBlank(fromApp) && appLimitMap.containsKey(fromApp)) {
-			limit = appLimitMap.get(fromApp);
-			if (limit >= 0) {
-				if (requests.get() + 1 > limit) {
-					throw new RejectedException("request from app:" + fromApp + " refused, max requests limit reached:"
-							+ limit);
+		try {
+			AppStatisticsHolder.flowIn(request);
+			if (isAppLimitEnabled && StringUtils.isNotBlank(fromApp) && appLimitMap.containsKey(fromApp)) {
+				Long limit = appLimitMap.get(fromApp);
+				if (limit >= 0) {
+					long requests = AppStatisticsHolder.getCapacityBucket(request).getCurrentRequests();
+					if (requests + 1 > limit) {
+						throw new RejectedException("request from app:" + fromApp
+								+ " refused, max requests limit reached:" + limit);
+					}
 				}
 			}
-		}
-		try {
 			response = handler.handle(invocationContext);
 			return response;
 		} finally {
-			// if (isAppLimitEnabled && limit != null && limit >= 0 && requests
-			// != null) {
-			// requests.decrementAndGet();
-			// }
-			if ((isLogAppRequests || isAppLimitEnabled) && requests != null) {
-				requests.decrementAndGet();
-			}
+			AppStatisticsHolder.flowOut(request);
 		}
 	}
 

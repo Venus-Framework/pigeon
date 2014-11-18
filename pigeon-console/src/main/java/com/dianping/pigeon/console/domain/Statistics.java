@@ -9,11 +9,13 @@ public class Statistics {
 
 	public Map<String, Integer> requestsInLastSecond = new HashMap<String, Integer>();
 
-	public Map<String, Integer> appRequests = new HashMap<String, Integer>();
+	public Map<String, String> appRequests = new HashMap<String, String>();
 
 	Map<String, String> serverProcessorStatistics = new HashMap<String, String>();
 
 	Map<String, WeightFactor> weightFactors = new HashMap<String, WeightFactor>();
+
+	public Map<String, String> others = new HashMap<String, String>();
 
 	public Map<String, WeightFactor> getWeightFactors() {
 		return weightFactors;
@@ -39,12 +41,20 @@ public class Statistics {
 		this.requestsInLastSecond = requestsInLastSecond;
 	}
 
-	public Map<String, Integer> getAppRequests() {
+	public Map<String, String> getAppRequests() {
 		return appRequests;
 	}
 
-	public void setAppRequests(Map<String, Integer> appRequests) {
+	public void setAppRequests(Map<String, String> appRequests) {
 		this.appRequests = appRequests;
+	}
+
+	public Map<String, String> getOthers() {
+		return others;
+	}
+
+	public void setOthers(Map<String, String> others) {
+		this.others = others;
 	}
 
 }

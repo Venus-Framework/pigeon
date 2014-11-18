@@ -38,6 +38,7 @@ import com.dianping.pigeon.remoting.invoker.listener.ReconnectListener;
 import com.dianping.pigeon.remoting.invoker.route.RouteManager;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
+import com.dianping.pigeon.util.NetUtils;
 
 public class ClientManager implements Disposable {
 
@@ -131,10 +132,18 @@ public class ClientManager implements Disposable {
 			}
 		}
 		String serviceAddress = null;
+		boolean useVip = false;
+		if (StringUtils.isNotBlank(vip)) {
+			if ((ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv()) || ConfigConstants.ENV_ALPHA
+					.equalsIgnoreCase(configManager.getEnv()))) {
+				useVip = true;
+			} else if (vip.startsWith("console:")) {
+				useVip = true;
+				vip = vip.replaceAll("console", NetUtils.getFirstLocalIp());
+			}
+		}
 		try {
-			if (!StringUtils.isBlank(vip)
-					&& (ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv()) || ConfigConstants.ENV_ALPHA
-							.equalsIgnoreCase(configManager.getEnv()))) {
+			if (useVip) {
 				serviceAddress = vip;
 			} else {
 				serviceAddress = RegistryManager.getInstance().getServiceAddress(serviceName, group);

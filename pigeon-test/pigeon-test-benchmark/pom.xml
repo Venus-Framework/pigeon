@@ -7,7 +7,7 @@
 	<groupId>com.dianping</groupId>
 	<artifactId>pigeon-test-benchmark</artifactId>
 	<version>1.0.0</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<properties>
 		<skip_maven_deploy>false</skip_maven_deploy>
@@ -26,18 +26,18 @@
 		<dependency>
 			<groupId>com.dianping</groupId>
 			<artifactId>avatar-cache</artifactId>
-			<version>2.5.7</version>
-		</dependency>
-		<dependency>
-			<groupId>com.dianping</groupId>
-			<artifactId>avatar-cache</artifactId>
-			<version>2.5.7</version>
+			<version>2.5.9-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib-nodep</artifactId>
 			<version>${cglib.version}</version>
 			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>avatar-tracker</artifactId>
+			<version>2.1.9</version>
 		</dependency>
 		<dependency>
 			<groupId>com.dianping.cat</groupId>

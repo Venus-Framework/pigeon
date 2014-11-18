@@ -69,7 +69,7 @@ public class ProtobufRequest implements InvocationRequest {
 	private transient String loadbalance;
 
 	private String app = ConfigManagerLoader.getConfigManager().getAppName();
-
+	
 	public String getLoadbalance() {
 		return loadbalance;
 	}

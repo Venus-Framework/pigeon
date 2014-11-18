@@ -25,7 +25,7 @@ public @interface Service {
 
 	String group() default "";
 
-	int port() default ServerConfig.DEFAULT_PORT;
+	int port() default 4040;
 
 	boolean autoSelectPort() default true;
 

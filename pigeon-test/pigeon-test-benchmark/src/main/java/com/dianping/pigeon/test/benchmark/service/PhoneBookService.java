@@ -18,13 +18,13 @@ public interface PhoneBookService {
 
 	public void deletePhoneCardById(int id);
 
-	public void updatePhoneCardRandomly(int threads, int rows);
+	public void updatePhoneCardRandomly(int threads, int rows, final int sleepTime);
 
 	public void updatePhoneCardRandomly(int rows);
 
 	public List<PhoneCard> getPhoneCardRandomly(int rows);
 
-	public void getPhoneCardRandomly(final int threads, final int rows);
+	public void getPhoneCardRandomly(final int threads, final int rows, final int sleepTime);
 
 	public void init(int rows);
 

@@ -4,8 +4,10 @@
  */
 package com.dianping.pigeon.remoting.provider.process.filter;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
@@ -23,12 +25,20 @@ import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.common.util.TimelineManager.Timeline;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.service.method.ServiceMethod;
+import com.dianping.pigeon.remoting.provider.service.method.ServiceMethodFactory;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
 	private static final Logger logger = LoggerLoader.getLogger(MonitorProcessFilter.class);
+
+	private static final Logger accessLogger = Logger.getLogger("pigeon-access");
+
 	private Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
+
+	private static boolean isAccessLogEnabled = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.provider.accesslog.enable", false);
 
 	private String getIp(String address) {
 		String ip = address;
@@ -52,14 +62,25 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 		MonitorTransaction transaction = null;
 		MonitorLogger monitorLogger = null;
 		boolean timeout = false;
+		String fromIp = null;
 		if (monitor != null) {
 			monitorLogger = monitor.getLogger();
 		}
 		if (monitorLogger != null) {
+			String strMethod = null;
 			try {
-				transaction = monitorLogger.createTransaction("PigeonService", InvocationUtils.getRemoteCallFullName(
-						request.getServiceName(), request.getMethodName(), request.getParamClassName()),
-						invocationContext);
+				ServiceMethod serviceMethod = ServiceMethodFactory.getMethod(request);
+				invocationContext.setServiceMethod(serviceMethod);
+				strMethod = InvocationUtils.getRemoteCallFullName(request.getServiceName(), request.getMethodName(),
+						serviceMethod.getOriginalParameterClasses());
+			} catch (Throwable e) {
+			}
+			try {
+				if (StringUtils.isBlank(strMethod)) {
+					strMethod = InvocationUtils.getRemoteCallFullName(request.getServiceName(),
+							request.getMethodName(), request.getParamClassName());
+				}
+				transaction = monitorLogger.createTransaction("PigeonService", strMethod, invocationContext);
 			} catch (Throwable e) {
 				monitorLogger.logError(e);
 			}
@@ -89,13 +110,13 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 				try {
 					StringBuilder event = new StringBuilder();
 					event.append(InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
-					String ip = getIp(channel.getRemoteAddress());
-					monitorLogger.logEvent("PigeonService.client", ip, event.toString());
+					fromIp = getIp(channel.getRemoteAddress());
+					monitorLogger.logEvent("PigeonService.client", fromIp, event.toString());
 					monitorLogger.logEvent("PigeonService.app", request.getApp(), "");
 					if (SizeMonitor.isEnable()) {
 						SizeMonitorInfo sizeInfo = MonitorHelper.getSize();
 						if (sizeInfo != null) {
-							SizeMonitor.getInstance().logSize(sizeInfo.getSize(), sizeInfo.getEvent(), ip);
+							SizeMonitor.getInstance().logSize(sizeInfo.getSize(), sizeInfo.getEvent(), fromIp);
 						}
 					}
 					transaction.writeMonitorContext();
@@ -114,11 +135,11 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					if (TimelineManager.isEnabled()
 							&& (timeout || TimelineManager.isAbnormalTimeline(request, TimelineManager.getRemoteIp()))) {
 						transaction.addData("Timeline", timeline);
-						if (TimelineManager.isEnabledLocalLog()) {
-							logger.warn(String.format("request- %s, timeline- %s", request, timeline));
-						}
 					}
 					transaction.complete();
+					if (isAccessLogEnabled) {
+						accessLogger.debug(request.getApp() + "@" + fromIp + "@" + request + "@" + timeline);
+					}
 				} catch (Throwable e) {
 					monitorLogger.logMonitorError(e);
 				}

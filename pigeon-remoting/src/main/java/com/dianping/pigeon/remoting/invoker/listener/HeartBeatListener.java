@@ -17,14 +17,19 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
+import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.ServiceStatusException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
@@ -48,21 +53,88 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 	private final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
-	private final long heartBeatDeadCount = configManager.getLongValue(Constants.KEY_HEARTBEAT_DEADTHRESHOLD,
+	private static long heartBeatDeadCount = configManager.getLongValue(Constants.KEY_HEARTBEAT_DEADTHRESHOLD,
 			Constants.DEFAULT_HEARTBEAT_DEADCOUNT);
-	private final long heartBeatHealthCount = configManager.getLongValue(Constants.KEY_HEARTBEAT_HEALTHTHRESHOLD,
+	private static long heartBeatHealthCount = configManager.getLongValue(Constants.KEY_HEARTBEAT_HEALTHTHRESHOLD,
 			Constants.DEFAULT_HEARTBEAT_HEALTHCOUNT);
-	private final boolean isHeartBeatAutoPickOff = configManager.getBooleanValue(Constants.KEY_HEARTBEAT_AUTOPICKOFF,
+	private static boolean isHeartBeatAutoPickOff = configManager.getBooleanValue(Constants.KEY_HEARTBEAT_AUTOPICKOFF,
 			Constants.DEFAULT_HEARTBEAT_AUTOPICKOFF);
-	private final long interval = configManager.getLongValue(Constants.KEY_HEARTBEAT_INTERVAL,
+	private static long interval = configManager.getLongValue(Constants.KEY_HEARTBEAT_INTERVAL,
 			Constants.DEFAULT_HEARTBEAT_INTERVAL);
-	private final int heartBeatTimeout = configManager.getIntValue(Constants.KEY_HEARTBEAT_TIMEOUT,
+	private static int heartBeatTimeout = configManager.getIntValue(Constants.KEY_HEARTBEAT_TIMEOUT,
 			Constants.DEFAULT_HEARTBEAT_TIMEOUT);
-	private final float pickoffRatio = configManager.getFloatValue("pigeon.heartbeat.pickoffratio", 0.5f);
+	private static float pickoffRatio = configManager.getFloatValue("pigeon.heartbeat.pickoffratio", 0.5f);
+	private static boolean logPickOff = configManager.getBooleanValue("pigeon.heartbeat.logpickoff", true);
+	private static boolean logPickOn = configManager.getBooleanValue("pigeon.heartbeat.logpickon", true);
+	private static MonitorLogger monitor = ExtensionLoader.getExtension(Monitor.class).getLogger();
 
 	private static volatile Set<String> inactiveAddresses = new HashSet<String>();
+
+	public HeartBeatListener() {
+		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
+	}
+
+	private static class InnerConfigChangeListener implements ConfigChangeListener {
+
+		@Override
+		public void onKeyUpdated(String key, String value) {
+			if (key.endsWith("pigeon.heartbeat.logpickoff")) {
+				try {
+					logPickOff = Boolean.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith("pigeon.heartbeat.logpickon")) {
+				try {
+					logPickOn = Boolean.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith("pigeon.heartbeat.pickoffratio")) {
+				try {
+					pickoffRatio = Float.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith(Constants.KEY_HEARTBEAT_TIMEOUT)) {
+				try {
+					heartBeatTimeout = Integer.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith(Constants.KEY_HEARTBEAT_INTERVAL)) {
+				try {
+					interval = Long.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith(Constants.KEY_HEARTBEAT_HEALTHTHRESHOLD)) {
+				try {
+					heartBeatHealthCount = Long.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith(Constants.KEY_HEARTBEAT_DEADTHRESHOLD)) {
+				try {
+					heartBeatDeadCount = Long.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith(Constants.KEY_HEARTBEAT_AUTOPICKOFF)) {
+				try {
+					isHeartBeatAutoPickOff = Boolean.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			}
+		}
+
+		@Override
+		public void onKeyAdded(String key, String value) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onKeyRemoved(String key) {
+			// TODO Auto-generated method stub
+
+		}
+	}
 
 	public void run() {
 		long sleepTime = interval;
@@ -180,8 +252,15 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 				if (!client.isActive()) {
 					client.setActive(true);
 					inactiveAddresses.remove(client.getAddress());
-					logger.error("@service-activate:" + client + ", service:" + getServiceName(client)
+					logger.warn("@service-activate:" + client + ", service:" + getServiceName(client)
 							+ ", inactive addresses:" + inactiveAddresses);
+
+					if (logPickOn) {
+						ServiceStatusException ex = new ServiceStatusException("remote server " + client
+								+ " returned to normal");
+						ex.setStackTrace(new StackTraceElement[] {});
+						monitor.logError(ex);
+					}
 				}
 				heartStat.resetCounter();
 			} else if (heartStat.failedCounter.longValue() >= heartBeatDeadCount) {
@@ -190,6 +269,13 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 						client.setActive(false);
 						inactiveAddresses.add(client.getAddress());
 						logger.error("@service-deactivate:" + client + ", inactive addresses:" + inactiveAddresses);
+
+						if (logPickOff) {
+							ServiceStatusException ex = new ServiceStatusException("remote server " + client
+									+ " unavailable");
+							ex.setStackTrace(new StackTraceElement[] {});
+							monitor.logError(ex);
+						}
 					} else {
 						logger.error("@service-dieaway:" + client + ", inactive addresses:" + inactiveAddresses);
 					}
@@ -290,4 +376,5 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	public static boolean isActiveAddress(String address) {
 		return !inactiveAddresses.contains(address);
 	}
+
 }

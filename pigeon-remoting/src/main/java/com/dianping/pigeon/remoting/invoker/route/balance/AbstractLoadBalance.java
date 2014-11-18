@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
@@ -19,6 +20,7 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
+import com.dianping.pigeon.util.NetUtils;
 
 public abstract class AbstractLoadBalance implements LoadBalance {
 
@@ -33,8 +35,13 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 		}
 		Client selectedClient = null;
 		String forceAddress = InvokerHelper.getAddress();
-		if (forceAddress != null && forceAddress.length() > 0) {
+		if (StringUtils.isNotBlank(forceAddress)) {
 			// 客户端强制路由
+			if (forceAddress.startsWith("localhost") || forceAddress.startsWith("127.0.0.1")) {
+				if (forceAddress.lastIndexOf(":") != -1) {
+					forceAddress = NetUtils.getFirstLocalIp() + forceAddress.substring(forceAddress.lastIndexOf(":"));
+				}
+			}
 			for (Client client : clients) {
 				if (forceAddress.equals(client.getAddress())) {
 					selectedClient = client;
@@ -42,8 +49,9 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 				}
 			}
 			if (selectedClient == null) {
-				throw new ServiceUnavailableException("server[" + forceAddress + "] is not connected for service["
-						+ request.getServiceName() + "].");
+				throw new ServiceUnavailableException("address[" + forceAddress
+						+ "] is not in available providers of service:" + request.getServiceName()
+						+ ", available providers:" + clients);
 			}
 		} else {
 			if (clients.size() == 1) {

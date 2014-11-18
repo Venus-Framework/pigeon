@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
 
 import com.dianping.pigeon.remoting.common.domain.AbstractInvocationContext;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
-
+import com.dianping.pigeon.remoting.provider.service.method.ServiceMethod;
 
 public class DefaultProviderContext extends AbstractInvocationContext implements ProviderContext {
 
@@ -16,6 +16,7 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 	private ProviderChannel channel;
 	private Future<?> future;
 	private Thread thread;
+	private ServiceMethod serviceMethod;
 
 	public DefaultProviderContext(InvocationRequest request, ProviderChannel channel) {
 		super(request);
@@ -52,6 +53,16 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 	@Override
 	public void setThread(Thread thread) {
 		this.thread = thread;
+	}
+
+	@Override
+	public void setServiceMethod(ServiceMethod serviceMethod) {
+		this.serviceMethod = serviceMethod;
+	}
+
+	@Override
+	public ServiceMethod getServiceMethod() {
+		return serviceMethod;
 	}
 
 }

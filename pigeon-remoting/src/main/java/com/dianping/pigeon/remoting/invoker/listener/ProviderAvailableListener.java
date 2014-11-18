@@ -97,21 +97,24 @@ public class ProviderAvailableListener implements Runnable {
 				Set<InvokerConfig<?>> services = ServiceFactory.getAllServiceInvokers().keySet();
 				Map<String, String> serviceGroupMap = new HashMap<String, String>();
 				for (InvokerConfig<?> invokerConfig : services) {
-					serviceGroupMap.put(invokerConfig.getUrl(), invokerConfig.getGroup());
+					serviceGroupMap
+							.put(invokerConfig.getUrl(), invokerConfig.getGroup() + "#" + invokerConfig.getVip());
 				}
 				long now = System.currentTimeMillis();
 				for (String url : serviceGroupMap.keySet()) {
 					if (StringUtils.isNotBlank(ignoredServices) && ignoredServices.indexOf(url) != -1) {
 						continue;
 					}
-					String group = serviceGroupMap.get(url);
+					String groupValue = serviceGroupMap.get(url);
+					String group = groupValue.substring(0, groupValue.lastIndexOf("#"));
+					String vip = groupValue.substring(groupValue.lastIndexOf("#") + 1);
 
 					int available = getAvailableClients(this.getWorkingClients().get(url));
 					if (available < providerAvailableLeast) {
 						logger.warn("check provider available for service:" + url);
 						String error = null;
 						try {
-							ClientManager.getInstance().registerServiceInvokers(url, group, null);
+							ClientManager.getInstance().registerServiceInvokers(url, group, vip);
 						} catch (Throwable e) {
 							error = e.getMessage();
 						}
@@ -121,7 +124,7 @@ public class ProviderAvailableListener implements Runnable {
 								logger.warn("check provider available with default group for service:" + url);
 								try {
 									ClientManager.getInstance().registerServiceInvokers(url, Constants.DEFAULT_GROUP,
-											null);
+											vip);
 								} catch (Throwable e) {
 									error = e.getMessage();
 								}

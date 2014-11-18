@@ -29,17 +29,17 @@ public class CuratorClient {
 
 	private CuratorFramework client;
 
-	private int retries = configManager.getIntValue("pigeon.registry.zookeeper.retries", Integer.MAX_VALUE);
+	private int retries = configManager.getIntValue("pigeon.registry.curator.retries", Integer.MAX_VALUE);
 
-	private int retryInterval = configManager.getIntValue("pigeon.registry.zookeeper.retryinterval", 1000);
+	private int retryInterval = configManager.getIntValue("pigeon.registry.curator.retryinterval", 1000);
 
-	private int sessionTimeout = configManager.getIntValue("pigeon.registry.zookeeper.sessiontimeout", 30 * 1000);
+	private int sessionTimeout = configManager.getIntValue("pigeon.registry.curator.sessiontimeout", 30 * 1000);
 
-	private int connectionTimeout = configManager.getIntValue("pigeon.registry.zookeeper.connectiontimeout", 15 * 1000);
+	private int connectionTimeout = configManager.getIntValue("pigeon.registry.curator.connectiontimeout", 15 * 1000);
 
 	public CuratorClient(String zkAddress, CuratorRegistry registry) throws Exception {
 		client = CuratorFrameworkFactory.newClient(zkAddress, sessionTimeout, connectionTimeout, new RetryNTimes(
-				retryInterval, retries));
+				retries, retryInterval));
 		client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
 			@Override
 			public void stateChanged(CuratorFramework client, ConnectionState newState) {

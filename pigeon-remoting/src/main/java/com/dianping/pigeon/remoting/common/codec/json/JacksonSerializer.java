@@ -13,11 +13,13 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.dpsf.protocol.DefaultResponse;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,20 +27,30 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class JacksonSerializer extends DefaultAbstractSerializer {
 
 	private static final Logger logger = LoggerLoader.getLogger(JacksonSerializer.class);
+	private static boolean deserializeMap = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.codec.jackson.deserializemap", true);
 
-	ObjectMapper mapper = new ObjectMapper();
+	static ObjectMapper mapper = new ObjectMapper();
 
 	public JacksonSerializer() {
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		// mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+		// mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+		// mapper.enable(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY);
 		// mapper.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
 		// mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
 		// mapper.disable(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
 		// mapper.disable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		mapper.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
+		mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 		// initialize
 		String content = serializeObject(new DefaultRequest());
 		deserializeObject(DefaultRequest.class, content);
+	}
+
+	public static void registerClass(Class<?>... classes) {
+		mapper.registerSubtypes(classes);
 	}
 
 	@Override
@@ -57,7 +69,11 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 			if (logger.isDebugEnabled()) {
 				logger.debug("deserialize:" + new String(sw.toByteArray()));
 			}
-			return mapper.readValue(sw.toByteArray(), clazz);
+			if (deserializeMap) {
+				return JacksonObjectMapper.convertObject(mapper.readValue(sw.toByteArray(), clazz));
+			} else {
+				return mapper.readValue(sw.toByteArray(), clazz);
+			}
 		} catch (Throwable e) {
 			throw new SerializationException(e);
 		} finally {
@@ -70,7 +86,7 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 
 	public String serializeObject(Object obj) throws SerializationException {
 		try {
-			return mapper.writeValueAsString(obj);
+			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
 		} catch (Throwable e) {
 			throw new SerializationException(e);
 		}
@@ -78,7 +94,11 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 
 	public <T> T deserializeObject(Class<T> objType, String content) throws SerializationException {
 		try {
-			return mapper.readValue(content, objType);
+			if (deserializeMap) {
+				return JacksonObjectMapper.convertObject(mapper.readValue(content, objType));
+			} else {
+				return mapper.readValue(content, objType);
+			}
 		} catch (Throwable e) {
 			throw new SerializationException(e);
 		}

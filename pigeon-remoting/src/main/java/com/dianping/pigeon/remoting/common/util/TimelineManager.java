@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -28,7 +29,6 @@ public class TimelineManager {
 	private static volatile ConcurrentHashMap<String, Timeline> sequenceMap = new ConcurrentHashMap<String, Timeline>();
 
 	private static boolean enabled;
-	private static boolean enabledLocalLog;
 	private static long abnormalThreshold;
 	private static long legacyThreshold;
 	private static long lastRemoveTime;
@@ -36,11 +36,45 @@ public class TimelineManager {
 
 	static {
 		ConfigManager config = ExtensionLoader.getExtension(ConfigManager.class);
+		config.registerConfigChangeListener(new InnerConfigChangeListener());
 		enabled = config.getBooleanValue("pigeon.timeline.log.enabled", true);
-		enabledLocalLog = config.getBooleanValue("pigeon.timeline.locallog.enabled", false);
 		abnormalThreshold = config.getLongValue("pigeon.timeline.abnormal.threshold", 50);
 		legacyThreshold = config.getLongValue("pigeon.timeline.legacy.threshold", 60000);
 		localIp = config.getLocalIp();
+	}
+
+	private static class InnerConfigChangeListener implements ConfigChangeListener {
+
+		@Override
+		public void onKeyUpdated(String key, String value) {
+			if (key.endsWith("pigeon.timeline.log.enabled")) {
+				try {
+					enabled = Boolean.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith("pigeon.timeline.abnormal.threshold")) {
+				try {
+					abnormalThreshold = Long.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith("pigeon.timeline.legacy.threshold")) {
+				try {
+					legacyThreshold = Long.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			}
+		}
+
+		@Override
+		public void onKeyAdded(String key, String value) {
+
+		}
+
+		@Override
+		public void onKeyRemoved(String key) {
+
+		}
+
 	}
 
 	public static class Timeline {
@@ -83,10 +117,6 @@ public class TimelineManager {
 
 	public static boolean isEnabled() {
 		return enabled;
-	}
-
-	public static boolean isEnabledLocalLog() {
-		return enabledLocalLog;
 	}
 
 	public static String getLocalIp() {
