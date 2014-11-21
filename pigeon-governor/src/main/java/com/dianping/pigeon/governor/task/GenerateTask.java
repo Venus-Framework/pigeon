@@ -1,5 +1,6 @@
 package com.dianping.pigeon.governor.task;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -133,6 +134,7 @@ public class GenerateTask implements Runnable {
 
 		String[] addrArray = hosts.split(",");
 		Service service = getService(env, url, group);
+		List<CheckTask> tasks = new ArrayList<CheckTask>();
 		for (String address : addrArray) {
 			if (StringUtils.isBlank(address)) {
 				continue;
@@ -147,11 +149,14 @@ public class GenerateTask implements Runnable {
 					}
 					service.addHost(host);
 					CheckTask task = new CheckTask(manager, host);
-					manager.getWorkerPool().submit(task);
+					tasks.add(task);
 				}
 			} else {
 				logger.warn(env.name() + "#invalid address:" + address + " for service:" + url);
 			}
+		}
+		for (CheckTask task : tasks) {
+			manager.getWorkerPool().submit(task);
 		}
 	}
 
