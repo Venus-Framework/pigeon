@@ -11,9 +11,6 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.dianping.lion.EnvZooKeeperConfig;
-import com.dianping.lion.client.ConfigCache;
-import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.governor.util.Constants.Action;
 import com.dianping.pigeon.governor.util.Constants.Host;
 import com.dianping.pigeon.registry.exception.RegistryException;
@@ -125,6 +122,7 @@ public class DisposeTask implements Runnable {
 		Host host = task.getHost();
 		CuratorRegistry registry = (CuratorRegistry) manager.getRegistry(host.getService().getEnv());
 		registry.unregisterPersistentNode(host.getService().getUrl(), host.getService().getGroup(), host.getAddress());
+		host.getService().getHostList().remove(host);
 		if (!host.getService().getUrl().startsWith("@HTTP@")) {
 			notifyLionApi(task);
 		}

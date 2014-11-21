@@ -3,6 +3,8 @@ package com.dianping.pigeon.governor.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+
 import com.dianping.pigeon.config.ConfigManagerLoader;
 
 public class Constants {
@@ -126,6 +128,9 @@ public class Constants {
 			return sb.toString();
 		}
 
+		public boolean equals(Object an) {
+			return new EqualsBuilder().append(this.getAddress(), ((Host) an).getAddress()).isEquals();
+		}
 	}
 
 	public static class Service {
