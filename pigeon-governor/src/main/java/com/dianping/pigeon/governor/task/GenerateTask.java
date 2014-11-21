@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
@@ -23,6 +24,8 @@ public class GenerateTask implements Runnable {
 	private static final Logger logger = Logger.getLogger(GenerateTask.class);
 
 	private static final String ROOT = "/DP/SERVER";
+
+	private static ConcurrentHashMap<String, Service> services = new ConcurrentHashMap<String, Service>();
 
 	private HealthCheckManager manager;
 	private AddressRepo addrRepo;
@@ -114,12 +117,22 @@ public class GenerateTask implements Runnable {
 		}
 	}
 
+	private Service getService(Environment env, String url, String group) {
+		String key = env.toString() + "#" + url + "#" + group;
+		Service service = new Service(env, url, group);
+		Service service2 = services.putIfAbsent(key, service);
+		if (service2 == null) {
+			service2 = service;
+		}
+		return service2;
+	}
+
 	private void generateTasks(Environment env, String url, String group, String hosts, String pigeon2hosts) {
 		if (hosts == null)
 			return;
 
 		String[] addrArray = hosts.split(",");
-		Service service = new Service(env, url, group);
+		Service service = getService(env, url, group);
 		for (String address : addrArray) {
 			if (StringUtils.isBlank(address)) {
 				continue;
