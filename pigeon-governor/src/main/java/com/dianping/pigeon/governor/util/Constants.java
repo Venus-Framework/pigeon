@@ -159,7 +159,9 @@ public class Constants {
 		}
 
 		public void addHost(Host host) {
-			hostList.add(host);
+			if (!hostList.contains(host)) {
+				hostList.add(host);
+			}
 		}
 
 		public List<Host> getHostList() {

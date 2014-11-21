@@ -98,20 +98,13 @@ public class DisposeTask implements Runnable {
 			logger.info("will not be deleted, dead server " + host + ", in " + hostList);
 			return -1;
 		}
-		boolean hasLiveHost = false;
 		boolean isChecking = false;
-		for (Host hh : hostList) {
-			if (hh.isAlive()) {
-				hasLiveHost = true;
-			} else {
-				if (hh.getDeadCount() < manager.getDeadThreshold())
-					isChecking = true;
-			}
-		}
-		if (!hasLiveHost && !isChecking && minHosts == 0) {
+		if (host.getDeadCount() < manager.getDeadThreshold())
+			isChecking = true;
+		if (!isChecking) {
 			return 1;
 		}
-		return hasLiveHost ? 1 : (isChecking ? 0 : -1);
+		return 0;
 	}
 
 	private void logAddress(CheckTask task) {

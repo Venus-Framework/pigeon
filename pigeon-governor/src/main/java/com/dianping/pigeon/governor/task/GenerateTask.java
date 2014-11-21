@@ -35,7 +35,7 @@ public class GenerateTask implements Runnable {
 		this.manager = manager;
 		addrRepo = new AddressRepo();
 	}
-
+	
 	@Override
 	public void run() {
 		while (!Thread.interrupted()) {
@@ -141,16 +141,16 @@ public class GenerateTask implements Runnable {
 			}
 			Address ad = AddressUtils.toAddress(address);
 			if (ad.isValid()) {
+				Host host = new Host(service, ad.getIp(), ad.getPort());
 				if (!addrRepo.contains(env, address)) {
 					addrRepo.add(env, address);
-					Host host = new Host(service, ad.getIp(), ad.getPort());
 					if (pigeon2hosts.indexOf(ad.getIp()) == -1) {
 						host.setCheckResponse(false);
 					}
-					service.addHost(host);
 					CheckTask task = new CheckTask(manager, host);
 					tasks.add(task);
 				}
+				service.addHost(host);
 			} else {
 				logger.warn(env.name() + "#invalid address:" + address + " for service:" + url);
 			}
