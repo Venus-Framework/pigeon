@@ -55,12 +55,12 @@ public class GenerateTask implements Runnable {
 	private void waitForTaskComplete() throws InterruptedException {
 		AtomicInteger n = new AtomicInteger(0);
 		while (manager.getWorkerPool().getActiveCount() > 0) {
-			if (n.getAndIncrement() % 10 == 0) {
+			if (n.getAndIncrement() % 30 == 0) {
 				String message = String.format("active threads: %d, queue size: %d, completed task: %d", manager
 						.getWorkerPool().getActiveCount(), manager.getWorkerPool().getQueue().size(), manager
 						.getWorkerPool().getCompletedTaskCount());
-				if (logger.isDebugEnabled()) {
-					logger.debug(message);
+				if (logger.isInfoEnabled()) {
+					logger.info(message);
 				}
 			}
 			Thread.sleep(1000);

@@ -46,7 +46,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 
 	private static Map<String, Class<?>> builtInMap = new HashMap<String, Class<?>>();
 
-	private static boolean registered = false;
+	private static boolean logCaller = configManager.getBooleanValue("pigeon.console.logcaller", true);
 
 	static {
 		builtInMap.put("int", Integer.TYPE);
@@ -94,8 +94,10 @@ public class InvokeJsonServlet extends ServiceServlet {
 				values = null;
 			}
 
-			logger.info("pigeon console: invoking '" + serviceName + "@" + methodName + "', from "
-					+ Utils.getIpAddr(request));
+			if (logCaller) {
+				logger.info("pigeon console: invoking '" + serviceName + "@" + methodName + "', from "
+						+ Utils.getIpAddr(request));
+			}
 
 			Object result = null;
 			if (direct) {
@@ -135,17 +137,18 @@ public class InvokeJsonServlet extends ServiceServlet {
 			response.getWriter().write("invalid verification code!");
 		}
 	}
-	
+
 	private Object proxyInvoke(String serviceName, String methodName, String[] types, String[] values, int timeout)
 			throws Exception {
 		ProviderConfig<?> service = getServiceProviders().get(serviceName);
 		if (service == null) {
 			return null;
 		}
-//		if (!registered) {
-//			ClientManager.getInstance().registerServiceInvokers(serviceName, configManager.getGroup(),
-//					"console:" + serverConfig.getActualPort());
-//		}
+		// if (!registered) {
+		// ClientManager.getInstance().registerServiceInvokers(serviceName,
+		// configManager.getGroup(),
+		// "console:" + serverConfig.getActualPort());
+		// }
 		ProxyBeanFactory beanFactory = new ProxyBeanFactory();
 		beanFactory.setServiceName(serviceName);
 		beanFactory.setIface(service.getServiceInterface().getName());
