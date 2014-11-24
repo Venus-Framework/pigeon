@@ -34,6 +34,8 @@ public class CheckTask implements Runnable {
 	private static boolean logDeadServer = configManager.getBooleanValue("pigeon.governor.healthcheck.logdead", false);
 	private static boolean logAliveServer = configManager
 			.getBooleanValue("pigeon.governor.healthcheck.logalive", false);
+	private static boolean checkAliveByResponse = configManager.getBooleanValue(
+			"pigeon.governor.healthcheck.checkalivebyresponse", false);
 
 	public CheckTask(HealthCheckManager manager, Host host) {
 		this.manager = manager;
@@ -49,6 +51,8 @@ public class CheckTask implements Runnable {
 				logDeadServer = Boolean.parseBoolean(value);
 			} else if ("pigeon.governor.healthcheck.logalive".equals(key)) {
 				logAliveServer = Boolean.parseBoolean(value);
+			} else if ("pigeon.governor.healthcheck.checkalivebyresponse".equals(key)) {
+				checkAliveByResponse = Boolean.parseBoolean(value);
 			}
 		}
 
@@ -98,42 +102,46 @@ public class CheckTask implements Runnable {
 
 	private boolean isServerAlive() {
 		boolean alive = false;
-		try {
-			if (!isPortAvailable()) {
-				return false;
-			}
-			if (host.getService().getUrl().startsWith("@HTTP@")) {
-				return true;
-			}
-			if (!host.isCheckResponse()) {
-				return true;
-			}
-			InvocationRequest request = createHealthCheckRequest();
-			InvocationResponse response = getHealthCheckResponse(request);
-			if (response != null) {
-				alive = true;
-				// if response.getReturn() is an exception, consider server
-				// alive
-				if (response.getReturn() instanceof Map) {
-					Map result = (Map) response.getReturn();
-					if (result != null) {
-						if (logger.isDebugEnabled())
-							logger.debug("server " + host + " response: " + result);
+		if (!isPortAvailable()) {
+			return false;
+		}
+		if (host.getService().getUrl().startsWith("@HTTP@")) {
+			return true;
+		}
+		if (!host.isCheckResponse()) {
+			return true;
+		}
+		if (checkAliveByResponse) {
+			try {
+				InvocationRequest request = createHealthCheckRequest();
+				InvocationResponse response = getHealthCheckResponse(request);
+				if (response != null) {
+					alive = true;
+					// if response.getReturn() is an exception, consider server
+					// alive
+					if (response.getReturn() instanceof Map) {
+						Map result = (Map) response.getReturn();
+						if (result != null) {
+							if (logger.isDebugEnabled())
+								logger.debug("server " + host + " response: " + result);
 
-						// If group does not match, remove immediately
-						if (result.containsKey("group")
-								&& !isSameGroup(host.getService().getGroup(), (String) result.get("group"))) {
-							alive = false;
-							host.setDeadCount(Integer.MAX_VALUE);
+							// If group does not match, remove immediately
+							if (result.containsKey("group")
+									&& !isSameGroup(host.getService().getGroup(), (String) result.get("group"))) {
+								alive = false;
+								host.setDeadCount(Integer.MAX_VALUE);
+							}
 						}
 					}
 				}
+			} catch (NetTimeoutException e) {
+				logger.debug("server " + host + " timeout, dead count " + host.getDeadCount() + ": " + e.getMessage());
+				alive = true;
+			} catch (Throwable t) {
+				logger.debug("error contacting server " + host + ", dead count " + host.getDeadCount(), t);
+				alive = true;
 			}
-		} catch (NetTimeoutException e) {
-			logger.debug("server " + host + " timeout, dead count " + host.getDeadCount() + ": " + e.getMessage());
-			alive = true;
-		} catch (Throwable t) {
-			logger.debug("error contacting server " + host + ", dead count " + host.getDeadCount(), t);
+		} else {
 			alive = true;
 		}
 		return alive;
