@@ -25,6 +25,7 @@ import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 import com.dianping.pigeon.util.CollectionUtils;
+import com.dianping.pigeon.util.ThreadPoolUtils;
 
 public class DefaultClusterListener implements ClusterListener {
 
@@ -221,5 +222,9 @@ public class DefaultClusterListener implements ClusterListener {
 		} catch (Throwable e) {
 			logger.error("error schedule task to close client", e);
 		}
+	}
+
+	public void destroy() throws Exception {
+		ThreadPoolUtils.shutdown(closeExecutor);
 	}
 }

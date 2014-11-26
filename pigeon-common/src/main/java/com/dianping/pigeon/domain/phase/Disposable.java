@@ -6,6 +6,6 @@ package com.dianping.pigeon.domain.phase;
 
 public interface Disposable {
 
-	void destroy();
+	void destroy() throws Exception;
 
 }

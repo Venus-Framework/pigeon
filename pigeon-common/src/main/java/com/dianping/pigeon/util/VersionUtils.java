@@ -2,7 +2,7 @@ package com.dianping.pigeon.util;
 
 public class VersionUtils {
 
-	public static final String VERSION = "2.3.7-SNAPSHOT";
+	public static final String VERSION = "2.3.8";
 	
 	public static int compareVersion(String version1, String version2) {
 		String[] s1 = version1.split("\\.|-");

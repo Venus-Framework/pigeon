@@ -23,6 +23,7 @@ import com.dianping.pigeon.remoting.provider.process.threadpool.RequestThreadPoo
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
+import com.dianping.pigeon.util.ThreadPoolUtils;
 
 public abstract class AbstractRequestProcessor implements RequestProcessor {
 
@@ -47,6 +48,10 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		doStart();
 	}
 
+	public void destroy() throws Exception {
+		ThreadPoolUtils.shutdown(timeCheckThreadPool.getExecutor());
+	}
+	
 	public abstract void doStop();
 
 	public void stop() {

@@ -24,6 +24,7 @@ import com.dianping.pigeon.remoting.invoker.listener.InvocationTimeoutListener;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
+import com.dianping.pigeon.util.ThreadPoolUtils;
 
 public class ServiceInvocationRepository {
 
@@ -82,4 +83,7 @@ public class ServiceInvocationRepository {
 		invocatinTimeCheckThreadPool.execute(invocationTimeoutCheck);
 	}
 
+	public void destroy() throws Exception {
+		ThreadPoolUtils.shutdown(invocatinTimeCheckThreadPool.getExecutor());
+	}
 }

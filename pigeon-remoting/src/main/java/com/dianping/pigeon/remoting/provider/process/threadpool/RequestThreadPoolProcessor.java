@@ -171,16 +171,20 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 			Map<String, ProviderMethodConfig> methodConfigs = providerConfig.getMethods();
 			ServiceMethodCache methodCache = ServiceMethodFactory.getServiceMethodCache(url);
 			Set<String> methodNames = methodCache.getMethodMap().keySet();
+			if (CollectionUtils.isEmpty(methodConfigs)) {
+				return;
+			}
 			for (String name : methodNames) {
+				if (!methodConfigs.containsKey(name)) {
+					continue;
+				}
 				String key = url + "#" + name;
 				ThreadPool pool = methodThreadPools.get(key);
 				if (pool == null) {
 					int actives = DEFAULT_POOL_ACTIVES;
-					if (methodConfigs != null) {
-						ProviderMethodConfig methodConfig = methodConfigs.get(name);
-						if (methodConfig != null && methodConfig.getActives() > 0) {
-							actives = methodConfig.getActives();
-						}
+					ProviderMethodConfig methodConfig = methodConfigs.get(name);
+					if (methodConfig != null && methodConfig.getActives() > 0) {
+						actives = methodConfig.getActives();
 					}
 					int coreSize = (int) (actives / DEFAULT_POOL_RATIO_CORE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_CORE)
 							: actives;

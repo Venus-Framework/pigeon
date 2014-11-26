@@ -38,7 +38,8 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 	}
 
 	@Override
-	public void destroy() {
+	public void destroy() throws Exception {
+		this.stop();
 	}
 
 	@Override

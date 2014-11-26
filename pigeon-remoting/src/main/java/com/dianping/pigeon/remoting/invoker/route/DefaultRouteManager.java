@@ -171,7 +171,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	}
 
 	@Override
-	public void destroy() {
+	public void destroy() throws Exception {
 		RegistryEventListener.removeListener(providerChangeListener);
 	}
 

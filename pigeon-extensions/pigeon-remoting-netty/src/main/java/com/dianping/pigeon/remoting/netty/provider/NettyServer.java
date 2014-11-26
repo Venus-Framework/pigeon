@@ -124,7 +124,7 @@ public class NettyServer extends AbstractServer implements Disposable {
 	}
 
 	@Override
-	public void destroy() {
+	public void destroy() throws Exception {
 		this.stop();
 	}
 

@@ -39,8 +39,9 @@ import com.dianping.pigeon.remoting.invoker.route.RouteManager;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
 import com.dianping.pigeon.util.NetUtils;
+import com.dianping.pigeon.util.ThreadPoolUtils;
 
-public class ClientManager implements Disposable {
+public class ClientManager {
 
 	private static final Logger logger = LoggerLoader.getLogger(ClientManager.class);
 
@@ -112,8 +113,7 @@ public class ClientManager implements Disposable {
 		return routerManager.route(clientsToRoute, invokerConfig, request);
 	}
 
-	@Override
-	public void destroy() {
+	public void destroy() throws Exception {
 		if (clusterListenerManager instanceof Disposable) {
 			((Disposable) clusterListenerManager).destroy();
 		}
@@ -121,6 +121,9 @@ public class ClientManager implements Disposable {
 			((Disposable) routerManager).destroy();
 		}
 		RegistryEventListener.removeListener(providerChangeListener);
+		ThreadPoolUtils.shutdown(providerAvailableThreadPool.getExecutor());
+		ThreadPoolUtils.shutdown(heartBeatThreadPool.getExecutor());
+		ThreadPoolUtils.shutdown(reconnectThreadPool.getExecutor());
 	}
 
 	public String getServiceAddress(String serviceName, String group, String vip) {
