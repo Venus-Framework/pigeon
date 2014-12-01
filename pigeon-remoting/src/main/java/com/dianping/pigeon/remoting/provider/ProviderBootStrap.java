@@ -5,6 +5,7 @@
 package com.dianping.pigeon.remoting.provider;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,12 @@ public final class ProviderBootStrap {
 	static Server httpServer = null;
 	static volatile Map<String, Server> serversMap = new HashMap<String, Server>();
 	static volatile boolean isInitialized = false;
+	static Date startTime =  new Date();
 
+	public static Date getStartTime() {
+		return startTime;
+	}
+	
 	public static void init() {
 		if (!isInitialized) {
 			RegistryConfigLoader.init();

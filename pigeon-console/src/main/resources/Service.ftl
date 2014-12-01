@@ -104,6 +104,8 @@
 		<p>version: ${version}</p>
 		<p>env: ${environment}</p>
 		<p>group: ${group}</p>
+		<p>app: ${appName}</p>
+		<p>start time: ${startTime}</p>
 		</div>
 		<div>
 			<div class="zTreeDemoBackground left">

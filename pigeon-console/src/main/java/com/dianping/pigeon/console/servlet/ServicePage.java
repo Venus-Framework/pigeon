@@ -7,6 +7,10 @@ import java.util.Map;
 import com.dianping.pigeon.console.domain.Service;
 
 public class ServicePage {
+	private String startTime = "";
+
+	private String appName = "";
+
 	private String port = "";
 
 	private int httpPort;
@@ -36,8 +40,24 @@ public class ServicePage {
 	private Map<String, Integer> serviceWeights;
 
 	private String error = "";
-	
+
 	private String registry = "";
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
+	}
+
+	public String getAppName() {
+		return appName;
+	}
+
+	public void setAppName(String appName) {
+		this.appName = appName;
+	}
 
 	public String getRegistry() {
 		return registry;

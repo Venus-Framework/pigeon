@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.SerializationException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import com.dianping.dpsf.spring.ProxyBeanFactory;
@@ -46,7 +47,11 @@ public class InvokeJsonServlet extends ServiceServlet {
 
 	private static Map<String, Class<?>> builtInMap = new HashMap<String, Class<?>>();
 
-	private static boolean logCaller = configManager.getBooleanValue("pigeon.console.logcaller", true);
+	private static boolean enableInvoke = configManager.getBooleanValue("pigeon.console.invoke.enable", true);
+
+	private static boolean logInvoke = configManager.getBooleanValue("pigeon.console.invoke.log", true);
+
+	private static boolean directInvoke = configManager.getBooleanValue("pigeon.console.invoke.direct", true);
 
 	static {
 		builtInMap.put("int", Integer.TYPE);
@@ -62,8 +67,8 @@ public class InvokeJsonServlet extends ServiceServlet {
 
 	protected void generateView(HttpServletRequest request, HttpServletResponse response) throws IOException,
 			ServletException {
-		if (!serverConfig.isEnableTest()) {
-			response.getWriter().write("pigeon test is disabled!");
+		if (!enableInvoke) {
+			response.getWriter().write("pigeon console invocation is disabled!");
 			return;
 		}
 		boolean isValidate = false;
@@ -73,8 +78,10 @@ public class InvokeJsonServlet extends ServiceServlet {
 		}
 		String token = request.getParameter("token");
 		if (!isValidate || isValidate && token != null && token.equals(ServiceServlet.getToken())) {
-			boolean direct = request.getParameter("direct") == null ? true : request.getParameter("direct").equals(
-					"true") ? true : false;
+			boolean direct = directInvoke;
+			if (StringUtils.isNotBlank(request.getParameter("direct"))) {
+				direct = request.getParameter("direct").equals("true") ? true : false;
+			}
 			String timeoutKey = request.getParameter("timeout");
 			int timeout = timeoutKey == null ? 15 * 1000 : Integer.parseInt(timeoutKey);
 			String serviceName = request.getParameter("url");
@@ -94,7 +101,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 				values = null;
 			}
 
-			if (logCaller) {
+			if (logInvoke) {
 				logger.info("pigeon console: invoking '" + serviceName + "@" + methodName + "', from "
 						+ Utils.getIpAddr(request));
 			}

@@ -136,6 +136,9 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 							&& (timeout || TimelineManager.isAbnormalTimeline(request, TimelineManager.getRemoteIp()))) {
 						transaction.addData("Timeline", timeline);
 					}
+					if (!"default".equals(channel.getProtocol())) {
+						transaction.addData("Protocol", channel.getProtocol());
+					}
 					transaction.complete();
 					if (isAccessLogEnabled) {
 						accessLogger.debug(request.getApp() + "@" + fromIp + "@" + request + "@" + timeline);

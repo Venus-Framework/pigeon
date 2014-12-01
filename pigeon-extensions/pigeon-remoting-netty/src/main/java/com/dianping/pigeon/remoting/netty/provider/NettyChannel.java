@@ -15,16 +15,12 @@ import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: NettyChannel.java, v 0.1 2013-6-20 下午5:47:22 jianhuihuang Exp $
- */
 public class NettyChannel implements ProviderChannel {
 
 	private Channel channel = null;
 
+	private static final String protocol = "default";
+	
 	public NettyChannel(Channel channel) {
 		this.channel = channel;
 	}
@@ -51,4 +47,8 @@ public class NettyChannel implements ProviderChannel {
 		return address.getAddress().getHostAddress() + ":" + address.getPort();
 	}
 
+	@Override
+	public String getProtocol() {
+		return protocol;
+	}
 }

@@ -175,6 +175,8 @@ public class ServiceServlet extends HttpServlet {
 		page.setGroup(configManager.getGroup());
 		page.setServiceWeights(ServiceProviderFactory.getServerWeight());
 		page.setRegistry(RegistryManager.getInstance().getRegistry().getName());
+		page.setAppName(configManager.getAppName());
+		page.setStartTime(ProviderBootStrap.getStartTime() + "");
 		this.model = page;
 	}
 

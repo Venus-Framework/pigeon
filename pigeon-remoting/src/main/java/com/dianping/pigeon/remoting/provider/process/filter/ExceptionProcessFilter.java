@@ -71,11 +71,11 @@ public class ExceptionProcessFilter implements ServiceInvocationFilter<ProviderC
 			Throwable e2 = e.getTargetException();
 			if (e2 != null && logServiceException) {
 				logger.error(e2.getMessage(), e2);
+				invocationContext.setServiceError(e2);
 			}
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 				response = ProviderUtils.createServiceExceptionResponse(request, e2);
 			}
-			invocationContext.setServiceError(e2);
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 			invocationContext.setServiceError(e);

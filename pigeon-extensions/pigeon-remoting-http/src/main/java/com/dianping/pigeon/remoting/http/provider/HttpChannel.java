@@ -25,6 +25,7 @@ public class HttpChannel implements ProviderChannel {
 	HttpServletResponse response;
 	public static final String CONTENT_TYPE_SERIALIZED_OBJECT = "application/x-java-serialized-object";
 	private String contentType = CONTENT_TYPE_SERIALIZED_OBJECT;
+	private static final String protocol = "http";
 
 	public void setContentType(String contentType) {
 		if (contentType == null) {
@@ -57,6 +58,11 @@ public class HttpChannel implements ProviderChannel {
 	@Override
 	public String getRemoteAddress() {
 		return this.request.getRemoteAddr() + ":" + this.request.getRemotePort();
+	}
+
+	@Override
+	public String getProtocol() {
+		return protocol;
 	}
 
 }
