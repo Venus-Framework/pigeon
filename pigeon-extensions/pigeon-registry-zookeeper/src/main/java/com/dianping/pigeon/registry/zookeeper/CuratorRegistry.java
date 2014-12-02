@@ -261,7 +261,7 @@ public class CuratorRegistry implements Registry {
 		client.close();
 	}
 
-	CuratorClient getCuratorClient() {
+	public CuratorClient getCuratorClient() {
 		return client;
 	}
 

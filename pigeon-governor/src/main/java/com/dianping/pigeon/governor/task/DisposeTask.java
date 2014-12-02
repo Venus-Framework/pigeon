@@ -1,6 +1,8 @@
 package com.dianping.pigeon.governor.task;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -10,11 +12,15 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.zookeeper.KeeperException.NoNodeException;
 
 import com.dianping.pigeon.governor.util.Constants.Action;
 import com.dianping.pigeon.governor.util.Constants.Host;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.registry.zookeeper.CuratorClient;
 import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
+import com.dianping.pigeon.registry.zookeeper.Utils;
+import com.dianping.pigeon.util.CollectionUtils;
 
 public class DisposeTask implements Runnable {
 
@@ -113,11 +119,48 @@ public class DisposeTask implements Runnable {
 
 	private void removeAddress(CheckTask task) throws RegistryException {
 		Host host = task.getHost();
+		int minHosts = manager.getMinhosts(host.getService().getEnv());
 		CuratorRegistry registry = (CuratorRegistry) manager.getRegistry(host.getService().getEnv());
-		registry.unregisterPersistentNode(host.getService().getUrl(), host.getService().getGroup(), host.getAddress());
+		unregisterPersistentNode(registry.getCuratorClient(), host.getService().getUrl(), host.getService().getGroup(),
+				host.getAddress(), minHosts);
 		host.getService().getHostList().remove(host);
 		if (!host.getService().getUrl().startsWith("@HTTP@")) {
 			notifyLionApi(task);
+		}
+	}
+
+	public void unregisterPersistentNode(CuratorClient client, String serviceName, String group, String serviceAddress,
+			int minHosts) throws RegistryException {
+		String servicePath = Utils.getServicePath(serviceName, group);
+		try {
+			if (client.exists(servicePath)) {
+				String addressValue = client.get(servicePath);
+				String[] addressArray = addressValue.split(",");
+				List<String> addressList = new ArrayList<String>();
+				for (String addr : addressArray) {
+					addr = addr.trim();
+					if (addr.length() > 0 && !addressList.contains(addr)) {
+						addressList.add(addr);
+					}
+				}
+				if (addressList.contains(serviceAddress)) {
+					addressList.remove(serviceAddress);
+					if (minHosts > 0 && addressList.size() <= minHosts) {
+						logger.info("will not be deleted, dead server " + serviceAddress + ", in " + addressList);
+						return;
+					}
+					if (!addressList.isEmpty()) {
+						Collections.sort(addressList);
+						client.set(servicePath, StringUtils.join(addressList.iterator(), ","));
+						if (logger.isInfoEnabled()) {
+							logger.info("unregistered " + serviceAddress + " from " + servicePath);
+						}
+					}
+				}
+			}
+		} catch (Throwable e) {
+			logger.error("failed to unregister service from " + servicePath, e);
+			throw new RegistryException(e);
 		}
 	}
 
