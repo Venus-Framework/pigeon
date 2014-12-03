@@ -193,8 +193,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			heartBeatStat.incrFailed();
 			notifyHeartBeatStatChanged(client);
 			if (client.isActive()) {
-				logger.warn("[heartbeat] send heartbeat to server[" + client.getAddress() + "] failed. detail["
-						+ e.getMessage() + "].");
+				logger.warn("[heartbeat] send heartbeat to server[" + client.getAddress() + "] failed");
 			}
 		}
 	}

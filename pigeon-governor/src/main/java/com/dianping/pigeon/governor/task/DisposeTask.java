@@ -121,16 +121,19 @@ public class DisposeTask implements Runnable {
 		Host host = task.getHost();
 		int minHosts = manager.getMinhosts(host.getService().getEnv());
 		CuratorRegistry registry = (CuratorRegistry) manager.getRegistry(host.getService().getEnv());
-		unregisterPersistentNode(registry.getCuratorClient(), host.getService().getUrl(), host.getService().getGroup(),
-				host.getAddress(), minHosts);
-		host.getService().getHostList().remove(host);
-		if (!host.getService().getUrl().startsWith("@HTTP@")) {
-			notifyLionApi(task);
+		boolean isSuccess = unregisterPersistentNode(host, registry.getCuratorClient(), minHosts);
+		if (isSuccess) {
+			host.getService().getHostList().remove(host);
+			if (!host.getService().getUrl().startsWith("@HTTP@")) {
+				notifyLionApi(task);
+			}
 		}
 	}
 
-	public void unregisterPersistentNode(CuratorClient client, String serviceName, String group, String serviceAddress,
-			int minHosts) throws RegistryException {
+	public boolean unregisterPersistentNode(Host host, CuratorClient client, int minHosts) throws RegistryException {
+		String serviceName = host.getService().getUrl();
+		String group = host.getService().getGroup();
+		String serviceAddress = host.getAddress();
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
 			if (client.exists(servicePath)) {
@@ -147,17 +150,19 @@ public class DisposeTask implements Runnable {
 					addressList.remove(serviceAddress);
 					if (minHosts > 0 && addressList.size() <= minHosts) {
 						logger.info("will not be deleted, dead server " + serviceAddress + ", in " + addressList);
-						return;
+						return false;
 					}
 					if (!addressList.isEmpty()) {
 						Collections.sort(addressList);
 						client.set(servicePath, StringUtils.join(addressList.iterator(), ","));
 						if (logger.isInfoEnabled()) {
-							logger.info("unregistered " + serviceAddress + " from " + servicePath);
+							logger.info("unregistered:" + host);
 						}
+						return true;
 					}
 				}
 			}
+			return false;
 		} catch (Throwable e) {
 			logger.error("failed to unregister service from " + servicePath, e);
 			throw new RegistryException(e);

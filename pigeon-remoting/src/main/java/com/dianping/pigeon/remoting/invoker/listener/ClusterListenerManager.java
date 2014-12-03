@@ -43,9 +43,6 @@ public class ClusterListenerManager implements Disposable {
 	}
 
 	public synchronized void addConnect(ConnectInfo cmd) {
-		if (logger.isInfoEnabled()) {
-			logger.info("[cluster listener mgr] add service provider:" + cmd);
-		}
 		ConnectInfo connectInfo = this.connectInfoMap.get(cmd.getConnect());
 		if (connectInfo == null) {
 			this.connectInfoMap.put(cmd.getConnect(), cmd);

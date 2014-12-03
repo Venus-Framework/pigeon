@@ -17,6 +17,7 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.phase.Disposable;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.AbstractServer;
@@ -33,12 +34,18 @@ public class NettyServer extends AbstractServer implements Disposable {
 	private ChannelGroup channelGroup = new DefaultChannelGroup();
 	private Channel channel;
 	private volatile boolean started = false;
-	public static final int DEFAULT_IO_THREADS = Runtime.getRuntime().availableProcessors() + 1;
+
 	private static ExecutorService bossExecutor = Executors.newCachedThreadPool(new NamedThreadFactory(
 			"Pigeon-Netty-Server-Boss", true));
+
 	private static ExecutorService workerExecutor = Executors.newCachedThreadPool(new NamedThreadFactory(
 			"Pigeon-Netty-Server-Worker", true));
-	private static ChannelFactory channelFactory = new NioServerSocketChannelFactory(bossExecutor, workerExecutor);
+
+	private static final int workerCount = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.provider.netty.workercount", Runtime.getRuntime().availableProcessors() + 2);
+
+	private static ChannelFactory channelFactory = new NioServerSocketChannelFactory(bossExecutor, workerExecutor,
+			workerCount);
 
 	public NettyServer() {
 		this.bootstrap = new ServerBootstrap(channelFactory);
@@ -135,7 +142,7 @@ public class NettyServer extends AbstractServer implements Disposable {
 	@Override
 	public <T> void doAddService(ProviderConfig<T> providerConfig) {
 	}
-	
+
 	@Override
 	public <T> void doRemoveService(ProviderConfig<T> providerConfig) {
 	}

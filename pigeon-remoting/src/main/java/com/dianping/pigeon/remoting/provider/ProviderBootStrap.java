@@ -42,6 +42,7 @@ public final class ProviderBootStrap {
 	
 	public static void init() {
 		if (!isInitialized) {
+			ConfigManagerLoader.getConfigManager().getAppName();
 			RegistryConfigLoader.init();
 			ProviderProcessHandlerFactory.init();
 			SerializerFactory.init();

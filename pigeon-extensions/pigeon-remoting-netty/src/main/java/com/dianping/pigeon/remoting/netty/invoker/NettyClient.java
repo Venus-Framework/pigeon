@@ -74,7 +74,13 @@ public class NettyClient extends AbstractClient {
 	private static ExecutorService workExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory(
 			"Pigeon-Netty-Client-Worker"));
 
-	private static ChannelFactory channelFactory = new NioClientSocketChannelFactory(bossExecutor, workExecutor);
+	private static final int bossCount = configManager.getIntValue("pigeon.invoker.netty.bosscount", 1);
+
+	private static final int workerCount = configManager.getIntValue("pigeon.invoker.netty.workercount", Runtime
+			.getRuntime().availableProcessors() * 2);
+
+	private static ChannelFactory channelFactory = new NioClientSocketChannelFactory(bossExecutor, workExecutor,
+			bossCount, workerCount);
 
 	private static final int connectTimeout = configManager.getIntValue(Constants.KEY_CONNECT_TIMEOUT,
 			Constants.DEFAULT_CONNECT_TIMEOUT);
@@ -121,8 +127,8 @@ public class NettyClient extends AbstractClient {
 						// 关闭旧的连接
 						Channel oldChannel = this.channel;
 						if (oldChannel != null) {
-							if (logger.isInfoEnabled()) {
-								logger.info("close old netty channel " + oldChannel);
+							if (logger.isDebugEnabled()) {
+								logger.debug("close old netty channel " + oldChannel);
 							}
 							try {
 								oldChannel.close();
@@ -136,14 +142,14 @@ public class NettyClient extends AbstractClient {
 					this.connected = true;
 					resetLogCount();
 				} else if (isLog()) {
-					logger.error("client is not connected to " + this.host + ":" + this.port);
+					logger.warn("client is not connected to " + this.host + ":" + this.port);
 				}
 			} else if (isLog()) {
-				logger.error("timeout while connecting to " + this.host + ":" + this.port);
+				logger.warn("timeout while connecting to " + this.host + ":" + this.port);
 			}
 		} catch (Throwable e) {
 			if (isLog()) {
-				logger.error("error while connecting to " + this.host + ":" + this.port, e);
+				logger.warn("error while connecting to " + this.host + ":" + this.port, e);
 			}
 		}
 	}
