@@ -12,15 +12,14 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.zookeeper.KeeperException.NoNodeException;
 
 import com.dianping.pigeon.governor.util.Constants.Action;
 import com.dianping.pigeon.governor.util.Constants.Host;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.zookeeper.CuratorClient;
 import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
 import com.dianping.pigeon.registry.zookeeper.Utils;
-import com.dianping.pigeon.util.CollectionUtils;
 
 public class DisposeTask implements Runnable {
 
@@ -94,6 +93,32 @@ public class DisposeTask implements Runnable {
 		return Action.keep;
 	}
 
+	private String getApp(Host host) throws Exception {
+		CuratorRegistry registry = (CuratorRegistry) manager.getRegistry(host.getService().getEnv());
+		CuratorClient client = registry.getCuratorClient();
+		String app = client.get(Constants.APP_PATH + Constants.PATH_SEPARATOR + host.getAddress());
+		return app;
+	}
+
+	private boolean existsSameApp(List<Host> hostList, Host host) throws Exception {
+		String app = getApp(host);
+		if (StringUtils.isBlank(app)) {
+			return false;
+		} else {
+			for (Host h : hostList) {
+				if (!h.getAddress().equals(host.getAddress())) {
+					String appOfHost = getApp(h);
+					if (!StringUtils.isBlank(app) && app.equals(appOfHost)) {
+						logger.info("same app:" + app + " with other servers, will not be deleted, dead server " + host
+								+ ", in " + hostList);
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+	}
+
 	/*
 	 * 1. will not remove if only 1 host exists 2. will not remove if all hosts
 	 * are dead 3. will remove if at least one host is alive
@@ -108,6 +133,13 @@ public class DisposeTask implements Runnable {
 		if (host.getDeadCount() < manager.getDeadThreshold())
 			isChecking = true;
 		if (!isChecking) {
+			try {
+				boolean exists = existsSameApp(hostList, host);
+				if (exists) {
+					return 0;
+				}
+			} catch (Exception e) {
+			}
 			return 1;
 		}
 		return 0;
