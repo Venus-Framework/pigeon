@@ -100,7 +100,7 @@ public class CheckTask implements Runnable {
 		}
 	}
 
-	private boolean isServerAlive() {
+	public boolean isServerAlive() {
 		boolean alive = false;
 		if (!isPortAvailable()) {
 			return false;

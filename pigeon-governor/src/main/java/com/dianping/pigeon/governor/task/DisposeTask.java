@@ -109,7 +109,7 @@ public class DisposeTask implements Runnable {
 				if (!h.getAddress().equals(host.getAddress())) {
 					String appOfHost = getApp(h);
 					if (!StringUtils.isBlank(app) && app.equals(appOfHost)) {
-						logger.info("same app:" + app + " with other servers, will not be deleted, dead server " + host
+						logger.info("will not be deleted, same app:" + app + " with other servers, dead server " + host
 								+ ", in " + hostList);
 						return true;
 					}
@@ -133,6 +133,18 @@ public class DisposeTask implements Runnable {
 		if (host.getDeadCount() < manager.getDeadThreshold())
 			isChecking = true;
 		if (!isChecking) {
+			int aliveCount = 0;
+			for (Host h : hostList) {
+				CheckTask t = new CheckTask(manager, h);
+				if (t.isServerAlive()) {
+					aliveCount++;
+				}
+			}
+			if (minHosts > 0 && aliveCount < minHosts) {
+				logger.info("will not be deleted, alive count:" + aliveCount + ", dead server " + host + ", in "
+						+ hostList);
+				return 0;
+			}
 			try {
 				boolean exists = existsSameApp(hostList, host);
 				if (exists) {
