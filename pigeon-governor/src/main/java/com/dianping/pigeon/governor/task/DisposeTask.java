@@ -119,6 +119,15 @@ public class DisposeTask implements Runnable {
 		}
 	}
 
+	public boolean existsValidPort(Host host) throws Exception {
+		String result = doHttpGet("http://" + host.getIp() + ":4080/services.json");
+		if (result.indexOf(host.getPort() + "/") != -1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	/*
 	 * 1. will not remove if only 1 host exists 2. will not remove if all hosts
 	 * are dead 3. will remove if at least one host is alive
@@ -145,12 +154,21 @@ public class DisposeTask implements Runnable {
 						+ hostList);
 				return 0;
 			}
+
+			try {
+				if (!existsValidPort(host)) {
+					logger.info("invalid port for dead server " + host);
+					return 1;
+				}
+			} catch (Exception e1) {
+			}
 			try {
 				boolean exists = existsSameApp(hostList, host);
 				if (exists) {
 					return 0;
 				}
 			} catch (Exception e) {
+				return 0;
 			}
 			return 1;
 		}
