@@ -130,7 +130,7 @@ public class DisposeTask implements Runnable {
 		return -1;
 	}
 
-	private int checkAppValid(List<Host> hostList, Host host) throws Exception {
+	private int checkCmdbValid(List<Host> hostList, Host host) throws Exception {
 		String app = getApp(host);
 		if (StringUtils.isBlank(app)) {
 			return -1;
@@ -198,9 +198,11 @@ public class DisposeTask implements Runnable {
 			} catch (Exception e1) {
 			}
 			try {
-				int valid = checkAppValid(hostList, host);
+				int valid = checkCmdbValid(hostList, host);
 				if (valid >= 0) {
 					return 0;
+				} else {
+					logger.info("invalid cmdb config for dead server " + host);
 				}
 			} catch (Exception e) {
 				return 0;
