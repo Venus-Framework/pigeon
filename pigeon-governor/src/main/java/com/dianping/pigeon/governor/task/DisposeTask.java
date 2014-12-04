@@ -100,32 +100,64 @@ public class DisposeTask implements Runnable {
 		return app;
 	}
 
-	private boolean existsSameApp(List<Host> hostList, Host host) throws Exception {
-		String app = getApp(host);
-		if (StringUtils.isBlank(app)) {
-			return false;
-		} else {
-			for (Host h : hostList) {
-				if (!h.getAddress().equals(host.getAddress())) {
-					String appOfHost = getApp(h);
-					if (!StringUtils.isBlank(app) && app.equals(appOfHost)) {
-						logger.info("will not be deleted, same app:" + app + " with other servers, dead server " + host
-								+ ", in " + hostList);
-						return true;
+	public int checkAppValidWithCmdb(String app, String ip) {
+		try {
+			String result = doHttpGet("http://api.cmdb.dp/api/v0.1/ci/s?q=_type:(vserver;server;docker),private_ip:"
+					+ ip);
+			if (result.indexOf("status") != -1) {
+				String statusStr = result.substring(result.indexOf("status") + 10);
+				String online = "\\u5728\\u7ebf";
+				if (statusStr.startsWith(online)) {
+					if (result.indexOf("ci_type") != -1) {
+						String serverType = result.substring(result.indexOf("ci_type") + 11);
+						if (serverType.startsWith("vserver") || serverType.startsWith("server")) {
+							if (result.indexOf("hostname") != -1) {
+								String hostname = result.substring(result.indexOf("hostname") + 12);
+								hostname = hostname.substring(0, hostname.indexOf("\""));
+								if (hostname.startsWith(app)) {
+									return 1;
+								}
+							}
+						} else {
+							return 0;
+						}
 					}
 				}
 			}
-			return false;
+		} catch (Exception e) {
+			return 0;
+		}
+		return -1;
+	}
+
+	private int checkAppValid(List<Host> hostList, Host host) throws Exception {
+		String app = getApp(host);
+		if (StringUtils.isBlank(app)) {
+			return -1;
+		} else {
+			return checkAppValidWithCmdb(app, host.getIp());
 		}
 	}
 
-	public boolean existsValidPort(Host host) throws Exception {
-		String result = doHttpGet("http://" + host.getIp() + ":4080/services.json");
-		if (result.indexOf(host.getPort() + "/") != -1) {
-			return true;
-		} else {
-			return false;
+	public int checkServiceValid(Host host) throws Exception {
+		String app = getApp(host);
+		for (int port = 4080; port < 4085; port++) {
+			try {
+				String result = doHttpGet("http://" + host.getIp() + ":" + port + "/services.json");
+				if (result.indexOf(host.getPort() + "/") != -1 && result.indexOf(host.getService().getUrl()) != -1) {
+					return 1;
+				} else if (result.indexOf(host.getPort() + "/") != -1
+						&& result.indexOf(host.getService().getUrl()) == -1) {
+					logger.info("the service " + host.getService().getUrl() + " not supported by this dead server "
+							+ host);
+				}
+				if (result.indexOf("app") != -1 && result.indexOf(app) != -1) {
+					return 1;
+				}
+			} catch (Exception e) {
+			}
 		}
+		return 0;
 	}
 
 	/*
@@ -156,15 +188,18 @@ public class DisposeTask implements Runnable {
 			}
 
 			try {
-				if (!existsValidPort(host)) {
-					logger.info("invalid port for dead server " + host);
+				int valid = checkServiceValid(host);
+				if (valid < 0) {
+					logger.info("invalid service/port for dead server " + host);
 					return 1;
+				} else if (valid > 0) {
+					return 0;
 				}
 			} catch (Exception e1) {
 			}
 			try {
-				boolean exists = existsSameApp(hostList, host);
-				if (exists) {
+				int valid = checkAppValid(hostList, host);
+				if (valid >= 0) {
 					return 0;
 				}
 			} catch (Exception e) {
