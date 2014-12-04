@@ -44,6 +44,7 @@ public class GenerateTask implements Runnable {
 				generateTasks();
 				addrRepo.clear();
 				waitForTaskComplete();
+				services.clear();
 				logger.info("round of health check finished");
 				Thread.sleep(manager.getInterval());
 			} catch (RegistryException e) {
