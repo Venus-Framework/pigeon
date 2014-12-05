@@ -247,7 +247,7 @@ public class DisposeTask implements Runnable {
 				}
 				if (addressList.contains(serviceAddress)) {
 					addressList.remove(serviceAddress);
-					if (minHosts > 0 && addressList.size() <= minHosts) {
+					if (minHosts > 0 && addressList.size() < minHosts) {
 						logger.info("will not be deleted, dead server " + serviceAddress + ", in " + addressList);
 						return false;
 					}
