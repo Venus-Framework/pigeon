@@ -35,7 +35,7 @@ public class GenerateTask implements Runnable {
 		this.manager = manager;
 		addrRepo = new AddressRepo();
 	}
-	
+
 	@Override
 	public void run() {
 		while (!Thread.interrupted()) {
@@ -60,7 +60,7 @@ public class GenerateTask implements Runnable {
 
 	private void waitForTaskComplete() throws InterruptedException {
 		AtomicInteger n = new AtomicInteger(0);
-		while (manager.getWorkerPool().getActiveCount() > 0) {
+		while (manager.getWorkerPool().getActiveCount() > 0 || !manager.getResultQueue().isEmpty()) {
 			if (n.getAndIncrement() % 30 == 0) {
 				String message = String.format("active threads: %d, queue size: %d, completed task: %d", manager
 						.getWorkerPool().getActiveCount(), manager.getWorkerPool().getQueue().size(), manager
