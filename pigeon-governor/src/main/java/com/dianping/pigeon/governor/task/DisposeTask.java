@@ -3,7 +3,9 @@ package com.dianping.pigeon.governor.task;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpConnectionManager;
@@ -174,14 +176,15 @@ public class DisposeTask implements Runnable {
 		if (host.getDeadCount() < manager.getDeadThreshold())
 			isChecking = true;
 		if (!isChecking) {
-			int aliveCount = 0;
+			Set<String> aliveServers = new HashSet<String>();
 			for (Host h : hostList) {
 				CheckTask t = new CheckTask(manager, h);
 				if (t.isServerAlive()) {
-					aliveCount++;
+					aliveServers.add(t.getHost().getIp());
 				}
 			}
-			if (minHosts > 0 && aliveCount < minHosts) {
+			int aliveCount = aliveServers.size();
+			if (!aliveServers.contains(host.getIp()) && minHosts > 0 && aliveCount < minHosts) {
 				logger.info("will not be deleted, alive count:" + aliveCount + ", dead server " + host + ", in "
 						+ hostList);
 				return 0;

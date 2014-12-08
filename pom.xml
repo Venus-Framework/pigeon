@@ -71,6 +71,11 @@
 				<version>3.1.5</version>
 			</dependency>
 			<dependency>
+				<groupId>com.esotericsoftware</groupId>
+				<artifactId>kryo</artifactId>
+				<version>3.0.0</version>
+			</dependency>
+			<dependency>
 				<groupId>com.google.protobuf</groupId>
 				<artifactId>protobuf-java</artifactId>
 				<version>2.4.1</version>
@@ -269,14 +274,14 @@
 		</pluginManagement>
 		<plugins>
 			<plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-eclipse-plugin</artifactId>
-		        <version>2.9</version>
-		        <configuration>
-		            <downloadSources>true</downloadSources>
-		            <downloadJavadocs>false</downloadJavadocs>
-		        </configuration>
-		    </plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.9</version>
+				<configuration>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>false</downloadJavadocs>
+				</configuration>
+			</plugin>
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>2.2</version>
