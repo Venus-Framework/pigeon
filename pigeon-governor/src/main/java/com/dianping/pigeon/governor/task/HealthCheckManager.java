@@ -49,7 +49,7 @@ public class HealthCheckManager extends Thread {
 	private String deadThresholds;
 	private volatile long interval = 10 * 1000;
 	private volatile long hostInterval = 5 * 1000;
-	private volatile int deadThreshold = 10;
+	private volatile int deadThreshold = 50;
 
 	private Map<Environment, Action> actionMap;
 	private Map<Environment, Integer> minhostsMap;
@@ -63,13 +63,14 @@ public class HealthCheckManager extends Thread {
 		action = configManager.getStringValue(Constants.KEY_ACTION, "dev:remove");
 		interval = configManager.getLongValue(Constants.KEY_INTERVAL, 10 * 1000);
 		hostInterval = configManager.getLongValue(Constants.KEY_HOST_INTERVAL, 5 * 1000);
-		deadThreshold = configManager.getIntValue(Constants.KEY_DEAD_THRESHOLD, 10);
+		deadThreshold = configManager.getIntValue(Constants.KEY_DEAD_THRESHOLD, 50);
 		minhosts = configManager.getStringValue(Constants.KEY_MINHOSTS, "qa:1,prelease:1,product:2,producthm:1");
 		deadThresholds = configManager.getStringValue(Constants.KEY_DEADTHRESHOLDS,
 				"dev:10,alpha:10,qa:20,prelease:20,product:50,producthm:50");
 		actionMap = new LinkedHashMap<Environment, Action>();
 		registryMap = new LinkedHashMap<Environment, Registry>();
 		minhostsMap = new LinkedHashMap<Environment, Integer>();
+		deadThresholdsMap = new LinkedHashMap<Environment, Integer>();
 		parseAction();
 		parseMinhosts();
 		parseDeadThresholds();
