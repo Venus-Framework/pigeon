@@ -4,11 +4,6 @@
  */
 package com.dianping.pigeon.demo.typical;
 
-import java.util.Random;
-
-import com.dianping.avatar.tracker.ExecutionContextHolder;
-import com.dianping.avatar.tracker.TrackerContext;
-import com.dianping.phoenix.environment.PhoenixContext;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.UserService;
@@ -36,23 +31,21 @@ public class Client {
 		User[] users = new User[] { user };
 		while (true) {
 			try {
-				// echoService.echo("hi");
-				PhoenixContext.getInstance().setRequestId("aaaa1111111");
-				ExecutionContextHolder.setTrackerContext(new TrackerContext());
-				int size = (int)(new Random().nextDouble() * 24);
-				StringBuilder sb = new StringBuilder();
-				for(int i = 0; i< size; i++) {
-					sb.append("i");
-				}
-				echoService.echo(sb.toString());
+				echoService.echo("hi");
+				// userService.getUserDetail(users, false);
+
+				// PhoenixContext.getInstance().setRequestId("aaaa1111111");
+				// ExecutionContextHolder.setTrackerContext(new
+				// TrackerContext());
+				// int size = (int) (new Random().nextDouble() * 24);
+				// StringBuilder sb = new StringBuilder();
+				// for (int i = 0; i < size; i++) {
+				// sb.append("i");
+				// }
+				// echoService.echo(sb.toString());
 			} catch (Exception e) {
 			}
 		}
-//		User[] results = userService.getUserDetail(users, true);
-//		for(User u : results) {
-//			System.out.println(u);
-//		}
-		// echoServiceWithCallback.echo("echoServiceWithCallback_input");
 	}
 
 }

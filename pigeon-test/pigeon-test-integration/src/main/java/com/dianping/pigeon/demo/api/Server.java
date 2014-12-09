@@ -16,7 +16,7 @@ public class Server {
 	public static void main(String[] args) throws Exception {
 		ProviderConfig<EchoService> providerConfig = new ProviderConfig<EchoService>(EchoService.class,
 				new EchoServiceDefaultImpl());
-		String url = "http://service.dianping.com/com.dianping.pigeon.demo.EchoService";
+		String url = "com.dianping.pigeon.demo.EchoService";
 		providerConfig.setUrl(url);
 		ServiceFactory.addService(providerConfig);
 

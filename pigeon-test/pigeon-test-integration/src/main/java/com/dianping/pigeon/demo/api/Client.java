@@ -16,7 +16,7 @@ public class Client {
 	public static void main(String[] args) throws Exception {
 		InvokerProcessInterceptorFactory.registerInterceptor(new MyInvokerProcessInterceptor());
 
-		String url = "http://service.dianping.com/com.dianping.pigeon.demo.EchoService";
+		String url = "com.dianping.pigeon.demo.EchoService";
 		EchoService echoService = ServiceFactory.getService(url, EchoService.class);
 
 		ServiceCallback callback = new EchoServiceCallback();

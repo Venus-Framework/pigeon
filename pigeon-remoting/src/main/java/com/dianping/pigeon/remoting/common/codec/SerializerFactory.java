@@ -14,6 +14,7 @@ import com.dianping.pigeon.remoting.common.codec.hessian.Hessian1Serializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
 import com.dianping.pigeon.remoting.common.codec.java.JavaSerializer;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
+import com.dianping.pigeon.remoting.common.codec.kryo.KryoSerializer;
 import com.dianping.pigeon.remoting.common.codec.protobuf.ProtobufSerializer;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 
@@ -32,12 +33,14 @@ public final class SerializerFactory {
 	public static final byte SERIALIZE_PROTOBUF = 4;
 	public static final byte SERIALIZE_HESSIAN1 = 6;
 	public static final byte SERIALIZE_JSON = 7;
+	public static final byte SERIALIZE_KRYO = 8;
 
 	public static final String HESSIAN = "hessian";
 	public static final String JAVA = "java";
 	public static final String PROTOBUF = "protobuf";
 	public static final String HESSIAN1 = "hessian1";
 	public static final String JSON = "json";
+	public static final String KRYO = "kryo";
 
 	private static volatile boolean isInitialized = false;
 
@@ -52,6 +55,7 @@ public final class SerializerFactory {
 			registerSerializer(SERIALIZE_JAVA, new JavaSerializer());
 			registerSerializer(SERIALIZE_HESSIAN, new HessianSerializer());
 			registerSerializer(SERIALIZE_HESSIAN1, new Hessian1Serializer());
+			registerSerializer(SERIALIZE_KRYO, new KryoSerializer());
 			boolean supportProtobuf = false;
 			try {
 				ClassUtils.getClass("com.google.protobuf.MessageOrBuilder");
@@ -93,8 +97,10 @@ public final class SerializerFactory {
 			return SerializerFactory.SERIALIZE_PROTOBUF;
 		} else if (JSON.equalsIgnoreCase(serialize)) {
 			return SerializerFactory.SERIALIZE_JSON;
+		} else if (KRYO.equalsIgnoreCase(serialize)) {
+			return SerializerFactory.SERIALIZE_KRYO;
 		} else {
-			throw new InvalidParameterException("Only hessian, java, protobuf, json serialize type supported now!");
+			throw new InvalidParameterException("Only hessian/java/protobuf/json/kryo serialize type supported");
 		}
 	}
 

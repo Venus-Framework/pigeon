@@ -10,7 +10,7 @@ import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 @Service
 public class EchoTestServiceDefaultImpl implements EchoTestService {
 
-	@Reference(url = "com.dianping.pigeon.test.benchmark.service.EchoService")
+	@Reference(url = "com.dianping.pigeon.demo.EchoService", serialize = "kryo")
 	EchoService echoService;
 
 	static EchoTestServiceDefaultImpl instance = new EchoTestServiceDefaultImpl();

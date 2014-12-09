@@ -13,7 +13,7 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 public class Client {
 
 	public static void main(String[] args) throws Exception {
-		String url = "http://service.dianping.com/com.dianping.pigeon.demo.EchoService";
+		String url = "com.dianping.pigeon.demo.EchoService";
 
 		InvokerConfig<EchoService> echoConfig = new InvokerConfig<EchoService>(EchoService.class);
 		echoConfig.setProtocol(InvokerConfig.PROTOCOL_HTTP);

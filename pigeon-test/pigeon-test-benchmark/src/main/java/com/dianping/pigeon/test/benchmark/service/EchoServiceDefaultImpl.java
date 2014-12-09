@@ -8,7 +8,7 @@ import java.util.Date;
 
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 
-@Service(url = "com.dianping.pigeon.test.benchmark.service.EchoService")
+@Service(url = "com.dianping.pigeon.test.benchmark.EchoService")
 public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override

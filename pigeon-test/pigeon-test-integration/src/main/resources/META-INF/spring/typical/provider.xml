@@ -13,7 +13,7 @@
 		<property name="services">
 			<map>
 				<entry
-					key="http://service.dianping.com/com.dianping.pigeon.demo.EchoService"
+					key="com.dianping.pigeon.demo.EchoService"
 					value-ref="defaultEchoServiceImpl" />
 			</map>
 		</property>
@@ -29,7 +29,7 @@
 		<property name="port">
 			<value>5020</value>
 		</property>
-		<property name="autoSelectPort ">
+		<property name="autoSelectPort">
 			<value>false</value>
 		</property>
 	</bean>

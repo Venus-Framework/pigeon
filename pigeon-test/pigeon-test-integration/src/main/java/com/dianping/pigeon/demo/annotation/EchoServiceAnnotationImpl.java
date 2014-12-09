@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.demo.annotation;
 
+import java.util.Date;
+
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 
@@ -20,5 +22,11 @@ public class EchoServiceAnnotationImpl implements EchoService {
 	public String echo2(String input, int size) {
 		System.out.println("received: " + input);
 		return "annotation service echo2:" + input;
+	}
+	
+	@Override
+	public Date now() {
+		Date date = new Date();
+		return date;
 	}
 }

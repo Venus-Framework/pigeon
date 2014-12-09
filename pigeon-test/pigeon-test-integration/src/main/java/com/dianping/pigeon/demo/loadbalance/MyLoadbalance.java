@@ -12,7 +12,7 @@ public class MyLoadbalance extends WeightedAutoawareLoadBalance {
 	@Override
 	public Client doSelect(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest request,
 			int[] weights) {
-		if ("http://service.dianping.com/com.dianping.pigeon.demo.EchoService".equals(request.getServiceName())
+		if ("com.dianping.pigeon.demo.EchoService".equals(request.getServiceName())
 				&& "echo".equals(request.getMethodName())) {
 			if (request.getParameters().length > 0) {
 				Object p0 = request.getParameters()[0];

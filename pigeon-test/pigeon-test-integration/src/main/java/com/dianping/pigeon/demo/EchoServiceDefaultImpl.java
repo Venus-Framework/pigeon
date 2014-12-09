@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.demo;
 
-
+import java.util.Date;
 
 public class EchoServiceDefaultImpl implements EchoService {
 
@@ -30,4 +30,9 @@ public class EchoServiceDefaultImpl implements EchoService {
 		return "echo2:" + input + ",size:" + size;
 	}
 
+	@Override
+	public Date now() {
+		Date date = new Date();
+		return date;
+	}
 }

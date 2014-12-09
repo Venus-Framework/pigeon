@@ -101,8 +101,7 @@ public class GenerateTask implements Runnable {
 			List<String> groups = registry.getChildren(ROOT + "/" + path);
 			if (groups != null && groups.size() > 0) {
 				for (String group : groups) {
-					String groupPath = ROOT + "/" + path + "/" + group;
-					String groupHosts = registry.getServiceAddress(groupPath);
+					String groupHosts = registry.getServiceAddress(path, group);
 					generateTasks(env, service, group, groupHosts, pigeon2hosts);
 				}
 			}
@@ -112,8 +111,7 @@ public class GenerateTask implements Runnable {
 			List<String> groups = registry.getChildren(ROOT + "/@HTTP@" + path);
 			if (groups != null && groups.size() > 0) {
 				for (String group : groups) {
-					String groupPath = ROOT + "/@HTTP@" + path + "/" + group;
-					String groupHosts = registry.getServiceAddress(groupPath);
+					String groupHosts = registry.getServiceAddress("@HTTP@" + path, group);
 					generateTasks(env, "@HTTP@" + service, group, groupHosts, pigeon2hosts);
 				}
 			}
