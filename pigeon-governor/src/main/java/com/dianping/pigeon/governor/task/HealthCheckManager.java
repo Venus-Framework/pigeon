@@ -46,12 +46,14 @@ public class HealthCheckManager extends Thread {
 
 	private String action;
 	private String minhosts;
+	private String deadThresholds;
 	private volatile long interval = 10 * 1000;
 	private volatile long hostInterval = 5 * 1000;
 	private volatile int deadThreshold = 10;
 
 	private Map<Environment, Action> actionMap;
 	private Map<Environment, Integer> minhostsMap;
+	private Map<Environment, Integer> deadThresholdsMap;
 	private Map<Environment, Registry> registryMap;
 
 	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
@@ -63,11 +65,14 @@ public class HealthCheckManager extends Thread {
 		hostInterval = configManager.getLongValue(Constants.KEY_HOST_INTERVAL, 5 * 1000);
 		deadThreshold = configManager.getIntValue(Constants.KEY_DEAD_THRESHOLD, 10);
 		minhosts = configManager.getStringValue(Constants.KEY_MINHOSTS, "qa:1,prelease:1,product:2,producthm:1");
+		deadThresholds = configManager.getStringValue(Constants.KEY_DEADTHRESHOLDS,
+				"dev:10,alpha:10,qa:20,prelease:20,product:50,producthm:50");
 		actionMap = new LinkedHashMap<Environment, Action>();
 		registryMap = new LinkedHashMap<Environment, Registry>();
 		minhostsMap = new LinkedHashMap<Environment, Integer>();
 		parseAction();
 		parseMinhosts();
+		parseDeadThresholds();
 	}
 
 	public void run() {
@@ -118,6 +123,25 @@ public class HealthCheckManager extends Thread {
 		}
 	}
 
+	private void parseDeadThresholds() {
+		if (StringUtils.isBlank(deadThresholds)) {
+			logger.error("deadThresholds is null");
+			return;
+		}
+
+		String[] envActionList = deadThresholds.split(",");
+		for (String envAction : envActionList) {
+			String[] envActionPair = envAction.split(":");
+			String strEnv = envActionPair[0].trim();
+			if (strEnv.indexOf("-") != -1) {
+				strEnv = strEnv.replace("-", "");
+			}
+			Environment env = Environment.valueOf(strEnv);
+			int threshold = Integer.valueOf(envActionPair[1].trim());
+			deadThresholdsMap.put(env, threshold);
+		}
+	}
+
 	public ThreadPoolExecutor getWorkerPool() {
 		return workerPool;
 	}
@@ -142,12 +166,16 @@ public class HealthCheckManager extends Thread {
 		}
 	}
 
-	public long getHostInterval() {
-		return hostInterval;
+	public int getDeadThreshold(Environment env) {
+		if (deadThresholdsMap.containsKey(env)) {
+			return deadThresholdsMap.get(env);
+		} else {
+			return deadThreshold;
+		}
 	}
 
-	public int getDeadThreshold() {
-		return deadThreshold;
+	public long getHostInterval() {
+		return hostInterval;
 	}
 
 	public long getInterval() {
@@ -237,6 +265,9 @@ public class HealthCheckManager extends Thread {
 			} else if (Constants.KEY_MINHOSTS.equals(key)) {
 				minhosts = value;
 				parseMinhosts();
+			} else if (Constants.KEY_DEADTHRESHOLDS.equals(key)) {
+				deadThresholds = value;
+				parseDeadThresholds();
 			}
 		}
 

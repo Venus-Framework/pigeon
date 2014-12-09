@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 
+import org.objenesis.strategy.StdInstantiatorStrategy;
+
 import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.esotericsoftware.kryo.Kryo;
@@ -26,6 +28,8 @@ public class KryoSerializer extends DefaultAbstractSerializer {
 		kryo.register(BigInteger.class, new BigIntegerSerializer());
 		kryo.register(Date.class, new DateSerializer());
 		kryo.setRegistrationRequired(false);
+		kryo.setReferences(true);
+		kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());  
 	}
 
 	@Override

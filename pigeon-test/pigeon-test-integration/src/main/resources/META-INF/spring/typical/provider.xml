@@ -17,6 +17,12 @@
 					value-ref="defaultEchoServiceImpl" />
 			</map>
 		</property>
+		<property name="port">
+			<value>5020</value>
+		</property>
+		<property name="autoSelectPort">
+			<value>false</value>
+		</property>
 	</bean>
 
 	<bean class="com.dianping.dpsf.spring.ServiceRegistry"

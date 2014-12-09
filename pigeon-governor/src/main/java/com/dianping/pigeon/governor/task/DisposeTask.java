@@ -58,7 +58,8 @@ public class DisposeTask implements Runnable {
 		if (task.getHost().isAlive())
 			return;
 
-		if (task.getHost().getDeadCount() >= manager.getDeadThreshold()) {
+		int deadThreshold = manager.getDeadThreshold(task.getHost().getService().getEnv());
+		if (task.getHost().getDeadCount() >= deadThreshold) {
 			disposeAddress(task);
 		} else {
 			checkAgain(task);
@@ -173,7 +174,8 @@ public class DisposeTask implements Runnable {
 			return -1;
 		}
 		boolean isChecking = false;
-		if (host.getDeadCount() < manager.getDeadThreshold())
+		int deadThreshold = manager.getDeadThreshold(host.getService().getEnv());
+		if (host.getDeadCount() < deadThreshold)
 			isChecking = true;
 		if (!isChecking) {
 			Set<String> aliveServers = new HashSet<String>();
@@ -185,8 +187,7 @@ public class DisposeTask implements Runnable {
 			}
 			int aliveCount = aliveServers.size();
 			if (!aliveServers.contains(host.getIp()) && minHosts > 0 && aliveCount < minHosts) {
-				logger.info("will not be deleted, alive count:" + aliveCount + ", dead server " + host + ", in "
-						+ hostList);
+				logger.info("will not be deleted, alive count:" + aliveCount + ", dead server " + host);
 				return 0;
 			}
 

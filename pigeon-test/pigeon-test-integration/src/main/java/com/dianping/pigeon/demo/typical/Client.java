@@ -31,8 +31,8 @@ public class Client {
 		User[] users = new User[] { user };
 		while (true) {
 			try {
-				echoService.echo("hi");
-				// userService.getUserDetail(users, false);
+				System.out.println(echoService.echo("hi"));
+				System.out.println(userService.getUserDetail(users, false));
 
 				// PhoenixContext.getInstance().setRequestId("aaaa1111111");
 				// ExecutionContextHolder.setTrackerContext(new
