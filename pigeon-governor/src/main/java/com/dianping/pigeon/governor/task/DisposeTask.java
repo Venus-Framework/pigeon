@@ -188,7 +188,7 @@ public class DisposeTask implements Runnable {
 			int aliveCount = aliveServers.size();
 			if (!aliveServers.contains(host.getIp()) && minHosts > 0 && aliveCount < minHosts) {
 				logger.info("will not be deleted, alive count:" + aliveCount + ", dead server " + host);
-				return 0;
+				return -1;
 			}
 
 			try {
@@ -197,23 +197,24 @@ public class DisposeTask implements Runnable {
 					logger.info("invalid service/port for dead server " + host);
 					return 1;
 				} else if (valid > 0) {
-					return 0;
+					return -1;
 				}
 			} catch (Exception e1) {
 			}
 			try {
 				int valid = checkCmdbValid(hostList, host);
 				if (valid >= 0) {
-					return 0;
+					return -1;
 				} else {
 					logger.info("invalid cmdb config for dead server " + host);
 				}
 			} catch (Exception e) {
-				return 0;
+				return -1;
 			}
 			return 1;
+		} else {
+			return 0;
 		}
-		return 0;
 	}
 
 	private void logAddress(CheckTask task) {
