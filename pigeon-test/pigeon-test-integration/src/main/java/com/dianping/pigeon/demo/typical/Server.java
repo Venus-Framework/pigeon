@@ -8,6 +8,8 @@ import java.util.Date;
 
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.demo.UserService;
+import com.dianping.pigeon.demo.UserService.User;
 import com.dianping.pigeon.remoting.common.codec.kryo.KryoSerializer;
 
 public class Server {
@@ -23,6 +25,8 @@ public class Server {
 		SERVER_CONTAINER.start();
 		KryoSerializer.registerClass(Date.class, 100);
 		KryoSerializer.registerClass(EchoService.class, 101);
+		KryoSerializer.registerClass(UserService.class, 102);
+		KryoSerializer.registerClass(User.class, 103);
 		System.in.read();
 	}
 

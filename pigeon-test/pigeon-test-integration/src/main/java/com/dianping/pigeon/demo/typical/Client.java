@@ -4,10 +4,13 @@
  */
 package com.dianping.pigeon.demo.typical;
 
+import java.util.Date;
+
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.UserService;
 import com.dianping.pigeon.demo.UserService.User;
+import com.dianping.pigeon.remoting.common.codec.kryo.KryoSerializer;
 
 public class Client {
 
@@ -20,6 +23,10 @@ public class Client {
 	 */
 	public static void main(String[] args) throws Exception {
 		CLIENT_CONTAINER.start();
+		KryoSerializer.registerClass(Date.class, 100);
+		KryoSerializer.registerClass(EchoService.class, 101);
+		KryoSerializer.registerClass(UserService.class, 102);
+		KryoSerializer.registerClass(User.class, 103);
 
 		EchoService echoService = (EchoService) CLIENT_CONTAINER.getBean("echoService");
 		EchoService echoServiceWithCallback = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithCallback");
