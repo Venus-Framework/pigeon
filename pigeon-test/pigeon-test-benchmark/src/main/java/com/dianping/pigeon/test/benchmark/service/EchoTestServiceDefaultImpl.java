@@ -1,8 +1,10 @@
 package com.dianping.pigeon.test.benchmark.service;
 
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.dianping.pigeon.remoting.common.codec.kryo.KryoSerializer;
 import com.dianping.pigeon.remoting.invoker.config.annotation.Reference;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
@@ -12,6 +14,10 @@ public class EchoTestServiceDefaultImpl implements EchoTestService {
 
 	@Reference(url = "com.dianping.pigeon.demo.EchoService", serialize = "kryo")
 	EchoService echoService;
+	{
+		KryoSerializer.registerClass(Date.class, 100);
+		KryoSerializer.registerClass(EchoService.class, 101);
+	}
 
 	static EchoTestServiceDefaultImpl instance = new EchoTestServiceDefaultImpl();
 

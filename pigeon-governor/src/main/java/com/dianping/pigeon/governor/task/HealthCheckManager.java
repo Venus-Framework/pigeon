@@ -92,6 +92,7 @@ public class HealthCheckManager extends Thread {
 			return;
 		}
 
+		actionMap.clear();
 		String[] envActionList = action.split(",");
 		for (String envAction : envActionList) {
 			String[] envActionPair = envAction.split(":");

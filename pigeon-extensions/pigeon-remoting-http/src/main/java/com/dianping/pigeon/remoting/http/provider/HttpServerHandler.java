@@ -67,13 +67,16 @@ public class HttpServerHandler implements HttpHandler {
 			invocationRequest.setServiceName(HttpUtils.getDefaultServiceUrl(invocationRequest.getServiceName()));
 			ProviderContext invocationContext = new DefaultProviderContext(invocationRequest, new HttpChannel(request,
 					response));
+			Future<InvocationResponse> invocationResponse = null;
 			try {
-				Future<InvocationResponse> invocationResponse = server.processRequest(invocationRequest,
-						invocationContext);
+				invocationResponse = server.processRequest(invocationRequest, invocationContext);
 				if (invocationResponse != null) {
 					invocationResponse.get();
 				}
 			} catch (Throwable e) {
+				if (invocationResponse != null && !invocationResponse.isCancelled()) {
+					invocationResponse.cancel(true);
+				}
 				String msg = "process request failed:" + request;
 				// 心跳消息只返回正常的, 异常不返回
 				if (invocationRequest.getCallType() == Constants.CALLTYPE_REPLY

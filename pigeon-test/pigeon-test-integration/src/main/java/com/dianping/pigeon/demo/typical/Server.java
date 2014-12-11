@@ -4,7 +4,11 @@
  */
 package com.dianping.pigeon.demo.typical;
 
+import java.util.Date;
+
 import com.dianping.pigeon.container.SpringContainer;
+import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.remoting.common.codec.kryo.KryoSerializer;
 
 public class Server {
 
@@ -17,7 +21,8 @@ public class Server {
 	 */
 	public static void main(String[] args) throws Exception {
 		SERVER_CONTAINER.start();
-
+		KryoSerializer.registerClass(Date.class, 100);
+		KryoSerializer.registerClass(EchoService.class, 101);
 		System.in.read();
 	}
 

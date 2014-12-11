@@ -8,7 +8,11 @@ import java.util.Date;
 
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
+import com.dianping.dpsf.protocol.DefaultRequest;
+import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
@@ -20,16 +24,23 @@ import com.esotericsoftware.kryo.serializers.DefaultSerializers.DateSerializer;
 
 public class KryoSerializer extends DefaultAbstractSerializer {
 
-	private Kryo kryo;
+	private static Kryo kryo = new Kryo();
 
 	public KryoSerializer() {
-		this.kryo = new Kryo();
 		kryo.register(BigDecimal.class, new BigDecimalSerializer());
 		kryo.register(BigInteger.class, new BigIntegerSerializer());
 		kryo.register(Date.class, new DateSerializer());
+		kryo.register(InvocationRequest.class, 10);
+		kryo.register(InvocationResponse.class, 11);
+		kryo.register(DefaultRequest.class, 12);
+		kryo.register(DefaultResponse.class, 13);
 		kryo.setRegistrationRequired(false);
 		kryo.setReferences(true);
-		kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());  
+		kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
+	}
+
+	public static void registerClass(Class<?> type, int id) {
+		kryo.register(type, id);
 	}
 
 	@Override
