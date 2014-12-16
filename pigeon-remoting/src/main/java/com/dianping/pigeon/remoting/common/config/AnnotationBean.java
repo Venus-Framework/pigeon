@@ -74,7 +74,8 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 						new Class<?>[] { BeanDefinitionRegistry.class, boolean.class }).newInstance(
 						new Object[] { (BeanDefinitionRegistry) beanFactory, true });
 				// add filter
-				Class<?> filterClass = ClassUtils.loadClass("org.springframework.core.type.filter.AnnotationTypeFilter");
+				Class<?> filterClass = ClassUtils
+						.loadClass("org.springframework.core.type.filter.AnnotationTypeFilter");
 				Object filter = filterClass.getConstructor(Class.class).newInstance(Service.class);
 				Method addIncludeFilter = scannerClass.getMethod("addIncludeFilter",
 						ClassUtils.loadClass("org.springframework.core.type.filter.TypeFilter"));
@@ -213,7 +214,9 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 						+ ", is not a ServiceCallback interface.");
 			}
 		}
-		String key = reference.group() + "/" + reference.url() + "@" + interfaceName + ":" + reference.version();
+		String key = reference.group() + "/" + reference.url() + "@" + interfaceName + ":" + reference.version() + ":"
+				+ reference.serialize() + ":" + reference.protocol() + ":" + reference.timeout() + ":"
+				+ reference.callType();
 		InvokerConfig<?> invokerConfig = invokerConfigs.get(key);
 		if (invokerConfig == null) {
 			invokerConfig = new InvokerConfig(referenceClass, reference.url(), reference.timeout(),

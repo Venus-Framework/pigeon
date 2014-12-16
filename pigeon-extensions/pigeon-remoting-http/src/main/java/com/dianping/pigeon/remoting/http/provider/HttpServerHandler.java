@@ -77,7 +77,7 @@ public class HttpServerHandler implements HttpHandler {
 				if (invocationResponse != null && !invocationResponse.isCancelled()) {
 					invocationResponse.cancel(true);
 				}
-				String msg = "process request failed:" + request;
+				String msg = "process http request[" + request.getRemoteAddr() + "] failed:" + invocationRequest;
 				// 心跳消息只返回正常的, 异常不返回
 				if (invocationRequest.getCallType() == Constants.CALLTYPE_REPLY
 						&& invocationRequest.getMessageType() != Constants.MESSAGE_TYPE_HEART) {

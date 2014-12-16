@@ -75,7 +75,8 @@ public class JacksonObjectMapper {
 				}
 				return (T) finalMap;
 			}
-		} else if (obj.getClass().getName().startsWith("com.dianping")) {
+		} else if (obj.getClass().getName().startsWith("com.dianping") && !obj.getClass().isPrimitive()
+				&& !obj.getClass().isEnum()) {
 			Field[] fields = obj.getClass().getDeclaredFields();
 			for (Field field : fields) {
 				Class<?> type = field.getType();

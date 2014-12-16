@@ -245,4 +245,8 @@ public class DefaultRequest implements InvocationRequest {
 		this.app = app;
 	}
 
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
+	}
+
 }

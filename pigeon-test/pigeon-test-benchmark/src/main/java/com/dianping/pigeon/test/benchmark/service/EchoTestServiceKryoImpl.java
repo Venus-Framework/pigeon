@@ -1,6 +1,5 @@
 package com.dianping.pigeon.test.benchmark.service;
 
-import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -9,42 +8,51 @@ import com.dianping.pigeon.remoting.invoker.config.annotation.Reference;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 
-@Service
-public class EchoTestServiceDefaultImpl implements EchoTestService {
+@Service(url = "com.dianping.pigeon.test.benchmark.service.EchoTestServiceKryoImpl")
+public class EchoTestServiceKryoImpl implements EchoTestService {
 
 	@Reference(url = "com.dianping.pigeon.demo.EchoService", serialize = "kryo")
 	EchoService echoService;
-	{
-		KryoSerializer.registerClass(Date.class, 100);
-		KryoSerializer.registerClass(EchoService.class, 101);
+
+	volatile boolean isCancel = false;
+
+	ExecutorService executor = null;
+
+	public EchoTestServiceKryoImpl() {
+		KryoSerializer.registerClass(EchoService.class, 1001);
 	}
 
-	static EchoTestServiceDefaultImpl instance = new EchoTestServiceDefaultImpl();
+	static EchoTestServiceKryoImpl instance = new EchoTestServiceKryoImpl();
 
-	public void concurrentGetNow(final int threads, final int timeout) {
-		ExecutorService executor = Executors.newFixedThreadPool(threads);
+	public void concurrentGetNow(final int threads, final int count) {
+		executor = Executors.newFixedThreadPool(threads);
+		this.isCancel = false;
 		for (int i = 0; i < threads; i++) {
 			executor.submit(new Runnable() {
 
 				@Override
 				public void run() {
-					getNow(timeout);
+					getNow(count);
 				}
 			});
 		}
 	}
 
-	private void getNow(final int timeout) {
-		InvokerHelper.setTimeout(timeout);
-		while (true) {
+	private void getNow(final int count) {
+		while (!isCancel) {
 			try {
-				echoService.now();
+				echoService.findUsers(count);
 			} catch (RuntimeException e) {
 			}
 		}
 	}
 
 	public static void main(String[] args) {
-		instance.getNow(500);
+		instance.getNow(50);
+	}
+
+	@Override
+	public void cancel() {
+		this.isCancel = true;
 	}
 }

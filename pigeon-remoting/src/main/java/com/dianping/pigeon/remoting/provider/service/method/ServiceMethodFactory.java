@@ -61,7 +61,7 @@ public final class ServiceMethodFactory {
 			serviceMethodCache = getServiceMethodCache(serviceName);
 		}
 		if (serviceMethodCache == null) {
-			throw new InvocationFailureException("cannot find serivce for request:" + request);
+			throw new InvocationFailureException("cannot find service for request:" + request);
 		}
 		return serviceMethodCache.getMethod(methodName, new ServiceParam(paramClassNames));
 	}

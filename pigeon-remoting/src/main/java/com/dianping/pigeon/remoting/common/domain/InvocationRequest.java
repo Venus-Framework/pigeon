@@ -24,6 +24,8 @@ public interface InvocationRequest extends InvocationSerializable {
 
 	String getMethodName();
 
+	void setMethodName(String methodName);
+
 	String[] getParamClassName();
 
 	Object[] getParameters();

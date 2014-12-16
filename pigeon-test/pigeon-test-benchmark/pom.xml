@@ -7,7 +7,7 @@
 	<groupId>com.dianping</groupId>
 	<artifactId>pigeon-test-benchmark</artifactId>
 	<version>1.0.0</version>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 
 	<properties>
 		<skip_maven_deploy>false</skip_maven_deploy>

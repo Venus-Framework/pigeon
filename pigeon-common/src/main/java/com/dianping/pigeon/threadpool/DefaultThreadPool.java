@@ -14,13 +14,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
 import java.util.concurrent.TimeUnit;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: DPSFThreadPool.java, v 0.1 2013-6-18 下午9:37:55 jianhuihuang Exp
- *          $
- */
 public class DefaultThreadPool implements ThreadPool {
 
 	private String name;

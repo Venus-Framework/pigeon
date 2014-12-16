@@ -21,12 +21,12 @@
 	</appender>
 
 	<logger name="pigeon-access" additivity="false">
-		<level value="DEBUG" />
+		<level value="warn" />
 		<appender-ref ref="FILE" />
 	</logger>
 
 	<root>
-		<level value="WARN" />
+		<level value="warn" />
 		<appender-ref ref="CONSOLE" />
 	</root>
 
