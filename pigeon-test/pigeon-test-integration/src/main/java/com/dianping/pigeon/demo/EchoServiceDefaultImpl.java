@@ -4,39 +4,35 @@
  */
 package com.dianping.pigeon.demo;
 
-import java.util.Date;
-
-import com.dianping.phoenix.environment.PhoenixContext;
-import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EchoServiceDefaultImpl implements EchoService {
 
+	List<User> users = new ArrayList<User>();
+
+	public EchoServiceDefaultImpl() {
+		for (int i = 1; i <= 10000; i++) {
+			String n = "a" + i;
+			User u = new User(i, n, n + "@dianping.com", n + "@hongkou district, shanghai", 20);
+			users.add(u);
+		}
+	}
+
 	@Override
 	public String echo(String input) {
-		throw new InvocationFailureException("error raised:" + input);
-		// System.out.println(input);
-		// System.out.println(ContextUtils.getLocalContext("CLIENT_APP"));
-		// try {
-		// Thread.sleep(1000);
-		// } catch (InterruptedException e) {
-		// System.out.println("#########");
-		// e.printStackTrace();
-		// throw new RuntimeException(e);
-		// }
-		// System.out.println(input);
-		//return "echo:" + input;
+		return "echo:" + input;
 	}
 
 	@Override
-	public String echo2(String input, int size) {
-		// throw new InvocationFailureException("error raised:" + input);
-		return "echo2:" + input + ",size:" + size;
+	public long now() {
+		return System.currentTimeMillis();
 	}
 
 	@Override
-	public Date now() {
-		//System.out.println("request id:" + PhoenixContext.getInstance().getRequestId());
-		Date date = new Date();
-		return date;
+	public List<User> findUsers(int count) {
+		//return Lists.newArrayList(users.subList(0, count));
+		return users.subList(0, count);
 	}
+
 }

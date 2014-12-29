@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 
 public class ShutdownHookListener implements Runnable {
@@ -27,7 +28,16 @@ public class ShutdownHookListener implements Runnable {
 		} catch (Throwable e) {
 			logger.error("error with shutdown hook", e);
 		}
-		// ProviderBootStrap.shutdown();
+		try {
+			InvokerBootStrap.shutdown();
+		} catch (Throwable e) {
+			logger.error("error with shutdown hook", e);
+		}
+		try {
+			ProviderBootStrap.shutdown();
+		} catch (Throwable e) {
+			logger.error("error with shutdown hook", e);
+		}
 		if (logger.isInfoEnabled()) {
 			logger.info("shutdown hook end......");
 		}

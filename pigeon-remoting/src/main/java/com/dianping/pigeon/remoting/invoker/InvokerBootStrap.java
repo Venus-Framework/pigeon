@@ -14,6 +14,7 @@ import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.status.Phase;
 import com.dianping.pigeon.remoting.common.status.StatusContainer;
 import com.dianping.pigeon.remoting.invoker.process.InvokerProcessHandlerFactory;
+import com.dianping.pigeon.remoting.invoker.process.ResponseProcessorFactory;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 import com.dianping.pigeon.util.VersionUtils;
@@ -28,9 +29,6 @@ public final class InvokerBootStrap {
 		return isStartup;
 	}
 
-	/**
-	 * 初始化客户端组件，为了防止并发多次初始化，这里使用了synchronized的方式。
-	 */
 	public static void startup() {
 		if (!isStartup) {
 			synchronized (InvokerBootStrap.class) {
@@ -58,8 +56,22 @@ public final class InvokerBootStrap {
 		if (isStartup) {
 			synchronized (InvokerBootStrap.class) {
 				if (isStartup) {
-					InvokerProcessHandlerFactory.clearClientFilters();
-					ClientManager.getInstance().clear();
+					try {
+						ClientManager.getInstance().destroy();
+					} catch (Throwable e) {
+					}
+					try {
+						ServiceInvocationRepository.getInstance().destroy();
+					} catch (Throwable e) {
+					}
+					try {
+						ResponseProcessorFactory.stop();
+					} catch (Throwable e) {
+					}
+					try {
+						LoadBalanceManager.destroy();
+					} catch (Throwable e) {
+					}
 					isStartup = false;
 					if (logger.isInfoEnabled()) {
 						logger.info("pigeon client[version:" + VersionUtils.VERSION + "] has been shutdown");

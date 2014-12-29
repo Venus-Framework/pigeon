@@ -11,6 +11,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.domain.phase.Disposable;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext;
@@ -110,9 +111,24 @@ public final class ProviderProcessHandlerFactory {
 		healthCheckProcessFilters.add(filter);
 	}
 
-	public static void clearServerInternalFilters() {
+	public static void destroy() {
+		for (ServiceInvocationFilter<ProviderContext> filter : bizProcessFilters) {
+			if (filter instanceof Disposable) {
+				try {
+					((Disposable) filter).destroy();
+				} catch (Exception e) {
+				}
+			}
+		}
+		for (ServiceInvocationFilter<ProviderContext> filter : heartBeatProcessFilters) {
+			if (filter instanceof Disposable) {
+				try {
+					((Disposable) filter).destroy();
+				} catch (Exception e) {
+				}
+			}
+		}
 		bizProcessFilters.clear();
 		heartBeatProcessFilters.clear();
 	}
-
 }

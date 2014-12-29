@@ -48,14 +48,10 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		doStart();
 	}
 
-	public void destroy() throws Exception {
-		ThreadPoolUtils.shutdown(timeCheckThreadPool.getExecutor());
-	}
-	
 	public abstract void doStop();
 
 	public void stop() {
-		timeCheckThreadPool.getExecutor().shutdown();
+		ThreadPoolUtils.shutdown(timeCheckThreadPool.getExecutor());
 		doStop();
 	}
 

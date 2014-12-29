@@ -19,6 +19,7 @@ import com.dianping.pigeon.remoting.invoker.process.AbstractResponseProcessor;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
+import com.dianping.pigeon.util.ThreadPoolUtils;
 
 public class ResponseThreadPoolProcessor extends AbstractResponseProcessor {
 
@@ -37,6 +38,7 @@ public class ResponseThreadPoolProcessor extends AbstractResponseProcessor {
 	}
 
 	public void stop() {
+		ThreadPoolUtils.shutdown(responseProcessThreadPool.getExecutor());
 	}
 
 	public void doProcessResponse(final InvocationResponse response, final Client client) {

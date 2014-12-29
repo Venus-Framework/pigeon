@@ -131,13 +131,13 @@ public class ProviderAvailableListener implements Runnable {
 							}
 						}
 						if (error != null) {
-							logger.error("[provideravailable] failed to get providers, caused by " + error);
+							logger.warn("[provideravailable] failed to get providers, caused by " + error);
 						}
 					}
 				}
 				sleepTime = interval - (System.currentTimeMillis() - now);
 			} catch (Throwable e) {
-				logger.error("[provideravailable] task failed:" + e.getMessage());
+				logger.warn("[provideravailable] task failed:", e);
 			} finally {
 				if (sleepTime < 1000) {
 					sleepTime = 1000;

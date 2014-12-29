@@ -18,4 +18,8 @@ public class ResponseProcessorFactory {
 		// Constants.DEFAULT_PROCESS_TYPE);
 		return responseProcessor;
 	}
+	
+	public static void stop() {
+		responseProcessor.stop();
+	}
 }

@@ -159,7 +159,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 							if (client.isConnected()) {
 								sendHeartBeatRequest(client);
 							} else {
-								logger.error("[heartbeat] remove connect:" + client.getAddress());
+								logger.warn("[heartbeat] remove connect:" + client.getAddress());
 								clusterListenerManager.removeConnect(client);
 							}
 						}
@@ -167,7 +167,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 				}
 				sleepTime = interval - (System.currentTimeMillis() - now);
 			} catch (Throwable e) {
-				logger.error("[heartbeat] task failed", e);
+				logger.warn("[heartbeat] task failed:", e);
 			} finally {
 				if (sleepTime < 1000) {
 					sleepTime = 1000;
@@ -267,7 +267,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 					if (isHeartBeatAutoPickOff && canPickOff(client)) {
 						client.setActive(false);
 						inactiveAddresses.add(client.getAddress());
-						logger.error("@service-deactivate:" + client + ", inactive addresses:" + inactiveAddresses);
+						logger.warn("@service-deactivate:" + client + ", inactive addresses:" + inactiveAddresses);
 
 						if (logPickOff) {
 							ServiceStatusException ex = new ServiceStatusException("remote server " + client
@@ -276,7 +276,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 							monitor.logError(ex);
 						}
 					} else {
-						logger.error("@service-dieaway:" + client + ", inactive addresses:" + inactiveAddresses);
+						logger.warn("@service-dieaway:" + client + ", inactive addresses:" + inactiveAddresses);
 					}
 				}
 				heartStat.resetCounter();
@@ -330,7 +330,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 				}
 			}
 		}
-		logger.error("can pick off:" + client);
+		logger.warn("can pick off:" + client);
 		return true;
 	}
 

@@ -6,7 +6,7 @@
 
 	<!-- <cache /> -->
 
-	<select id="getPhoneCardById" resultType="PhoneCard"
+	<select id="getPhoneCardById" resultType="com.dianping.pigeon.test.benchmark.domain.PhoneCard"
 		parameterType="int">
 		select id,name,mobile
 		from
@@ -15,14 +15,14 @@
 		id=#{value}
 	</select>
 
-	<select id="getAllPhoneCards" resultType="PhoneCard">
+	<select id="getAllPhoneCards" resultType="com.dianping.pigeon.test.benchmark.domain.PhoneCard">
 		select
 		id,name,mobile
 		from
 		phone_book
 	</select>
 
-	<select id="findPhoneCardByName" resultType="PhoneCard"
+	<select id="findPhoneCardByName" resultType="com.dianping.pigeon.test.benchmark.domain.PhoneCard"
 		parameterType="string">
 		select id,name,mobile
 		from
@@ -31,7 +31,7 @@
 		name = #{value}
 	</select>
 
-	<insert id="insertPhoneCard" parameterType="PhoneCard">
+	<insert id="insertPhoneCard" parameterType="com.dianping.pigeon.test.benchmark.domain.PhoneCard">
 		insert into
 		phone_book(name,mobile)
 		values(#{name},#{mobile})
@@ -43,7 +43,7 @@
 		where id=#{value}
 	</delete>
 
-	<update id="updatePhoneCard" parameterType="PhoneCard">
+	<update id="updatePhoneCard" parameterType="com.dianping.pigeon.test.benchmark.domain.PhoneCard">
 		update
 		phone_book
 		set

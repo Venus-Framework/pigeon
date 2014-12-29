@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
@@ -25,10 +26,23 @@ import java.util.TreeSet;
 import com.dianping.avatar.tracker.CacheExecutionTrace;
 import com.dianping.avatar.tracker.SqlExecutionTrace;
 import com.dianping.avatar.tracker.TrackerContext;
+import com.dianping.dpsf.exception.DPSFException;
+import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.dpsf.protocol.DefaultResponse;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
+import com.dianping.pigeon.remoting.common.exception.ApplicationException;
+import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
+import com.dianping.pigeon.remoting.common.exception.NetworkException;
+import com.dianping.pigeon.remoting.common.exception.RejectedException;
+import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
+import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
+import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
+import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
+import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
+import com.dianping.pigeon.remoting.provider.exception.ProcessTimeoutException;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.KryoSerializable;
@@ -40,74 +54,117 @@ import com.esotericsoftware.kryo.pool.KryoPool;
 public class KryoSerializer extends DefaultAbstractSerializer {
 
 	private static KryoPool pool = null;
+	private static Map<Class<?>, Integer> types = new LinkedHashMap<Class<?>, Integer>();
+	private static final int poolSize = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.serialize.kryo.poolsize", 50);
+	private static List<Kryo> kryoPool = new ArrayList<Kryo>();
 
 	public KryoSerializer() {
 		KryoFactory factory = new KryoFactory() {
 			public Kryo create() {
 				Kryo kryo = new Kryo();
 				setKryo(kryo);
+				for (Class<?> type : types.keySet()) {
+					kryo.register(type, types.get(type));
+				}
+				kryoPool.add(kryo);
 				// configure kryo instance, customize settings
 				return kryo;
 			}
 		};
 		pool = new KryoPool.Builder(factory).softReferences().build();
+		try {
+			for (int i = 0; i < poolSize; i++) {
+				kryoPool.add(pool.borrow());
+			}
+		} finally {
+			for (Kryo kryo : kryoPool) {
+				pool.release(kryo);
+			}
+		}
 	}
 
 	private Kryo setKryo(Kryo kryo) {
 		kryo.setRegistrationRequired(false);
 		kryo.setReferences(true);
 
-		kryo.register(DefaultRequest.class, kryo.getNextRegistrationId());
-		kryo.register(DefaultResponse.class, kryo.getNextRegistrationId());
-		kryo.register(CacheExecutionTrace.class, kryo.getNextRegistrationId());
-		kryo.register(TrackerContext.class, kryo.getNextRegistrationId());
-		kryo.register(SqlExecutionTrace.class, kryo.getNextRegistrationId());
+		int idx = 10;
+		kryo.register(HashMap.class, idx++);
+		kryo.register(LinkedHashMap.class, idx++);
+		kryo.register(Hashtable.class, idx++);
+		kryo.register(ArrayList.class, idx++);
+		kryo.register(LinkedList.class, idx++);
+		kryo.register(HashSet.class, idx++);
+		kryo.register(TreeSet.class, idx++);
+		kryo.register(byte[].class, idx++);
+		kryo.register(char[].class, idx++);
+		kryo.register(short[].class, idx++);
+		kryo.register(int[].class, idx++);
+		kryo.register(long[].class, idx++);
+		kryo.register(float[].class, idx++);
+		kryo.register(double[].class, idx++);
+		kryo.register(boolean[].class, idx++);
+		kryo.register(String[].class, idx++);
+		kryo.register(Object[].class, idx++);
+		kryo.register(KryoSerializable.class, idx++);
+		kryo.register(BigInteger.class, idx++);
+		kryo.register(BigDecimal.class, idx++);
+		kryo.register(Class.class, idx++);
+		kryo.register(Date.class, idx++);
+		// kryo.register(Enum.class, idx++);
+		kryo.register(EnumSet.class, idx++);
+		kryo.register(Currency.class, idx++);
+		kryo.register(StringBuffer.class, idx++);
+		kryo.register(StringBuilder.class, idx++);
+		kryo.register(Collections.EMPTY_LIST.getClass(), idx++);
+		kryo.register(Collections.EMPTY_MAP.getClass(), idx++);
+		kryo.register(Collections.EMPTY_SET.getClass(), idx++);
+		kryo.register(Collections.singletonList(null).getClass(), idx++);
+		kryo.register(Collections.singletonMap(null, null).getClass(), idx++);
+		kryo.register(Collections.singleton(null).getClass(), idx++);
+		kryo.register(TreeSet.class, idx++);
+		kryo.register(Collection.class, idx++);
+		kryo.register(TreeMap.class, idx++);
+		kryo.register(Map.class, idx++);
+		kryo.register(TimeZone.class, idx++);
+		kryo.register(Calendar.class, idx++);
+		kryo.register(Locale.class, idx++);
 
-		kryo.register(HashMap.class, kryo.getNextRegistrationId());
-		kryo.register(LinkedHashMap.class, kryo.getNextRegistrationId());
-		kryo.register(Hashtable.class, kryo.getNextRegistrationId());
-		kryo.register(ArrayList.class, kryo.getNextRegistrationId());
-		kryo.register(LinkedList.class, kryo.getNextRegistrationId());
-		kryo.register(HashSet.class, kryo.getNextRegistrationId());
-		kryo.register(TreeSet.class, kryo.getNextRegistrationId());
-		kryo.register(byte[].class, kryo.getNextRegistrationId());
-		kryo.register(char[].class, kryo.getNextRegistrationId());
-		kryo.register(short[].class, kryo.getNextRegistrationId());
-		kryo.register(int[].class, kryo.getNextRegistrationId());
-		kryo.register(long[].class, kryo.getNextRegistrationId());
-		kryo.register(float[].class, kryo.getNextRegistrationId());
-		kryo.register(double[].class, kryo.getNextRegistrationId());
-		kryo.register(boolean[].class, kryo.getNextRegistrationId());
-		kryo.register(String[].class, kryo.getNextRegistrationId());
-		kryo.register(Object[].class, kryo.getNextRegistrationId());
-		kryo.register(KryoSerializable.class, kryo.getNextRegistrationId());
-		kryo.register(BigInteger.class, kryo.getNextRegistrationId());
-		kryo.register(BigDecimal.class, kryo.getNextRegistrationId());
-		kryo.register(Class.class, kryo.getNextRegistrationId());
-		kryo.register(Date.class, kryo.getNextRegistrationId());
-		// kryo.register(Enum.class, kryo.getNextRegistrationId());
-		kryo.register(EnumSet.class, kryo.getNextRegistrationId());
-		kryo.register(Currency.class, kryo.getNextRegistrationId());
-		kryo.register(StringBuffer.class, kryo.getNextRegistrationId());
-		kryo.register(StringBuilder.class, kryo.getNextRegistrationId());
-		kryo.register(Collections.EMPTY_LIST.getClass(), kryo.getNextRegistrationId());
-		kryo.register(Collections.EMPTY_MAP.getClass(), kryo.getNextRegistrationId());
-		kryo.register(Collections.EMPTY_SET.getClass(), kryo.getNextRegistrationId());
-		kryo.register(Collections.singletonList(null).getClass(), kryo.getNextRegistrationId());
-		kryo.register(Collections.singletonMap(null, null).getClass(), kryo.getNextRegistrationId());
-		kryo.register(Collections.singleton(null).getClass(), kryo.getNextRegistrationId());
-		kryo.register(TreeSet.class, kryo.getNextRegistrationId());
-		kryo.register(Collection.class, kryo.getNextRegistrationId());
-		kryo.register(TreeMap.class, kryo.getNextRegistrationId());
-		kryo.register(Map.class, kryo.getNextRegistrationId());
-		kryo.register(TimeZone.class, kryo.getNextRegistrationId());
-		kryo.register(Calendar.class, kryo.getNextRegistrationId());
-		kryo.register(Locale.class, kryo.getNextRegistrationId());
+		idx = 9000;
+		kryo.register(DefaultRequest.class, idx++);
+		kryo.register(DefaultResponse.class, idx++);
+		kryo.register(CacheExecutionTrace.class, idx++);
+		kryo.register(TrackerContext.class, idx++);
+		kryo.register(SqlExecutionTrace.class, idx++);
+		kryo.register(DPSFException.class, idx++);
+		kryo.register(RpcException.class, idx++);
+		kryo.register(NetTimeoutException.class, idx++);
+		kryo.register(ApplicationException.class, idx++);
+		kryo.register(InvalidParameterException.class, idx++);
+		kryo.register(NetworkException.class, idx++);
+		kryo.register(RejectedException.class, idx++);
+		kryo.register(SecurityException.class, idx++);
+		kryo.register(SerializationException.class, idx++);
+		kryo.register(RemoteInvocationException.class, idx++);
+		kryo.register(RequestTimeoutException.class, idx++);
+		kryo.register(ServiceUnavailableException.class, idx++);
+		kryo.register(InvocationFailureException.class, idx++);
+		kryo.register(ProcessTimeoutException.class, idx++);
+		kryo.register(ProcessTimeoutException.class, idx++);
 
 		return kryo;
 	}
 
 	public static void registerClass(Class<?> type, int id) {
+		if (id < 10000) {
+			throw new IllegalArgumentException("register class id must be greater than 10000");
+		}
+		if (!types.containsKey(type)) {
+			types.put(type, id);
+		}
+		for (Kryo kryo : kryoPool) {
+			kryo.register(type, id);
+		}
 	}
 
 	@Override

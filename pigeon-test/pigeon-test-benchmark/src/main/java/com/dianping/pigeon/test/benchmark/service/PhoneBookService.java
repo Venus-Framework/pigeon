@@ -29,4 +29,6 @@ public interface PhoneBookService {
 	public void init(int rows);
 
 	public void clear();
+	
+	void cancel();
 }

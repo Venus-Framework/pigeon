@@ -25,10 +25,10 @@ public class Client {
 	 */
 	public static void main(String[] args) throws Exception {
 		CLIENT_CONTAINER.start();
-		KryoSerializer.registerClass(EchoService.class, 1001);
-		KryoSerializer.registerClass(UserService.class, 1002);
-		KryoSerializer.registerClass(User.class, 1003);
-		KryoSerializer.registerClass(Role.class, 1004);
+		KryoSerializer.registerClass(EchoService.class, 10001);
+		KryoSerializer.registerClass(UserService.class, 10002);
+		KryoSerializer.registerClass(User.class, 10003);
+		KryoSerializer.registerClass(Role.class, 10004);
 
 		EchoService echoService = (EchoService) CLIENT_CONTAINER.getBean("echoService");
 		EchoService echoServiceWithCallback = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithCallback");

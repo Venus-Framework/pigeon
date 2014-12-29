@@ -2,9 +2,6 @@ package com.dianping.pigeon.test.benchmark.cache;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.Resource;
@@ -18,7 +15,7 @@ import com.dianping.cache.exception.CacheException;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 
 @Service(url = "com.dianping.cache.test.EhcacheDemoService", interfaceClass = CacheTestService.class)
-public class EhcacheTestService implements CacheTestService {
+public class EhcacheTestService extends AbstractCacheTestService {
 
 	@Resource
 	private CacheService cacheService;
@@ -70,38 +67,5 @@ public class EhcacheTestService implements CacheTestService {
 	public void randomGet() {
 		getKeyValue("k-" + (random.nextDouble() * rows));
 	}
-	
-	protected static Random random = new Random();
-	protected static int rows = 0;
 
-	public void concurrentGet(final int threads, final int rows) {
-		ExecutorService executor = Executors.newFixedThreadPool(threads);
-		for (int i = 0; i < threads; i++) {
-			executor.submit(new Runnable() {
-
-				@Override
-				public void run() {
-					while (true) {
-						getKeyValue("k-" + Math.abs((int)(random.nextDouble() * rows)));
-					}
-				}
-			});
-		}
-	}
-
-	@Override
-	public void init(int rows) {
-		clear();
-		for (int i = 0; i < rows; i++) {
-			this.setKeyValue("k-" + i, StringUtils.leftPad("" + i, 25));
-		}
-		AbstractCacheTestService.rows = rows;
-	}
-
-	@Override
-	public void clear() {
-		for (int i = 0; i < rows; i++) {
-			this.removeKey("k-" + i);
-		}
-	}
 }

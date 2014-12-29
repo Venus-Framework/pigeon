@@ -2,7 +2,9 @@ package com.dianping.pigeon.test.benchmark.service;
 
 public interface EchoTestService {
 
-	public void concurrentGetNow(final int threads, final int count);
+	void concurrentFindUsers(final int threads, final int count, final int timeout);
 
-	public void cancel();
+	void concurrentGetNow(final int threads, final int timeout);
+
+	void cancel();
 }

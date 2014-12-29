@@ -5,21 +5,23 @@ import java.util.concurrent.TimeoutException;
 
 import com.dianping.cache.exception.CacheException;
 
-public interface CacheTestService {
+interface CacheTestService {
 
-	public void init(int rows);
+	void init(int rows, int size);
 
-	public void clear();
+	void clear();
 
-	public boolean setKeyValue(String key, String value);
+	boolean setKeyValue(String key, String value);
 
-	public String getKeyValue(String key);
+	String getKeyValue(String key);
 
-	public List<Object> bulkGetKeyValue(String keys);
+	List<Object> bulkGetKeyValue(String keys);
 
-	public boolean removeKey(String key);
+	boolean removeKey(String key);
 
-	public boolean addKeyValue(String key, String value) throws CacheException, TimeoutException;
+	boolean addKeyValue(String key, String value) throws CacheException, TimeoutException;
 
-	public void concurrentGet(final int threads, final int rows);
+	void concurrentGet(final int threads, final int rows);
+
+	void cancel();
 }

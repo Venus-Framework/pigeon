@@ -27,6 +27,7 @@ public class NotifyFailureListener implements Runnable {
 			Map<String, NotifyEvent> failedNotifyEvents = new HashMap<String, NotifyEvent>();
 			failedNotifyEvents.putAll(serviceChangeListener.getFailedNotifyEvents());
 			try {
+				Thread.sleep(CHECK_INTERVAL);
 				for (String serviceUrl : failedNotifyEvents.keySet()) {
 					if (serviceChangeListener.getFailedNotifyEvents().containsKey(serviceUrl)) {
 						NotifyEvent notifyEvent = failedNotifyEvents.get(serviceUrl);
@@ -40,7 +41,6 @@ public class NotifyFailureListener implements Runnable {
 						}
 					}
 				}
-				Thread.sleep(CHECK_INTERVAL);
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}

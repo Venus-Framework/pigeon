@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -23,8 +22,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.dianping.dpsf.async.ServiceCallback;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.ServiceConfigUtils;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.config.annotation.Reference;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
@@ -37,9 +39,8 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 
 	private static final Logger logger = LoggerLoader.getLogger(AnnotationBean.class);
 
-	public static final Pattern COMMA_SPLIT_PATTERN = Pattern.compile("\\s*[,]+\\s*");
-
-	private String annotationPackage = "com.dianping";
+	private String annotationPackage = ConfigManagerLoader.getConfigManager().getStringValue(
+			"pigeon.provider.interface.packages", "com.dianping");
 
 	private String[] annotationPackages = new String[] { "com.dianping" };
 
@@ -52,7 +53,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 	public void setPackage(String annotationPackage) {
 		this.annotationPackage = annotationPackage;
 		this.annotationPackages = (annotationPackage == null || annotationPackage.length() == 0) ? null
-				: COMMA_SPLIT_PATTERN.split(annotationPackage);
+				: Constants.COMMA_SPLIT_PATTERN.split(annotationPackage);
 	}
 
 	private ApplicationContext applicationContext;
@@ -81,7 +82,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 						ClassUtils.loadClass("org.springframework.core.type.filter.TypeFilter"));
 				addIncludeFilter.invoke(scanner, filter);
 				// scan packages
-				String[] packages = COMMA_SPLIT_PATTERN.split(annotationPackage);
+				String[] packages = Constants.COMMA_SPLIT_PATTERN.split(annotationPackage);
 				Method scan = scannerClass.getMethod("scan", new Class<?>[] { String[].class });
 				scan.invoke(scanner, new Object[] { packages });
 			} catch (Throwable e) {
@@ -107,16 +108,10 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 		if (service != null) {
 			Class serviceInterface = service.interfaceClass();
 			if (void.class.equals(service.interfaceClass())) {
-				if (beanClass.getInterfaces().length > 0) {
-					serviceInterface = beanClass.getInterfaces()[0];
-				} else {
-					serviceInterface = beanClass.getClass();
-					// throw new IllegalStateException(
-					// "Failed to export remote service class "
-					// + beanClass.getName()
-					// +
-					// ", cause: The @Service undefined interfaceClass or interfaceName, and the service class unimplemented any interfaces.");
-				}
+				serviceInterface = ServiceConfigUtils.getServiceInterface(beanClass);
+			}
+			if (serviceInterface == null) {
+				serviceInterface = beanClass;
 			}
 			ProviderConfig<Object> providerConfig = new ProviderConfig<Object>(serviceInterface, bean);
 			providerConfig.setService(bean);
@@ -234,6 +229,16 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 			return true;
 		}
 		String beanClassName = bean.getClass().getName();
+		for (String pkg : annotationPackages) {
+			if (beanClassName.startsWith(pkg)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isMatchPackage(Class type) {
+		String beanClassName = type.getName();
 		for (String pkg : annotationPackages) {
 			if (beanClassName.startsWith(pkg)) {
 				return true;

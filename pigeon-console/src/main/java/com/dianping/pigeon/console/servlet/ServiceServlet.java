@@ -35,6 +35,7 @@ import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.status.Phase;
 import com.dianping.pigeon.remoting.common.status.StatusContainer;
+import com.dianping.pigeon.remoting.common.util.ServiceConfigUtils;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
@@ -66,9 +67,6 @@ public class ServiceServlet extends HttpServlet {
 	protected final Logger logger = LoggerLoader.getLogger(this.getClass());
 
 	protected static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
-
-	private static final String VALID_PACKAGES = configManager.getStringValue("pigeon.service.packages",
-			"com.dianping,com.dp");
 
 	private static final StatusChecker providerStatusChecker = new ProviderStatusChecker();
 
@@ -139,26 +137,33 @@ public class ServiceServlet extends HttpServlet {
 			s.setType(beanClass);
 			s.setPublished(providerConfig.isPublished() + "");
 			Map<String, Method> allMethods = new HashMap<String, Method>();
-			Class<?>[] ifaces = beanClass.getInterfaces();
-			String[] validPackages = VALID_PACKAGES.split(",");
-			for (Class<?> iface : ifaces) {
-				String facename = iface.getName();
-				logger.info("service interface:" + facename);
-				boolean isValid = false;
-				for (String pkg : validPackages) {
-					if (facename.startsWith(pkg)) {
-						isValid = true;
-						break;
-					}
-				}
-				if (isValid) {
-					Method[] methods = iface.getMethods();
-					for (Method method : methods) {
-						String key = method.getName() + ":" + Arrays.toString(method.getParameterTypes());
-						if (!ingoreMethods.contains(key)) {
-							allMethods.put(key, method);
-						}
-					}
+//			Class<?>[] ifaces = beanClass.getInterfaces();
+//			String[] validPackages = VALID_PACKAGES.split(",");
+//			for (Class<?> iface : ifaces) {
+//				String facename = iface.getName();
+//				logger.info("service interface:" + facename);
+//				boolean isValid = false;
+//				for (String pkg : validPackages) {
+//					if (facename.startsWith(pkg)) {
+//						isValid = true;
+//						break;
+//					}
+//				}
+//				if (isValid) {
+//					Method[] methods = iface.getMethods();
+//					for (Method method : methods) {
+//						String key = method.getName() + ":" + Arrays.toString(method.getParameterTypes());
+//						if (!ingoreMethods.contains(key)) {
+//							allMethods.put(key, method);
+//						}
+//					}
+//				}
+//			}
+			Method[] methods = ServiceConfigUtils.getServiceInterface(beanClass).getMethods();
+			for (Method method : methods) {
+				String key = method.getName() + ":" + Arrays.toString(method.getParameterTypes());
+				if (!ingoreMethods.contains(key)) {
+					allMethods.put(key, method);
 				}
 			}
 			for (Entry<String, Method> methodEntry : allMethods.entrySet()) {

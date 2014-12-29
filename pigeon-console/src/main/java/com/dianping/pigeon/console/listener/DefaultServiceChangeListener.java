@@ -26,6 +26,7 @@ import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.listener.ServiceChangeListener;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
+import com.dianping.pigeon.util.ThreadPoolUtils;
 
 public class DefaultServiceChangeListener implements ServiceChangeListener {
 
@@ -41,6 +42,10 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 
 	public DefaultServiceChangeListener() {
 		failureListenerThreadPool.execute(new NotifyFailureListener(this));
+	}
+
+	public void destroy() throws Exception {
+		ThreadPoolUtils.shutdown(failureListenerThreadPool.getExecutor());
 	}
 
 	public Map<String, NotifyEvent> getFailedNotifyEvents() {

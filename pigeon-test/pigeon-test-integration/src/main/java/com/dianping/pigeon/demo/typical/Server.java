@@ -25,10 +25,10 @@ public class Server {
 //		KryoSerializer.registerClass(Date.class, 20);
 //		KryoSerializer.registerClass(List.class, 21);
 //		KryoSerializer.registerClass(Serializable.class, 22);
-		KryoSerializer.registerClass(EchoService.class, 1001);
-		KryoSerializer.registerClass(UserService.class, 1002);
-		KryoSerializer.registerClass(User.class, 1003);
-		KryoSerializer.registerClass(Role.class, 1004);
+		KryoSerializer.registerClass(EchoService.class, 10001);
+		KryoSerializer.registerClass(UserService.class, 10002);
+		KryoSerializer.registerClass(User.class, 10003);
+		KryoSerializer.registerClass(Role.class, 10004);
 		System.in.read();
 	}
 

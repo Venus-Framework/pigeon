@@ -12,10 +12,11 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.ServiceConfigUtils;
 
 public class ProviderConfig<T> {
 
-	private Class<T> serviceInterface;
+	private Class<?> serviceInterface;
 	private String url;
 	private String version;
 	private T service;
@@ -80,15 +81,8 @@ public class ProviderConfig<T> {
 	}
 
 	public ProviderConfig(T service) {
-		Class<?>[] interfaces = service.getClass().getInterfaces();
-		Class interfaceClass = null;
-		if (interfaces != null && interfaces.length > 0) {
-			interfaceClass = service.getClass().getInterfaces()[0];
-		} else {
-			interfaceClass = service.getClass();
-		}
 		this.setService(service);
-		this.setServiceInterface(interfaceClass);
+		this.setServiceInterface(ServiceConfigUtils.getServiceInterface(service.getClass()));
 	}
 
 	public String getVersion() {
@@ -99,17 +93,11 @@ public class ProviderConfig<T> {
 		this.version = version;
 	}
 
-	public Class<T> getServiceInterface() {
+	public Class<?> getServiceInterface() {
 		return serviceInterface;
 	}
 
-	public void setServiceInterface(Class<T> serviceInterface) {
-		/*
-		 * if (serviceInterface != null && !serviceInterface.isInterface()) {
-		 * throw new
-		 * IllegalArgumentException("'serviceInterface' must be an interface");
-		 * }
-		 */
+	public void setServiceInterface(Class<?> serviceInterface) {
 		this.serviceInterface = serviceInterface;
 	}
 

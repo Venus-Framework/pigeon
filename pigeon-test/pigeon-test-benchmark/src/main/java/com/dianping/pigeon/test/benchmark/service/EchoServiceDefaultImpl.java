@@ -7,6 +7,7 @@ package com.dianping.pigeon.test.benchmark.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dianping.pigeon.remoting.common.codec.kryo.KryoSerializer;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 import com.google.common.collect.Lists;
 
@@ -16,6 +17,8 @@ public class EchoServiceDefaultImpl implements EchoService {
 	List<User> users = new ArrayList<User>();
 
 	public EchoServiceDefaultImpl() {
+		//KryoSerializer.registerClass(EchoService.class, 10000);
+		//KryoSerializer.registerClass(User.class, 10001);
 		for (int i = 1; i <= 10000; i++) {
 			String n = "a" + i;
 			User u = new User(i, n, n + "@dianping.com", n + "@hongkou district, shanghai", 20);
@@ -36,6 +39,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 	@Override
 	public List<User> findUsers(int count) {
 		return Lists.newArrayList(users.subList(0, count));
+		//return users.subList(0, count);
 	}
 
 }

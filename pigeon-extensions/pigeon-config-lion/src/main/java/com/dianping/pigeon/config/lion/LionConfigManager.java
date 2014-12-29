@@ -4,6 +4,10 @@
  */
 package com.dianping.pigeon.config.lion;
 
+import java.io.File;
+import java.net.URL;
+import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,9 +15,9 @@ import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
 import com.dianping.lion.client.ConfigChange;
 import com.dianping.lion.client.LionException;
-import com.dianping.phoenix.config.ConfigServiceManager;
 import com.dianping.pigeon.config.AbstractConfigManager;
 import com.dianping.pigeon.config.ConfigChangeListener;
+import com.dianping.pigeon.util.FileUtils;
 
 /**
  * @author xiangwu
@@ -66,10 +70,22 @@ public class LionConfigManager extends AbstractConfigManager {
 	public String doGetAppName() throws Exception {
 		if (appName == null) {
 			try {
-				appName = ConfigServiceManager.getConfig().getAppName();
+				URL appProperties = getClass().getResource("/META-INF/app.properties");
+				if (appProperties == null) {
+					appProperties = new URL("file:" + getClass().getResource("/").getPath()
+							+ "/META-INF/app.properties");
+					if (!new File(appProperties.getFile()).exists()) {
+						appProperties = new URL("file:/data/webapps/config/app.properties");
+					}
+				}
+				Properties properties = null;
+				if (appProperties != null) {
+					properties = FileUtils.readFile(appProperties.openStream());
+					appName = properties.getProperty("app.name");
+				}
 			} catch (Throwable e) {
 			}
-			if (appName == null || "NONAME".equals(appName)) {
+			if (appName == null) {
 				return "";
 			}
 		}

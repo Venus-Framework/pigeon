@@ -34,12 +34,12 @@ public final class ProviderBootStrap {
 	static Server httpServer = null;
 	static volatile Map<String, Server> serversMap = new HashMap<String, Server>();
 	static volatile boolean isInitialized = false;
-	static Date startTime =  new Date();
+	static Date startTime = new Date();
 
 	public static Date getStartTime() {
 		return startTime;
 	}
-	
+
 	public static void init() {
 		if (!isInitialized) {
 			ConfigManagerLoader.getConfigManager().getAppName();
@@ -125,13 +125,19 @@ public final class ProviderBootStrap {
 		for (Server server : serversMap.values()) {
 			if (server != null) {
 				logger.info("start to stop " + server);
-				server.stop();
+				try {
+					server.stop();
+				} catch (Throwable e) {
+				}
 				if (logger.isInfoEnabled()) {
 					logger.info(server + " has been shutdown");
 				}
 			}
 		}
-		ProviderProcessHandlerFactory.clearServerInternalFilters();
+		try {
+			ProviderProcessHandlerFactory.destroy();
+		} catch (Throwable e) {
+		}
 	}
 
 	public static List<Server> getServers(ProviderConfig<?> providerConfig) {

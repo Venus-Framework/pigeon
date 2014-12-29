@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.remoting.common.util;
 
+import java.util.regex.Pattern;
+
 import com.dianping.pigeon.config.ConfigManagerLoader;
 
 /**
@@ -16,6 +18,8 @@ public final class Constants {
 
 	public Constants() {
 	}
+
+	public static final Pattern COMMA_SPLIT_PATTERN = Pattern.compile("\\s*[,]+\\s*");
 
 	// 消息类型----》心跳消息
 	public static final int MESSAGE_TYPE_HEART = 1;

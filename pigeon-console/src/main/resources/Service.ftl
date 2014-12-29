@@ -29,7 +29,7 @@
 						return;
 					}
 					if('${environment}'=='product'){
-						content.append("<p>verification code(you can get it from pigeon log):<input type='text' id='token' value=''/></p>");
+						content.append("<p>verification code(from /data/applogs/dpsflog/pigeon.log):<input type='text' id='token' value=''/></p>");
 					}
 					for(var i = 0; i < treeNode.parameters; i++){
 						content.append("<p><input type='text' value=''/></p>");

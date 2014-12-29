@@ -3,13 +3,6 @@ package com.dianping.pigeon.threadpool;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: NamedThreadFactory.java, v 0.1 2013-7-8 下午9:03:19 jianhuihuang
- *          Exp $
- */
 public class NamedThreadFactory implements ThreadFactory {
 	private static final AtomicInteger POOL_SEQ = new AtomicInteger(1);
 

@@ -124,6 +124,7 @@ public class ClientManager {
 		ThreadPoolUtils.shutdown(providerAvailableThreadPool.getExecutor());
 		ThreadPoolUtils.shutdown(heartBeatThreadPool.getExecutor());
 		ThreadPoolUtils.shutdown(reconnectThreadPool.getExecutor());
+		this.clusterListener.destroy();
 	}
 
 	public String getServiceAddress(String serviceName, String group, String vip) {

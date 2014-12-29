@@ -10,16 +10,19 @@ public abstract class AbstractCacheTestService implements CacheTestService {
 
 	protected static Random random = new Random();
 	protected static int rows = 0;
+	volatile boolean isCancel = false;
+	ExecutorService executor = null;
 
-	public void concurrentGet(int threads) {
-		ExecutorService executor = Executors.newFixedThreadPool(threads);
+	public void concurrentGet(int threads, final int rows) {
+		executor = Executors.newFixedThreadPool(threads);
+		isCancel = false;
 		for (int i = 0; i < threads; i++) {
 			executor.submit(new Runnable() {
 
 				@Override
 				public void run() {
-					while (true) {
-						getKeyValue("k-" + Math.abs((int)(random.nextDouble() * rows)));
+					while (!isCancel) {
+						getKeyValue("k-" + Math.abs((int) (random.nextDouble() * rows)));
 					}
 				}
 			});
@@ -27,10 +30,10 @@ public abstract class AbstractCacheTestService implements CacheTestService {
 	}
 
 	@Override
-	public void init(int rows) {
+	public void init(int rows, int size) {
 		clear();
 		for (int i = 0; i < rows; i++) {
-			this.setKeyValue("k-" + i, StringUtils.leftPad("" + i, 25));
+			this.setKeyValue("k-" + i, StringUtils.leftPad("" + i, size));
 		}
 		AbstractCacheTestService.rows = rows;
 	}
@@ -42,4 +45,11 @@ public abstract class AbstractCacheTestService implements CacheTestService {
 		}
 	}
 
+	@Override
+	public void cancel() {
+		this.isCancel = true;
+		if (executor != null) {
+			executor.shutdown();
+		}
+	}
 }

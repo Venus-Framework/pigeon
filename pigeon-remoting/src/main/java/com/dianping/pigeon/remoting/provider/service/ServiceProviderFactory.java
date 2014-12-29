@@ -98,6 +98,11 @@ public final class ServiceProviderFactory {
 	}
 
 	public static <T> void publishService(ProviderConfig<T> providerConfig) throws RegistryException {
+		publishService(providerConfig, true);
+	}
+
+	public static <T> void publishService(ProviderConfig<T> providerConfig, boolean forcePublish)
+			throws RegistryException {
 		String url = providerConfig.getUrl();
 		boolean existingService = false;
 		for (String key : serviceCache.keySet()) {
@@ -114,7 +119,7 @@ public final class ServiceProviderFactory {
 		if (existingService) {
 			boolean autoPublishEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
 					Constants.KEY_AUTOPUBLISH_ENABLE, true);
-			if (autoPublishEnable) {
+			if (autoPublishEnable || forcePublish) {
 				List<Server> servers = ProviderBootStrap.getServers(providerConfig);
 				int registerCount = 0;
 				for (Server server : servers) {
@@ -153,7 +158,7 @@ public final class ServiceProviderFactory {
 			for (String key : serviceCache.keySet()) {
 				ProviderConfig<?> pc = serviceCache.get(key);
 				if (pc.getUrl().equals(url)) {
-					publishService(pc);
+					publishService(pc, true);
 				}
 			}
 		}
@@ -328,13 +333,17 @@ public final class ServiceProviderFactory {
 	}
 
 	public static void publishAllServices() throws RegistryException {
+		publishAllServices(true);
+	}
+
+	public static void publishAllServices(boolean forcePublish) throws RegistryException {
 		if (logger.isInfoEnabled()) {
 			logger.info("publish all services");
 		}
 		for (String url : serviceCache.keySet()) {
 			ProviderConfig<?> providerConfig = serviceCache.get(url);
 			if (providerConfig != null) {
-				publishService(providerConfig);
+				publishService(providerConfig, forcePublish);
 			}
 		}
 		StatusContainer.setPhase(Phase.PUBLISHED);

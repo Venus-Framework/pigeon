@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.domain.phase.Disposable;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -25,12 +26,13 @@ import com.dianping.pigeon.remoting.provider.process.statistics.AppStatisticsChe
 import com.dianping.pigeon.remoting.provider.process.statistics.AppStatisticsHolder;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
+import com.dianping.pigeon.util.ThreadPoolUtils;
 
 /**
  * @author xiangwu
  * 
  */
-public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderContext> {
+public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderContext>, Disposable {
 
 	private static final Logger logger = LoggerLoader.getLogger(GatewayProcessFilter.class);
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
@@ -44,6 +46,10 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
 		AppStatisticsChecker appStatisticsChecker = new AppStatisticsChecker();
 		statisticsCheckerPool.execute(appStatisticsChecker);
+	}
+
+	public void destroy() throws Exception {
+		ThreadPoolUtils.shutdown(statisticsCheckerPool.getExecutor());
 	}
 
 	private static void parseAppLimitConfig(String appLimitConfig) {
