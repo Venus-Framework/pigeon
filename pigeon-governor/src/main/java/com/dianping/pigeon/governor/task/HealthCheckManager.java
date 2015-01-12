@@ -47,6 +47,7 @@ public class HealthCheckManager extends Thread {
 	private String action;
 	private String minhosts;
 	private String deadThresholds;
+	private String invalidAddress;
 	private volatile long interval = 10 * 1000;
 	private volatile long hostInterval = 5 * 1000;
 	private volatile int deadThreshold = 50;
@@ -55,6 +56,7 @@ public class HealthCheckManager extends Thread {
 	private Map<Environment, Integer> minhostsMap;
 	private Map<Environment, Integer> deadThresholdsMap;
 	private Map<Environment, Registry> registryMap;
+	private Map<Environment, String> invalidAddressMap;
 
 	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
@@ -67,13 +69,16 @@ public class HealthCheckManager extends Thread {
 		minhosts = configManager.getStringValue(Constants.KEY_MINHOSTS, "qa:1,prelease:1,product:2,producthm:1");
 		deadThresholds = configManager.getStringValue(Constants.KEY_DEADTHRESHOLDS,
 				"dev:10,alpha:10,qa:20,prelease:20,product:50,producthm:50");
+		invalidAddress = configManager.getStringValue(Constants.KEY_INVALIDADDRESS, "product:192.168|10.128");
 		actionMap = new LinkedHashMap<Environment, Action>();
 		registryMap = new LinkedHashMap<Environment, Registry>();
 		minhostsMap = new LinkedHashMap<Environment, Integer>();
 		deadThresholdsMap = new LinkedHashMap<Environment, Integer>();
+		invalidAddressMap = new LinkedHashMap<Environment, String>();
 		parseAction();
 		parseMinhosts();
 		parseDeadThresholds();
+		parseInvalidAddress();
 	}
 
 	public void run() {
@@ -125,6 +130,22 @@ public class HealthCheckManager extends Thread {
 		}
 	}
 
+	private void parseInvalidAddress() {
+		if (StringUtils.isBlank(invalidAddress)) {
+			logger.error("invalidAddress is null");
+			return;
+		}
+
+		String[] invalidAddressList = invalidAddress.split(",");
+		for (String envInvalidAddr : invalidAddressList) {
+			String[] envInvalidAddrPair = envInvalidAddr.split(":");
+			String strEnv = envInvalidAddrPair[0].trim();
+			Environment env = Environment.valueOf(strEnv);
+			String addr = envInvalidAddrPair[1].trim();
+			invalidAddressMap.put(env, addr);
+		}
+	}
+
 	private void parseDeadThresholds() {
 		if (StringUtils.isBlank(deadThresholds)) {
 			logger.error("deadThresholds is null");
@@ -173,6 +194,14 @@ public class HealthCheckManager extends Thread {
 			return deadThresholdsMap.get(env);
 		} else {
 			return deadThreshold;
+		}
+	}
+
+	public String getInvalidAddress(Environment env) {
+		if (invalidAddressMap.containsKey(env)) {
+			return invalidAddressMap.get(env);
+		} else {
+			return null;
 		}
 	}
 
@@ -270,6 +299,9 @@ public class HealthCheckManager extends Thread {
 			} else if (Constants.KEY_DEADTHRESHOLDS.equals(key)) {
 				deadThresholds = value;
 				parseDeadThresholds();
+			} else if (Constants.KEY_INVALIDADDRESS.equals(key)) {
+				invalidAddress = value;
+				parseInvalidAddress();
 			}
 		}
 
