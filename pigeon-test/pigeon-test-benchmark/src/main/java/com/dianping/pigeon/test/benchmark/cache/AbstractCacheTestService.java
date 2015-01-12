@@ -6,6 +6,10 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.dianping.cat.Cat;
+import com.dianping.cat.message.Message;
+import com.dianping.cat.message.Transaction;
+
 public abstract class AbstractCacheTestService implements CacheTestService {
 
 	protected static Random random = new Random();
@@ -22,7 +26,12 @@ public abstract class AbstractCacheTestService implements CacheTestService {
 				@Override
 				public void run() {
 					while (!isCancel) {
-						getKeyValue("k-" + Math.abs((int) (random.nextDouble() * rows)));
+						Transaction t = Cat.newTransaction("cache", "cache");
+						for (int i = 0; i < 500; i++) {
+							getKeyValue("k-" + Math.abs((int) (random.nextDouble() * rows)));
+						}
+						t.setStatus(Message.SUCCESS);
+						t.complete();
 					}
 				}
 			});

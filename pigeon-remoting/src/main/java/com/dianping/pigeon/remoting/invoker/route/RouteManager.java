@@ -14,4 +14,6 @@ public interface RouteManager {
 
 	public Client route(List<Client> clientList, InvokerConfig<?> invokerConfig, InvocationRequest request);
 
+	public List<Client> getAvailableClients(List<Client> clientList, InvokerConfig<?> invokerConfig,
+			InvocationRequest request);
 }

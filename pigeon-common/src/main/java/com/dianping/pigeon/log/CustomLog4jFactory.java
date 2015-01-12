@@ -73,10 +73,7 @@ public class CustomLog4jFactory {
 		if (StringUtils.isNotBlank(strlogConsole)) {
 			logConsole = Boolean.valueOf(strlogConsole);
 		}
-		String logSuffix = (String) properties.get("app.name");
-		if (StringUtils.isBlank(logSuffix)) {
-			logLevel = "";
-		}
+		String logSuffix = LocalConfigLoader.getAppName();
 		Level level = parseLevel(logLevel);
 		LoggerRepository lr = new Hierarchy(rootLogger);
 		new DOMConfigurator()

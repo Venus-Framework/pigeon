@@ -36,6 +36,8 @@ public class CheckTask implements Runnable {
 			.getBooleanValue("pigeon.governor.healthcheck.logalive", false);
 	private static boolean checkAliveByResponse = configManager.getBooleanValue(
 			"pigeon.governor.healthcheck.checkalivebyresponse", false);
+	private static String invalidAddress = configManager.getStringValue("pigeon.governor.healthcheck.invalidaddress",
+			"192.168,10.128");
 
 	public CheckTask(HealthCheckManager manager, Host host) {
 		this.manager = manager;
@@ -100,9 +102,28 @@ public class CheckTask implements Runnable {
 		}
 	}
 
+	private boolean isValidAddress() {
+		if (!StringUtils.isBlank(invalidAddress)) {
+			String[] addressArray = invalidAddress.split(",");
+			for (String addr : addressArray) {
+				String prefix = addr;
+				if (!prefix.endsWith(".")) {
+					prefix = addr + ".";
+				}
+				if (host.getAddress().startsWith(prefix)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	public boolean isServerAlive() {
 		boolean alive = false;
 		if (!isPortAvailable()) {
+			return false;
+		}
+		if (!isValidAddress()) {
 			return false;
 		}
 		if (host.getService().getUrl().startsWith("@HTTP@")) {

@@ -26,7 +26,7 @@ public class FailoverCluster implements Cluster {
 	private static final Logger logger = LoggerLoader.getLogger(FailoverCluster.class);
 
 	@Override
-	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
+	public InvocationResponse invoke(final ServiceInvocationHandler handler, final InvokerContext invocationContext)
 			throws Throwable {
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		List<Client> selectedClients = new ArrayList<Client>();

@@ -16,15 +16,16 @@ public class ClusterFactory {
 		clusters.put(Constants.CLUSTER_FAILFAST, new FailfastCluster());
 		clusters.put(Constants.CLUSTER_FAILOVER, new FailoverCluster());
 		clusters.put(Constants.CLUSTER_FAILSAFE, new FailsafeCluster());
+		clusters.put(Constants.CLUSTER_FORKING, new ForkingCluster());
 	}
-	
+
 	public static void registerCluster(String clusterType, Cluster cluster) {
 		clusters.put(clusterType, cluster);
 	}
 
 	public static Cluster selectCluster(String clusterType) {
 		Cluster cluster = clusters.get(clusterType);
-		if(cluster == null) {
+		if (cluster == null) {
 			return clusters.get(Constants.CLUSTER_FAILFAST);
 		}
 		return cluster;

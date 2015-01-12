@@ -39,6 +39,7 @@ public final class Constants {
 	public static final String CLUSTER_FAILFAST = "failfast";
 	public static final String CLUSTER_FAILOVER = "failover";
 	public static final String CLUSTER_FAILSAFE = "failsafe";
+	public static final String CLUSTER_FORKING = "forking";
 
 	public static final String SERIALIZE_JAVA = "java";
 	public static final String SERIALIZE_HESSIAN = "hessian";

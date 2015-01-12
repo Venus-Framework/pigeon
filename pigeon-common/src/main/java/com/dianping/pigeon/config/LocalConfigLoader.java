@@ -1,6 +1,8 @@
 package com.dianping.pigeon.config;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,6 +17,33 @@ public class LocalConfigLoader {
 	private static final String PROPERTIES_PATH = "config/pigeon.properties";
 
 	private static final String GLOBAL_PROPERTIES_PATH = "/data/webapps/config/pigeon/pigeon.properties";
+
+	private static String appName = null;
+
+	public static String getAppName() {
+		if (appName == null) {
+			try {
+				URL appProperties = LocalConfigLoader.class.getResource("/META-INF/app.properties");
+				if (appProperties == null) {
+					appProperties = new URL("file:" + LocalConfigLoader.class.getResource("/").getPath()
+							+ "/META-INF/app.properties");
+					if (!new File(appProperties.getFile()).exists()) {
+						appProperties = new URL("file:/data/webapps/config/app.properties");
+					}
+				}
+				Properties properties = null;
+				if (appProperties != null) {
+					properties = FileUtils.readFile(appProperties.openStream());
+					appName = properties.getProperty("app.name");
+				}
+			} catch (Throwable e) {
+			}
+			if (appName == null) {
+				return "";
+			}
+		}
+		return appName;
+	}
 
 	private static void loadProperties(Map<String, Object> results, Properties properties) {
 		for (Iterator ir = properties.keySet().iterator(); ir.hasNext();) {

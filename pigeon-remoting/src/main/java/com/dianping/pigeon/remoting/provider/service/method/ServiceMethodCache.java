@@ -102,13 +102,22 @@ public class ServiceMethodCache {
 		}
 		int matchingValue = -1;
 		ServiceMethod bestMethod = null;
-
 		for (ServiceMethod m : methodList) {
-
-			int mv = matching(m, paramNames.getParamNames());
+			int mv = matching(m, paramNames.getParamNames(), false);
 			if (mv > matchingValue) {
 				matchingValue = mv;
 				bestMethod = m;
+				break;
+			}
+		}
+		if (matchingValue < 0) {
+			for (ServiceMethod m : methodList) {
+				int mv = matching(m, paramNames.getParamNames(), true);
+				if (mv > matchingValue) {
+					matchingValue = mv;
+					bestMethod = m;
+					break;
+				}
 			}
 		}
 		if (matchingValue < 0) {
@@ -126,11 +135,19 @@ public class ServiceMethodCache {
 	 * @return
 	 * @throws InvocationFailureException
 	 */
-	private int matching(ServiceMethod method, String[] paramClassNames) throws InvocationFailureException {
+	private int matching(ServiceMethod method, String[] paramClassNames, boolean cast)
+			throws InvocationFailureException {
 		int k = 0;
 		for (int i = 0; i < paramClassNames.length; i++) {
 			if (paramClassNames[i].equals(Constants.TRANSFER_NULL)) {
 				continue;
+			}
+			if (paramClassNames[i].equals(Double.class.getName())) {
+				paramClassNames[i] = Float.class.getName();
+			} else if (paramClassNames[i].equals(Integer.class.getName())) {
+				paramClassNames[i] = Short.class.getName();
+			} else if (paramClassNames[i].equals(Long.class.getName())) {
+				paramClassNames[i] = Integer.class.getName();
 			}
 			Class<?> paramClass = null;
 			try {

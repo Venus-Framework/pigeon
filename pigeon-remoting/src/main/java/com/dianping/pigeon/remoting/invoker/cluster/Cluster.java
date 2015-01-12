@@ -8,7 +8,7 @@ public interface Cluster {
 
 	public String getName();
 
-	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
+	public InvocationResponse invoke(final ServiceInvocationHandler handler, final InvokerContext invocationContext)
 			throws Throwable;
 
 }

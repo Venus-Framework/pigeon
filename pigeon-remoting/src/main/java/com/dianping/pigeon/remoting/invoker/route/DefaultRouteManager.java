@@ -67,19 +67,11 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 				logger.debug("available service provider：\t" + client.getAddress());
 			}
 		}
-		Boolean isWriteBufferLimit = (Boolean) request.getAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT);
-
-		isWriteBufferLimit = (isWriteBufferLimit != null ? isWriteBufferLimit : false)
-				&& request.getCallType() == Constants.CALLTYPE_NOREPLY;
-
-		List<Client> availableClients = filterWithGroupAndWeight(clientList, invokerConfig, isWriteBufferLimit);
-
+		List<Client> availableClients = getAvailableClients(clientList, invokerConfig, request);
 		Client selectedClient = select(availableClients, invokerConfig, request);
-
 		if (!selectedClient.isConnected()) {
 			selectedClient.connect();
 		}
-
 		while (!selectedClient.isConnected()) {
 			clusterListenerManager.removeConnect(selectedClient);
 			availableClients.remove(selectedClient);
@@ -105,8 +97,11 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	 * @param isWriteBufferLimit
 	 * @return
 	 */
-	public List<Client> filterWithGroupAndWeight(List<Client> clientList, InvokerConfig<?> invokerConfig,
-			Boolean isWriteBufferLimit) {
+	public List<Client> getAvailableClients(List<Client> clientList, InvokerConfig<?> invokerConfig,
+			InvocationRequest request) {
+		Boolean isWriteBufferLimit = (Boolean) request.getAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT);
+		isWriteBufferLimit = (isWriteBufferLimit != null ? isWriteBufferLimit : false)
+				&& request.getCallType() == Constants.CALLTYPE_NOREPLY;
 		List<Client> filteredClients = new ArrayList<Client>(clientList.size());
 		boolean existClientBuffToLimit = false;
 		for (Client client : clientList) {

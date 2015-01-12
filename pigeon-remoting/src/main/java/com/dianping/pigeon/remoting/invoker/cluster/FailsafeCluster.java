@@ -22,7 +22,7 @@ public class FailsafeCluster implements Cluster {
 	private static final InvocationResponse NO_RETURN_RESPONSE = InvokerUtils.createNoReturnResponse();
 
 	@Override
-	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
+	public InvocationResponse invoke(final ServiceInvocationHandler handler, final InvokerContext invocationContext)
 			throws Throwable {
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		InvocationRequest request = InvokerUtils.createRemoteCallRequest(invocationContext, invokerConfig);

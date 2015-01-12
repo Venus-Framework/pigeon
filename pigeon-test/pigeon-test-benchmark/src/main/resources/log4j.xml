@@ -20,6 +20,10 @@
 		</layout>
 	</appender>
 
+	<logger name="com.dianping.pigeon.test" additivity="true">
+		<level value="WARN" />
+	</logger>
+
 	<logger name="com.dianping.pigeon.governor" additivity="true">
 		<level value="INFO" />
 	</logger>

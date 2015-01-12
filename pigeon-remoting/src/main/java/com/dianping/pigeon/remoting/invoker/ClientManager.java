@@ -113,6 +113,11 @@ public class ClientManager {
 		return routerManager.route(clientsToRoute, invokerConfig, request);
 	}
 
+	public List<Client> getAvailableClients(InvokerConfig<?> invokerConfig, InvocationRequest request) {
+		List<Client> clientList = clusterListener.getClientList(invokerConfig);
+		return routerManager.getAvailableClients(clientList, invokerConfig, request);
+	}
+
 	public void destroy() throws Exception {
 		if (clusterListenerManager instanceof Disposable) {
 			((Disposable) clusterListenerManager).destroy();

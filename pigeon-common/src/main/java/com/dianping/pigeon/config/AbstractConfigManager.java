@@ -50,8 +50,6 @@ public abstract class AbstractConfigManager implements ConfigManager {
 
 	public abstract String doGetLocalIp() throws Exception;
 
-	public abstract String doGetAppName() throws Exception;
-
 	public abstract String doGetGroup() throws Exception;
 
 	public abstract void doSetStringValue(String key, String value) throws Exception;
@@ -308,7 +306,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		String value = getLocalProperty(KEY_APP_NAME);
 		if (value == null) {
 			try {
-				value = doGetAppName();
+				value = LocalConfigLoader.getAppName();
 			} catch (Throwable e) {
 				logger.error("error while reading app name:" + e.getMessage());
 			}
