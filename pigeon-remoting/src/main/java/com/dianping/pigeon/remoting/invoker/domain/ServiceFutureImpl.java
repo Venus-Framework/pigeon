@@ -73,7 +73,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 			throw cause;
 		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 			RuntimeException cause = InvokerUtils.toApplicationRuntimeException(response);
-			if (Constants.LOG_APP_EXCEPTION) {
+			if (Constants.LOG_INVOKER_APP_EXCEPTION) {
 				logger.error("error with remote business future call", cause);
 				monitorLogger.logError("error with remote business future call", cause);
 			}

@@ -79,7 +79,7 @@ public class InvokerConfig<T> {
 	public void setClassLoader(ClassLoader classLoader) {
 		this.classLoader = classLoader;
 	}
-	
+
 	public Map<String, InvokerMethodConfig> getMethods() {
 		return methods;
 	}

@@ -38,7 +38,7 @@ public class FailsafeCluster implements Cluster {
 
 	@Override
 	public String getName() {
-		return Constants.CLUSTER_FAILFAST;
+		return Constants.CLUSTER_FAILSAFE;
 	}
 
 }

@@ -29,6 +29,10 @@ public class RandomLoadBalance extends AbstractLoadBalance {
 	@Override
 	public Client doSelect(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest request,
 			int[] weights) {
+		assert (clients != null && clients.size() >= 1);
+		if (clients.size() == 1) {
+			return clients.get(0);
+		}
 		int clientSize = clients.size();
 		int totalWeight = 0;
 		boolean weightAllSame = true;

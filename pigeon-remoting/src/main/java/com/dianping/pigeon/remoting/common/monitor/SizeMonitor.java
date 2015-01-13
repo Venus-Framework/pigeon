@@ -105,7 +105,6 @@ public class SizeMonitor {
 			if (rangeArray.length > sizeK) {
 				value = "<" + rangeArray[sizeK] + "k";
 			}
-			// System.out.println(eventName + ":" + size);
 			monitor.logEvent(eventName, value, size + "");
 		}
 	}

@@ -172,8 +172,8 @@ public final class Constants {
 	public static final int WEIGHT_DEFAULT = ConfigManagerLoader.getConfigManager().getIntValue(
 			Constants.KEY_WEIGHT_DEFAULT, Constants.DEFAULT_WEIGHT_DEFAULT);
 
-	public static final boolean LOG_APP_EXCEPTION = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.log.appexception", false);
+	public static final boolean LOG_INVOKER_APP_EXCEPTION = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.invoker.logserviceexception", false);
 
 	public static final String KEY_SERVICE_COREPOOLSIZE = "pigeon.provider.service.corePoolSize";
 	public static final String KEY_SERVICE_MAXPOOLSIZE = "pigeon.provider.service.maxPoolSize";

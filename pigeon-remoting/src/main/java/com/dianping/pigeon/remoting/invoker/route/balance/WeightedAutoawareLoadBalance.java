@@ -29,6 +29,10 @@ public class WeightedAutoawareLoadBalance extends AbstractLoadBalance {
 	@Override
 	public Client doSelect(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest request,
 			int[] weights) {
+		assert (clients != null && clients.size() >= 1);
+		if (clients.size() == 1) {
+			return clients.get(0);
+		}
 		float minCapacity = Float.MAX_VALUE;
 		int clientSize = clients.size();
 		Client[] candidates = new Client[clientSize];

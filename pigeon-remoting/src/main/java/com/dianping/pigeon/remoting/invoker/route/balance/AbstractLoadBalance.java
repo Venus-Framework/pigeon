@@ -54,17 +54,13 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 						+ ", available providers:" + clients);
 			}
 		} else {
-			if (clients.size() == 1) {
-				selectedClient = clients.get(0);
-			} else {
-				try {
-					selectedClient = doSelect(clients, invokerConfig, request,
-							getWeights(clients, request.getServiceName()));
-				} catch (Throwable e) {
-					logger.error("Failed to do load balance[" + getClass().getName() + "], detail: " + e.getMessage()
-							+ ", use random instead.", e);
-					selectedClient = clients.get(random.nextInt(clients.size()));
-				}
+			try {
+				selectedClient = doSelect(clients, invokerConfig, request,
+						getWeights(clients, request.getServiceName()));
+			} catch (Throwable e) {
+				logger.error("failed to do load balance[" + getClass().getName() + "], detail: " + e.getMessage()
+						+ ", use random instead.", e);
+				selectedClient = clients.get(random.nextInt(clients.size()));
 			}
 		}
 		if (selectedClient != null) {

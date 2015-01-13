@@ -9,10 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
@@ -29,11 +27,12 @@ import com.dianping.pigeon.util.ThreadPoolUtils;
 public class ServiceInvocationRepository {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceInvocationRepository.class);
-	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
 	private static Map<Long, RemoteInvocationBean> invocations = new ConcurrentHashMap<Long, RemoteInvocationBean>();
 	private static ServiceInvocationRepository instance = new ServiceInvocationRepository();
 	private static ThreadPool invocatinTimeCheckThreadPool = new DefaultThreadPool(
 			"Pigeon-Client-Invoke-Timeout-Check-ThreadPool");
+	private static boolean logExpiredResponse = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.logexpiredresponse.enable", true);
 
 	public static ServiceInvocationRepository getInstance() {
 		return instance;
@@ -68,13 +67,10 @@ public class ServiceInvocationRepository {
 				invocations.remove(response.getSequence());
 				TimelineManager.removeTimeline(response, TimelineManager.getLocalIp());
 			}
-		} else {
+		} else if (logExpiredResponse) {
 			String msg = "the response has expired:" + InvocationUtils.toJsonString(response) + ",timeline:"
 					+ TimelineManager.removeTimeline(response, TimelineManager.getLocalIp());
-			logger.error(msg);
-			// ResponseExpiredException e = new ResponseExpiredException(msg);
-			// monitorLogger.logError(e);
-			// TIMELINE_remove
+			logger.warn(msg);
 		}
 	}
 

@@ -60,7 +60,7 @@ public class ServiceCallbackWrapper implements Callback {
 			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 				Throwable cause = InvokerUtils.toApplicationException(response);
 				Exception businessException = (Exception) cause;
-				if (Constants.LOG_APP_EXCEPTION) {
+				if (Constants.LOG_INVOKER_APP_EXCEPTION) {
 					logger.error("error with remote business callback", businessException);
 					monitorLogger.logError("error with remote business callback", businessException);
 				}

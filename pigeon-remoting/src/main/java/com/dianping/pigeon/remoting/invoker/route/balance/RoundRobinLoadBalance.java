@@ -20,8 +20,10 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
 	@Override
 	protected Client doSelect(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest request,
 			int[] weights) {
-		assert (clients != null && clients.size() > 1);
-
+		assert (clients != null && clients.size() >= 1);
+		if (clients.size() == 1) {
+			return clients.get(0);
+		}
 		String serviceId = LoadBalanceManager.getServiceId(invokerConfig.getUrl(), invokerConfig.getGroup());
 		RoundRobinBalancer balancer = balancers.get(serviceId);
 		if (balancer == null) {

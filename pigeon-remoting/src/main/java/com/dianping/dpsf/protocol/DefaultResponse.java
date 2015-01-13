@@ -161,10 +161,10 @@ public class DefaultResponse implements InvocationResponse {
 	public String toString() {
 		if (this.messageType == Constants.MESSAGE_TYPE_SERVICE) {
 			return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("serialize", serialize)
-					.append("seq", seq).append("messageType", messageType).append("cause", cause).toString();
+					.append("seq", seq).append("messageType", messageType).toString();
 		} else {
 			return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("serialize", serialize)
-					.append("seq", seq).append("messageType", messageType).append("cause", cause)
+					.append("seq", seq).append("messageType", messageType)
 					.append("return", returnVal).toString();
 		}
 	}

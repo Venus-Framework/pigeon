@@ -3,6 +3,7 @@ package com.dianping.pigeon.remoting.invoker.util;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.dianping.dpsf.async.ServiceFuture;
 import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -69,6 +70,12 @@ public class InvokerUtils {
 
 	public static InvocationResponse createNoReturnResponse() {
 		return new NoReturnResponse();
+	}
+
+	public static InvocationResponse createFutureResponse(ServiceFuture serviceFuture) {
+		FutureResponse resp = new FutureResponse();
+		resp.setServiceFuture(serviceFuture);
+		return resp;
 	}
 
 	public static boolean isHeartErrorResponse(InvocationResponse response) {
@@ -234,4 +241,116 @@ public class InvokerUtils {
 		}
 	}
 
+	public static class FutureResponse implements InvocationResponse {
+
+		/**
+		 * serialVersionUID
+		 */
+		private static final long serialVersionUID = 4348389641787057819L;
+
+		private long invokerRequestTime;
+
+		private long invokerResponseTime;
+
+		private long providerRequestTime;
+
+		private long providerResponseTime;
+
+		private ServiceFuture serviceFuture;
+
+		public ServiceFuture getServiceFuture() {
+			return serviceFuture;
+		}
+
+		public void setServiceFuture(ServiceFuture serviceFuture) {
+			this.serviceFuture = serviceFuture;
+		}
+
+		public long getInvokerRequestTime() {
+			return invokerRequestTime;
+		}
+
+		public void setInvokerRequestTime(long invokerRequestTime) {
+			this.invokerRequestTime = invokerRequestTime;
+		}
+
+		public long getInvokerResponseTime() {
+			return invokerResponseTime;
+		}
+
+		public void setInvokerResponseTime(long invokerResponseTime) {
+			this.invokerResponseTime = invokerResponseTime;
+		}
+
+		public long getProviderRequestTime() {
+			return providerRequestTime;
+		}
+
+		public void setProviderRequestTime(long providerRequestTime) {
+			this.providerRequestTime = providerRequestTime;
+		}
+
+		public long getProviderResponseTime() {
+			return providerResponseTime;
+		}
+
+		public void setProviderResponseTime(long providerResponseTime) {
+			this.providerResponseTime = providerResponseTime;
+		}
+
+		@Override
+		public void setMessageType(int messageType) {
+		}
+
+		@Override
+		public int getMessageType() {
+			return 0;
+		}
+
+		@Override
+		public String getCause() {
+			return null;
+		}
+
+		@Override
+		public Object getReturn() {
+			return null;
+		}
+
+		@Override
+		public void setReturn(Object obj) {
+		}
+
+		@Override
+		public byte getSerialize() {
+			return 0;
+		}
+
+		@Override
+		public void setSequence(long seq) {
+		}
+
+		@Override
+		public long getSequence() {
+			return 0;
+		}
+
+		@Override
+		public Object getObject() {
+			return null;
+		}
+
+		@Override
+		public Object getContext() {
+			return null;
+		}
+
+		@Override
+		public void setContext(Object context) {
+		}
+
+		@Override
+		public void setSerialize(byte serialize) {
+		}
+	}
 }

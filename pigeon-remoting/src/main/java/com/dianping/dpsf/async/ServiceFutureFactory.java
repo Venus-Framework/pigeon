@@ -32,12 +32,12 @@ public class ServiceFutureFactory {
 	}
 
 	public static void setFuture(ServiceFuture future) {
-		if (threadFuture.get() != null) {
-			threadFuture.remove();
-			String msg = "you must call \"ServiceFutureFactory.getFuture()\" before second call service if you use future call";
-			log.error(msg);
-			throw new InvalidParameterException(msg);
-		}
+//		if (threadFuture.get() != null) {
+//			threadFuture.remove();
+//			String msg = "you must call \"ServiceFutureFactory.getFuture()\" before second call service if you use future call";
+//			log.error(msg);
+//			throw new InvalidParameterException(msg);
+//		}
 		threadFuture.set(future);
 	}
 

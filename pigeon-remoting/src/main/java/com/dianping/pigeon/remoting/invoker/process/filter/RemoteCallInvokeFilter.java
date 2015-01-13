@@ -59,7 +59,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 			}
 		}
 		Integer timeoutThreadLocal = InvokerHelper.getTimeout();
-		if(timeoutThreadLocal != null) {
+		if (timeoutThreadLocal != null) {
 			timeout = timeoutThreadLocal;
 		}
 		if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
@@ -73,10 +73,10 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 					new ServiceCallbackWrapper(invokerConfig.getCallback()));
 			response = NO_RETURN_RESPONSE;
 		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
-			CallbackFuture future = new ServiceFutureImpl(timeout);
+			ServiceFutureImpl future = new ServiceFutureImpl(timeout);
 			InvokerUtils.sendRequest(client, invocationContext.getRequest(), future);
-			ServiceFutureFactory.setFuture((ServiceFuture) future);
-			response = NO_RETURN_RESPONSE;
+			ServiceFutureFactory.setFuture(future);
+			response = InvokerUtils.createFutureResponse(future);
 		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callType)) {
 			InvokerUtils.sendRequest(client, invocationContext.getRequest(), null);
 			response = NO_RETURN_RESPONSE;
