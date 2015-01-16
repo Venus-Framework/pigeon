@@ -138,11 +138,13 @@ public class HealthCheckManager extends Thread {
 
 		String[] invalidAddressList = invalidAddress.split(",");
 		for (String envInvalidAddr : invalidAddressList) {
-			String[] envInvalidAddrPair = envInvalidAddr.split(":");
-			String strEnv = envInvalidAddrPair[0].trim();
-			Environment env = Environment.valueOf(strEnv);
-			String addr = envInvalidAddrPair[1].trim();
-			invalidAddressMap.put(env, addr);
+			if(envInvalidAddr.length() > 0) {
+				String[] envInvalidAddrPair = envInvalidAddr.split(":");
+				String strEnv = envInvalidAddrPair[0].trim();
+				Environment env = Environment.valueOf(strEnv);
+				String addr = envInvalidAddrPair[1].trim();
+				invalidAddressMap.put(env, addr);
+			}
 		}
 	}
 
