@@ -132,8 +132,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			if (transaction != null) {
 				try {
 					Timeline timeline = TimelineManager.tryRemoveTimeline(request, TimelineManager.getRemoteIp());
-					if (TimelineManager.isEnabled()
-							&& (timeout || TimelineManager.isAbnormalTimeline(request, TimelineManager.getRemoteIp()))) {
+					if (TimelineManager.isEnabled()) {
 						transaction.addData("Timeline", timeline);
 					}
 					if (!"default".equals(channel.getProtocol())) {

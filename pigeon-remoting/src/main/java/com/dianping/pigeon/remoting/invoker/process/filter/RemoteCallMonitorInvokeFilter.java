@@ -148,8 +148,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		} finally {
 			if (transaction != null) {
 				try {
-					if (TimelineManager.isEnabled()
-							&& (timeout || TimelineManager.isAbnormalTimeline(request, TimelineManager.getLocalIp()))) {
+					if (TimelineManager.isEnabled()) {
 						Timeline timeline = TimelineManager.getTimeline(request, TimelineManager.getLocalIp());
 						transaction.addData("Timeline", timeline);
 					}
