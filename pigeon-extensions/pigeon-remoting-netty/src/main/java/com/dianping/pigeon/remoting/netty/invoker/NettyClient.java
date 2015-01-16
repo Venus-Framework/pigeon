@@ -177,7 +177,7 @@ public class NettyClient extends AbstractClient {
 
 	private void connectionException(Client client, Object attachment, Throwable e) {
 		if (isLog()) {
-			logger.error("exception while connecting to :" + client + ", exception:" + e.getMessage());
+			logger.error("exception while connecting to " + client + ", exception:" + e.getMessage());
 		}
 		if (attachment == null) {
 			return;

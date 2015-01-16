@@ -4,9 +4,13 @@
  */
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.util.CollectionUtils;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.config.ConfigChangeListener;
@@ -36,17 +40,24 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 
 	private Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 
-	private static int logTimeoutPeriod = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.invoker.log.timeout.period", 0);
+	private static Map<String, Integer> appLogTimeoutPeriodMap = new HashMap<String, Integer>();
 
-	private static AtomicInteger timeouts = new AtomicInteger(0);
+	private static final int logTimeoutPeriodLimit = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.invoker.log.timeout.period.limit", 9999);
+
+	private static Map<String, AtomicInteger> appTimeouts = new HashMap<String, AtomicInteger>();
+
+	private static final String KEY_LOG_TIMEOUT_PERIOD = "pigeon.invoker.log.timeout.period.apps";
 
 	private static class InnerConfigChangeListener implements ConfigChangeListener {
 
 		@Override
 		public void onKeyUpdated(String key, String value) {
-			if (key.endsWith("pigeon.invoker.log.timeout.period")) {
-				logTimeoutPeriod = Integer.valueOf(value);
+			if (key.endsWith(KEY_LOG_TIMEOUT_PERIOD)) {
+				try {
+					parseAppLogTimeoutPeriod(value);
+				} catch (RuntimeException e) {
+				}
 			}
 		}
 
@@ -59,7 +70,32 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		}
 	}
 
+	private static void parseAppLogTimeoutPeriod(String appLogTimeoutPeriod) {
+		Map<String, Integer> configMap = new HashMap<String, Integer>();
+		Map<String, AtomicInteger> timeoutsMap = new HashMap<String, AtomicInteger>();
+		if (StringUtils.isNotBlank(appLogTimeoutPeriod)) {
+			String[] appArray = appLogTimeoutPeriod.split(",");
+			for (String appConfig : appArray) {
+				if (StringUtils.isNotBlank(appConfig) && appConfig.indexOf(":") != -1) {
+					String[] appPeriodArray = appConfig.split(":");
+					String app = appPeriodArray[0];
+					int period = Integer.parseInt(appPeriodArray[1]);
+					configMap.put(app, period);
+					timeoutsMap.put(app, new AtomicInteger(0));
+				}
+			}
+		}
+		if (!CollectionUtils.isEmpty(configMap)) {
+			appLogTimeoutPeriodMap.clear();
+			appLogTimeoutPeriodMap = configMap;
+			appTimeouts.clear();
+			appTimeouts = timeoutsMap;
+		}
+	}
+
 	public RemoteCallMonitorInvokeFilter() {
+		String appLogTimeoutPeriod = ConfigManagerLoader.getConfigManager().getStringValue(KEY_LOG_TIMEOUT_PERIOD, "");
+		parseAppLogTimeoutPeriod(appLogTimeoutPeriod);
 		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
 	}
 
@@ -72,7 +108,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		MonitorLogger logger = null;
 		MonitorTransaction transaction = null;
 		InvocationRequest request = invocationContext.getRequest();
-		boolean timeout = false;
+		String targetApp = null;
 		if (monitor != null) {
 			InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 			logger = monitor.getLogger();
@@ -91,8 +127,8 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						Client client = invocationContext.getClient();
 						logger.logEvent("PigeonCall.server", client.getAddress(),
 								InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
-						logger.logEvent("PigeonCall.app",
-								RegistryManager.getInstance().getServerApp(client.getAddress()), "");
+						targetApp = RegistryManager.getInstance().getServerApp(client.getAddress());
+						logger.logEvent("PigeonCall.app", targetApp, "");
 						if (SizeMonitor.isEnable()) {
 							SizeMonitorInfo sizeInfo = MonitorHelper.getSize();
 							if (sizeInfo != null) {
@@ -110,12 +146,18 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		try {
 			return handler.handle(invocationContext);
 		} catch (NetTimeoutException e) {
-			timeout = true;
 			boolean isLog = false;
+			int logTimeoutPeriod = 0;
+			if (appLogTimeoutPeriodMap.containsKey(targetApp)) {
+				logTimeoutPeriod = appLogTimeoutPeriodMap.get(targetApp);
+			}
 			if (logTimeoutPeriod > 0) {
-				if (logTimeoutPeriod <= 9999 && timeouts.incrementAndGet() > logTimeoutPeriod) {
-					isLog = true;
-					timeouts.set(0);
+				if (logTimeoutPeriod <= logTimeoutPeriodLimit) {
+					AtomicInteger timeouts = appTimeouts.get(targetApp);
+					if (timeouts != null && timeouts.incrementAndGet() > logTimeoutPeriod) {
+						isLog = true;
+						timeouts.set(0);
+					}
 				}
 			} else {
 				isLog = true;
