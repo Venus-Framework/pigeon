@@ -21,6 +21,10 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public String echo(String input) {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
 		return "echo:" + input;
 	}
 
@@ -31,7 +35,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public List<User> findUsers(int count) {
-		//return Lists.newArrayList(users.subList(0, count));
+		// return Lists.newArrayList(users.subList(0, count));
 		return users.subList(0, count);
 	}
 

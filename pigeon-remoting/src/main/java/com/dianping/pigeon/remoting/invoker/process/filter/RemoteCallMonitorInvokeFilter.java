@@ -4,9 +4,13 @@
  */
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.config.ConfigChangeListener;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
@@ -31,6 +35,33 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 	private static final Logger logger = LoggerLoader.getLogger(RemoteCallMonitorInvokeFilter.class);
 
 	private Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
+
+	private static int logTimeoutPeriod = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.invoker.log.timeout.period", 0);
+
+	private static AtomicInteger timeouts = new AtomicInteger(0);
+
+	private static class InnerConfigChangeListener implements ConfigChangeListener {
+
+		@Override
+		public void onKeyUpdated(String key, String value) {
+			if (key.endsWith("pigeon.invoker.log.timeout.period")) {
+				logTimeoutPeriod = Integer.valueOf(value);
+			}
+		}
+
+		@Override
+		public void onKeyAdded(String key, String value) {
+		}
+
+		@Override
+		public void onKeyRemoved(String key) {
+		}
+	}
+
+	public RemoteCallMonitorInvokeFilter() {
+		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
+	}
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
@@ -80,15 +111,26 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 			return handler.handle(invocationContext);
 		} catch (NetTimeoutException e) {
 			timeout = true;
-			if (transaction != null) {
-				try {
-					transaction.setStatusError(e);
-				} catch (Throwable e2) {
-					logger.logMonitorError(e2);
+			boolean isLog = false;
+			if (logTimeoutPeriod > 0) {
+				if (logTimeoutPeriod <= 9999 && timeouts.incrementAndGet() > logTimeoutPeriod) {
+					isLog = true;
+					timeouts.set(0);
 				}
+			} else {
+				isLog = true;
 			}
-			if (logger != null) {
-				logger.logError(e);
+			if (isLog) {
+				if (transaction != null) {
+					try {
+						transaction.setStatusError(e);
+					} catch (Throwable e2) {
+						logger.logMonitorError(e2);
+					}
+				}
+				if (logger != null) {
+					logger.logError(e);
+				}
 			}
 			throw e;
 		} catch (Throwable e) {
