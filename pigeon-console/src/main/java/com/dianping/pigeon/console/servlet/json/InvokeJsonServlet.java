@@ -267,44 +267,50 @@ public class InvokeJsonServlet extends ServiceServlet {
 						valueObj = finalMap;
 						String keyClass = null;
 						String valueClass = null;
-						for (Iterator ir = valueObjList.keySet().iterator(); ir.hasNext();) {
-							Object k = ir.next();
-							Object v = valueObjList.get(k);
-							Object finalKey = k;
-							Object finalValue = v;
-							if (k instanceof String) {
-								try {
-									finalKey = jacksonSerializer.deserializeObject(Map.class, (String) k);
-								} catch (Throwable t) {
-									if (keyClass == null) {
-										Map firstValueMap = jacksonSerializer.deserializeObject(Map.class, (String) k);
-										if (firstValueMap != null) {
-											keyClass = (String) firstValueMap.get("@class");
+						try {
+							for (Iterator ir = valueObjList.keySet().iterator(); ir.hasNext();) {
+								Object k = ir.next();
+								Object v = valueObjList.get(k);
+								Object finalKey = k;
+								Object finalValue = v;
+								if (k instanceof String) {
+									try {
+										finalKey = jacksonSerializer.deserializeObject(Map.class, (String) k);
+									} catch (Throwable t) {
+										if (keyClass == null) {
+											Map firstValueMap = jacksonSerializer.deserializeObject(Map.class,
+													(String) k);
+											if (firstValueMap != null) {
+												keyClass = (String) firstValueMap.get("@class");
+											}
+										}
+										if (keyClass != null) {
+											finalKey = jacksonSerializer.deserializeObject(Class.forName(keyClass),
+													(String) k);
 										}
 									}
-									if (keyClass != null) {
-										finalKey = jacksonSerializer.deserializeObject(Class.forName(keyClass),
-												(String) k);
-									}
 								}
-							}
-							if (v instanceof String) {
-								try {
-									finalValue = jacksonSerializer.deserializeObject(Map.class, (String) v);
-								} catch (Throwable t) {
-									if (valueClass == null) {
-										Map firstValueMap = jacksonSerializer.deserializeObject(Map.class, (String) v);
-										if (firstValueMap != null) {
-											valueClass = (String) firstValueMap.get("@class");
+								if (v instanceof String) {
+									try {
+										finalValue = jacksonSerializer.deserializeObject(Map.class, (String) v);
+									} catch (Throwable t) {
+										if (valueClass == null) {
+											Map firstValueMap = jacksonSerializer.deserializeObject(Map.class,
+													(String) v);
+											if (firstValueMap != null) {
+												valueClass = (String) firstValueMap.get("@class");
+											}
+										}
+										if (valueClass != null) {
+											finalValue = jacksonSerializer.deserializeObject(Class.forName(valueClass),
+													(String) v);
 										}
 									}
-									if (valueClass != null) {
-										finalValue = jacksonSerializer.deserializeObject(Class.forName(valueClass),
-												(String) v);
-									}
 								}
+								finalMap.put(finalKey, finalValue);
 							}
-							finalMap.put(finalKey, finalValue);
+						} catch (Throwable t) {
+							valueObj = valueObjList;
 						}
 					}
 				}

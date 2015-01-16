@@ -131,14 +131,14 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 
 	private Client select(List<Client> availableClients, InvokerConfig<?> invokerConfig, InvocationRequest request) {
 		LoadBalance loadBalance = null;
-		if (request.getCallType() == Constants.CALLTYPE_NOREPLY) {
-			loadBalance = RandomLoadBalance.instance;
-		}
 		if (loadBalance == null) {
 			loadBalance = LoadBalanceManager.getLoadBalance(invokerConfig, request.getCallType());
 		}
 		if (loadBalance == null) {
 			loadBalance = WeightedAutoawareLoadBalance.instance;
+			if (request.getCallType() == Constants.CALLTYPE_NOREPLY) {
+				loadBalance = RandomLoadBalance.instance;
+			}
 		}
 		List<Client> preferClients = null;
 		if (enablePreferAddresses) {
