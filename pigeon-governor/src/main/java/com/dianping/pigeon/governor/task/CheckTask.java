@@ -120,10 +120,10 @@ public class CheckTask implements Runnable {
 
 	public boolean isServerAlive() {
 		boolean alive = false;
-		if (!isPortAvailable()) {
+		if (!isValidAddress()) {
 			return false;
 		}
-		if (!isValidAddress()) {
+		if (!isPortAvailable()) {
 			return false;
 		}
 		if (host.getService().getUrl().startsWith("@HTTP@")) {

@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 import org.codehaus.plexus.util.StringUtils;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.governor.util.AddressUtils;
 import com.dianping.pigeon.governor.util.AddressUtils.Address;
 import com.dianping.pigeon.governor.util.Constants.Environment;
@@ -24,7 +25,8 @@ public class GenerateTask implements Runnable {
 
 	private static final Logger logger = Logger.getLogger(GenerateTask.class);
 
-	private static final String ROOT = "/DP/SERVER";
+	private static final String ROOT = ConfigManagerLoader.getConfigManager().getStringValue(
+			"pigeon.governor.root", "/DP/SERVER");
 
 	private static ConcurrentHashMap<String, Service> services = new ConcurrentHashMap<String, Service>();
 
