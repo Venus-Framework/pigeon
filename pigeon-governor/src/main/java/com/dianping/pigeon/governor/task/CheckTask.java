@@ -100,7 +100,7 @@ public class CheckTask implements Runnable {
 		}
 	}
 
-	private boolean isValidAddress() {
+	public boolean isValidAddress() {
 		String invalidAddress = manager.getInvalidAddress(host.getService().getEnv());
 		if (!StringUtils.isBlank(invalidAddress)) {
 			String[] addressArray = invalidAddress.split("[|]");

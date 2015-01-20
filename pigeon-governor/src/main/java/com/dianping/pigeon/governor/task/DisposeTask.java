@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.governor.util.Constants.Action;
+import com.dianping.pigeon.governor.util.Constants.Environment;
 import com.dianping.pigeon.governor.util.Constants.Host;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
@@ -103,7 +104,8 @@ public class DisposeTask implements Runnable {
 		return app;
 	}
 
-	public int checkAppValidWithCmdb(String app, String ip) {
+	public int checkAppValidWithCmdb(String app, Host host) {
+		String ip = host.getIp();
 		try {
 			String result = doHttpGet("http://api.cmdb.dp/api/v0.1/ci/s?q=_type:(vserver;server;docker),private_ip:"
 					+ ip);
@@ -118,6 +120,10 @@ public class DisposeTask implements Runnable {
 								String hostname = result.substring(result.indexOf("hostname") + 12);
 								hostname = hostname.substring(0, hostname.indexOf("\""));
 								if (hostname.startsWith(app)) {
+									if (hostname.endsWith(".beta")
+											&& !host.getService().getEnv().equals(Environment.qa)) {
+										return -1;
+									}
 									return 1;
 								}
 							}
@@ -138,7 +144,7 @@ public class DisposeTask implements Runnable {
 		if (StringUtils.isBlank(app)) {
 			return -1;
 		} else {
-			return checkAppValidWithCmdb(app, host.getIp());
+			return checkAppValidWithCmdb(app, host);
 		}
 	}
 
@@ -191,7 +197,10 @@ public class DisposeTask implements Runnable {
 				logger.info("will not be deleted, alive count:" + aliveCount + ", dead server " + host);
 				return -1;
 			}
-
+			CheckTask t = new CheckTask(manager, host);
+			if (!t.isValidAddress()) {
+				return 1;
+			}
 			try {
 				int valid = checkServiceValid(host);
 				if (valid < 0) {
