@@ -110,7 +110,6 @@ public class CheckTask implements Runnable {
 					prefix = addr + ".";
 				}
 				if (host.getAddress().startsWith(prefix)) {
-					logger.info("invalid address:" + host);
 					return false;
 				}
 			}

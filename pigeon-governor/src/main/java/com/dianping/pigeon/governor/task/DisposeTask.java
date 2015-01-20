@@ -147,7 +147,8 @@ public class DisposeTask implements Runnable {
 		for (int port = 4080; port < 4085; port++) {
 			try {
 				String result = doHttpGet("http://" + host.getIp() + ":" + port + "/services.json");
-				if (result.indexOf(host.getPort() + "/") != -1 && result.indexOf(host.getService().getUrl()) != -1) {
+				if (result.indexOf(host.getPort() + "/") != -1 && result.indexOf(host.getService().getUrl()) != -1
+						&& result.indexOf("env: " + host.getService().getEnv().name()) != -1) {
 					return 1;
 				} else if (result.indexOf(host.getPort() + "/") != -1
 						&& result.indexOf(host.getService().getUrl()) == -1) {
@@ -168,7 +169,6 @@ public class DisposeTask implements Runnable {
 	 * are dead 3. will remove if at least one host is alive
 	 */
 	private int canRemoveHost(List<Host> hostList, Host host) {
-		logger.info("checking dead server " + host);
 		int minHosts = manager.getMinhosts(host.getService().getEnv());
 		if (minHosts > 0 && hostList.size() <= minHosts) {
 			logger.info("will not be deleted, dead server " + host + ", in " + hostList);
