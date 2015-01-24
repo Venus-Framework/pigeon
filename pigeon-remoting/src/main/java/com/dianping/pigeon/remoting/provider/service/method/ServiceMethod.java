@@ -109,8 +109,6 @@ public class ServiceMethod {
 								arg = ((Double) arg).floatValue();
 							} else if (argClass.equals(Integer.class) && parameterClasses[i].equals(Short.class)) {
 								arg = ((Integer) arg).shortValue();
-							} else if (argClass.equals(Long.class) && parameterClasses[i].equals(Integer.class)) {
-								arg = ((Long) arg).intValue();
 							}
 						}
 					}

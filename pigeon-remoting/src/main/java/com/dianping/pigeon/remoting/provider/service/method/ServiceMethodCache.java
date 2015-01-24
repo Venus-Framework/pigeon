@@ -156,9 +156,7 @@ public class ServiceMethodCache {
 					paramClass = Float.class;
 				} else if (paramClassNames[i].equals(Integer.class.getName())) {
 					paramClass = Short.class;
-				} else if (paramClassNames[i].equals(Long.class.getName())) {
-					paramClass = Integer.class;
-				}
+				} 
 				if (paramClass == method.getParameterClasses()[i]) {
 					k++;
 				}
