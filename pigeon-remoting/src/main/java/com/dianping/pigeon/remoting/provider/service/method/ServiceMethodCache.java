@@ -107,7 +107,6 @@ public class ServiceMethodCache {
 			if (mv > matchingValue) {
 				matchingValue = mv;
 				bestMethod = m;
-				break;
 			}
 		}
 		if (matchingValue < 0) {
@@ -116,8 +115,10 @@ public class ServiceMethodCache {
 				if (mv > matchingValue) {
 					matchingValue = mv;
 					bestMethod = m;
-					break;
 				}
+			}
+			if (matchingValue >= 0) {
+				bestMethod.setNeedCastParameterClasses(true);
 			}
 		}
 		if (matchingValue < 0) {
@@ -142,13 +143,6 @@ public class ServiceMethodCache {
 			if (paramClassNames[i].equals(Constants.TRANSFER_NULL)) {
 				continue;
 			}
-			if (paramClassNames[i].equals(Double.class.getName())) {
-				paramClassNames[i] = Float.class.getName();
-			} else if (paramClassNames[i].equals(Integer.class.getName())) {
-				paramClassNames[i] = Short.class.getName();
-			} else if (paramClassNames[i].equals(Long.class.getName())) {
-				paramClassNames[i] = Integer.class.getName();
-			}
 			Class<?> paramClass = null;
 			try {
 				paramClass = ClassUtils.loadClass(paramClassNames[i]);
@@ -157,6 +151,17 @@ public class ServiceMethodCache {
 			}
 			if (paramClass == method.getParameterClasses()[i]) {
 				k++;
+			} else if (cast) {
+				if (paramClassNames[i].equals(Double.class.getName())) {
+					paramClass = Float.class;
+				} else if (paramClassNames[i].equals(Integer.class.getName())) {
+					paramClass = Short.class;
+				} else if (paramClassNames[i].equals(Long.class.getName())) {
+					paramClass = Integer.class;
+				}
+				if (paramClass == method.getParameterClasses()[i]) {
+					k++;
+				}
 			}
 			if (!method.getParameterClasses()[i].isAssignableFrom(paramClass)) {
 				return -1;

@@ -20,6 +20,16 @@ public class ServiceMethod {
 
 	private Class<?>[] parameterClasses;
 
+	private boolean needCastParameterClasses = false;
+
+	public boolean isNeedCastParameterClasses() {
+		return needCastParameterClasses;
+	}
+
+	public void setNeedCastParameterClasses(boolean needCastParameterClasses) {
+		this.needCastParameterClasses = needCastParameterClasses;
+	}
+
 	public Class<?>[] getParameterClasses() {
 		return parameterClasses;
 	}
@@ -87,6 +97,28 @@ public class ServiceMethod {
 
 	public Object invoke(Object[] arguments) throws IllegalArgumentException, IllegalAccessException,
 			InvocationTargetException {
+		if (needCastParameterClasses && arguments != null && parameterClasses != null) {
+			if (parameterClasses.length == arguments.length) {
+				Object[] argumentsCast = new Object[arguments.length];
+				for (int i = 0; i < arguments.length; i++) {
+					Object arg = arguments[i];
+					if (arg != null) {
+						Class<?> argClass = arg.getClass();
+						if (argClass != parameterClasses[i]) {
+							if (argClass.equals(Double.class) && parameterClasses[i].equals(Float.class)) {
+								arg = ((Double) arg).floatValue();
+							} else if (argClass.equals(Integer.class) && parameterClasses[i].equals(Short.class)) {
+								arg = ((Integer) arg).shortValue();
+							} else if (argClass.equals(Long.class) && parameterClasses[i].equals(Integer.class)) {
+								arg = ((Long) arg).intValue();
+							}
+						}
+					}
+					argumentsCast[i] = arg;
+				}
+				return this.getMethod().invoke(this.getService(), argumentsCast);
+			}
+		}
 		return this.getMethod().invoke(this.getService(), arguments);
 	}
 }
