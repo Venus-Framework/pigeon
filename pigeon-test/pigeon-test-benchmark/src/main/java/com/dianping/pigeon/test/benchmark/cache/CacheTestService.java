@@ -23,5 +23,7 @@ interface CacheTestService {
 
 	void concurrentGet(final int threads, final int rows);
 
+	void concurrentSet(int threads, final int rows, final int size);
+	
 	void cancel();
 }

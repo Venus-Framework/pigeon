@@ -255,7 +255,7 @@ public class ServiceServlet extends HttpServlet {
 		if (ConfigConstants.ENV_PRODUCT.equalsIgnoreCase(configManager.getEnv())) {
 			String token = RandomUtils.newRandomString(6);
 			setToken(token);
-			logger.info("current verification code:" + token + ", from " + Utils.getIpAddr(request));
+			logger.warn("current verification code:" + token + ", from " + Utils.getIpAddr(request));
 		}
 	}
 

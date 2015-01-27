@@ -11,6 +11,8 @@ import org.springframework.util.CollectionUtils;
 
 import com.dianping.avatar.cache.CacheKey;
 import com.dianping.avatar.cache.CacheService;
+import com.dianping.avatar.tracker.ExecutionContextHolder;
+import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.cache.exception.CacheException;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 
@@ -30,6 +32,10 @@ public class MemcacheTestService extends AbstractCacheTestService {
 	}
 
 	public String getKeyValue(String key) {
+		TrackerContext ctxt = new TrackerContext();
+		ctxt.setTrackRequired(true);
+		ExecutionContextHolder.setTrackerContext(ctxt);
+		
 		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.get(cacheKey);
 	}

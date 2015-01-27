@@ -21,10 +21,6 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public String echo(String input) {
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-		}
 		return "echo:" + input;
 	}
 

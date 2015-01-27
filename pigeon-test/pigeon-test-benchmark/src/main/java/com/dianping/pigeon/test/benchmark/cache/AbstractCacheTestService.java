@@ -38,6 +38,28 @@ public abstract class AbstractCacheTestService implements CacheTestService {
 		}
 	}
 
+	public void concurrentSet(int threads, final int rows, final int size) {
+		executor = Executors.newFixedThreadPool(threads);
+		isCancel = false;
+		for (int i = 0; i < threads; i++) {
+			executor.submit(new Runnable() {
+
+				@Override
+				public void run() {
+					while (!isCancel) {
+						Transaction t = Cat.newTransaction("cache", "cache");
+						for (int i = 0; i < 500; i++) {
+							setKeyValue("k-" + Math.abs((int) (random.nextDouble() * rows)),
+									StringUtils.leftPad("" + i, size));
+						}
+						t.setStatus(Message.SUCCESS);
+						t.complete();
+					}
+				}
+			});
+		}
+	}
+
 	@Override
 	public void init(int rows, int size) {
 		clear();

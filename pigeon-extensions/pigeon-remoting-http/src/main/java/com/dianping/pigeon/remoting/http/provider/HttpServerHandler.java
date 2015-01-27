@@ -82,8 +82,8 @@ public class HttpServerHandler implements HttpHandler {
 				if (invocationRequest.getCallType() == Constants.CALLTYPE_REPLY
 						&& invocationRequest.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
 					invocationContext.getChannel().write(ProviderUtils.createFailResponse(invocationRequest, e));
+					logger.error(msg, e);
 				}
-				logger.error(msg, e);
 			}
 		}
 	}
