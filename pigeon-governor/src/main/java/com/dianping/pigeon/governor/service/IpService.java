@@ -7,7 +7,7 @@ public interface IpService {
 
 	public void cancel();
 
-	public void concurrentGet(int threads);
+	public void concurrentGet(final int threads, final int sleepTime);
 
 	IpInfo getIpInfo(String ip) throws IpHubException;
 }

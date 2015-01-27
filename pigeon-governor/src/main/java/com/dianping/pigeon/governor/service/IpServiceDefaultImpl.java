@@ -30,7 +30,7 @@ public class IpServiceDefaultImpl implements IpService {
 		}
 	}
 
-	public void concurrentGet(int threads) {
+	public void concurrentGet(final int threads, final int sleepTime) {
 		executor = Executors.newFixedThreadPool(threads);
 		isCancel = false;
 		for (int i = 0; i < threads; i++) {
@@ -46,7 +46,10 @@ public class IpServiceDefaultImpl implements IpService {
 							try {
 								StatusHolder.flowIn("ip");
 								getIpInfo(ip);
+								Thread.sleep(sleepTime);
 							} catch (IpHubException e) {
+								e.printStackTrace();
+							} catch (InterruptedException e) {
 								e.printStackTrace();
 							} finally {
 								StatusHolder.flowOut("ip");
