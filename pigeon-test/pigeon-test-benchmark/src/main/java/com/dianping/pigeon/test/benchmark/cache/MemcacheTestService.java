@@ -28,7 +28,14 @@ public class MemcacheTestService extends AbstractCacheTestService {
 
 	public boolean setKeyValue(String key, String value) {
 		CacheKey cacheKey = new CacheKey("mymemcache", key);
-		return cacheService.add(cacheKey, value);
+		try {
+			return cacheService.set(cacheKey, value);
+		} catch (CacheException e) {
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	public String getKeyValue(String key) {
