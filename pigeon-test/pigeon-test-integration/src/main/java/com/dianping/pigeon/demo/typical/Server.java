@@ -5,11 +5,6 @@
 package com.dianping.pigeon.demo.typical;
 
 import com.dianping.pigeon.container.SpringContainer;
-import com.dianping.pigeon.demo.EchoService;
-import com.dianping.pigeon.demo.UserService;
-import com.dianping.pigeon.demo.UserService.Role;
-import com.dianping.pigeon.demo.UserService.User;
-import com.dianping.pigeon.remoting.common.codec.kryo.KryoSerializer;
 
 public class Server {
 
@@ -25,10 +20,10 @@ public class Server {
 //		KryoSerializer.registerClass(Date.class, 20);
 //		KryoSerializer.registerClass(List.class, 21);
 //		KryoSerializer.registerClass(Serializable.class, 22);
-		KryoSerializer.registerClass(EchoService.class, 10001);
-		KryoSerializer.registerClass(UserService.class, 10002);
-		KryoSerializer.registerClass(User.class, 10003);
-		KryoSerializer.registerClass(Role.class, 10004);
+//		KryoSerializer.registerClass(EchoService.class, 10001);
+//		KryoSerializer.registerClass(UserService.class, 10002);
+//		KryoSerializer.registerClass(User.class, 10003);
+//		KryoSerializer.registerClass(Role.class, 10004);
 		System.in.read();
 	}
 

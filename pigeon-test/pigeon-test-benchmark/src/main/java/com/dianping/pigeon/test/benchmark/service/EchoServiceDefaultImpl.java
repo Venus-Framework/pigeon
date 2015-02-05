@@ -7,7 +7,6 @@ package com.dianping.pigeon.test.benchmark.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dianping.pigeon.remoting.common.codec.kryo.KryoSerializer;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 import com.google.common.collect.Lists;
 

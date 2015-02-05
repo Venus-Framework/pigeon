@@ -36,11 +36,7 @@
 		<dependency>
 			<groupId>com.dianping.dpsf</groupId>
 			<artifactId>dpsf-net</artifactId>
-<<<<<<< HEAD
 			<version>2.4.0</version>
-=======
-			<version>2.3.14</version>
->>>>>>> 4de0050798bf12a9cfaa890f7b750df05b901013
 		</dependency>
 		<dependency>
 			<groupId>cglib</groupId>
