@@ -14,7 +14,6 @@ import com.dianping.pigeon.remoting.common.codec.hessian.Hessian1Serializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
 import com.dianping.pigeon.remoting.common.codec.java.JavaSerializer;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
-import com.dianping.pigeon.remoting.common.codec.kryo.KryoSerializer;
 import com.dianping.pigeon.remoting.common.codec.protobuf.ProtobufSerializer;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 
@@ -55,7 +54,7 @@ public final class SerializerFactory {
 			registerSerializer(SERIALIZE_JAVA, new JavaSerializer());
 			registerSerializer(SERIALIZE_HESSIAN, new HessianSerializer());
 			registerSerializer(SERIALIZE_HESSIAN1, new Hessian1Serializer());
-			registerSerializer(SERIALIZE_KRYO, new KryoSerializer());
+			// registerSerializer(SERIALIZE_KRYO, new KryoSerializer());
 			boolean supportProtobuf = false;
 			try {
 				ClassUtils.getClass("com.google.protobuf.MessageOrBuilder");
