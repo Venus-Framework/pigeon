@@ -25,6 +25,21 @@ public class LionConfigManager extends AbstractConfigManager {
 
 	private ConfigCache configCache = null;
 
+	public LionConfigManager() {
+	    try {
+	        getConfigCache().addChange(new ConfigChange() {
+
+                @Override
+                public void onChange(String key, String value) {
+                    onConfigUpdated(key, value);
+                }
+                
+            });
+	    } catch(Exception e) {
+	        logger.error("", e);
+	    }
+	}
+	
 	private ConfigCache getConfigCache() throws LionException {
 		if (configCache == null) {
 			synchronized (this) {
@@ -108,13 +123,6 @@ public class LionConfigManager extends AbstractConfigManager {
 
 	@Override
 	public void doRegisterConfigChangeListener(ConfigChangeListener configChangeListener) throws Exception {
-		getConfigCache().addChange(new ConfigChange() {
-
-			@Override
-			public void onChange(String key, String value) {
-				onConfigUpdated(key, value);
-			}
-		});
 	}
 
 }
