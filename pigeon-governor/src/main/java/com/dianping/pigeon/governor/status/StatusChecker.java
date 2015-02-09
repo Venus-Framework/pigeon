@@ -21,7 +21,7 @@ public class StatusChecker implements Runnable {
 				try {
 					for (String key : StatusHolder.getCapacityBuckets().keySet()) {
 						CapacityBucket bucket = StatusHolder.getCapacityBuckets().get(key);
-						if (logEnable) {
+						if (logEnable && bucket.getRequestsInLastSecond() > 0) {
 							System.out.println(key + "-" + bucket);
 						}
 						bucket.resetRequestsInSecondCounter();
