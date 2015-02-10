@@ -13,6 +13,8 @@
 	http://code.dianping.com/schema/pigeon http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd
 	http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd">
 
+	<avatar:cache />
+
 	<pigeon:annotation />
 
 	<task:annotation-driven />
