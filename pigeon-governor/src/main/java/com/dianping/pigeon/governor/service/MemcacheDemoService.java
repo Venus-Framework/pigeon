@@ -24,8 +24,8 @@ import com.dianping.cat.message.Message;
 import com.dianping.cat.message.Transaction;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 
-@Service(url = "com.dianping.cache.test.DCacheDemoService")
-public class DCacheDemoService implements CacheDemoService {
+@Service(url = "com.dianping.cache.test.MemcacheDemoService")
+public class MemcacheDemoService implements CacheDemoService {
 
 	protected static Random random = new Random();
 	protected static int rows = 0;
@@ -101,7 +101,7 @@ public class DCacheDemoService implements CacheDemoService {
 				e.printStackTrace();
 			}
 		}
-		DCacheDemoService.rows = rows;
+		MemcacheDemoService.rows = rows;
 	}
 
 	@Override
@@ -120,12 +120,12 @@ public class DCacheDemoService implements CacheDemoService {
 	}
 
 	public boolean ayncSetKeyValue(String key, String value) {
-		CacheKey cacheKey = new CacheKey("mydcache", key);
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.add(cacheKey, value);
 	}
 
 	public boolean setKeyValue(String key, String value) throws CacheException, TimeoutException {
-		CacheKey cacheKey = new CacheKey("mydcache", key);
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.set(cacheKey, value);
 	}
 
@@ -134,7 +134,7 @@ public class DCacheDemoService implements CacheDemoService {
 		ctxt.setTrackRequired(true);
 		ExecutionContextHolder.setTrackerContext(ctxt);
 
-		CacheKey cacheKey = new CacheKey("mydcache", key);
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.get(cacheKey);
 	}
 
@@ -145,7 +145,7 @@ public class DCacheDemoService implements CacheDemoService {
 			String[] keyArray = keys.split(",");
 			for (String key : keyArray) {
 				if (StringUtils.isNotBlank(key)) {
-					CacheKey cacheKey = new CacheKey("mydcache", key);
+					CacheKey cacheKey = new CacheKey("mymemcache", key);
 					cacheKeys.add(cacheKey);
 				}
 			}
@@ -158,60 +158,60 @@ public class DCacheDemoService implements CacheDemoService {
 
 	@Override
 	public boolean removeKey(String key) {
-		CacheKey cacheKey = new CacheKey("mydcache", key);
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.remove(cacheKey);
 	}
 
 	@Override
 	public long inc(String key, int amount) throws CacheException, TimeoutException {
-		CacheKey cacheKey = new CacheKey("mydcache", key);
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.increment(cacheKey, amount);
 	}
 
 	@Override
 	public long dec(String key, int amount) throws CacheException, TimeoutException {
-		CacheKey cacheKey = new CacheKey("mydcache", key);
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.decrement(cacheKey, amount);
 	}
 
 	public boolean addKeyValue(String key, String value) throws CacheException, TimeoutException {
-		CacheKey cacheKey = new CacheKey("mydcache", key);
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.addIfAbsent(cacheKey, value);
 	}
 
 	@Override
 	public long inc(String key, int amount, long def) throws CacheException, TimeoutException {
-		CacheKey cacheKey = new CacheKey("mydcache", key);
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.increment(cacheKey, amount, def);
 	}
 
 	@Override
 	public long dec(String key, int amount, long def) throws CacheException, TimeoutException {
-		CacheKey cacheKey = new CacheKey("mydcache", key);
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.decrement(cacheKey, amount, def);
 	}
 
 	@Override
 	public CASResponse cas(String key, long casId, Object value) throws CacheException, TimeoutException {
-		CacheKey cacheKey = new CacheKey("mydcache", key);
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.cas(cacheKey, casId, value);
 	}
 
 	@Override
 	public CASValue gets(String key) throws CacheException, TimeoutException {
-		CacheKey cacheKey = new CacheKey("mydcache", key);
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.gets(cacheKey);
 	}
 
 	@Override
 	public boolean setKeyDoubleValue(String key, Double value) throws CacheException, TimeoutException {
-		CacheKey cacheKey = new CacheKey("mydcache", key);
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.set(cacheKey, value);
 	}
 
 	@Override
 	public Double getKeyDoubleValue(String key) {
-		CacheKey cacheKey = new CacheKey("mydcache", key);
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.get(cacheKey);
 	}
 }
