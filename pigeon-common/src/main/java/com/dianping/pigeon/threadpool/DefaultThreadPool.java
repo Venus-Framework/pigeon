@@ -39,7 +39,7 @@ public class DefaultThreadPool implements ThreadPool {
 			RejectedExecutionHandler handler) {
 		this.name = poolName;
 		this.factory = new DefaultThreadFactory(this.name);
-		this.executor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, 60, TimeUnit.SECONDS, workQueue,
+		this.executor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, 30, TimeUnit.SECONDS, workQueue,
 				this.factory, handler);
 	}
 
