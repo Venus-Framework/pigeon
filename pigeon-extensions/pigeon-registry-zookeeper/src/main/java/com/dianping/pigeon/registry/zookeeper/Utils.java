@@ -55,13 +55,13 @@ public class Utils {
 						ip = host.substring(0, idx);
 						port = Integer.parseInt(host.substring(idx + 1));
 					} catch (RuntimeException e) {
-						logger.error("****** invalid host: " + host + ", ignored!");
+						logger.warn("invalid host: " + host + ", ignored!");
 					}
 					if (ip != null && port > 0) {
 						result.add(new String[] { ip, port + "" });
 					}
 				} else {
-					logger.error("****** invalid host: " + host + ", ignored!");
+					logger.warn("invalid host: " + host + ", ignored!");
 				}
 			}
 		}

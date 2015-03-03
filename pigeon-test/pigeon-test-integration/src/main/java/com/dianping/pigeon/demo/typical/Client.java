@@ -10,7 +10,6 @@ import com.dianping.phoenix.environment.PhoenixContext;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.UserService;
-import com.dianping.pigeon.demo.UserService.Role;
 import com.dianping.pigeon.demo.UserService.User;
 
 public class Client {

@@ -38,6 +38,8 @@ public class RequestTimeoutListener implements Runnable {
 	private boolean defaultCancelTimeout = configManager.getBooleanValue(Constants.KEY_TIMEOUT_CANCEL,
 			Constants.DEFAULT_TIMEOUT_CANCEL);
 	private boolean interruptBusy = configManager.getBooleanValue("pigeon.timeout.interruptbusy", true);
+	private int interruptThreadPriorityThreshold = configManager.getIntValue(
+			"pigeon.timeout.interrupt.threadpriority.threshold", 5);
 
 	private class InnerConfigChangeListener implements ConfigChangeListener {
 
@@ -126,6 +128,9 @@ public class RequestTimeoutListener implements Runnable {
 										monitorLogger.logError(te);
 									}
 									Future<?> future = rc.getFuture();
+									if (t.getPriority() > interruptThreadPriorityThreshold) {
+										cancelTimeout = false;
+									}
 									if (future != null && !future.isCancelled()) {
 										if (future.cancel(cancelTimeout)) {
 										}

@@ -9,7 +9,13 @@
 <#list heartbeats?keys as key>
 	{
 		"service": "${key}",
-		"address": "${heartbeats[key]}"
+		"address":  [
+		<#list heartbeats[key] as client>
+			{
+				"server": "${client}"
+			}<#if client_has_next>,</#if>
+		</#list>
+		]
 	}<#if key_has_next>,</#if>
 </#list>
 ],

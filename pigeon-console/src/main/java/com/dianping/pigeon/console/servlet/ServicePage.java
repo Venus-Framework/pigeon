@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.dianping.pigeon.console.domain.Service;
+import com.dianping.pigeon.remoting.invoker.Client;
 
 public class ServicePage {
 	private String startTime = "";
@@ -29,9 +30,9 @@ public class ServicePage {
 
 	private List<String> invokers;
 
-	private Map<String, String> heartbeats;
+	private Map<String, List<ClientInfo>> heartbeats;
 
-	private Map<String, String> reconnects;
+	private Map<String, ClientInfo> reconnects;
 
 	private String group;
 
@@ -42,6 +43,36 @@ public class ServicePage {
 	private String error = "";
 
 	private String registry = "";
+
+	public static class ClientInfo {
+		private Client client;
+		private int weight;
+
+		public ClientInfo(Client client, int weight) {
+			this.client = client;
+			this.weight = weight;
+		}
+
+		public Client getClient() {
+			return client;
+		}
+
+		public void setClient(Client client) {
+			this.client = client;
+		}
+
+		public int getWeight() {
+			return weight;
+		}
+
+		public void setWeight(int weight) {
+			this.weight = weight;
+		}
+
+		public String toString() {
+			return client + ", weight:" + weight;
+		}
+	}
 
 	public String getStartTime() {
 		return startTime;
@@ -115,19 +146,19 @@ public class ServicePage {
 		this.group = group;
 	}
 
-	public Map<String, String> getHeartbeats() {
+	public Map<String, List<ClientInfo>> getHeartbeats() {
 		return heartbeats;
 	}
 
-	public void setHeartbeats(Map<String, String> heartbeats) {
+	public void setHeartbeats(Map<String, List<ClientInfo>> heartbeats) {
 		this.heartbeats = heartbeats;
 	}
 
-	public Map<String, String> getReconnects() {
+	public Map<String, ClientInfo> getReconnects() {
 		return reconnects;
 	}
 
-	public void setReconnects(Map<String, String> reconnects) {
+	public void setReconnects(Map<String, ClientInfo> reconnects) {
 		this.reconnects = reconnects;
 	}
 

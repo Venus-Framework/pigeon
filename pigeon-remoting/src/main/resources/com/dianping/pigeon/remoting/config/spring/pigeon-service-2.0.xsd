@@ -60,7 +60,7 @@
 						default="sync" />
 					<xsd:attribute name="timeout" type="xsd:string" default="5000" />
 					<xsd:attribute name="loadBalance" type="xsd:string"
-						default="roundRobin" />
+						default="weightedAutoaware" />
 					<xsd:attribute name="loadBalanceClass" type="xsd:string"
 						default="" />
 					<xsd:attribute name="cluster" type="xsd:string"

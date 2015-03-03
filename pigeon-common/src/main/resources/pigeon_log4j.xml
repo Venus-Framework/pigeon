@@ -17,6 +17,7 @@
 	</appender>
 
 	<logger name="com.dianping.pigeon" additivity="true">
+		<level value="INFO"/>
 		<appender-ref ref="FileAppender" />
 		<appender-ref ref="ConsoleAppender" />
 	</logger>

@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import com.dianping.pigeon.console.servlet.ServicePage;
+import com.dianping.pigeon.console.servlet.ServicePage.ClientInfo;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -51,30 +52,28 @@ public class DependencyJsonServlet extends ServiceServlet {
 		ServicePage page = new ServicePage();
 		page.setInvokers(invokers);
 		page.setEnvironment(configManager.getEnv());
-		Map<String, String> heartbeatsResults = new HashMap<String, String>();
+		Map<String, List<ClientInfo>> heartbeatsResults = new HashMap<String, List<ClientInfo>>();
 		Map<String, List<Client>> heartbeats = clientManager.getHeartTask().getWorkingClients();
 		if (heartbeats != null) {
 			for (String key : heartbeats.keySet()) {
 				List<Client> clients = heartbeats.get(key);
-				StringBuilder sb = new StringBuilder();
+				List<ClientInfo> clientInfoList = new ArrayList<ClientInfo>();
 				for (Client client : clients) {
-					sb.append("[").append(client.toString()).append("-weight:")
-							.append(RegistryManager.getInstance().getServiceWeight(client.getAddress())).append("]");
+					clientInfoList.add(new ClientInfo(client, RegistryManager.getInstance().getServiceWeight(
+							client.getAddress())));
 				}
-				heartbeatsResults.put(key, sb.toString());
+				heartbeatsResults.put(key, clientInfoList);
 			}
 		}
 		page.setHeartbeats(heartbeatsResults);
 
-		Map<String, String> reconnectsResults = new HashMap<String, String>();
+		Map<String, ClientInfo> reconnectsResults = new HashMap<String, ClientInfo>();
 		Map<String, Client> reconnects = clientManager.getReconnectTask().getClosedClients();
 		if (reconnects != null) {
 			for (String key : reconnects.keySet()) {
 				Client client = reconnects.get(key);
-				StringBuilder sb = new StringBuilder();
-				sb.append(client.toString()).append("-weight:")
-						.append(RegistryManager.getInstance().getServiceWeight(client.getAddress()));
-				reconnectsResults.put(key, sb.toString());
+				reconnectsResults.put(key,
+						new ClientInfo(client, RegistryManager.getInstance().getServiceWeight(client.getAddress())));
 			}
 		}
 		page.setReconnects(reconnectsResults);
