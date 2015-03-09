@@ -11,14 +11,14 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 
-public class AppCapacityBucket implements Serializable {
-	private static final Logger logger = LoggerLoader.getLogger(AppCapacityBucket.class);
+public class ProviderCapacityBucket implements Serializable {
+	private static final Logger logger = LoggerLoader.getLogger(ProviderCapacityBucket.class);
 
 	private AtomicInteger requests = new AtomicInteger();
 
 	private Map<Integer, AtomicInteger> totalRequestsInSecond = new HashMap<Integer, AtomicInteger>();
 
-	public AppCapacityBucket(String address) {
+	public ProviderCapacityBucket(String address) {
 		preFillData();
 	}
 
@@ -36,7 +36,7 @@ public class AppCapacityBucket implements Serializable {
 		return requests.get();
 	}
 
-	public Map<Integer, AtomicInteger> getRotalRequestsInSecond() {
+	public Map<Integer, AtomicInteger> getTotalRequestsInSecond() {
 		return totalRequestsInSecond;
 	}
 
@@ -52,7 +52,7 @@ public class AppCapacityBucket implements Serializable {
 		if (counter != null) {
 			counter.incrementAndGet();
 		} else {
-			logger.error("Impossible case happended, second[" + second + "]'s request counter is null.");
+			logger.warn("Impossible case happended, second[" + second + "]'s request counter is null.");
 		}
 	}
 
@@ -79,6 +79,7 @@ public class AppCapacityBucket implements Serializable {
 	}
 
 	public String toString() {
-		return "current requests:" + requests + ", requests in last second:" + getRequestsInLastSecond();
+		return new StringBuilder().append("requests-current:").append(requests).append(",requests-lastsecond:")
+				.append(getRequestsInLastSecond()).toString();
 	}
 }

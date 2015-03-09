@@ -30,13 +30,13 @@ public class CallbackFuture implements Callback, CallFuture {
 
 	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
 
-	private InvocationResponse response;
+	protected InvocationResponse response;
 	private CallFuture future;
 	private boolean done = false;
 	private boolean concelled = false;
 	private boolean success = false;
-	private InvocationRequest request;
-	private Client client;
+	protected InvocationRequest request;
+	protected Client client;
 
 	public void run() {
 		synchronized (this) {

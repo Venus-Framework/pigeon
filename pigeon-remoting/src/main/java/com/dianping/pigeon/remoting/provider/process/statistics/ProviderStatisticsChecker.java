@@ -4,9 +4,9 @@ import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 
-public class AppStatisticsChecker implements Runnable {
+public class ProviderStatisticsChecker implements Runnable {
 
-	private static final Logger logger = LoggerLoader.getLogger(AppStatisticsChecker.class);
+	private static final Logger logger = LoggerLoader.getLogger(ProviderStatisticsChecker.class);
 
 	@Override
 	public void run() {
@@ -15,9 +15,9 @@ public class AppStatisticsChecker implements Runnable {
 				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 			}
-			if (AppStatisticsHolder.getCapacityBuckets() != null) {
+			if (ProviderStatisticsHolder.getCapacityBuckets() != null) {
 				try {
-					for (AppCapacityBucket bucket : AppStatisticsHolder.getCapacityBuckets().values()) {
+					for (ProviderCapacityBucket bucket : ProviderStatisticsHolder.getCapacityBuckets().values()) {
 						bucket.resetRequestsInSecondCounter();
 					}
 				} catch (Throwable e) {

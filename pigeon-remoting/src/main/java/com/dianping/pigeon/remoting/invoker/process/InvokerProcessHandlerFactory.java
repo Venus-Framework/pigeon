@@ -37,8 +37,8 @@ public final class InvokerProcessHandlerFactory {
 
 	public static void init() {
 		if (!isInitialized) {
-			registerBizProcessFilter(new GatewayInvokeFilter());
 			registerBizProcessFilter(new ClusterInvokeFilter());
+			registerBizProcessFilter(new GatewayInvokeFilter());
 			if (isMonitorEnabled) {
 				registerBizProcessFilter(new RemoteCallMonitorInvokeFilter());
 			}

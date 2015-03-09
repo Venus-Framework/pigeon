@@ -19,6 +19,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
 public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
@@ -45,10 +46,12 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 	@Override
 	public Object _get(long timeoutMillis) throws InterruptedException {
 		InvocationResponse response = null;
-		MonitorTransaction transaction = monitorLogger.getCurrentTransaction();
-		if (transaction != null) {
-			transaction.addData("PigeonCall.future", "timeout=" + timeoutMillis);
-		}
+		MonitorTransaction transaction = monitorLogger.createTransaction(
+				"PigeonFuture",
+				InvocationUtils.getRemoteCallFullName(request.getServiceName(), request.getMethodName(),
+						request.getParamClassName()), null);
+		transaction.setStatusOk();
+		transaction.addData("Timeout", timeoutMillis);
 		try {
 			response = super.get(timeoutMillis);
 		} catch (Throwable e) {
@@ -62,8 +65,20 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 			}
 			logger.error(rpcEx);
 			monitorLogger.logError(rpcEx);
+			try {
+				transaction.setStatusError(e);
+			} catch (Throwable e2) {
+				monitorLogger.logMonitorError(e2);
+			}
 			throw rpcEx;
+		} finally {
+			try {
+				transaction.complete();
+			} catch (Throwable e) {
+				monitorLogger.logMonitorError(e);
+			}
 		}
+
 		if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 			return response.getReturn();
 		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {

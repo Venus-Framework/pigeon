@@ -1,15 +1,22 @@
-{"requestsSendInLastSecond": [
-<#list requestsInLastSecond?keys as key>
+{"serverRequestsSent": [
+<#list requestsInLastSecondOfInvoker?keys as key>
 	{
 		"address": "${key}",
-		"requestsInLastSecond": "${requestsInLastSecond[key]}"
+		"requestsInLastSecond": "${requestsInLastSecondOfInvoker[key]}"
 	}<#if key_has_next>,</#if>
 </#list>
-],"requestsReceived": [
-<#list appRequests?keys as key>
+],"appRequestsSent": [
+<#list appRequestsOfInvoker?keys as key>
 	{
 		"app": "${key}",
-		"requests": "${appRequests[key]}"
+		"requests": "${appRequestsOfInvoker[key]}"
+	}<#if key_has_next>,</#if>
+</#list>
+],"appRequestsReceived": [
+<#list appRequestsOfProvider?keys as key>
+	{
+		"app": "${key}",
+		"requests": "${appRequestsOfProvider[key]}"
 	}<#if key_has_next>,</#if>
 </#list>
 ],"serverProcessorStatistics": [

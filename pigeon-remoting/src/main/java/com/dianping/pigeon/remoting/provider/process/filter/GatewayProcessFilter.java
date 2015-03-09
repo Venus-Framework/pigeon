@@ -22,8 +22,8 @@ import com.dianping.pigeon.remoting.common.exception.RejectedException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
-import com.dianping.pigeon.remoting.provider.process.statistics.AppStatisticsChecker;
-import com.dianping.pigeon.remoting.provider.process.statistics.AppStatisticsHolder;
+import com.dianping.pigeon.remoting.provider.process.statistics.ProviderStatisticsChecker;
+import com.dianping.pigeon.remoting.provider.process.statistics.ProviderStatisticsHolder;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
 import com.dianping.pigeon.util.ThreadPoolUtils;
@@ -44,7 +44,7 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 		String appLimitConfig = configManager.getStringValue("pigeon.provider.applimit");
 		parseAppLimitConfig(appLimitConfig);
 		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
-		AppStatisticsChecker appStatisticsChecker = new AppStatisticsChecker();
+		ProviderStatisticsChecker appStatisticsChecker = new ProviderStatisticsChecker();
 		statisticsCheckerPool.execute(appStatisticsChecker);
 	}
 
@@ -80,11 +80,11 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 		String fromApp = request.getApp();
 		InvocationResponse response = null;
 		try {
-			AppStatisticsHolder.flowIn(request);
+			ProviderStatisticsHolder.flowIn(request);
 			if (isAppLimitEnabled && StringUtils.isNotBlank(fromApp) && appLimitMap.containsKey(fromApp)) {
 				Long limit = appLimitMap.get(fromApp);
 				if (limit >= 0) {
-					long requests = AppStatisticsHolder.getCapacityBucket(request).getCurrentRequests();
+					long requests = ProviderStatisticsHolder.getCapacityBucket(request).getCurrentRequests();
 					if (requests + 1 > limit) {
 						throw new RejectedException("request from app:" + fromApp
 								+ " refused, max requests limit reached:" + limit);
@@ -94,7 +94,7 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 			response = handler.handle(invocationContext);
 			return response;
 		} finally {
-			AppStatisticsHolder.flowOut(request);
+			ProviderStatisticsHolder.flowOut(request);
 		}
 	}
 

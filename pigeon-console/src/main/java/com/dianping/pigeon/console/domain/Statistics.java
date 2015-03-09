@@ -7,9 +7,11 @@ import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager.Wei
 
 public class Statistics {
 
-	public Map<String, Integer> requestsInLastSecond = new HashMap<String, Integer>();
+	public Map<String, Integer> requestsInLastSecondOfInvoker = new HashMap<String, Integer>();
 
-	public Map<String, String> appRequests = new HashMap<String, String>();
+	public Map<String, String> appRequestsOfProvider = new HashMap<String, String>();
+
+	public Map<String, String> appRequestsOfInvoker = new HashMap<String, String>();
 
 	Map<String, String> serverProcessorStatistics = new HashMap<String, String>();
 
@@ -33,28 +35,36 @@ public class Statistics {
 		this.serverProcessorStatistics = serverProcessorStatistics;
 	}
 
-	public Map<String, Integer> getRequestsInLastSecond() {
-		return requestsInLastSecond;
-	}
-
-	public void setRequestsInLastSecond(Map<String, Integer> requestsInLastSecond) {
-		this.requestsInLastSecond = requestsInLastSecond;
-	}
-
-	public Map<String, String> getAppRequests() {
-		return appRequests;
-	}
-
-	public void setAppRequests(Map<String, String> appRequests) {
-		this.appRequests = appRequests;
-	}
-
 	public Map<String, String> getOthers() {
 		return others;
 	}
 
 	public void setOthers(Map<String, String> others) {
 		this.others = others;
+	}
+
+	public Map<String, Integer> getRequestsInLastSecondOfInvoker() {
+		return requestsInLastSecondOfInvoker;
+	}
+
+	public void setRequestsInLastSecondOfInvoker(Map<String, Integer> requestsInLastSecondOfInvoker) {
+		this.requestsInLastSecondOfInvoker = requestsInLastSecondOfInvoker;
+	}
+
+	public Map<String, String> getAppRequestsOfProvider() {
+		return appRequestsOfProvider;
+	}
+
+	public void setAppRequestsOfProvider(Map<String, String> appRequestsOfProvider) {
+		this.appRequestsOfProvider = appRequestsOfProvider;
+	}
+
+	public Map<String, String> getAppRequestsOfInvoker() {
+		return appRequestsOfInvoker;
+	}
+
+	public void setAppRequestsOfInvoker(Map<String, String> appRequestsOfInvoker) {
+		this.appRequestsOfInvoker = appRequestsOfInvoker;
 	}
 
 }

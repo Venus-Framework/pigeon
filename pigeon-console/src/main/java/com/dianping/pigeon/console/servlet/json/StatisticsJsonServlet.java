@@ -12,6 +12,8 @@ import com.dianping.pigeon.console.domain.Statistics;
 import com.dianping.pigeon.console.listener.StatusListener;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
 import com.dianping.pigeon.console.status.StatusInfo;
+import com.dianping.pigeon.remoting.invoker.process.statistics.InvokerCapacityBucket;
+import com.dianping.pigeon.remoting.invoker.process.statistics.InvokerStatisticsHolder;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.remoting.invoker.route.statistics.CapacityBucket;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
@@ -19,8 +21,8 @@ import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
-import com.dianping.pigeon.remoting.provider.process.statistics.AppCapacityBucket;
-import com.dianping.pigeon.remoting.provider.process.statistics.AppStatisticsHolder;
+import com.dianping.pigeon.remoting.provider.process.statistics.ProviderCapacityBucket;
+import com.dianping.pigeon.remoting.provider.process.statistics.ProviderStatisticsHolder;
 
 public class StatisticsJsonServlet extends ServiceServlet {
 
@@ -44,13 +46,20 @@ public class StatisticsJsonServlet extends ServiceServlet {
 		Map<String, CapacityBucket> buckets = ServiceStatisticsHolder.getCapacityBuckets();
 		for (String addr : buckets.keySet()) {
 			int requests = buckets.get(addr).getLastSecondRequest();
-			stat.getRequestsInLastSecond().put(addr, requests);
+			stat.getRequestsInLastSecondOfInvoker().put(addr, requests);
 		}
-		Map<String, AppCapacityBucket> appCapacityMap = AppStatisticsHolder.getCapacityBuckets();
-		for (String app : appCapacityMap.keySet()) {
-			AppCapacityBucket appCapacity = appCapacityMap.get(app);
+		Map<String, InvokerCapacityBucket> invokerCapacityMap = InvokerStatisticsHolder.getCapacityBuckets();
+		for (String app : invokerCapacityMap.keySet()) {
+			InvokerCapacityBucket appCapacity = invokerCapacityMap.get(app);
 			if (appCapacity != null) {
-				stat.getAppRequests().put(app, appCapacity.toString());
+				stat.getAppRequestsOfInvoker().put(app, appCapacity.toString());
+			}
+		}
+		Map<String, ProviderCapacityBucket> providerCapacityMap = ProviderStatisticsHolder.getCapacityBuckets();
+		for (String app : providerCapacityMap.keySet()) {
+			ProviderCapacityBucket appCapacity = providerCapacityMap.get(app);
+			if (appCapacity != null) {
+				stat.getAppRequestsOfProvider().put(app, appCapacity.toString());
 			}
 		}
 		Map<String, Server> servers = ProviderBootStrap.getServersMap();
