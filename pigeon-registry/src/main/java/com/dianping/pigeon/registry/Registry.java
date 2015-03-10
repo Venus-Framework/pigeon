@@ -32,7 +32,11 @@ public interface Registry {
 	String getServerApp(String serverAddress);
 
 	void setServerApp(String serverAddress, String app);
-	
+
 	void unregisterServerApp(String serverAddress);
+
+	void setServerVersion(String serverAddress, String version);
+
+	void unregisterServerVersion(String serverAddress);
 
 }

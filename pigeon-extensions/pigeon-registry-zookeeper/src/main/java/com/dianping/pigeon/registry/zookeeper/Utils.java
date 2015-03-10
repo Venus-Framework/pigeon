@@ -37,6 +37,11 @@ public class Utils {
 		String path = Constants.APP_PATH + Constants.PATH_SEPARATOR + serviceAddress;
 		return path;
 	}
+	
+	public static String getVersionPath(String serviceAddress) {
+		String path = Constants.VERSION_PATH + Constants.PATH_SEPARATOR + serviceAddress;
+		return path;
+	}
 
 	public static String normalizeGroup(String group) {
 		return StringUtils.isBlank(group) ? Constants.DEFAULT_GROUP : group;

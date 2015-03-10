@@ -1,4 +1,4 @@
-{"port": "${port}", "pigeonVersion": "${version}", "env": "${environment}", "group": "${group}","published": "${published}","online": "${online}", 
+{"port": "${port}", "pigeonVersion": "${version}", "env": "${environment}", "group": "${group}","app": "${appName}","published": "${published}","online": "${online}", 
 "weights": [
 		<#list serviceWeights?keys as key>
 			{

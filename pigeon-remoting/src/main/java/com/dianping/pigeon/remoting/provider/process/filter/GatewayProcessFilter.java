@@ -37,6 +37,7 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 	private static final Logger logger = LoggerLoader.getLogger(GatewayProcessFilter.class);
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 	private static boolean isAppLimitEnabled = configManager.getBooleanValue("pigeon.provider.applimit.enable", false);
+	private static boolean isAppLimitQps = configManager.getBooleanValue("pigeon.provider.applimit.qps", true);
 	private static Map<String, Long> appLimitMap = new ConcurrentHashMap<String, Long>();
 	private static ThreadPool statisticsCheckerPool = new DefaultThreadPool("Pigeon-Server-Statistics-Checker");
 
@@ -84,7 +85,10 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 			if (isAppLimitEnabled && StringUtils.isNotBlank(fromApp) && appLimitMap.containsKey(fromApp)) {
 				Long limit = appLimitMap.get(fromApp);
 				if (limit >= 0) {
-					long requests = ProviderStatisticsHolder.getCapacityBucket(request).getCurrentRequests();
+					long requests = ProviderStatisticsHolder.getCapacityBucket(request).getRequestsInCurrentSecond();
+					if (!isAppLimitQps) {
+						requests = ProviderStatisticsHolder.getCapacityBucket(request).getCurrentRequests();
+					}
 					if (requests + 1 > limit) {
 						throw new RejectedException("request from app:" + fromApp
 								+ " refused, max requests limit reached:" + limit);
@@ -107,6 +111,11 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 			} else if (key.endsWith("pigeon.provider.applimit.enable")) {
 				try {
 					isAppLimitEnabled = Boolean.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith("pigeon.provider.applimit.qps")) {
+				try {
+					isAppLimitQps = Boolean.valueOf(value);
 				} catch (RuntimeException e) {
 				}
 			}

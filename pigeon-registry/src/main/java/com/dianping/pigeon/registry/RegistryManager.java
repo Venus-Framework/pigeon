@@ -306,6 +306,18 @@ public class RegistryManager {
 		}
 	}
 
+	public void setServerVersion(String serverAddress, String version) {
+		if (registry != null) {
+			registry.setServerVersion(serverAddress, version);
+		}
+	}
+
+	public void unregisterServerVersion(String serverAddress) {
+		if (registry != null) {
+			registry.unregisterServerVersion(serverAddress);
+		}
+	}
+
 	static class InnerServerInfoListener implements ServerInfoListener {
 
 		@Override

@@ -16,6 +16,7 @@ public final class Constants {
 	public static final String SERVICE_PATH = "/DP/SERVER";
 	public static final String WEIGHT_PATH = "/DP/WEIGHT";
 	public static final String APP_PATH = "/DP/APP";
+	public static final String VERSION_PATH = "/DP/VERSION";
 	public static final String PATH_SEPARATOR = "/";
 	public static final String PLACEHOLDER = "^";
 

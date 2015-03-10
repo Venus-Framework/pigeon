@@ -17,13 +17,6 @@ import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.util.ContextUtils;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: ContextTransferProcessFilter.java, v 0.1 2013-6-18
- *          ������11:11:34 jianhuihuang Exp $
- */
 public class ContextTransferProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
 	private static final Logger logger = LoggerLoader.getLogger(ContextTransferProcessFilter.class);

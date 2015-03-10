@@ -14,7 +14,10 @@ import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
+import com.dianping.pigeon.remoting.invoker.process.statistics.InvokerStatisticsChecker;
 import com.dianping.pigeon.remoting.invoker.process.statistics.InvokerStatisticsHolder;
+import com.dianping.pigeon.threadpool.DefaultThreadPool;
+import com.dianping.pigeon.threadpool.ThreadPool;
 
 /**
  * 
@@ -23,6 +26,12 @@ import com.dianping.pigeon.remoting.invoker.process.statistics.InvokerStatistics
 public class GatewayInvokeFilter extends InvocationInvokeFilter {
 
 	private static final Logger logger = LoggerLoader.getLogger(GatewayInvokeFilter.class);
+	private static ThreadPool statisticsCheckerPool = new DefaultThreadPool("Pigeon-Server-Statistics-Checker");
+
+	static {
+		InvokerStatisticsChecker appStatisticsChecker = new InvokerStatisticsChecker();
+		statisticsCheckerPool.execute(appStatisticsChecker);
+	}
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)

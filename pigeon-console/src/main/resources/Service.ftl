@@ -29,7 +29,10 @@
 						return;
 					}
 					if('${environment}'=='product'){
-						content.append("<p>verification code(from /data/applogs/dpsflog/pigeon.log):<input type='text' id='token' value=''/></p>");
+						content.append("<p>verification code(from /data/applogs/dpsflog/pigeon.*.log):<input type='text' id='token' value=''/></p>");
+					}
+					if(treeNode.parameters>0){
+						content.append("<p>parameter values:</p>");
 					}
 					for(var i = 0; i < treeNode.parameters; i++){
 						content.append("<p><input type='text' value=''/></p>");
@@ -81,7 +84,7 @@
 			{ id:${x_index + 1}, pId:0, name:"${x.name}", title:"${x.type.canonicalName}(published:${x.published})", isParent:true}<#if (x.methods?size>0) >,<#elseif x_has_next>,</#if>
 				<#list x.methods as m>
 			{ id:${x_index + 1}${m_index + 1}, pId:${x_index + 1}, 
-				data_url:"${x.name}",
+				data_url:"${x.name}",title:"${m.name}(<#list m.parameterTypes as p>${p.canonicalName}<#if p_has_next>,</#if></#list>)",
 				data_method:"${m.name}",
 				data_parameterTypes: "<#list m.parameterTypes as p>${p.name}<#if p_has_next>,</#if></#list>",
 				name:"${m.name}(<#list m.parameterTypes as p>${p.canonicalName}<#if p_has_next>,</#if></#list>)", 
@@ -98,7 +101,7 @@
 </head>
 <body style="font-size:62.5%;padding-top:10px;padding-left:10px;">
 	<div class="row">
-	  <div class="span6"  style="overflow:hidden">
+	  <div class="span8"  style="overflow:hidden">
 		<div>
 		<p>pigeon services registered at port ${port}</p>
 		<p>version: ${version}</p>
@@ -113,7 +116,7 @@
 			</div>
 		</div>  
 	  </div>
-	  <div class="span6">
+	  <div class="span5">
 	  	<div id="content"></div>
 	  	<div id='result' class='' style="display:none;border:1px solid #ddd;width:100%;height:100px;"></div>
 	  </div>

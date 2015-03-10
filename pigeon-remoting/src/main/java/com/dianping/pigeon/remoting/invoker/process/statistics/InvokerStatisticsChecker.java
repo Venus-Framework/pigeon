@@ -13,19 +13,23 @@ public class InvokerStatisticsChecker implements Runnable {
 		int i = 0, j = 0;
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 			}
 			if (InvokerStatisticsHolder.getCapacityBuckets() != null) {
 				try {
 					for (InvokerCapacityBucket bucket : InvokerStatisticsHolder.getCapacityBuckets().values()) {
 						bucket.resetRequestsInSecondCounter();
-						if (++i % 30 == 0) {
-							i = 0;
+					}
+					if (++i % 12 == 0) {
+						i = 0;
+						for (InvokerCapacityBucket bucket : InvokerStatisticsHolder.getCapacityBuckets().values()) {
 							bucket.resetRequestsInMinuteCounter();
 						}
-						if (++j % 43200 == 0) {
-							j = 0;
+					}
+					if (++j % 17280 == 0) {
+						j = 0;
+						for (InvokerCapacityBucket bucket : InvokerStatisticsHolder.getCapacityBuckets().values()) {
 							bucket.resetRequestsInDayCounter();
 						}
 					}

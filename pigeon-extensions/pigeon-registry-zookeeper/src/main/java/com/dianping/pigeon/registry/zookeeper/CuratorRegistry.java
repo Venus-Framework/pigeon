@@ -304,4 +304,26 @@ public class CuratorRegistry implements Registry {
 		}
 	}
 
+	@Override
+	public void setServerVersion(String serverAddress, String version) {
+		String path = Utils.getVersionPath(serverAddress);
+		if (StringUtils.isNotBlank(version)) {
+			try {
+				client.set(path, version);
+			} catch (Throwable e) {
+				logger.error("failed to set version of " + serverAddress + " to " + version);
+			}
+		}
+	}
+
+	public void unregisterServerVersion(String serverAddress) {
+		String path = Utils.getVersionPath(serverAddress);
+		try {
+			if (client.exists(path)) {
+				client.delete(path);
+			}
+		} catch (Throwable e) {
+			logger.error("failed to delete version:" + path + ", caused by:" + e.getMessage());
+		}
+	}
 }

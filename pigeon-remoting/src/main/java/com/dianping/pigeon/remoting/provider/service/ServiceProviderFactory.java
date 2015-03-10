@@ -192,6 +192,7 @@ public final class ServiceProviderFactory {
 		if (weight >= 0) {
 			if (!serverWeightCache.containsKey(serverAddress)) {
 				RegistryManager.getInstance().setServerApp(serverAddress, configManager.getAppName());
+				RegistryManager.getInstance().setServerVersion(serverAddress, VersionUtils.VERSION);
 			}
 			serverWeightCache.put(serverAddress, weight);
 		}
@@ -212,6 +213,7 @@ public final class ServiceProviderFactory {
 			RegistryManager.getInstance().setServerWeight(serverAddress, weight);
 			if (!serverWeightCache.containsKey(serverAddress)) {
 				RegistryManager.getInstance().setServerApp(serverAddress, configManager.getAppName());
+				RegistryManager.getInstance().setServerVersion(serverAddress, VersionUtils.VERSION);
 			}
 			serverWeightCache.put(serverAddress, weight);
 		}
@@ -246,6 +248,7 @@ public final class ServiceProviderFactory {
 				Integer weight = serverWeightCache.remove(serverAddress);
 				if (weight != null) {
 					RegistryManager.getInstance().unregisterServerApp(serverAddress);
+					RegistryManager.getInstance().unregisterServerVersion(serverAddress);
 				}
 			}
 			boolean isNotify = configManager.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
