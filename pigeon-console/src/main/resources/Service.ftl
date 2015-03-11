@@ -116,7 +116,7 @@
 			</div>
 		</div>  
 	  </div>
-	  <div class="span5">
+	  <div class="span6">
 	  	<div id="content"></div>
 	  	<div id='result' class='' style="display:none;border:1px solid #ddd;width:100%;height:100px;"></div>
 	  </div>

@@ -44,9 +44,7 @@ public final class InvokerBootStrap {
 					}
 					isStartup = true;
 					StatusContainer.setPhase(Phase.INVOKER_READY);
-					if (logger.isInfoEnabled()) {
-						logger.info("pigeon client[version:" + VersionUtils.VERSION + "] has been started");
-					}
+					logger.warn("pigeon client[version:" + VersionUtils.VERSION + "] has been started");
 				}
 			}
 		}

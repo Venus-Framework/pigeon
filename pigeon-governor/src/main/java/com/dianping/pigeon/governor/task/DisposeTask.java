@@ -250,7 +250,7 @@ public class DisposeTask implements Runnable {
 		String serviceAddress = host.getAddress();
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
-			if (client.exists(servicePath)) {
+			if (client.exists(servicePath, false)) {
 				String addressValue = client.get(servicePath);
 				String[] addressArray = addressValue.split(",");
 				List<String> addressList = new ArrayList<String>();

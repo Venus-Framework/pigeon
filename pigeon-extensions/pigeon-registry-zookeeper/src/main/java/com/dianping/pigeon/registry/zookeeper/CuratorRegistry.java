@@ -171,7 +171,7 @@ public class CuratorRegistry implements Registry {
 			throws RegistryException {
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
-			if (client.exists(servicePath)) {
+			if (client.exists(servicePath, false)) {
 				String addressValue = client.get(servicePath);
 				String[] addressArray = addressValue.split(",");
 				List<String> addressList = new ArrayList<String>();
@@ -296,7 +296,7 @@ public class CuratorRegistry implements Registry {
 	public void unregisterServerApp(String serverAddress) {
 		String path = Utils.getAppPath(serverAddress);
 		try {
-			if (client.exists(path)) {
+			if (client.exists(path, false)) {
 				client.delete(path);
 			}
 		} catch (Throwable e) {
@@ -319,7 +319,7 @@ public class CuratorRegistry implements Registry {
 	public void unregisterServerVersion(String serverAddress) {
 		String path = Utils.getVersionPath(serverAddress);
 		try {
-			if (client.exists(path)) {
+			if (client.exists(path, false)) {
 				client.delete(path);
 			}
 		} catch (Throwable e) {

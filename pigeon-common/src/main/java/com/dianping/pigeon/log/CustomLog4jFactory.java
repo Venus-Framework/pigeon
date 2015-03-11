@@ -62,7 +62,6 @@ public class CustomLog4jFactory {
 	}
 
 	private static synchronized void initLogger() {
-		System.out.println("initializing pigeon logger");
 		Map<String, Object> properties = LocalConfigLoader.load(null);
 		String logLevel = (String) properties.get("pigeon.log.level");
 		if (StringUtils.isBlank(logLevel)) {
@@ -105,7 +104,6 @@ public class CustomLog4jFactory {
 					if (deleteFile.exists()) {
 						deleteFile.delete();
 					}
-					System.out.println("pigeon log file:" + logFileName);
 				}
 			} else if (ConsoleAppender.class.isInstance(appender)) {
 				ConsoleAppender consoleAppender = (ConsoleAppender) appender;

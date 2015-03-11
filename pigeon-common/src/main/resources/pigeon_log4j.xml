@@ -2,12 +2,14 @@
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 	<appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
+		<param name="Threshold" value="WARN"/>
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss}:%p %t %c - %m%n" />
 		</layout>
 	</appender>
 
 	<appender name="FileAppender" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="Threshold" value="INFO"/>
 		<param name="file" value="/data/applogs/dpsflog/pigeon.log" />
 		<param name="append" value="true" />
 		<param name="encoding" value="GBK" />

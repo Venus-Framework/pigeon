@@ -17,7 +17,6 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
-import com.dianping.pigeon.registry.util.Constants;
 
 public class CuratorClient {
 
@@ -84,7 +83,7 @@ public class CuratorClient {
 
 	public void set(String path, Object value) throws Exception {
 		byte[] bytes = (value == null ? new byte[0] : value.toString().getBytes(CHARSET));
-		if (exists(path)) {
+		if (exists(path, false)) {
 			client.setData().forPath(path, bytes);
 			if (logger.isDebugEnabled()) {
 				logger.debug("set value of node " + path + " to " + value);

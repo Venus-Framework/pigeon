@@ -6,8 +6,6 @@ package com.dianping.pigeon.demo.typical;
 
 import com.dianping.avatar.tracker.ExecutionContextHolder;
 import com.dianping.avatar.tracker.TrackerContext;
-import com.dianping.dpsf.async.ServiceFuture;
-import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.phoenix.environment.PhoenixContext;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
