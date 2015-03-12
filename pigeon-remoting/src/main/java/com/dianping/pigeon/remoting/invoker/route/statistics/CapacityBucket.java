@@ -33,7 +33,7 @@ public class CapacityBucket implements Serializable {
 	private AtomicLong onewayRequest = new AtomicLong(); // total oneway
 															// request send
 
-	private Map<Integer, AtomicInteger> totalRequestInSecond = new HashMap<Integer, AtomicInteger>();
+	private Map<Integer, AtomicInteger> totalRequestInSecond = new ConcurrentHashMap<Integer, AtomicInteger>();
 
 	private Lock capacityLock = new ReentrantLock();
 

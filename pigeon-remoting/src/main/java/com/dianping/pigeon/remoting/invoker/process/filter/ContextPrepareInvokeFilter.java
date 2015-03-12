@@ -9,7 +9,10 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
@@ -22,6 +25,7 @@ import com.dianping.pigeon.util.ContextUtils;
 public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
 	private static final Logger logger = LoggerLoader.getLogger(ContextPrepareInvokeFilter.class);
+	private MonitorLogger monitorLogger = ExtensionLoader.getExtension(MonitorLogger.class);
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
@@ -48,6 +52,10 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 				if (timeout_ > 0 && timeout_ < request.getTimeout()) {
 					request.setTimeout(timeout_);
 				}
+			}
+			MonitorTransaction transaction = monitorLogger.getCurrentTransaction();
+			if (transaction != null) {
+				transaction.addData("CurrentTimeout", request.getTimeout());
 			}
 			request.setAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT, invokerConfig.isWriteBufferLimit());
 			if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallType())) {

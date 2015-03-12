@@ -4,8 +4,8 @@
  */
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
@@ -40,12 +40,12 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 
 	private Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 
-	private static Map<String, Integer> appLogTimeoutPeriodMap = new HashMap<String, Integer>();
+	private static Map<String, Integer> appLogTimeoutPeriodMap = new ConcurrentHashMap<String, Integer>();
 
 	private static final int logTimeoutPeriodLimit = ConfigManagerLoader.getConfigManager().getIntValue(
 			"pigeon.invoker.log.timeout.period.limit", 9999);
 
-	private static Map<String, AtomicInteger> appTimeouts = new HashMap<String, AtomicInteger>();
+	private static Map<String, AtomicInteger> appTimeouts = new ConcurrentHashMap<String, AtomicInteger>();
 
 	private static final String KEY_LOG_TIMEOUT_PERIOD = "pigeon.invoker.log.timeout.period.apps";
 
@@ -71,8 +71,8 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 	}
 
 	private static void parseAppLogTimeoutPeriod(String appLogTimeoutPeriod) {
-		Map<String, Integer> configMap = new HashMap<String, Integer>();
-		Map<String, AtomicInteger> timeoutsMap = new HashMap<String, AtomicInteger>();
+		Map<String, Integer> configMap = new ConcurrentHashMap<String, Integer>();
+		Map<String, AtomicInteger> timeoutsMap = new ConcurrentHashMap<String, AtomicInteger>();
 		if (StringUtils.isNotBlank(appLogTimeoutPeriod)) {
 			String[] appArray = appLogTimeoutPeriod.split(",");
 			for (String appConfig : appArray) {

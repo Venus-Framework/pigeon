@@ -4,6 +4,9 @@
  */
 package com.dianping.pigeon.console.listener;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -128,7 +131,15 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 				throw new IllegalStateException("Did not receive successful HTTP response: status code = "
 						+ getMethod.getStatusCode() + ", status message = [" + getMethod.getStatusText() + "]");
 			}
-			response = getMethod.getResponseBodyAsString();
+			InputStream inputStream = getMethod.getResponseBodyAsStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+			StringBuilder sb = new StringBuilder();
+			String str = null;
+			while ((str = br.readLine()) != null) {
+				sb.append(str);
+			}
+			response = sb.toString();
+			br.close();
 		} catch (Throwable t) {
 			logger.error("error while notifying service change to url:" + url, t);
 			notifyException = t;

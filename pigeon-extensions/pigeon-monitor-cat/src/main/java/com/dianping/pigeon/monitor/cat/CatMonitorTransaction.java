@@ -85,15 +85,20 @@ public class CatMonitorTransaction implements MonitorTransaction {
 		if (invocationContext != null) {
 			CatLogger logger = (CatLogger) getLogger();
 			MessageProducer producer = logger.getMessageProducer();
-			String serverMessageId = logger.getMessageProducer().createMessageId();
 			MessageManager messageManager = Cat.getManager();
 			MessageTree tree = messageManager.getThreadLocalMessageTree();
 			if (tree == null) {
 				Cat.setup(null);
 				tree = Cat.getManager().getThreadLocalMessageTree();
 			}
-			String rootMessageId = tree.getRootMessageId() == null ? tree.getMessageId() : tree.getRootMessageId();
 			String currentMessageId = tree.getMessageId();
+			if (currentMessageId == null) {
+				currentMessageId = producer.createMessageId();
+				tree.setMessageId(currentMessageId);
+			}
+			String serverMessageId = logger.getMessageProducer().createMessageId();
+			String rootMsgId = tree.getRootMessageId();
+			String rootMessageId = rootMsgId == null ? currentMessageId : rootMsgId;
 
 			invocationContext.putContextValue(CatConstants.PIGEON_ROOT_MESSAGE_ID, rootMessageId);
 			invocationContext.putContextValue(CatConstants.PIGEON_CURRENT_MESSAGE_ID, currentMessageId);

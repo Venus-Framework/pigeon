@@ -2,8 +2,8 @@ package com.dianping.pigeon.remoting.provider.process.statistics;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
@@ -17,9 +17,9 @@ public class ProviderCapacityBucket implements Serializable {
 
 	private AtomicInteger requests = new AtomicInteger();
 
-	private Map<Integer, AtomicInteger> totalRequestsInSecond = new HashMap<Integer, AtomicInteger>();
+	private Map<Integer, AtomicInteger> totalRequestsInSecond = new ConcurrentHashMap<Integer, AtomicInteger>();
 
-	private Map<Integer, AtomicInteger> totalRequestsInMinute = new HashMap<Integer, AtomicInteger>();
+	private Map<Integer, AtomicInteger> totalRequestsInMinute = new ConcurrentHashMap<Integer, AtomicInteger>();
 
 	public static final boolean enableMinuteStats = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.providerstat.minute.enable", true);
