@@ -44,20 +44,26 @@ public class RegistryEventListener {
 	}
 
 	public static void providerRemoved(String serviceName, String host, int port) {
-		for (ServiceProviderChangeListener listener : serviceProviderChangeListeners) {
+		List<ServiceProviderChangeListener> listeners = new ArrayList<ServiceProviderChangeListener>();
+		listeners.addAll(serviceProviderChangeListeners);
+		for (ServiceProviderChangeListener listener : listeners) {
 			listener.providerRemoved(new ServiceProviderChangeEvent(serviceName, host, port, -1));
 		}
 	}
 
 	public static void providerAdded(String serviceName, String host, int port, int weight) {
-		for (ServiceProviderChangeListener listener : serviceProviderChangeListeners) {
+		List<ServiceProviderChangeListener> listeners = new ArrayList<ServiceProviderChangeListener>();
+		listeners.addAll(serviceProviderChangeListeners);
+		for (ServiceProviderChangeListener listener : listeners) {
 			ServiceProviderChangeEvent event = new ServiceProviderChangeEvent(serviceName, host, port, weight);
 			listener.providerAdded(event);
 		}
 	}
 
 	public static void hostWeightChanged(String host, int port, int weight) {
-		for (ServiceProviderChangeListener listener : serviceProviderChangeListeners) {
+		List<ServiceProviderChangeListener> listeners = new ArrayList<ServiceProviderChangeListener>();
+		listeners.addAll(serviceProviderChangeListeners);
+		for (ServiceProviderChangeListener listener : listeners) {
 			listener.hostWeightChanged(new ServiceProviderChangeEvent(null, host, port, weight));
 		}
 	}
