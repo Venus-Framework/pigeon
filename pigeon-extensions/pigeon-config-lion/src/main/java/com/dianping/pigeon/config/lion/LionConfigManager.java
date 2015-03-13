@@ -26,20 +26,20 @@ public class LionConfigManager extends AbstractConfigManager {
 	private ConfigCache configCache = null;
 
 	public LionConfigManager() {
-	    try {
-	        getConfigCache().addChange(new ConfigChange() {
+		try {
+			getConfigCache().addChange(new ConfigChange() {
 
-                @Override
-                public void onChange(String key, String value) {
-                    onConfigUpdated(key, value);
-                }
-                
-            });
-	    } catch(Exception e) {
-	        logger.error("", e);
-	    }
+				@Override
+				public void onChange(String key, String value) {
+					onConfigUpdated(key, value);
+				}
+
+			});
+		} catch (Exception e) {
+			logger.error("", e);
+		}
 	}
-	
+
 	private ConfigCache getConfigCache() throws LionException {
 		if (configCache == null) {
 			synchronized (this) {
@@ -71,7 +71,11 @@ public class LionConfigManager extends AbstractConfigManager {
 	}
 
 	public String doGetEnv() throws Exception {
-		return EnvZooKeeperConfig.getEnv();
+		String env = EnvZooKeeperConfig.getEnv();
+		if (env != null) {
+			return env.trim();
+		}
+		return env;
 	}
 
 	@Override
