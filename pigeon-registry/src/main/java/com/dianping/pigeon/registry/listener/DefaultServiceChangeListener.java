@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.registry.util.Utils;
 
 public class DefaultServiceChangeListener implements ServiceChangeListener {
 
@@ -66,32 +67,32 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 
 	@Override
 	public synchronized void onHostWeightChange(String connect, int weight) {
-		int colonIdx = connect.indexOf(":");
-		String host = connect.substring(0, colonIdx);
-		int port = Integer.parseInt(connect.substring(colonIdx + 1));
-		RegistryEventListener.hostWeightChanged(host, port, weight);
+		HostInfo hostInfo = Utils.parseHost(connect, weight);
+		if (hostInfo != null) {
+			RegistryEventListener.hostWeightChanged(hostInfo.getHost(), hostInfo.getPort(), weight);
+		}
 	}
 
 	@Override
 	public void onHostAdded(String serviceName, String host) {
-		int idx = host.indexOf(':');
-		String ip = host.substring(0, idx);
-		String port = host.substring(idx + 1);
-		int weight = RegistryManager.getInstance().getServiceWeight(host);
-		RegistryEventListener.providerAdded(serviceName, ip, Integer.parseInt(port), weight);
-		if (logger.isInfoEnabled()) {
-			logger.info("host " + host + " added to service " + serviceName);
+		HostInfo hostInfo = Utils.parseHost(host, 1);
+		if (hostInfo != null) {
+			int weight = RegistryManager.getInstance().getServiceWeight(host);
+			RegistryEventListener.providerAdded(serviceName, hostInfo.getHost(), hostInfo.getPort(), weight);
+			if (logger.isInfoEnabled()) {
+				logger.info("host " + host + " added to service " + serviceName);
+			}
 		}
 	}
 
 	@Override
 	public void onHostRemoved(String serviceName, String host) {
-		int idx = host.indexOf(':');
-		String ip = host.substring(0, idx);
-		String port = host.substring(idx + 1);
-		RegistryEventListener.providerRemoved(serviceName, ip, Integer.parseInt(port));
-		if (logger.isInfoEnabled()) {
-			logger.info("host " + host + " removed from service " + serviceName);
+		HostInfo hostInfo = Utils.parseHost(host, 1);
+		if (hostInfo != null) {
+			RegistryEventListener.providerRemoved(serviceName, hostInfo.getHost(), hostInfo.getPort());
+			if (logger.isInfoEnabled()) {
+				logger.info("host " + host + " removed from service " + serviceName);
+			}
 		}
 	}
 

@@ -4,7 +4,14 @@
  */
 package com.dianping.pigeon.registry.util;
 
+import org.apache.log4j.Logger;
+
+import com.dianping.pigeon.domain.HostInfo;
+import com.dianping.pigeon.log.LoggerLoader;
+
 public final class Utils {
+
+	private static final Logger logger = LoggerLoader.getLogger(Utils.class);
 
 	public static long getLong(final byte[] b) {
 
@@ -35,4 +42,23 @@ public final class Utils {
 		return serviceName.replace(Constants.PATH_SEPARATOR, Constants.PLACEHOLDER);
 	}
 
+	public static HostInfo parseHost(String host, int weight) {
+		int idx = host.lastIndexOf(":");
+		if (idx != -1) {
+			String ip = null;
+			int port = -1;
+			try {
+				ip = host.substring(0, idx);
+				port = Integer.parseInt(host.substring(idx + 1));
+			} catch (RuntimeException e) {
+				logger.warn("invalid host: " + host + ", ignored!");
+			}
+			if (ip != null && port > 0) {
+				return new HostInfo(ip, port, weight);
+			}
+		} else {
+			logger.warn("invalid host: " + host + ", ignored!");
+		}
+		return null;
+	}
 }
