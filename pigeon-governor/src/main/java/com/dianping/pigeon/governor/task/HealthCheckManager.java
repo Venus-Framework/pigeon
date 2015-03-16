@@ -28,6 +28,7 @@ import com.dianping.pigeon.governor.util.Constants.Action;
 import com.dianping.pigeon.governor.util.Constants.Environment;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.util.NetUtils;
 
 public class HealthCheckManager extends Thread {
 
@@ -61,24 +62,33 @@ public class HealthCheckManager extends Thread {
 	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	public HealthCheckManager() {
-		configManager.registerConfigChangeListener(new ConfigChangeHandler());
-		action = configManager.getStringValue(Constants.KEY_ACTION, "dev:remove");
-		interval = configManager.getLongValue(Constants.KEY_INTERVAL, 10 * 1000);
-		hostInterval = configManager.getLongValue(Constants.KEY_HOST_INTERVAL, 5 * 1000);
-		deadThreshold = configManager.getIntValue(Constants.KEY_DEAD_THRESHOLD, 50);
-		minhosts = configManager.getStringValue(Constants.KEY_MINHOSTS, "qa:1,prelease:1,product:2,producthm:1");
-		deadThresholds = configManager.getStringValue(Constants.KEY_DEADTHRESHOLDS,
-				"dev:10,alpha:10,qa:20,prelease:20,product:50,producthm:50");
-		invalidAddress = configManager.getStringValue(Constants.KEY_INVALIDADDRESS, "product:192.168|10.128");
-		actionMap = new LinkedHashMap<Environment, Action>();
-		registryMap = new LinkedHashMap<Environment, Registry>();
-		minhostsMap = new LinkedHashMap<Environment, Integer>();
-		deadThresholdsMap = new LinkedHashMap<Environment, Integer>();
-		invalidAddressMap = new LinkedHashMap<Environment, String>();
-		parseAction();
-		parseMinhosts();
-		parseDeadThresholds();
-		parseInvalidAddress();
+		boolean enable = true;
+		if ("product".equalsIgnoreCase(configManager.getEnv())) {
+			String ip = configManager.getStringValue("pigeon-governor-server.enable.ip", "");
+			if (!NetUtils.getFirstLocalIp().equals(ip)) {
+				enable = false;
+			}
+		}
+		if (enable) {
+			configManager.registerConfigChangeListener(new ConfigChangeHandler());
+			action = configManager.getStringValue(Constants.KEY_ACTION, "dev:remove");
+			interval = configManager.getLongValue(Constants.KEY_INTERVAL, 10 * 1000);
+			hostInterval = configManager.getLongValue(Constants.KEY_HOST_INTERVAL, 5 * 1000);
+			deadThreshold = configManager.getIntValue(Constants.KEY_DEAD_THRESHOLD, 50);
+			minhosts = configManager.getStringValue(Constants.KEY_MINHOSTS, "qa:1,prelease:1,product:2,producthm:1");
+			deadThresholds = configManager.getStringValue(Constants.KEY_DEADTHRESHOLDS,
+					"dev:10,alpha:10,qa:20,prelease:20,product:50,producthm:50");
+			invalidAddress = configManager.getStringValue(Constants.KEY_INVALIDADDRESS, "product:192.168|10.128");
+			actionMap = new LinkedHashMap<Environment, Action>();
+			registryMap = new LinkedHashMap<Environment, Registry>();
+			minhostsMap = new LinkedHashMap<Environment, Integer>();
+			deadThresholdsMap = new LinkedHashMap<Environment, Integer>();
+			invalidAddressMap = new LinkedHashMap<Environment, String>();
+			parseAction();
+			parseMinhosts();
+			parseDeadThresholds();
+			parseInvalidAddress();
+		}
 	}
 
 	public void run() {
@@ -138,7 +148,7 @@ public class HealthCheckManager extends Thread {
 
 		String[] invalidAddressList = invalidAddress.split(",");
 		for (String envInvalidAddr : invalidAddressList) {
-			if(envInvalidAddr.length() > 0) {
+			if (envInvalidAddr.length() > 0) {
 				String[] envInvalidAddrPair = envInvalidAddr.split(":");
 				String strEnv = envInvalidAddrPair[0].trim();
 				Environment env = Environment.valueOf(strEnv);
