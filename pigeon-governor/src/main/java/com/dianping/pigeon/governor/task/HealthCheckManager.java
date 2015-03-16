@@ -62,6 +62,27 @@ public class HealthCheckManager extends Thread {
 	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	public HealthCheckManager() {
+		configManager.registerConfigChangeListener(new ConfigChangeHandler());
+		action = configManager.getStringValue(Constants.KEY_ACTION, "dev:remove");
+		interval = configManager.getLongValue(Constants.KEY_INTERVAL, 10 * 1000);
+		hostInterval = configManager.getLongValue(Constants.KEY_HOST_INTERVAL, 5 * 1000);
+		deadThreshold = configManager.getIntValue(Constants.KEY_DEAD_THRESHOLD, 50);
+		minhosts = configManager.getStringValue(Constants.KEY_MINHOSTS, "qa:1,prelease:1,product:2,producthm:1");
+		deadThresholds = configManager.getStringValue(Constants.KEY_DEADTHRESHOLDS,
+				"dev:10,alpha:10,qa:20,prelease:20,product:50,producthm:50");
+		invalidAddress = configManager.getStringValue(Constants.KEY_INVALIDADDRESS, "product:192.168|10.128");
+		actionMap = new LinkedHashMap<Environment, Action>();
+		registryMap = new LinkedHashMap<Environment, Registry>();
+		minhostsMap = new LinkedHashMap<Environment, Integer>();
+		deadThresholdsMap = new LinkedHashMap<Environment, Integer>();
+		invalidAddressMap = new LinkedHashMap<Environment, String>();
+		parseAction();
+		parseMinhosts();
+		parseDeadThresholds();
+		parseInvalidAddress();
+	}
+
+	public void run() {
 		boolean enable = true;
 		if ("product".equalsIgnoreCase(configManager.getEnv())) {
 			String ip = configManager.getStringValue("pigeon-governor-server.enable.ip", "");
@@ -70,35 +91,14 @@ public class HealthCheckManager extends Thread {
 			}
 		}
 		if (enable) {
-			configManager.registerConfigChangeListener(new ConfigChangeHandler());
-			action = configManager.getStringValue(Constants.KEY_ACTION, "dev:remove");
-			interval = configManager.getLongValue(Constants.KEY_INTERVAL, 10 * 1000);
-			hostInterval = configManager.getLongValue(Constants.KEY_HOST_INTERVAL, 5 * 1000);
-			deadThreshold = configManager.getIntValue(Constants.KEY_DEAD_THRESHOLD, 50);
-			minhosts = configManager.getStringValue(Constants.KEY_MINHOSTS, "qa:1,prelease:1,product:2,producthm:1");
-			deadThresholds = configManager.getStringValue(Constants.KEY_DEADTHRESHOLDS,
-					"dev:10,alpha:10,qa:20,prelease:20,product:50,producthm:50");
-			invalidAddress = configManager.getStringValue(Constants.KEY_INVALIDADDRESS, "product:192.168|10.128");
-			actionMap = new LinkedHashMap<Environment, Action>();
-			registryMap = new LinkedHashMap<Environment, Registry>();
-			minhostsMap = new LinkedHashMap<Environment, Integer>();
-			deadThresholdsMap = new LinkedHashMap<Environment, Integer>();
-			invalidAddressMap = new LinkedHashMap<Environment, String>();
-			parseAction();
-			parseMinhosts();
-			parseDeadThresholds();
-			parseInvalidAddress();
+			workerPool = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 60, TimeUnit.SECONDS,
+					new ArrayBlockingQueue<Runnable>(queueSize), new NamingThreadFactory("pigeon-healthcheck"),
+					new BlockProviderPolicy());
+
+			bossPool = Executors.newFixedThreadPool(2);
+			bossPool.submit(new GenerateTask(this));
+			bossPool.submit(new DisposeTask(this));
 		}
-	}
-
-	public void run() {
-		workerPool = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 60, TimeUnit.SECONDS,
-				new ArrayBlockingQueue<Runnable>(queueSize), new NamingThreadFactory("pigeon-healthcheck"),
-				new BlockProviderPolicy());
-
-		bossPool = Executors.newFixedThreadPool(2);
-		bossPool.submit(new GenerateTask(this));
-		bossPool.submit(new DisposeTask(this));
 	}
 
 	private void parseAction() {
