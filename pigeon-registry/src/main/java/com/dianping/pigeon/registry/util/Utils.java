@@ -4,6 +4,10 @@
  */
 package com.dianping.pigeon.registry.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.domain.HostInfo;
@@ -60,5 +64,31 @@ public final class Utils {
 			logger.warn("invalid host: " + host + ", ignored!");
 		}
 		return null;
+	}
+
+	public static List<String> getAddressList(String serviceName, String serviceAddress) {
+		String[] addressArray = serviceAddress.split(",");
+		List<String> addressList = new ArrayList<String>();
+		for (int i = 0; i < addressArray.length; i++) {
+			if (StringUtils.isNotBlank(addressArray[i])) {
+				// addressList.add(addressArray[i]);
+				String address = addressArray[i];
+				int idx = address.lastIndexOf(":");
+				if (idx != -1) {
+					String host = null;
+					int port = -1;
+					try {
+						host = address.substring(0, idx);
+						port = Integer.parseInt(address.substring(idx + 1));
+					} catch (RuntimeException e) {
+						logger.warn("invalid address:" + address + " for service:" + serviceName);
+					}
+					if (host != null && port > 0) {
+						addressList.add(address);
+					}
+				}
+			}
+		}
+		return addressList;
 	}
 }

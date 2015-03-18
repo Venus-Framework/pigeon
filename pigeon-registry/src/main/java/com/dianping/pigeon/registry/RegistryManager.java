@@ -4,11 +4,15 @@
  */
 package com.dianping.pigeon.registry;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.naming.ServiceUnavailableException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -114,6 +118,11 @@ public class RegistryManager {
 
 	public boolean isReferencedService(String serviceName, String group) {
 		return referencedServiceAddresses.containsKey(serviceName);
+	}
+
+	public List<String> getServiceAddressList(String serviceName, String group) throws RegistryException {
+		String serviceAddress = getServiceAddress(serviceName, group);
+		return Utils.getAddressList(serviceName, serviceAddress);
 	}
 
 	public String getServiceAddress(String serviceName, String group) throws RegistryException {
