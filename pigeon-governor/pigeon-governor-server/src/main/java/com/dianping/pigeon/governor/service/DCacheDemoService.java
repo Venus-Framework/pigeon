@@ -208,4 +208,16 @@ public class DCacheDemoService implements CacheDemoService {
 		CacheKey cacheKey = new CacheKey("mydcache", key);
 		return cacheService.get(cacheKey);
 	}
+
+	@Override
+	public Object getKeyValue(String category, String key) {
+		CacheKey cacheKey = new CacheKey(category, key);
+		return cacheService.get(cacheKey);
+	}
+
+	@Override
+	public boolean setKeyValue(String category, String key, String value) throws CacheException, TimeoutException {
+		CacheKey cacheKey = new CacheKey(category, key);
+		return cacheService.set(cacheKey, value);
+	}
 }

@@ -47,4 +47,7 @@ public interface CacheDemoService {
 
 	public CASValue gets(String key) throws CacheException, TimeoutException;
 
+	public Object getKeyValue(String category, String key);
+
+	public boolean setKeyValue(String category, String key, String value) throws CacheException, TimeoutException;
 }

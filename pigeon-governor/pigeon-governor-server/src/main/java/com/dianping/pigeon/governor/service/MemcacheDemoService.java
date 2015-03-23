@@ -14,6 +14,8 @@ import org.springframework.util.CollectionUtils;
 
 import com.dianping.avatar.cache.CacheKey;
 import com.dianping.avatar.cache.CacheService;
+import com.dianping.avatar.tracker.ExecutionContextHolder;
+import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.cache.core.CASResponse;
 import com.dianping.cache.core.CASValue;
 import com.dianping.cache.exception.CacheException;
@@ -207,5 +209,15 @@ public class MemcacheDemoService implements CacheDemoService {
 	public Double getKeyDoubleValue(String key) {
 		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.get(cacheKey);
+	}
+
+	public Object getKeyValue(String category, String key) {
+		CacheKey cacheKey = new CacheKey(category, key);
+		return cacheService.get(cacheKey);
+	}
+
+	public boolean setKeyValue(String category, String key, String value) throws CacheException, TimeoutException {
+		CacheKey cacheKey = new CacheKey(category, key);
+		return cacheService.set(cacheKey, value);
 	}
 }
