@@ -5,6 +5,7 @@
 package com.dianping.pigeon.demo.annotation;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.dianping.pigeon.demo.EchoService;
@@ -37,5 +38,10 @@ public class EchoServiceAnnotationImpl implements EchoService {
 	@Override
 	public List<User> findUsers(int count) {
 		return Lists.newArrayList(users.subList(0, count));
+	}
+
+	@Override
+	public String echo(Date input) {
+		return input.toString();
 	}
 }

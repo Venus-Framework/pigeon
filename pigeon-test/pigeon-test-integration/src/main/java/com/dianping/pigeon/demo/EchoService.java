@@ -5,10 +5,13 @@
 package com.dianping.pigeon.demo;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 public interface EchoService {
 
+	String echo(Date input);
+	
 	String echo(String input);
 
 	long now();

@@ -146,7 +146,8 @@ public class ClientManager {
 			if ((ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv()) || ConfigConstants.ENV_ALPHA
 					.equalsIgnoreCase(configManager.getEnv()))) {
 				useVip = true;
-			} else if (vip.startsWith("console:")) {
+			}
+			if (vip.startsWith("console:")) {
 				useVip = true;
 				vip = vip.replaceAll("console", NetUtils.getFirstLocalIp());
 			}

@@ -5,6 +5,7 @@
 package com.dianping.pigeon.demo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class EchoServiceDefaultImpl implements EchoService {
@@ -33,6 +34,11 @@ public class EchoServiceDefaultImpl implements EchoService {
 	public List<User> findUsers(int count) {
 		// return Lists.newArrayList(users.subList(0, count));
 		return users.subList(0, count);
+	}
+
+	@Override
+	public String echo(Date input) {
+		return input.toString();
 	}
 
 }

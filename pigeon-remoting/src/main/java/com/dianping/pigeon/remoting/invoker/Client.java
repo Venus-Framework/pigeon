@@ -49,5 +49,7 @@ public interface Client {
 	boolean isDisposable();
 
 	void dispose();
+	
+	String getProtocol();
 
 }

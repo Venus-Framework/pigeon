@@ -170,4 +170,9 @@ public class HttpInvokerClient extends AbstractClient {
 	public int hashCode() {
 		return getAddress().hashCode();
 	}
+
+	@Override
+	public String getProtocol() {
+		return Constants.PROTOCOL_HTTP;
+	}
 }

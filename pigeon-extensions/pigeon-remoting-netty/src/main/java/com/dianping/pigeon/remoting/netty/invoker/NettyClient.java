@@ -319,4 +319,9 @@ public class NettyClient extends AbstractClient {
 	public void dispose() {
 
 	}
+
+	@Override
+	public String getProtocol() {
+		return Constants.PROTOCOL_DEFAULT;
+	}
 }

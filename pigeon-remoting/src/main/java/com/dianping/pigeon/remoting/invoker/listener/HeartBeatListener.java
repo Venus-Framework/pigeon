@@ -155,7 +155,9 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 						if (logger.isDebugEnabled()) {
 							logger.debug("[heartbeat] checking service provider:" + client);
 						}
-						if (RegistryManager.getInstance().getServiceWeight(client.getAddress()) > 0) {
+						boolean enable = Constants.PROTOCOL_DEFAULT.equals(client.getProtocol())
+								&& (RegistryManager.getInstance().getServiceWeight(client.getAddress()) > 0);
+						if (enable) {
 							if (client.isConnected()) {
 								sendHeartBeatRequest(client);
 							} else {
