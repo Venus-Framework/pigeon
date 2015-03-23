@@ -37,7 +37,7 @@ public class Client {
 		User user = new User();
 		user.setUsername("jason");
 		User[] users = new User[] { user };
-		while (true) {
+		//while (true) {
 			try {
 				PhoenixContext.getInstance().setRequestId("aaaa1111111");
 				ExecutionContextHolder.setTrackerContext(new TrackerContext());
@@ -51,7 +51,7 @@ public class Client {
 			} catch (Exception e) {
 				System.out.println("");
 			}
-		}
+		//}
 	}
 
 }

@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-	<appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
-		<param name="Target" value="System.err" />
+	<appender name="WarnConsoleAppender" class="org.apache.log4j.ConsoleAppender">
 		<param name="Threshold" value="WARN" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss}:%p %t %c - %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="WARN" />
+			<param name="LevelMax" value="WARN" />
+			<param name="AcceptOnMatch" value="true" />
+		</filter>
+	</appender>
+
+	<appender name="ErrorConsoleAppender" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.err" />
+		<param name="Threshold" value="ERROR" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss}:%p %t %c - %m%n" />
 		</layout>
@@ -20,9 +32,9 @@
 	</appender>
 
 	<logger name="com.dianping.pigeon" additivity="true">
-		<level value="INFO" />
 		<appender-ref ref="FileAppender" />
-		<appender-ref ref="ConsoleAppender" />
+		<appender-ref ref="WarnConsoleAppender" />
+		<appender-ref ref="ErrorConsoleAppender" />
 	</logger>
 
 </log4j:configuration>
