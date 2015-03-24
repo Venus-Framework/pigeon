@@ -67,7 +67,7 @@ public class CuratorClient {
 
 	public String get(String path) throws Exception {
 		try {
-			StatusHolder.flowIn("zk-get");
+			StatusHolder.flowIn("zk", null, "get");
 			if (exists(path)) {
 				byte[] bytes = client.getData().watched().forPath(path);
 				String value = new String(bytes, CHARSET);
@@ -82,13 +82,13 @@ public class CuratorClient {
 				return null;
 			}
 		} finally {
-			StatusHolder.flowOut("zk-get");
+			StatusHolder.flowOut("zk", null, "get");
 		}
 	}
 
 	public void set(String path, Object value) throws Exception {
 		try {
-			StatusHolder.flowIn("zk-set");
+			StatusHolder.flowIn("zk", null, "set");
 
 			byte[] bytes = (value == null ? new byte[0] : value.toString().getBytes(CHARSET));
 			if (exists(path)) {
@@ -103,7 +103,7 @@ public class CuratorClient {
 				}
 			}
 		} finally {
-			StatusHolder.flowOut("zk-set");
+			StatusHolder.flowOut("zk", null, "set");
 		}
 	}
 

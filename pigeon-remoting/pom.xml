@@ -4,13 +4,13 @@
 	<parent>
 		<artifactId>pigeon-parent</artifactId>
 		<groupId>com.dianping</groupId>
-		<version>2.4.2</version>
+		<version>2.4.3-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<name>pigeon-remoting</name>
 	<groupId>com.dianping</groupId>
 	<artifactId>pigeon-remoting</artifactId>
-	<version>2.4.2</version>
+	<version>2.4.3-SNAPSHOT</version>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
 	<dependencies>
@@ -63,10 +63,8 @@
 			<groupId>com.caucho</groupId>
 			<artifactId>hessian</artifactId>
 		</dependency>
-		<!-- <dependency>
-			<groupId>com.esotericsoftware</groupId>
-			<artifactId>kryo</artifactId>
-		</dependency> -->
+		<!-- <dependency> <groupId>com.esotericsoftware</groupId> <artifactId>kryo</artifactId> 
+			</dependency> -->
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
@@ -74,6 +72,18 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<dependency>
+			<artifactId>protostuff-runtime</artifactId>
+			<groupId>io.protostuff</groupId>
+		</dependency>
+		<dependency>
+			<artifactId>protostuff-core</artifactId>
+			<groupId>io.protostuff</groupId>
+		</dependency>
+		<dependency>
+			<groupId>org.objenesis</groupId>
+			<artifactId>objenesis</artifactId>
 		</dependency>
 	</dependencies>
 </project>

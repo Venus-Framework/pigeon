@@ -64,7 +64,7 @@ public class CuratorEventListener implements CuratorListener {
 
 	private void categoryChanged(PathInfo pathInfo) throws RegistryException {
 		try {
-			StatusHolder.flowIn("zk-changed");
+			StatusHolder.flowIn("zk", null, "changed");
 			String value = client.get(pathInfo.path);
 			logger.info("[" + Thread.currentThread().getName() + "]category changed, path " + pathInfo.path + " value "
 					+ value);
@@ -72,7 +72,7 @@ public class CuratorEventListener implements CuratorListener {
 		} catch (Exception e) {
 			throw new RegistryException(e);
 		} finally {
-			StatusHolder.flowOut("zk-changed");
+			StatusHolder.flowOut("zk", null, "changed");
 		}
 	}
 

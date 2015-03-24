@@ -14,7 +14,7 @@ import com.dianping.pigeon.remoting.common.codec.hessian.Hessian1Serializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
 import com.dianping.pigeon.remoting.common.codec.java.JavaSerializer;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
-import com.dianping.pigeon.remoting.common.codec.protobuf.ProtobufSerializer;
+import com.dianping.pigeon.remoting.common.codec.protostuff.ProtostuffSerializer;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 
 /**
@@ -29,17 +29,16 @@ public final class SerializerFactory {
 	// 序列化类型---》HESSIAN序列化
 	public static final byte SERIALIZE_HESSIAN = 2;
 	public static final byte SERIALIZE_JAVA = 3;
-	public static final byte SERIALIZE_PROTOBUF = 4;
+	public static final byte SERIALIZE_PROTO = 5;
 	public static final byte SERIALIZE_HESSIAN1 = 6;
 	public static final byte SERIALIZE_JSON = 7;
-	public static final byte SERIALIZE_KRYO = 8;
 
 	public static final String HESSIAN = "hessian";
 	public static final String JAVA = "java";
-	public static final String PROTOBUF = "protobuf";
 	public static final String HESSIAN1 = "hessian1";
 	public static final String JSON = "json";
 	public static final String KRYO = "kryo";
+	public static final String PROTO = "proto";
 
 	private static volatile boolean isInitialized = false;
 
@@ -54,19 +53,12 @@ public final class SerializerFactory {
 			registerSerializer(SERIALIZE_JAVA, new JavaSerializer());
 			registerSerializer(SERIALIZE_HESSIAN, new HessianSerializer());
 			registerSerializer(SERIALIZE_HESSIAN1, new Hessian1Serializer());
-			// registerSerializer(SERIALIZE_KRYO, new KryoSerializer());
+			registerSerializer(SERIALIZE_PROTO, new ProtostuffSerializer());
 			boolean supportProtobuf = false;
 			try {
 				ClassUtils.getClass("com.google.protobuf.MessageOrBuilder");
 				supportProtobuf = true;
 			} catch (ClassNotFoundException e) {
-			}
-			if (supportProtobuf) {
-				try {
-					registerSerializer(SERIALIZE_PROTOBUF, new ProtobufSerializer());
-				} catch (Throwable t) {
-					logger.warn("failed to initialize protobuf serializer:" + t.getMessage());
-				}
 			}
 			boolean supportJackson = true;
 			try {
@@ -92,14 +84,12 @@ public final class SerializerFactory {
 			return SerializerFactory.SERIALIZE_HESSIAN;
 		} else if (HESSIAN1.equalsIgnoreCase(serialize)) {
 			return SerializerFactory.SERIALIZE_HESSIAN1;
-		} else if (PROTOBUF.equalsIgnoreCase(serialize)) {
-			return SerializerFactory.SERIALIZE_PROTOBUF;
 		} else if (JSON.equalsIgnoreCase(serialize)) {
 			return SerializerFactory.SERIALIZE_JSON;
-		} else if (KRYO.equalsIgnoreCase(serialize)) {
-			return SerializerFactory.SERIALIZE_KRYO;
+		} else if (PROTO.equalsIgnoreCase(serialize)) {
+			return SerializerFactory.SERIALIZE_PROTO;
 		} else {
-			throw new InvalidParameterException("Only hessian/java/protobuf/json/kryo serialize type supported");
+			throw new InvalidParameterException("Only hessian/java/json/proto serialize type supported");
 		}
 	}
 

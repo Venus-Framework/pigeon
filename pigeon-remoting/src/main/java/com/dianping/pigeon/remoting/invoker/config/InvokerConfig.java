@@ -30,7 +30,7 @@ public class InvokerConfig<T> {
 
 	public static final String SERIALIZE_HESSIAN = SerializerFactory.HESSIAN;
 	public static final String SERIALIZE_JAVA = SerializerFactory.JAVA;
-	public static final String SERIALIZE_PROTOBUF = SerializerFactory.PROTOBUF;
+	public static final String SERIALIZE_PROTO = SerializerFactory.PROTO;
 	public static final String SERIALIZE_JSON = SerializerFactory.JSON;
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);

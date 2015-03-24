@@ -4,6 +4,9 @@
  */
 package com.dianping.pigeon.demo.typical;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.dianping.avatar.tracker.ExecutionContextHolder;
 import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.phoenix.environment.PhoenixContext;
@@ -11,6 +14,7 @@ import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.UserService;
 import com.dianping.pigeon.demo.UserService.User;
+import com.dianping.pigeon.util.ContextUtils;
 
 public class Client {
 
@@ -37,21 +41,36 @@ public class Client {
 		User user = new User();
 		user.setUsername("jason");
 		User[] users = new User[] { user };
-		//while (true) {
+		while (true) {
 			try {
-				PhoenixContext.getInstance().setRequestId("aaaa1111111");
-				ExecutionContextHolder.setTrackerContext(new TrackerContext());
-
-				System.out.println(echoService.now());
-				//System.out.println(userService.getUserDetail(users, false));
-				//System.out.println(echoService.echo("hi"));
-				//echoServiceWithFuture.echo("future");
-				//ServiceFuture f = ServiceFutureFactory.getFuture();
-				//System.out.println(f._get());
+				// PhoenixContext.getInstance().setRequestId("1");
+				// ExecutionContextHolder.setTrackerContext(new
+				// TrackerContext());
+				//
+				// ContextUtils.putContextValue("key1", "1");
+				// System.out.println(echoService.echo("hi, 1"));
+				//
+				// ContextUtils.putContextValue("key1", user);
+				// System.out.println(echoService.echo("hi, 2"));
+				//
+				// ArrayList<String> l = new ArrayList<String>();
+				// l.add("key1 list");
+				// ContextUtils.putContextValue("key1", l);
+				// System.out.println(echoService.echo("hi, 3"));
+				//
+				// ArrayList<User> l2 = new ArrayList<User>();
+				// l2.add(user);
+				// ContextUtils.putContextValue("key1", l2);
+				// System.out.println(echoService.echo("hi, 4"));
+				// System.out.println(userService.getUserDetail(users, false));
+				System.out.println(echoService.echo("hi"));
+				// echoServiceWithFuture.echo("future");
+				// ServiceFuture f = ServiceFutureFactory.getFuture();
+				// System.out.println(f._get());
 			} catch (Exception e) {
 				System.out.println("");
 			}
-		//}
+		}
 	}
 
 }

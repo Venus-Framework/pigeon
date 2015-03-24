@@ -3,9 +3,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>pigeon-test-benchmark</name>
+	<name>test-pigeon-server</name>
 	<groupId>com.dianping</groupId>
-	<artifactId>pigeon-test-benchmark</artifactId>
+	<artifactId>test-pigeon-server</artifactId>
 	<version>1.0.0</version>
 	<packaging>war</packaging>
 
@@ -21,12 +21,12 @@
 		<dependency>
 			<groupId>com.dianping.dpsf</groupId>
 			<artifactId>dpsf-net</artifactId>
-			<version>2.4.2</version>
+			<version>2.4.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.dianping</groupId>
 			<artifactId>avatar-cache</artifactId>
-			<version>2.5.10</version>
+			<version>2.6.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>cglib</groupId>
@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>com.dianping.cat</groupId>
 			<artifactId>cat-core</artifactId>
-			<version>1.1.3</version>
+			<version>1.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.dianping.hawk</groupId>
@@ -52,13 +52,7 @@
 		<dependency>
 			<groupId>com.dianping.lion</groupId>
 			<artifactId>lion-client</artifactId>
-			<version>0.4.5</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-			</exclusions>
+			<version>0.4.8</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>

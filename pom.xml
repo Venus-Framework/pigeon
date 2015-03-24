@@ -5,7 +5,7 @@
 	<groupId>com.dianping</groupId>
 	<artifactId>pigeon-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>2.4.2</version>
+	<version>2.4.3-SNAPSHOT</version>
 	<name>pigeon-parent</name>
 	<organization>
 		<name>dianping</name>
@@ -107,6 +107,21 @@
 				<groupId>org.jboss.netty</groupId>
 				<artifactId>netty</artifactId>
 				<version>3.2.19</version>
+			</dependency>
+			<dependency>
+				<artifactId>protostuff-runtime</artifactId>
+				<groupId>io.protostuff</groupId>
+				<version>1.1.0</version>
+			</dependency>
+			<dependency>
+				<artifactId>protostuff-core</artifactId>
+				<groupId>io.protostuff</groupId>
+				<version>1.1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.objenesis</groupId>
+				<artifactId>objenesis</artifactId>
+				<version>2.1</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-httpclient</groupId>
