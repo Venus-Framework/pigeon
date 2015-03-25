@@ -3,6 +3,9 @@ package com.dianping.pigeon.test.benchmark.service;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.dianping.cat.Cat;
+import com.dianping.cat.message.Message;
+import com.dianping.cat.message.Transaction;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 
 public abstract class AbstractEchoTestService implements EchoTestService {
@@ -29,11 +32,16 @@ public abstract class AbstractEchoTestService implements EchoTestService {
 
 	private void findUsers(final int count, final int timeout) {
 		while (!isCancel) {
-			InvokerHelper.setTimeout(timeout);
-			try {
-				getEchoService().findUsers(count);
-			} catch (RuntimeException e) {
+			Transaction t = Cat.newTransaction("test", "findUsers");
+			for (int i = 0; i < 500; i++) {
+				InvokerHelper.setTimeout(timeout);
+				try {
+					getEchoService().findUsers(count);
+				} catch (RuntimeException e) {
+				}
 			}
+			t.setStatus(Message.SUCCESS);
+			t.complete();
 		}
 	}
 
@@ -53,11 +61,16 @@ public abstract class AbstractEchoTestService implements EchoTestService {
 
 	private void getNow(final int timeout) {
 		while (!isCancel) {
-			InvokerHelper.setTimeout(timeout);
-			try {
-				getEchoService().now();
-			} catch (RuntimeException e) {
+			Transaction t = Cat.newTransaction("test", "getNow");
+			for (int i = 0; i < 500; i++) {
+				InvokerHelper.setTimeout(timeout);
+				try {
+					getEchoService().now();
+				} catch (RuntimeException e) {
+				}
 			}
+			t.setStatus(Message.SUCCESS);
+			t.complete();
 		}
 	}
 
