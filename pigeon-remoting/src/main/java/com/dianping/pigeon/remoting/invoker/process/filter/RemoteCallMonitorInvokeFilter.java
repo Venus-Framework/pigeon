@@ -123,7 +123,8 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						transaction.setStatusOk();
 						transaction.addData("CallType", invokerConfig.getCallType());
 						transaction.addData("Timeout", invokerConfig.getTimeout());
-
+						transaction.addData("Serialize", invokerConfig.getSerialize());
+						
 						Client client = invocationContext.getClient();
 						logger.logEvent("PigeonCall.server", client.getAddress(),
 								InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
