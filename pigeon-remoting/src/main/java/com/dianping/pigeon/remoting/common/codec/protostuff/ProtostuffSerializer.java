@@ -22,6 +22,16 @@ public class ProtostuffSerializer extends DefaultAbstractSerializer {
 	private static ConcurrentHashMap<Class<?>, Schema<?>> cachedSchema = new ConcurrentHashMap<Class<?>, Schema<?>>();
 	private static Objenesis objenesis = new ObjenesisStd(true);
 
+	public ProtostuffSerializer() {
+		Schema<DefaultRequest> requestSchema = RuntimeSchema.createFrom(DefaultRequest.class);
+		RuntimeSchema.register(DefaultRequest.class, requestSchema);
+		cachedSchema.put(DefaultRequest.class, requestSchema);
+
+		Schema<DefaultResponse> responseSchema = RuntimeSchema.createFrom(DefaultResponse.class);
+		RuntimeSchema.register(DefaultResponse.class, responseSchema);
+		cachedSchema.put(DefaultResponse.class, responseSchema);
+	}
+
 	private static <T> Schema<T> getSchema(Class<T> cls) {
 		Schema<T> schema = (Schema<T>) cachedSchema.get(cls);
 		if (schema == null) {

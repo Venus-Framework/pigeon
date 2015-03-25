@@ -43,27 +43,27 @@ public class Client {
 		User[] users = new User[] { user };
 		while (true) {
 			try {
-				// PhoenixContext.getInstance().setRequestId("1");
-				// ExecutionContextHolder.setTrackerContext(new
-				// TrackerContext());
-				//
-				// ContextUtils.putContextValue("key1", "1");
-				// System.out.println(echoService.echo("hi, 1"));
-				//
-				// ContextUtils.putContextValue("key1", user);
-				// System.out.println(echoService.echo("hi, 2"));
-				//
-				// ArrayList<String> l = new ArrayList<String>();
-				// l.add("key1 list");
-				// ContextUtils.putContextValue("key1", l);
-				// System.out.println(echoService.echo("hi, 3"));
-				//
-				// ArrayList<User> l2 = new ArrayList<User>();
-				// l2.add(user);
-				// ContextUtils.putContextValue("key1", l2);
-				// System.out.println(echoService.echo("hi, 4"));
+				 PhoenixContext.getInstance().setRequestId("1");
+				 ExecutionContextHolder.setTrackerContext(new
+				 TrackerContext());
+				
+				 ContextUtils.putContextValue("key1", "1");
+				 System.out.println(echoService.echo("hi, 1"));
+				
+				 ContextUtils.putContextValue("key1", user);
+				 System.out.println(echoService.echo("hi, 2"));
+				
+				 ArrayList<String> l = new ArrayList<String>();
+				 l.add("key1 list");
+				 ContextUtils.putContextValue("key1", l);
+				 System.out.println(echoService.echo("hi, 3"));
+				
+				 ArrayList<User> l2 = new ArrayList<User>();
+				 l2.add(user);
+				 ContextUtils.putContextValue("key1", l2);
+				 System.out.println(echoService.echo("hi, 4"));
 				// System.out.println(userService.getUserDetail(users, false));
-				System.out.println(echoService.echo("hi"));
+				// System.out.println(echoService.echo("hi"));
 				// echoServiceWithFuture.echo("future");
 				// ServiceFuture f = ServiceFutureFactory.getFuture();
 				// System.out.println(f._get());

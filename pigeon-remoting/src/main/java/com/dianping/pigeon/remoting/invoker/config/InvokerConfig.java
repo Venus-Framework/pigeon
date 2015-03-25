@@ -32,6 +32,7 @@ public class InvokerConfig<T> {
 	public static final String SERIALIZE_JAVA = SerializerFactory.JAVA;
 	public static final String SERIALIZE_PROTO = SerializerFactory.PROTO;
 	public static final String SERIALIZE_JSON = SerializerFactory.JSON;
+	public static final String SERIALIZE_FST = SerializerFactory.FST;
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
