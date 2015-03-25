@@ -43,9 +43,9 @@ public class Client {
 		User[] users = new User[] { user };
 		while (true) {
 			try {
-				 PhoenixContext.getInstance().setRequestId("1");
-				 ExecutionContextHolder.setTrackerContext(new
-				 TrackerContext());
+//				 PhoenixContext.getInstance().setRequestId("1");
+//				 ExecutionContextHolder.setTrackerContext(new
+//				 TrackerContext());
 				
 				 ContextUtils.putContextValue("key1", "1");
 				 System.out.println(echoService.echo("hi, 1"));

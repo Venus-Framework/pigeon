@@ -128,7 +128,7 @@ public class RequestTimeoutListener implements Runnable {
 										monitorLogger.logError(te);
 									}
 									Future<?> future = rc.getFuture();
-									if (t.getPriority() > interruptThreadPriorityThreshold) {
+									if (t != null && t.getPriority() > interruptThreadPriorityThreshold) {
 										cancelTimeout = false;
 									}
 									if (future != null && !future.isCancelled()) {

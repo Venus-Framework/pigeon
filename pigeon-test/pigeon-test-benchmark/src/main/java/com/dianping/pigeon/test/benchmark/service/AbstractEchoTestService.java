@@ -15,7 +15,7 @@ public abstract class AbstractEchoTestService implements EchoTestService {
 	ExecutorService executor = null;
 
 	abstract EchoService getEchoService();
-
+	
 	public void concurrentFindUsers(final int threads, final int count, final int timeout) {
 		executor = Executors.newFixedThreadPool(threads);
 		this.isCancel = false;

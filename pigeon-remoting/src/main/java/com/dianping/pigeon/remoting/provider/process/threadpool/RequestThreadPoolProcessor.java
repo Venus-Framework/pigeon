@@ -121,6 +121,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 		try {
 			return pool.submit(requestExecutor);
 		} catch (RejectedExecutionException e) {
+			requestContextMap.remove(request);
 			throw new RejectedException(getProcessorStatistics(request), e);
 		}
 	}
