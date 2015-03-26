@@ -178,6 +178,10 @@ public class ClientManager {
 	}
 
 	public void registerServiceInvokers(String serviceName, String group, String vip) {
+		String localHost = null;
+		if (vip != null && vip.startsWith("console:")) {
+			localHost = NetUtils.getFirstLocalIp() + vip.substring(vip.indexOf(":"));
+		}
 		String serviceAddress = getServiceAddress(serviceName, group, vip);
 		String[] addressArray = serviceAddress.split(",");
 		// List<String> addressList = new ArrayList<String>();
@@ -196,6 +200,9 @@ public class ClientManager {
 						logger.warn("invalid address:" + address + " for service:" + serviceName);
 					}
 					if (host != null && port > 0) {
+						if (localHost != null && !localHost.equals(host + ":" + port)) {
+							continue;
+						}
 						try {
 							int weight = RegistryManager.getInstance().getServiceWeight(address, !reloadWeight);
 							RegistryEventListener.providerAdded(serviceName, host, port, weight);

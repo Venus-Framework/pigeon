@@ -108,6 +108,9 @@ public class ProviderAvailableListener implements Runnable {
 					String groupValue = serviceGroupMap.get(url);
 					String group = groupValue.substring(0, groupValue.lastIndexOf("#"));
 					String vip = groupValue.substring(groupValue.lastIndexOf("#") + 1);
+					if(vip != null && vip.startsWith("console:")) {
+						continue;
+					}
 
 					int available = getAvailableClients(this.getWorkingClients().get(url));
 					if (available < providerAvailableLeast) {

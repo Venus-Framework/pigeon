@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "seq")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "seq", scope = DefaultResponse.class)
 public class DefaultResponse implements InvocationResponse {
 
 	/**
@@ -164,8 +164,7 @@ public class DefaultResponse implements InvocationResponse {
 					.append("seq", seq).append("messageType", messageType).toString();
 		} else {
 			return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("serialize", serialize)
-					.append("seq", seq).append("messageType", messageType)
-					.append("return", returnVal).toString();
+					.append("seq", seq).append("messageType", messageType).append("return", returnVal).toString();
 		}
 	}
 

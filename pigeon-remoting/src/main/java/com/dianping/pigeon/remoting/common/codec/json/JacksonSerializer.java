@@ -32,7 +32,7 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 
 	static ObjectMapper mapper = new ObjectMapper();
 
-	public JacksonSerializer() {
+	static {
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		// mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
 		// mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
@@ -45,8 +45,12 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 		mapper.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
 		mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 		// initialize
-		String content = serializeObject(new DefaultRequest());
-		deserializeObject(DefaultRequest.class, content);
+		JacksonSerializer serializer = new JacksonSerializer();
+		String content = serializer.serializeObject(new DefaultRequest());
+		serializer.deserializeObject(DefaultRequest.class, content);
+	}
+
+	public JacksonSerializer() {
 	}
 
 	public static void registerClass(Class<?>... classes) {
