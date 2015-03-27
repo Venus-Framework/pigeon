@@ -10,6 +10,8 @@ public class InvokerStatisticsChecker implements Runnable {
 
 	@Override
 	public void run() {
+		InvokerStatisticsHolder.init();
+		InvokerCapacityBucket.init();
 		int i = 0, j = 0;
 		while (!Thread.currentThread().isInterrupted()) {
 			try {

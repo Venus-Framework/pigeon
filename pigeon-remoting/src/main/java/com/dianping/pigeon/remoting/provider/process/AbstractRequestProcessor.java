@@ -49,12 +49,16 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 	}
 
 	public abstract void doStop();
-
+	
 	public void stop() {
 		ThreadPoolUtils.shutdown(timeCheckThreadPool.getExecutor());
 		doStop();
 	}
 
+	public Map<InvocationRequest, ProviderContext> getRequestContextMap() {
+		return requestContextMap;
+	}
+	
 	public Future<InvocationResponse> processRequest(final InvocationRequest request,
 			final ProviderContext providerContext) {
 		if (request.getCreateMillisTime() == 0) {

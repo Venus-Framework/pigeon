@@ -25,6 +25,9 @@ public final class ServiceStatisticsHolder {
 		return barrel != null ? barrel.getCapacity() : 0f;
 	}
 
+	public static void init() {
+	}
+	
 	public static Map<String, CapacityBucket> getCapacityBuckets() {
 		return serverCapacityBuckets;
 	}

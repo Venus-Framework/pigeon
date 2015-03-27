@@ -24,6 +24,9 @@ public class ProviderCapacityBucket implements Serializable {
 	public static final boolean enableMinuteStats = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.providerstat.minute.enable", true);
 
+	public static void init() {
+	}
+	
 	public ProviderCapacityBucket(String address) {
 		preFillData();
 	}

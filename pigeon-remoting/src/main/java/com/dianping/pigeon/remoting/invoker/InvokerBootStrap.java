@@ -15,7 +15,11 @@ import com.dianping.pigeon.remoting.common.status.Phase;
 import com.dianping.pigeon.remoting.common.status.StatusContainer;
 import com.dianping.pigeon.remoting.invoker.process.InvokerProcessHandlerFactory;
 import com.dianping.pigeon.remoting.invoker.process.ResponseProcessorFactory;
+import com.dianping.pigeon.remoting.invoker.process.statistics.InvokerCapacityBucket;
+import com.dianping.pigeon.remoting.invoker.process.statistics.InvokerStatisticsHolder;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
+import com.dianping.pigeon.remoting.invoker.route.statistics.CapacityBucket;
+import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 import com.dianping.pigeon.util.VersionUtils;
 
@@ -38,6 +42,10 @@ public final class InvokerBootStrap {
 					InvokerProcessHandlerFactory.init();
 					SerializerFactory.init();
 					LoadBalanceManager.init();
+					InvokerStatisticsHolder.class.getSimpleName();
+					InvokerCapacityBucket.class.getSimpleName();
+					ServiceStatisticsHolder.class.getSimpleName();
+					CapacityBucket.class.getSimpleName();
 					Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 					if (monitor != null) {
 						monitor.init();

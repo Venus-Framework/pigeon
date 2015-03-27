@@ -2,7 +2,6 @@ package com.dianping.pigeon.remoting.invoker.process.statistics;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,6 +29,9 @@ public class InvokerCapacityBucket implements Serializable {
 	public static final boolean enableMinuteStats = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.invokerstat.minute.enable", true);
 
+	public static void init() {
+	}
+	
 	public InvokerCapacityBucket(String address) {
 		preFillData();
 	}

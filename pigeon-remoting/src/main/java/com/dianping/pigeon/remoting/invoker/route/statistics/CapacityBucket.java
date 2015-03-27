@@ -3,7 +3,6 @@ package com.dianping.pigeon.remoting.invoker.route.statistics;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;

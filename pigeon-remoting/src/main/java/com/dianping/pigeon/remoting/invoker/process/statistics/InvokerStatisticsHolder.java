@@ -19,6 +19,9 @@ public final class InvokerStatisticsHolder {
 	public static final boolean statEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.invokerstat.enable", true);
 
+	public static void init() {
+	}
+	
 	public static Map<String, InvokerCapacityBucket> getCapacityBuckets() {
 		return appCapacityBuckets;
 	}

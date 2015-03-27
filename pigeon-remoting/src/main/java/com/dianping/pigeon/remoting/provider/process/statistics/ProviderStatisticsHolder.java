@@ -19,6 +19,9 @@ public final class ProviderStatisticsHolder {
 	public static final boolean statEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.providerstat.enable", true);
 
+	public static void init() {
+	}
+	
 	public static Map<String, ProviderCapacityBucket> getCapacityBuckets() {
 		return appCapacityBuckets;
 	}

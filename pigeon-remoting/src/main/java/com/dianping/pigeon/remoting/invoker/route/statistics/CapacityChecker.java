@@ -15,6 +15,7 @@ public class CapacityChecker implements Runnable {
 
 	@Override
 	public void run() {
+		ServiceStatisticsHolder.init();
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				Thread.sleep(5000);

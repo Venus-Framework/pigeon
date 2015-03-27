@@ -10,6 +10,8 @@ public class ProviderStatisticsChecker implements Runnable {
 
 	@Override
 	public void run() {
+		ProviderStatisticsHolder.init();
+		ProviderCapacityBucket.init();
 		int i = 0;
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
