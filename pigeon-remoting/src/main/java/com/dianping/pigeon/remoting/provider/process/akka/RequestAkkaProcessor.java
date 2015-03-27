@@ -46,14 +46,12 @@ public class RequestAkkaProcessor extends AbstractRequestProcessor {
 
 	@Override
 	public String getProcessorStatistics() {
-		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override
 	public String getProcessorStatistics(InvocationRequest request) {
-		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override
