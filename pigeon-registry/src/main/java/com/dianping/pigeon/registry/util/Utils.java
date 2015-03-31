@@ -5,6 +5,7 @@
 package com.dianping.pigeon.registry.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -67,6 +68,9 @@ public final class Utils {
 	}
 
 	public static List<String> getAddressList(String serviceName, String serviceAddress) {
+		if (StringUtils.isBlank(serviceAddress)) {
+			return Collections.EMPTY_LIST;
+		}
 		String[] addressArray = serviceAddress.split(",");
 		List<String> addressList = new ArrayList<String>();
 		for (int i = 0; i < addressArray.length; i++) {
