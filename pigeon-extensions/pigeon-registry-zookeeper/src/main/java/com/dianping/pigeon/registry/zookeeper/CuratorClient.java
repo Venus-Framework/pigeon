@@ -66,7 +66,11 @@ public class CuratorClient {
 	}
 
 	public String get(String path) throws Exception {
-		if (exists(path)) {
+		return get(path, true);
+	}
+
+	public String get(String path, boolean watch) throws Exception {
+		if (exists(path, watch)) {
 			byte[] bytes = client.getData().forPath(path);
 			String value = new String(bytes, CHARSET);
 			if (logger.isDebugEnabled()) {
@@ -131,8 +135,13 @@ public class CuratorClient {
 	}
 
 	public List<String> getChildren(String path) throws Exception {
+		return getChildren(path, true);
+	}
+
+	public List<String> getChildren(String path, boolean watch) throws Exception {
 		try {
-			List<String> children = client.getChildren().watched().forPath(path);
+			List<String> children = watch ? client.getChildren().watched().forPath(path) : client.getChildren()
+					.forPath(path);
 			if (logger.isDebugEnabled()) {
 				logger.debug("get children of node " + path + ": " + StringUtils.join(children.iterator(), ','));
 			}

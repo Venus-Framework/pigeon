@@ -1,7 +1,7 @@
 package com.dianping.pigeon.remoting.common.codec.hessian;
 
 import java.math.BigInteger;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.caucho.hessian.io.Deserializer;
 import com.caucho.hessian.io.HessianProtocolException;
@@ -12,8 +12,8 @@ import com.caucho.hessian.io.StringValueSerializer;
 
 public class HessianSerializerFactory extends SerializerFactory {
 
-	private static HashMap serializerMap = new HashMap();
-	private static HashMap deserializerMap = new HashMap();
+	private static ConcurrentHashMap serializerMap = new ConcurrentHashMap();
+	private static ConcurrentHashMap deserializerMap = new ConcurrentHashMap();
 
 	static {
 		serializerMap.put(BigInteger.class, new StringValueSerializer());

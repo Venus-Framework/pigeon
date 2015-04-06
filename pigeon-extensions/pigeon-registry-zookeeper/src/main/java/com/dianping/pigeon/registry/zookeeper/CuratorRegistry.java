@@ -127,8 +127,8 @@ public class CuratorRegistry implements Registry {
 		String weightPath = Utils.getWeightPath(serviceAddress);
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
-			if (client.exists(servicePath)) {
-				String addressValue = client.get(servicePath);
+			if (client.exists(servicePath, false)) {
+				String addressValue = client.get(servicePath, false);
 				String[] addressArray = addressValue.split(",");
 				List<String> addressList = new ArrayList<String>();
 				for (String addr : addressArray) {
@@ -172,7 +172,7 @@ public class CuratorRegistry implements Registry {
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
 			if (client.exists(servicePath, false)) {
-				String addressValue = client.get(servicePath);
+				String addressValue = client.get(servicePath, false);
 				String[] addressArray = addressValue.split(",");
 				List<String> addressList = new ArrayList<String>();
 				for (String addr : addressArray) {
@@ -187,7 +187,7 @@ public class CuratorRegistry implements Registry {
 						Collections.sort(addressList);
 						client.set(servicePath, StringUtils.join(addressList.iterator(), ","));
 					} else {
-						List<String> children = client.getChildren(servicePath);
+						List<String> children = client.getChildren(servicePath, false);
 						if (CollectionUtils.isEmpty(children)) {
 							if (delEmptyNode) {
 								try {

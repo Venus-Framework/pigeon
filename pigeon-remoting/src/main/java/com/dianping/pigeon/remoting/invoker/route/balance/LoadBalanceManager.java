@@ -37,7 +37,7 @@ public class LoadBalanceManager {
 
 	private static final Logger logger = LoggerLoader.getLogger(LoadBalanceManager.class);
 
-	private static Map<String, LoadBalance> loadBalanceMap = new HashMap<String, LoadBalance>();
+	private static Map<String, LoadBalance> loadBalanceMap = new ConcurrentHashMap<String, LoadBalance>();
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
