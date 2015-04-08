@@ -10,7 +10,7 @@
 	<name>pigeon-monitor-cat</name>
 	<groupId>com.dianping</groupId>
 	<artifactId>pigeon-monitor-cat</artifactId>
-	<version>2.4.3</version>
+	<version>2.4.4-SNAPSHOT</version>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
 	<dependencies>
