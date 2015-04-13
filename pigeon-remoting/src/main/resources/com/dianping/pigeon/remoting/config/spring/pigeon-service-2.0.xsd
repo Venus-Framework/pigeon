@@ -72,6 +72,8 @@
 					<xsd:attribute name="group" type="xsd:string" />
 					<xsd:attribute name="vip" type="xsd:string" />
 					<xsd:attribute name="version" type="xsd:string" />
+					<xsd:attribute name="processModel" type="xsd:string"
+						default="default" />
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>
@@ -95,6 +97,7 @@
 						default="false" />
 					<xsd:attribute name="useSharedPool" type="xsd:string"
 						default="true" />
+					<xsd:attribute name="actives" type="xsd:string" default="0" />	
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>

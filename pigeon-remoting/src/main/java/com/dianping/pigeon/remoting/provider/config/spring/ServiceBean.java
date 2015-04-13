@@ -38,6 +38,15 @@ public class ServiceBean {
 			Constants.DEFAULT_SERVICE_SHARED);
 	private List<ProviderMethodConfig> methods;
 	private ClassLoader classLoader;
+	private int actives;
+
+	public int getActives() {
+		return actives;
+	}
+
+	public void setActives(int actives) {
+		this.actives = actives;
+	}
 
 	public ClassLoader getClassLoader() {
 		return classLoader;
@@ -133,6 +142,7 @@ public class ServiceBean {
 				methodMap.put(method.getName(), method);
 			}
 		}
+		providerConfig.setActives(actives);
 		if (serverBean != null) {
 			providerConfig.setServerConfig(serverBean.init());
 		}

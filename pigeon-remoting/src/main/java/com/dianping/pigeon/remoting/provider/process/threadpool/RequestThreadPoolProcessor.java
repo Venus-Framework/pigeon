@@ -51,6 +51,8 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 	private static ConcurrentHashMap<String, ThreadPool> methodThreadPools = null;
 
+	private static ConcurrentHashMap<String, ThreadPool> serviceThreadPools = null;
+
 	private static int DEFAULT_POOL_ACTIVES = ConfigManagerLoader.getConfigManager().getIntValue(
 			"pigeon.provider.pool.actives", 60);
 
@@ -131,6 +133,9 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 		if (!CollectionUtils.isEmpty(methodThreadPools)) {
 			pool = methodThreadPools.get(request.getServiceName() + "#" + request.getMethodName());
 		}
+		if (!CollectionUtils.isEmpty(serviceThreadPools)) {
+			pool = serviceThreadPools.get(request.getServiceName());
+		}
 		if (pool == null) {
 			if ("server".equals(poolStrategy)) {
 				pool = requestProcessThreadPool;
@@ -148,6 +153,12 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 			stats.append("[server=").append(getThreadPoolStatistics(requestProcessThreadPool)).append("]");
 		} else {
 			stats.append("[shared=").append(getThreadPoolStatistics(sharedRequestProcessThreadPool)).append("]");
+		}
+		if (!CollectionUtils.isEmpty(serviceThreadPools)) {
+			for (String key : serviceThreadPools.keySet()) {
+				stats.append(",[").append(key).append("=").append(getThreadPoolStatistics(serviceThreadPools.get(key)))
+						.append("]");
+			}
 		}
 		if (!CollectionUtils.isEmpty(methodThreadPools)) {
 			for (String key : methodThreadPools.keySet()) {
@@ -168,33 +179,52 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 			if (methodThreadPools == null) {
 				methodThreadPools = new ConcurrentHashMap<String, ThreadPool>();
 			}
+			if (serviceThreadPools == null) {
+				serviceThreadPools = new ConcurrentHashMap<String, ThreadPool>();
+			}
 			String url = providerConfig.getUrl();
 			Map<String, ProviderMethodConfig> methodConfigs = providerConfig.getMethods();
 			ServiceMethodCache methodCache = ServiceMethodFactory.getServiceMethodCache(url);
 			Set<String> methodNames = methodCache.getMethodMap().keySet();
 			if (CollectionUtils.isEmpty(methodConfigs)) {
-				return;
-			}
-			for (String name : methodNames) {
-				if (!methodConfigs.containsKey(name)) {
-					continue;
-				}
-				String key = url + "#" + name;
-				ThreadPool pool = methodThreadPools.get(key);
+				String key = url;
+				ThreadPool pool = serviceThreadPools.get(key);
 				if (pool == null) {
 					int actives = DEFAULT_POOL_ACTIVES;
-					ProviderMethodConfig methodConfig = methodConfigs.get(name);
-					if (methodConfig != null && methodConfig.getActives() > 0) {
-						actives = methodConfig.getActives();
+					if (providerConfig.getActives() > 0) {
+						actives = providerConfig.getActives();
 					}
 					int coreSize = (int) (actives / DEFAULT_POOL_RATIO_CORE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_CORE)
 							: actives;
 					int maxSize = actives;
 					int queueSize = (int) (actives / DEFAULT_POOL_RATIO_QUEUE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_QUEUE)
 							: actives;
-					pool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method", coreSize, maxSize,
+					pool = new DefaultThreadPool("Pigeon-Server-Request-Processor-service", coreSize, maxSize,
 							new LinkedBlockingQueue<Runnable>(queueSize));
-					methodThreadPools.putIfAbsent(key, pool);
+					serviceThreadPools.putIfAbsent(key, pool);
+				}
+			} else {
+				for (String name : methodNames) {
+					if (!methodConfigs.containsKey(name)) {
+						continue;
+					}
+					String key = url + "#" + name;
+					ThreadPool pool = methodThreadPools.get(key);
+					if (pool == null) {
+						int actives = DEFAULT_POOL_ACTIVES;
+						ProviderMethodConfig methodConfig = methodConfigs.get(name);
+						if (methodConfig != null && methodConfig.getActives() > 0) {
+							actives = methodConfig.getActives();
+						}
+						int coreSize = (int) (actives / DEFAULT_POOL_RATIO_CORE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_CORE)
+								: actives;
+						int maxSize = actives;
+						int queueSize = (int) (actives / DEFAULT_POOL_RATIO_QUEUE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_QUEUE)
+								: actives;
+						pool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method", coreSize, maxSize,
+								new LinkedBlockingQueue<Runnable>(queueSize));
+						methodThreadPools.putIfAbsent(key, pool);
+					}
 				}
 			}
 		}
@@ -232,6 +262,10 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 				if (pool != null) {
 					pool.getExecutor().shutdown();
 				}
+			}
+			ThreadPool pool = serviceThreadPools.remove(providerConfig.getUrl());
+			if (pool != null) {
+				pool.getExecutor().shutdown();
 			}
 		}
 	}

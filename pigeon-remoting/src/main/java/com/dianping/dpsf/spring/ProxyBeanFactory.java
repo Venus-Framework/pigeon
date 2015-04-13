@@ -77,8 +77,18 @@ public class ProxyBeanFactory implements FactoryBean {
 	private String version;
 
 	private String protocol;
-	
+
 	private ClassLoader classLoader;
+
+	private String processModel = Constants.PROCESS_MODEL_DEFAULT;
+
+	public String getProcessModel() {
+		return processModel;
+	}
+
+	public void setProcessModel(String processModel) {
+		this.processModel = processModel;
+	}
 
 	public ClassLoader getClassLoader() {
 		return classLoader;
@@ -294,9 +304,9 @@ public class ProxyBeanFactory implements FactoryBean {
 		this.objType = ClassUtils.loadClass(classLoader, this.iface.trim());
 		InvokerConfig invokerConfig = new InvokerConfig(this.objType, this.serviceName, this.timeout, this.callMethod,
 				this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadBalance, this.cluster,
-				this.retries, this.timeoutRetry, this.vip, this.version, this.protocol);
+				this.retries, this.timeoutRetry, this.vip, this.version, this.protocol, this.processModel);
 		invokerConfig.setClassLoader(classLoader);
-		
+
 		this.obj = ServiceFactory.getService(invokerConfig);
 		configLoadBalance();
 	}

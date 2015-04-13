@@ -30,4 +30,6 @@ public @interface Service {
 	boolean autoSelectPort() default true;
 
 	boolean useSharedPool() default true;
+	
+	int actives() default 0;
 }

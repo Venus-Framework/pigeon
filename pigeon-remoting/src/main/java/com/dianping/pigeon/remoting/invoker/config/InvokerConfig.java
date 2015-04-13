@@ -73,6 +73,16 @@ public class InvokerConfig<T> {
 
 	private ClassLoader classLoader;
 
+	private String processModel = Constants.PROCESS_MODEL_DEFAULT;
+
+	public String getProcessModel() {
+		return processModel;
+	}
+
+	public void setProcessModel(String processModel) {
+		this.processModel = processModel;
+	}
+
 	public ClassLoader getClassLoader() {
 		return classLoader;
 	}
@@ -176,7 +186,7 @@ public class InvokerConfig<T> {
 
 	public InvokerConfig(Class<T> serviceInterface, String url, int timeout, String callMethod, String serialize,
 			ServiceCallback callback, String group, boolean writeBufferLimit, String loadbalance, String cluster,
-			int retries, boolean timeoutRetry, String vip, String version, String protocol) {
+			int retries, boolean timeoutRetry, String vip, String version, String protocol, String processModel) {
 		this.setServiceInterface(serviceInterface);
 		this.setUrl(url);
 		this.setTimeout(timeout);
@@ -192,6 +202,7 @@ public class InvokerConfig<T> {
 		this.setVip(vip);
 		this.setVersion(version);
 		this.setProtocol(protocol);
+		this.setProcessModel(processModel);
 	}
 
 	public InvokerConfig(String url, Class<T> serviceInterface) {

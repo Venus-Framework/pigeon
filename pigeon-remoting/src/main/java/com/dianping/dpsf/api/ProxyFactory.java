@@ -57,7 +57,7 @@ public class ProxyFactory<IFACE> {
 	public void init() throws Exception {
 		InvokerConfig invokerConfig = new InvokerConfig(this.iface, this.serviceName, this.timeout, this.callMethod,
 				this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadBalance,
-				Constants.CLUSTER_FAILFAST, 0, false, null, null, null);
+				Constants.CLUSTER_FAILFAST, 0, false, null, null, null, Constants.PROCESS_MODEL_DEFAULT);
 
 		this.obj = (IFACE) ServiceFactory.getService(invokerConfig);
 		configLoadBalance();

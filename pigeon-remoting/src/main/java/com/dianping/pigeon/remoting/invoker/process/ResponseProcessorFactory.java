@@ -4,22 +4,29 @@
  */
 package com.dianping.pigeon.remoting.invoker.process;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.remoting.invoker.process.actor.ResponseActorProcessor;
 import com.dianping.pigeon.remoting.invoker.process.threadpool.ResponseThreadPoolProcessor;
 
 public class ResponseProcessorFactory {
 
-	private static ResponseProcessor responseProcessor = new ResponseThreadPoolProcessor();
-	
+	private static final String processType = ConfigManagerLoader.getConfigManager().getStringValue(
+			"pigeon.invoker.processtype", "thread");
+
+	private static ResponseProcessor responseProcessor = null;
+
 	public static ResponseProcessor selectProcessor() {
-		// ConfigManager configManager =
-		// ExtensionLoader.getExtension(ConfigManager.class);
-		// String processType =
-		// configManager.getStringValue(Constants.KEY_PROCESS_TYPE,
-		// Constants.DEFAULT_PROCESS_TYPE);
+		if ("actor".equals(processType)) {
+			responseProcessor = new ResponseActorProcessor();
+		} else {
+			responseProcessor = new ResponseThreadPoolProcessor();
+		}
 		return responseProcessor;
 	}
-	
+
 	public static void stop() {
-		responseProcessor.stop();
+		if (responseProcessor != null) {
+			responseProcessor.stop();
+		}
 	}
 }

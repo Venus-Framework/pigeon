@@ -23,6 +23,7 @@ import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.exception.ProcessTimeoutException;
+import com.dianping.pigeon.remoting.provider.exception.RequestAbortedException;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
 import com.dianping.pigeon.util.ContextUtils;
 
@@ -112,11 +113,11 @@ public class RequestTimeoutListener implements Runnable {
 											.append("\r\nrequest:").append(InvocationUtils.toJsonString(request))
 											.append("\r\nprocessor stats:interrupt:").append(cancelTimeout).append(",")
 											.append(this.requestProcessor.getProcessorStatistics(request));
-									ProcessTimeoutException te = null;
+									Exception te = null;
 									Thread t = rc.getThread();
 									if (t == null) {
-										msg.append("\r\nthe task has not been executed");
-										te = new ProcessTimeoutException(msg.toString());
+										msg.append("\r\nthe request has not been executed");
+										te = new RequestAbortedException(msg.toString());
 										te.setStackTrace(new StackTraceElement[] {});
 									} else {
 										te = new ProcessTimeoutException(msg.toString());

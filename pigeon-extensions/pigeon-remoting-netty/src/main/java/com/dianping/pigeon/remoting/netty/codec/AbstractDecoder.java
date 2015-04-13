@@ -45,7 +45,6 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 		try {
 			DebugUtil.getTimestamp();
 		} catch (NoSuchMethodError e) {
-			logger.warn("timeline is disabled with netty");
 			isNettyTimelineEnabled = false;
 		}
 	}

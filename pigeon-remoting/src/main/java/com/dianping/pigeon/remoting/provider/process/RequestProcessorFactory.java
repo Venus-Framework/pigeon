@@ -6,18 +6,17 @@ package com.dianping.pigeon.remoting.provider.process;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
-import com.dianping.pigeon.remoting.provider.process.akka.RequestAkkaProcessor;
-import com.dianping.pigeon.remoting.provider.process.threadpool.RequestThreadPoolProcessor;
+import com.dianping.pigeon.remoting.provider.process.actor.RequestActorProcessor;
 
 public class RequestProcessorFactory {
 
 	private static final String processType = ConfigManagerLoader.getConfigManager().getStringValue(
-			"pigeon.provider.processtype", "threadpool");
+			"pigeon.provider.processtype", "thread");
 
 	public static RequestProcessor selectProcessor(ServerConfig serverConfig) {
-		if ("akka".equalsIgnoreCase(processType)) {
-			return new RequestAkkaProcessor(serverConfig);
+		if ("actor".equalsIgnoreCase(processType)) {
+			return new RequestActorProcessor(serverConfig);
 		}
-		return new RequestThreadPoolProcessor(serverConfig);
+		return new RequestDefaultProcessor(serverConfig);
 	}
 }

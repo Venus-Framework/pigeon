@@ -21,20 +21,20 @@ public final class InvokerStatisticsHolder {
 
 	public static void init() {
 	}
-	
+
 	public static Map<String, InvokerCapacityBucket> getCapacityBuckets() {
 		return appCapacityBuckets;
 	}
 
-	public static InvokerCapacityBucket getCapacityBucket(InvocationRequest request) {
-		String fromApp = request.getApp();
-		if (fromApp == null) {
-			fromApp = "";
+	public static InvokerCapacityBucket getCapacityBucket(InvocationRequest request, String targetApp) {
+		String toApp = targetApp;
+		if (toApp == null) {
+			toApp = "";
 		}
-		InvokerCapacityBucket barrel = appCapacityBuckets.get(fromApp);
+		InvokerCapacityBucket barrel = appCapacityBuckets.get(toApp);
 		if (barrel == null) {
-			InvokerCapacityBucket newBarrel = new InvokerCapacityBucket(fromApp);
-			barrel = appCapacityBuckets.putIfAbsent(fromApp, newBarrel);
+			InvokerCapacityBucket newBarrel = new InvokerCapacityBucket(toApp);
+			barrel = appCapacityBuckets.putIfAbsent(toApp, newBarrel);
 			if (barrel == null) {
 				barrel = newBarrel;
 			}
@@ -42,18 +42,18 @@ public final class InvokerStatisticsHolder {
 		return barrel;
 	}
 
-	public static void flowIn(InvocationRequest request) {
+	public static void flowIn(InvocationRequest request, String targetApp) {
 		if (checkRequestNeedStat(request)) {
-			InvokerCapacityBucket barrel = getCapacityBucket(request);
+			InvokerCapacityBucket barrel = getCapacityBucket(request, targetApp);
 			if (barrel != null) {
 				barrel.flowIn(request);
 			}
 		}
 	}
 
-	public static void flowOut(InvocationRequest request) {
+	public static void flowOut(InvocationRequest request, String targetApp) {
 		if (checkRequestNeedStat(request)) {
-			InvokerCapacityBucket barrel = getCapacityBucket(request);
+			InvokerCapacityBucket barrel = getCapacityBucket(request, targetApp);
 			if (barrel != null) {
 				barrel.flowOut(request);
 			}

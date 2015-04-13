@@ -31,6 +31,10 @@ public final class Constants {
 	public static final int CALLTYPE_REPLY = 1;
 	public static final int CALLTYPE_NOREPLY = 2;
 
+	public static final String PROCESS_MODEL_DEFAULT = "default";
+	public static final String PROCESS_MODEL_THREAD = "thread";
+	public static final String PROCESS_MODEL_ACTOR = "actor";
+
 	public static final String CALL_SYNC = "sync";
 	public static final String CALL_CALLBACK = "callback";
 	public static final String CALL_ONEWAY = "oneway";
@@ -135,7 +139,7 @@ public final class Constants {
 	public static final String DEFAULT_MANAGER_ADDRESS = "lionapi.dp:8080";
 	public static final boolean DEFAULT_NOTIFY_ENABLE = true;
 	public static final boolean DEFAULT_TEST_ENABLE = true;
-	public static final int DEFAULT_CONNECT_TIMEOUT = 500;
+	public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
 	public static final int DEFAULT_WEIGHT_WAMUPPERIOD = 1000;
 	public static final int DEFAULT_WEIGHT_STARTDELAY = 30000;
 

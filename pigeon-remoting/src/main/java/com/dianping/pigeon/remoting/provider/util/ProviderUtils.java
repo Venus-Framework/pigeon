@@ -14,6 +14,8 @@ import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
+import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.ProviderExceptionTranslator;
 import com.dianping.pigeon.util.LangUtils;
 import com.dianping.pigeon.util.VersionUtils;
@@ -100,4 +102,13 @@ public final class ProviderUtils {
 		return response;
 	}
 
+	public static String getRequestDetailInfo(String title, ProviderContext providerContext, InvocationRequest request) {
+		StringBuilder msg = new StringBuilder();
+		msg.append(title).append(", from:")
+				.append(providerContext.getChannel() == null ? "" : providerContext.getChannel().getRemoteAddress())
+				.append(", to:").append(ExtensionLoader.getExtension(ConfigManager.class).getLocalIp())
+				.append(", time:").append(System.currentTimeMillis()).append("\r\nrequest:")
+				.append(InvocationUtils.toJsonString(request));
+		return msg.toString();
+	}
 }

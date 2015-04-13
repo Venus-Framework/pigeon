@@ -118,6 +118,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 			providerConfig.setUrl(service.url());
 			providerConfig.setVersion(service.version());
 			providerConfig.setSharedPool(service.useSharedPool());
+			providerConfig.setActives(service.actives());
 
 			ServerConfig serverConfig = new ServerConfig();
 			serverConfig.setPort(service.port());
@@ -217,7 +218,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 			invokerConfig = new InvokerConfig(referenceClass, reference.url(), reference.timeout(),
 					reference.callType(), reference.serialize(), callback, reference.group(), false,
 					reference.loadbalance(), reference.cluster(), reference.retries(), reference.timeoutRetry(),
-					reference.vip(), reference.version(), reference.protocol());
+					reference.vip(), reference.version(), reference.protocol(), reference.processModel());
 			invokerConfigs.putIfAbsent(key, invokerConfig);
 			invokerConfig = invokerConfigs.get(key);
 		}

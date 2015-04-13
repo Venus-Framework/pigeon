@@ -49,6 +49,9 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 
 	private static final String KEY_LOG_TIMEOUT_PERIOD = "pigeon.invoker.log.timeout.period.apps";
 
+	private static boolean isLogParameters = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.provider.log.parameters", true);
+
 	private static class InnerConfigChangeListener implements ConfigChangeListener {
 
 		@Override
@@ -124,12 +127,17 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						transaction.addData("CallType", invokerConfig.getCallType());
 						transaction.addData("Timeout", invokerConfig.getTimeout());
 						transaction.addData("Serialize", invokerConfig.getSerialize());
-						
+
 						Client client = invocationContext.getClient();
-						logger.logEvent("PigeonCall.server", client.getAddress(),
-								InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
 						targetApp = RegistryManager.getInstance().getServerApp(client.getAddress());
 						logger.logEvent("PigeonCall.app", targetApp, "");
+
+						String parameters = "";
+						if (isLogParameters) {
+							parameters = InvocationUtils.toJsonString(request.getParameters(), 1000, 50);
+						}
+						logger.logEvent("PigeonCall.server", client.getAddress(), parameters);
+
 						if (SizeMonitor.isEnable()) {
 							SizeMonitorInfo sizeInfo = MonitorHelper.getSize();
 							if (sizeInfo != null) {

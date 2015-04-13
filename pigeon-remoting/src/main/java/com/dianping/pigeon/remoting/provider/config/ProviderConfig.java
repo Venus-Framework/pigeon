@@ -27,6 +27,15 @@ public class ProviderConfig<T> {
 	private boolean useSharedPool = configManager.getBooleanValue(Constants.KEY_SERVICE_SHARED,
 			Constants.DEFAULT_SERVICE_SHARED);
 	private Map<String, ProviderMethodConfig> methods;
+	private int actives = 0;
+
+	public int getActives() {
+		return actives;
+	}
+
+	public void setActives(int actives) {
+		this.actives = actives;
+	}
 
 	public Map<String, ProviderMethodConfig> getMethods() {
 		return methods;

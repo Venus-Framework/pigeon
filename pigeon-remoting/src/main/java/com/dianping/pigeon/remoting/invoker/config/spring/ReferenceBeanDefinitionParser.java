@@ -27,13 +27,6 @@ import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
 import com.dianping.pigeon.remoting.invoker.config.InvokerMethodConfig;
 import com.dianping.pigeon.util.ClassUtils;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: PigeonBeanDefinitionParser.java, v 0.1 2013-6-24 下午9:58:37
- *          jianhuihuang Exp $
- */
 public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 
 	/** Default placeholder prefix: "${" */
@@ -50,9 +43,8 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 	public static AtomicInteger idCounter = new AtomicInteger();
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
-	
-	private static boolean checkRefExists = configManager.getBooleanValue(
-			"pigeon.config.spring.checkrefexists", false);
+
+	private static boolean checkRefExists = configManager.getBooleanValue("pigeon.config.spring.checkrefexists", false);
 
 	public ReferenceBeanDefinitionParser(Class<?> beanClass, boolean required) {
 		this.beanClass = beanClass;
@@ -90,6 +82,9 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		if (element.hasAttribute("callType")) {
 			properties.addPropertyValue("callType", resolveReference(element, "callType"));
+		}
+		if (element.hasAttribute("processModel")) {
+			properties.addPropertyValue("processModel", resolveReference(element, "processModel"));
 		}
 		if (element.hasAttribute("timeout")) {
 			properties.addPropertyValue("timeout", resolveReference(element, "timeout"));

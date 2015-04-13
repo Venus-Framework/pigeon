@@ -46,4 +46,5 @@ public @interface Reference {
 
 	String group() default "";
 
+	String processModel() default Constants.PROCESS_MODEL_DEFAULT;
 }

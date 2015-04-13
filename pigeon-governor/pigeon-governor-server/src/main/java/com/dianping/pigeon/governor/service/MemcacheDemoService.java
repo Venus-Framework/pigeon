@@ -14,8 +14,6 @@ import org.springframework.util.CollectionUtils;
 
 import com.dianping.avatar.cache.CacheKey;
 import com.dianping.avatar.cache.CacheService;
-import com.dianping.avatar.tracker.ExecutionContextHolder;
-import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.cache.core.CASResponse;
 import com.dianping.cache.core.CASValue;
 import com.dianping.cache.exception.CacheException;

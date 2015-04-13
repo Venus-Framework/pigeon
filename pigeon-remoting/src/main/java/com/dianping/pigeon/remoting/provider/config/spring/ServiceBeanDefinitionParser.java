@@ -101,6 +101,9 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 		if (element.hasAttribute("useSharedPool")) {
 			properties.addPropertyValue("useSharedPool", resolveReference(element, "useSharedPool"));
 		}
+		if (element.hasAttribute("actives")) {
+			properties.addPropertyValue("actives", resolveReference(element, "actives"));
+		}
 		if (element.hasChildNodes()) {
 			parseMethods(url, id, element.getChildNodes(), beanDefinition, parserContext);
 		}

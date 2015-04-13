@@ -8,10 +8,12 @@ import org.apache.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.process.statistics.InvokerStatisticsChecker;
@@ -41,9 +43,10 @@ public class GatewayInvokeFilter extends InvocationInvokeFilter {
 		}
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		InvocationRequest request = invocationContext.getRequest();
-		int maxRequests = invokerConfig.getMaxRequests();
+		Client client = invocationContext.getClient();
+		String targetApp = RegistryManager.getInstance().getServerApp(client.getAddress());
 		try {
-			InvokerStatisticsHolder.flowIn(request);
+			InvokerStatisticsHolder.flowIn(request, targetApp);
 			try {
 				return handler.handle(invocationContext);
 			} catch (Throwable e) {
@@ -53,7 +56,7 @@ public class GatewayInvokeFilter extends InvocationInvokeFilter {
 				throw e;
 			}
 		} finally {
-			InvokerStatisticsHolder.flowOut(request);
+			InvokerStatisticsHolder.flowOut(request, targetApp);
 		}
 	}
 

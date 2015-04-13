@@ -24,7 +24,13 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public String echo(String input) {
-		System.out.println("key1=" + ContextUtils.getContextValue("key1"));
+		//System.out.println("key1=" + ContextUtils.getContextValue("key1"));
+		System.out.println("recv:" + input);
+//		try {
+//			Thread.sleep(5000);
+//		} catch (InterruptedException e) {
+//		}
+		System.out.println("echo:" + input);
 		return "echo:" + input;
 	}
 

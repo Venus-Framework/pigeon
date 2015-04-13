@@ -40,6 +40,9 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 	private static boolean isAccessLogEnabled = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.provider.accesslog.enable", false);
 
+	private static boolean isLogParameters = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.provider.log.parameters", true);
+
 	private String getIp(String address) {
 		String ip = address;
 		if (address != null) {
@@ -61,7 +64,6 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 		ProviderChannel channel = invocationContext.getChannel();
 		MonitorTransaction transaction = null;
 		MonitorLogger monitorLogger = null;
-		boolean timeout = false;
 		String fromIp = null;
 		if (monitor != null) {
 			monitorLogger = monitor.getLogger();
@@ -89,11 +91,6 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			InvocationResponse response = null;
 			try {
 				response = handler.handle(invocationContext);
-				long currentTime = System.currentTimeMillis();
-				if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
-						&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
-					timeout = true;
-				}
 			} catch (RuntimeException e) {
 				if (transaction != null) {
 					try {
@@ -108,11 +105,15 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			}
 			if (transaction != null) {
 				try {
-					StringBuilder event = new StringBuilder();
-					event.append(InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
-					fromIp = getIp(channel.getRemoteAddress());
-					monitorLogger.logEvent("PigeonService.client", fromIp, event.toString());
 					monitorLogger.logEvent("PigeonService.app", request.getApp(), "");
+					String parameters = "";
+					fromIp = getIp(channel.getRemoteAddress());
+					if (isLogParameters) {
+						StringBuilder event = new StringBuilder();
+						event.append(InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
+						parameters = event.toString();
+					}
+					monitorLogger.logEvent("PigeonService.client", fromIp, parameters);
 					if (SizeMonitor.isEnable()) {
 						SizeMonitorInfo sizeInfo = MonitorHelper.getSize();
 						if (sizeInfo != null) {
