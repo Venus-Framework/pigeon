@@ -22,6 +22,14 @@ public class RequestDefaultProcessor implements RequestProcessor {
 		threadProcessor = new RequestThreadPoolProcessor(serverConfig);
 	}
 
+	public RequestActorProcessor getActorProcessor() {
+		return (RequestActorProcessor) akkaProcessor;
+	}
+
+	public RequestThreadPoolProcessor getThreadPoolProcessor() {
+		return (RequestThreadPoolProcessor) threadProcessor;
+	}
+
 	@Override
 	public void start() {
 		akkaProcessor.start();

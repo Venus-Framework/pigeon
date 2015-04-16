@@ -26,6 +26,7 @@ public class CuratorEventListener implements CuratorListener {
 	private static final int ADDRESS = 1;
 	private static final int WEIGHT = 2;
 	private static final int APP = 3;
+	private static final int VERSION = 4;
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
@@ -63,6 +64,8 @@ public class CuratorEventListener implements CuratorListener {
 				weightChanged(pathInfo);
 			} else if (pathInfo.type == APP) {
 				appChanged(pathInfo);
+			} else if (pathInfo.type == VERSION) {
+				versionChanged(pathInfo);
 			}
 		} catch (Throwable e) {
 			logger.error("Error in ZookeeperWatcher.process()", e);
@@ -136,6 +139,17 @@ public class CuratorEventListener implements CuratorListener {
 		}
 	}
 
+	private void versionChanged(PathInfo pathInfo) throws RegistryException {
+		try {
+			String version = client.get(pathInfo.path);
+			logger.info("version changed, path " + pathInfo.path + " value " + version);
+			RegistryEventListener.serverVersionChanged(pathInfo.server, version);
+			client.watch(pathInfo.path);
+		} catch (Exception e) {
+			throw new RegistryException(e);
+		}
+	}
+
 	public PathInfo parsePath(String path) {
 		if (path == null)
 			return null;
@@ -160,6 +174,10 @@ public class CuratorEventListener implements CuratorListener {
 			pathInfo = new PathInfo(path);
 			pathInfo.type = APP;
 			pathInfo.server = path.substring(Constants.APP_PATH.length() + 1);
+		} else if (path.startsWith(Constants.VERSION_PATH)) {
+			pathInfo = new PathInfo(path);
+			pathInfo.type = VERSION;
+			pathInfo.server = path.substring(Constants.VERSION_PATH.length() + 1);
 		}
 		return pathInfo;
 	}

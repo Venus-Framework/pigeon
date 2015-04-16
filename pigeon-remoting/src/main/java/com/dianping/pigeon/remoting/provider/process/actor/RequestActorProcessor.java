@@ -6,9 +6,11 @@ package com.dianping.pigeon.remoting.provider.process.actor;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
+import scala.concurrent.duration.Duration;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
@@ -23,10 +25,8 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
-import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
 import com.dianping.pigeon.remoting.provider.process.AbstractRequestProcessor;
 import com.dianping.pigeon.remoting.provider.process.event.RequestEvent;
-import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 
 /**
  * 
@@ -37,14 +37,33 @@ public class RequestActorProcessor extends AbstractRequestProcessor {
 
 	private static final Logger logger = LoggerLoader.getLogger(RequestActorProcessor.class);
 	private final ActorSystem system = ActorSystem.create("Pigeon-Provider-Request-Processor");
-	private int mailboxMinSize = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.actor.mailbox.minsize", 5);
-	private int mailboxMaxSize = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.actor.mailbox.maxsize", 300);
+	ActorRef defaultActor = null;
+	private int lowerBound = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.provider.actor.mailbox.lowerbound", 5);
+	private int upperBound = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.provider.actor.mailbox.upperbound", 300);
+	private int pressureThreshold = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.provider.actor.mailbox.pressurethreshold", 1);
+	private double rampupRate = ConfigManagerLoader.getConfigManager().getDoubleValue(
+			"pigeon.provider.actor.mailbox.rampuprate", 0.2d);
+	private double backoffThreshold = ConfigManagerLoader.getConfigManager().getDoubleValue(
+			"pigeon.provider.actor.mailbox.backoffthreshold", 0.3d);
+	private double backoffRate = ConfigManagerLoader.getConfigManager().getDoubleValue(
+			"pigeon.provider.actor.mailbox.backoffrate", 0.1d);
+	private int messagesPerResize = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.provider.actor.mailbox.messagesperresize", 10);
+	private int stopDelay = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.provider.actor.mailbox.stopdelay", 1);
+
 	private ConcurrentHashMap<String, ActorInfo> serviceActors = null;
 
 	public RequestActorProcessor(ServerConfig serverConfig) {
 		serviceActors = new ConcurrentHashMap<String, ActorInfo>();
+		Resizer resizer = new DefaultResizer(lowerBound, upperBound, pressureThreshold, rampupRate, backoffThreshold,
+				backoffRate, Duration.create(stopDelay, TimeUnit.SECONDS), messagesPerResize);
+		Props actorProps = Props.create(RequestEventActor.class, requestContextMap);
+		SmallestMailboxRouter router = new SmallestMailboxRouter(resizer);
+		defaultActor = system.actorOf(actorProps.withRouter(router));
 	}
 
 	private static class ActorInfo {
@@ -78,8 +97,7 @@ public class RequestActorProcessor extends AbstractRequestProcessor {
 		StringBuilder str = new StringBuilder();
 		for (String key : serviceActors.keySet()) {
 			ActorInfo actorInfo = serviceActors.get(key);
-			str.append("service:").append(key).append(",actor info:[").append(getActorStatistics(actorInfo))
-					.append("]");
+			str.append("[").append(key).append("=").append(getActorStatistics(actorInfo)).append("],");
 		}
 		return str.toString();
 	}
@@ -94,27 +112,24 @@ public class RequestActorProcessor extends AbstractRequestProcessor {
 	}
 
 	private String getActorStatistics(ActorInfo actorInfo) {
-		DefaultResizer resizer = (DefaultResizer) actorInfo.getRouter().resizer().get();
-		StringBuilder str = new StringBuilder();
-		str.append("resizer:upperBound:").append(resizer.upperBound());
-		str.append(",lowerBound:").append(resizer.lowerBound());
-		return str.toString();
+		return actorInfo.getRouter().toString();
 	}
 
 	@Override
 	public <T> void addService(ProviderConfig<T> providerConfig) {
-		int minSize = mailboxMinSize;
+		int minSize = lowerBound;
 		int maxSize = providerConfig.getActives();
 		if (minSize <= 0) {
 			minSize = 10;
 		}
 		if (maxSize <= 0) {
-			maxSize = mailboxMaxSize;
+			maxSize = upperBound;
 		}
 		if (maxSize < minSize) {
 			maxSize = minSize;
 		}
-		Resizer resizer = new DefaultResizer(minSize, maxSize);
+		Resizer resizer = new DefaultResizer(lowerBound, upperBound, pressureThreshold, rampupRate, backoffThreshold,
+				backoffRate, Duration.create(stopDelay, TimeUnit.SECONDS), messagesPerResize);
 		Props actorProps = Props.create(RequestEventActor.class, requestContextMap);
 		SmallestMailboxRouter router = new SmallestMailboxRouter(resizer);
 		ActorRef actor = system.actorOf(actorProps.withRouter(router));
@@ -149,9 +164,7 @@ public class RequestActorProcessor extends AbstractRequestProcessor {
 		if (actorInfo != null) {
 			actorInfo.getActor().tell(event, null);
 		} else {
-			requestContextMap.remove(request);
-			throw new InvocationFailureException(ProviderUtils.getRequestDetailInfo("no actor found", providerContext,
-					request));
+			defaultActor.tell(event, null);
 		}
 		return null;
 	}

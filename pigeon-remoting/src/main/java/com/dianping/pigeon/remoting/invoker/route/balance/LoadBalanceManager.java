@@ -32,6 +32,7 @@ import com.dianping.pigeon.remoting.invoker.route.statistics.CapacityChecker;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
+import com.dianping.pigeon.util.ClassUtils;
 
 public class LoadBalanceManager {
 
@@ -107,21 +108,26 @@ public class LoadBalanceManager {
 		LoadBalance loadBlanceObj = null;
 		if (loadBalance instanceof LoadBalance) {
 			loadBlanceObj = (LoadBalance) loadBalance;
-		} else {
-			if (loadBalance instanceof String && StringUtils.isNotBlank((String) loadBalance)) {
-				if (!loadBalanceMap.containsKey(loadBalance)) {
-					throw new InvalidParameterException("Loadbalance[" + loadBalance + "] registered by service["
-							+ serviceId + "] is not supported.");
-				}
-				loadBlanceObj = loadBalanceMap.get(loadBalance);
-			} else if (loadBalance instanceof Class) {
-				Class<? extends LoadBalance> loadBalanceClass = (Class<? extends LoadBalance>) loadBalance;
+		} else if (loadBalance instanceof String && StringUtils.isNotBlank((String) loadBalance)) {
+			if (!loadBalanceMap.containsKey(loadBalance)) {
 				try {
-					loadBlanceObj = loadBalanceClass.newInstance();
+					Class<? extends LoadBalance> loadbalanceClass = (Class<? extends LoadBalance>) ClassUtils
+							.loadClass((String) loadBalance);
+					loadBlanceObj = loadbalanceClass.newInstance();
 				} catch (Throwable e) {
-					throw new InvalidParameterException("Register loadbalance[service=" + serviceId + ", class="
-							+ loadBalance + "] failed.", e);
+					throw new InvalidParameterException("failed to register loadbalance[service=" + serviceId
+							+ ",class=" + loadBalance + "]", e);
 				}
+			} else {
+				loadBlanceObj = loadBalanceMap.get(loadBalance);
+			}
+		} else if (loadBalance instanceof Class) {
+			try {
+				Class<? extends LoadBalance> loadbalanceClass = (Class<? extends LoadBalance>) loadBalance;
+				loadBlanceObj = loadbalanceClass.newInstance();
+			} catch (Throwable e) {
+				throw new InvalidParameterException("failed to register loadbalance[service=" + serviceId + ",class="
+						+ loadBalance + "]", e);
 			}
 		}
 		if (loadBlanceObj != null) {

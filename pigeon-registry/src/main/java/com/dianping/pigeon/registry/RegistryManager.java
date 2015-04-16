@@ -4,15 +4,12 @@
  */
 package com.dianping.pigeon.registry;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.naming.ServiceUnavailableException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -250,6 +247,8 @@ public class RegistryManager {
 			if (registry != null) {
 				String app = registry.getServerApp(hostInfo.getConnect());
 				hostInfo.setApp(app);
+				String version = registry.getServerVersion(hostInfo.getConnect());
+				hostInfo.setVersion(version);
 			}
 		}
 	}
@@ -321,6 +320,20 @@ public class RegistryManager {
 		}
 	}
 
+	public String getServerVersion(String serverAddress) {
+		HostInfo hostInfo = referencedAddresses.get(serverAddress);
+		String version = null;
+		if (hostInfo != null) {
+			version = hostInfo.getVersion();
+			if (version == null && registry != null) {
+				version = registry.getServerVersion(serverAddress);
+				hostInfo.setVersion(version);
+			}
+			return version;
+		}
+		return null;
+	}
+
 	public void unregisterServerVersion(String serverAddress) {
 		if (registry != null) {
 			registry.unregisterServerVersion(serverAddress);
@@ -334,6 +347,14 @@ public class RegistryManager {
 			HostInfo hostInfo = referencedAddresses.get(serverAddress);
 			if (hostInfo != null) {
 				hostInfo.setApp(app);
+			}
+		}
+
+		@Override
+		public void onServerVersionChange(String serverAddress, String version) {
+			HostInfo hostInfo = referencedAddresses.get(serverAddress);
+			if (hostInfo != null) {
+				hostInfo.setVersion(version);
 			}
 		}
 	}

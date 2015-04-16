@@ -15,6 +15,15 @@ public class HostInfo {
 	private int port;
 	private int weight;
 	private String app;
+	private String version;
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
 
 	public String getApp() {
 		return app;

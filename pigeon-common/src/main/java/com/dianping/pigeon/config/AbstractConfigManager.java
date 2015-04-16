@@ -96,6 +96,15 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	public Float getFloatValue(String key) {
 		return getProperty(key, Float.class);
 	}
+	
+	public double getDoubleValue(String key, double defaultValue) {
+		Double value = getDoubleValue(key);
+		return value != null ? value : defaultValue;
+	}
+
+	public Double getDoubleValue(String key) {
+		return getProperty(key, Double.class);
+	}
 
 	@Override
 	public String getStringValue(String key, String defaultValue) {
@@ -217,7 +226,9 @@ public abstract class AbstractConfigManager implements ConfigManager {
 					value = Float.valueOf(strValue);
 				} else if (Boolean.class == type) {
 					value = Boolean.valueOf(strValue);
-				}
+				} else if (Double.class == type) {
+					value = Double.valueOf(strValue);
+				} 
 			}
 			if (value != null) {
 				localCache.put(key, value);

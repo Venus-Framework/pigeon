@@ -79,4 +79,10 @@ public class RegistryEventListener {
 			listener.onServerAppChange(serverAddress, app);
 		}
 	}
+	
+	public static void serverVersionChanged(String serverAddress, String version) {
+		for (ServerInfoListener listener : serverInfoListeners) {
+			listener.onServerVersionChange(serverAddress, version);
+		}
+	}
 }

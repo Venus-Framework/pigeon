@@ -22,11 +22,13 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.listener.ServiceWarmupListener;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.util.ClassUtils;
 
 /**
  * @author xiangwu
@@ -138,6 +140,10 @@ public class ServiceFactory {
 			try {
 				InvokerBootStrap.startup();
 				service = SerializerFactory.getSerializer(invokerConfig.getSerialize()).proxyRequest(invokerConfig);
+				if (StringUtils.isNotBlank(invokerConfig.getLoadbalance())) {
+					LoadBalanceManager.register(invokerConfig.getUrl(), invokerConfig.getGroup(),
+							invokerConfig.getLoadbalance());
+				}
 			} catch (Throwable t) {
 				throw new RpcException("error while trying to get service:" + invokerConfig, t);
 			}

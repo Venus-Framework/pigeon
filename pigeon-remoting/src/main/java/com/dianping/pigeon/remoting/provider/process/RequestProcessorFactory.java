@@ -5,16 +5,17 @@
 package com.dianping.pigeon.remoting.provider.process;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.process.actor.RequestActorProcessor;
 
 public class RequestProcessorFactory {
 
-	private static final String processType = ConfigManagerLoader.getConfigManager().getStringValue(
-			"pigeon.provider.processtype", "thread");
+	public static final String PROCESS_TYPE = ConfigManagerLoader.getConfigManager().getStringValue(
+			"pigeon.provider.processmodel", Constants.PROCESS_MODEL_THREAD);
 
 	public static RequestProcessor selectProcessor(ServerConfig serverConfig) {
-		if ("actor".equalsIgnoreCase(processType)) {
+		if (Constants.PROCESS_MODEL_ACTOR.equals(PROCESS_TYPE)) {
 			return new RequestActorProcessor(serverConfig);
 		}
 		return new RequestDefaultProcessor(serverConfig);

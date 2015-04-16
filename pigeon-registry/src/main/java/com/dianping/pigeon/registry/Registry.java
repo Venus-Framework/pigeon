@@ -37,6 +37,8 @@ public interface Registry {
 
 	void setServerVersion(String serverAddress, String version);
 
+	String getServerVersion(String serverAddress);
+
 	void unregisterServerVersion(String serverAddress);
 
 }

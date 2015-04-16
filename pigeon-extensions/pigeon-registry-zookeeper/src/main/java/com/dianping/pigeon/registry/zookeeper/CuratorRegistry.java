@@ -315,6 +315,17 @@ public class CuratorRegistry implements Registry {
 			}
 		}
 	}
+	
+	@Override
+	public String getServerVersion(String serverAddress) {
+		String path = Utils.getVersionPath(serverAddress);
+		try {
+			return client.get(path);
+		} catch (Throwable e) {
+			logger.error("failed to get version for " + serverAddress);
+			return null;
+		}
+	}
 
 	public void unregisterServerVersion(String serverAddress) {
 		String path = Utils.getVersionPath(serverAddress);

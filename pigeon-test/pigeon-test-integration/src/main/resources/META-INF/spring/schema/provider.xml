@@ -20,13 +20,11 @@
 
 	<!-- useSharedPool设置为false代表每个方法会使用独立的线程池，方法级别的actives属性代表该方法的最大请求并发数-->
 	<pigeon:service useSharedPool="${pigeon-test.sharedpool.use}" server="pigeonServer"
-		url="com.dianping.pigeon.demo.EchoService"
+		url="com.dianping.pigeon.demo.EchoService" actives="300"
 		interface="com.dianping.pigeon.demo.EchoService" ref="defaultEchoServiceImpl">
-		<pigeon:method name="echo" actives="${pigeon-test.methodpool.actives.echo}" />
-		<pigeon:method name="echo2" actives="${pigeon-test.methodpool.actives.echo2}" />
 	</pigeon:service>
 
-	<pigeon:service url="com.dianping.pigeon.demo.UserService"
+	<pigeon:service url="com.dianping.pigeon.demo.UserService" actives="100" useSharedPool="false"
 		server="pigeonServer" interface="com.dianping.pigeon.demo.UserService"
 		ref="defaultUserServiceImpl">
 	</pigeon:service>

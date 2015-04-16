@@ -12,9 +12,8 @@
 		<property name="serviceName" value="com.dianping.pigeon.demo.EchoService" />
 		<property name="iface" value="com.dianping.pigeon.demo.EchoService" />
 		<property name="serialize" value="fst" />
-		<property name="callMethod" value="oneway" />
+		<property name="callMethod" value="sync" />
 		<property name="timeout" value="500" />
-		<!-- <property name="processModel" value="actor" /> -->
 	</bean>
 
 	<bean id="echoServiceWithFuture" class="com.dianping.dpsf.spring.ProxyBeanFactory"

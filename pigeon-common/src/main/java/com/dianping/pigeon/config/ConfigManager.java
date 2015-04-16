@@ -34,6 +34,10 @@ public interface ConfigManager {
 
 	public float getFloatValue(String key, float defaultValue);
 
+	public Double getDoubleValue(String key);
+
+	public double getDoubleValue(String key, double defaultValue);
+
 	public Boolean getBooleanValue(String key);
 
 	public boolean getBooleanValue(String key, boolean defaultValue);
@@ -59,5 +63,5 @@ public interface ConfigManager {
 	public void deleteKey(String key);
 
 	public List<ConfigChangeListener> getConfigChangeListeners();
-	
+
 }

@@ -2,7 +2,9 @@ package com.dianping.pigeon.remoting.provider.process.statistics;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -11,6 +13,8 @@ import org.apache.log4j.Logger;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.provider.process.RequestProcessorFactory;
 
 public class ProviderCapacityBucket implements Serializable {
 	private static final Logger logger = LoggerLoader.getLogger(ProviderCapacityBucket.class);
@@ -24,9 +28,14 @@ public class ProviderCapacityBucket implements Serializable {
 	public static final boolean enableMinuteStats = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.providerstat.minute.enable", true);
 
+	public static final boolean enableThreadsStats = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.providerstat.threads.enable", true);
+
+	private Map<Integer, Set<String>> totalThreadsInSecond = new ConcurrentHashMap<Integer, Set<String>>();
+
 	public static void init() {
 	}
-	
+
 	public ProviderCapacityBucket(String address) {
 		preFillData();
 	}
@@ -34,9 +43,14 @@ public class ProviderCapacityBucket implements Serializable {
 	public void flowIn(InvocationRequest request) {
 		Calendar now = Calendar.getInstance();
 		requests.incrementAndGet();
-		incrementTotalRequestsInSecond(now.get(Calendar.SECOND));
+		int second = now.get(Calendar.SECOND);
+		incrementTotalRequestsInSecond(second);
+		if (enableThreadsStats && Constants.PROCESS_MODEL_ACTOR.equals(RequestProcessorFactory.PROCESS_TYPE)) {
+			incrementTotalThreadsInSecond(second);
+		}
 		if (enableMinuteStats) {
-			incrementTotalRequestsInMinute(now.get(Calendar.MINUTE));
+			int minute = now.get(Calendar.MINUTE);
+			incrementTotalRequestsInMinute(minute);
 		}
 	}
 
@@ -76,6 +90,14 @@ public class ProviderCapacityBucket implements Serializable {
 		return counter != null ? counter.get() : 0;
 	}
 
+	public Set<String> getThreadsInLastSecond() {
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.SECOND, -1);
+		int lastSecond = cal.get(Calendar.SECOND);
+		lastSecond = lastSecond >= 0 ? lastSecond : lastSecond + 60;
+		return totalThreadsInSecond.get(lastSecond);
+	}
+
 	private void incrementTotalRequestsInSecond(int second) {
 		AtomicInteger counter = totalRequestsInSecond.get(second);
 		if (counter != null) {
@@ -94,6 +116,15 @@ public class ProviderCapacityBucket implements Serializable {
 		}
 	}
 
+	private void incrementTotalThreadsInSecond(int second) {
+		Set<String> threads = totalThreadsInSecond.get(second);
+		if (threads != null) {
+			threads.add(Thread.currentThread().getName());
+		} else {
+			logger.warn("Impossible case happended, second[" + second + "]'s thread counter is null.");
+		}
+	}
+
 	/**
 	 * 重置过期的每秒请求数计数器
 	 */
@@ -106,6 +137,12 @@ public class ProviderCapacityBucket implements Serializable {
 			AtomicInteger counter = totalRequestsInSecond.get(prevSec);
 			if (counter != null) {
 				counter.set(0);
+			}
+			if (enableThreadsStats) {
+				Set<String> threads = totalThreadsInSecond.get(prevSec);
+				if (threads != null) {
+					threads.clear();
+				}
 			}
 		}
 	}
@@ -129,6 +166,11 @@ public class ProviderCapacityBucket implements Serializable {
 		for (int sec = 0; sec < 60; sec++) {
 			totalRequestsInSecond.put(sec, new AtomicInteger());
 		}
+		if (enableThreadsStats) {
+			for (int sec = 0; sec < 60; sec++) {
+				totalThreadsInSecond.put(sec, new HashSet<String>());
+			}
+		}
 		if (enableMinuteStats) {
 			for (int min = 0; min < 60; min++) {
 				totalRequestsInMinute.put(min, new AtomicInteger());
@@ -143,6 +185,9 @@ public class ProviderCapacityBucket implements Serializable {
 				.toString();
 		if (enableMinuteStats) {
 			sb.append(",requests-lastminute:").append(getRequestsInLastMinute());
+		}
+		if (enableThreadsStats) {
+			sb.append(",threads-lastsecond:").append(getThreadsInLastSecond());
 		}
 		return sb.toString();
 	}

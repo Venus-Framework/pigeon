@@ -4,11 +4,11 @@
  */
 package com.dianping.pigeon.demo.api;
 
-import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.demo.EchoService;
-import com.dianping.pigeon.demo.EchoServiceCallback;
 import com.dianping.pigeon.demo.interceptor.MyInvokerProcessInterceptor;
 import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.process.InvokerProcessInterceptorFactory;
 
 public class Client {
@@ -17,14 +17,19 @@ public class Client {
 		InvokerProcessInterceptorFactory.registerInterceptor(new MyInvokerProcessInterceptor());
 
 		String url = "com.dianping.pigeon.demo.EchoService";
-		EchoService echoService = ServiceFactory.getService(url, EchoService.class);
+		InvokerConfig<EchoService> config = new InvokerConfig<EchoService>(url, EchoService.class);
+		config.setLoadbalance("com.dianping.pigeon.demo.api.MyLoadbalance");
+		config.setCallType(Constants.CALL_ONEWAY);
 
-		ServiceCallback callback = new EchoServiceCallback();
-		EchoService serviceWithCallback = ServiceFactory.getService(url, EchoService.class, callback);
+		EchoService echoService = ServiceFactory.getService(config);
+		int i = 0;
+		while (true) {
+			System.out.println("echoService result:" + echoService.echo("echoService_input" + (i++)));
+		}
 
-		System.out.println("echoService result:" + echoService.echo("echoService_input"));
-
-		serviceWithCallback.echo("echoServiceWithCallback_input");
+		// ServiceCallback callback = new EchoServiceCallback();
+		// EchoService serviceWithCallback = ServiceFactory.getService(url,
+		// EchoService.class, callback);
+		// serviceWithCallback.echo("echoServiceWithCallback_input");
 	}
-
 }
