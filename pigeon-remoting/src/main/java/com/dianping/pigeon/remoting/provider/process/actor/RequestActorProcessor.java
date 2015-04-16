@@ -55,6 +55,9 @@ public class RequestActorProcessor extends AbstractRequestProcessor {
 	private int stopDelay = ConfigManagerLoader.getConfigManager().getIntValue(
 			"pigeon.provider.actor.mailbox.stopdelay", 1);
 
+	private boolean useSharedActor = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.provider.actor.shared", false);
+
 	private ConcurrentHashMap<String, ActorInfo> serviceActors = null;
 
 	public RequestActorProcessor(ServerConfig serverConfig) {
@@ -160,11 +163,15 @@ public class RequestActorProcessor extends AbstractRequestProcessor {
 		RequestEvent event = new RequestEvent();
 		event.setProviderContext(providerContext);
 		requestContextMap.put(request, providerContext);
-		ActorInfo actorInfo = getActor(request);
-		if (actorInfo != null) {
-			actorInfo.getActor().tell(event, null);
-		} else {
+		if (useSharedActor) {
 			defaultActor.tell(event, null);
+		} else {
+			ActorInfo actorInfo = getActor(request);
+			if (actorInfo != null) {
+				actorInfo.getActor().tell(event, null);
+			} else {
+				defaultActor.tell(event, null);
+			}
 		}
 		return null;
 	}
