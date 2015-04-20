@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.dianping.pigeon.util.ContextUtils;
-
 public class EchoServiceDefaultImpl implements EchoService {
 
 	List<User> users = new ArrayList<User>();
@@ -24,12 +22,12 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public String echo(String input) {
-		//System.out.println("key1=" + ContextUtils.getContextValue("key1"));
+		// System.out.println("key1=" + ContextUtils.getContextValue("key1"));
 		System.out.println("recv:" + input);
-//		try {
-//			Thread.sleep(5000);
-//		} catch (InterruptedException e) {
-//		}
+		// try {
+		// Thread.sleep(5000);
+		// } catch (InterruptedException e) {
+		// }
 		System.out.println("echo:" + input);
 		return "echo:" + input;
 	}
@@ -46,8 +44,8 @@ public class EchoServiceDefaultImpl implements EchoService {
 	}
 
 	@Override
-	public String echo(Date input) {
-		return input.toString();
+	public Grade echo(Date input) {
+		return Grade.low;
 	}
 
 }

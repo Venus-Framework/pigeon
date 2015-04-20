@@ -41,7 +41,7 @@ public class EchoServiceAnnotationImpl implements EchoService {
 	}
 
 	@Override
-	public String echo(Date input) {
-		return input.toString();
+	public Grade echo(Date input) {
+		return Grade.low;
 	}
 }

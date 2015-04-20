@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.demo.typical;
 
-import java.util.ArrayList;
+import java.util.Date;
 
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
@@ -42,7 +42,7 @@ public class Client {
 				
 				 ContextUtils.putContextValue("key1", "1");
 				 System.out.println(echoService.echo("" + i++));
-				
+				 System.out.println(echoService.echo(new Date()));
 //				 ContextUtils.putContextValue("key1", user);
 //				 System.out.println(echoService.echo("hi, 2"));
 //				

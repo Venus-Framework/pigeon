@@ -7,15 +7,18 @@ import java.util.concurrent.Executors;
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Message;
 import com.dianping.cat.message.Transaction;
-import com.dianping.iphub.IpClient;
 import com.dianping.iphub.IpInfo;
 import com.dianping.iphub.exception.IpHubException;
 import com.dianping.pigeon.governor.status.StatusHolder;
+import com.dianping.pigeon.remoting.ServiceFactory;
 
 public class IpServiceDefaultImpl implements IpService {
 
+	private com.dianping.iphub.service.IpService ipService = ServiceFactory
+			.getService(com.dianping.iphub.service.IpService.class);
+
 	public IpInfo getIpInfo(String ip) throws IpHubException {
-		return IpClient.getIpInfo(ip);
+		return ipService.getIpInfo(ip);
 	}
 
 	protected static Random random = new Random();

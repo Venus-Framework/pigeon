@@ -10,13 +10,17 @@ import java.util.List;
 
 public interface EchoService {
 
-	String echo(Date input);
-	
+	Grade echo(Date input);
+
 	String echo(String input);
 
 	long now();
 
 	List<User> findUsers(int count);
+
+	enum Grade {
+		low, high
+	}
 
 	static class User implements Serializable {
 		/**
