@@ -137,9 +137,11 @@ public class CatMonitorTransaction implements MonitorTransaction {
 				Cat.setup(null);
 				tree = Cat.getManager().getThreadLocalMessageTree();
 			}
-			tree.setRootMessageId(rootMessageId);
-			tree.setParentMessageId(serverMessageId);
-			tree.setMessageId(currentMessageId);
+			if (tree != null) {
+				tree.setRootMessageId(rootMessageId);
+				tree.setParentMessageId(serverMessageId);
+				tree.setMessageId(currentMessageId);
+			}
 		}
 	}
 

@@ -42,6 +42,7 @@ public final class InvokerBootStrap {
 					InvokerProcessHandlerFactory.init();
 					SerializerFactory.init();
 					LoadBalanceManager.init();
+					ResponseProcessorFactory.selectProcessor();
 					InvokerStatisticsHolder.class.getSimpleName();
 					InvokerCapacityBucket.class.getSimpleName();
 					ServiceStatisticsHolder.class.getSimpleName();

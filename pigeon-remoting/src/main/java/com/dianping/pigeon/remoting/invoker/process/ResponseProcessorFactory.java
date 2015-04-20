@@ -16,12 +16,15 @@ public class ResponseProcessorFactory {
 
 	private static ResponseProcessor responseProcessor = null;
 
-	public static ResponseProcessor selectProcessor() {
+	static {
 		if (Constants.PROCESS_MODEL_ACTOR.equals(processType)) {
 			responseProcessor = new ResponseActorProcessor();
 		} else {
 			responseProcessor = new ResponseThreadPoolProcessor();
 		}
+	}
+
+	public static ResponseProcessor selectProcessor() {
 		return responseProcessor;
 	}
 
