@@ -21,11 +21,13 @@ public class ResponseEventActor extends UntypedActor {
 
 	@Override
 	public void onReceive(Object message) throws Exception {
-		ResponseEvent event = (ResponseEvent) message;
-		try {
-			ServiceInvocationRepository.getInstance().receiveResponse(event.getResponse());
-		} catch (Throwable t) {
-			logger.error("error while processing response", t);
+		if (message instanceof ResponseEvent) {
+			ResponseEvent event = (ResponseEvent) message;
+			try {
+				ServiceInvocationRepository.getInstance().receiveResponse(event.getResponse());
+			} catch (Throwable t) {
+				logger.error("error while processing response", t);
+			}
 		}
 	}
 }

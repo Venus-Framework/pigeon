@@ -41,37 +41,40 @@ public class RequestEventActor extends UntypedActor {
 
 	@Override
 	public void onReceive(Object message) throws Exception {
-		RequestEvent event = (RequestEvent) message;
-		ProviderContext providerContext = event.getProviderContext();
-		InvocationRequest request = providerContext.getRequest();
-		boolean timeout = false;
-		long currentTime = System.currentTimeMillis();
-		if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
-				&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
-			timeout = true;
-		}
-		try {
-			if (timeout) {
-				Exception te = null;
-				te = new RequestAbortedException(ProviderUtils.getRequestDetailInfo("the request has not been executed by actor",
-						providerContext, request));
-				te.setStackTrace(new StackTraceElement[] {});
-				logger.error(te.getMessage(), te);
-				if (monitorLogger != null) {
-					monitorLogger.logError(te);
-				}
-			} else {
-				ServiceInvocationHandler invocationHandler = ProviderProcessHandlerFactory
-						.selectInvocationHandler(request.getMessageType());
-				if (invocationHandler != null) {
-					providerContext.setThread(Thread.currentThread());
-					invocationHandler.handle(providerContext);
-				}
+		if (message instanceof RequestEvent) {
+			RequestEvent event = (RequestEvent) message;
+			ProviderContext providerContext = event.getProviderContext();
+			InvocationRequest request = providerContext.getRequest();
+			boolean timeout = false;
+			long currentTime = System.currentTimeMillis();
+			if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
+					&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
+				timeout = true;
 			}
-		} catch (Throwable t) {
-			logger.error(ProviderUtils.getRequestDetailInfo("Process request failed with event actor", providerContext, request), t);
-		} finally {
-			requestContextMap.remove(request);
+			try {
+				if (timeout) {
+					Exception te = null;
+					te = new RequestAbortedException(ProviderUtils.getRequestDetailInfo(
+							"the request has not been executed by actor", providerContext, request));
+					te.setStackTrace(new StackTraceElement[] {});
+					logger.error(te.getMessage(), te);
+					if (monitorLogger != null) {
+						monitorLogger.logError(te);
+					}
+				} else {
+					ServiceInvocationHandler invocationHandler = ProviderProcessHandlerFactory
+							.selectInvocationHandler(request.getMessageType());
+					if (invocationHandler != null) {
+						providerContext.setThread(Thread.currentThread());
+						invocationHandler.handle(providerContext);
+					}
+				}
+			} catch (Throwable t) {
+				logger.error(ProviderUtils.getRequestDetailInfo("Process request failed with event actor",
+						providerContext, request), t);
+			} finally {
+				requestContextMap.remove(request);
+			}
 		}
 	}
 
