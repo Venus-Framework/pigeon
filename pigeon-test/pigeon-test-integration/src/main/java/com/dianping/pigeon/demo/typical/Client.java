@@ -4,8 +4,12 @@
  */
 package com.dianping.pigeon.demo.typical;
 
-import java.util.Date;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.dianping.pay.promo.display.template.api.dto.PromoDisplayTemplateProduct;
+import com.dianping.pay.promo.display.template.api.dto.QueryPromoDisplayTemplateRequest;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.UserService;
@@ -40,9 +44,15 @@ public class Client {
 //				 ExecutionContextHolder.setTrackerContext(new
 //				 TrackerContext());
 				
-				 ContextUtils.putContextValue("key1", "1");
+				QueryPromoDisplayTemplateRequest req = new QueryPromoDisplayTemplateRequest();
+				PromoDisplayTemplateProduct product = new PromoDisplayTemplateProduct();
+				product.setPrice(new BigDecimal(342.22d));
+				List<PromoDisplayTemplateProduct> l = new ArrayList<PromoDisplayTemplateProduct>();
+				l.add(product);
+				req.setTemplateProductList(l);
+				ContextUtils.putContextValue("key1", req);
 				 System.out.println(echoService.echo("" + i++));
-				 System.out.println(echoService.echo(new Date()));
+				// System.out.println(echoService.echo(new Date()));
 //				 ContextUtils.putContextValue("key1", user);
 //				 System.out.println(echoService.echo("hi, 2"));
 //				

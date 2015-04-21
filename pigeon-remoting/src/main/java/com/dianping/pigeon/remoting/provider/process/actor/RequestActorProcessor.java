@@ -56,7 +56,7 @@ public class RequestActorProcessor extends AbstractRequestProcessor {
 			"pigeon.provider.actor.mailbox.stopdelay", 1);
 
 	private boolean useSharedActor = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.provider.actor.shared", false);
+			"pigeon.provider.actor.shared", true);
 
 	private ConcurrentHashMap<String, ActorInfo> serviceActors = null;
 
@@ -120,31 +120,35 @@ public class RequestActorProcessor extends AbstractRequestProcessor {
 
 	@Override
 	public <T> void addService(ProviderConfig<T> providerConfig) {
-		int minSize = lowerBound;
-		int maxSize = providerConfig.getActives();
-		if (minSize <= 0) {
-			minSize = 10;
+		if (!useSharedActor) {
+			int minSize = lowerBound;
+			int maxSize = providerConfig.getActives();
+			if (minSize <= 0) {
+				minSize = 10;
+			}
+			if (maxSize <= 0) {
+				maxSize = upperBound;
+			}
+			if (maxSize < minSize) {
+				maxSize = minSize;
+			}
+			Resizer resizer = new DefaultResizer(lowerBound, upperBound, pressureThreshold, rampupRate,
+					backoffThreshold, backoffRate, Duration.create(stopDelay, TimeUnit.SECONDS), messagesPerResize);
+			Props actorProps = Props.create(RequestEventActor.class, requestContextMap);
+			SmallestMailboxRouter router = new SmallestMailboxRouter(resizer);
+			ActorRef actor = system.actorOf(actorProps.withRouter(router));
+			ActorInfo actorInfo = new ActorInfo();
+			actorInfo.setActor(actor);
+			actorInfo.setRouter(router);
+			serviceActors.putIfAbsent(providerConfig.getUrl(), actorInfo);
 		}
-		if (maxSize <= 0) {
-			maxSize = upperBound;
-		}
-		if (maxSize < minSize) {
-			maxSize = minSize;
-		}
-		Resizer resizer = new DefaultResizer(lowerBound, upperBound, pressureThreshold, rampupRate, backoffThreshold,
-				backoffRate, Duration.create(stopDelay, TimeUnit.SECONDS), messagesPerResize);
-		Props actorProps = Props.create(RequestEventActor.class, requestContextMap);
-		SmallestMailboxRouter router = new SmallestMailboxRouter(resizer);
-		ActorRef actor = system.actorOf(actorProps.withRouter(router));
-		ActorInfo actorInfo = new ActorInfo();
-		actorInfo.setActor(actor);
-		actorInfo.setRouter(router);
-		serviceActors.putIfAbsent(providerConfig.getUrl(), actorInfo);
 	}
 
 	@Override
 	public <T> void removeService(ProviderConfig<T> providerConfig) {
-		serviceActors.remove(providerConfig.getUrl());
+		if (!useSharedActor) {
+			serviceActors.remove(providerConfig.getUrl());
+		}
 	}
 
 	private ActorInfo getActor(InvocationRequest request) {

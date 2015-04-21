@@ -183,14 +183,11 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 			Map<String, ProviderMethodConfig> methodConfigs = providerConfig.getMethods();
 			ServiceMethodCache methodCache = ServiceMethodFactory.getServiceMethodCache(url);
 			Set<String> methodNames = methodCache.getMethodMap().keySet();
-			if (CollectionUtils.isEmpty(methodConfigs)) {
+			if (providerConfig.getActives() > 0 && CollectionUtils.isEmpty(methodConfigs)) {
 				String key = url;
 				ThreadPool pool = serviceThreadPools.get(key);
 				if (pool == null) {
-					int actives = DEFAULT_POOL_ACTIVES;
-					if (providerConfig.getActives() > 0) {
-						actives = providerConfig.getActives();
-					}
+					int actives = providerConfig.getActives();
 					int coreSize = (int) (actives / DEFAULT_POOL_RATIO_CORE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_CORE)
 							: actives;
 					int maxSize = actives;
@@ -200,7 +197,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 							new LinkedBlockingQueue<Runnable>(queueSize));
 					serviceThreadPools.putIfAbsent(key, pool);
 				}
-			} else {
+			} else if (!CollectionUtils.isEmpty(methodConfigs)) {
 				for (String name : methodNames) {
 					if (!methodConfigs.containsKey(name)) {
 						continue;

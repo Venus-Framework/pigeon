@@ -27,8 +27,8 @@
 		<pigeon:method name="echo" actives="30"></pigeon:method>
 	</pigeon:service>
 
-	<pigeon:service url="com.dianping.pigeon.demo.UserService" actives="100" useSharedPool="false"
-		server="pigeonServer2" interface="com.dianping.pigeon.demo.UserService"
+	<pigeon:service url="com.dianping.pigeon.demo.UserService" useSharedPool="false"
+		server="pigeonServer2" interface="com.dianping.pigeon.demo.UserService" actives="230"
 		ref="defaultUserServiceImpl">
 	</pigeon:service>
 </beans>
