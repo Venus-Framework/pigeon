@@ -15,7 +15,7 @@ import com.dianping.pigeon.remoting.ServiceFactory;
 public class IpServiceDefaultImpl implements IpService {
 
 	private com.dianping.iphub.service.IpService ipService = ServiceFactory
-			.getService(com.dianping.iphub.service.IpService.class);
+			.getService(com.dianping.iphub.service.IpService.class, 100);
 
 	public IpInfo getIpInfo(String ip) throws IpHubException {
 		return ipService.getIpInfo(ip);

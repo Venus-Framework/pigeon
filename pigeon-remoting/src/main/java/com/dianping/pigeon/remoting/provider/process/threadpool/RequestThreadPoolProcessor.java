@@ -49,9 +49,9 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 	private ThreadPool requestProcessThreadPool = null;
 
-	private static ConcurrentHashMap<String, ThreadPool> methodThreadPools = null;
+	private ConcurrentHashMap<String, ThreadPool> methodThreadPools = null;
 
-	private static ConcurrentHashMap<String, ThreadPool> serviceThreadPools = null;
+	private ConcurrentHashMap<String, ThreadPool> serviceThreadPools = null;
 
 	private static int DEFAULT_POOL_ACTIVES = ConfigManagerLoader.getConfigManager().getIntValue(
 			"pigeon.provider.pool.actives", 60);
@@ -76,11 +76,8 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 	public static String sharedPoolQueueSizeKey = null;
 
-	static {
-		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
-	}
-
 	public RequestThreadPoolProcessor(ServerConfig serverConfig) {
+		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
 		if ("server".equals(poolStrategy)) {
 			requestProcessThreadPool = new DefaultThreadPool("Pigeon-Server-Request-Processor-"
 					+ serverConfig.getProtocol() + "-" + serverConfig.getActualPort(), serverConfig.getCorePoolSize(),
@@ -281,7 +278,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 	}
 
-	private static class InnerConfigChangeListener implements ConfigChangeListener {
+	private class InnerConfigChangeListener implements ConfigChangeListener {
 
 		@Override
 		public void onKeyUpdated(String key, String value) {
