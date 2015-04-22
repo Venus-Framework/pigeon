@@ -3,6 +3,7 @@
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 	<appender name="WarnConsoleAppender" class="org.apache.log4j.ConsoleAppender">
 		<param name="Threshold" value="WARN" />
+		<param name="immediateFlush" value="false" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss}:%p %t %c - %m%n" />
 		</layout>
@@ -16,6 +17,7 @@
 	<appender name="ErrorConsoleAppender" class="org.apache.log4j.ConsoleAppender">
 		<param name="Target" value="System.err" />
 		<param name="Threshold" value="ERROR" />
+		<param name="immediateFlush" value="false" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss}:%p %t %c - %m%n" />
 		</layout>
@@ -24,6 +26,8 @@
 	<appender name="FileAppender" class="org.apache.log4j.DailyRollingFileAppender">
 		<param name="Threshold" value="INFO" />
 		<param name="file" value="/data/applogs/dpsflog/pigeon.log" />
+		<param name="BufferedIO" value="true" />
+        <param name="BufferSize" value="8192" />
 		<param name="append" value="true" />
 		<param name="encoding" value="GBK" />
 		<layout class="org.apache.log4j.PatternLayout">

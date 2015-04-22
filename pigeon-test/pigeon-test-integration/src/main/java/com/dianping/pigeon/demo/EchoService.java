@@ -5,12 +5,9 @@
 package com.dianping.pigeon.demo;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 public interface EchoService {
-
-	Grade echo(Date input);
 
 	String echo(String input);
 

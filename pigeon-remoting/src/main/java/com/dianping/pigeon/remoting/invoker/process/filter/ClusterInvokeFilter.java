@@ -37,6 +37,7 @@ public class ClusterInvokeFilter extends InvocationInvokeFilter {
 			if (monitorLogger != null) {
 				monitorLogger.logError("invoke remote call failed", e);
 			}
+			logger.error("invoke remote call failed", e);
 			throw e;
 		}
 	}

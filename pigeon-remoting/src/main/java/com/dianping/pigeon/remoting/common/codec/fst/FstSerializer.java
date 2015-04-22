@@ -2,6 +2,8 @@ package com.dianping.pigeon.remoting.common.codec.fst;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import com.dianping.avatar.tracker.CacheExecutionTrace;
 import com.dianping.avatar.tracker.SqlExecutionTrace;
@@ -22,6 +24,8 @@ public class FstSerializer extends DefaultAbstractSerializer {
 	public FstSerializer() {
 		conf.registerClass(DefaultRequest.class, DefaultResponse.class, TrackerContext.class,
 				CacheExecutionTrace.class, SqlExecutionTrace.class);
+		conf.registerSerializer(BigInteger.class, new FSTBigIntegerSerializer(), true);
+		conf.registerSerializer(BigDecimal.class, new FSTBigDecimalSerializer(), true);
 	}
 
 	public Object deserializeObject(InputStream is) throws SerializationException {
