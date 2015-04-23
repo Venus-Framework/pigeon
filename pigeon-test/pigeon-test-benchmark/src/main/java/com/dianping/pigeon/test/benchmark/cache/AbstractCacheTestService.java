@@ -3,9 +3,11 @@ package com.dianping.pigeon.test.benchmark.cache;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.dianping.cache.exception.CacheException;
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Message;
 import com.dianping.cat.message.Transaction;
@@ -61,7 +63,7 @@ public abstract class AbstractCacheTestService implements CacheTestService {
 	}
 
 	@Override
-	public void init(int rows, int size) {
+	public void init(int rows, int size) throws CacheException, TimeoutException {
 		clear();
 		for (int i = 0; i < rows; i++) {
 			this.setKeyValue("k-" + i, StringUtils.leftPad("" + i, size));
@@ -70,9 +72,9 @@ public abstract class AbstractCacheTestService implements CacheTestService {
 	}
 
 	@Override
-	public void clear() {
+	public void clear() throws CacheException, TimeoutException {
 		for (int i = 0; i < rows; i++) {
-			this.removeKey("k-" + i);
+			this.deleteKey("k-" + i);
 		}
 	}
 

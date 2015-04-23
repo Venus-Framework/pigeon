@@ -3,7 +3,7 @@
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 	<appender name="WarnConsoleAppender" class="org.apache.log4j.ConsoleAppender">
 		<param name="Threshold" value="WARN" />
-		<param name="immediateFlush" value="false" />
+		<param name="immediateFlush" value="true" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss}:%p %t %c - %m%n" />
 		</layout>
@@ -23,11 +23,27 @@
 		</layout>
 	</appender>
 
-	<appender name="FileAppender" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="Threshold" value="INFO" />
+	<appender name="WarnFileAppender" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/data/applogs/dpsflog/pigeon.log" />
+		<param name="BufferedIO" value="false" />
+		<param name="BufferSize" value="8192" />
+		<param name="append" value="true" />
+		<param name="encoding" value="GBK" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="INFO" />
+			<param name="LevelMax" value="WARN" />
+			<param name="AcceptOnMatch" value="true" />
+		</filter>
+	</appender>
+
+	<appender name="ErrorFileAppender" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="Threshold" value="ERROR" />
 		<param name="file" value="/data/applogs/dpsflog/pigeon.log" />
 		<param name="BufferedIO" value="true" />
-        <param name="BufferSize" value="8192" />
+		<param name="BufferSize" value="8192" />
 		<param name="append" value="true" />
 		<param name="encoding" value="GBK" />
 		<layout class="org.apache.log4j.PatternLayout">
@@ -36,7 +52,8 @@
 	</appender>
 
 	<logger name="com.dianping.pigeon" additivity="true">
-		<appender-ref ref="FileAppender" />
+		<appender-ref ref="WarnFileAppender" />
+		<appender-ref ref="ErrorFileAppender" />
 		<appender-ref ref="WarnConsoleAppender" />
 		<appender-ref ref="ErrorConsoleAppender" />
 	</logger>

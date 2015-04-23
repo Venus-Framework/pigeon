@@ -1,6 +1,8 @@
 package com.dianping.pigeon.governor.service;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
 import com.dianping.cache.core.CASResponse;
@@ -15,9 +17,9 @@ public interface CacheDemoService {
 
 	void cancel();
 
-	void init(int rows, int size);
+	void init(int rows, int size) throws CacheException, TimeoutException;
 
-	void clear();
+	void clear() throws CacheException, TimeoutException;
 
 	public boolean ayncSetKeyValue(String key, String value);
 
@@ -31,7 +33,9 @@ public interface CacheDemoService {
 
 	public List<Object> bulkGetKeyValue(String keys);
 
-	public boolean removeKey(String key);
+	public boolean deleteKey(String key) throws CacheException, TimeoutException;
+
+	public boolean asyncDeleteKey(String key) throws CacheException, InterruptedException, ExecutionException;
 
 	public long inc(String key, int amount) throws CacheException, TimeoutException;
 
@@ -50,4 +54,21 @@ public interface CacheDemoService {
 	public Object getKeyValue(String category, String key);
 
 	public boolean setKeyValue(String category, String key, String value) throws CacheException, TimeoutException;
+
+	public Future<String> asyncGetKeyValueByFuture(String key) throws CacheException;
+
+	public Future<Boolean> asyncSetKeyValueByFuture(String key, String value) throws CacheException;
+
+	public boolean asyncSetKeyValue(String key, String value) throws CacheException, InterruptedException,
+			ExecutionException;
+
+	public String asyncGetKeyValue(String key) throws Exception;
+
+	public void concurrentAsyncGet(int threads, final int rows);
+
+	public void concurrentAsyncSet(int threads, final int rows, final int size);
+	
+	public void asyncGetKeyValueByCallback(String key);
+	
+	public void asyncSetKeyValueByCallback(String key, String value);
 }

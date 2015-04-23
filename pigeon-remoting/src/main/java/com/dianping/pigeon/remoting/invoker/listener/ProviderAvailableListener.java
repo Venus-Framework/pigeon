@@ -114,7 +114,7 @@ public class ProviderAvailableListener implements Runnable {
 
 					int available = getAvailableClients(this.getWorkingClients().get(url));
 					if (available < providerAvailableLeast) {
-						logger.warn("check provider available for service:" + url);
+						logger.info("check provider available for service:" + url);
 						String error = null;
 						try {
 							ClientManager.getInstance().registerServiceInvokers(url, group, vip);
@@ -124,7 +124,7 @@ public class ProviderAvailableListener implements Runnable {
 						if (StringUtils.isNotBlank(group)) {
 							available = getAvailableClients(this.getWorkingClients().get(url));
 							if (available < providerAvailableLeast) {
-								logger.warn("check provider available with default group for service:" + url);
+								logger.info("check provider available with default group for service:" + url);
 								try {
 									ClientManager.getInstance().registerServiceInvokers(url, Constants.DEFAULT_GROUP,
 											vip);

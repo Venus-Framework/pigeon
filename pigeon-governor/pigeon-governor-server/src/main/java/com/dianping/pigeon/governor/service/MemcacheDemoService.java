@@ -3,8 +3,10 @@ package com.dianping.pigeon.governor.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.Resource;
@@ -87,8 +89,60 @@ public class MemcacheDemoService implements CacheDemoService {
 		}
 	}
 
+	public void concurrentAsyncGet(int threads, final int rows) {
+		executor = Executors.newFixedThreadPool(threads);
+		isCancel = false;
+		for (int i = 0; i < threads; i++) {
+			executor.submit(new Runnable() {
+
+				@Override
+				public void run() {
+					while (!isCancel) {
+						Transaction t = Cat.newTransaction("cache", "cache");
+						for (int i = 0; i < 500; i++) {
+							try {
+								asyncGetKeyValueByFuture("k-" + Math.abs((int) (random.nextDouble() * rows)));
+							} catch (CacheException e) {
+								e.printStackTrace();
+							}
+						}
+						t.setStatus(Message.SUCCESS);
+						t.complete();
+					}
+				}
+			});
+		}
+	}
+
+	public void concurrentAsyncSet(int threads, final int rows, final int size) {
+		executor = Executors.newFixedThreadPool(threads);
+		isCancel = false;
+		for (int i = 0; i < threads; i++) {
+			executor.submit(new Runnable() {
+
+				@Override
+				public void run() {
+					while (!isCancel) {
+						Transaction t = Cat.newTransaction("cache", "cache");
+						for (int i = 0; i < 500; i++) {
+							try {
+								asyncSetKeyValueByFuture("k-" + Math.abs((int) (random.nextDouble() * rows)),
+										StringUtils.leftPad("" + i, size));
+							} catch (CacheException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						t.setStatus(Message.SUCCESS);
+						t.complete();
+					}
+				}
+			});
+		}
+	}
+
 	@Override
-	public void init(int rows, int size) {
+	public void init(int rows, int size) throws CacheException, TimeoutException {
 		clear();
 		for (int i = 0; i < rows; i++) {
 			try {
@@ -103,9 +157,9 @@ public class MemcacheDemoService implements CacheDemoService {
 	}
 
 	@Override
-	public void clear() {
+	public void clear() throws CacheException, TimeoutException {
 		for (int i = 0; i < rows; i++) {
-			this.removeKey("k-" + i);
+			this.deleteKey("k-" + i);
 		}
 	}
 
@@ -132,6 +186,27 @@ public class MemcacheDemoService implements CacheDemoService {
 		return cacheService.get(cacheKey);
 	}
 
+	public Future<String> asyncGetKeyValueByFuture(String key) throws CacheException {
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
+		return cacheService.asyncGet(cacheKey);
+	}
+
+	public Future<Boolean> asyncSetKeyValueByFuture(String key, String value) throws CacheException {
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
+		return cacheService.asyncSet(cacheKey, value);
+	}
+
+	public boolean asyncSetKeyValue(String key, String value) throws CacheException, InterruptedException,
+			ExecutionException {
+		Future<Boolean> future = asyncSetKeyValueByFuture(key, value);
+		return future.get();
+	}
+
+	public String asyncGetKeyValue(String key) throws Exception {
+		Future<String> future = asyncGetKeyValueByFuture(key);
+		return future.get();
+	}
+
 	@Override
 	public List<Object> bulkGetKeyValue(String keys) {
 		List<CacheKey> cacheKeys = new ArrayList<CacheKey>();
@@ -151,9 +226,9 @@ public class MemcacheDemoService implements CacheDemoService {
 	}
 
 	@Override
-	public boolean removeKey(String key) {
+	public boolean deleteKey(String key) throws CacheException, TimeoutException {
 		CacheKey cacheKey = new CacheKey("mymemcache", key);
-		return cacheService.remove(cacheKey);
+		return cacheService.delete(cacheKey);
 	}
 
 	@Override
@@ -217,5 +292,23 @@ public class MemcacheDemoService implements CacheDemoService {
 	public boolean setKeyValue(String category, String key, String value) throws CacheException, TimeoutException {
 		CacheKey cacheKey = new CacheKey(category, key);
 		return cacheService.set(cacheKey, value);
+	}
+
+	@Override
+	public boolean asyncDeleteKey(String key) throws CacheException, InterruptedException, ExecutionException {
+		CacheKey cacheKey = new CacheKey("mymemcache", key);
+		return cacheService.asyncDelete(cacheKey).get();
+	}
+
+	@Override
+	public void asyncGetKeyValueByCallback(String key) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void asyncSetKeyValueByCallback(String key, String value) {
+		// TODO Auto-generated method stub
+		
 	}
 }
