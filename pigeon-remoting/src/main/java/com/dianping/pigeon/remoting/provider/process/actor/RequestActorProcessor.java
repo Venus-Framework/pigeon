@@ -62,10 +62,15 @@ public class RequestActorProcessor extends AbstractRequestProcessor {
 
 	public RequestActorProcessor(ServerConfig serverConfig) {
 		serviceActors = new ConcurrentHashMap<String, ActorInfo>();
-		Resizer resizer = new DefaultResizer(lowerBound, upperBound, pressureThreshold, rampupRate, backoffThreshold,
-				backoffRate, Duration.create(stopDelay, TimeUnit.SECONDS), messagesPerResize);
 		Props actorProps = Props.create(RequestEventActor.class, requestContextMap);
-		SmallestMailboxRouter router = new SmallestMailboxRouter(resizer);
+		SmallestMailboxRouter router = null;
+		if (lowerBound == upperBound) {
+			router = new SmallestMailboxRouter(lowerBound);
+		} else {
+			Resizer resizer = new DefaultResizer(lowerBound, upperBound, pressureThreshold, rampupRate,
+					backoffThreshold, backoffRate, Duration.create(stopDelay, TimeUnit.SECONDS), messagesPerResize);
+			router = new SmallestMailboxRouter(resizer);
+		}
 		defaultActor = system.actorOf(actorProps.withRouter(router));
 	}
 
@@ -132,10 +137,16 @@ public class RequestActorProcessor extends AbstractRequestProcessor {
 			if (maxSize < minSize) {
 				maxSize = minSize;
 			}
-			Resizer resizer = new DefaultResizer(lowerBound, upperBound, pressureThreshold, rampupRate,
-					backoffThreshold, backoffRate, Duration.create(stopDelay, TimeUnit.SECONDS), messagesPerResize);
+
 			Props actorProps = Props.create(RequestEventActor.class, requestContextMap);
-			SmallestMailboxRouter router = new SmallestMailboxRouter(resizer);
+			SmallestMailboxRouter router = null;
+			if (lowerBound == upperBound) {
+				router = new SmallestMailboxRouter(lowerBound);
+			} else {
+				Resizer resizer = new DefaultResizer(lowerBound, upperBound, pressureThreshold, rampupRate,
+						backoffThreshold, backoffRate, Duration.create(stopDelay, TimeUnit.SECONDS), messagesPerResize);
+				router = new SmallestMailboxRouter(resizer);
+			}
 			ActorRef actor = system.actorOf(actorProps.withRouter(router));
 			ActorInfo actorInfo = new ActorInfo();
 			actorInfo.setActor(actor);
