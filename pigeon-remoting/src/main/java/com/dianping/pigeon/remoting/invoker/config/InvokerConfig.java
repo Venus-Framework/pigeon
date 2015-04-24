@@ -73,16 +73,6 @@ public class InvokerConfig<T> {
 
 	private ClassLoader classLoader;
 
-	private String processModel = Constants.PROCESS_MODEL_DEFAULT;
-
-	public String getProcessModel() {
-		return processModel;
-	}
-
-	public void setProcessModel(String processModel) {
-		this.processModel = processModel;
-	}
-
 	public ClassLoader getClassLoader() {
 		return classLoader;
 	}
@@ -202,7 +192,6 @@ public class InvokerConfig<T> {
 		this.setVip(vip);
 		this.setVersion(version);
 		this.setProtocol(protocol);
-		this.setProcessModel(processModel);
 	}
 
 	public InvokerConfig(String url, Class<T> serviceInterface) {

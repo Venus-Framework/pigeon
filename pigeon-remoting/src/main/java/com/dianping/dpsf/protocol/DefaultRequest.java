@@ -67,8 +67,6 @@ public class DefaultRequest implements InvocationRequest {
 
 	private String app = ConfigManagerLoader.getConfigManager().getAppName();
 
-	private String processModel = Constants.PROCESS_MODEL_DEFAULT;
-
 	public DefaultRequest(String serviceName, String methodName, Object[] parameters, byte serialize, int messageType,
 			int timeout, Class<?>[] parameterClasses) {
 		this.serviceName = serviceName;
@@ -97,20 +95,11 @@ public class DefaultRequest implements InvocationRequest {
 					this.setCallType(Constants.CALLTYPE_REPLY);
 				}
 				this.setLoadbalance(invokerConfig.getLoadbalance());
-				this.setProcessModel(invokerConfig.getProcessModel());
 			}
 			this.methodName = invokerContext.getMethodName();
 			this.parameters = invokerContext.getArguments();
 			this.messageType = Constants.MESSAGE_TYPE_SERVICE;
 		}
-	}
-
-	public String getProcessModel() {
-		return processModel;
-	}
-
-	public void setProcessModel(String processModel) {
-		this.processModel = processModel;
 	}
 
 	public String getLoadbalance() {

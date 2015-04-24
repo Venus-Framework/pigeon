@@ -8,6 +8,7 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.process.actor.RequestActorProcessor;
+import com.dianping.pigeon.remoting.provider.process.threadpool.RequestThreadPoolProcessor;
 
 public class RequestProcessorFactory {
 
@@ -18,6 +19,6 @@ public class RequestProcessorFactory {
 		if (Constants.PROCESS_MODEL_ACTOR.equals(PROCESS_TYPE)) {
 			return new RequestActorProcessor(serverConfig);
 		}
-		return new RequestDefaultProcessor(serverConfig);
+		return new RequestThreadPoolProcessor(serverConfig);
 	}
 }

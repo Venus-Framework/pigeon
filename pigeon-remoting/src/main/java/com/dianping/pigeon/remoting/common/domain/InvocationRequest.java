@@ -44,5 +44,4 @@ public interface InvocationRequest extends InvocationSerializable {
 
 	String getApp();
 
-	String getProcessModel();
 }
