@@ -207,6 +207,8 @@ public class ClientManager {
 							int weight = RegistryManager.getInstance().getServiceWeight(address, !reloadWeight);
 							RegistryEventListener.providerAdded(serviceName, host, port, weight);
 						} catch (Throwable e) {
+							logger.error("error while registering service invoker:" + serviceName + ", address:"
+									+ address + ", env:" + configManager.getEnv(), e);
 							throw new ServiceUnavailableException("error while registering service invoker:"
 									+ serviceName + ", address:" + address + ", env:" + configManager.getEnv(), e);
 						}

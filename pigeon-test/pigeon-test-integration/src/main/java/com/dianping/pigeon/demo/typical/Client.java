@@ -36,9 +36,7 @@ public class Client {
 				// PhoenixContext.getInstance().setRequestId("1");
 				// ExecutionContextHolder.setTrackerContext(new
 				// TrackerContext());
-				
 				System.out.println(echoService.echo("" + i++));
-
 				// System.out.println(echoService.echo("hi, 2"));
 				//
 				// ArrayList<String> l = new ArrayList<String>();

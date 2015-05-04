@@ -9,9 +9,7 @@
                 http://code.dianping.com/schema/pigeon http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd">
 
 	<pigeon:reference id="echoService" timeout="200"
-		url="com.dianping.pigeon.demo.EchoService"
 		interface="com.dianping.pigeon.demo.EchoService">
-		<pigeon:method name="echo" timeout="100" />
 	</pigeon:reference>
 
 	<bean id="echoServiceCallback" class="com.dianping.pigeon.demo.EchoServiceCallback" />

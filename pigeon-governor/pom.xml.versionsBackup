@@ -4,17 +4,17 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	<parent>
 		<artifactId>pigeon-parent</artifactId>
 		<groupId>com.dianping</groupId>
-		<version>2.4.6-SNAPSHOT</version>
+		<version>2.4.5</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>pigeon-test</artifactId>
+	<artifactId>pigeon-governor</artifactId>
 	<packaging>pom</packaging>
-	<name>pigeon-test</name>
+	<name>pigeon-governor</name>
 	<properties>
 		<skip_maven_deploy>true</skip_maven_deploy>
 	</properties>
 	<modules>
-		<module>pigeon-test-integration</module>
-		<module>pigeon-test-benchmark</module>
+		<module>pigeon-governor-server</module>
+		<module>pigeon-governor-api</module>
 	</modules>
 </project>

@@ -25,7 +25,6 @@ public class EchoServiceDefaultImpl implements EchoService {
 	public String echo(String input) {
 		System.out.println("key1=" + ContextUtils.getContextValue("key1"));
 		System.out.println("recv:" + input);
-		System.out.println("echo:" + input);
 		return "echo:" + input;
 	}
 

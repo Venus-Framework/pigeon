@@ -22,10 +22,13 @@ public class Client {
 		EchoService echoService = (EchoService) CLIENT_CONTAINER.getBean("echoService");
 		EchoService echoServiceWithCallback = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithCallback");
 
-		for (int i = 0; i < 30; i++) {
-			new Thread(new Task(echoService)).start();
+		while (true) {
+			System.out.println(echoService.echo("echoService_input"));
 		}
-		System.in.read();
+		// for (int i = 0; i < 30; i++) {
+		// new Thread(new Task(echoService)).start();
+		// }
+		// System.in.read();
 		// echoServiceWithCallback.echo("echoServiceWithCallback_input");
 	}
 

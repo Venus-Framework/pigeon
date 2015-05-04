@@ -5,7 +5,10 @@
 package com.dianping.pigeon.demo;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 public interface EchoService {
 
@@ -19,6 +22,19 @@ public interface EchoService {
 		low, high
 	}
 
+	static class ShopUser extends User {
+		BigDecimal merchantAmount;
+
+		public BigDecimal getMerchantAmount() {
+			return merchantAmount;
+		}
+
+		public void setMerchantAmount(BigDecimal merchantAmount) {
+			this.merchantAmount = merchantAmount;
+		}
+
+	}
+
 	static class User implements Serializable {
 		/**
 		 * 
@@ -29,6 +45,18 @@ public interface EchoService {
 		String email;
 		String address;
 		int age;
+		BigDecimal amount;
+
+		public BigDecimal getAmount() {
+			return amount;
+		}
+
+		public void setAmount(BigDecimal amount) {
+			this.amount = amount;
+		}
+
+		public User() {
+		}
 
 		public User(int id, String name, String email, String address, int age) {
 			this.id = id;
@@ -78,5 +106,8 @@ public interface EchoService {
 			this.age = age;
 		}
 
+		public String toString() {
+			return ToStringBuilder.reflectionToString(this).toString();
+		}
 	}
 }
