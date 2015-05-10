@@ -16,26 +16,15 @@ public interface EchoService {
 
 	long now();
 
+	void addUser(User user);
+
 	List<User> findUsers(int count);
 
 	enum Grade {
 		low, high
 	}
 
-	static class ShopUser extends User {
-		BigDecimal merchantAmount;
-
-		public BigDecimal getMerchantAmount() {
-			return merchantAmount;
-		}
-
-		public void setMerchantAmount(BigDecimal merchantAmount) {
-			this.merchantAmount = merchantAmount;
-		}
-
-	}
-
-	static class User implements Serializable {
+	public static class User implements Serializable {
 		/**
 		 * 
 		 */
@@ -45,15 +34,24 @@ public interface EchoService {
 		String email;
 		String address;
 		int age;
-		BigDecimal amount;
+		//BigDecimal amount;
+		int count;
 
-		public BigDecimal getAmount() {
-			return amount;
+		public int getCount() {
+			return count;
 		}
 
-		public void setAmount(BigDecimal amount) {
-			this.amount = amount;
+		public void setCount(int count) {
+			this.count = count;
 		}
+
+//		public BigDecimal getAmount() {
+//			return amount;
+//		}
+//
+//		public void setAmount(BigDecimal amount) {
+//			this.amount = amount;
+//		}
 
 		public User() {
 		}

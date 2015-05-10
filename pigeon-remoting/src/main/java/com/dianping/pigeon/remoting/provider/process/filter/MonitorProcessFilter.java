@@ -87,8 +87,8 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 				monitorLogger.logError(e);
 			}
 		}
+		InvocationResponse response = null;
 		try {
-			InvocationResponse response = null;
 			try {
 				response = handler.handle(invocationContext);
 			} catch (RuntimeException e) {
@@ -150,6 +150,6 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			ContextUtils.clearContext();
 			ContextUtils.clearLocalContext();
 		}
-		return null;
+		return response;
 	}
 }

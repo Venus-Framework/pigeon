@@ -2,20 +2,19 @@
  * Dianping.com Inc.
  * Copyright (c) 00-0 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.provider.process.actor;
+package com.dianping.pigeon.remoting.provider.process.akka;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import scala.concurrent.duration.Duration;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.routing.DefaultResizer;
 import akka.routing.Resizer;
+import akka.routing.RouterConfig;
 import akka.routing.SmallestMailboxRouter;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -33,44 +32,26 @@ import com.dianping.pigeon.remoting.provider.process.event.RequestEvent;
  * @author xiangwu
  * 
  */
-public class RequestActorProcessor extends AbstractRequestProcessor {
+public class RequestAkkaProcessor extends AbstractRequestProcessor {
 
-	private static final Logger logger = LoggerLoader.getLogger(RequestActorProcessor.class);
+	private static final Logger logger = LoggerLoader.getLogger(RequestAkkaProcessor.class);
 	private final ActorSystem system = ActorSystem.create("Pigeon-Provider-Request-Processor");
 	ActorRef defaultActor = null;
 	private int lowerBound = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.actor.mailbox.lowerbound", 5);
+			"pigeon.provider.akka.mailbox.lowerbound", 5);
 	private int upperBound = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.actor.mailbox.upperbound", 300);
-	private int pressureThreshold = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.actor.mailbox.pressurethreshold", 1);
-	private double rampupRate = ConfigManagerLoader.getConfigManager().getDoubleValue(
-			"pigeon.provider.actor.mailbox.rampuprate", 0.2d);
-	private double backoffThreshold = ConfigManagerLoader.getConfigManager().getDoubleValue(
-			"pigeon.provider.actor.mailbox.backoffthreshold", 0.3d);
-	private double backoffRate = ConfigManagerLoader.getConfigManager().getDoubleValue(
-			"pigeon.provider.actor.mailbox.backoffrate", 0.1d);
-	private int messagesPerResize = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.actor.mailbox.messagesperresize", 10);
-	private int stopDelay = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.actor.mailbox.stopdelay", 1);
+			"pigeon.provider.akka.mailbox.upperbound", 300);
 
 	private boolean useSharedActor = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.provider.actor.shared", true);
+			"pigeon.provider.akka.shared", true);
 
 	private ConcurrentHashMap<String, ActorInfo> serviceActors = null;
 
-	public RequestActorProcessor(ServerConfig serverConfig) {
+	public RequestAkkaProcessor(ServerConfig serverConfig) {
 		serviceActors = new ConcurrentHashMap<String, ActorInfo>();
 		Props actorProps = Props.create(RequestEventActor.class, requestContextMap);
-		SmallestMailboxRouter router = null;
-		if (lowerBound == upperBound) {
-			router = new SmallestMailboxRouter(lowerBound);
-		} else {
-			Resizer resizer = new DefaultResizer(lowerBound, upperBound, pressureThreshold, rampupRate,
-					backoffThreshold, backoffRate, Duration.create(stopDelay, TimeUnit.SECONDS), messagesPerResize);
-			router = new SmallestMailboxRouter(resizer);
-		}
+		Resizer resizer = new DefaultResizer(lowerBound, upperBound);
+		RouterConfig router = new SmallestMailboxRouter(resizer);
 		defaultActor = system.actorOf(actorProps.withRouter(router));
 	}
 
@@ -143,8 +124,7 @@ public class RequestActorProcessor extends AbstractRequestProcessor {
 			if (lowerBound == upperBound) {
 				router = new SmallestMailboxRouter(lowerBound);
 			} else {
-				Resizer resizer = new DefaultResizer(lowerBound, upperBound, pressureThreshold, rampupRate,
-						backoffThreshold, backoffRate, Duration.create(stopDelay, TimeUnit.SECONDS), messagesPerResize);
+				Resizer resizer = new DefaultResizer(lowerBound, upperBound);
 				router = new SmallestMailboxRouter(resizer);
 			}
 			ActorRef actor = system.actorOf(actorProps.withRouter(router));

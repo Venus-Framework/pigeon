@@ -45,7 +45,7 @@ public class ProviderCapacityBucket implements Serializable {
 		requests.incrementAndGet();
 		int second = now.get(Calendar.SECOND);
 		incrementTotalRequestsInSecond(second);
-		if (enableThreadsStats && Constants.PROCESS_MODEL_ACTOR.equals(RequestProcessorFactory.PROCESS_TYPE)) {
+		if (enableThreadsStats && Constants.PROCESS_MODEL_AKKA.equals(RequestProcessorFactory.PROCESS_TYPE)) {
 			incrementTotalThreadsInSecond(second);
 		}
 		if (enableMinuteStats) {

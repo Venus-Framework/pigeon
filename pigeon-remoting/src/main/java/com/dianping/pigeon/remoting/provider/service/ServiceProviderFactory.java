@@ -341,7 +341,7 @@ public final class ServiceProviderFactory {
 
 	public static void publishAllServices(boolean forcePublish) throws RegistryException {
 		if (logger.isInfoEnabled()) {
-			logger.info("publish all services");
+			logger.info("publish all services, " + forcePublish);
 		}
 		for (String url : serviceCache.keySet()) {
 			ProviderConfig<?> providerConfig = serviceCache.get(url);

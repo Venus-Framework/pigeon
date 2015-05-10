@@ -17,7 +17,7 @@ public class ResponseProcessorFactory {
 	private static ResponseProcessor responseProcessor = null;
 
 	static {
-		if (Constants.PROCESS_MODEL_ACTOR.equals(processType)) {
+		if (Constants.PROCESS_MODEL_AKKA.equals(processType)) {
 			responseProcessor = new ResponseActorProcessor();
 		} else {
 			responseProcessor = new ResponseThreadPoolProcessor();

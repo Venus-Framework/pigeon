@@ -17,11 +17,6 @@ public class EchoServiceAnnotationImpl implements EchoService {
 	List<User> users = new ArrayList<User>();
 
 	public EchoServiceAnnotationImpl() {
-		for (int i = 1; i <= 10000; i++) {
-			String n = "a" + i;
-			User u = new User(i, n, n + "@dianping.com", n + "@hongkou district, shanghai", 20);
-			users.add(u);
-		}
 	}
 
 	@Override
@@ -39,4 +34,8 @@ public class EchoServiceAnnotationImpl implements EchoService {
 		return Lists.newArrayList(users.subList(0, count));
 	}
 
+	@Override
+	public void addUser(User user) {
+		users.add(user);
+	}
 }

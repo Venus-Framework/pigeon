@@ -18,6 +18,7 @@ import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
+import com.dianping.pigeon.remoting.provider.process.RequestProcessorFactory;
 
 public class WriteResponseProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 
@@ -33,13 +34,15 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 			ProviderChannel channel = invocationContext.getChannel();
 			InvocationRequest request = invocationContext.getRequest();
 			InvocationResponse response = handler.handle(invocationContext);
-			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
-				channel.write(response);
-			}
-			if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-				List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
-				for (ProviderProcessInterceptor interceptor : interceptors) {
-					interceptor.postInvoke(request, response);
+			if (!Constants.PROCESS_MODEL_AKKA.equals(RequestProcessorFactory.PROCESS_TYPE)) {
+				if (request.getCallType() == Constants.CALLTYPE_REPLY) {
+					channel.write(response);
+				}
+				if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+					List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
+					for (ProviderProcessInterceptor interceptor : interceptors) {
+						interceptor.postInvoke(request, response);
+					}
 				}
 			}
 			return response;

@@ -33,7 +33,8 @@ public final class Constants {
 
 	public static final String PROCESS_MODEL_DEFAULT = "default";
 	public static final String PROCESS_MODEL_THREAD = "thread";
-	public static final String PROCESS_MODEL_ACTOR = "actor";
+	public static final String PROCESS_MODEL_AKKA = "akka";
+	public static final String PROCESS_MODEL_JACTOR = "jactor";
 
 	public static final String CALL_SYNC = "sync";
 	public static final String CALL_CALLBACK = "callback";

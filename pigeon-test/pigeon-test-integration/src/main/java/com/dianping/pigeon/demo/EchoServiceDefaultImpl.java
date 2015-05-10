@@ -14,11 +14,6 @@ public class EchoServiceDefaultImpl implements EchoService {
 	List<User> users = new ArrayList<User>();
 
 	public EchoServiceDefaultImpl() {
-		for (int i = 1; i <= 10000; i++) {
-			String n = "a" + i;
-			User u = new User(i, n, n + "@dianping.com", n + "@hongkou district, shanghai", 20);
-			users.add(u);
-		}
 	}
 
 	@Override
@@ -37,6 +32,12 @@ public class EchoServiceDefaultImpl implements EchoService {
 	public List<User> findUsers(int count) {
 		// return Lists.newArrayList(users.subList(0, count));
 		return users.subList(0, count);
+	}
+
+	@Override
+	public void addUser(User user) {
+		System.out.println(user);
+		users.add(user);
 	}
 
 }

@@ -4,10 +4,12 @@
  */
 package com.dianping.pigeon.demo.typical;
 
+import java.math.BigDecimal;
+
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.demo.EchoService.User;
 import com.dianping.pigeon.demo.UserService;
-import com.dianping.pigeon.demo.UserService.User;
 
 public class Client {
 
@@ -27,15 +29,20 @@ public class Client {
 
 		UserService userService = (UserService) CLIENT_CONTAINER.getBean("userService");
 
-		User user = new User();
-		user.setUsername("jason");
-		User[] users = new User[] { user };
 		int i = 0;
 		while (true) {
 			try {
 				// PhoenixContext.getInstance().setRequestId("1");
 				// ExecutionContextHolder.setTrackerContext(new
 				// TrackerContext());
+				User user = new User();
+				user.setName("wuxiang");
+				user.setAddress("addr");
+				//user.setAmount(new BigDecimal("10.21"));
+				user.setAge(34);
+				user.setCount(2);
+				
+				echoService.addUser(user);
 				System.out.println(echoService.echo("" + i++));
 				// System.out.println(echoService.echo("hi, 2"));
 				//

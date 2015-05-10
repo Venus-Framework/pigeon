@@ -68,11 +68,13 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 		InvokerBootStrap.startup();
 
 		MutablePropertyValues properties = beanDefinition.getPropertyValues();
-		if (element.hasAttribute("url")) {
-			properties.addPropertyValue("url", resolveReference(element, "url"));
-		}
 		if (element.hasAttribute("interface")) {
 			properties.addPropertyValue("interfaceName", resolveReference(element, "interface"));
+		}
+		if (element.hasAttribute("url")) {
+			properties.addPropertyValue("url", resolveReference(element, "url"));
+		} else if(element.hasAttribute("interface")) {
+			properties.addPropertyValue("url", resolveReference(element, "interface"));
 		}
 		if (element.hasAttribute("serialize")) {
 			properties.addPropertyValue("serialize", resolveReference(element, "serialize"));
