@@ -34,21 +34,19 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 			ProviderChannel channel = invocationContext.getChannel();
 			InvocationRequest request = invocationContext.getRequest();
 			InvocationResponse response = handler.handle(invocationContext);
-			if (!Constants.PROCESS_MODEL_AKKA.equals(RequestProcessorFactory.PROCESS_TYPE)) {
-				if (request.getCallType() == Constants.CALLTYPE_REPLY) {
-					channel.write(response);
-				}
-				if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-					List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
-					for (ProviderProcessInterceptor interceptor : interceptors) {
-						interceptor.postInvoke(request, response);
-					}
+			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
+				channel.write(response);
+			}
+			if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+				List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
+				for (ProviderProcessInterceptor interceptor : interceptors) {
+					interceptor.postInvoke(request, response);
 				}
 			}
 			return response;
 		} finally {
-//			ContextUtils.clearContext();
-//			ContextUtils.clearLocalContext();
+			// ContextUtils.clearContext();
+			// ContextUtils.clearLocalContext();
 		}
 	}
 

@@ -8,7 +8,9 @@ import java.util.concurrent.Future;
 
 import org.agilewiki.jactor.JAMailboxFactory;
 import org.agilewiki.jactor.MailboxFactory;
+import org.agilewiki.jactor.factory.ActorFactory;
 import org.agilewiki.jactor.factory.JAFactory;
+import org.agilewiki.jactor.lpc.JLPCActor;
 import org.apache.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -31,30 +33,37 @@ public class RequestJActorProcessor extends AbstractRequestProcessor {
 
 	private static final Logger logger = LoggerLoader.getLogger(RequestJActorProcessor.class);
 	private int threads = ConfigManagerLoader.getConfigManager().getIntValue("pigeon.provider.jactor.threads", 10);
-	private JAFactory jaFactory = null;
+	private MailboxFactory mailboxFactory = null;
+	private RequestEventActor requestEventActor;
 
 	public RequestJActorProcessor(ServerConfig serverConfig) {
-		MailboxFactory mailboxFactory = JAMailboxFactory.newMailboxFactory(threads);
-		jaFactory = new JAFactory();
 		try {
-			jaFactory.initialize(mailboxFactory.createMailbox());
-			jaFactory.defineActorType("RequestEventActor", RequestEventActor.class);
+			mailboxFactory = JAMailboxFactory.newMailboxFactory(threads);
+			JAFactory jaFactory = new JAFactory();
+			jaFactory.initialize(mailboxFactory.createAsyncMailbox());
+			jaFactory.registerActorFactory(new ActorFactory("RequestEventActor") {
+
+				@Override
+				protected JLPCActor instantiateActor() throws Exception {
+					RequestEventActor actor = new RequestEventActor(requestContextMap);
+					return actor;
+				}
+
+			});
+			requestEventActor = (RequestEventActor) JAFactory.newActor(jaFactory, "RequestEventActor");
 		} catch (Exception e) {
 			throw new RuntimeException("error while initializing jactor", e);
 		}
 	}
 
-	public void stop() {
-	}
-
 	@Override
 	public String getProcessorStatistics() {
-		return "";
+		return "jactor";
 	}
 
 	@Override
 	public String getProcessorStatistics(InvocationRequest request) {
-		return "";
+		return "jactor";
 	}
 
 	@Override
@@ -77,9 +86,7 @@ public class RequestJActorProcessor extends AbstractRequestProcessor {
 		RequestEvent event = new RequestEvent();
 		event.setProviderContext(providerContext);
 		try {
-			RequestEventActor requestEventActor = (RequestEventActor) JAFactory
-					.newActor(jaFactory, "RequestEventActor");
-			requestEventActor.onReceive(event, requestContextMap);
+			requestEventActor.onReceive(event);
 		} catch (Exception e) {
 			throw new InvocationFailureException("error with jactor", e);
 		}
@@ -88,14 +95,14 @@ public class RequestJActorProcessor extends AbstractRequestProcessor {
 
 	@Override
 	public void doStart() {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void doStop() {
-		// TODO Auto-generated method stub
-
+		if (mailboxFactory != null) {
+			mailboxFactory.close();
+		}
 	}
 
 }

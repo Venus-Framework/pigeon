@@ -32,12 +32,13 @@ public class RequestEventActor extends JLPCActor {
 	private static final Logger logger = LoggerLoader.getLogger(RequestEventActor.class);
 
 	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
+	private Map<InvocationRequest, ProviderContext> requestContextMap = null;
 
-	public RequestEventActor() {
+	public RequestEventActor(Map<InvocationRequest, ProviderContext> requestContextMap) {
+		this.requestContextMap = requestContextMap;
 	}
 
-	public void onReceive(RequestEvent event, Map<InvocationRequest, ProviderContext> requestContextMap)
-			throws Exception {
+	public void onReceive(RequestEvent event) throws Exception {
 		DefaultProviderContext providerContext = (DefaultProviderContext) event.getProviderContext();
 		InvocationRequest request = providerContext.getRequest();
 		boolean timeout = false;

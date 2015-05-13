@@ -4,8 +4,6 @@
  */
 package com.dianping.pigeon.demo.typical;
 
-import java.math.BigDecimal;
-
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.EchoService.User;

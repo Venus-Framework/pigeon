@@ -83,21 +83,12 @@ public class RequestAkkaProcessor extends AbstractRequestProcessor {
 
 	@Override
 	public String getProcessorStatistics() {
-		StringBuilder str = new StringBuilder();
-		for (String key : serviceActors.keySet()) {
-			ActorInfo actorInfo = serviceActors.get(key);
-			str.append("[").append(key).append("=").append(getActorStatistics(actorInfo)).append("],");
-		}
-		return str.toString();
+		return "akka";
 	}
 
 	@Override
 	public String getProcessorStatistics(InvocationRequest request) {
-		ActorInfo actorInfo = getActor(request);
-		if (actorInfo != null) {
-			return getActorStatistics(actorInfo);
-		}
-		return "";
+		return "akka";
 	}
 
 	private String getActorStatistics(ActorInfo actorInfo) {
