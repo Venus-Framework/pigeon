@@ -20,7 +20,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import com.dianping.dpsf.spring.ProxyBeanFactory;
-import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
@@ -48,6 +47,8 @@ public class InvokeJsonServlet extends ServiceServlet {
 	private static Map<String, Class<?>> builtInMap = new HashMap<String, Class<?>>();
 
 	private static boolean enableInvoke = configManager.getBooleanValue("pigeon.console.invoke.enable", true);
+	
+	private static boolean isValidate = configManager.getBooleanValue("pigeon.console.invoke.validate", false);
 
 	private static boolean logInvoke = configManager.getBooleanValue("pigeon.console.invoke.log", true);
 
@@ -70,11 +71,6 @@ public class InvokeJsonServlet extends ServiceServlet {
 		if (!enableInvoke) {
 			response.getWriter().write("pigeon console invocation is disabled!");
 			return;
-		}
-		boolean isValidate = false;
-		String validate = request.getParameter("validate");
-		if ("true".equalsIgnoreCase(validate) && ConfigConstants.ENV_PRODUCT.equalsIgnoreCase(configManager.getEnv())) {
-			isValidate = true;
 		}
 		String token = request.getParameter("token");
 		if (!isValidate || isValidate && token != null && token.equals(ServiceServlet.getToken())) {

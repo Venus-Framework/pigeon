@@ -137,28 +137,6 @@ public class ServiceServlet extends HttpServlet {
 			s.setType(beanClass);
 			s.setPublished(providerConfig.isPublished() + "");
 			Map<String, Method> allMethods = new HashMap<String, Method>();
-//			Class<?>[] ifaces = beanClass.getInterfaces();
-//			String[] validPackages = VALID_PACKAGES.split(",");
-//			for (Class<?> iface : ifaces) {
-//				String facename = iface.getName();
-//				logger.info("service interface:" + facename);
-//				boolean isValid = false;
-//				for (String pkg : validPackages) {
-//					if (facename.startsWith(pkg)) {
-//						isValid = true;
-//						break;
-//					}
-//				}
-//				if (isValid) {
-//					Method[] methods = iface.getMethods();
-//					for (Method method : methods) {
-//						String key = method.getName() + ":" + Arrays.toString(method.getParameterTypes());
-//						if (!ingoreMethods.contains(key)) {
-//							allMethods.put(key, method);
-//						}
-//					}
-//				}
-//			}
 			Method[] methods = ServiceConfigUtils.getServiceInterface(beanClass).getMethods();
 			for (Method method : methods) {
 				String key = method.getName() + ":" + Arrays.toString(method.getParameterTypes());
