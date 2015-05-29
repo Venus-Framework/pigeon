@@ -146,7 +146,7 @@ public class MemcacheDemoService implements CacheDemoService {
 		clear();
 		for (int i = 0; i < rows; i++) {
 			try {
-				this.setKeyValue("k-" + i, StringUtils.leftPad("" + i, size));
+				this.setKeyValue("k-" + i, StringUtils.leftPad("" + i, size, "#"));
 			} catch (CacheException e) {
 				e.printStackTrace();
 			} catch (TimeoutException e) {
