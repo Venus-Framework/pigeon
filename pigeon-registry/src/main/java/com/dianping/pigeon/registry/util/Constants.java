@@ -39,6 +39,6 @@ public final class Constants {
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	public static final String KEY_WEIGHT_DEFAULT = "pigeon.weight.default";
-	public static final int DEFAULT_WEIGHT_DEFAULT = 1;
-	public static final int WEIGHT_DEFAULT = configManager.getIntValue(KEY_WEIGHT_DEFAULT, DEFAULT_WEIGHT_DEFAULT);
+	public static final int WEIGHT_ON = 1;
+	public static final int DEFAULT_WEIGHT = configManager.getIntValue(KEY_WEIGHT_DEFAULT, WEIGHT_ON);
 }

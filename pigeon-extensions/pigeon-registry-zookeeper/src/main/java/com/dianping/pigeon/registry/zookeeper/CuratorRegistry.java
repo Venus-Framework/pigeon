@@ -220,7 +220,7 @@ public class CuratorRegistry implements Registry {
 		String strWeight;
 		try {
 			strWeight = client.get(path);
-			int result = Constants.WEIGHT_DEFAULT;
+			int result = Constants.DEFAULT_WEIGHT;
 			if (strWeight != null) {
 				try {
 					result = Integer.parseInt(strWeight);

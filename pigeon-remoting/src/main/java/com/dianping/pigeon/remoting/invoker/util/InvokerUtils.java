@@ -100,8 +100,10 @@ public class InvokerUtils {
 			return new ApplicationException(invokerExceptionTranslator.translate((DPSFException) responseReturn));
 		} else if (responseReturn instanceof RpcException) {
 			return new ApplicationException((RpcException) responseReturn);
+		} else if (responseReturn instanceof RuntimeException) {
+			return (RuntimeException) responseReturn;
 		} else if (responseReturn instanceof Throwable) {
-			return (Throwable) responseReturn;
+			return new RemoteInvocationException((Throwable) responseReturn);
 		} else if (responseReturn instanceof Map) {
 			Map errors = (Map) responseReturn;
 			String detailMessage = (String) errors.get("detailMessage");

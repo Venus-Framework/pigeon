@@ -106,7 +106,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		boolean existClientBuffToLimit = false;
 		for (Client client : clientList) {
 			String address = client.getAddress();
-			if (client.isActive() && RegistryManager.getInstance().getServiceWeight(address) > 0) {
+			if (client.isActive() && RegistryManager.getInstance().getServiceWeightFromCache(address) > 0) {
 				if (!isWriteBufferLimit || client.isWritable()) {
 					filteredClients.add(client);
 				} else {

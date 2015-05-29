@@ -23,6 +23,10 @@
 		</layout>
 	</appender>
 
+	<appender name="ErrorAsyncAppender" class="org.apache.log4j.AsyncAppender">
+		<appender-ref ref="ErrorConsoleAppender" />
+	</appender>
+
 	<appender name="WarnFileAppender" class="org.apache.log4j.DailyRollingFileAppender">
 		<param name="file" value="/data/applogs/dpsflog/pigeon.log" />
 		<param name="BufferedIO" value="false" />
@@ -39,23 +43,10 @@
 		</filter>
 	</appender>
 
-	<appender name="ErrorFileAppender" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="Threshold" value="ERROR" />
-		<param name="file" value="/data/applogs/dpsflog/pigeon.log" />
-		<param name="BufferedIO" value="true" />
-		<param name="BufferSize" value="8192" />
-		<param name="append" value="true" />
-		<param name="encoding" value="GBK" />
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d - %c -%-4r [%t] %-5p %x - %m%n" />
-		</layout>
-	</appender>
-
 	<logger name="com.dianping.pigeon" additivity="true">
 		<appender-ref ref="WarnFileAppender" />
-		<appender-ref ref="ErrorFileAppender" />
+		<appender-ref ref="ErrorAsyncAppender" />
 		<appender-ref ref="WarnConsoleAppender" />
-		<appender-ref ref="ErrorConsoleAppender" />
 	</logger>
 
 </log4j:configuration>

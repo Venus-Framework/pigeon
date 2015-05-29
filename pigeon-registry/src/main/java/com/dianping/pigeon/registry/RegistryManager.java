@@ -19,6 +19,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.registry.config.DefaultRegistryConfigManager;
 import com.dianping.pigeon.registry.config.RegistryConfigManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
@@ -50,6 +51,8 @@ public class RegistryManager {
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
 	private static ConcurrentHashMap<String, Object> registeredServices = new ConcurrentHashMap<String, Object>();
+
+	MonitorLogger monitorLogger = ExtensionLoader.getExtension(MonitorLogger.class);
 
 	private RegistryManager() {
 	}
@@ -164,6 +167,14 @@ public class RegistryManager {
 		}
 	}
 
+	public int getServiceWeightFromCache(String serverAddress) {
+		HostInfo hostInfo = referencedAddresses.get(serverAddress);
+		if (hostInfo != null) {
+			return hostInfo.getWeight();
+		}
+		return Constants.DEFAULT_WEIGHT;
+	}
+
 	public int getServiceWeight(String serverAddress, boolean readCache) {
 		if (readCache) {
 			HostInfo hostInfo = referencedAddresses.get(serverAddress);
@@ -171,7 +182,7 @@ public class RegistryManager {
 				return hostInfo.getWeight();
 			}
 		}
-		int weight = Constants.WEIGHT_DEFAULT;
+		int weight = Constants.DEFAULT_WEIGHT;
 		if (registry != null) {
 			try {
 				weight = registry.getServerWeight(serverAddress);
@@ -210,12 +221,14 @@ public class RegistryManager {
 		if (registry != null) {
 			registry.registerService(serviceName, group, serviceAddress, weight);
 			registeredServices.putIfAbsent(serviceName, serviceAddress);
+			monitorLogger.logEvent("PigeonService.register", serviceName, "weight=" + weight + "&group=" + group);
 		}
 	}
 
 	public void setServerWeight(String serverAddress, int weight) throws RegistryException {
 		if (registry != null) {
 			registry.setServerWeight(serverAddress, weight);
+			monitorLogger.logEvent("PigeonService.weight", weight + "", "");
 		}
 	}
 
@@ -227,6 +240,7 @@ public class RegistryManager {
 		if (registry != null) {
 			registry.unregisterService(serviceName, group, serviceAddress);
 			registeredServices.remove(serviceName);
+			monitorLogger.logEvent("PigeonService.unregister", serviceName, "group=" + group);
 		}
 	}
 

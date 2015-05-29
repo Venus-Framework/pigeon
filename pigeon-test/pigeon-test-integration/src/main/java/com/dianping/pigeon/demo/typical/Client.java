@@ -36,9 +36,9 @@ public class Client {
 				User user = new User();
 				user.setName("wuxiang");
 				user.setAddress("addr");
-				//user.setAmount(new BigDecimal("10.21"));
+				user.setAmount(222l);
 				user.setAge(34);
-				user.setCount(2);
+				//user.setCount(2);
 				
 				echoService.addUser(user);
 				System.out.println(echoService.echo("" + i++));

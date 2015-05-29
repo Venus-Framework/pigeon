@@ -64,7 +64,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 			}
 		}
 		if (selectedClient != null) {
-			int weight = RegistryManager.getInstance().getServiceWeight(selectedClient.getAddress());
+			int weight = RegistryManager.getInstance().getServiceWeightFromCache(selectedClient.getAddress());
 			request.setAttachment(Constants.REQ_ATTACH_FLOW, 1.0f / (weight > 0 ? weight : 1));
 		}
 		if (logger.isDebugEnabled()) {

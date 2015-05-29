@@ -43,19 +43,7 @@ public class CuratorClient {
 			@Override
 			public void stateChanged(CuratorFramework client, ConnectionState newState) {
 				logger.info("zookeeper state changed to " + newState);
-				if (newState == ConnectionState.LOST) {
-					while (true) {
-						try {
-							if (client.getZookeeperClient().blockUntilConnectedOrTimedOut()) {
-								break;
-							}
-						} catch (InterruptedException e) {
-							break;
-						} catch (Exception e) {
-							logger.error("error with zookeeper connection:" + e.getMessage());
-						}
-					}
-				} else if (newState == ConnectionState.RECONNECTED) {
+				if (newState == ConnectionState.RECONNECTED) {
 					RegistryEventListener.connectionReconnected();
 				}
 			}

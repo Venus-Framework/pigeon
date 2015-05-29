@@ -34,24 +34,24 @@ public interface EchoService {
 		String email;
 		String address;
 		int age;
-		//BigDecimal amount;
-		int count;
-
-		public int getCount() {
-			return count;
-		}
-
-		public void setCount(int count) {
-			this.count = count;
-		}
-
-//		public BigDecimal getAmount() {
-//			return amount;
+		Long amount;
+//		int count;
+//
+//		public int getCount() {
+//			return count;
 //		}
 //
-//		public void setAmount(BigDecimal amount) {
-//			this.amount = amount;
+//		public void setCount(int count) {
+//			this.count = count;
 //		}
+
+		public Long getAmount() {
+			return amount;
+		}
+
+		public void setAmount(Long amount) {
+			this.amount = amount;
+		}
 
 		public User() {
 		}

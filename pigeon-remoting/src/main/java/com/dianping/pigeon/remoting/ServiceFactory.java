@@ -28,7 +28,6 @@ import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.listener.ServiceWarmupListener;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
-import com.dianping.pigeon.util.ClassUtils;
 
 /**
  * @author xiangwu

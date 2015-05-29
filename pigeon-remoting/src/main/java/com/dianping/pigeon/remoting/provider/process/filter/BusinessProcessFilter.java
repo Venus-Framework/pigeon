@@ -39,7 +39,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 		}
 		InvocationRequest request = invocationContext.getRequest();
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-			if (request.getTimeout() > 0) {
+			if (Constants.RESET_TIMEOUT && request.getTimeout() > 0) {
 				ContextUtils.putLocalContext(Constants.REQUEST_TIMEOUT, request.getTimeout());
 			}
 			if (Thread.currentThread().isInterrupted()) {

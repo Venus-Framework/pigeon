@@ -246,7 +246,8 @@ public class ClientManager {
 		@Override
 		public void providerAdded(ServiceProviderChangeEvent event) {
 			if (logger.isInfoEnabled()) {
-				logger.info("add " + event.getHost() + ":" + event.getPort() + " to " + event.getServiceName());
+				logger.info("add " + event.getHost() + ":" + event.getPort() + ":" + event.getWeight() + " to "
+						+ event.getServiceName());
 			}
 			registerClient(event.getServiceName(), event.getHost(), event.getPort(), event.getWeight());
 		}

@@ -55,11 +55,13 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 		InvokerConfig<?> invokerConfig = invokerContext.getInvokerConfig();
 		if (invokerConfig != null) {
 			request.setTimeout(invokerConfig.getTimeout());
-			Object timeout = ContextUtils.getLocalContext(Constants.REQUEST_TIMEOUT);
-			if (timeout != null) {
-				int timeout_ = Integer.parseInt(String.valueOf(timeout));
-				if (timeout_ > 0 && timeout_ < request.getTimeout()) {
-					request.setTimeout(timeout_);
+			if (Constants.RESET_TIMEOUT) {
+				Object timeout = ContextUtils.getLocalContext(Constants.REQUEST_TIMEOUT);
+				if (timeout != null) {
+					int timeout_ = Integer.parseInt(String.valueOf(timeout));
+					if (timeout_ > 0 && timeout_ < request.getTimeout()) {
+						request.setTimeout(timeout_);
+					}
 				}
 			}
 			MonitorTransaction transaction = monitorLogger.getCurrentTransaction();
