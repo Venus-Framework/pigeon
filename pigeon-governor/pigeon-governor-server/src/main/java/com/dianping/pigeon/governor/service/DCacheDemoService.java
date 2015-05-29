@@ -32,6 +32,7 @@ public class DCacheDemoService implements CacheDemoService {
 	protected static int rows = 0;
 	volatile boolean isCancel = false;
 	ExecutorService executor = null;
+	volatile int batch = 50;
 
 	@Resource
 	private CacheService cacheService;
@@ -62,6 +63,39 @@ public class DCacheDemoService implements CacheDemoService {
 		}
 	}
 
+    @Override
+    public void concurrentMultiGet(int threads, int rows) {
+        executor = Executors.newFixedThreadPool(threads);
+        isCancel = false;
+        for (int i = 0; i < threads; i++) {
+            executor.submit(new Runnable() {
+
+                @Override
+                public void run() {
+                    Object result = null;
+                    while (!isCancel) {
+                        Transaction t = Cat.newTransaction("cache", "cache");
+                        for (int i = 0; i < 100; i++) {
+                            result = getMultiKeyValue(batch);
+                        }
+                        t.setStatus(Message.SUCCESS);
+                        t.complete();
+                    }
+                }
+
+            });
+        }
+    }
+    
+    private Object getMultiKeyValue(int batch) {
+        List<CacheKey> keys = new ArrayList<CacheKey>(batch);
+        for(int i=0; i<batch; i++) {
+            CacheKey cacheKey = new CacheKey("mydcache", "k-" + Math.abs((int) (random.nextDouble() * rows)));
+            keys.add(cacheKey);
+        }
+        return cacheService.mGetWithNonExists(keys);
+    }
+    
 	public void concurrentAsyncGet(int threads, final int rows) {
 		executor = Executors.newFixedThreadPool(threads);
 		isCancel = false;
@@ -349,4 +383,5 @@ public class DCacheDemoService implements CacheDemoService {
 		CacheKey cacheKey = new CacheKey("mydcache", key);
 		return cacheService.asyncDelete(cacheKey).get();
 	}
+
 }
