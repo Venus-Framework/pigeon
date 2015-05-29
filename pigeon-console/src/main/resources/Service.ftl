@@ -28,7 +28,7 @@
 						content.hide();
 						return;
 					}
-					if('${environment}'=='product'){
+					if('${validate}'=='true'){
 						content.append("<p>verification code(from /data/applogs/dpsflog/pigeon.*.log):<input type='text' id='token' value=''/></p>");
 					}
 					if(treeNode.parameters>0){

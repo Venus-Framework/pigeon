@@ -47,8 +47,6 @@ public class InvokeJsonServlet extends ServiceServlet {
 	private static Map<String, Class<?>> builtInMap = new HashMap<String, Class<?>>();
 
 	private static boolean enableInvoke = configManager.getBooleanValue("pigeon.console.invoke.enable", true);
-	
-	private static boolean isValidate = configManager.getBooleanValue("pigeon.console.invoke.validate", false);
 
 	private static boolean logInvoke = configManager.getBooleanValue("pigeon.console.invoke.log", true);
 

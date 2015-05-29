@@ -66,7 +66,7 @@ public abstract class AbstractCacheTestService implements CacheTestService {
 	public void init(int rows, int size) throws CacheException, TimeoutException {
 		clear();
 		for (int i = 0; i < rows; i++) {
-			this.setKeyValue("k-" + i, StringUtils.leftPad("" + i, size));
+			this.setKeyValue("k-" + i, StringUtils.leftPad("" + i, size, '#'));
 		}
 		AbstractCacheTestService.rows = rows;
 	}

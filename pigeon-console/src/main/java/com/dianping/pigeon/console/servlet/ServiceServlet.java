@@ -70,6 +70,8 @@ public class ServiceServlet extends HttpServlet {
 
 	private static final StatusChecker providerStatusChecker = new ProviderStatusChecker();
 
+	protected static boolean isValidate = configManager.getBooleanValue("pigeon.console.invoke.validate", false);
+
 	protected static String token;
 
 	{
@@ -160,6 +162,7 @@ public class ServiceServlet extends HttpServlet {
 		page.setRegistry(RegistryManager.getInstance().getRegistry().getName());
 		page.setAppName(configManager.getAppName());
 		page.setStartTime(ProviderBootStrap.getStartTime() + "");
+		page.setValidate("" + isValidate);
 		this.model = page;
 	}
 

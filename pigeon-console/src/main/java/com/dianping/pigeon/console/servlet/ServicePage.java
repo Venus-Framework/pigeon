@@ -44,6 +44,16 @@ public class ServicePage {
 
 	private String registry = "";
 
+	private String validate = "false";
+
+	public String getValidate() {
+		return validate;
+	}
+
+	public void setValidate(String validate) {
+		this.validate = validate;
+	}
+
 	public static class ClientInfo {
 		private Client client;
 		private int weight;
