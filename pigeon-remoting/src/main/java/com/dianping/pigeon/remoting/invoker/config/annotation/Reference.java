@@ -33,7 +33,7 @@ public @interface Reference {
 
 	String callback() default "";
 
-	String loadbalance() default WeightedAutoawareLoadBalance.NAME;
+	String loadbalance() default "weightedAutoaware";
 
 	String cluster() default "failfast";
 
