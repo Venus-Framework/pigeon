@@ -4,8 +4,7 @@
  */
 package com.dianping.pigeon.config.lion;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
@@ -13,6 +12,7 @@ import com.dianping.lion.client.ConfigChange;
 import com.dianping.lion.client.LionException;
 import com.dianping.pigeon.config.AbstractConfigManager;
 import com.dianping.pigeon.config.ConfigChangeListener;
+import com.dianping.pigeon.log.LoggerLoader;
 
 /**
  * @author xiangwu
@@ -21,7 +21,7 @@ import com.dianping.pigeon.config.ConfigChangeListener;
  */
 public class LionConfigManager extends AbstractConfigManager {
 
-	private static Logger logger = LoggerFactory.getLogger(LionConfigManager.class);
+	private static Logger logger = LoggerLoader.getLogger(LionConfigManager.class);
 
 	private ConfigCache configCache = null;
 

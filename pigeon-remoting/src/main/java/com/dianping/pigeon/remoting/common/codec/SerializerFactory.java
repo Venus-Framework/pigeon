@@ -7,9 +7,9 @@ package com.dianping.pigeon.remoting.common.codec;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.ClassUtils;
-import org.apache.log4j.Logger;
-
 import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
+
 import com.dianping.pigeon.remoting.common.codec.fst.FstSerializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.Hessian1Serializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;

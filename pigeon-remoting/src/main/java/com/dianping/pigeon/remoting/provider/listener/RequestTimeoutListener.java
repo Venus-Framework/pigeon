@@ -7,12 +7,12 @@ package com.dianping.pigeon.remoting.provider.listener;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;

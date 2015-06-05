@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.phase.Disposable;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;

@@ -6,9 +6,9 @@ package com.dianping.pigeon.remoting.invoker.route.balance;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
+
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;

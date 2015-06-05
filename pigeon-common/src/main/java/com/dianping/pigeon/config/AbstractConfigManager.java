@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.util.NetUtils;
 
@@ -24,7 +24,7 @@ import com.dianping.pigeon.util.NetUtils;
  */
 public abstract class AbstractConfigManager implements ConfigManager {
 
-	private static Logger logger = LoggerFactory.getLogger(AbstractConfigManager.class);
+	private static Logger logger = LoggerLoader.getLogger(AbstractConfigManager.class);
 
 	public static final String KEY_GROUP = "swimlane";
 

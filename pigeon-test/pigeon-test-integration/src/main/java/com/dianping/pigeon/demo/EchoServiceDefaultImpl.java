@@ -18,8 +18,6 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public String echo(String input) {
-		System.out.println("key1=" + ContextUtils.getContextValue("key1"));
-		System.out.println("recv:" + input);
 		return "echo:" + input;
 	}
 
@@ -36,7 +34,6 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public void addUser(User user) {
-		System.out.println(user);
 		users.add(user);
 	}
 

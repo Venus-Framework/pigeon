@@ -9,12 +9,12 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.log.LoggerLoader;
 
 public final class ContextUtils {
 

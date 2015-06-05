@@ -3,8 +3,10 @@ package com.dianping.pigeon.console.servlet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.dianping.pigeon.console.domain.Service;
+import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.remoting.invoker.Client;
 
 public class ServicePage {
@@ -45,6 +47,16 @@ public class ServicePage {
 	private String registry = "";
 
 	private String validate = "false";
+
+	Map<String, Set<HostInfo>> serviceAddresses;
+
+	public Map<String, Set<HostInfo>> getServiceAddresses() {
+		return serviceAddresses;
+	}
+
+	public void setServiceAddresses(Map<String, Set<HostInfo>> serviceAddresses) {
+		this.serviceAddresses = serviceAddresses;
+	}
 
 	public String getValidate() {
 		return validate;

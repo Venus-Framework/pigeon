@@ -78,6 +78,8 @@ public class DependencyJsonServlet extends ServiceServlet {
 		}
 		page.setReconnects(reconnectsResults);
 
+		page.setServiceAddresses(RegistryManager.getInstance().getAllReferencedServiceAddresses());
+
 		this.model = page;
 	}
 }

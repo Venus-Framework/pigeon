@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.registry.util.Constants;
 
 public class Utils {
 
-	private static final Logger logger = Logger.getLogger(Utils.class);
+	private static final Logger logger = LoggerLoader.getLogger(Utils.class);
 
 	public static String unescapeServiceName(String serviceName) {
 		return serviceName.replace(Constants.PLACEHOLDER, Constants.PATH_SEPARATOR);

@@ -3,12 +3,12 @@ package com.dianping.pigeon.test.benchmark.status;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class StatusHolder {
 
-	private static final Logger logger = LoggerFactory.getLogger(StatusHolder.class);
+	private static final Logger logger = LogManager.getLogger(StatusHolder.class);
 
 	private static ConcurrentHashMap<String, CapacityBucket> capacityBuckets = new ConcurrentHashMap<String, CapacityBucket>();
 

@@ -5,8 +5,8 @@
 package com.dianping.pigeon.demo.interceptor;
 
 import com.dianping.pigeon.container.SpringContainer;
-import com.dianping.pigeon.demo.interceptor.MyProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
+
 
 public class Server {
 

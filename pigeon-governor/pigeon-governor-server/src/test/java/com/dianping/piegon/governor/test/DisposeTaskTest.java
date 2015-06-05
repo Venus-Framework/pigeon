@@ -1,7 +1,5 @@
 package com.dianping.piegon.governor.test;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 
 import com.dianping.pigeon.governor.task.DisposeTask;

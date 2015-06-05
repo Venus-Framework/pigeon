@@ -6,12 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class CapacityBucket implements Serializable {
-	private static final Logger logger = LoggerFactory.getLogger(CapacityBucket.class);
+	private static final Logger logger = LogManager.getLogger(CapacityBucket.class);
 
 	private AtomicInteger requests = new AtomicInteger();
 

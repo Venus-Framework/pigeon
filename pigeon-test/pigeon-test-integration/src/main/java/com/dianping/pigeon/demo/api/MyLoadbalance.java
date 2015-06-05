@@ -3,9 +3,9 @@ package com.dianping.pigeon.demo.api;
 import java.util.List;
 
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
-import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.route.balance.WeightedAutoawareLoadBalance;
+import com.dianping.pigeon.remoting.invoker.Client;
 
 public class MyLoadbalance extends WeightedAutoawareLoadBalance {
 

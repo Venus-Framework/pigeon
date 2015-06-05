@@ -4,11 +4,10 @@
  */
 package com.dianping.pigeon.container;
 
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import com.dianping.pigeon.log.LoggerLoader;
 
 public final class SpringContainer {
 

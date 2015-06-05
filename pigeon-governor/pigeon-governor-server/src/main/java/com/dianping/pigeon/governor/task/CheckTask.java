@@ -7,7 +7,8 @@ import java.net.SocketAddress;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.dpsf.protocol.DefaultRequest;
@@ -26,7 +27,7 @@ import com.dianping.pigeon.remoting.netty.invoker.NettyClient;
 
 public class CheckTask implements Runnable {
 
-	private static final Logger logger = Logger.getLogger(CheckTask.class);
+	private static final Logger logger = LoggerLoader.getLogger(CheckTask.class);
 
 	private HealthCheckManager manager;
 	private Host host;

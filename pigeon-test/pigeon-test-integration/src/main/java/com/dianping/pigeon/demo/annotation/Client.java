@@ -6,6 +6,7 @@ package com.dianping.pigeon.demo.annotation;
 
 import com.dianping.pigeon.container.SpringContainer;
 
+
 public class Client {
 
 	private static SpringContainer CLIENT_CONTAINER = new SpringContainer(

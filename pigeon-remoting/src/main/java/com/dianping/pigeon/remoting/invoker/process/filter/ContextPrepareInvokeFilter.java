@@ -8,11 +8,11 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
-import org.codehaus.plexus.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.registry.RegistryManager;

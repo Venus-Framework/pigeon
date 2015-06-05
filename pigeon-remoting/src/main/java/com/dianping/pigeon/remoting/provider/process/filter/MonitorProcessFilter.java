@@ -5,11 +5,11 @@
 package com.dianping.pigeon.remoting.provider.process.filter;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
@@ -33,7 +33,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 
 	private static final Logger logger = LoggerLoader.getLogger(MonitorProcessFilter.class);
 
-	private static final Logger accessLogger = Logger.getLogger("pigeon-access");
+	private static final Logger accessLogger = LoggerLoader.getLogger("pigeon-access");
 
 	private Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 
@@ -141,7 +141,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					}
 					transaction.complete();
 					if (isAccessLogEnabled) {
-						accessLogger.debug(request.getApp() + "@" + fromIp + "@" + request + "@" + timeline);
+						accessLogger.info(request.getApp() + "@" + fromIp + "@" + request + "@" + timeline);
 					}
 				} catch (Throwable e) {
 					monitorLogger.logMonitorError(e);

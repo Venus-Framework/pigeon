@@ -14,10 +14,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientSelector;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
@@ -70,7 +70,7 @@ public class DefaultClusterListener implements ClusterListener {
 
 	public void addConnect(ConnectInfo connectInfo) {
 		if (logger.isInfoEnabled()) {
-			logger.info("[cluster listener] add service provider:" + connectInfo);
+			logger.info("[cluster-listener] add service provider:" + connectInfo);
 		}
 		Client client = this.allClients.get(connectInfo.getConnect());
 		if (clientExisted(connectInfo)) {
@@ -133,7 +133,7 @@ public class DefaultClusterListener implements ClusterListener {
 
 	public void removeConnect(Client client) {
 		if (logger.isInfoEnabled()) {
-			logger.info("[cluster listener] remove service provider:" + client);
+			logger.info("[cluster-listener] remove service provider:" + client);
 		}
 		for (String serviceName : this.serviceClients.keySet()) {
 			List<Client> clientList = this.serviceClients.get(serviceName);
@@ -146,7 +146,7 @@ public class DefaultClusterListener implements ClusterListener {
 	@Override
 	public void doNotUse(String serviceName, String host, int port) {
 		if (logger.isInfoEnabled()) {
-			logger.info("[cluster listener] do not use service provider:" + serviceName + ":" + host + ":" + port);
+			logger.info("[cluster-listener] do not use service provider:" + serviceName + ":" + host + ":" + port);
 		}
 		List<Client> cs = serviceClients.get(serviceName);
 		List<Client> newCS = new ArrayList<Client>();

@@ -5,7 +5,6 @@
 package com.dianping.pigeon.demo;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;

@@ -1,8 +1,8 @@
 package com.dianping.pigeon.remoting.invoker.cluster;
 
-import org.apache.log4j.Logger;
-
 import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
+
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;

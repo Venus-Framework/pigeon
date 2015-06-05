@@ -10,7 +10,8 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 
@@ -20,7 +21,7 @@ import org.apache.log4j.Logger;
  */
 public final class ExtensionLoader {
 
-	private static final Logger logger = Logger.getLogger(ExtensionLoader.class);
+	private static final Logger logger = LoggerLoader.getLogger(ExtensionLoader.class);
 
 	private static Map<Class<?>, Object> extensionMap = new ConcurrentHashMap<Class<?>, Object>();
 

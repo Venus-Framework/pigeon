@@ -3,13 +3,8 @@
  */
 package com.dianping.dpsf;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.spi.RootLogger;
-
 import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 /**
  * <p>
@@ -28,8 +23,6 @@ public class DPSFLog {
 	}
 
 	private static final String LOGGER_NAME = "dpsf";
-	public static final Log log = LogFactory.getLog(LOGGER_NAME);
-	public static final Logger rootLogger = new RootLogger(Level.DEBUG);
 
 	static {
 		initDPSFLog();

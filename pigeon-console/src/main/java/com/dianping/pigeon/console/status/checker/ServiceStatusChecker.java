@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
-
 import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
+
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.util.CollectionUtils;

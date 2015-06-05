@@ -5,7 +5,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Message;
@@ -17,7 +18,7 @@ public abstract class AbstractMessageTestService implements MessageTestService {
 	protected static int rows = 0;
 	volatile boolean isCancel = false;
 	ExecutorService executor = null;
-	private static Logger logger = Logger.getLogger(AbstractMessageTestService.class);
+	private static Logger logger = LoggerLoader.getLogger(AbstractMessageTestService.class);
 
 	public void concurrentGet(int threads, final int rows) {
 		executor = Executors.newFixedThreadPool(threads);

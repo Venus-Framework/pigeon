@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -42,7 +43,7 @@ public final class ProviderBootStrap {
 
 	public static void init() {
 		if (!isInitialized) {
-			ConfigManagerLoader.getConfigManager().getAppName();
+			LoggerLoader.init();
 			RegistryConfigLoader.init();
 			ProviderProcessHandlerFactory.init();
 			SerializerFactory.init();

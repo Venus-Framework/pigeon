@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.remoting.ServiceFactory;
@@ -134,13 +134,13 @@ public class ProviderAvailableListener implements Runnable {
 							}
 						}
 						if (error != null) {
-							logger.warn("[provideravailable] failed to get providers, caused by " + error);
+							logger.warn("[provider-available] failed to get providers, caused by " + error);
 						}
 					}
 				}
 				sleepTime = interval - (System.currentTimeMillis() - now);
 			} catch (Throwable e) {
-				logger.warn("[provideravailable] task failed:", e);
+				logger.warn("[provider-available] task failed:", e);
 			} finally {
 				if (sleepTime < 1000) {
 					sleepTime = 1000;

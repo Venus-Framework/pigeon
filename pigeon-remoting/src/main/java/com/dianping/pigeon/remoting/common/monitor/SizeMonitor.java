@@ -1,7 +1,7 @@
 package com.dianping.pigeon.remoting.common.monitor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -10,7 +10,7 @@ import com.dianping.pigeon.monitor.MonitorLogger;
 
 public class SizeMonitor {
 
-	private static Logger logger = LoggerFactory.getLogger(SizeMonitor.class);
+	private static Logger logger = LogManager.getLogger(SizeMonitor.class);
 
 	private static MonitorLogger monitor = ExtensionLoader.getExtension(Monitor.class).getLogger();
 

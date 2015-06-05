@@ -4,25 +4,11 @@
  */
 package com.dianping.pigeon.remoting.invoker.process;
 
-import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.process.actor.ResponseActorProcessor;
 import com.dianping.pigeon.remoting.invoker.process.threadpool.ResponseThreadPoolProcessor;
 
 public class ResponseProcessorFactory {
 
-	private static final String processType = ConfigManagerLoader.getConfigManager().getStringValue(
-			"pigeon.invoker.processmodel", Constants.PROCESS_MODEL_THREAD);
-
-	private static ResponseProcessor responseProcessor = null;
-
-	static {
-		if (Constants.PROCESS_MODEL_AKKA.equals(processType)) {
-			responseProcessor = new ResponseActorProcessor();
-		} else {
-			responseProcessor = new ResponseThreadPoolProcessor();
-		}
-	}
+	private static ResponseProcessor responseProcessor = new ResponseThreadPoolProcessor();
 
 	public static ResponseProcessor selectProcessor() {
 		return responseProcessor;

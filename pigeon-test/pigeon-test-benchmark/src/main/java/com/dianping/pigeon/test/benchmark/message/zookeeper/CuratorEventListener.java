@@ -3,18 +3,19 @@ package com.dianping.pigeon.test.benchmark.message.zookeeper;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CuratorEvent;
 import org.apache.curator.framework.api.CuratorListener;
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
 
-import com.dianping.cache.status.StatusHolder;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.test.benchmark.status.StatusHolder;
 
 public class CuratorEventListener implements CuratorListener {
 
-	private static Logger logger = Logger.getLogger(CuratorEventListener.class);
+	private static Logger logger = LoggerLoader.getLogger(CuratorEventListener.class);
 
 	private static final int CATEGORY = 1;
 
@@ -64,7 +65,6 @@ public class CuratorEventListener implements CuratorListener {
 
 	private void categoryChanged(PathInfo pathInfo) throws RegistryException {
 		try {
-			StatusHolder.flowIn("zk", null, "changed");
 			String value = client.get(pathInfo.path);
 			logger.info("[" + Thread.currentThread().getName() + "]category changed, path " + pathInfo.path + " value "
 					+ value);
@@ -72,7 +72,6 @@ public class CuratorEventListener implements CuratorListener {
 		} catch (Exception e) {
 			throw new RegistryException(e);
 		} finally {
-			StatusHolder.flowOut("zk", null, "changed");
 		}
 	}
 

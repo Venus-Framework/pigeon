@@ -3,10 +3,8 @@
  */
 package com.dianping.dpsf.async;
 
-import org.apache.log4j.Logger;
-
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
+import org.apache.logging.log4j.Logger;
 
 /**
  * <p>

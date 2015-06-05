@@ -12,13 +12,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.registry.config.DefaultRegistryConfigManager;
 import com.dianping.pigeon.registry.config.RegistryConfigManager;
