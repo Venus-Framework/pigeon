@@ -2,6 +2,7 @@ package com.dianping.pigeon.governor.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -31,6 +32,7 @@ public class MemcacheDemoService implements CacheDemoService {
 	protected static int rows = 0;
 	volatile boolean isCancel = false;
 	ExecutorService executor = null;
+	volatile int batch = 50;
 
 	@Resource
 	private CacheService cacheService;
@@ -60,6 +62,29 @@ public class MemcacheDemoService implements CacheDemoService {
 			});
 		}
 	}
+	
+	public void concurrentMultiGet(final int threads, final int rows) {
+        executor = Executors.newFixedThreadPool(threads);
+        isCancel = false;
+        for (int i = 0; i < threads; i++) {
+            executor.submit(new Runnable() {
+
+                @Override
+                public void run() {
+                    Object result = null;
+                    while (!isCancel) {
+                        Transaction t = Cat.newTransaction("cache", "cache");
+                        for (int i = 0; i < 100; i++) {
+                            result = getMultiKeyValue(batch);
+                        }
+                        t.setStatus(Message.SUCCESS);
+                        t.complete();
+                    }
+                }
+            });
+        }
+    }
+	
 
 	public void concurrentSet(int threads, final int rows, final int size) {
 		executor = Executors.newFixedThreadPool(threads);
@@ -184,6 +209,15 @@ public class MemcacheDemoService implements CacheDemoService {
 	public String getKeyValue(String key) {
 		CacheKey cacheKey = new CacheKey("mymemcache", key);
 		return cacheService.get(cacheKey);
+	}
+	
+	public Map<CacheKey, String> getMultiKeyValue(int batch) {
+	    List<CacheKey> keys = new ArrayList<CacheKey>(batch);
+	    for(int i=0; i<batch; i++) {
+	        CacheKey cacheKey = new CacheKey("mymemcache", "k-" + Math.abs((int) (random.nextDouble() * rows)));
+	        keys.add(cacheKey);
+	    }
+	    return cacheService.mGetWithNonExists(keys);
 	}
 
 	public Future<String> asyncGetKeyValueByFuture(String key) throws CacheException {
