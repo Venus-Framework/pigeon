@@ -10,7 +10,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.route.balance.WeightedAutoawareLoadBalance;
 
 @Documented
@@ -24,19 +23,19 @@ public @interface Reference {
 
 	String url() default "";
 
-	String protocol() default Constants.PROTOCOL_DEFAULT;
+	String protocol() default "default";
 
-	String serialize() default Constants.SERIALIZE_HESSIAN;
+	String serialize() default "hessian";
 
-	String callType() default Constants.CALL_SYNC;
+	String callType() default "sync";
 
-	int timeout() default Constants.DEFAULT_INVOKER_TIMEOUT;
+	int timeout() default 5000;
 
 	String callback() default "";
 
 	String loadbalance() default WeightedAutoawareLoadBalance.NAME;
 
-	String cluster() default Constants.CLUSTER_FAILFAST;
+	String cluster() default "failfast";
 
 	int retries() default 1;
 
@@ -46,5 +45,4 @@ public @interface Reference {
 
 	String group() default "";
 
-	String processModel() default Constants.PROCESS_MODEL_DEFAULT;
 }
