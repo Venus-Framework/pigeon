@@ -10,13 +10,13 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.cache.CacheException;
 import org.springframework.util.CollectionUtils;
 
 import com.dianping.avatar.cache.CacheKey;
 import com.dianping.avatar.cache.CacheService;
 import com.dianping.avatar.tracker.ExecutionContextHolder;
 import com.dianping.avatar.tracker.TrackerContext;
-import com.dianping.cache.exception.CacheException;
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Message;
 import com.dianping.cat.message.Transaction;
