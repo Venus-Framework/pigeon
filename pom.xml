@@ -28,6 +28,7 @@
 		<module>pigeon-governor</module>
 		<module>pigeon-test</module>
 		<module>pigeon-console</module>
+		<module>pigeon-context</module>
 		<module>pigeon</module>
 	</modules>
 	<description>pigeon-parent</description>
@@ -237,6 +238,11 @@
 			<dependency>
 				<groupId>com.dianping</groupId>
 				<artifactId>pigeon-registry</artifactId>
+				<version>${pigeon.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.dianping</groupId>
+				<artifactId>pigeon-context</artifactId>
 				<version>${pigeon.version}</version>
 			</dependency>
 			<dependency>

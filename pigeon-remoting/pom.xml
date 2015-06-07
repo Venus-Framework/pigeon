@@ -52,6 +52,10 @@
 			<artifactId>pigeon-registry</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>pigeon-context</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.caucho</groupId>
 			<artifactId>hessian</artifactId>
 		</dependency>

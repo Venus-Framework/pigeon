@@ -138,18 +138,18 @@ public class NettyClient extends AbstractClient {
 					} finally {
 						this.channel = newChannel;
 					}
-					logger.warn("client is connected to " + this.host + ":" + this.port);
+					logger.info("client is connected to " + this.host + ":" + this.port);
 					this.connected = true;
 					resetLogCount();
 				} else if (isLog()) {
-					logger.warn("client is not connected to " + this.host + ":" + this.port);
+					logger.info("client is not connected to " + this.host + ":" + this.port);
 				}
 			} else if (isLog()) {
-				logger.warn("timeout while connecting to " + this.host + ":" + this.port);
+				logger.info("timeout while connecting to " + this.host + ":" + this.port);
 			}
 		} catch (Throwable e) {
 			if (isLog()) {
-				logger.warn("error while connecting to " + this.host + ":" + this.port, e);
+				logger.info("error while connecting to " + this.host + ":" + this.port, e);
 			}
 		}
 	}
@@ -177,7 +177,7 @@ public class NettyClient extends AbstractClient {
 
 	private void connectionException(Client client, Object attachment, Throwable e) {
 		if (isLog()) {
-			logger.warn("exception while connecting to " + client + ", exception:" + e.getMessage());
+			logger.info("exception while connecting to " + client + ", exception:" + e.getMessage());
 		}
 		if (attachment == null) {
 			return;

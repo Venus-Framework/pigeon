@@ -7,9 +7,9 @@ package com.dianping.pigeon.remoting.provider.process.filter;
 import java.io.Serializable;
 import java.util.Map;
 
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
@@ -56,14 +56,8 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 				processContext.putContextValue(entry.getKey(), entry.getValue());
 			}
 		}
-		String clientIp = getClientIp(processContext.getChannel().getRemoteAddress());
-		ContextUtils.putLocalContext("CLIENT_IP", clientIp);
+		ContextUtils.putLocalContext("CLIENT_IP", processContext.getChannel().getRemoteAddress());
 		ContextUtils.putLocalContext("CLIENT_APP", request.getApp());
-	}
-
-	private String getClientIp(String remoteAddress) {
-		int idx = remoteAddress.indexOf(':');
-		return remoteAddress.substring(0, idx);
 	}
 
 	private void transferContextValueToResponse(final ProviderContext processContext, final InvocationResponse response) {
