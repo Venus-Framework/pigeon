@@ -8,7 +8,7 @@ import com.dianping.pigeon.remoting.ServiceFactory;
 public class CacheServiceTest {
 
 	@Test
-	public void testCheckValidService() throws Exception {
+	public void testMemcacheService() throws Exception {
 		CacheDemoService cacheService = ServiceFactory.getService("com.dianping.cache.test.MemcacheDemoService",
 				CacheDemoService.class);
 		while (true) {

@@ -130,8 +130,8 @@ public class RequestTimeoutListener implements Runnable {
 										monitorLogger.logError(te);
 									}
 									Future<?> future = rc.getFuture();
-									if (t != null && !needInterrupt(t)) {
-										cancelTimeout = false;
+									if (t != null && cancelTimeout) {
+										cancelTimeout = needInterrupt(t);
 									}
 									if (future != null && !future.isCancelled()) {
 										if (future.cancel(cancelTimeout)) {
