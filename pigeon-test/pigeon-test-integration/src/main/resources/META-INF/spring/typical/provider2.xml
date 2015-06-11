@@ -12,9 +12,7 @@
 		init-method="init">
 		<property name="services">
 			<map>
-				<entry
-					key="com.dianping.pigeon.demo.EchoService"
-					value-ref="defaultEchoServiceImpl" />
+				<entry key="com.dianping.pigeon.demo.UserService" value-ref="defaultUserServiceImpl" />
 			</map>
 		</property>
 		<property name="port">
@@ -25,5 +23,6 @@
 		</property>
 	</bean>
 
-	<bean id="defaultEchoServiceImpl" class="com.dianping.pigeon.demo.EchoServiceDefaultImpl" />
+	<bean id="defaultUserServiceImpl" class="com.dianping.pigeon.demo.UserServiceDefaultImpl" />
+
 </beans>

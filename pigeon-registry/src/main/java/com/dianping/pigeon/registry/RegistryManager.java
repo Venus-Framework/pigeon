@@ -307,10 +307,10 @@ public class RegistryManager {
 		String app = null;
 		if (hostInfo != null) {
 			app = hostInfo.getApp();
-			if (app == null && registry != null) {
-				app = registry.getServerApp(serverAddress);
-				hostInfo.setApp(app);
-			}
+//			if (app == null && registry != null) {
+//				app = registry.getServerApp(serverAddress);
+//				hostInfo.setApp(app);
+//			}
 			return app;
 		}
 		return "";
@@ -339,10 +339,10 @@ public class RegistryManager {
 		String version = null;
 		if (hostInfo != null) {
 			version = hostInfo.getVersion();
-			if (version == null && registry != null) {
-				version = registry.getServerVersion(serverAddress);
-				hostInfo.setVersion(version);
-			}
+//			if (version == null && registry != null) {
+//				version = registry.getServerVersion(serverAddress);
+//				hostInfo.setVersion(version);
+//			}
 			return version;
 		}
 		return null;

@@ -8,6 +8,7 @@ import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.EchoService.User;
 import com.dianping.pigeon.demo.UserService;
+import com.dianping.pigeon.util.ContextUtils;
 
 public class Client {
 
@@ -40,7 +41,8 @@ public class Client {
 				user.setAge(34);
 				//user.setCount(2);
 				
-				echoService.addUser(user);
+				//echoService.addUser(user);
+				ContextUtils.putContextValue("key1", "1");
 				System.out.println(echoService.echo("" + i++));
 				// System.out.println(echoService.echo("hi, 2"));
 				//

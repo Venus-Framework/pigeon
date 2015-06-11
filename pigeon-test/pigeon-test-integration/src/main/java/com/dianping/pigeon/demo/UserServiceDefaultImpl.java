@@ -7,6 +7,8 @@ package com.dianping.pigeon.demo;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dianping.pigeon.util.ContextUtils;
+import com.dianping.pigeon.util.NetUtils;
 
 public class UserServiceDefaultImpl implements UserService {
 
@@ -27,6 +29,15 @@ public class UserServiceDefaultImpl implements UserService {
 			}
 		}
 		return users;
+	}
+
+	@Override
+	public String echo(String msg) {
+		System.out.println("key-" + ContextUtils.getContextValue("key1"));
+		System.out.println("SOURCE_APP:" + ContextUtils.getContextValue("SOURCE_APP"));
+		System.out.println("SOURCE_IP:" + NetUtils.toStringIp((Integer) ContextUtils.getContextValue("SOURCE_IP")));
+
+		return msg;
 	}
 
 }

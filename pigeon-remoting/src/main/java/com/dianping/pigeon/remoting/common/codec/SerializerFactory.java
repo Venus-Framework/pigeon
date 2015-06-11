@@ -7,9 +7,9 @@ package com.dianping.pigeon.remoting.common.codec;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.ClassUtils;
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.fst.FstSerializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.Hessian1Serializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
@@ -39,7 +39,6 @@ public final class SerializerFactory {
 	public static final String JAVA = "java";
 	public static final String HESSIAN1 = "hessian1";
 	public static final String JSON = "json";
-	public static final String KRYO = "kryo";
 	public static final String PROTO = "proto";
 	public static final String FST = "fst";
 

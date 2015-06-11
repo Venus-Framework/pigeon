@@ -9,12 +9,12 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 
 public final class ContextUtils {
 
@@ -41,10 +41,11 @@ public final class ContextUtils {
 	private static Object[] defObjs = new Object[] {};
 
 	private static ThreadLocal<Map> localContext = new ThreadLocal<Map>();
-	
+
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
-	
-	private static final boolean createContextIfNotExists = configManager.getBooleanValue("pigeon.context.createifnotexists", false);
+
+	private static final boolean createContextIfNotExists = configManager.getBooleanValue(
+			"pigeon.context.createifnotexists", false);
 
 	static {
 
@@ -266,4 +267,5 @@ public final class ContextUtils {
 		}
 		localContext.remove();
 	}
+
 }

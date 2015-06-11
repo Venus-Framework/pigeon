@@ -17,11 +17,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.RejectedException;
@@ -191,8 +191,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 					int coreSize = (int) (actives / DEFAULT_POOL_RATIO_CORE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_CORE)
 							: actives;
 					int maxSize = actives;
-					int queueSize = (int) (actives / DEFAULT_POOL_RATIO_QUEUE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_QUEUE)
-							: actives;
+					int queueSize = actives;
 					pool = new DefaultThreadPool("Pigeon-Server-Request-Processor-service", coreSize, maxSize,
 							new LinkedBlockingQueue<Runnable>(queueSize));
 					serviceThreadPools.putIfAbsent(key, pool);
@@ -213,8 +212,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 						int coreSize = (int) (actives / DEFAULT_POOL_RATIO_CORE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_CORE)
 								: actives;
 						int maxSize = actives;
-						int queueSize = (int) (actives / DEFAULT_POOL_RATIO_QUEUE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_QUEUE)
-								: actives;
+						int queueSize = actives;
 						pool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method", coreSize, maxSize,
 								new LinkedBlockingQueue<Runnable>(queueSize));
 						methodThreadPools.putIfAbsent(key, pool);
@@ -376,8 +374,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 											&& actives >= 0) {
 										int coreSize = (int) (actives / DEFAULT_POOL_RATIO_CORE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_CORE)
 												: actives;
-										int queueSize = (int) (actives / DEFAULT_POOL_RATIO_QUEUE) > 0 ? (int) (actives / DEFAULT_POOL_RATIO_QUEUE)
-												: actives;
+										int queueSize = actives;
 										int maxSize = actives;
 										ThreadPool newPool = new DefaultThreadPool(
 												"Pigeon-Server-Request-Processor-method", coreSize, maxSize,

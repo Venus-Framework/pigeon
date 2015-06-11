@@ -179,7 +179,7 @@ public final class Constants {
 
 	public static final boolean LOG_INVOKER_APP_EXCEPTION = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.invoker.logserviceexception", false);
-	
+
 	public static final boolean RESET_TIMEOUT = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.timeout.reset", true);
 
@@ -191,4 +191,10 @@ public final class Constants {
 	public static final int DEFAULT_SERVICE_MAXPOOLSIZE = 50;
 	public static final int DEFAULT_SERVICE_WORKQUEUESIZE = 50;
 	public static final boolean DEFAULT_SERVICE_SHARED = true;
+
+	public static final String CONTEXT_KEY_CLIENT_IP = "CLIENT_IP";
+	public static final String CONTEXT_KEY_CLIENT_APP = "CLIENT_APP";
+	public static final String CONTEXT_KEY_SOURCE_IP = "SOURCE_IP";
+	public static final String CONTEXT_KEY_SOURCE_APP = "SOURCE_APP";
+
 }
