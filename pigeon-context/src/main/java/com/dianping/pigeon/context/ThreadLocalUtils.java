@@ -16,8 +16,18 @@ public class ThreadLocalUtils {
 		}
 	};
 
+	private static InheritableThreadLocal<ThreadLocalInfo> itl = new InheritableThreadLocal<ThreadLocalInfo>() {
+		protected ThreadLocalInfo initialValue() {
+			return new ThreadLocalInfo();
+		}
+	};
+
 	public static ThreadLocalInfo getThreadLocalInfo() {
 		return tl.get();
+	}
+
+	public static ThreadLocalInfo getInheritableThreadLocalInfo() {
+		return itl.get();
 	}
 
 	public static void disableInterrupt() {

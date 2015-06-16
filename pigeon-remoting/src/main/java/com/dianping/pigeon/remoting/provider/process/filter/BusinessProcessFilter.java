@@ -24,6 +24,7 @@ import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethod;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethodFactory;
+import com.dianping.pigeon.remoting.provider.util.ProviderHelper;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import com.dianping.pigeon.util.ContextUtils;
 
@@ -56,6 +57,10 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			ServiceMethod method = invocationContext.getServiceMethod();
 			if (method == null) {
 				method = ServiceMethodFactory.getMethod(request);
+			}
+			if (Constants.REPLY_MANUAL && request.getCallType() == Constants.CALLTYPE_REPLY) {
+				request.setCallType(Constants.CALLTYPE_NOREPLY);
+				ProviderHelper.setContext(invocationContext);
 			}
 			// TIMELINE_biz_start
 			if (TimelineManager.isEnabled()) {

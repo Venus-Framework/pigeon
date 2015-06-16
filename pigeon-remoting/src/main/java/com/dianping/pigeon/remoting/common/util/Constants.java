@@ -182,6 +182,9 @@ public final class Constants {
 
 	public static final boolean RESET_TIMEOUT = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.timeout.reset", true);
+	
+	public static final boolean REPLY_MANUAL = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.provider.reply.manual", false);
 
 	public static final String KEY_SERVICE_COREPOOLSIZE = "pigeon.provider.service.corePoolSize";
 	public static final String KEY_SERVICE_MAXPOOLSIZE = "pigeon.provider.service.maxPoolSize";

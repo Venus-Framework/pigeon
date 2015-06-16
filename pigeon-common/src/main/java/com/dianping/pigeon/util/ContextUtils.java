@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.avatar.tracker.TrackerContext;
+import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -44,11 +45,10 @@ public final class ContextUtils {
 
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
-	private static final boolean createContextIfNotExists = configManager.getBooleanValue(
-			"pigeon.context.createifnotexists", false);
+	private static boolean createContextIfNotExists = configManager.getBooleanValue("pigeon.context.createifnotexists",
+			false);
 
 	static {
-
 		try {
 			Class contextHolderClass = Class.forName("com.dianping.avatar.tracker.ExecutionContextHolder");
 			Class contextClass = Class.forName("com.dianping.avatar.tracker.TrackerContext");
@@ -87,9 +87,32 @@ public final class ContextUtils {
 					Object.class });
 			addExtensionMethod.setAccessible(true);
 
+			configManager.registerConfigChangeListener(new InnerConfigChangeListener());
+
 			flag = true;
 		} catch (Throwable e) {
 			logger.info("App does not have ExecutionContext", e);
+		}
+	}
+
+	private static class InnerConfigChangeListener implements ConfigChangeListener {
+
+		@Override
+		public void onKeyUpdated(String key, String value) {
+			if (key.endsWith("pigeon.context.createifnotexists")) {
+				try {
+					createContextIfNotExists = Boolean.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			}
+		}
+
+		@Override
+		public void onKeyAdded(String key, String value) {
+		}
+
+		@Override
+		public void onKeyRemoved(String key) {
 		}
 	}
 

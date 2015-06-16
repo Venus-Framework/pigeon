@@ -8,6 +8,7 @@ import com.dianping.cat.Cat;
 import com.dianping.cat.CatConstants;
 import com.dianping.cat.message.MessageProducer;
 import com.dianping.cat.message.Transaction;
+import com.dianping.cat.message.internal.DefaultTransaction;
 import com.dianping.cat.message.spi.MessageManager;
 import com.dianping.cat.message.spi.MessageTree;
 import com.dianping.phoenix.environment.PhoenixContext;
@@ -49,6 +50,14 @@ public class CatMonitorTransaction implements MonitorTransaction {
 	@Override
 	public void setStatusError(Throwable t) {
 		this.transaction.setStatus(t);
+	}
+	
+	public void setDuration(long duration) {
+		((DefaultTransaction)this.transaction).setDurationInMillis(duration);
+	}
+
+	public boolean isStatusOk() {
+		return Transaction.SUCCESS.equals(this.transaction.getStatus());
 	}
 
 	@Override

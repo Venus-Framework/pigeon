@@ -15,15 +15,15 @@ public interface EchoService {
 
 	long now();
 
-	void addUser(User user);
+	void addUser(User<?> user);
 
-	List<User> findUsers(int count);
+	List<User<?>> findUsers(int count);
 
 	enum Grade {
 		low, high
 	}
 
-	public static class User implements Serializable {
+	public static class User<T> implements Serializable {
 		/**
 		 * 
 		 */
@@ -34,15 +34,25 @@ public interface EchoService {
 		String address;
 		int age;
 		Long amount;
-//		int count;
-//
-//		public int getCount() {
-//			return count;
-//		}
-//
-//		public void setCount(int count) {
-//			this.count = count;
-//		}
+		T userProfile;
+
+		// int count;
+		//
+		// public int getCount() {
+		// return count;
+		// }
+		//
+		// public void setCount(int count) {
+		// this.count = count;
+		// }
+
+		public T getUserProfile() {
+			return userProfile;
+		}
+
+		public void setUserProfile(T userProfile) {
+			this.userProfile = userProfile;
+		}
 
 		public Long getAmount() {
 			return amount;
@@ -106,5 +116,18 @@ public interface EchoService {
 		public String toString() {
 			return ToStringBuilder.reflectionToString(this).toString();
 		}
+	}
+
+	public static class UserProfile implements Serializable {
+		private String fav;
+
+		public String getFav() {
+			return fav;
+		}
+
+		public void setFav(String fav) {
+			this.fav = fav;
+		}
+
 	}
 }

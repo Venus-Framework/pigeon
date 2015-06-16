@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
@@ -17,6 +16,7 @@ import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
@@ -27,6 +27,7 @@ import com.dianping.pigeon.remoting.common.monitor.MonitorHelper;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor.SizeMonitorInfo;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.common.util.TimelineManager.Timeline;
@@ -112,8 +113,8 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		MonitorTransaction transaction = null;
 		InvocationRequest request = invocationContext.getRequest();
 		String targetApp = null;
+		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		if (monitor != null) {
-			InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 			logger = monitor.getLogger();
 			if (logger != null) {
 				try {
@@ -203,7 +204,9 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						Timeline timeline = TimelineManager.getTimeline(request, TimelineManager.getLocalIp());
 						transaction.addData("Timeline", timeline);
 					}
-					transaction.complete();
+					if (!Constants.CALL_FUTURE.equals(invokerConfig.getCallType()) || !transaction.isStatusOk()) {
+						transaction.complete();
+					}
 				} catch (Throwable e) {
 					logger.logMonitorError(e);
 				}

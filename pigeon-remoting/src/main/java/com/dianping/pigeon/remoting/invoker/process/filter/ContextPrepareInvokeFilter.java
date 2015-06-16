@@ -9,13 +9,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.registry.RegistryManager;
@@ -28,7 +26,6 @@ import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.util.ContextUtils;
-import com.dianping.pigeon.util.NetUtils;
 import com.dianping.pigeon.util.VersionUtils;
 
 public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
@@ -104,9 +101,9 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 	}
 
 	private void transferContextValueToRequest(final InvokerContext invocationContext, final InvocationRequest request) {
-		InvokerConfig<?> metaData = invocationContext.getInvokerConfig();
+		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		Client client = invocationContext.getClient();
-		Object contextHolder = ContextUtils.createContext(metaData.getUrl(), invocationContext.getMethodName(),
+		Object contextHolder = ContextUtils.createContext(invokerConfig.getUrl(), invocationContext.getMethodName(),
 				client.getHost(), client.getPort());
 		if (contextHolder != null) {
 			Map<String, Serializable> contextValues = invocationContext.getContextValues();
@@ -118,8 +115,8 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 			if (ContextUtils.getContextValue(contextHolder, Constants.CONTEXT_KEY_SOURCE_APP) == null) {
 				ContextUtils.putContextValue(contextHolder, Constants.CONTEXT_KEY_SOURCE_APP, ConfigManagerLoader
 						.getConfigManager().getAppName());
-				ContextUtils.putContextValue(contextHolder, Constants.CONTEXT_KEY_SOURCE_IP,
-						NetUtils.toIntIp(ConfigManagerLoader.getConfigManager().getLocalIp()));
+				ContextUtils.putContextValue(contextHolder, Constants.CONTEXT_KEY_SOURCE_IP, ConfigManagerLoader
+						.getConfigManager().getLocalIp());
 			}
 		}
 		request.setContext(contextHolder);

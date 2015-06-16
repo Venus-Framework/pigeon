@@ -15,7 +15,7 @@ import com.google.common.collect.Lists;
 @Service
 public class EchoServiceAnnotationImpl implements EchoService {
 
-	List<User> users = new ArrayList<User>();
+	List<User<?>> users = new ArrayList<User<?>>();
 
 	public EchoServiceAnnotationImpl() {
 	}
@@ -31,12 +31,12 @@ public class EchoServiceAnnotationImpl implements EchoService {
 	}
 
 	@Override
-	public List<User> findUsers(int count) {
+	public List<User<?>> findUsers(int count) {
 		return Lists.newArrayList(users.subList(0, count));
 	}
 
 	@Override
-	public void addUser(User user) {
+	public void addUser(User<?> user) {
 		users.add(user);
 	}
 }

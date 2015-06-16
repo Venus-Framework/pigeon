@@ -4,9 +4,10 @@
  */
 package com.dianping.pigeon.demo.typical;
 
+import com.dianping.dpsf.async.ServiceFuture;
+import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
-import com.dianping.pigeon.demo.EchoService.User;
 import com.dianping.pigeon.demo.UserService;
 import com.dianping.pigeon.util.ContextUtils;
 
@@ -31,19 +32,21 @@ public class Client {
 		int i = 0;
 		while (true) {
 			try {
+				ContextUtils.putContextValue("key1", "1");
+				//echoServiceWithCallback.echo("1");
 				// PhoenixContext.getInstance().setRequestId("1");
 				// ExecutionContextHolder.setTrackerContext(new
 				// TrackerContext());
-				User user = new User();
-				user.setName("wuxiang");
-				user.setAddress("addr");
-				user.setAmount(222l);
-				user.setAge(34);
+//				User user = new User();
+//				user.setName("wuxiang");
+//				user.setAddress("addr");
+//				user.setAmount(222l);
+//				user.setAge(34);
 				//user.setCount(2);
 				
 				//echoService.addUser(user);
-				ContextUtils.putContextValue("key1", "1");
-				System.out.println(echoService.echo("" + i++));
+//				ContextUtils.putContextValue("key1", "1");
+//				System.out.println(echoService.echo("" + i++));
 				// System.out.println(echoService.echo("hi, 2"));
 				//
 				// ArrayList<String> l = new ArrayList<String>();
@@ -53,13 +56,13 @@ public class Client {
 				//
 				// ArrayList<User> l2 = new ArrayList<User>();
 				// l2.add(user);
-				// ContextUtils.putContextValue("key1", l2);
-				// System.out.println(echoService.echo("hi, 4"));
-				// System.out.println(userService.getUserDetail(users, false));
-				// System.out.println(echoService.echo("hi"));
-				// echoServiceWithFuture.echo("future");
-				// ServiceFuture f = ServiceFutureFactory.getFuture();
-				// System.out.println(f._get());
+//				 ContextUtils.putContextValue("key1", l2);
+//				 System.out.println(echoService.echo("hi, 4"));
+//				 System.out.println(userService.getUserDetail(users, false));
+				 //System.out.println(echoService.echo("hi"));
+//				 echoServiceWithFuture.echo("future");
+//				 ServiceFuture f = ServiceFutureFactory.getFuture();
+//				 System.out.println(f._get());
 			} catch (Exception e) {
 				System.out.println("");
 			}
