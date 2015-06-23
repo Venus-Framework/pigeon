@@ -12,13 +12,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.registry.config.DefaultRegistryConfigManager;
 import com.dianping.pigeon.registry.config.RegistryConfigManager;
@@ -307,10 +307,10 @@ public class RegistryManager {
 		String app = null;
 		if (hostInfo != null) {
 			app = hostInfo.getApp();
-			if (app == null && registry != null) {
-				app = registry.getServerApp(serverAddress);
-				hostInfo.setApp(app);
-			}
+//			if (app == null && registry != null) {
+//				app = registry.getServerApp(serverAddress);
+//				hostInfo.setApp(app);
+//			}
 			return app;
 		}
 		return "";
@@ -339,10 +339,10 @@ public class RegistryManager {
 		String version = null;
 		if (hostInfo != null) {
 			version = hostInfo.getVersion();
-			if (version == null && registry != null) {
-				version = registry.getServerVersion(serverAddress);
-				hostInfo.setVersion(version);
-			}
+//			if (version == null && registry != null) {
+//				version = registry.getServerVersion(serverAddress);
+//				hostInfo.setVersion(version);
+//			}
 			return version;
 		}
 		return null;

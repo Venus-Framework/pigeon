@@ -7,7 +7,8 @@ package com.dianping.pigeon.remoting.provider.process.akka;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -18,7 +19,6 @@ import akka.routing.RouterConfig;
 import akka.routing.SmallestMailboxRouter;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;

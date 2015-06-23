@@ -16,8 +16,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
@@ -32,7 +33,7 @@ import com.dianping.pigeon.util.NetUtils;
 
 public class HealthCheckManager extends Thread {
 
-	private static final Logger logger = Logger.getLogger(HealthCheckManager.class);
+	private static final Logger logger = LoggerLoader.getLogger(HealthCheckManager.class);
 
 	private Registry registryClass = ExtensionLoader.getExtension(Registry.class);
 
@@ -83,7 +84,7 @@ public class HealthCheckManager extends Thread {
 	}
 
 	public void run() {
-		boolean enable = true;
+		boolean enable = false;
 		if ("product".equalsIgnoreCase(configManager.getEnv())) {
 			String ip = configManager.getStringValue("pigeon-governor-server.enable.ip", "");
 			if (!NetUtils.getFirstLocalIp().equals(ip)) {

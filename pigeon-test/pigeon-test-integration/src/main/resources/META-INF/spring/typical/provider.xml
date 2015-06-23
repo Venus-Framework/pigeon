@@ -25,22 +25,5 @@
 		</property>
 	</bean>
 
-	<bean class="com.dianping.dpsf.spring.ServiceRegistry"
-		init-method="init">
-		<property name="services">
-			<map>
-				<entry key="com.dianping.pigeon.demo.UserService" value-ref="defaultUserServiceImpl" />
-			</map>
-		</property>
-		<property name="port">
-			<value>5020</value>
-		</property>
-		<property name="autoSelectPort">
-			<value>true</value>
-		</property>
-	</bean>
-
-	<bean id="defaultUserServiceImpl" class="com.dianping.pigeon.demo.UserServiceDefaultImpl" />
-
 	<bean id="defaultEchoServiceImpl" class="com.dianping.pigeon.demo.EchoServiceDefaultImpl" />
 </beans>

@@ -6,7 +6,8 @@ package com.dianping.pigeon.console;
 
 import java.net.URL;
 
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
@@ -22,7 +23,6 @@ import com.dianping.pigeon.console.servlet.json.InvokeJsonServlet;
 import com.dianping.pigeon.console.servlet.json.ServiceJsonServlet;
 import com.dianping.pigeon.console.servlet.json.ServiceStatusJsonServlet;
 import com.dianping.pigeon.console.servlet.json.StatisticsJsonServlet;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.http.provider.JettyHttpServerProcessor;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 

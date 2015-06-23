@@ -39,8 +39,6 @@ public class ReferenceBean implements FactoryBean {
 
 	private String cluster = Constants.CLUSTER_FAILFAST;
 
-	private String processModel = Constants.PROCESS_MODEL_DEFAULT;
-
 	/**
 	 * 用于支持P2P调用的服务IP地址，也作为注册中心无法访问时的备用地址
 	 */
@@ -70,10 +68,6 @@ public class ReferenceBean implements FactoryBean {
 	private List<InvokerMethodConfig> methods;
 
 	private ClassLoader classLoader;
-
-	public void setProcessModel(String processModel) {
-		this.processModel = processModel;
-	}
 
 	public ClassLoader getClassLoader() {
 		return classLoader;
@@ -261,7 +255,7 @@ public class ReferenceBean implements FactoryBean {
 		this.objType = ClassUtils.loadClass(this.classLoader, this.interfaceName.trim());
 		InvokerConfig<?> invokerConfig = new InvokerConfig(this.objType, this.url, this.timeout, this.callType,
 				this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadBalance, this.cluster,
-				this.retries, this.timeoutRetry, this.vip, this.version, this.protocol, this.processModel);
+				this.retries, this.timeoutRetry, this.vip, this.version, this.protocol);
 		invokerConfig.setClassLoader(classLoader);
 
 		if (!CollectionUtils.isEmpty(methods)) {

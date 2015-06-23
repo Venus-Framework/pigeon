@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @author xiangwu
  * @Oct 11, 2013
@@ -115,5 +117,28 @@ public class NetUtils {
 			}
 		}
 		return inUse;
+	}
+
+	public static int toIntIp(String ip) {
+		if (StringUtils.isBlank(ip)) {
+			return 0;
+		}
+		String[] ss = ip.split("\\.");
+		if (ss.length != 4) {
+			return 0;
+		}
+		int value = Integer.valueOf(ss[0]) << 24 | Integer.valueOf(ss[1]) << 16 | Integer.valueOf(ss[2]) << 8
+				| Integer.valueOf(ss[3]);
+		return value;
+	}
+
+	public static String toStringIp(Integer ip) {
+		if (ip == null) {
+			return null;
+		}
+		StringBuilder str = new StringBuilder();
+		str.append((ip >> 24 & 0xFF)).append(".").append((ip >> 16 & 0xFF)).append(".").append((ip >> 8 & 0xFF))
+				.append(".").append((ip & 0xFF));
+		return str.toString();
 	}
 }

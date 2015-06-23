@@ -6,12 +6,15 @@ package com.dianping.pigeon.remoting.invoker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
@@ -36,8 +39,7 @@ import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;
 import com.dianping.pigeon.remoting.invoker.listener.ProviderAvailableListener;
 import com.dianping.pigeon.remoting.invoker.listener.ReconnectListener;
 import com.dianping.pigeon.remoting.invoker.route.RouteManager;
-import com.dianping.pigeon.threadpool.DefaultThreadPool;
-import com.dianping.pigeon.threadpool.ThreadPool;
+import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 import com.dianping.pigeon.util.NetUtils;
 import com.dianping.pigeon.util.ThreadPoolUtils;
 
@@ -61,12 +63,14 @@ public class ClientManager {
 
 	private ServiceProviderChangeListener providerChangeListener = new InnerServiceProviderChangeListener();
 
-	private static ThreadPool heartBeatThreadPool = new DefaultThreadPool("Pigeon-Client-HeartBeat-ThreadPool");
+	private static ExecutorService heartBeatThreadPool = Executors.newFixedThreadPool(1, new DefaultThreadFactory(
+			"Pigeon-Client-HeartBeat-ThreadPool"));
 
-	private static ThreadPool reconnectThreadPool = new DefaultThreadPool("Pigeon-Client-Reconnect-ThreadPool");
+	private static ExecutorService reconnectThreadPool = Executors.newFixedThreadPool(1, new DefaultThreadFactory(
+			"Pigeon-Client-Reconnect-ThreadPool"));
 
-	private static ThreadPool providerAvailableThreadPool = new DefaultThreadPool(
-			"Pigeon-Client-ProviderAvailable-ThreadPool");
+	private static ExecutorService providerAvailableThreadPool = Executors.newFixedThreadPool(1,
+			new DefaultThreadFactory("Pigeon-Client-ProviderAvailable-ThreadPool"));
 
 	private static ClientManager instance = new ClientManager();
 
@@ -126,9 +130,9 @@ public class ClientManager {
 			((Disposable) routerManager).destroy();
 		}
 		RegistryEventListener.removeListener(providerChangeListener);
-		ThreadPoolUtils.shutdown(providerAvailableThreadPool.getExecutor());
-		ThreadPoolUtils.shutdown(heartBeatThreadPool.getExecutor());
-		ThreadPoolUtils.shutdown(reconnectThreadPool.getExecutor());
+		ThreadPoolUtils.shutdown(providerAvailableThreadPool);
+		ThreadPoolUtils.shutdown(heartBeatThreadPool);
+		ThreadPoolUtils.shutdown(reconnectThreadPool);
 		this.clusterListener.destroy();
 	}
 
@@ -177,14 +181,14 @@ public class ClientManager {
 		return serviceAddress;
 	}
 
-	public void registerServiceInvokers(String serviceName, String group, String vip) {
+	public Set<HostInfo> registerServiceInvokers(String serviceName, String group, String vip) {
 		String localHost = null;
 		if (vip != null && vip.startsWith("console:")) {
 			localHost = NetUtils.getFirstLocalIp() + vip.substring(vip.indexOf(":"));
 		}
 		String serviceAddress = getServiceAddress(serviceName, group, vip);
 		String[] addressArray = serviceAddress.split(",");
-		// List<String> addressList = new ArrayList<String>();
+		Set<HostInfo> addresses = new HashSet<HostInfo>();
 		for (int i = 0; i < addressArray.length; i++) {
 			if (StringUtils.isNotBlank(addressArray[i])) {
 				// addressList.add(addressArray[i]);
@@ -205,6 +209,7 @@ public class ClientManager {
 						}
 						try {
 							int weight = RegistryManager.getInstance().getServiceWeight(address, !reloadWeight);
+							addresses.add(new HostInfo(host, port, weight));
 							RegistryEventListener.providerAdded(serviceName, host, port, weight);
 						} catch (Throwable e) {
 							logger.error("error while registering service invoker:" + serviceName + ", address:"
@@ -218,6 +223,7 @@ public class ClientManager {
 				}
 			}
 		}
+		return addresses;
 	}
 
 	public Map<String, Set<HostInfo>> getServiceHosts() {
@@ -272,14 +278,23 @@ public class ClientManager {
 			for (InvokerConfig<?> invokerConfig : services) {
 				serviceGroupMap.put(invokerConfig.getUrl(), invokerConfig.getGroup());
 			}
+			Map<String, Set<HostInfo>> serviceAddresses = RegistryManager.getInstance()
+					.getAllReferencedServiceAddresses();
+			logger.info("begin to sync service addresses:" + serviceGroupMap.size());
 			for (String url : serviceGroupMap.keySet()) {
 				try {
-					registerServiceInvokers(url, serviceGroupMap.get(url), null);
+					Set<HostInfo> addresses = registerServiceInvokers(url, serviceGroupMap.get(url), null);
+					// remove unreferenced service address
+					Set<HostInfo> currentAddresses = serviceAddresses.get(url);
+					if (currentAddresses != null && addresses != null) {
+						logger.info(url + " 's addresses, new:" + addresses.size() + ", old:" + currentAddresses.size());
+						currentAddresses.retainAll(addresses);
+					}
 				} catch (Throwable t) {
-					logger.warn("error while trying to register service client:" + url + ", caused by:"
-							+ t.getMessage());
+					logger.warn("error while trying to sync service addresses:" + url + ", caused by:" + t.getMessage());
 				}
 			}
+			logger.info("succeed to sync service addresses");
 		}
 
 	}

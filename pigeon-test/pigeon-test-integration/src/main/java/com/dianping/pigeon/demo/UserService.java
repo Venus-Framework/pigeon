@@ -11,6 +11,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 public interface UserService {
 
+	String echo(String msg);
+	
 	User[] getUserDetail(User[] users, boolean withPassword);
 
 	public static class User<T> implements Serializable {

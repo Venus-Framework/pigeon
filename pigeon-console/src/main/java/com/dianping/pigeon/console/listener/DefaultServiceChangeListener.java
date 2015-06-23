@@ -16,7 +16,7 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.console.exception.ServiceNotifyException;
@@ -27,9 +27,6 @@ import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.listener.ServiceChangeListener;
-import com.dianping.pigeon.threadpool.DefaultThreadPool;
-import com.dianping.pigeon.threadpool.ThreadPool;
-import com.dianping.pigeon.util.ThreadPoolUtils;
 
 public class DefaultServiceChangeListener implements ServiceChangeListener {
 
@@ -39,16 +36,12 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 
 	private Map<String, NotifyEvent> failedNotifyEvents = new ConcurrentHashMap<String, NotifyEvent>();
 
-	private static ThreadPool failureListenerThreadPool = new DefaultThreadPool("pigeon-notify-failure-listener");
-
 	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
 
 	public DefaultServiceChangeListener() {
-		failureListenerThreadPool.execute(new NotifyFailureListener(this));
 	}
 
 	public void destroy() throws Exception {
-		ThreadPoolUtils.shutdown(failureListenerThreadPool.getExecutor());
 	}
 
 	public Map<String, NotifyEvent> getFailedNotifyEvents() {
@@ -109,7 +102,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		try {
 			isSuccess = doNotify(url.toString());
 		} catch (Throwable t) {
-			logger.error("error while notifying service change to url:" + url, t);
+			logger.warn("error while notifying service change to url:" + url, t);
 		}
 		if (!isSuccess) {
 			NotifyEvent event = new NotifyEvent();
@@ -141,7 +134,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			response = sb.toString();
 			br.close();
 		} catch (Throwable t) {
-			logger.error("error while notifying service change to url:" + url, t);
+			logger.warn("error while notifying service change to url:" + url, t);
 			notifyException = t;
 		} finally {
 			if (getMethod != null) {
@@ -153,7 +146,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			isSuccess = true;
 		}
 		if (!isSuccess) {
-			logger.error("error while notifying service change to url:" + url + ", response:" + response);
+			logger.warn("error while notifying service change to url:" + url + ", response:" + response);
 			monitorLogger.logError(new ServiceNotifyException("error while notifying service change to url:" + url
 					+ ", response:" + response, notifyException));
 		}

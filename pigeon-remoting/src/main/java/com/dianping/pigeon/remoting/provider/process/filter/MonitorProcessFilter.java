@@ -5,7 +5,7 @@
 package com.dianping.pigeon.remoting.provider.process.filter;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -33,7 +33,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 
 	private static final Logger logger = LoggerLoader.getLogger(MonitorProcessFilter.class);
 
-	private static final Logger accessLogger = Logger.getLogger("pigeon-access");
+	private static final Logger accessLogger = LoggerLoader.getLogger("pigeon-access");
 
 	private Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 
@@ -42,17 +42,6 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 
 	private static boolean isLogParameters = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.provider.log.parameters", true);
-
-	private String getIp(String address) {
-		String ip = address;
-		if (address != null) {
-			int idx = address.indexOf(":");
-			if (idx != -1) {
-				ip = address.substring(0, idx);
-			}
-		}
-		return ip;
-	}
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
@@ -107,7 +96,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 				try {
 					monitorLogger.logEvent("PigeonService.app", request.getApp(), "");
 					String parameters = "";
-					fromIp = getIp(channel.getRemoteAddress());
+					fromIp = channel.getRemoteAddress();
 					if (isLogParameters) {
 						StringBuilder event = new StringBuilder();
 						event.append(InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
@@ -132,8 +121,8 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			}
 			if (transaction != null) {
 				try {
-					Timeline timeline = TimelineManager.tryRemoveTimeline(request, TimelineManager.getRemoteIp());
 					if (TimelineManager.isEnabled()) {
+						Timeline timeline = TimelineManager.tryRemoveTimeline(request, TimelineManager.getRemoteIp());
 						transaction.addData("Timeline", timeline);
 					}
 					if (!"default".equals(channel.getProtocol())) {
@@ -141,7 +130,8 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					}
 					transaction.complete();
 					if (isAccessLogEnabled) {
-						accessLogger.debug(request.getApp() + "@" + fromIp + "@" + request + "@" + timeline);
+						accessLogger.info(new StringBuilder().append(request.getApp()).append("@").append(fromIp)
+								.append("@").append(request).toString());
 					}
 				} catch (Throwable e) {
 					monitorLogger.logMonitorError(e);

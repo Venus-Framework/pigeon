@@ -4,7 +4,6 @@
  */
 package com.dianping.pigeon.monitor;
 
-
 /**
  * @author xiangwu
  * @Sep 25, 2013
@@ -16,7 +15,11 @@ public interface MonitorTransaction {
 
 	public void complete();
 
+	public boolean isStatusOk();
+
 	public void setStatusOk();
+
+	public void setDuration(long duration);
 
 	public void addData(String name, Object data);
 

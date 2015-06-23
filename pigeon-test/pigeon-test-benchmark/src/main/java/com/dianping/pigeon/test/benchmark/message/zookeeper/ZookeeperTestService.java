@@ -1,6 +1,7 @@
 package com.dianping.pigeon.test.benchmark.message.zookeeper;
 
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -11,7 +12,7 @@ import com.dianping.pigeon.test.benchmark.message.MessageTestService;
 @Service(url = "com.dianping.message.test.ZookeeperTestService", interfaceClass = MessageTestService.class)
 public class ZookeeperTestService extends AbstractMessageTestService {
 
-	private static Logger logger = Logger.getLogger(ZookeeperTestService.class);
+	private static Logger logger = LoggerLoader.getLogger(ZookeeperTestService.class);
 
 	public static final String CATEGORY_PATH = "/DP/CATEGORY";
 	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();

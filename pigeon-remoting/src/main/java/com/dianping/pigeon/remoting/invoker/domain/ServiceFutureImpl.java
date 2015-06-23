@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.domain;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceFuture;
 import com.dianping.dpsf.exception.DPSFException;
@@ -46,14 +46,16 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 	@Override
 	public Object _get(long timeoutMillis) throws InterruptedException {
 		InvocationResponse response = null;
-		MonitorTransaction transaction = monitorLogger.createTransaction(
-				"PigeonFuture",
-				InvocationUtils.getRemoteCallFullName(request.getServiceName(), request.getMethodName(),
-						request.getParamClassName()), null);
-		transaction.setStatusOk();
-		transaction.addData("Timeout", timeoutMillis);
+		MonitorTransaction transaction = monitorLogger.getCurrentTransaction();
+		if (transaction != null) {
+			transaction.addData("FutureTimeout", timeoutMillis);
+		}
+		long start = System.currentTimeMillis();
 		try {
 			response = super.get(timeoutMillis);
+			if (transaction != null) {
+				transaction.setDuration(System.currentTimeMillis() - start);
+			}
 		} catch (Throwable e) {
 			RuntimeException rpcEx = null;
 			if (e instanceof DPSFException) {
@@ -65,17 +67,21 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 			}
 			logger.error(rpcEx);
 			monitorLogger.logError(rpcEx);
-			try {
-				transaction.setStatusError(e);
-			} catch (Throwable e2) {
-				monitorLogger.logMonitorError(e2);
+			if (transaction != null) {
+				try {
+					transaction.setStatusError(e);
+				} catch (Throwable e2) {
+					monitorLogger.logMonitorError(e2);
+				}
 			}
 			throw rpcEx;
 		} finally {
-			try {
-				transaction.complete();
-			} catch (Throwable e) {
-				monitorLogger.logMonitorError(e);
+			if (transaction != null) {
+				try {
+					transaction.complete();
+				} catch (Throwable e) {
+					monitorLogger.logMonitorError(e);
+				}
 			}
 		}
 

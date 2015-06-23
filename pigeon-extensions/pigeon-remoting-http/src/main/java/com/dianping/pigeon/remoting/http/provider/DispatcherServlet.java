@@ -9,16 +9,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
-
 import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 public class DispatcherServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 5766349180380479888L;
 
 	private static final Logger logger = LoggerLoader.getLogger(DispatcherServlet.class);
-	
+
 	private static DispatcherServlet INSTANCE;
 
 	private static final Map<Integer, HttpHandler> handlers = new ConcurrentHashMap<Integer, HttpHandler>();

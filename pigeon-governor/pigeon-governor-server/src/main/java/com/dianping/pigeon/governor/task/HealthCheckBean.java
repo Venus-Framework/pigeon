@@ -1,10 +1,12 @@
 package com.dianping.pigeon.governor.task;
 
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
+
 
 public class HealthCheckBean {
 
-    private static Logger logger = Logger.getLogger(HealthCheckBean.class);
+    private static Logger logger = LoggerLoader.getLogger(HealthCheckBean.class);
     
     public HealthCheckBean() {
     }

@@ -6,9 +6,9 @@ package com.dianping.pigeon.remoting.provider.process.filter;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
+
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
@@ -18,7 +18,6 @@ import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
-import com.dianping.pigeon.remoting.provider.process.RequestProcessorFactory;
 
 public class WriteResponseProcessFilter implements ServiceInvocationFilter<ProviderContext> {
 

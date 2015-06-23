@@ -5,13 +5,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.curator.test.TestingServer;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,11 +24,6 @@ public class CuratorRegistryTest {
 
 	private static TestingServer server = null;
 	private static Properties properties = null;
-
-	@BeforeClass
-	public static void initLog4j() {
-		DOMConfigurator.configure(CuratorRegistryTest.class.getClassLoader().getResource("log4j.xml"));
-	}
 
 	@BeforeClass
 	public static void startTestServer() throws Exception {

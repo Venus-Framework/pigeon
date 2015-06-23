@@ -4,6 +4,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 
+
 public class MyProviderProcessInterceptor implements ProviderProcessInterceptor {
 
 	@Override

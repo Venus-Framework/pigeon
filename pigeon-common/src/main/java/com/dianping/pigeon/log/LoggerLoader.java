@@ -3,49 +3,44 @@
  */
 package com.dianping.pigeon.log;
 
-import org.apache.log4j.Logger;
+import java.io.IOException;
 
-/**
- * <p>
- * Title: pigeonLog.java
- * </p>
- * <p>
- * Description: 描述
- * </p>
- * 
- * @author saber miao
- * @version 1.0
- * @created 2010-9-2 下午05:58:39
- */
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
+
+import com.dianping.pigeon.config.LocalConfigLoader;
+
 public class LoggerLoader {
-    
-	private LoggerLoader() {
+
+	private static LoggerContext context = null;
+
+	static {
+		init();
 	}
 
-	private static volatile boolean customLog4j = false;
-	
-	static {
-	    try {
-            Class.forName("org.apache.log4j.Hierarchy");
-            customLog4j = true;
-        } catch (ClassNotFoundException e) {
-            customLog4j = false;
-        }
+	public static synchronized void init() {
+		String appName = LocalConfigLoader.getAppName();
+		System.setProperty("app.name", appName);
+		ConfigurationSource source;
+		try {
+			source = new ConfigurationSource(LoggerLoader.class.getResourceAsStream("/pigeon_log4j.xml"));
+			context = Configurator.initialize(null, source);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
-	
-	public static Logger getLogger(Class clazz) {
-		return getLogger(clazz.getName());
+
+	public static Logger getLogger(Class<?> className) {
+		return getLogger(className.getName());
 	}
 
 	public static Logger getLogger(String name) {
-	    Logger logger = null;
-	    if(customLog4j) {
-	        logger = CustomLog4jFactory.getLogger(name);
-	    }
-	    else {
-	        logger = Logger.getLogger(name);
-	    }
-		return logger;
+		if (context == null) {
+			init();
+		}
+		return context.getLogger(name);
 	}
-
 }

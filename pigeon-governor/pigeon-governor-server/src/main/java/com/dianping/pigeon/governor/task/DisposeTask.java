@@ -13,7 +13,8 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.governor.util.Constants.Action;
 import com.dianping.pigeon.governor.util.Constants.Environment;
@@ -26,7 +27,7 @@ import com.dianping.pigeon.registry.zookeeper.Utils;
 
 public class DisposeTask implements Runnable {
 
-	private static final Logger logger = Logger.getLogger(DisposeTask.class);
+	private static final Logger logger = LoggerLoader.getLogger(DisposeTask.class);
 
 	private HealthCheckManager manager;
 

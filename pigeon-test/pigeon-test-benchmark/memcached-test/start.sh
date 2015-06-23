@@ -1,1 +1,0 @@
-nohup java -server -Dthreads=10 -Drows=10000000 -Xms128m -Xmx256m -cp .:lib/*  com.dianping.pigeon.test.benchmark.cache.MemcacheTestMain  > ./memcached.log &

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 
 import com.dianping.pigeon.config.ConfigManager;
@@ -16,6 +16,8 @@ import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
+import com.dianping.pigeon.threadpool.DefaultThreadPool;
+import com.dianping.pigeon.threadpool.ThreadPool;
 import com.dianping.pigeon.util.CollectionUtils;
 
 public class CuratorRegistry implements Registry {
@@ -41,7 +43,7 @@ public class CuratorRegistry implements Registry {
 					try {
 						String zkAddress = properties.getProperty(Constants.KEY_REGISTRY_ADDRESS);
 						logger.info("start to initialize zookeeper client:" + zkAddress);
-						client = new CuratorClient(zkAddress, this);
+						client = new CuratorClient(zkAddress);
 						logger.info("succeed to initialize zookeeper client:" + zkAddress);
 					} catch (Exception ex) {
 						logger.error("failed to initialize zookeeper client", ex);
@@ -315,7 +317,7 @@ public class CuratorRegistry implements Registry {
 			}
 		}
 	}
-	
+
 	@Override
 	public String getServerVersion(String serverAddress) {
 		String path = Utils.getVersionPath(serverAddress);
@@ -336,5 +338,10 @@ public class CuratorRegistry implements Registry {
 		} catch (Throwable e) {
 			logger.error("failed to delete version:" + path + ", caused by:" + e.getMessage());
 		}
+	}
+
+	@Override
+	public String getStatistics() {
+		return "curator:" + client.getStatistics();
 	}
 }

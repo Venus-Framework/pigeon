@@ -44,7 +44,7 @@ public class NettyChannel implements ProviderChannel {
 	@Override
 	public String getRemoteAddress() {
 		InetSocketAddress address = (InetSocketAddress) this.channel.getRemoteAddress();
-		return address.getAddress().getHostAddress() + ":" + address.getPort();
+		return address.getAddress().getHostAddress();
 	}
 
 	@Override

@@ -4,13 +4,16 @@
  */
 package com.dianping.pigeon.remoting.provider.listener;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.context.ThreadLocalInfo;
+import com.dianping.pigeon.context.ThreadLocalUtils;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
@@ -39,8 +42,6 @@ public class RequestTimeoutListener implements Runnable {
 	private boolean defaultCancelTimeout = configManager.getBooleanValue(Constants.KEY_TIMEOUT_CANCEL,
 			Constants.DEFAULT_TIMEOUT_CANCEL);
 	private boolean interruptBusy = configManager.getBooleanValue("pigeon.timeout.interruptbusy", true);
-	private int interruptThreadPriorityThreshold = configManager.getIntValue(
-			"pigeon.timeout.interrupt.threadpriority.threshold", 5);
 
 	private class InnerConfigChangeListener implements ConfigChangeListener {
 
@@ -129,8 +130,8 @@ public class RequestTimeoutListener implements Runnable {
 										monitorLogger.logError(te);
 									}
 									Future<?> future = rc.getFuture();
-									if (t != null && t.getPriority() > interruptThreadPriorityThreshold) {
-										cancelTimeout = false;
+									if (t != null && cancelTimeout) {
+										cancelTimeout = needInterrupt(t);
 									}
 									if (future != null && !future.isCancelled()) {
 										if (future.cancel(cancelTimeout)) {
@@ -150,5 +151,30 @@ public class RequestTimeoutListener implements Runnable {
 				logger.error(e.getMessage(), e);
 			}
 		}
+	}
+
+	private boolean needInterrupt(Thread t) {
+		try {
+			Field field1 = Thread.class.getDeclaredField("threadLocals");
+			field1.setAccessible(true);
+			Object o1 = field1.get(t);
+			Field field2 = o1.getClass().getDeclaredField("table");
+			field2.setAccessible(true);
+			Object[] o2 = (Object[]) field2.get(o1);
+			for (Object temp : o2) {
+				if (temp != null) {
+					Field field3 = temp.getClass().getDeclaredField("value");
+					field3.setAccessible(true);
+					Object o3 = field3.get(temp);
+					if (o3 instanceof ThreadLocalInfo) {
+						return ThreadLocalUtils.canInterrupt((ThreadLocalInfo) o3);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.warn(e.getMessage(), e);
+		}
+
+		return true;
 	}
 }

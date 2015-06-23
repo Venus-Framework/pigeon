@@ -83,9 +83,9 @@ public class JacksonObjectMapper {
 				if (type.isPrimitive() || type.isEnum()) {
 					continue;
 				}
+				Object fieldValue = ReflectUtils.readDeclaredField(obj, field.getName(), true);
 				if (type.getName().startsWith("com.dianping") || Map.class.isAssignableFrom(type)
-						|| Collection.class.isAssignableFrom(type) || type.isArray()) {
-					Object fieldValue = ReflectUtils.readDeclaredField(obj, field.getName(), true);
+						|| Collection.class.isAssignableFrom(type) || type.isArray() || (fieldValue instanceof LinkedHashMap)) {
 					ReflectUtils.writeDeclaredField(obj, field.getName(), convertObject(fieldValue), true);
 				}
 			}

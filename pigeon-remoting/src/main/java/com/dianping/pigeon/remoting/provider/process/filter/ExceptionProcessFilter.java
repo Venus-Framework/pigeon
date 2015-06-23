@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.provider.process.filter;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -69,9 +69,15 @@ public class ExceptionProcessFilter implements ServiceInvocationFilter<ProviderC
 			response = handler.handle(invocationContext);
 		} catch (InvocationTargetException e) {
 			Throwable e2 = e.getTargetException();
-			if (e2 != null && logServiceException) {
-				logger.error(e2.getMessage(), e2);
-				invocationContext.setServiceError(e2);
+			if (e2 != null) {
+				boolean isLog = logServiceException;
+				if (e2 instanceof Error) {
+					isLog = true;
+				}
+				if (isLog) {
+					logger.error(e2.getMessage(), e2);
+					invocationContext.setServiceError(e2);
+				}
 			}
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 				response = ProviderUtils.createServiceExceptionResponse(request, e2);

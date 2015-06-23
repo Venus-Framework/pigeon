@@ -8,12 +8,12 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.RetryNTimes;
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 
-import com.dianping.cache.status.StatusHolder;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 
@@ -21,7 +21,7 @@ public class CuratorClient {
 
 	private static final String CHARSET = "UTF-8";
 
-	private static Logger logger = Logger.getLogger(CuratorClient.class);
+	private static Logger logger = LoggerLoader.getLogger(CuratorClient.class);
 
 	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
 
@@ -67,7 +67,6 @@ public class CuratorClient {
 
 	public String get(String path) throws Exception {
 		try {
-			StatusHolder.flowIn("zk", null, "get");
 			if (exists(path)) {
 				byte[] bytes = client.getData().watched().forPath(path);
 				String value = new String(bytes, CHARSET);
@@ -82,14 +81,11 @@ public class CuratorClient {
 				return null;
 			}
 		} finally {
-			StatusHolder.flowOut("zk", null, "get");
 		}
 	}
 
 	public void set(String path, Object value) throws Exception {
 		try {
-			StatusHolder.flowIn("zk", null, "set");
-
 			byte[] bytes = (value == null ? new byte[0] : value.toString().getBytes(CHARSET));
 			if (exists(path)) {
 				client.setData().forPath(path, bytes);
@@ -103,7 +99,6 @@ public class CuratorClient {
 				}
 			}
 		} finally {
-			StatusHolder.flowOut("zk", null, "set");
 		}
 	}
 

@@ -41,4 +41,5 @@ public interface Registry {
 
 	void unregisterServerVersion(String serverAddress);
 
+	String getStatistics();
 }

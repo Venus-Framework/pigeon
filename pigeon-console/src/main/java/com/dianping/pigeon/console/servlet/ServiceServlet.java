@@ -19,7 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
@@ -30,7 +31,6 @@ import com.dianping.pigeon.console.status.checker.GlobalStatusChecker;
 import com.dianping.pigeon.console.status.checker.ProviderStatusChecker;
 import com.dianping.pigeon.console.status.checker.StatusChecker;
 import com.dianping.pigeon.extension.ExtensionLoader;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.status.Phase;
@@ -159,7 +159,7 @@ public class ServiceServlet extends HttpServlet {
 		page.setEnvironment(configManager.getEnv());
 		page.setGroup(configManager.getGroup());
 		page.setServiceWeights(ServiceProviderFactory.getServerWeight());
-		page.setRegistry(RegistryManager.getInstance().getRegistry().getName());
+		page.setRegistry(RegistryManager.getInstance().getRegistry().getStatistics());
 		page.setAppName(configManager.getAppName());
 		page.setStartTime(ProviderBootStrap.getStartTime() + "");
 		page.setValidate("" + isValidate);

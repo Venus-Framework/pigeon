@@ -7,14 +7,15 @@ package com.dianping.pigeon.demo.annotation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.dianping.pigeon.demo.EchoService;
-import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 import com.google.common.collect.Lists;
 
 @Service
 public class EchoServiceAnnotationImpl implements EchoService {
 
-	List<User> users = new ArrayList<User>();
+	List<User<?>> users = new ArrayList<User<?>>();
 
 	public EchoServiceAnnotationImpl() {
 	}
@@ -30,12 +31,12 @@ public class EchoServiceAnnotationImpl implements EchoService {
 	}
 
 	@Override
-	public List<User> findUsers(int count) {
+	public List<User<?>> findUsers(int count) {
 		return Lists.newArrayList(users.subList(0, count));
 	}
 
 	@Override
-	public void addUser(User user) {
+	public void addUser(User<?> user) {
 		users.add(user);
 	}
 }

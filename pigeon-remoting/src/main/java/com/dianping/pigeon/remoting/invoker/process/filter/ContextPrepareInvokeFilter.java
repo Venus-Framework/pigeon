@@ -8,9 +8,10 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
-import org.codehaus.plexus.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLogger;
@@ -100,9 +101,9 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 	}
 
 	private void transferContextValueToRequest(final InvokerContext invocationContext, final InvocationRequest request) {
-		InvokerConfig<?> metaData = invocationContext.getInvokerConfig();
+		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		Client client = invocationContext.getClient();
-		Object contextHolder = ContextUtils.createContext(metaData.getUrl(), invocationContext.getMethodName(),
+		Object contextHolder = ContextUtils.createContext(invokerConfig.getUrl(), invocationContext.getMethodName(),
 				client.getHost(), client.getPort());
 		if (contextHolder != null) {
 			Map<String, Serializable> contextValues = invocationContext.getContextValues();
@@ -110,6 +111,12 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 				for (Map.Entry<String, Serializable> entry : contextValues.entrySet()) {
 					ContextUtils.putContextValue(contextHolder, entry.getKey(), entry.getValue());
 				}
+			}
+			if (ContextUtils.getContextValue(contextHolder, Constants.CONTEXT_KEY_SOURCE_APP) == null) {
+				ContextUtils.putContextValue(contextHolder, Constants.CONTEXT_KEY_SOURCE_APP, ConfigManagerLoader
+						.getConfigManager().getAppName());
+				ContextUtils.putContextValue(contextHolder, Constants.CONTEXT_KEY_SOURCE_IP, ConfigManagerLoader
+						.getConfigManager().getLocalIp());
 			}
 		}
 		request.setContext(contextHolder);

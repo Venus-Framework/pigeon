@@ -11,7 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -23,7 +24,6 @@ import org.springframework.context.ApplicationContextAware;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ServiceConfigUtils;
@@ -218,7 +218,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 			invokerConfig = new InvokerConfig(referenceClass, reference.url(), reference.timeout(),
 					reference.callType(), reference.serialize(), callback, reference.group(), false,
 					reference.loadbalance(), reference.cluster(), reference.retries(), reference.timeoutRetry(),
-					reference.vip(), reference.version(), reference.protocol(), reference.processModel());
+					reference.vip(), reference.version(), reference.protocol());
 			invokerConfigs.putIfAbsent(key, invokerConfig);
 			invokerConfig = invokerConfigs.get(key);
 		}

@@ -6,6 +6,7 @@ package com.dianping.pigeon.demo.loadbalance;
 
 import com.dianping.pigeon.container.SpringContainer;
 
+
 public class Server {
 
 	private static SpringContainer SERVER_CONTAINER = new SpringContainer(

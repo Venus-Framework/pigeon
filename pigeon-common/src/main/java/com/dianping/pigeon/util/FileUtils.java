@@ -11,11 +11,12 @@ import java.io.PrintWriter;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 
 public class FileUtils {
 
-	private static Logger logger = Logger.getLogger(FileUtils.class);
+	private static Logger logger = LoggerLoader.getLogger(FileUtils.class);
 
 	public static Properties readFile(InputStream is) {
 		Properties properties = new Properties();

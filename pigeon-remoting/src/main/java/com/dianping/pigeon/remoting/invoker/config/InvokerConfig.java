@@ -176,7 +176,7 @@ public class InvokerConfig<T> {
 
 	public InvokerConfig(Class<T> serviceInterface, String url, int timeout, String callMethod, String serialize,
 			ServiceCallback callback, String group, boolean writeBufferLimit, String loadbalance, String cluster,
-			int retries, boolean timeoutRetry, String vip, String version, String protocol, String processModel) {
+			int retries, boolean timeoutRetry, String vip, String version, String protocol) {
 		this.setServiceInterface(serviceInterface);
 		this.setUrl(url);
 		this.setTimeout(timeout);

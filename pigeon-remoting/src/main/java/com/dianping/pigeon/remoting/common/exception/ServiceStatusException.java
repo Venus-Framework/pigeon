@@ -1,6 +1,5 @@
 package com.dianping.pigeon.remoting.common.exception;
 
-import com.dianping.pigeon.remoting.common.exception.RpcException;
 
 public class ServiceStatusException extends RpcException {
 

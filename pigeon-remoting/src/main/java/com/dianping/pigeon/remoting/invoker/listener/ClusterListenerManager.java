@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
 import com.dianping.pigeon.domain.phase.Disposable;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
@@ -50,7 +50,7 @@ public class ClusterListenerManager implements Disposable {
 			connectInfo.addServiceNames(cmd.getServiceNames());
 			if (CollectionUtils.isEmpty(cmd.getServiceNames())) {
 				if (logger.isInfoEnabled()) {
-					logger.info("[cluster listener mgr] add services from:" + connectInfo);
+					logger.info("[cluster-listener-mgr] add services from:" + connectInfo);
 				}
 				cmd.addServiceNames(connectInfo.getServiceNames());
 			}
@@ -93,7 +93,7 @@ public class ClusterListenerManager implements Disposable {
 			// addConnect的逆操作
 			String connect = event.getHost() + ":" + event.getPort();
 			if (logger.isInfoEnabled()) {
-				logger.info("[cluster listener mgr] remove:" + connect + " from " + event.getServiceName());
+				logger.info("[cluster-listener-mgr] remove:" + connect + " from " + event.getServiceName());
 			}
 			ConnectInfo cmd = connectInfoMap.get(connect);
 			if (cmd != null) {

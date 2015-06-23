@@ -6,9 +6,8 @@ package com.dianping.pigeon.remoting.provider.process.filter;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
-import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -20,10 +19,12 @@ import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.exception.RequestAbortedException;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethod;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethodFactory;
+import com.dianping.pigeon.remoting.provider.util.ProviderHelper;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import com.dianping.pigeon.util.ContextUtils;
 
@@ -46,7 +47,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 				StringBuilder msg = new StringBuilder();
 				msg.append("the request has been canceled by timeout checking processor:").append(
 						InvocationUtils.toJsonString(request));
-				throw new NetTimeoutException(msg.toString());
+				throw new RequestAbortedException(msg.toString());
 			}
 			List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
 			for (ProviderProcessInterceptor interceptor : interceptors) {
@@ -57,10 +58,18 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			if (method == null) {
 				method = ServiceMethodFactory.getMethod(request);
 			}
+			if (Constants.REPLY_MANUAL && request.getCallType() == Constants.CALLTYPE_REPLY) {
+				request.setCallType(Constants.CALLTYPE_NOREPLY);
+				ProviderHelper.setContext(invocationContext);
+			}
 			// TIMELINE_biz_start
-			TimelineManager.time(request, TimelineManager.getRemoteIp(), Phase.BusinessStart);
+			if (TimelineManager.isEnabled()) {
+				TimelineManager.time(request, TimelineManager.getRemoteIp(), Phase.BusinessStart);
+			}
 			Object returnObj = method.invoke(request.getParameters());
-			TimelineManager.time(request, TimelineManager.getRemoteIp(), Phase.BusinessEnd);
+			if (TimelineManager.isEnabled()) {
+				TimelineManager.time(request, TimelineManager.getRemoteIp(), Phase.BusinessEnd);
+			}
 			// TIMELINE_biz_end
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 				response = ProviderUtils.createSuccessResponse(request, returnObj);

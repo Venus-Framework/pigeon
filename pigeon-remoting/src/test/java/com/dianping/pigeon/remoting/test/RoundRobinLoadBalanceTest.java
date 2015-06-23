@@ -1,11 +1,8 @@
 package com.dianping.pigeon.remoting.test;
 
-import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.invoker.route.balance.RoundRobinLoadBalance;
+import org.apache.logging.log4j.Logger;
+import org.junit.Test;
 
 public class RoundRobinLoadBalanceTest extends LoadBalanceBaseTest {
 	Logger logger = LoggerLoader.getLogger(RoundRobinLoadBalanceTest.class);
