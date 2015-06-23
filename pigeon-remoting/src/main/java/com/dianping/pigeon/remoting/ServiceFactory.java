@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
@@ -403,5 +403,9 @@ public class ServiceFactory {
 	public static void offline() throws RegistryException {
 		ServiceWarmupListener.stop();
 		ServiceProviderFactory.setServerWeight(0);
+	}
+
+	public static boolean isAutoPublish() {
+		return ServiceProviderFactory.isAutoPublish();
 	}
 }

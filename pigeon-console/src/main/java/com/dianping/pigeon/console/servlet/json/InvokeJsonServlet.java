@@ -23,6 +23,7 @@ import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
+import com.dianping.pigeon.context.ThreadLocalUtils;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
@@ -101,6 +102,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 			}
 
 			Object result = null;
+			String currentMessageId = null;
 			if (direct) {
 				try {
 					result = directInvoke(serviceName, methodName, types, values);
@@ -118,6 +120,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 			} else {
 				try {
 					result = proxyInvoke(serviceName, methodName, types, values, timeout);
+					currentMessageId = ThreadLocalUtils.getThreadLocalInfo().getProps().get("CurrentMessageId");
 				} catch (InvocationTargetException e) {
 					logger.error("console invoke error", e);
 					if (e.getTargetException() != null) {
@@ -133,6 +136,10 @@ public class InvokeJsonServlet extends ServiceServlet {
 				return;
 			}
 			String json = jacksonSerializer.serializeObject(result);
+			if (currentMessageId != null) {
+				response.addHeader("CurrentMessageId",
+						ThreadLocalUtils.getThreadLocalInfo().getProps().remove("CurrentMessageId"));
+			}
 			response.getWriter().write(json);
 		} else {
 			response.getWriter().write("invalid verification code!");

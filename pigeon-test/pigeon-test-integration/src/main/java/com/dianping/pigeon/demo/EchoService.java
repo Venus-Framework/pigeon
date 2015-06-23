@@ -5,6 +5,7 @@
 package com.dianping.pigeon.demo;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -24,17 +25,14 @@ public interface EchoService {
 	}
 
 	public static class User<T> implements Serializable {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 2912743152637604246L;
+		Gender gender;
 		int id;
 		String name;
 		String email;
 		String address;
 		int age;
-		Long amount;
-		T userProfile;
+		BigDecimal amount;
+		T[] userProfile;
 
 		// int count;
 		//
@@ -46,19 +44,27 @@ public interface EchoService {
 		// this.count = count;
 		// }
 
-		public T getUserProfile() {
+		public Gender getGender() {
+			return gender;
+		}
+
+		public void setGender(Gender gender) {
+			this.gender = gender;
+		}
+
+		public T[] getUserProfile() {
 			return userProfile;
 		}
 
-		public void setUserProfile(T userProfile) {
+		public void setUserProfile(T[] userProfile) {
 			this.userProfile = userProfile;
 		}
 
-		public Long getAmount() {
+		public BigDecimal getAmount() {
 			return amount;
 		}
 
-		public void setAmount(Long amount) {
+		public void setAmount(BigDecimal amount) {
 			this.amount = amount;
 		}
 
@@ -120,6 +126,15 @@ public interface EchoService {
 
 	public static class UserProfile implements Serializable {
 		private String fav;
+		private BigDecimal v;
+
+		public BigDecimal getV() {
+			return v;
+		}
+
+		public void setV(BigDecimal v) {
+			this.v = v;
+		}
 
 		public String getFav() {
 			return fav;
@@ -129,5 +144,9 @@ public interface EchoService {
 			this.fav = fav;
 		}
 
+	}
+
+	public enum Gender {
+		AUTO, MALE, FEMALE;
 	}
 }

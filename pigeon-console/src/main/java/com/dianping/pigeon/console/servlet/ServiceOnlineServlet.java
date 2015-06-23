@@ -49,7 +49,7 @@ public class ServiceOnlineServlet extends HttpServlet {
 					ServiceFactory.online();
 					response.getWriter().println("ok");
 				} catch (Throwable e) {
-					logger.error("Error with online all services", e);
+					logger.error("Error while getting online", e);
 					response.getWriter().println("error:" + e.getMessage());
 				}
 			} else {

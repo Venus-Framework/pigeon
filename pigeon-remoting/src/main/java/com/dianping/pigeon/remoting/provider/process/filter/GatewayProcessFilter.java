@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
+
 import com.dianping.pigeon.log.LoggerLoader;
+
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
@@ -21,6 +23,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.RejectedException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.statistics.ProviderStatisticsChecker;
 import com.dianping.pigeon.remoting.provider.process.statistics.ProviderStatisticsHolder;
@@ -98,7 +101,9 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 			response = handler.handle(invocationContext);
 			return response;
 		} finally {
-			ProviderStatisticsHolder.flowOut(request);
+			if (!Constants.REPLY_MANUAL) {
+				ProviderStatisticsHolder.flowOut(request);
+			}
 		}
 	}
 

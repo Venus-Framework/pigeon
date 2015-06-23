@@ -9,12 +9,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -103,6 +103,14 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 			} else {
 				return mapper.readValue(content, objType);
 			}
+		} catch (Throwable e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public <T> T readObject(Class<T> objType, String content) throws SerializationException {
+		try {
+			return mapper.readValue(content, objType);
 		} catch (Throwable e) {
 			throw new SerializationException(e);
 		}

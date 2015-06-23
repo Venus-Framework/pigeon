@@ -3,8 +3,11 @@ package com.dianping.pigeon.remoting.invoker.util;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.logging.log4j.Logger;
+
 import com.dianping.dpsf.async.ServiceFuture;
 import com.dianping.dpsf.exception.DPSFException;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -31,6 +34,8 @@ public class InvokerUtils {
 
 	private static AtomicLong requestSequenceMaker = new AtomicLong();
 
+	private static final Logger logger = LoggerLoader.getLogger(InvokerUtils.class);
+
 	public static InvocationResponse sendRequest(Client client, InvocationRequest request, Callback callback) {
 		if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 			RemoteInvocationBean invocationBean = new RemoteInvocationBean();
@@ -44,10 +49,11 @@ public class InvokerUtils {
 		InvocationResponse response = null;
 		try {
 			response = client.write(request, callback);
-		} catch (RuntimeException e) {
+		} catch (NetworkException e) {
 			invocationRepository.remove(request.getSequence());
 			TimelineManager.removeTimeline(request, TimelineManager.getLocalIp());
-			throw new NetworkException("remote call failed:" + request, e);
+			logger.warn("network exception ocurred:" + request, e);
+			throw e;
 		} finally {
 			if (response != null) {
 				invocationRepository.remove(request.getSequence());

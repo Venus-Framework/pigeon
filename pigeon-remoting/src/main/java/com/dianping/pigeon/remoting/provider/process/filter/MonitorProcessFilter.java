@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.context.ThreadLocalUtils;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
@@ -72,6 +73,8 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 							request.getMethodName(), request.getParamClassName());
 				}
 				transaction = monitorLogger.createTransaction("PigeonService", strMethod, invocationContext);
+				ThreadLocalUtils.getThreadLocalInfo().getProps()
+						.put("PigeonService", request.getServiceName() + "#" + request.getMethodName());
 			} catch (Throwable e) {
 				monitorLogger.logError(e);
 			}

@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -20,6 +19,7 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
@@ -161,7 +161,11 @@ public class NettyClient extends AbstractClient {
 		if (channel == null) {
 			logger.error("channel is null ^^^^^^^^^^^^^^");
 		} else {
-			future = channel.write(msg);
+			try {
+				future = channel.write(msg);
+			} catch (Exception e) {
+				throw new NetworkException("remote call failed:" + request, e);
+			}
 			if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE
 					|| request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
 				future.addListener(new MsgWriteListener(request));

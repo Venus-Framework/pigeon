@@ -10,10 +10,10 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -86,19 +86,18 @@ public class HttpInvokerClient extends AbstractClient {
 		return write(defaultServiceUrl, invocationRequest, callback);
 	}
 
-	public InvocationResponse write(String url, InvocationRequest invocationRequest, Callback callback)
-			throws NetworkException {
-		final int timeout = invocationRequest.getTimeout();
+	public InvocationResponse write(String url, InvocationRequest request, Callback callback) throws NetworkException {
+		final int timeout = request.getTimeout();
 		httpInvokerExecutor.setReadTimeout(timeout);
 		try {
-			InvocationResponse invocationResponse = httpInvokerExecutor.executeRequest(url, invocationRequest);
+			InvocationResponse invocationResponse = httpInvokerExecutor.executeRequest(url, request);
 			this.isConnected = true;
 			return invocationResponse;
 		} catch (ConnectException e) {
 			this.isConnected = false;
-			throw new NetworkException(e);
+			throw new NetworkException("remote call failed:" + request, e);
 		} catch (Throwable e) {
-			throw new NetworkException(e);
+			throw new NetworkException("remote call failed:" + request, e);
 		}
 	}
 

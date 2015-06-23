@@ -1,11 +1,12 @@
 package com.dianping.pigeon.remoting.invoker.cluster;
 
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -27,12 +28,22 @@ public class FailfastCluster implements Cluster {
 			throws Throwable {
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		InvocationRequest request = InvokerUtils.createRemoteCallRequest(invocationContext, invokerConfig);
-		
+
 		boolean timeoutRetry = invokerConfig.isTimeoutRetry();
 		if (!timeoutRetry) {
 			Client remoteClient = clientManager.getClient(invokerConfig, request, null);
 			invocationContext.setClient(remoteClient);
-			return handler.handle(invocationContext);
+			try {
+				return handler.handle(invocationContext);
+			} catch (NetworkException e) {
+				if (Constants.RETRY_NETWORK_EXCEPTION) {
+					remoteClient = clientManager.getClient(invokerConfig, request, null);
+					invocationContext.setClient(remoteClient);
+					return handler.handle(invocationContext);
+				} else {
+					throw e;
+				}
+			}
 		} else {
 			int retry = invokerConfig.getRetries();
 			NetTimeoutException lastError = null;
@@ -54,7 +65,19 @@ public class FailfastCluster implements Cluster {
 				try {
 					invokeTimes++;
 					invocationContext.setClient(clientSelected);
-					InvocationResponse response = handler.handle(invocationContext);
+					InvocationResponse response = null;
+					try {
+						response = handler.handle(invocationContext);
+					} catch (NetworkException e) {
+						if (Constants.RETRY_NETWORK_EXCEPTION) {
+							clientSelected = clientManager.getClient(invokerConfig, request, null);
+							invocationContext.setClient(clientSelected);
+							response = handler.handle(invocationContext);
+						} else {
+							throw e;
+						}
+					}
+
 					if (lastError != null) {
 						logger.warn("Retry method[" + invocationContext.getMethodName() + "] on service["
 								+ invokerConfig.getUrl() + "] succeed after " + invokeTimes

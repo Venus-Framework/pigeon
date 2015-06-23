@@ -22,6 +22,7 @@ public class Client {
 	 */
 	public static void main(String[] args) throws Exception {
 		CLIENT_CONTAINER.start();
+		System.setProperty("app.name", "pigeon-test");
 
 		EchoService echoService = (EchoService) CLIENT_CONTAINER.getBean("echoService");
 		EchoService echoServiceWithCallback = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithCallback");
@@ -60,9 +61,9 @@ public class Client {
 //				 System.out.println(echoService.echo("hi, 4"));
 //				 System.out.println(userService.getUserDetail(users, false));
 				 //System.out.println(echoService.echo("hi"));
-//				 echoServiceWithFuture.echo("future");
-//				 ServiceFuture f = ServiceFutureFactory.getFuture();
-//				 System.out.println(f._get());
+				 echoServiceWithFuture.echo("future");
+				 ServiceFuture f = ServiceFutureFactory.getFuture();
+				 System.out.println(f._get());
 			} catch (Exception e) {
 				System.out.println("");
 			}

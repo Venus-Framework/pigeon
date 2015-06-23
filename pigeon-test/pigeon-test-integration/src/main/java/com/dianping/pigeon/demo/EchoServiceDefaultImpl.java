@@ -25,13 +25,13 @@ public class EchoServiceDefaultImpl implements EchoService {
 		System.out.println("key:" + ContextUtils.getContextValue("key1"));
 		System.out.println("SOURCE_APP:" + ContextUtils.getContextValue("SOURCE_APP"));
 		System.out.println("SOURCE_IP:" + ContextUtils.getContextValue("SOURCE_IP"));
-//		try {
-//			Thread.sleep(20);
-//		} catch (InterruptedException e) {
-//		}
-		//return "echo:" + userService.echo(input);
-		ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(), "echo#" + input);
-		return "echo:" + input;
+		try {
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+		}
+		return "echo:" + userService.echo(input);
+		//ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(), "echo#" + input);
+		//return "echo:" + input;
 	}
 
 	@Override

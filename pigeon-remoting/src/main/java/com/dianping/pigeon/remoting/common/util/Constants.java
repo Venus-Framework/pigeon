@@ -167,6 +167,7 @@ public final class Constants {
 	public static final String KEY_SERVICEWARMUP_ENABLE = "pigeon.servicewarmup.enable";
 	public static final String KEY_AUTOREGISTER_ENABLE = "pigeon.autoregister.enable";
 	public static final String KEY_AUTOPUBLISH_ENABLE = "pigeon.autopublish.enable";
+	public static final String KEY_AUTOUNPUBLISH_ENABLE = "pigeon.autounpublish.enable";
 
 	public static final int WEIGHT_INITIAL = ConfigManagerLoader.getConfigManager().getIntValue(
 			Constants.KEY_WEIGHT_INITIAL, Constants.DEFAULT_WEIGHT_INITIAL);
@@ -182,9 +183,12 @@ public final class Constants {
 
 	public static final boolean RESET_TIMEOUT = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.timeout.reset", true);
-	
+
 	public static final boolean REPLY_MANUAL = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.provider.reply.manual", false);
+
+	public static final boolean RETRY_NETWORK_EXCEPTION = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.invoker.retry.networkexception", true);
 
 	public static final String KEY_SERVICE_COREPOOLSIZE = "pigeon.provider.service.corePoolSize";
 	public static final String KEY_SERVICE_MAXPOOLSIZE = "pigeon.provider.service.maxPoolSize";

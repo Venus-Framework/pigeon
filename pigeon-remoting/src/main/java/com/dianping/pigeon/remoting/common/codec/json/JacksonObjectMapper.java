@@ -10,11 +10,14 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.dianping.pigeon.util.ReflectUtils;
 
 public class JacksonObjectMapper {
 
+	private static String deserializePackage = ConfigManagerLoader.getConfigManager().getStringValue(
+			"pigeon.codec.jackson.package", "com.dianping");
 	static JacksonSerializer jacksonSerializer = new JacksonSerializer();
 
 	public static <T> T convertObject(T obj) throws SerializationException, ClassNotFoundException,
@@ -75,7 +78,7 @@ public class JacksonObjectMapper {
 				}
 				return (T) finalMap;
 			}
-		} else if (obj.getClass().getName().startsWith("com.dianping") && !obj.getClass().isPrimitive()
+		} else if (obj.getClass().getName().startsWith(deserializePackage) && !obj.getClass().isPrimitive()
 				&& !obj.getClass().isEnum()) {
 			Field[] fields = obj.getClass().getDeclaredFields();
 			for (Field field : fields) {
@@ -84,13 +87,24 @@ public class JacksonObjectMapper {
 					continue;
 				}
 				Object fieldValue = ReflectUtils.readDeclaredField(obj, field.getName(), true);
-				if (type.getName().startsWith("com.dianping") || Map.class.isAssignableFrom(type)
-						|| Collection.class.isAssignableFrom(type) || type.isArray() || (fieldValue instanceof LinkedHashMap)) {
-					ReflectUtils.writeDeclaredField(obj, field.getName(), convertObject(fieldValue), true);
+				if (type.getName().startsWith(deserializePackage) || Map.class.isAssignableFrom(type)
+						|| Collection.class.isAssignableFrom(type) || type.isArray()
+						|| (fieldValue instanceof LinkedHashMap)) {
+					setFieldValue(obj, type, field.getName(), fieldValue);
 				}
 			}
 		}
 		return obj;
+	}
+
+	private static void setFieldValue(Object obj, Class<?> fieldType, String fieldName, Object fieldValue)
+			throws SerializationException, IllegalAccessException, ClassNotFoundException, InstantiationException {
+		try {
+			ReflectUtils.writeDeclaredField(obj, fieldName, convertObject(fieldValue), true);
+		} catch (IllegalArgumentException e) {
+			ReflectUtils.writeDeclaredField(obj, fieldName,
+					jacksonSerializer.readObject(fieldType, String.valueOf(fieldValue)), true);
+		}
 	}
 
 	public static Object convertObject(LinkedHashMap map) throws SerializationException, ClassNotFoundException,
@@ -105,7 +119,7 @@ public class JacksonObjectMapper {
 				if (!key.equals("@class")) {
 					Field field = ReflectUtils.getDeclaredField(clazz, key, true);
 					if (field != null) {
-						ReflectUtils.writeDeclaredField(obj, key, value, true);
+						setFieldValue(obj, field.getType(), key, value);
 					}
 				}
 			}

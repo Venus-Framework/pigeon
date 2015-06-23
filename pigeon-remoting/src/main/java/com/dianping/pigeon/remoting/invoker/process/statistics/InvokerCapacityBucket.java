@@ -7,12 +7,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dianping.pigeon.log.LoggerLoader;
+
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.context.ThreadLocalUtils;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 
 public class InvokerCapacityBucket implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger logger = LoggerLoader.getLogger(InvokerCapacityBucket.class);
 
 	private AtomicInteger requests = new AtomicInteger();
@@ -29,9 +36,14 @@ public class InvokerCapacityBucket implements Serializable {
 	public static final boolean enableMinuteStats = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.invokerstat.minute.enable", true);
 
+	public static final boolean enableMethodStats = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.invokerstat.method.enable", true);
+
+	private Map<String, String> requestCall = new ConcurrentHashMap<String, String>();
+
 	public static void init() {
 	}
-	
+
 	public InvokerCapacityBucket(String address) {
 		preFillData();
 	}
@@ -45,6 +57,13 @@ public class InvokerCapacityBucket implements Serializable {
 		}
 		if (enableDayStats) {
 			incrementTotalRequestsInDay(now.get(Calendar.DATE));
+		}
+		if (enableMethodStats) {
+			String callUrl = request.getServiceName() + "#" + request.getMethodName();
+			if (!requestCall.containsKey(callUrl)) {
+				String currentService = ThreadLocalUtils.getThreadLocalInfo().getProps().get("PigeonService");
+				requestCall.put(callUrl, currentService == null ? "" : currentService);
+			}
 		}
 	}
 
@@ -199,6 +218,10 @@ public class InvokerCapacityBucket implements Serializable {
 			sb.append(",requests-lastday:").append(getRequestsInLastDay()).append(",requests-today:")
 					.append(getRequestsInToday()).toString();
 		}
+		if (enableMethodStats) {
+			sb.append(",methods:[").append(requestCall).append("]");
+		}
+
 		return sb.toString();
 	}
 }

@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.status.Phase;
@@ -147,6 +147,14 @@ public final class ServiceProviderFactory {
 				logger.info("auto publish is disabled");
 			}
 		}
+	}
+
+	public static boolean isAutoPublish() {
+		boolean autoPublishEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
+				Constants.KEY_AUTOPUBLISH_ENABLE, true);
+		boolean autoRegisterEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
+				Constants.KEY_AUTOREGISTER_ENABLE, true);
+		return autoPublishEnable && autoRegisterEnable;
 	}
 
 	public static void publishService(String url) throws RegistryException {

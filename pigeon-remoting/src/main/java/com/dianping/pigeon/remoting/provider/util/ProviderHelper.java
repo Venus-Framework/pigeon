@@ -12,6 +12,7 @@ import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
+import com.dianping.pigeon.remoting.provider.process.statistics.ProviderStatisticsHolder;
 
 public final class ProviderHelper {
 
@@ -31,6 +32,7 @@ public final class ProviderHelper {
 		InvocationResponse response = ProviderUtils.createSuccessResponse(request, returnObj);
 		ProviderChannel channel = context.getChannel();
 		channel.write(response);
+		ProviderStatisticsHolder.flowOut(request);
 		List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
 		for (ProviderProcessInterceptor interceptor : interceptors) {
 			interceptor.postInvoke(request, response);
@@ -42,6 +44,7 @@ public final class ProviderHelper {
 		InvocationResponse response = ProviderUtils.createServiceExceptionResponse(request, exeption);
 		ProviderChannel channel = context.getChannel();
 		channel.write(response);
+		ProviderStatisticsHolder.flowOut(request);
 		List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
 		for (ProviderProcessInterceptor interceptor : interceptors) {
 			interceptor.postInvoke(request, response);
