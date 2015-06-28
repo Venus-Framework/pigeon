@@ -46,9 +46,4 @@ public class ProviderEncoder extends AbstractEncoder {
 		SerializerFactory.getSerializer(serializerType).serializeResponse(os, obj);
 	}
 
-	@Override
-	public String getEventName() {
-		return eventName;
-	}
-
 }

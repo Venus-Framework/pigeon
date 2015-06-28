@@ -12,7 +12,6 @@ import com.dianping.cat.message.internal.DefaultTransaction;
 import com.dianping.cat.message.spi.MessageManager;
 import com.dianping.cat.message.spi.MessageTree;
 import com.dianping.phoenix.environment.PhoenixContext;
-import com.dianping.pigeon.context.ThreadLocalUtils;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext;
@@ -118,8 +117,7 @@ public class CatMonitorTransaction implements MonitorTransaction {
 			invocationContext.putContextValue(REFER_REQUEST_ID, PhoenixContext.getInstance().getReferRequestId());
 			invocationContext.putContextValue(GUID, PhoenixContext.getInstance().getGuid());
 
-			ThreadLocalUtils.getThreadLocalInfo().getProps()
-					.put(CatConstants.PIGEON_CURRENT_MESSAGE_ID, currentMessageId);
+			ContextUtils.putLocalContext(CatConstants.PIGEON_CURRENT_MESSAGE_ID, currentMessageId);
 
 			producer.logEvent(CatConstants.TYPE_REMOTE_CALL, CatConstants.NAME_REQUEST, Transaction.SUCCESS,
 					serverMessageId);

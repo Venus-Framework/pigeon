@@ -8,7 +8,6 @@ import static org.jboss.netty.buffer.ChannelBuffers.dynamicBuffer;
 
 import java.io.IOException;
 
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferOutputStream;
@@ -16,12 +15,10 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
-import com.dianping.pigeon.remoting.common.monitor.MonitorHelper;
-import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
-import com.dianping.pigeon.remoting.common.monitor.SizeMonitor.SizeMonitorInfo;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 
@@ -31,8 +28,6 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 
 	public abstract void serialize(byte serializerType, ChannelBufferOutputStream os, Object obj, Channel channel)
 			throws IOException;
-
-	public abstract String getEventName();
 
 	public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 		if (msg instanceof InvocationSerializable) {
@@ -44,11 +39,10 @@ public abstract class AbstractEncoder extends OneToOneEncoder implements Encoder
 				buffer.setByte(2, message.getSerialize());
 				buffer.readerIndex(0);
 
-				if (SizeMonitor.isEnable()) {
-					int size = buffer.readableBytes();
-					MonitorHelper.setSize(new SizeMonitorInfo(size, getEventName()));
+				int msgType = ((InvocationSerializable) msg).getMessageType();
+				if (msgType == Constants.MESSAGE_TYPE_SERVICE) {
+					message.setSize(buffer.readableBytes());
 				}
-
 				return buffer;
 			} catch (Throwable e) {
 				SerializationException se = new SerializationException(e);

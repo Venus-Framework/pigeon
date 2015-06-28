@@ -25,7 +25,6 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.monitor.MonitorHelper;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
-import com.dianping.pigeon.remoting.common.monitor.SizeMonitor.SizeMonitorInfo;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
@@ -139,13 +138,6 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						}
 						logger.logEvent("PigeonCall.server", client.getAddress(), parameters);
 
-						if (SizeMonitor.isEnable()) {
-							SizeMonitorInfo sizeInfo = MonitorHelper.getSize();
-							if (sizeInfo != null) {
-								SizeMonitor.getInstance().logSize(sizeInfo.getSize(), sizeInfo.getEvent(),
-										client.getAddress());
-							}
-						}
 						transaction.readMonitorContext();
 					}
 				} catch (Throwable e) {
@@ -154,7 +146,12 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 			}
 		}
 		try {
-			return handler.handle(invocationContext);
+			InvocationResponse response = handler.handle(invocationContext);
+			SizeMonitor.getInstance().logSize(request.getSize(), "PigeonCall.requestSize", null);
+			if (response != null) {
+				SizeMonitor.getInstance().logSize(response.getSize(), "PigeonCall.responseSize", null);
+			}
+			return response;
 		} catch (NetTimeoutException e) {
 			boolean isLog = false;
 			int logTimeoutPeriod = 0;

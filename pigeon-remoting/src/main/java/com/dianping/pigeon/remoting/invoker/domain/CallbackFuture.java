@@ -159,4 +159,9 @@ public class CallbackFuture implements Callback, CallFuture {
 		return this.client;
 	}
 
+	@Override
+	public void dispose() {
+		
+	}
+
 }

@@ -4,6 +4,7 @@
  */
 package com.dianping.dpsf.protocol;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +67,13 @@ public class DefaultRequest implements InvocationRequest {
 	private transient Map<String, Object> attachments = new HashMap<String, Object>();
 
 	private String app = ConfigManagerLoader.getConfigManager().getAppName();
+
+	@JsonIgnore
+	private transient int size;
+
+	private Map<String, Serializable> globalValues = null;
+
+	private Map<String, Serializable> requestValues = null;
 
 	public DefaultRequest(String serviceName, String methodName, Object[] parameters, byte serialize, int messageType,
 			int timeout, Class<?>[] parameterClasses) {
@@ -247,6 +255,30 @@ public class DefaultRequest implements InvocationRequest {
 
 	public void setMethodName(String methodName) {
 		this.methodName = methodName;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	public Map<String, Serializable> getGlobalValues() {
+		return globalValues;
+	}
+
+	public void setGlobalValues(Map<String, Serializable> globalValues) {
+		this.globalValues = globalValues;
+	}
+
+	public Map<String, Serializable> getRequestValues() {
+		return requestValues;
+	}
+
+	public void setRequestValues(Map<String, Serializable> requestValues) {
+		this.requestValues = requestValues;
 	}
 
 }

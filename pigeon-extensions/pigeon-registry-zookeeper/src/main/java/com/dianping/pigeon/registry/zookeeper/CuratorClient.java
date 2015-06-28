@@ -20,6 +20,8 @@ import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 
@@ -49,7 +51,11 @@ public class CuratorClient {
 	private static ExecutorService curatorEventListenerThreadPool = Executors
 			.newCachedThreadPool(new DefaultThreadFactory("Pigeon-Curator-Event-Listener"));
 
+	private static MonitorLogger monitor = ExtensionLoader.getExtension(Monitor.class).getLogger();
+
 	private String address;
+
+	private final String EVENT_NAME = "Pigeon.registry";
 
 	public CuratorClient(String zkAddress) throws Exception {
 		this.address = zkAddress;
@@ -68,18 +74,25 @@ public class CuratorClient {
 				logger.info("zookeeper state changed to " + newState);
 				if (newState == ConnectionState.RECONNECTED) {
 					RegistryEventListener.connectionReconnected();
+					monitor.logEvent(EVENT_NAME, "zookeeper:reconnected", "");
 				}
 			}
 		});
 		client.getCuratorListenable().addListener(new CuratorEventListener(this), curatorEventListenerThreadPool);
 		client.start();
-		boolean result = client.getZookeeperClient().blockUntilConnectedOrTimedOut();
-
-		close();
+		boolean isConnected = client.getZookeeperClient().blockUntilConnectedOrTimedOut();
+		CuratorFramework oldClient = this.client;
 		this.client = client;
-		logger.info("succeed to create zookeeper client, connected:" + result);
+		close(oldClient);
+		logger.info("succeed to create zookeeper client, connected:" + isConnected);
 
-		return result;
+		if (isConnected) {
+			monitor.logEvent(EVENT_NAME, "zookeeper:rebuild_success", "");
+		} else {
+			monitor.logEvent(EVENT_NAME, "zookeeper:rebuild_failure", "");
+		}
+
+		return isConnected;
 	}
 
 	public CuratorFramework getClient() {
@@ -100,7 +113,13 @@ public class CuratorClient {
 					final CuratorFramework cf = getClient();
 					if (cf != null) {
 						int retryCount = ((MyRetryPolicy) cf.getZookeeperClient().getRetryPolicy()).getRetryCount();
-						boolean isConnected = cf.getZookeeperClient().isConnected();
+						boolean isConnected = false;
+						try {
+							isConnected = cf.getZookeeperClient().getZooKeeper().getState().isConnected()
+									&& cf.getZookeeperClient().isConnected();
+						} catch (Exception e) {
+							logger.info("error with zookeeper client's connection:" + e.toString());
+						}
 						if (isConnected) {
 							if (!isSuccess) {
 								logger.info("begin to rebuild zookeeper client after reconnected");
@@ -261,6 +280,10 @@ public class CuratorClient {
 	}
 
 	public void close() {
+		this.close(this.client);
+	}
+
+	private void close(CuratorFramework client) {
 		if (client != null) {
 			logger.info("begin to close zookeeper client");
 			try {

@@ -42,7 +42,11 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 		}
 		initRequest(invocationContext);
 		transferContextValueToRequest(invocationContext, invocationContext.getRequest());
-		return handler.handle(invocationContext);
+		try {
+			return handler.handle(invocationContext);
+		} finally {
+			ContextUtils.clearRequestContext();
+		}
 	}
 
 	// 初始化Request的createTime和timeout，以便统一这两个值
@@ -103,23 +107,27 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 	private void transferContextValueToRequest(final InvokerContext invocationContext, final InvocationRequest request) {
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		Client client = invocationContext.getClient();
+		Map<String, Serializable> contextValues = invocationContext.getContextValues();
+
 		Object contextHolder = ContextUtils.createContext(invokerConfig.getUrl(), invocationContext.getMethodName(),
 				client.getHost(), client.getPort());
 		if (contextHolder != null) {
-			Map<String, Serializable> contextValues = invocationContext.getContextValues();
 			if (contextValues != null) {
 				for (Map.Entry<String, Serializable> entry : contextValues.entrySet()) {
 					ContextUtils.putContextValue(contextHolder, entry.getKey(), entry.getValue());
 				}
 			}
-			if (ContextUtils.getContextValue(contextHolder, Constants.CONTEXT_KEY_SOURCE_APP) == null) {
-				ContextUtils.putContextValue(contextHolder, Constants.CONTEXT_KEY_SOURCE_APP, ConfigManagerLoader
-						.getConfigManager().getAppName());
-				ContextUtils.putContextValue(contextHolder, Constants.CONTEXT_KEY_SOURCE_IP, ConfigManagerLoader
-						.getConfigManager().getLocalIp());
-			}
 		}
 		request.setContext(contextHolder);
+
+		if (ContextUtils.getGlobalContext(Constants.CONTEXT_KEY_SOURCE_APP) == null) {
+			ContextUtils.putGlobalContext(Constants.CONTEXT_KEY_SOURCE_APP, ConfigManagerLoader.getConfigManager()
+					.getAppName());
+			ContextUtils.putGlobalContext(Constants.CONTEXT_KEY_SOURCE_IP, ConfigManagerLoader.getConfigManager()
+					.getLocalIp());
+		}
+		request.setGlobalValues(ContextUtils.getGlobalContext());
+		request.setRequestValues(ContextUtils.getRequestContext());
 	}
 
 }

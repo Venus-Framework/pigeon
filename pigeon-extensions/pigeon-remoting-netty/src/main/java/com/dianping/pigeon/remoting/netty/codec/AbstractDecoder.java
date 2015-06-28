@@ -12,7 +12,6 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferInputStream;
@@ -22,7 +21,9 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 import org.jboss.netty.util.DebugUtil;
 
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
@@ -36,8 +37,6 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 	public abstract void doFailResponse(Channel channel, InvocationResponse response);
 
 	public abstract Object deserialize(byte serializerType, InputStream is);
-
-	public abstract String getEventName();
 
 	protected boolean isNettyTimelineEnabled = true;
 
@@ -64,11 +63,12 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 			cb.writeBytes(cb_);
 		}
 
-//		if (SizeMonitor.isEnable()) {
-//			int size = cb_.readableBytes();
-//			String ip = ((InetSocketAddress) channel.getRemoteAddress()).getAddress().getHostAddress();
-//			SizeMonitor.getInstance().logSize(size, getEventName(), ip);
-//		}
+		// if (SizeMonitor.isLogDecoder()) {
+		// int size = cb_.readableBytes();
+		// String ip = ((InetSocketAddress)
+		// channel.getRemoteAddress()).getAddress().getHostAddress();
+		// SizeMonitor.getInstance().logSize(size, getEventName(), ip);
+		// }
 
 		List<Object> messages = null;
 		int lastReadIndex = cb.readerIndex();
@@ -141,12 +141,19 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 
 	public Object _decode(byte serializerType, ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 		ChannelBuffer buffer = (ChannelBuffer) msg;
+		int size = buffer.readableBytes();
 		ChannelBuffer frame = beforeDo(ctx, buffer);
 		if (frame == null) {
 			return null;
 		}
-
-		return deserialize(serializerType, new ChannelBufferInputStream(frame));
+		Object obj = deserialize(serializerType, new ChannelBufferInputStream(frame));
+		if (obj instanceof InvocationSerializable) {
+			int msgType = ((InvocationSerializable) obj).getMessageType();
+			if (msgType == Constants.MESSAGE_TYPE_SERVICE && size > 0) {
+				((InvocationSerializable) obj).setSize(size + 3);
+			}
+		}
+		return obj;
 	}
 
 	private final static int fieldLenth = 4;

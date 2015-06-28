@@ -45,6 +45,7 @@ public class InvocationTimeoutListener implements Runnable {
 							if (callback != null && callback.getClient() != null) {
 								ServiceStatisticsHolder.flowOut(request, callback.getClient().getAddress());
 							}
+							callback.dispose();
 							invocations.remove(sequence);
 							StringBuilder msg = new StringBuilder();
 							msg.append("remove timeout request, process time:").append(System.currentTimeMillis())

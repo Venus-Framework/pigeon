@@ -13,4 +13,6 @@ public interface Callback extends Runnable, Call {
 
 	void setRequest(InvocationRequest request);
 
+	void dispose();
+
 }

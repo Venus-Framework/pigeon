@@ -15,5 +15,5 @@ public interface InvocationResponse extends InvocationSerializable {
 	Object getReturn();
 
 	void setReturn(Object obj);
-
+	
 }

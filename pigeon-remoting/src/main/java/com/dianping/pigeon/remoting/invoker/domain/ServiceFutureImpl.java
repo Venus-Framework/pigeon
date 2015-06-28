@@ -18,8 +18,8 @@ import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
+import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
 public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
@@ -32,10 +32,13 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 
 	private Thread callerThread;
 
+	private MonitorTransaction transaction;
+
 	public ServiceFutureImpl(long timeout) {
 		super();
 		this.timeout = timeout;
 		callerThread = Thread.currentThread();
+		transaction = monitorLogger.getCurrentTransaction();
 	}
 
 	@Override
@@ -46,7 +49,6 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 	@Override
 	public Object _get(long timeoutMillis) throws InterruptedException {
 		InvocationResponse response = null;
-		MonitorTransaction transaction = monitorLogger.getCurrentTransaction();
 		if (transaction != null) {
 			transaction.addData("FutureTimeout", timeoutMillis);
 		}
@@ -56,6 +58,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 			if (transaction != null) {
 				transaction.setDuration(System.currentTimeMillis() - start);
 			}
+			SizeMonitor.getInstance().logSize(response.getSize(), "PigeonCall.responseSize", null);
 		} catch (Throwable e) {
 			RuntimeException rpcEx = null;
 			if (e instanceof DPSFException) {
@@ -120,4 +123,14 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		}
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+		if (transaction != null) {
+			try {
+				transaction.complete();
+			} catch (Throwable e) {
+			}
+		}
+	}
 }

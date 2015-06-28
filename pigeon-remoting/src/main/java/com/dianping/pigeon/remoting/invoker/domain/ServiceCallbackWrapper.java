@@ -96,4 +96,9 @@ public class ServiceCallbackWrapper implements Callback {
 		this.request = request;
 	}
 
+	@Override
+	public void dispose() {
+		
+	}
+
 }

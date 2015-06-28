@@ -28,6 +28,7 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
+import com.dianping.pigeon.util.ContextUtils;
 
 /**
  * @author sean.wang
@@ -120,7 +121,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 			} else {
 				try {
 					result = proxyInvoke(serviceName, methodName, types, values, timeout);
-					currentMessageId = ThreadLocalUtils.getThreadLocalInfo().getProps().get("CurrentMessageId");
+					currentMessageId = (String) ContextUtils.getLocalContext("CurrentMessageId");
 				} catch (InvocationTargetException e) {
 					logger.error("console invoke error", e);
 					if (e.getTargetException() != null) {
@@ -137,8 +138,10 @@ public class InvokeJsonServlet extends ServiceServlet {
 			}
 			String json = jacksonSerializer.serializeObject(result);
 			if (currentMessageId != null) {
-				response.addHeader("CurrentMessageId",
-						ThreadLocalUtils.getThreadLocalInfo().getProps().remove("CurrentMessageId"));
+				Map localContext = ContextUtils.getLocalContext();
+				if (localContext != null && localContext.containsKey("CurrentMessageId")) {
+					response.addHeader("CurrentMessageId", (String) localContext.remove("CurrentMessageId"));
+				}
 			}
 			response.getWriter().write(json);
 		} else {

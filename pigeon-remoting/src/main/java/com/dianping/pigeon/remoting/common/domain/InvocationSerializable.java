@@ -11,9 +11,9 @@ public interface InvocationSerializable extends Serializable {
 	int getMessageType();
 
 	void setMessageType(int messageType);
-	
+
 	byte getSerialize();
-	
+
 	void setSerialize(byte serialize);
 
 	void setSequence(long seq);
@@ -26,4 +26,7 @@ public interface InvocationSerializable extends Serializable {
 
 	void setContext(Object context);
 
+	void setSize(int size);
+
+	int getSize();
 }

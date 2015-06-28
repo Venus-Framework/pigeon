@@ -20,8 +20,6 @@ import com.dianping.pigeon.remoting.netty.provider.NettyChannel;
 
 public class ProviderDecoder extends AbstractDecoder {
 
-	private static final String eventName = "PigeonService.requestSize";
-
 	@Override
 	public Object doInitMsg(Object message, Channel channel, long receiveTime) {
 		if (message == null) {
@@ -49,11 +47,6 @@ public class ProviderDecoder extends AbstractDecoder {
 	public Object deserialize(byte serializerType, InputStream is) {
 		Object decoded = SerializerFactory.getSerializer(serializerType).deserializeRequest(is);
 		return decoded;
-	}
-
-	@Override
-	public String getEventName() {
-		return eventName;
 	}
 
 }

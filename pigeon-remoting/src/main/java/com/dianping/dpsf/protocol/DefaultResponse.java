@@ -10,6 +10,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -38,6 +39,9 @@ public class DefaultResponse implements InvocationResponse {
 
 	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 	private Object context;
+
+	@JsonIgnore
+	private transient int size;
 
 	public DefaultResponse() {
 	}
@@ -171,6 +175,14 @@ public class DefaultResponse implements InvocationResponse {
 	@Override
 	public void setSerialize(byte serialize) {
 		this.serialize = serialize;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
 	}
 
 }

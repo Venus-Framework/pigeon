@@ -247,6 +247,15 @@ public class InvokerUtils {
 		@Override
 		public void setSerialize(byte serialize) {
 		}
+
+		@Override
+		public void setSize(int size) {
+		}
+
+		@Override
+		public int getSize() {
+			return 0;
+		}
 	}
 
 	public static class FutureResponse implements InvocationResponse {
@@ -359,6 +368,15 @@ public class InvokerUtils {
 
 		@Override
 		public void setSerialize(byte serialize) {
+		}
+
+		@Override
+		public void setSize(int size) {
+		}
+
+		@Override
+		public int getSize() {
+			return 0;
 		}
 	}
 }

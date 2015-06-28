@@ -8,6 +8,8 @@ import java.util.List;
 
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
@@ -28,26 +30,33 @@ public final class ProviderHelper {
 	}
 
 	public static void writeSuccessResponse(ProviderContext context, Object returnObj) {
-		InvocationRequest request = context.getRequest();
-		InvocationResponse response = ProviderUtils.createSuccessResponse(request, returnObj);
-		ProviderChannel channel = context.getChannel();
-		channel.write(response);
-		ProviderStatisticsHolder.flowOut(request);
-		List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
-		for (ProviderProcessInterceptor interceptor : interceptors) {
-			interceptor.postInvoke(request, response);
+		if (Constants.REPLY_MANUAL) {
+			InvocationRequest request = context.getRequest();
+			InvocationResponse response = ProviderUtils.createSuccessResponse(request, returnObj);
+			ProviderChannel channel = context.getChannel();
+			channel.write(response);
+			if (response != null) {
+				SizeMonitor.getInstance().logSize(response.getSize(), "PigeonService.responseSize", null);
+			}
+			ProviderStatisticsHolder.flowOut(request);
+			List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
+			for (ProviderProcessInterceptor interceptor : interceptors) {
+				interceptor.postInvoke(request, response);
+			}
 		}
 	}
 
 	public static void writeFailureResponse(ProviderContext context, Throwable exeption) {
-		InvocationRequest request = context.getRequest();
-		InvocationResponse response = ProviderUtils.createServiceExceptionResponse(request, exeption);
-		ProviderChannel channel = context.getChannel();
-		channel.write(response);
-		ProviderStatisticsHolder.flowOut(request);
-		List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
-		for (ProviderProcessInterceptor interceptor : interceptors) {
-			interceptor.postInvoke(request, response);
+		if (Constants.REPLY_MANUAL) {
+			InvocationRequest request = context.getRequest();
+			InvocationResponse response = ProviderUtils.createServiceExceptionResponse(request, exeption);
+			ProviderChannel channel = context.getChannel();
+			channel.write(response);
+			ProviderStatisticsHolder.flowOut(request);
+			List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
+			for (ProviderProcessInterceptor interceptor : interceptors) {
+				interceptor.postInvoke(request, response);
+			}
 		}
 	}
 }

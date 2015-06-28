@@ -4,6 +4,10 @@
  */
 package com.dianping.pigeon.demo.typical;
 
+import java.util.Random;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.dianping.dpsf.async.ServiceFuture;
 import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.pigeon.container.SpringContainer;
@@ -22,33 +26,32 @@ public class Client {
 	 */
 	public static void main(String[] args) throws Exception {
 		CLIENT_CONTAINER.start();
-		System.setProperty("app.name", "pigeon-test");
 
 		EchoService echoService = (EchoService) CLIENT_CONTAINER.getBean("echoService");
 		EchoService echoServiceWithCallback = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithCallback");
 		EchoService echoServiceWithFuture = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithFuture");
 
 		UserService userService = (UserService) CLIENT_CONTAINER.getBean("userService");
-
+		Random r = new Random();
 		int i = 0;
 		while (true) {
 			try {
-				ContextUtils.putContextValue("key1", "1");
-				//echoServiceWithCallback.echo("1");
+				ContextUtils.putRequestContext("key1", "1");
+				// echoServiceWithCallback.echo("1");
 				// PhoenixContext.getInstance().setRequestId("1");
 				// ExecutionContextHolder.setTrackerContext(new
 				// TrackerContext());
-//				User user = new User();
-//				user.setName("wuxiang");
-//				user.setAddress("addr");
-//				user.setAmount(222l);
-//				user.setAge(34);
-				//user.setCount(2);
-				
-				//echoService.addUser(user);
-//				ContextUtils.putContextValue("key1", "1");
-//				System.out.println(echoService.echo("" + i++));
-				// System.out.println(echoService.echo("hi, 2"));
+				// User user = new User();
+				// user.setName("wuxiang");
+				// user.setAddress("addr");
+				// user.setAmount(222l);
+				// user.setAge(34);
+				// user.setCount(2);
+
+				// echoService.addUser(user);
+				// ContextUtils.putContextValue("key1", "1");
+				// System.out.println(echoService.echo("" + i++));
+				System.out.println(echoService.echo("hi"));
 				//
 				// ArrayList<String> l = new ArrayList<String>();
 				// l.add("key1 list");
@@ -57,13 +60,15 @@ public class Client {
 				//
 				// ArrayList<User> l2 = new ArrayList<User>();
 				// l2.add(user);
-//				 ContextUtils.putContextValue("key1", l2);
-//				 System.out.println(echoService.echo("hi, 4"));
-//				 System.out.println(userService.getUserDetail(users, false));
-				 //System.out.println(echoService.echo("hi"));
-				 echoServiceWithFuture.echo("future");
-				 ServiceFuture f = ServiceFutureFactory.getFuture();
-				 System.out.println(f._get());
+				// ContextUtils.putContextValue("key1", l2);
+				// System.out.println(echoService.echo("hi, 4"));
+				// System.out.println(userService.getUserDetail(users, false));
+				// System.out.println(echoService.echo("hi"));
+				// echoServiceWithFuture.echo(StringUtils.rightPad("future",
+				// r.nextInt(100), "#"));
+				// echoServiceWithFuture.echo("future");
+				// ServiceFuture f = ServiceFutureFactory.getFuture();
+				// System.out.println(f._get());
 			} catch (Exception e) {
 				System.out.println("");
 			}

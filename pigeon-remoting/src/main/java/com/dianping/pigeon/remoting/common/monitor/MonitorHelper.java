@@ -4,18 +4,17 @@
  */
 package com.dianping.pigeon.remoting.common.monitor;
 
-import com.dianping.pigeon.remoting.common.monitor.SizeMonitor.SizeMonitorInfo;
 
 public final class MonitorHelper {
 
-	private static ThreadLocal<SizeMonitorInfo> tlSize = new ThreadLocal<SizeMonitorInfo>();
+	private static ThreadLocal<Integer> tlSize = new ThreadLocal<Integer>();
 
-	public static void setSize(SizeMonitorInfo size) {
+	public static void setSize(Integer size) {
 		tlSize.set(size);
 	}
 
-	public static SizeMonitorInfo getSize() {
-		SizeMonitorInfo size = tlSize.get();
+	public static Integer getSize() {
+		Integer size = tlSize.get();
 		tlSize.remove();
 		return size;
 	}

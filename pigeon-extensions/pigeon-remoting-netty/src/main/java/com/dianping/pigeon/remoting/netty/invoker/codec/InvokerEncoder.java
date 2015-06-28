@@ -52,9 +52,4 @@ public class InvokerEncoder extends AbstractEncoder {
 		SerializerFactory.getSerializer(serializerType).serializeRequest(os, obj);
 	}
 
-	@Override
-	public String getEventName() {
-		return eventName;
-	}
-
 }

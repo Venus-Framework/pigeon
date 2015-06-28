@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.context.ThreadLocalUtils;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.util.ContextUtils;
 
 public class InvokerCapacityBucket implements Serializable {
 	/**
@@ -61,8 +62,8 @@ public class InvokerCapacityBucket implements Serializable {
 		if (enableMethodStats) {
 			String callUrl = request.getServiceName() + "#" + request.getMethodName();
 			if (!requestCall.containsKey(callUrl)) {
-				String currentService = ThreadLocalUtils.getThreadLocalInfo().getProps().get("PigeonService");
-				requestCall.put(callUrl, currentService == null ? "" : currentService);
+				String currentServiceUrl = (String) ContextUtils.getLocalContext("CurrentServiceUrl");
+				requestCall.put(callUrl, currentServiceUrl == null ? "" : currentServiceUrl);
 			}
 		}
 	}

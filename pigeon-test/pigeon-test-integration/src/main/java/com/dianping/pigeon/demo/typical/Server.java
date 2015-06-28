@@ -17,7 +17,6 @@ public class Server {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		System.setProperty("app.name", "pigeon-test-server");
 		SERVER_CONTAINER.start();
 		System.in.read();
 	}

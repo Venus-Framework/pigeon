@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.provider.util.ProviderHelper;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class EchoServiceDefaultImpl implements EchoService {
@@ -22,16 +21,19 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public String echo(String input) {
-		System.out.println("key:" + ContextUtils.getContextValue("key1"));
+		System.out.println("request-key:" + ContextUtils.getLocalContext("key1"));
+		System.out.println("global-SOURCE_APP:" + ContextUtils.getGlobalContext("SOURCE_APP"));
 		System.out.println("SOURCE_APP:" + ContextUtils.getContextValue("SOURCE_APP"));
 		System.out.println("SOURCE_IP:" + ContextUtils.getContextValue("SOURCE_IP"));
 		try {
 			Thread.sleep(20);
 		} catch (InterruptedException e) {
 		}
+		// return "echo:" + userService.echo(input);
+		// ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(),
+		// "echo1#" + userService.echo(input));
+		ContextUtils.putRequestContext("key1", "2");
 		return "echo:" + userService.echo(input);
-		//ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(), "echo#" + input);
-		//return "echo:" + input;
 	}
 
 	@Override

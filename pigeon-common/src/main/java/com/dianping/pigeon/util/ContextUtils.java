@@ -38,10 +38,14 @@ public final class ContextUtils {
 	private static Method getExtensionsMethod = null;
 	private static Method addExtensionMethod = null;
 
-	private static boolean flag = false;
+	private static boolean enable = false;
 	private static Object[] defObjs = new Object[] {};
 
 	private static ThreadLocal<Map> localContext = new ThreadLocal<Map>();
+
+	private static ThreadLocal<Map<String, Serializable>> globalContext = new ThreadLocal<Map<String, Serializable>>();
+
+	private static ThreadLocal<Map<String, Serializable>> requestContext = new ThreadLocal<Map<String, Serializable>>();
 
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
@@ -89,7 +93,7 @@ public final class ContextUtils {
 
 			configManager.registerConfigChangeListener(new InnerConfigChangeListener());
 
-			flag = true;
+			enable = true;
 		} catch (Throwable e) {
 			logger.info("App does not have ExecutionContext", e);
 		}
@@ -117,7 +121,7 @@ public final class ContextUtils {
 	}
 
 	public static Object createContext(String serviceName, String methodName, String host, int port) {
-		if (flag) {
+		if (enable) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(serviceName).append(".").append(methodName).append("@").append(host).append(":").append(port);
 			try {
@@ -133,7 +137,7 @@ public final class ContextUtils {
 	}
 
 	public static void setContext(Object context) {
-		if (flag && context != null) {
+		if (enable && context != null) {
 			try {
 				setContextMethod.invoke(null, new Object[] { context });
 			} catch (Throwable e) {
@@ -143,7 +147,7 @@ public final class ContextUtils {
 	}
 
 	public static Object getContext() {
-		if (flag) {
+		if (enable) {
 			try {
 				return getContextMethod.invoke(null, defObjs);
 			} catch (Throwable e) {
@@ -159,7 +163,7 @@ public final class ContextUtils {
 	}
 
 	public static void addSuccessContext(Object context) {
-		if (flag && context != null && isTrackRequired()) {
+		if (enable && context != null && isTrackRequired()) {
 			try {
 				addSuccessContextMethod.invoke(null, new Object[] { context });
 			} catch (Throwable e) {
@@ -169,7 +173,7 @@ public final class ContextUtils {
 	}
 
 	public static void addFailedContext(Object context) {
-		if (flag && context != null && isTrackRequired()) {
+		if (enable && context != null && isTrackRequired()) {
 			try {
 				addFailedContextMethod.invoke(null, new Object[] { context });
 			} catch (Throwable e) {
@@ -179,7 +183,7 @@ public final class ContextUtils {
 	}
 
 	public static String getToken(Object context) {
-		if (flag && context != null) {
+		if (enable && context != null) {
 			try {
 				return (String) getTokenMethod.invoke(context, defObjs);
 			} catch (Throwable e) {
@@ -190,7 +194,7 @@ public final class ContextUtils {
 	}
 
 	public static Integer getOrder(Object context) {
-		if (flag && context != null) {
+		if (enable && context != null) {
 			try {
 				return (Integer) getExtensionMethod.invoke(context, new Object[] { TRAC_ORDER });
 			} catch (Throwable e) {
@@ -201,7 +205,7 @@ public final class ContextUtils {
 	}
 
 	public static void setOrder(Object context, Integer order) {
-		if (flag && context != null) {
+		if (enable && context != null) {
 			try {
 				addExtensionMethod.invoke(context, new Object[] { TRAC_ORDER, order });
 			} catch (Throwable e) {
@@ -220,7 +224,7 @@ public final class ContextUtils {
 	}
 
 	public static void putContextValue(Object context, String key, Serializable value) {
-		if (flag && context != null) {
+		if (enable && context != null) {
 			try {
 				addExtensionMethod.invoke(context, new Object[] { key, value });
 			} catch (Throwable e) {
@@ -234,7 +238,11 @@ public final class ContextUtils {
 	}
 
 	public static <T> T getContextValue(Object context, String key) {
-		if (flag && context != null) {
+		Object value = getGlobalContext(key);
+		if (value != null) {
+			return (T) value;
+		}
+		if (enable && context != null) {
 			try {
 				return (T) getExtensionMethod.invoke(context, new Object[] { key });
 			} catch (Throwable e) {
@@ -245,7 +253,7 @@ public final class ContextUtils {
 	}
 
 	public static <T> T getContextValues(Object context) {
-		if (flag && context != null) {
+		if (enable && context != null) {
 			try {
 				return (T) getExtensionsMethod.invoke(context, new Object[] {});
 			} catch (Throwable e) {
@@ -256,7 +264,7 @@ public final class ContextUtils {
 	}
 
 	public static void clearContext() {
-		if (flag) {
+		if (enable) {
 			try {
 				clearContextMethod.invoke(null, new Object[0]);
 			} catch (Throwable e) {
@@ -275,6 +283,10 @@ public final class ContextUtils {
 		context.put(key, value);
 	}
 
+	public static Map getLocalContext() {
+		return localContext.get();
+	}
+
 	public static Object getLocalContext(Object key) {
 		Map context = localContext.get();
 		if (context == null) {
@@ -291,4 +303,57 @@ public final class ContextUtils {
 		localContext.remove();
 	}
 
+	public static void putGlobalContext(String key, Serializable value) {
+		Map<String, Serializable> context = globalContext.get();
+		if (context == null) {
+			context = new HashMap<String, Serializable>();
+			globalContext.set(context);
+		}
+		context.put(key, value);
+	}
+
+	public static void setGlobalContext(Map<String, Serializable> context) {
+		globalContext.set(context);
+	}
+
+	public static Map<String, Serializable> getGlobalContext() {
+		return globalContext.get();
+	}
+
+	public static Serializable getGlobalContext(String key) {
+		Map<String, Serializable> context = globalContext.get();
+		if (context == null) {
+			return null;
+		}
+		return context.get(key);
+	}
+
+	public static void clearGlobalContext() {
+		Map<String, Serializable> context = globalContext.get();
+		if (context != null) {
+			context.clear();
+		}
+		globalContext.remove();
+	}
+
+	public static void putRequestContext(String key, Serializable value) {
+		Map<String, Serializable> context = requestContext.get();
+		if (context == null) {
+			context = new HashMap<String, Serializable>();
+			requestContext.set(context);
+		}
+		context.put(key, value);
+	}
+
+	public static Map<String, Serializable> getRequestContext() {
+		return requestContext.get();
+	}
+
+	public static void clearRequestContext() {
+		Map<String, Serializable> context = requestContext.get();
+		if (context != null) {
+			context.clear();
+		}
+		requestContext.remove();
+	}
 }

@@ -19,9 +19,6 @@ public class SizeMonitor {
 
 	private static int[] sizeRangeArray;
 
-	private static final boolean enableMonitor = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.monitor.msgsize.enable", true);
-
 	private static final long sizeMin = ConfigManagerLoader.getConfigManager().getLongValue(
 			"pigeon.monitor.msgsize.min", 0);
 
@@ -33,37 +30,8 @@ public class SizeMonitor {
 		return SizeHolder.INSTANCE;
 	}
 
-	public static class SizeMonitorInfo {
-		private int size;
-		private String event;
-
-		public SizeMonitorInfo(int size, String event) {
-			this.size = size;
-			this.event = event;
-		}
-
-		public int getSize() {
-			return size;
-		}
-
-		public void setSize(int size) {
-			this.size = size;
-		}
-
-		public String getEvent() {
-			return event;
-		}
-
-		public void setEvent(String event) {
-			this.event = event;
-		}
-
-	}
-
 	private SizeMonitor() {
-		if (enableMonitor) {
-			init();
-		}
+		init();
 	}
 
 	private void init() {
@@ -87,12 +55,8 @@ public class SizeMonitor {
 		return rangeArray;
 	}
 
-	public static boolean isEnable() {
-		return enableMonitor;
-	}
-
 	public void logSize(int size, String event, String source) {
-		if (enableMonitor && size > sizeMin) {
+		if (size > sizeMin) {
 			try {
 				logSize(size, sizeRangeArray, event, source);
 			} catch (Throwable t) {
