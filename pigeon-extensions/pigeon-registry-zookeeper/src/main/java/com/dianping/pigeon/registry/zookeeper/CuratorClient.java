@@ -74,8 +74,8 @@ public class CuratorClient {
 				logger.info("zookeeper state changed to " + newState);
 				if (newState == ConnectionState.RECONNECTED) {
 					RegistryEventListener.connectionReconnected();
-					monitor.logEvent(EVENT_NAME, "zookeeper:reconnected", "");
 				}
+				monitor.logEvent(EVENT_NAME, "zookeeper:" + newState.name().toLowerCase(), "");
 			}
 		});
 		client.getCuratorListenable().addListener(new CuratorEventListener(this), curatorEventListenerThreadPool);

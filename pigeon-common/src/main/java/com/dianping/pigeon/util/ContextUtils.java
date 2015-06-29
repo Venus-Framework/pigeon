@@ -24,7 +24,7 @@ public final class ContextUtils {
 
 	private static final Logger logger = LoggerLoader.getLogger(ContextUtils.class);
 
-	public static final String TRAC_ORDER = "tracker_order";
+	private static final String TRAC_ORDER = "tracker_order";
 
 	private static Method createContextMethod = null;
 	private static Method setContextMethod = null;
@@ -38,7 +38,6 @@ public final class ContextUtils {
 	private static Method getExtensionsMethod = null;
 	private static Method addExtensionMethod = null;
 
-	private static boolean enable = false;
 	private static Object[] defObjs = new Object[] {};
 
 	private static ThreadLocal<Map> localContext = new ThreadLocal<Map>();
@@ -51,6 +50,8 @@ public final class ContextUtils {
 
 	private static boolean createContextIfNotExists = configManager.getBooleanValue("pigeon.context.createifnotexists",
 			false);
+
+	private static boolean enableTrackerContext = false;
 
 	static {
 		try {
@@ -93,10 +94,13 @@ public final class ContextUtils {
 
 			configManager.registerConfigChangeListener(new InnerConfigChangeListener());
 
-			enable = true;
+			enableTrackerContext = true;
 		} catch (Throwable e) {
 			logger.info("App does not have ExecutionContext", e);
 		}
+	}
+
+	public static void init() {
 	}
 
 	private static class InnerConfigChangeListener implements ConfigChangeListener {
@@ -106,6 +110,11 @@ public final class ContextUtils {
 			if (key.endsWith("pigeon.context.createifnotexists")) {
 				try {
 					createContextIfNotExists = Boolean.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			} else if (key.endsWith("pigeon.context.tracker.enable")) {
+				try {
+					enableTrackerContext = Boolean.valueOf(value);
 				} catch (RuntimeException e) {
 				}
 			}
@@ -121,7 +130,7 @@ public final class ContextUtils {
 	}
 
 	public static Object createContext(String serviceName, String methodName, String host, int port) {
-		if (enable) {
+		if (enableTrackerContext) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(serviceName).append(".").append(methodName).append("@").append(host).append(":").append(port);
 			try {
@@ -137,7 +146,7 @@ public final class ContextUtils {
 	}
 
 	public static void setContext(Object context) {
-		if (enable && context != null) {
+		if (enableTrackerContext && context != null) {
 			try {
 				setContextMethod.invoke(null, new Object[] { context });
 			} catch (Throwable e) {
@@ -147,7 +156,7 @@ public final class ContextUtils {
 	}
 
 	public static Object getContext() {
-		if (enable) {
+		if (enableTrackerContext) {
 			try {
 				return getContextMethod.invoke(null, defObjs);
 			} catch (Throwable e) {
@@ -157,13 +166,13 @@ public final class ContextUtils {
 		return null;
 	}
 
-	public static boolean isTrackRequired() {
+	private static boolean isTrackRequired() {
 		TrackerContext trackerContext = (TrackerContext) getContext();
 		return trackerContext != null && trackerContext.isTrackRequired();
 	}
 
 	public static void addSuccessContext(Object context) {
-		if (enable && context != null && isTrackRequired()) {
+		if (enableTrackerContext && context != null && isTrackRequired()) {
 			try {
 				addSuccessContextMethod.invoke(null, new Object[] { context });
 			} catch (Throwable e) {
@@ -173,7 +182,7 @@ public final class ContextUtils {
 	}
 
 	public static void addFailedContext(Object context) {
-		if (enable && context != null && isTrackRequired()) {
+		if (enableTrackerContext && context != null && isTrackRequired()) {
 			try {
 				addFailedContextMethod.invoke(null, new Object[] { context });
 			} catch (Throwable e) {
@@ -182,19 +191,8 @@ public final class ContextUtils {
 		}
 	}
 
-	public static String getToken(Object context) {
-		if (enable && context != null) {
-			try {
-				return (String) getTokenMethod.invoke(context, defObjs);
-			} catch (Throwable e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return null;
-	}
-
 	public static Integer getOrder(Object context) {
-		if (enable && context != null) {
+		if (enableTrackerContext && context != null) {
 			try {
 				return (Integer) getExtensionMethod.invoke(context, new Object[] { TRAC_ORDER });
 			} catch (Throwable e) {
@@ -205,7 +203,7 @@ public final class ContextUtils {
 	}
 
 	public static void setOrder(Object context, Integer order) {
-		if (enable && context != null) {
+		if (enableTrackerContext && context != null) {
 			try {
 				addExtensionMethod.invoke(context, new Object[] { TRAC_ORDER, order });
 			} catch (Throwable e) {
@@ -215,16 +213,18 @@ public final class ContextUtils {
 	}
 
 	public static void putContextValue(String key, Serializable value) {
-		Object context = getContext();
-		if (context == null) {
-			context = new TrackerContext();
-			ContextUtils.setContext(context);
+		if (enableTrackerContext) {
+			Object context = getContext();
+			if (context == null) {
+				context = new TrackerContext();
+				ContextUtils.setContext(context);
+			}
+			ContextUtils.putContextValue(context, key, value);
 		}
-		ContextUtils.putContextValue(context, key, value);
 	}
 
 	public static void putContextValue(Object context, String key, Serializable value) {
-		if (enable && context != null) {
+		if (enableTrackerContext && context != null) {
 			try {
 				addExtensionMethod.invoke(context, new Object[] { key, value });
 			} catch (Throwable e) {
@@ -242,7 +242,7 @@ public final class ContextUtils {
 		if (value != null) {
 			return (T) value;
 		}
-		if (enable && context != null) {
+		if (enableTrackerContext && context != null) {
 			try {
 				return (T) getExtensionMethod.invoke(context, new Object[] { key });
 			} catch (Throwable e) {
@@ -253,7 +253,7 @@ public final class ContextUtils {
 	}
 
 	public static <T> T getContextValues(Object context) {
-		if (enable && context != null) {
+		if (enableTrackerContext && context != null) {
 			try {
 				return (T) getExtensionsMethod.invoke(context, new Object[] {});
 			} catch (Throwable e) {
@@ -264,7 +264,7 @@ public final class ContextUtils {
 	}
 
 	public static void clearContext() {
-		if (enable) {
+		if (enableTrackerContext) {
 			try {
 				clearContextMethod.invoke(null, new Object[0]);
 			} catch (Throwable e) {

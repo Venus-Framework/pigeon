@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.dianping.pigeon.log.LoggerLoader;
+
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
@@ -27,6 +28,7 @@ import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.listener.ShutdownHookListener;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessHandlerFactory;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.util.ContextUtils;
 import com.dianping.pigeon.util.VersionUtils;
 
 public final class ProviderBootStrap {
@@ -47,6 +49,7 @@ public final class ProviderBootStrap {
 			RegistryConfigLoader.init();
 			ProviderProcessHandlerFactory.init();
 			SerializerFactory.init();
+			ContextUtils.init();
 			Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 			if (monitor != null) {
 				monitor.init();
