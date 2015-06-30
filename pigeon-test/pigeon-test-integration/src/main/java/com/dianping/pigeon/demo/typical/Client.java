@@ -36,7 +36,7 @@ public class Client {
 		int i = 0;
 		while (true) {
 			try {
-				ContextUtils.putRequestContext("key1", "1");
+				//ContextUtils.putRequestContext("key1", "1");
 				// echoServiceWithCallback.echo("1");
 				// PhoenixContext.getInstance().setRequestId("1");
 				// ExecutionContextHolder.setTrackerContext(new

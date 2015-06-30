@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.remoting.invoker.listener;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -14,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
@@ -23,6 +23,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.registry.RegistryManager;
@@ -36,6 +37,9 @@ import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.domain.CallbackFuture;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
+import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
+import com.dianping.pigeon.remoting.provider.Server;
+import com.dianping.pigeon.util.NetUtils;
 
 public class HeartBeatListener implements Runnable, ClusterListener {
 
@@ -71,6 +75,8 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	private static MonitorLogger monitor = ExtensionLoader.getExtension(Monitor.class).getLogger();
 
 	private static volatile Set<String> inactiveAddresses = new HashSet<String>();
+
+	private static final Set<Integer> serverPorts = new HashSet<Integer>();
 
 	public HeartBeatListener() {
 		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
@@ -141,6 +147,12 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				Thread.sleep(sleepTime);
+				if (serverPorts.isEmpty()) {
+					Collection<Server> servers = ProviderBootStrap.getServersMap().values();
+					for (Server server : servers) {
+						serverPorts.add(server.getPort());
+					}
+				}
 				long now = System.currentTimeMillis();
 				// 检查正在工作的Clients是否完好
 				if (this.getWorkingClients() != null) {
@@ -159,6 +171,10 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 								&& (RegistryManager.getInstance().getServiceWeight(client.getAddress()) > 0);
 						if (enable) {
 							if (client.isConnected()) {
+								if (NetUtils.getFirstLocalIp().equals(client.getHost())
+										&& serverPorts.contains(client.getPort())) {
+									continue;
+								}
 								sendHeartBeatRequest(client);
 							} else {
 								logger.warn("[heartbeat] remove connect:" + client.getAddress());

@@ -22,7 +22,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 	@Override
 	public String echo(String input) {
 		System.out.println("request-key:" + ContextUtils.getLocalContext("key1"));
-		System.out.println("global-SOURCE_APP:" + ContextUtils.getGlobalContext("SOURCE_APP"));
+		//System.out.println("global-SOURCE_APP:" + ContextUtils.getGlobalContext("SOURCE_APP"));
 		System.out.println("SOURCE_APP:" + ContextUtils.getContextValue("SOURCE_APP"));
 		System.out.println("SOURCE_IP:" + ContextUtils.getContextValue("SOURCE_IP"));
 		try {
@@ -32,7 +32,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 		// return "echo:" + userService.echo(input);
 		// ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(),
 		// "echo1#" + userService.echo(input));
-		ContextUtils.putRequestContext("key1", "2");
+		//ContextUtils.putRequestContext("key1", "2");
 		return "echo:" + userService.echo(input);
 	}
 

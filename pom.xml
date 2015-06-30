@@ -5,7 +5,7 @@
 	<groupId>com.dianping</groupId>
 	<artifactId>pigeon-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>2.4.8-SNAPSHOT</version>
+	<version>2.4.8</version>
 	<name>pigeon-parent</name>
 	<organization>
 		<name>dianping</name>
@@ -16,8 +16,6 @@
 		<pigeon.version>${project.version}</pigeon.version>
 		<spring_version>2.5.6</spring_version>
 		<jetty_version>6.1.26</jetty_version>
-		<scala.version>2.10</scala.version>
-		<akka.version>2.2.5</akka.version>
 	</properties>
 	<modules>
 		<module>pigeon-common</module>
@@ -185,16 +183,6 @@
 				<groupId>org.freemarker</groupId>
 				<artifactId>freemarker</artifactId>
 				<version>2.3.19</version>
-			</dependency>
-			<dependency>
-				<groupId>com.typesafe.akka</groupId>
-				<artifactId>akka-actor_${scala.version}</artifactId>
-				<version>${akka.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.typesafe.akka</groupId>
-				<artifactId>akka-remote_${scala.version}</artifactId>
-				<version>${akka.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.dianping.lion</groupId>

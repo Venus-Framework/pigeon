@@ -24,7 +24,7 @@
 	<pigeon:service useSharedPool="${pigeon-test.sharedpool.use}" server="pigeonServer1"
 		url="com.dianping.pigeon.demo.EchoService"
 		interface="com.dianping.pigeon.demo.EchoService" ref="defaultEchoServiceImpl">
-		<pigeon:method name="echo" actives="30"></pigeon:method>
+		<pigeon:method name="echo" actives="1"></pigeon:method>
 	</pigeon:service>
 
 	<pigeon:service url="com.dianping.pigeon.demo.UserService" useSharedPool="false"

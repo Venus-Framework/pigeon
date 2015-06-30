@@ -80,16 +80,6 @@ public class ProxyBeanFactory implements FactoryBean {
 
 	private ClassLoader classLoader;
 
-	private String processModel = Constants.PROCESS_MODEL_DEFAULT;
-
-	public String getProcessModel() {
-		return processModel;
-	}
-
-	public void setProcessModel(String processModel) {
-		this.processModel = processModel;
-	}
-
 	public ClassLoader getClassLoader() {
 		return classLoader;
 	}

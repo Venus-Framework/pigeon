@@ -72,8 +72,6 @@
 					<xsd:attribute name="group" type="xsd:string" />
 					<xsd:attribute name="vip" type="xsd:string" />
 					<xsd:attribute name="version" type="xsd:string" />
-					<xsd:attribute name="processModel" type="xsd:string"
-						default="default" />
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>
