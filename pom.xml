@@ -187,7 +187,7 @@
 			<dependency>
 				<groupId>com.dianping.lion</groupId>
 				<artifactId>lion-client</artifactId>
-				<version>0.4.9-SNAPSHOT</version>
+				<version>0.4.9</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
