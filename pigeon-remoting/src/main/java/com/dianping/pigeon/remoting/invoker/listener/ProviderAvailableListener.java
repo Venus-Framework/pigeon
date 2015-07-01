@@ -10,13 +10,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.remoting.ServiceFactory;
@@ -94,6 +96,13 @@ public class ProviderAvailableListener implements Runnable {
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				Thread.sleep(sleepTime);
+
+				try {
+					checkReferencedServices();
+				} catch (Throwable e) {
+					logger.info("check referenced services failed:", e);
+				}
+
 				Set<InvokerConfig<?>> services = ServiceFactory.getAllServiceInvokers().keySet();
 				Map<String, String> serviceGroupMap = new HashMap<String, String>();
 				for (InvokerConfig<?> invokerConfig : services) {
@@ -108,7 +117,7 @@ public class ProviderAvailableListener implements Runnable {
 					String groupValue = serviceGroupMap.get(url);
 					String group = groupValue.substring(0, groupValue.lastIndexOf("#"));
 					String vip = groupValue.substring(groupValue.lastIndexOf("#") + 1);
-					if(vip != null && vip.startsWith("console:")) {
+					if (vip != null && vip.startsWith("console:")) {
 						continue;
 					}
 
@@ -144,6 +153,28 @@ public class ProviderAvailableListener implements Runnable {
 			} finally {
 				if (sleepTime < 1000) {
 					sleepTime = 1000;
+				}
+			}
+		}
+	}
+
+	private void checkReferencedServices() {
+		Registry registry = RegistryManager.getInstance().getRegistry();
+		Map<String, Set<HostInfo>> serviceAddresses = RegistryManager.getInstance().getAllReferencedServiceAddresses();
+		for (String key : serviceAddresses.keySet()) {
+			Set<HostInfo> hosts = serviceAddresses.get(key);
+			if (hosts != null) {
+				for (HostInfo host : hosts) {
+					if (host.getApp() == null) {
+						String app = registry.getServerApp(host.getConnect());
+						logger.info("set " + host.getConnect() + "'s app to " + app);
+						host.setApp(app);
+					}
+					if (host.getVersion() == null) {
+						String version = registry.getServerVersion(host.getConnect());
+						logger.info("set " + host.getConnect() + "'s version to " + version);
+						host.setVersion(version);
+					}
 				}
 			}
 		}
