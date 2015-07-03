@@ -22,6 +22,7 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
+import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
@@ -50,6 +51,7 @@ public final class ProviderBootStrap {
 			ProviderProcessHandlerFactory.init();
 			SerializerFactory.init();
 			ContextUtils.init();
+			SizeMonitor.getInstance();
 			Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 			if (monitor != null) {
 				monitor.init();

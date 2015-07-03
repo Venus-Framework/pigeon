@@ -1,5 +1,6 @@
 package com.dianping.pigeon.remoting.invoker.util;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -256,6 +257,16 @@ public class InvokerUtils {
 		public int getSize() {
 			return 0;
 		}
+
+		@Override
+		public Map<String, Serializable> getResponseValues() {
+			return null;
+		}
+
+		@Override
+		public void setResponseValues(Map<String, Serializable> responseValues) {
+			
+		}
 	}
 
 	public static class FutureResponse implements InvocationResponse {
@@ -377,6 +388,18 @@ public class InvokerUtils {
 		@Override
 		public int getSize() {
 			return 0;
+		}
+
+		@Override
+		public Map<String, Serializable> getResponseValues() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void setResponseValues(Map<String, Serializable> responseValues) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 }

@@ -72,9 +72,7 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 	private void transferContextValueToResponse(final ProviderContext processContext, final InvocationResponse response) {
 		Object contextHolder = ContextUtils.getContext();
 		Map<String, Serializable> contextValues = processContext.getContextValues();
-		if (contextHolder == null) {
-			// response.setContext(contextValues);
-		} else {
+		if (contextHolder != null) {
 			if (contextValues != null) {
 				for (Map.Entry<String, Serializable> entry : contextValues.entrySet()) {
 					ContextUtils.putContextValue(contextHolder, entry.getKey(), entry.getValue());
@@ -82,6 +80,7 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 			}
 			response.setContext(contextHolder);
 		}
+		response.setResponseValues(ContextUtils.getResponseContext());
 	}
 
 }

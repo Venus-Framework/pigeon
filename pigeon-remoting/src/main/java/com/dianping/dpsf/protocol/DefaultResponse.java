@@ -4,6 +4,9 @@
  */
 package com.dianping.dpsf.protocol;
 
+import java.io.Serializable;
+import java.util.Map;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -42,6 +45,8 @@ public class DefaultResponse implements InvocationResponse {
 
 	@JsonIgnore
 	private transient int size;
+
+	private Map<String, Serializable> responseValues = null;
 
 	public DefaultResponse() {
 	}
@@ -183,6 +188,14 @@ public class DefaultResponse implements InvocationResponse {
 
 	public void setSize(int size) {
 		this.size = size;
+	}
+
+	public Map<String, Serializable> getResponseValues() {
+		return responseValues;
+	}
+
+	public void setResponseValues(Map<String, Serializable> responseValues) {
+		this.responseValues = responseValues;
 	}
 
 }

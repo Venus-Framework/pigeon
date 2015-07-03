@@ -4,6 +4,9 @@
  */
 package com.dianping.pigeon.remoting.common.domain;
 
+import java.io.Serializable;
+import java.util.Map;
+
 public interface InvocationResponse extends InvocationSerializable {
 
 	void setMessageType(int messageType);
@@ -16,4 +19,7 @@ public interface InvocationResponse extends InvocationSerializable {
 
 	void setReturn(Object obj);
 	
+	Map<String, Serializable> getResponseValues();
+
+	void setResponseValues(Map<String, Serializable> responseValues);
 }

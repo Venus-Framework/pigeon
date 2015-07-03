@@ -33,7 +33,8 @@ public class EchoServiceDefaultImpl implements EchoService {
 		// ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(),
 		// "echo1#" + userService.echo(input));
 		//ContextUtils.putRequestContext("key1", "2");
-		return "echo:" + userService.echo(input);
+		//return "echo:" + userService.echo(input);
+		return "echo:" + input;
 	}
 
 	@Override

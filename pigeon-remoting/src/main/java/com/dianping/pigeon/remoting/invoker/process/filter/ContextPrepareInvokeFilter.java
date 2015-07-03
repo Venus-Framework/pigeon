@@ -111,11 +111,9 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
 		Object contextHolder = ContextUtils.createContext(invokerConfig.getUrl(), invocationContext.getMethodName(),
 				client.getHost(), client.getPort());
-		if (contextHolder != null) {
-			if (contextValues != null) {
-				for (Map.Entry<String, Serializable> entry : contextValues.entrySet()) {
-					ContextUtils.putContextValue(contextHolder, entry.getKey(), entry.getValue());
-				}
+		if (contextValues != null) {
+			for (Map.Entry<String, Serializable> entry : contextValues.entrySet()) {
+				ContextUtils.putContextValue(contextHolder, entry.getKey(), entry.getValue());
 			}
 		}
 		request.setContext(contextHolder);
