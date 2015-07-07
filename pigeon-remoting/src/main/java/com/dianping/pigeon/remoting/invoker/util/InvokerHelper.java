@@ -4,10 +4,13 @@
  */
 package com.dianping.pigeon.remoting.invoker.util;
 
+import com.dianping.dpsf.async.ServiceCallback;
+
 public final class InvokerHelper {
 
 	private static ThreadLocal<String> tlAddress = new ThreadLocal<String>();
 	private static ThreadLocal<Integer> tlTimeout = new ThreadLocal<Integer>();
+	private static ThreadLocal<ServiceCallback> tlCallback = new ThreadLocal<ServiceCallback>();
 
 	public static void setAddress(String address) {
 		tlAddress.set(address);
@@ -27,5 +30,18 @@ public final class InvokerHelper {
 		Integer timeout = tlTimeout.get();
 		tlTimeout.remove();
 		return timeout;
+	}
+
+	public static void setCallback(ServiceCallback callback) {
+		tlCallback.set(callback);
+	}
+
+	public static ServiceCallback getCallback() {
+		ServiceCallback callback = tlCallback.get();
+		return callback;
+	}
+
+	public static void clearCallback() {
+		tlCallback.remove();
 	}
 }

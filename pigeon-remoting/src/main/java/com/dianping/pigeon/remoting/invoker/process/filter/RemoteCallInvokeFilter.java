@@ -6,10 +6,11 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import java.util.Map;
 
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 
+import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.async.ServiceFutureFactory;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
@@ -68,8 +69,13 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 				response = future.get(timeout);
 			}
 		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
-			InvokerUtils.sendRequest(client, invocationContext.getRequest(),
-					new ServiceCallbackWrapper(invokerConfig.getCallback()));
+			ServiceCallback callback = invokerConfig.getCallback();
+			ServiceCallback tlCallback = InvokerHelper.getCallback();
+			if (tlCallback != null) {
+				callback = tlCallback;
+				InvokerHelper.clearCallback();
+			}
+			InvokerUtils.sendRequest(client, invocationContext.getRequest(), new ServiceCallbackWrapper(callback));
 			response = NO_RETURN_RESPONSE;
 		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
 			ServiceFutureImpl future = new ServiceFutureImpl(timeout);
