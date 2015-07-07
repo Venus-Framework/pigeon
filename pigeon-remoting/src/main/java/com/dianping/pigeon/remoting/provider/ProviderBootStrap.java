@@ -47,7 +47,7 @@ public final class ProviderBootStrap {
 			RegistryConfigLoader.init();
 			ProviderProcessHandlerFactory.init();
 			SerializerFactory.init();
-			ClassUtils.getClasses("com.dianping.pigeon");
+			ClassUtils.loadClasses("com.dianping.pigeon");
 			Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
 			if (monitor != null) {
 				monitor.init();

@@ -7,8 +7,6 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Enumeration;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -42,9 +40,7 @@ public class ClassUtils {
 	 * @param pack
 	 * @return
 	 */
-	public static Set<Class<?>> getClasses(String pack) {
-		// 第一个class类的集合
-		Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
+	public static void loadClasses(String pack) {
 		// 是否循环迭代
 		boolean recursive = true;
 		// 获取包的名字 并进行替换
@@ -65,7 +61,7 @@ public class ClassUtils {
 					// 获取包的物理路径
 					String filePath = URLDecoder.decode(url.getFile(), "UTF-8");
 					// 以文件的方式扫描整个包下的文件 并添加到集合中
-					findAndAddClassesInPackageByFile(packageName, filePath, recursive, classes);
+					findAndAddClassesInPackageByFile(packageName, filePath, recursive);
 				} else if ("jar".equals(protocol)) {
 					// 如果是jar包文件
 					// 定义一个JarFile
@@ -101,7 +97,7 @@ public class ClassUtils {
 										String className = name.substring(packageName.length() + 1, name.length() - 6);
 										try {
 											// 添加到classes
-											classes.add(Class.forName(packageName + '.' + className));
+											Class.forName(packageName + '.' + className);
 										} catch (ClassNotFoundException e) {
 											// log
 											// .error("添加用户自定义视图类错误 找不到此类的.class文件");
@@ -120,8 +116,6 @@ public class ClassUtils {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
-
-		return classes;
 	}
 
 	/**
@@ -132,8 +126,7 @@ public class ClassUtils {
 	 * @param recursive
 	 * @param classes
 	 */
-	public static void findAndAddClassesInPackageByFile(String packageName, String packagePath,
-			final boolean recursive, Set<Class<?>> classes) {
+	public static void findAndAddClassesInPackageByFile(String packageName, String packagePath, final boolean recursive) {
 		// 获取此包的目录 建立一个File
 		File dir = new File(packagePath);
 		// 如果不存在或者 也不是目录就直接返回
@@ -152,14 +145,12 @@ public class ClassUtils {
 		for (File file : dirfiles) {
 			// 如果是目录 则继续扫描
 			if (file.isDirectory()) {
-				findAndAddClassesInPackageByFile(packageName + "." + file.getName(), file.getAbsolutePath(), recursive,
-						classes);
+				findAndAddClassesInPackageByFile(packageName + "." + file.getName(), file.getAbsolutePath(), recursive);
 			} else {
 				// 如果是java类文件 去掉后面的.class 只留下类名
 				String className = file.getName().substring(0, file.getName().length() - 6);
 				try {
-					// 添加到集合中去
-					classes.add(Class.forName(packageName + '.' + className));
+					Class.forName(packageName + '.' + className);
 					// classes.add(Thread.currentThread().getContextClassLoader().loadClass(packageName
 					// + '.' + className));
 				} catch (ClassNotFoundException e) {
