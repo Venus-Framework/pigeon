@@ -39,9 +39,5 @@
 			<groupId>com.dianping</groupId>
 			<artifactId>pigeon-remoting-http</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.dianping.platform</groupId>
-			<artifactId>phoenix-environment</artifactId>
-		</dependency>
 	</dependencies>
 </project>

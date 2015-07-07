@@ -6,14 +6,9 @@ package com.dianping.pigeon.demo.typical;
 
 import java.util.Random;
 
-import org.apache.commons.lang.StringUtils;
-
-import com.dianping.dpsf.async.ServiceFuture;
-import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.UserService;
-import com.dianping.pigeon.util.ContextUtils;
 
 public class Client {
 
