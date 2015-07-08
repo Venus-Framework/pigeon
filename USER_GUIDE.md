@@ -652,7 +652,9 @@ pigeon支持客户端调用某个服务接口时，对整个服务的超时时�
 		</pigeon:reference>
 		
 如果想设置当前线程下一个pigeon方法调用的超时时间，可以调用
-InvokerHelper.setTimeout(200);
+
+		InvokerHelper.setTimeout(200);
+
 
 ### 服务隔离与限流
 
