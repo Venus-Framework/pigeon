@@ -2,10 +2,10 @@
 ------
 
 ### Documentation
-[User Guide](USER_GUIDE.md)
+[User Guide](http://code.dianpingoa.com/arch/pigeon2/blob/master/USER_GUIDE.md)
 
 ### Release Notes
-[Release Notes](RELEASE.md)
+[Release Notes](http://code.dianpingoa.com/arch/pigeon2/blob/master/RELEASE.md)
 
 ### Comitters
 saber.miao
