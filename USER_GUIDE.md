@@ -701,25 +701,6 @@ pigeon.provider.applimit=tuangou-web:100,xxx:50,yyy:100
 目前只能限制客户端应用总的最大并发数，不能精确到某个应用的某个方法，后续版本会支持。
 以上配置第一次配置了之后，均可以通过lion动态在线设置实时生效
 
-### 服务预热功能
-
-1、服务预热接口
-在服务端，pigeon提供了以下服务初始化接口InitializingService，业务服务的实现类只要实现该接口，pigeon会保证在调用initialize方法完成后再进行服务注册，客户端请求在注册之后才会进来。
-
-		package com.dianping.pigeon.remoting.provider.service;
-		public interface InitializingService {
-		void initialize() throws Exception;
-		}
-
-同样，也有服务卸载接口，pigeon会在服务被删除时调用destroy方法
-
-		package com.dianping.pigeon.remoting.provider.service;
-		public interface DisposableService {
-		void destroy();
-		}
-
-2 客户端服务预热功能
-pigeon提供了客户端服务预热功能，当某个服务端机器重启后，客户端会接收到该事件，客户端的请求将会把更多的请求发送到该服务的其他机器，只会发送少量请求到重启的服务端机器，然后逐渐会将发送给该机器的请求增加，经过几十秒的预热过程后，直到与其他机器请求数差不多。
 
 ### 配置客户端调用模式
 
