@@ -17,9 +17,6 @@
 					value-ref="defaultEchoServiceImpl" />
 			</map>
 		</property>
-		<property name="port">
-			<value>5020</value>
-		</property>
 		<property name="autoSelectPort">
 			<value>true</value>
 		</property>
