@@ -702,6 +702,7 @@ pigeon.provider.applimit=tuangou-web:100,xxx:50,yyy:100
 以上配置第一次配置了之后，均可以通过lion动态在线设置实时生效
 
 
+
 ### 配置客户端调用模式
 
 在pigeon内部，客户端调用远程服务有4种模式（sync/future/callback/oneway），例如spring编程方式下只需要配置callMethod属性：
