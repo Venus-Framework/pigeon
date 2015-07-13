@@ -23,7 +23,6 @@ import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
-import com.dianping.pigeon.context.ThreadLocalUtils;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;

@@ -129,7 +129,6 @@ provider.xml
 
 		<bean class="com.dianping.dpsf.spring.ServiceRegistry"
 		init-method="init">
-		<property name="port" value="4040" />
 		<property name="services">
 		<map>
 		<entry key="http://service.dianping.com/demoService/echoService_1.0.0"
@@ -158,7 +157,7 @@ Provider.java
 
 		public class Provider {
 		public static void main(String[] args) throws Exception {
-		ServiceFactory.addService(EchoService.class, new EchoServiceImpl());
+			ServiceFactory.addService(EchoService.class, new EchoServiceImpl());
 			System.in.read(); // 按任意键退出
 		}
 		}
@@ -966,3 +965,88 @@ xxx.pigeon.provider.accesslog.enable为true，配置好了之后pigeon会将日�
 每个请求记录的日志内容为：
  应用名称+ "@" + 来源ip+ "@" + 请求对象内容（包含请求参数值等）+ "@" + 时间区间消耗
  
+### 记录服务端业务异常详细日志
+
+pigeon在服务端默认不会记录业务方法抛出的异常详细信息，如果需要记录这类业务异常，需要在lion相应项目里配置：
+xxx.pigeon.provider.logserviceexception为true
+xxx是应用的app.name，需要与lion项目名称保持一致
+
+### 获取服务注册信息
+使用pigeon客户端接口：
+com.dianping.pigeon.governor.service.RegistrationInfoService 
+用法:
+RegistrationInfoService registrationInfoService = ServiceFactory.getService(RegistrationInfoService.class);
+String app = registrationInfoService.getAppOfService("your service name");
+
+目前这个服务只部署在alpha/ppe/product环境，beta环境因为没有机器还没部署
+依赖：
+<groupId>com.dianping</groupId>
+<artifactId>pigeon-governor-api</artifactId>
+<version>2.5.1</version>
+
+
+接口说明：
+
+package com.dianping.pigeon.governor.service;
+
+import java.util.List;
+
+import com.dianping.pigeon.registry.exception.RegistryException;
+
+/**
+ * pigeon注册信息服务
+ * @author xiangwu
+ *
+ */
+public interface RegistrationInfoService {
+
+/**
+* 获取服务的应用名称
+* @param url 服务名称，标示一个服务的url
+* @param group 泳道名称，没有填null
+* @return 应用名称
+* @throws RegistryException
+*/
+String getAppOfService(String url, String group) throws RegistryException;
+
+/**
+* 获取服务的应用名称
+* @param url 服务名称，标示一个服务的url
+* @return 应用名称
+* @throws RegistryException
+*/
+String getAppOfService(String url) throws RegistryException;
+
+/**
+* 获取服务地址的权重
+* @param address 服务地址，格式ip:port
+* @return 权重
+* @throws RegistryException
+*/
+String getWeightOfAddress(String address) throws RegistryException;
+
+/**
+* 获取服务地址的应用名称
+* @param address 服务地址，格式ip:port
+* @return 应用名称
+* @throws RegistryException
+*/
+String getAppOfAddress(String address) throws RegistryException;
+
+/**
+* 获取服务的地址列表
+* @param url 服务名称，标示一个服务的url
+* @param group 泳道，没有填null
+* @return 逗号分隔的地址列表，地址格式ip:port
+* @throws RegistryException
+*/
+List<String> getAddressListOfService(String url, String group) throws RegistryException;
+
+/**
+* 获取服务的地址列表
+* @param url 服务名称，标示一个服务的url
+* @return 逗号分隔的地址列表，地址格式ip:port
+* @throws RegistryException
+*/
+List<String> getAddressListOfService(String url) throws RegistryException;
+}

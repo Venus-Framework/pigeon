@@ -405,6 +405,10 @@ public final class ContextUtils {
 		return context.get(key);
 	}
 
+	public static void setResponseContext(Map<String, Serializable> context) {
+		responseContext.set(context);
+	}
+
 	public static void clearResponseContext() {
 		Map<String, Serializable> context = responseContext.get();
 		if (context != null) {
