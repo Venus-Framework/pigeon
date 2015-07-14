@@ -84,7 +84,7 @@ public class HealthCheckManager extends Thread {
 	}
 
 	public void run() {
-		boolean enable = false;
+		boolean enable = true;
 		if ("product".equalsIgnoreCase(configManager.getEnv())) {
 			String ip = configManager.getStringValue("pigeon-governor-server.enable.ip", "");
 			if (!NetUtils.getFirstLocalIp().equals(ip)) {

@@ -17,7 +17,7 @@ public class HealthCheckBean {
     }
     
     public static void main(String[] args) throws Exception {
-    	HealthCheckBean bean = new HealthCheckBean();
+    		HealthCheckBean bean = new HealthCheckBean();
 		bean.init();
 		System.in.read();
 	}
