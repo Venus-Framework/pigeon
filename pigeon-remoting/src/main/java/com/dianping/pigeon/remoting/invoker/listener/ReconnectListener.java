@@ -71,7 +71,7 @@ public class ReconnectListener implements Runnable, ClusterListener {
 				}
 				sleepTime = interval - (System.currentTimeMillis() - now);
 			} catch (Throwable e) {
-				logger.warn("[reconnect] task failed:", e);
+				logger.info("[reconnect] task failed:", e);
 			} finally {
 				if (sleepTime < 1000) {
 					sleepTime = 1000;

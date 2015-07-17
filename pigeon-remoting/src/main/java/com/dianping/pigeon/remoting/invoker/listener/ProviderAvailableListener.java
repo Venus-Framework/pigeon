@@ -149,7 +149,7 @@ public class ProviderAvailableListener implements Runnable {
 				}
 				sleepTime = interval - (System.currentTimeMillis() - now);
 			} catch (Throwable e) {
-				logger.warn("[provider-available] task failed:", e);
+				logger.info("[provider-available] task failed:", e);
 			} finally {
 				if (sleepTime < 1000) {
 					sleepTime = 1000;

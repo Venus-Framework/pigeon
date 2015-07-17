@@ -2,8 +2,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
 	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-	xmlns:context="http://www.springframework.org/schema/context" xmlns:avatar="http://www.dianping.com/schema/avatar"
-	xmlns:pigeon="http://code.dianping.com/schema/pigeon" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:avatar="http://www.dianping.com/schema/avatar" xmlns:pigeon="http://code.dianping.com/schema/pigeon"
+	xmlns:task="http://www.springframework.org/schema/task"
 	xsi:schemaLocation="
      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
@@ -14,13 +15,10 @@
      http://code.dianping.com/schema/pigeon http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd
      http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd">
 
-    <bean name="placeholder" lazy-init="false" class="com.dianping.lion.client.InitializeConfig">
-        <property name="propertiesPath" value="config/applicationContext.properties" />
-    </bean>
-    
-	<avatar:cache />
-
-	<pigeon:annotation />
+	<bean name="placeholder" lazy-init="false"
+		class="com.dianping.lion.client.InitializeConfig">
+		<property name="propertiesPath" value="config/applicationContext.properties" />
+	</bean>
 
 	<task:annotation-driven />
 
@@ -82,7 +80,7 @@
 	<bean id="healthCheck" class="com.dianping.pigeon.governor.task.HealthCheckBean"
 		lazy-init="false" init-method="init">
 	</bean>
-	
+
 	<bean class="com.dianping.dpsf.spring.ServiceRegistry"
 		init-method="init">
 		<property name="port">
@@ -90,13 +88,15 @@
 		</property>
 		<property name="services">
 			<map>
-				<entry
-					key="com.dianping.ipservice"
-					value-ref="ipService" />
+				<entry key="com.dianping.ipservice" value-ref="ipService" />
 			</map>
 		</property>
 	</bean>
 
-	<bean id="ipService" class="com.dianping.pigeon.governor.service.IpServiceDefaultImpl" />
+	<bean id="ipService"
+		class="com.dianping.pigeon.governor.service.IpServiceDefaultImpl" />
 
+	<avatar:cache />
+
+	<pigeon:annotation />
 </beans>

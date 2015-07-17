@@ -7,7 +7,7 @@ import java.net.SocketAddress;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
@@ -27,16 +27,16 @@ import com.dianping.pigeon.remoting.netty.invoker.NettyClient;
 
 public class CheckTask implements Runnable {
 
-	private static final Logger logger = LoggerLoader.getLogger(CheckTask.class);
+	private static final Logger logger = LogManager.getLogger(CheckTask.class);
 
 	private HealthCheckManager manager;
 	private Host host;
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
-	private static boolean logDeadServer = configManager.getBooleanValue("pigeon.governor.healthcheck.logdead", false);
+	private static boolean logDeadServer = configManager.getBooleanValue("pigeon-governor-server.healthcheck.logdead", false);
 	private static boolean logAliveServer = configManager
-			.getBooleanValue("pigeon.governor.healthcheck.logalive", false);
+			.getBooleanValue("pigeon-governor-server.healthcheck.logalive", false);
 	private static boolean checkAliveByResponse = configManager.getBooleanValue(
-			"pigeon.governor.healthcheck.checkalivebyresponse", false);
+			"pigeon-governor-server.healthcheck.checkalivebyresponse", false);
 
 	public CheckTask(HealthCheckManager manager, Host host) {
 		this.manager = manager;
@@ -48,11 +48,11 @@ public class CheckTask implements Runnable {
 
 		@Override
 		public void onKeyUpdated(String key, String value) {
-			if ("pigeon.governor.healthcheck.logdead".equals(key)) {
+			if ("pigeon-governor-server.healthcheck.logdead".equals(key)) {
 				logDeadServer = Boolean.parseBoolean(value);
-			} else if ("pigeon.governor.healthcheck.logalive".equals(key)) {
+			} else if ("pigeon-governor-server.healthcheck.logalive".equals(key)) {
 				logAliveServer = Boolean.parseBoolean(value);
-			} else if ("pigeon.governor.healthcheck.checkalivebyresponse".equals(key)) {
+			} else if ("pigeon-governor-server.healthcheck.checkalivebyresponse".equals(key)) {
 				checkAliveByResponse = Boolean.parseBoolean(value);
 			}
 		}

@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -24,32 +24,34 @@ import com.dianping.pigeon.registry.exception.RegistryException;
 
 public class GenerateTask implements Runnable {
 
-	private static final Logger logger = LoggerLoader.getLogger(GenerateTask.class);
+	private static final Logger logger = LogManager.getLogger(GenerateTask.class);
 
-	private static final String ROOT = ConfigManagerLoader.getConfigManager().getStringValue("pigeon.governor.root",
+	private static final String ROOT = ConfigManagerLoader.getConfigManager().getStringValue("pigeon-governor-server.root",
 			"/DP/SERVER");
 
 	private static ConcurrentHashMap<String, Service> services = new ConcurrentHashMap<String, Service>();
 
 	private HealthCheckManager manager;
 	private AddressRepo addrRepo;
+	private Environment env;
 
-	public GenerateTask(HealthCheckManager manager) {
+	public GenerateTask(HealthCheckManager manager, Environment env) {
 		this.manager = manager;
 		addrRepo = new AddressRepo();
+		this.env = env;
 	}
 
 	@Override
 	public void run() {
 		while (!Thread.interrupted()) {
 			try {
-				logger.info("round of health check started");
+				logger.info(env.name() + "#round of health check started");
 				generateTasks();
 				addrRepo.clear();
 				waitForTaskComplete();
 				services.clear();
 				manager.getResultQueue().clear();
-				logger.info("round of health check finished");
+				logger.info(env.name() + "#round of health check finished");
 				Thread.sleep(manager.getInterval());
 			} catch (RegistryException e) {
 				logger.error("", e);
@@ -65,9 +67,8 @@ public class GenerateTask implements Runnable {
 		AtomicInteger n = new AtomicInteger(0);
 		while (manager.getWorkerPool().getActiveCount() > 0 || !manager.getResultQueue().isEmpty()) {
 			if (n.getAndIncrement() % 30 == 0) {
-				String message = String.format("active threads: %d, queue size: %d, completed task: %d", manager
-						.getWorkerPool().getActiveCount(), manager.getWorkerPool().getQueue().size(), manager
-						.getWorkerPool().getCompletedTaskCount());
+				String message = String.format(env.name() + "#active threads: %d, queue size: %d, result queue size: %d", manager
+						.getWorkerPool().getActiveCount(), manager.getWorkerPool().getQueue().size(), manager.getResultQueue().size());
 				if (logger.isInfoEnabled()) {
 					logger.info(message);
 				}
@@ -77,12 +78,6 @@ public class GenerateTask implements Runnable {
 	}
 
 	private void generateTasks() throws RegistryException {
-		for (Environment env : manager.getEnvSet()) {
-			generateTasks(env);
-		}
-	}
-
-	private void generateTasks(Environment env) throws RegistryException {
 		Registry registry = manager.getRegistry(env);
 		List<String> children = registry.getChildren(ROOT);
 		for (String path : children) {

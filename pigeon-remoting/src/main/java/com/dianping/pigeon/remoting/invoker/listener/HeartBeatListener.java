@@ -185,7 +185,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 				}
 				sleepTime = interval - (System.currentTimeMillis() - now);
 			} catch (Throwable e) {
-				logger.warn("[heartbeat] task failed:", e);
+				logger.info("[heartbeat] task failed:", e);
 			} finally {
 				if (sleepTime < 1000) {
 					sleepTime = 1000;

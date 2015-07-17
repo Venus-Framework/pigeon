@@ -71,8 +71,13 @@ public class InvokeJsonServlet extends ServiceServlet {
 			response.getWriter().write("pigeon console invocation is disabled!");
 			return;
 		}
+		boolean needValidate = false;
+		String validate = request.getParameter("validate");
+		if (("true".equalsIgnoreCase(validate)) && isValidate) {
+			needValidate = true;
+		}
 		String token = request.getParameter("token");
-		if (!isValidate || isValidate && token != null && token.equals(ServiceServlet.getToken())) {
+		if (!needValidate || needValidate && token != null && token.equals(ServiceServlet.getToken())) {
 			boolean direct = directInvoke;
 			if (StringUtils.isNotBlank(request.getParameter("direct"))) {
 				direct = request.getParameter("direct").equals("true") ? true : false;

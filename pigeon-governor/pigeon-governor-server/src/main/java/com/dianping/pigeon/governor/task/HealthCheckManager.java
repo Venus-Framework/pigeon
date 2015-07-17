@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.xml.DOMConfigurator;
-import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
@@ -33,12 +33,12 @@ import com.dianping.pigeon.util.NetUtils;
 
 public class HealthCheckManager extends Thread {
 
-	private static final Logger logger = LoggerLoader.getLogger(HealthCheckManager.class);
+	private static final Logger logger = LogManager.getLogger(HealthCheckManager.class);
 
 	private Registry registryClass = ExtensionLoader.getExtension(Registry.class);
 
-	private int corePoolSize = Runtime.getRuntime().availableProcessors();
-	private int maxPoolSize = corePoolSize * 10;
+	private int corePoolSize = 50;
+	private int maxPoolSize = 300;
 	private int queueSize = 500;
 
 	private BlockingQueue<CheckTask> resultQueue = new LinkedBlockingQueue<CheckTask>();
@@ -81,6 +81,7 @@ public class HealthCheckManager extends Thread {
 		parseMinhosts();
 		parseDeadThresholds();
 		parseInvalidAddress();
+		logger.info("hearth checker started");
 	}
 
 	public void run() {
@@ -96,8 +97,10 @@ public class HealthCheckManager extends Thread {
 					new ArrayBlockingQueue<Runnable>(queueSize), new NamingThreadFactory("pigeon-healthcheck"),
 					new BlockProviderPolicy());
 
-			bossPool = Executors.newFixedThreadPool(2);
-			bossPool.submit(new GenerateTask(this));
+			bossPool = Executors.newCachedThreadPool();
+			for (Environment env : this.getEnvSet()) {
+				bossPool.submit(new GenerateTask(this, env));
+			}
 			bossPool.submit(new DisposeTask(this));
 		}
 	}

@@ -155,7 +155,7 @@ public class DefaultClusterListener implements ClusterListener {
 		}
 		Client clientFound = null;
 		for (Client client : cs) {
-			if (client.getHost().equals(host) && client.getPort() == port) {
+			if (client.getHost() != null && client.getHost().equals(host) && client.getPort() == port) {
 				newCS.remove(client);
 				clientFound = client;
 			}

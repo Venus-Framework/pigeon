@@ -13,7 +13,7 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.governor.util.Constants.Action;
@@ -27,7 +27,7 @@ import com.dianping.pigeon.registry.zookeeper.Utils;
 
 public class DisposeTask implements Runnable {
 
-	private static final Logger logger = LoggerLoader.getLogger(DisposeTask.class);
+	private static final Logger logger = LogManager.getLogger(DisposeTask.class);
 
 	private HealthCheckManager manager;
 
@@ -289,7 +289,7 @@ public class DisposeTask implements Runnable {
 		try {
 			String message = doHttpGet(url);
 			if (message.startsWith("0|")) {
-				logger.info("removed:" + task.getHost());
+				logger.warn("removed:" + task.getHost());
 			} else {
 				logger.error("failed to remove:" + task.getHost() + ", message: " + message);
 			}

@@ -43,4 +43,8 @@ public class LoggerLoader {
 		}
 		return context.getLogger(name);
 	}
+	
+	public static LoggerContext getLoggerContext() {
+		return context;
+	}
 }

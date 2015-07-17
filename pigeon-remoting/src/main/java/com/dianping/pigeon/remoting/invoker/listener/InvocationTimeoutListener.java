@@ -50,7 +50,7 @@ public class InvocationTimeoutListener implements Runnable {
 							StringBuilder msg = new StringBuilder();
 							msg.append("remove timeout request, process time:").append(System.currentTimeMillis())
 									.append("\r\n").append("request:").append(request);
-							logger.error(msg.toString());
+							logger.warn(msg.toString());
 							// RequestTimeoutException e = new
 							// RequestTimeoutException(msg.toString());
 							// if (monitorLogger != null) {
@@ -61,7 +61,7 @@ public class InvocationTimeoutListener implements Runnable {
 				}
 				TimelineManager.removeLegacyTimelines();
 			} catch (Throwable e) {
-				logger.error("checking remote call timeout failed", e);
+				logger.warn("checking remote call timeout failed", e);
 			}
 		}
 	}

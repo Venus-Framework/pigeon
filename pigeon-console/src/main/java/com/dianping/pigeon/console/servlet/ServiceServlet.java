@@ -70,7 +70,7 @@ public class ServiceServlet extends HttpServlet {
 
 	private static final StatusChecker providerStatusChecker = new ProviderStatusChecker();
 
-	protected static boolean isValidate = configManager.getBooleanValue("pigeon.console.invoke.validate", false);
+	protected static boolean isValidate = configManager.getBooleanValue("pigeon.console.invoke.validation", false);
 
 	protected static String token;
 

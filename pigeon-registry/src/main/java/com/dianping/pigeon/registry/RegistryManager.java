@@ -293,7 +293,7 @@ public class RegistryManager {
 	public Set<HostInfo> getReferencedServiceAddresses(String serviceName) {
 		Set<HostInfo> hostInfos = referencedServiceAddresses.get(serviceName);
 		if (hostInfos == null || hostInfos.size() == 0) {
-			logger.warn("empty address list for service:" + serviceName);
+			logger.info("empty address list for service:" + serviceName);
 		}
 		return hostInfos;
 	}
