@@ -51,7 +51,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 
 	private static boolean logInvoke = configManager.getBooleanValue("pigeon.console.invoke.log", true);
 
-	private static boolean directInvoke = configManager.getBooleanValue("pigeon.console.invoke.direct", true);
+	private static boolean directInvoke = configManager.getBooleanValue("pigeon.console.invoke.direct", false);
 
 	static {
 		builtInMap.put("int", Integer.TYPE);
@@ -65,17 +65,22 @@ public class InvokeJsonServlet extends ServiceServlet {
 		builtInMap.put("short", Short.TYPE);
 	}
 
+	public boolean needValidate(HttpServletRequest request) {
+		boolean needValidate = false;
+		String validate = request.getParameter("validate");
+		if (("true".equalsIgnoreCase(validate)) && isValidate) {
+			needValidate = true;
+		}
+		return needValidate;
+	}
+
 	protected void generateView(HttpServletRequest request, HttpServletResponse response) throws IOException,
 			ServletException {
 		if (!enableInvoke) {
 			response.getWriter().write("pigeon console invocation is disabled!");
 			return;
 		}
-		boolean needValidate = false;
-		String validate = request.getParameter("validate");
-		if (("true".equalsIgnoreCase(validate)) && isValidate) {
-			needValidate = true;
-		}
+		boolean needValidate = needValidate(request);
 		String token = request.getParameter("token");
 		if (!needValidate || needValidate && token != null && token.equals(ServiceServlet.getToken())) {
 			boolean direct = directInvoke;
@@ -101,9 +106,10 @@ public class InvokeJsonServlet extends ServiceServlet {
 				values = null;
 			}
 
+			String fromIp = Utils.getIpAddr(request);
+
 			if (logInvoke) {
-				logger.info("pigeon console: invoking '" + serviceName + "@" + methodName + "', from "
-						+ Utils.getIpAddr(request));
+				logger.info("pigeon console: invoking '" + serviceName + "@" + methodName + "', from " + fromIp);
 			}
 
 			Object result = null;
@@ -123,6 +129,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 					result = e.toString();
 				}
 			} else {
+				ContextUtils.putRequestContext("RequestIp", fromIp);
 				try {
 					result = proxyInvoke(serviceName, methodName, types, values, timeout);
 					currentMessageId = (String) ContextUtils.getLocalContext("CurrentMessageId");

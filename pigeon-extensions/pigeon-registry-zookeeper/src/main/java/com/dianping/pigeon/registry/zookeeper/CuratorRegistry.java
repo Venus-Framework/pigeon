@@ -16,8 +16,6 @@ import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
-import com.dianping.pigeon.threadpool.DefaultThreadPool;
-import com.dianping.pigeon.threadpool.ThreadPool;
 import com.dianping.pigeon.util.CollectionUtils;
 
 public class CuratorRegistry implements Registry {
@@ -69,53 +67,47 @@ public class CuratorRegistry implements Registry {
 		return getServiceAddress(serviceName, Constants.DEFAULT_GROUP);
 	}
 
-	@Override
 	public String getServiceAddress(String serviceName, String group) throws RegistryException {
-		String addr = getServiceActualAddress(serviceName, group);
-		return addr;
+		return getServiceAddress(serviceName, group, true);
 	}
 
-	public String getServiceActualAddress(String serviceName, String group) throws RegistryException {
+	public String getServiceAddress(String serviceName, String group, boolean fallbackDefaultGroup)
+			throws RegistryException {
 		try {
-			String oldSrvAddr = getOldServiceAddress(serviceName, group);
-			return oldSrvAddr;
+			String path = Utils.getServicePath(serviceName, group);
+			String address = client.get(path);
+			if (!StringUtils.isBlank(group)) {
+				boolean needFallback = false;
+				if (StringUtils.isBlank(address)) {
+					needFallback = true;
+				} else {
+					String[] addressArray = address.split(",");
+					int weightCount = 0;
+					for (String addr : addressArray) {
+						addr = addr.trim();
+						if (addr.length() > 0) {
+							int weight = RegistryManager.getInstance().getServiceWeight(addr);
+							if (weight > 0) {
+								weightCount += weight;
+							}
+						}
+					}
+					if (weightCount == 0) {
+						needFallback = true;
+						logger.info("weight is 0 with address:" + address);
+					}
+				}
+				if (fallbackDefaultGroup && needFallback) {
+					logger.info("node " + path + " does not exist, fallback to default group");
+					path = Utils.getServicePath(serviceName, Constants.DEFAULT_GROUP);
+					address = client.get(path);
+				}
+			}
+			return address;
 		} catch (Exception e) {
 			logger.error("failed to get service address for " + serviceName + "/" + group, e);
 			throw new RegistryException(e);
 		}
-	}
-
-	String getOldServiceAddress(String serviceName, String group) throws Exception {
-		String path = Utils.getServicePath(serviceName, group);
-		String address = client.get(path);
-		if (!StringUtils.isBlank(group)) {
-			boolean fallback2DefaultGroup = false;
-			if (StringUtils.isBlank(address)) {
-				fallback2DefaultGroup = true;
-			} else {
-				String[] addressArray = address.split(",");
-				int weightCount = 0;
-				for (String addr : addressArray) {
-					addr = addr.trim();
-					if (addr.length() > 0) {
-						int weight = RegistryManager.getInstance().getServiceWeight(addr);
-						if (weight > 0) {
-							weightCount += weight;
-						}
-					}
-				}
-				if (weightCount == 0) {
-					fallback2DefaultGroup = true;
-					logger.info("weight is 0 with address:" + address);
-				}
-			}
-			if (fallback2DefaultGroup) {
-				logger.info("node " + path + " does not exist, fallback to default group");
-				path = Utils.getServicePath(serviceName, Constants.DEFAULT_GROUP);
-				address = client.get(path);
-			}
-		}
-		return address;
 	}
 
 	@Override

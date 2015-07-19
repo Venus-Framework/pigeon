@@ -953,7 +953,9 @@ git@code.dianpingoa.com:arch/pigeon-demo.git
 ### 如何控制cat上客户端超时异常的次数
 
 pigeon可以设置客户端发生超时异常时在cat上控制异常记录的次数，可以在lion对应项目配置里加上以下配置，如xxx这个应用（需要保证classes/META-INF/app.properties里的app.name=xxx，这里的xxx必须与lion项目名称保持一致）：
+
 xxx.pigeon.invoker.log.timeout.period.apps配置为shop-server:0,data-server:100
+
 配置内容里，可以配置多个目标服务app的日志打印间隔，以逗号分隔，目标app也必须是点评统一标准应用名，如果某个目标服务app未配置则这个app的超时异常都会记录
 每个app后边的数字，默认为0代表每个超时异常都会记录，如果配置为10000则任何超时异常都不会记录到cat，如果为1代表记录一半，如果为100代表每100个超时异常记录一次，数字越大记录的异常越少
 
@@ -976,7 +978,7 @@ xxx是应用的app.name，需要与lion项目名称保持一致
 com.dianping.pigeon.governor.service.RegistrationInfoService 
 用法:
 RegistrationInfoService registrationInfoService = ServiceFactory.getService(RegistrationInfoService.class);
-String app = registrationInfoService.getAppOfService("your service name");
+String app = registrationInfoService.getAppOfService("com.dianping.demo.service.XXXService");
 
 目前这个服务只部署在alpha/ppe/product环境，beta环境因为没有机器还没部署
 依赖：

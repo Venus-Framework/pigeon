@@ -21,7 +21,7 @@ public class RegistrationInfoServiceDefaultImpl implements RegistrationInfoServi
 
 	@Override
 	public String getAppOfService(String url, String group) throws RegistryException {
-		String serviceAddress = registry.getServiceAddress(url, group);
+		String serviceAddress = registry.getServiceAddress(url, group, false);
 		List<String> addressList = Utils.getAddressList(url, serviceAddress);
 		Map<String, Integer> appCount = new HashMap<String, Integer>();
 		for (String addr : addressList) {
@@ -71,7 +71,7 @@ public class RegistrationInfoServiceDefaultImpl implements RegistrationInfoServi
 
 	@Override
 	public List<String> getAddressListOfService(String url, String group) throws RegistryException {
-		String serviceAddress = registry.getServiceAddress(url, group);
+		String serviceAddress = registry.getServiceAddress(url, group, false);
 		List<String> addressList = Utils.getAddressList(url, serviceAddress);
 		return addressList;
 	}

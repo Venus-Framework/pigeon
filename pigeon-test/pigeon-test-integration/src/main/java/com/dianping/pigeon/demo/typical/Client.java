@@ -9,6 +9,7 @@ import java.util.Random;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.demo.UserService;
+import com.dianping.pigeon.util.ContextUtils;
 
 public class Client {
 
@@ -31,7 +32,7 @@ public class Client {
 		int i = 0;
 		while (true) {
 			try {
-				//ContextUtils.putRequestContext("key1", "1");
+				ContextUtils.putRequestContext("key1", "1");
 				// echoServiceWithCallback.echo("1");
 				// PhoenixContext.getInstance().setRequestId("1");
 				// ExecutionContextHolder.setTrackerContext(new
@@ -47,6 +48,7 @@ public class Client {
 				// ContextUtils.putContextValue("key1", "1");
 				// System.out.println(echoService.echo("" + i++));
 				System.out.println(echoService.echo("hi"));
+				System.out.println("response:" + ContextUtils.getResponseContext("key1"));
 				//
 				// ArrayList<String> l = new ArrayList<String>();
 				// l.add("key1 list");

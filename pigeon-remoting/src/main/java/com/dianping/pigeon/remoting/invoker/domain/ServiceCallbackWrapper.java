@@ -4,7 +4,11 @@
  */
 package com.dianping.pigeon.remoting.invoker.domain;
 
+import java.io.Serializable;
+import java.util.Map;
+
 import com.dianping.pigeon.log.LoggerLoader;
+
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceCallback;
@@ -19,6 +23,7 @@ import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
+import com.dianping.pigeon.util.ContextUtils;
 
 public class ServiceCallbackWrapper implements Callback {
 
@@ -73,9 +78,19 @@ public class ServiceCallbackWrapper implements Callback {
 		} catch (Throwable e) {
 			logger.error("error while executing service callback", e);
 		}
+		setResponseContext(response);
 		// TIMELINE_remove
 	}
 
+	protected void setResponseContext(InvocationResponse response) {
+		if (response != null) {
+			Map<String, Serializable> responseValues = response.getResponseValues();
+			if (responseValues != null) {
+				ContextUtils.setResponseContext(responseValues);
+			}
+		}
+	}
+	
 	@Override
 	public void setClient(Client client) {
 		this.client = client;

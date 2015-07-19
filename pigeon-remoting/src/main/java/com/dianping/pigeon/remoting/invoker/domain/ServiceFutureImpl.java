@@ -87,7 +87,8 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 				}
 			}
 		}
-
+		setResponseContext(response);
+		
 		if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 			return response.getReturn();
 		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {

@@ -65,7 +65,7 @@ public class CuratorRegistryTest {
 		registry.registerPersistentNode("srv_a", "group_a", "1.1.1.1:1234", 5);
 		registry.registerPersistentNode("srv_a", "group_a", "1.1.1.2:1234", 5);
 		registry.registerPersistentNode("srv_a", "group_a", "1.1.1.3:1234", 5);
-		String oldHosts = registry.getOldServiceAddress("srv_a", "group_a");
+		String oldHosts = registry.getServiceAddress("srv_a", "group_a");
 		System.out.println("Old hosts: " + oldHosts);
 		assertTrue(oldHosts.contains("1.1.1.2:1234"));
 		assertFalse(oldHosts.contains("1.1.1.4:1234"));

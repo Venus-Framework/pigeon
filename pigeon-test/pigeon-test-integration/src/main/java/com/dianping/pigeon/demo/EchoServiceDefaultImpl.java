@@ -34,6 +34,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 		// "echo1#" + userService.echo(input));
 		//ContextUtils.putRequestContext("key1", "2");
 		//return "echo:" + userService.echo(input);
+		ContextUtils.putResponseContext("key1", "repsonse1");
 		return "echo:" + input;
 	}
 

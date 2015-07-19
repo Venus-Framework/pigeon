@@ -4,9 +4,12 @@
  */
 package com.dianping.pigeon.remoting.invoker.domain;
 
+import java.io.Serializable;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.dianping.pigeon.log.LoggerLoader;
+
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.avatar.tracker.TrackerContext;
@@ -99,6 +102,7 @@ public class CallbackFuture implements Callback, CallFuture {
 	}
 
 	protected void processContext() {
+		setResponseContext(response);
 		Object context = ContextUtils.getContext();
 		if (context != null) {
 			Integer order = ContextUtils.getOrder(this.response.getContext());
@@ -119,6 +123,15 @@ public class CallbackFuture implements Callback, CallFuture {
 					currentContext.setExtension(responseContext.getExtension());
 				else
 					currentContext.getExtension().putAll(responseContext.getExtension());
+			}
+		}
+	}
+
+	protected void setResponseContext(InvocationResponse response) {
+		if (response != null) {
+			Map<String, Serializable> responseValues = response.getResponseValues();
+			if (responseValues != null) {
+				ContextUtils.setResponseContext(responseValues);
 			}
 		}
 	}
@@ -161,7 +174,7 @@ public class CallbackFuture implements Callback, CallFuture {
 
 	@Override
 	public void dispose() {
-		
+
 	}
 
 }

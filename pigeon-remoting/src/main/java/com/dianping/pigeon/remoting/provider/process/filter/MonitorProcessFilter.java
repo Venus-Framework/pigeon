@@ -126,6 +126,11 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 							transaction.addData("SourceIp", sourceIp);
 						}
 					}
+					String from = (String) ContextUtils.getLocalContext("RequestIp");
+					if (from != null) {
+						transaction.addData("RequestIp", from);
+						monitorLogger.logEvent("PigeonConsole.client", from, "");
+					}
 					transaction.writeMonitorContext();
 					transaction.setStatusOk();
 				} catch (Throwable e) {

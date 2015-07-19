@@ -19,10 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.logging.log4j.Logger;
 
-import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.console.domain.Service;
@@ -31,6 +29,7 @@ import com.dianping.pigeon.console.status.checker.GlobalStatusChecker;
 import com.dianping.pigeon.console.status.checker.ProviderStatusChecker;
 import com.dianping.pigeon.console.status.checker.StatusChecker;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.status.Phase;
@@ -233,7 +232,7 @@ public class ServiceServlet extends HttpServlet {
 		} catch (TemplateException e) {
 			throw new ServletException(e);
 		}
-		if (ConfigConstants.ENV_PRODUCT.equalsIgnoreCase(configManager.getEnv())) {
+		if (isValidate) {
 			String token = RandomUtils.newRandomString(6);
 			setToken(token);
 			logger.warn("current verification code:" + token + ", from " + Utils.getIpAddr(request));
