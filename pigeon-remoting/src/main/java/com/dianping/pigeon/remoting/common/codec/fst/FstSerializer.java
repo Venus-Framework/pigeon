@@ -3,9 +3,6 @@ package com.dianping.pigeon.remoting.common.codec.fst;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.dianping.avatar.tracker.CacheExecutionTrace;
-import com.dianping.avatar.tracker.SqlExecutionTrace;
-import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
@@ -20,8 +17,7 @@ public class FstSerializer extends DefaultAbstractSerializer {
 	static FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
 
 	public FstSerializer() {
-		conf.registerClass(DefaultRequest.class, DefaultResponse.class, TrackerContext.class,
-				CacheExecutionTrace.class, SqlExecutionTrace.class);
+		conf.registerClass(DefaultRequest.class, DefaultResponse.class);
 //		conf.registerSerializer(BigInteger.class, new FSTBigIntegerSerializer(), true);
 //		conf.registerSerializer(BigDecimal.class, new FSTBigDecimalSerializer(), true);
 	}
