@@ -42,7 +42,7 @@ pom依赖定义：
 		<dependency>
 		<groupId>com.dianping.dpsf</groupId>
 		<artifactId>dpsf-net</artifactId>
-		<version>2.5.2</version>
+		<version>2.5.3</version>
 		</dependency>
 
 因为pigeon不强制依赖某些jar，而且pigeon对某些依赖jar的版本有要求，需要应用确认以下jar依赖(版本建议高于或等于以下基础版本)：
@@ -984,7 +984,7 @@ String app = registrationInfoService.getAppOfService("com.dianping.demo.service.
 依赖：
 <groupId>com.dianping</groupId>
 <artifactId>pigeon-governor-api</artifactId>
-<version>2.5.2</version>
+<version>2.5.3</version>
 
 
 接口说明：
