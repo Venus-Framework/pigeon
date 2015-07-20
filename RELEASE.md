@@ -1,6 +1,11 @@
 ## pigeon版本发布说明
 ------
 
+### 2.5.2
+修复http测试验证码的问题
+console测试默认记录监控信息，并记录http来源ip
+增加setResponseContext接口
+
 ### 2.5.1
 增加InvokerHelper.setCallback接口，调服务之前可以动态设置callback
 启动时提前加载pigeon所有类，解决启动后第一次请求容易超时的问题
@@ -9,7 +14,7 @@
 ### 2.5.0
 每个请求带上最源头发送app和ip信息，可追踪请求的源头
 增加pigeonCall.responseSize，pigeonService.requestSize监控信息
-重构ContextUtils接口，计划去除老的avatar-tracker，增加了setRequestContext/getRequestContext、setGlobalContext/getGlobalContext接口
+重构ContextUtils接口，计划去除老的avatar-tracker，增加了setRequestContext、setGlobalContext接口
 增加ProviderHelper.writeSuccessResponse等接口，支持用户自行发送response
 future调用的cat监控不再显示为PigeonFuture，而是复用PigeonCall
 
