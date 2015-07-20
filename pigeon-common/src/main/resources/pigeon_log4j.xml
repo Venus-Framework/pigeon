@@ -51,7 +51,7 @@
 		<Logger name="pigeon-access" additivity="true">
 			<AppenderRef ref="AsyncAccessInfo" level="info" />
 		</Logger>
-		<root level="info">
+		<root level="warn">
 		</root>
 	</Loggers>
 </Configuration>
