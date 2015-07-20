@@ -56,10 +56,6 @@ public class CatMonitorTransaction implements MonitorTransaction {
 		((DefaultTransaction) this.transaction).setDurationInMillis(duration);
 	}
 
-	public boolean isStatusOk() {
-		return Transaction.SUCCESS.equals(this.transaction.getStatus());
-	}
-
 	@Override
 	public void complete() {
 		this.transaction.complete();

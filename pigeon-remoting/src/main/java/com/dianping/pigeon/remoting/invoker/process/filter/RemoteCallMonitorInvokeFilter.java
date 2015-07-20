@@ -145,6 +145,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 				}
 			}
 		}
+		boolean error = false;
 		try {
 			InvocationResponse response = handler.handle(invocationContext);
 			SizeMonitor.getInstance().logSize(request.getSize(), "PigeonCall.requestSize", null);
@@ -153,6 +154,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 			}
 			return response;
 		} catch (NetTimeoutException e) {
+			error = true;
 			boolean isLog = false;
 			int logTimeoutPeriod = 0;
 			if (appLogTimeoutPeriodMap.containsKey(targetApp)) {
@@ -183,6 +185,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 			}
 			throw e;
 		} catch (Throwable e) {
+			error = true;
 			if (transaction != null) {
 				try {
 					transaction.setStatusError(e);
@@ -201,7 +204,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						Timeline timeline = TimelineManager.getTimeline(request, TimelineManager.getLocalIp());
 						transaction.addData("Timeline", timeline);
 					}
-					if (!Constants.CALL_FUTURE.equals(invokerConfig.getCallType()) || !transaction.isStatusOk()) {
+					if (!Constants.CALL_FUTURE.equals(invokerConfig.getCallType()) || error) {
 						transaction.complete();
 					}
 				} catch (Throwable e) {

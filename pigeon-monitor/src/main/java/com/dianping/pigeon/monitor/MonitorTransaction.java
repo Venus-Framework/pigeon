@@ -15,8 +15,6 @@ public interface MonitorTransaction {
 
 	public void complete();
 
-	public boolean isStatusOk();
-
 	public void setStatusOk();
 
 	public void setDuration(long duration);
