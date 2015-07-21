@@ -59,14 +59,8 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 	private static float DEFAULT_POOL_RATIO_CORE = ConfigManagerLoader.getConfigManager().getFloatValue(
 			"pigeon.provider.pool.ratio.coresize", 3f);
 
-	private static float DEFAULT_POOL_RATIO_QUEUE = ConfigManagerLoader.getConfigManager().getFloatValue(
-			"pigeon.provider.pool.ratio.workqueue", 1f);
-
 	private static float cancelRatio = ConfigManagerLoader.getConfigManager().getFloatValue(
 			"pigeon.timeout.cancelratio", 1f);
-
-	private static int waitTimeOfClosePool = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.pool.waittimeofclose", 5);
 
 	public static Map<String, String> methodPoolConfigKeys = new HashMap<String, String>();
 
@@ -277,14 +271,10 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 		@Override
 		public void onKeyUpdated(String key, String value) {
-			if (key.endsWith("pigeon.provider.pool.waittimeofclose")) {
-				waitTimeOfClosePool = Integer.valueOf(value);
-			} else if (key.endsWith("pigeon.timeout.cancelratio")) {
+			if (key.endsWith("pigeon.timeout.cancelratio")) {
 				cancelRatio = Float.valueOf(value);
 			} else if (key.endsWith("pigeon.provider.pool.ratio.core")) {
 				DEFAULT_POOL_RATIO_CORE = Integer.valueOf(value);
-			} else if (key.endsWith("pigeon.provider.pool.ratio.queue")) {
-				DEFAULT_POOL_RATIO_QUEUE = Integer.valueOf(value);
 			} else if (StringUtils.isNotBlank(sharedPoolCoreSizeKey) && key.endsWith(sharedPoolCoreSizeKey)) {
 				int size = Integer.valueOf(value);
 				if (size != sharedRequestProcessThreadPool.getExecutor().getCorePoolSize() && size >= 0) {
@@ -298,7 +288,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 						sharedRequestProcessThreadPool = newPool;
 						try {
 							oldPool.getExecutor().shutdown();
-							oldPool.getExecutor().awaitTermination(waitTimeOfClosePool, TimeUnit.SECONDS);
+							oldPool.getExecutor().awaitTermination(5, TimeUnit.SECONDS);
 							oldPool = null;
 						} catch (Throwable e) {
 							logger.warn("error when shuting down old shared pool", e);
@@ -322,7 +312,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 						sharedRequestProcessThreadPool = newPool;
 						try {
 							oldPool.getExecutor().shutdown();
-							oldPool.getExecutor().awaitTermination(waitTimeOfClosePool, TimeUnit.SECONDS);
+							oldPool.getExecutor().awaitTermination(5, TimeUnit.SECONDS);
 							oldPool = null;
 						} catch (Throwable e) {
 							logger.warn("error when shuting down old shared pool", e);
@@ -347,7 +337,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 						sharedRequestProcessThreadPool = newPool;
 						try {
 							oldPool.getExecutor().shutdown();
-							oldPool.getExecutor().awaitTermination(waitTimeOfClosePool, TimeUnit.SECONDS);
+							oldPool.getExecutor().awaitTermination(5, TimeUnit.SECONDS);
 							oldPool = null;
 						} catch (Throwable e) {
 							logger.warn("error when shuting down old shared pool", e);
@@ -382,7 +372,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 										methodThreadPools.put(serviceKey, newPool);
 										try {
 											pool.getExecutor().shutdown();
-											pool.getExecutor().awaitTermination(waitTimeOfClosePool, TimeUnit.SECONDS);
+											pool.getExecutor().awaitTermination(5, TimeUnit.SECONDS);
 											pool = null;
 										} catch (Throwable e) {
 											logger.warn("error when shuting down old method pool", e);
