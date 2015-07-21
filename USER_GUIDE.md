@@ -821,6 +821,7 @@ forking-同时调用服务的所有可用节点，返回调用最快的节点结
 
 ### 如何传递自定义参数
 
+1、简单的客户端A->服务端B的一级调用链路的参数传递
 客户端：
 String url = "http://service.dianping.com/com.dianping.pigeon.demo.EchoService";
 EchoService service = ServiceFactory.getService(url, EchoService.class);
@@ -834,6 +835,13 @@ System.out.println(ContextUtils.getLocalContext("key1"));
 return "echo:" + input;
 }
 
+2、服务端B->客户端A的参数传回
+服务端：
+ContextUtils.putResponseContext("key1", "1");
+客户端：
+ContextUtils.getResponseContext("key1");
+
+3、全链路传递
 如果需要在全链路传递对象，如A->B->C->D，需要使用以下接口：
 在A发送请求端：ContextUtils.putGlobalContext("key1", "1");
 在D接收请求端：ContextUtils.getGlobalContext("key1");
@@ -908,8 +916,11 @@ ServiceFactory.online();
 
 ### 服务端如何获取客户端信息
 
-可通过(String) ContextUtils.getLocalContext("CLIENT_IP")拿到客户端的 IP 地址。
-可通过(String) ContextUtils.getLocalContext("CLIENT_APP")拿到客户端的 appname。
+可通过(String) ContextUtils.getLocalContext("CLIENT_IP")拿到上一级调用客户端的ip地址
+可通过(String) ContextUtils.getLocalContext("CLIENT_APP")拿到上一级调用客户端的appname
+
+可通过ContextUtils.getGlobalContext("SOURCE_IP")拿到请求最前端发起者的ip地址
+可通过ContextUtils.getGlobalContext("SOURCE_APP")拿到请求最前端发起者的appname
 
 ### 如何自定义loadbalance
 
@@ -980,7 +991,6 @@ com.dianping.pigeon.governor.service.RegistrationInfoService
 RegistrationInfoService registrationInfoService = ServiceFactory.getService(RegistrationInfoService.class);
 String app = registrationInfoService.getAppOfService("com.dianping.demo.service.XXXService");
 
-目前这个服务只部署在alpha/ppe/product环境，beta环境因为没有机器还没部署
 依赖：
 <groupId>com.dianping</groupId>
 <artifactId>pigeon-governor-api</artifactId>

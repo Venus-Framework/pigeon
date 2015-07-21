@@ -33,10 +33,12 @@ public class UserServiceDefaultImpl implements UserService {
 	@Override
 	public String echo(String msg) {
 		System.out.println("request-key:" + ContextUtils.getLocalContext("key1"));
-		//System.out.println("global-SOURCE_APP:" + ContextUtils.getGlobalContext("SOURCE_APP"));
-		System.out.println("SOURCE_APP:" + ContextUtils.getContextValue("SOURCE_APP"));
-		System.out.println("SOURCE_IP:" + ContextUtils.getContextValue("SOURCE_IP"));
-		//ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(), "echo2#" + msg);
+		// System.out.println("global-SOURCE_APP:" +
+		// ContextUtils.getGlobalContext("SOURCE_APP"));
+		System.out.println("SOURCE_APP:" + ContextUtils.getGlobalContext("SOURCE_APP"));
+		System.out.println("SOURCE_IP:" + ContextUtils.getGlobalContext("SOURCE_IP"));
+		// ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(),
+		// "echo2#" + msg);
 		return msg;
 	}
 
