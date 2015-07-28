@@ -25,7 +25,7 @@ public class InvocationUtils {
 
 	private static final int defaultStrMaxItems = configManager.getIntValue(Constants.KEY_STRING_MAXITEMS,
 			Constants.DEFAULT_STRING_MAXITEMS);
-
+	
 	public static String toJsonString(Object obj) {
 		return Stringizers.forJson().from(obj, defaultStrMaxLength, defaultStrMaxItems);
 	}

@@ -189,6 +189,9 @@ public final class Constants {
 	public static final boolean RETRY_NETWORK_EXCEPTION = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.invoker.retry.networkexception", true);
 
+	public static final boolean LOG_PARAMETERS = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.log.parameters", true);
+
 	public static final String KEY_SERVICE_COREPOOLSIZE = "pigeon.provider.service.corePoolSize";
 	public static final String KEY_SERVICE_MAXPOOLSIZE = "pigeon.provider.service.maxPoolSize";
 	public static final String KEY_SERVICE_WORKQUEUESIZE = "pigeon.provider.service.workQueueSize";

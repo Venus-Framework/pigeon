@@ -45,12 +45,12 @@ pom依赖定义：
 		<version>2.5.4</version>
 		</dependency>
 
-因为pigeon不强制依赖某些jar，而且pigeon对某些依赖jar的版本有要求，需要应用确认以下jar依赖(版本建议高于或等于以下基础版本)：
+pigeon在运行时会依赖以下jar包，但不是强依赖某个版本，需要应用自行加上以下jar(版本建议高于或等于以下基础版本)：
 
 		<dependency>
 		<groupId>com.dianping.lion</groupId>
 		<artifactId>lion-client</artifactId>
-		<version>0.5.0</version>
+		<version>0.5.1</version>
 		</dependency>
 		<dependency>
 		<dependency>
@@ -988,8 +988,9 @@ xxx是应用的app.name，需要与lion项目名称保持一致
 使用pigeon客户端接口：
 com.dianping.pigeon.governor.service.RegistrationInfoService 
 用法:
-RegistrationInfoService registrationInfoService = ServiceFactory.getService(RegistrationInfoService.class);
-String app = registrationInfoService.getAppOfService("com.dianping.demo.service.XXXService");
+
+		RegistrationInfoService registrationInfoService = ServiceFactory.getService(RegistrationInfoService.class);
+		String app = registrationInfoService.getAppOfService("com.dianping.demo.service.XXXService");
 
 依赖：
 <groupId>com.dianping</groupId>
@@ -999,66 +1000,79 @@ String app = registrationInfoService.getAppOfService("com.dianping.demo.service.
 
 接口说明：
 
-package com.dianping.pigeon.governor.service;
+		package com.dianping.pigeon.governor.service;
+		
+		import java.util.List;
+		
+		import com.dianping.pigeon.registry.exception.RegistryException;
+		
+		/**
+		 * pigeon注册信息服务
+		 * @author xiangwu
+		 *
+		 */
+		public interface RegistrationInfoService {
+		
+		/**
+		* 获取服务的应用名称
+		* @param url 服务名称，标示一个服务的url
+		* @param group 泳道名称，没有填null
+		* @return 应用名称
+		* @throws RegistryException
+		*/
+		String getAppOfService(String url, String group) throws RegistryException;
+		
+		/**
+		* 获取服务的应用名称
+		* @param url 服务名称，标示一个服务的url
+		* @return 应用名称
+		* @throws RegistryException
+		*/
+		String getAppOfService(String url) throws RegistryException;
+		
+		/**
+		* 获取服务地址的权重
+		* @param address 服务地址，格式ip:port
+		* @return 权重
+		* @throws RegistryException
+		*/
+		String getWeightOfAddress(String address) throws RegistryException;
+		
+		/**
+		* 获取服务地址的应用名称
+		* @param address 服务地址，格式ip:port
+		* @return 应用名称
+		* @throws RegistryException
+		*/
+		String getAppOfAddress(String address) throws RegistryException;
+		
+		/**
+		* 获取服务的地址列表
+		* @param url 服务名称，标示一个服务的url
+		* @param group 泳道，没有填null
+		* @return 逗号分隔的地址列表，地址格式ip:port
+		* @throws RegistryException
+		*/
+		List<String> getAddressListOfService(String url, String group) throws RegistryException;
+		
+		/**
+		* 获取服务的地址列表
+		* @param url 服务名称，标示一个服务的url
+		* @return 逗号分隔的地址列表，地址格式ip:port
+		* @throws RegistryException
+		*/
+		List<String> getAddressListOfService(String url) throws RegistryException;
+		}
 
-import java.util.List;
 
-import com.dianping.pigeon.registry.exception.RegistryException;
+### 泳道
+泳道用于机器级别的隔离，泳道配置在机器的/data/webapps/appenv里，例如：
+deployenv=alpha
+zkserver=alpha.lion.dp:2182
+swimlane=tg
 
-/**
- * pigeon注册信息服务
- * @author xiangwu
- *
- */
-public interface RegistrationInfoService {
+swimlane代表tg这个泳道，对于pigeon来说，如果一个service的机器定义了swimlane为tg，那么这个机器只能是客户端同样为tg泳道的机器能够调用
+对于客户端来说，假设配置了泳道为tg，那么这个客户端机器调用远程服务时，会优先选择服务端泳道配置同样为tg的机器，如果tg泳道的机器不可用或不存在，才会调用其他未配置泳道的机器
 
-/**
-* 获取服务的应用名称
-* @param url 服务名称，标示一个服务的url
-* @param group 泳道名称，没有填null
-* @return 应用名称
-* @throws RegistryException
-*/
-String getAppOfService(String url, String group) throws RegistryException;
 
-/**
-* 获取服务的应用名称
-* @param url 服务名称，标示一个服务的url
-* @return 应用名称
-* @throws RegistryException
-*/
-String getAppOfService(String url) throws RegistryException;
 
-/**
-* 获取服务地址的权重
-* @param address 服务地址，格式ip:port
-* @return 权重
-* @throws RegistryException
-*/
-String getWeightOfAddress(String address) throws RegistryException;
-
-/**
-* 获取服务地址的应用名称
-* @param address 服务地址，格式ip:port
-* @return 应用名称
-* @throws RegistryException
-*/
-String getAppOfAddress(String address) throws RegistryException;
-
-/**
-* 获取服务的地址列表
-* @param url 服务名称，标示一个服务的url
-* @param group 泳道，没有填null
-* @return 逗号分隔的地址列表，地址格式ip:port
-* @throws RegistryException
-*/
-List<String> getAddressListOfService(String url, String group) throws RegistryException;
-
-/**
-* 获取服务的地址列表
-* @param url 服务名称，标示一个服务的url
-* @return 逗号分隔的地址列表，地址格式ip:port
-* @throws RegistryException
-*/
-List<String> getAddressListOfService(String url) throws RegistryException;
-}

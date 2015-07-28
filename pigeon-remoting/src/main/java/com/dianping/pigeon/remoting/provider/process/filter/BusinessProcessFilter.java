@@ -45,8 +45,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			}
 			if (Thread.currentThread().isInterrupted()) {
 				StringBuilder msg = new StringBuilder();
-				msg.append("the request has been canceled by timeout checking processor:").append(
-						InvocationUtils.toJsonString(request));
+				msg.append("the request has been canceled by timeout checking processor:").append(request);
 				throw new RequestAbortedException(msg.toString());
 			}
 			List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();

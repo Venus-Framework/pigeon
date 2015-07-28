@@ -18,8 +18,14 @@ public class FstSerializer extends DefaultAbstractSerializer {
 
 	public FstSerializer() {
 		conf.registerClass(DefaultRequest.class, DefaultResponse.class);
-//		conf.registerSerializer(BigInteger.class, new FSTBigIntegerSerializer(), true);
-//		conf.registerSerializer(BigDecimal.class, new FSTBigDecimalSerializer(), true);
+		// conf.registerSerializer(BigInteger.class, new
+		// FSTBigIntegerSerializer(), true);
+		// conf.registerSerializer(BigDecimal.class, new
+		// FSTBigDecimalSerializer(), true);
+	}
+
+	public void registerClass(Class<?>... cls) {
+		conf.registerClass(cls);
 	}
 
 	public Object deserializeObject(InputStream is) throws SerializationException {

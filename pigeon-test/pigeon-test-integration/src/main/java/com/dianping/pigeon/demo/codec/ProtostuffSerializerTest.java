@@ -15,20 +15,21 @@ public class ProtostuffSerializerTest {
 
 	@Test
 	public void test1() throws IOException {
-		User user = User.getUser();
-
 		ProtostuffSerializer serializer = new ProtostuffSerializer();
+		User user = User.getUser();
+		long start = System.currentTimeMillis();
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		serializer.serializeRequest(os, user);
 
 		byte[] bytes = os.toByteArray();
 		Files.write(bytes, new File("/data/appdatas/user.protostuff"));
-
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		User2 user2 = (User2)serializer.deserializeObject(is, User2.class);
-		System.out.println(user2);
-		
-		//Assert.assertEquals(user, user2);
+		// ByteArrayInputStream is = new ByteArrayInputStream(
+		// Files.toByteArray(new File("/data/appdatas/user.protostuff")));
+		User user2 = (User) serializer.deserializeObject(is, User.class);
+		// System.out.println(user2);
+		long end = System.currentTimeMillis();
+		System.out.println(end - start);
+		// Assert.assertEquals(user, user2);
 	}
-
 }

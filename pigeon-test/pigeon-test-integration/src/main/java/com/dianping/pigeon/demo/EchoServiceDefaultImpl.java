@@ -21,6 +21,8 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public String echo(String input) {
+		System.out.println("client-ip:" + ContextUtils.getLocalContext("CLIENT_IP"));
+
 		System.out.println("request-key:" + ContextUtils.getLocalContext("key1"));
 		//System.out.println("global-SOURCE_APP:" + ContextUtils.getGlobalContext("SOURCE_APP"));
 		System.out.println("SOURCE_APP:" + ContextUtils.getGlobalContext("SOURCE_APP"));

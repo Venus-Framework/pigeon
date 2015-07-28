@@ -223,11 +223,15 @@ public class DefaultRequest implements InvocationRequest {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("serialize", serialize)
-				.append("seq", seq).append("messageType", messageType).append("callType", callType)
-				.append("timeout", timeout).append("url", serviceName).append("methodName", methodName)
-				.append("parameters", InvocationUtils.toJsonString(parameters)).append("createTime", createMillisTime)
-				.toString();
+		ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("serialize", serialize).append("seq", seq).append("msgType", messageType)
+				.append("callType", callType).append("timeout", timeout).append("url", serviceName)
+				.append("method", methodName).append("created", createMillisTime);
+		if (Constants.LOG_PARAMETERS) {
+			builder.append("parameters", InvocationUtils.toJsonString(parameters));
+		}
+
+		return builder.toString();
 	}
 
 	@Override

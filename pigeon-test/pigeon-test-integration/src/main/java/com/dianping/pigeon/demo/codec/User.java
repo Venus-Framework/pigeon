@@ -5,8 +5,19 @@
 package com.dianping.pigeon.demo.codec;
 
 public class User implements java.io.Serializable {
-	private String name = "www";
+	
+	private static final long serialVersionUID = 1L;
+	
 	private int age;
+	private String name;
+
+//	public String getPassword() {
+//		return password;
+//	}
+//
+//	public void setPassword(String password) {
+//		this.password = password;
+//	}
 
 	public String getName() {
 		return name;
@@ -28,6 +39,7 @@ public class User implements java.io.Serializable {
 		User user = new User();
 		user.setAge(10);
 		user.setName("XiaoMing");
+		//user.setPassword("pppp");
 		return user;
 	}
 

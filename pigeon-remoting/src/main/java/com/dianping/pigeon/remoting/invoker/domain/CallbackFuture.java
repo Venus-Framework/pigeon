@@ -67,8 +67,8 @@ public class CallbackFuture implements Callback, CallFuture {
 				if (timeoutMillis_ <= 0) {
 					StringBuilder sb = new StringBuilder();
 					sb.append("request timeout, current time:").append(System.currentTimeMillis())
-							.append("\r\nrequest:").append(InvocationUtils.toJsonString(request)).append("\r\nhost:")
-							.append(client.getHost()).append(":").append(client.getPort());
+							.append("\r\nrequest:").append(request).append("\r\nhost:").append(client.getHost())
+							.append(":").append(client.getPort());
 					ServiceStatisticsHolder.flowOut(request, client.getAddress());
 					NetTimeoutException e = new NetTimeoutException(sb.toString());
 					throw e;
@@ -81,18 +81,18 @@ public class CallbackFuture implements Callback, CallFuture {
 			if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 				RpcException cause = InvokerUtils.toRpcException(response);
 				StringBuilder sb = new StringBuilder();
-				sb.append("remote call exception\r\nrequest:").append(InvocationUtils.toJsonString(request))
-						.append("\r\nhost:").append(client.getHost()).append(":").append(client.getPort())
-						.append("\r\nresponse:").append(InvocationUtils.toJsonString(response));
+				sb.append("remote call exception\r\nrequest:").append(request).append("\r\nhost:")
+						.append(client.getHost()).append(":").append(client.getPort()).append("\r\nresponse:")
+						.append(response);
 				logger.error(sb.toString(), cause);
 				monitorLogger.logError(sb.toString(), cause);
 			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 				if (Constants.LOG_INVOKER_APP_EXCEPTION) {
 					Throwable cause = InvokerUtils.toApplicationException(response);
 					StringBuilder sb = new StringBuilder();
-					sb.append("remote service exception\r\nrequest:").append(InvocationUtils.toJsonString(request))
-							.append("\r\nhost:").append(client.getHost()).append(":").append(client.getPort())
-							.append("\r\nresponse:").append(InvocationUtils.toJsonString(response));
+					sb.append("remote service exception\r\nrequest:").append(request).append("\r\nhost:")
+							.append(client.getHost()).append(":").append(client.getPort()).append("\r\nresponse:")
+							.append(response);
 					logger.error(sb.toString(), cause);
 					monitorLogger.logError(sb.toString(), cause);
 				}

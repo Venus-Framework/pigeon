@@ -108,7 +108,7 @@ public final class ProviderUtils {
 				.append(providerContext.getChannel() == null ? "" : providerContext.getChannel().getRemoteAddress())
 				.append(", to:").append(ExtensionLoader.getExtension(ConfigManager.class).getLocalIp())
 				.append(", time:").append(System.currentTimeMillis()).append("\r\nrequest:")
-				.append(InvocationUtils.toJsonString(request));
+				.append(request);
 		return msg.toString();
 	}
 }

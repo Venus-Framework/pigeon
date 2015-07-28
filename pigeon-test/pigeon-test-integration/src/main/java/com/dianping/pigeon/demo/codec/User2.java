@@ -5,38 +5,41 @@
 package com.dianping.pigeon.demo.codec;
 
 public class User2 implements java.io.Serializable {
-	private String name;
-	private int age;
-
-	public String getName() {
-		return name;
+	private long age2;
+	
+	private String uname2;
+	private String email;
+	
+	public long getAge2() {
+		return age2;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setAge2(long age2) {
+		this.age2 = age2;
 	}
 
-	public int getAge() {
-		return age;
+	public String getEmail() {
+		return email;
 	}
 
-	public void setAge(int age) {
-		this.age = age;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
-	static User2 getUser() {
-		User2 user = new User2();
-		user.setAge(10);
-		user.setName("XiaoMing");
-		return user;
+	public String getUName2() {
+		return uname2;
+	}
+
+	public void setUName2(String name) {
+		this.uname2 = name;
 	}
 
 	public boolean equals(Object obj) {
 		User2 an = (User2) obj;
-		return this.name.equals(an.getName()) && this.age == an.getAge();
+		return this.uname2.equals(an.getUName2()) && this.age2 == an.getAge2();
 	}
 
 	public String toString() {
-		return name + ", " + age;
+		return uname2 + "# " + age2 + "# " + email;
 	}
 }

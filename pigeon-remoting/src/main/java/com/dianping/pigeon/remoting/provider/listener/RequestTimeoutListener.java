@@ -108,7 +108,7 @@ public class RequestTimeoutListener implements Runnable {
 											.append(", to:")
 											.append(ExtensionLoader.getExtension(ConfigManager.class).getLocalIp())
 											.append(", process time:").append(System.currentTimeMillis())
-											.append("\r\nrequest:").append(InvocationUtils.toJsonString(request))
+											.append("\r\nrequest:").append(request)
 											.append("\r\nprocessor stats:interrupt:").append(cancelTimeout).append(",")
 											.append(this.requestProcessor.getProcessorStatistics(request));
 									Exception te = null;
