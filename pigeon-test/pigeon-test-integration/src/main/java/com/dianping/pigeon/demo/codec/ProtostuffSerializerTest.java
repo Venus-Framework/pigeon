@@ -17,7 +17,6 @@ public class ProtostuffSerializerTest {
 	public void test1() throws IOException {
 		ProtostuffSerializer serializer = new ProtostuffSerializer();
 		User user = User.getUser();
-		long start = System.currentTimeMillis();
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		serializer.serializeRequest(os, user);
 
@@ -26,10 +25,9 @@ public class ProtostuffSerializerTest {
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
 		// ByteArrayInputStream is = new ByteArrayInputStream(
 		// Files.toByteArray(new File("/data/appdatas/user.protostuff")));
-		User user2 = (User) serializer.deserializeObject(is, User.class);
+		User2 user2 = (User2) serializer.deserializeObject(is, User2.class);
 		// System.out.println(user2);
-		long end = System.currentTimeMillis();
-		System.out.println(end - start);
-		// Assert.assertEquals(user, user2);
+		Assert.assertEquals(user.getName(), user2.getName2());
+		Assert.assertEquals(user.getAge(), user2.getAge2());
 	}
 }

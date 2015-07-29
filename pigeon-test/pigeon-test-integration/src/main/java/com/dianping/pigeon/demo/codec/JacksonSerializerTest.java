@@ -1,7 +1,5 @@
 package com.dianping.pigeon.demo.codec;
 
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,7 +8,7 @@ import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 public class JacksonSerializerTest {
 
 	@Test
-	public void test() {
+	public void test1() {
 		User user = User.getUser();
 
 		JacksonSerializer serializer = new JacksonSerializer();

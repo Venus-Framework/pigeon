@@ -110,6 +110,7 @@ public class DefaultClusterListener implements ClusterListener {
 					}
 				}
 			} else {
+				logger.info("[cluster-listener] remove client:" + client);
 				clusterListenerManager.removeConnect(client);
 			}
 		} catch (Throwable e) {

@@ -103,7 +103,8 @@ public final class ContextUtils {
 
 				enableTrackerContext = true;
 			} catch (Throwable e) {
-				logger.info("App does not have ExecutionContext", e);
+				logger.error("failed to load tracker context", e);
+				throw new RuntimeException("failed to load tracker context", e);
 			}
 		}
 	}

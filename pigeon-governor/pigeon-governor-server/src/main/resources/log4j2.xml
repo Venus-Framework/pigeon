@@ -10,7 +10,7 @@
 		<Logger name="com.dianping.pigeon.governor" level="INFO" additivity="true">
 			<AppenderRef ref="Console" />
 		</Logger>
-		<root level="WARN">
+		<root level="INFO">
 		</root>
 	</Loggers>
 </Configuration>

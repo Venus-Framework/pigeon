@@ -17,7 +17,6 @@ public class HessianSerializerTest {
 	public void test1() throws IOException {
 		HessianSerializer serializer = new HessianSerializer();
 		User user = User.getUser();
-		long start = System.currentTimeMillis();
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		serializer.serializeRequest(os, user);
 		byte[] bytes = os.toByteArray();
@@ -27,10 +26,8 @@ public class HessianSerializerTest {
 		// File("/data/appdatas/user.hessian")));
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
 		Object user2 = serializer.deserializeRequest(is);
-		long end = System.currentTimeMillis();
-		System.out.println(end - start);
-		// System.out.println(user2);
-		// Assert.assertEquals(user, user2);
+		System.out.println(user2);
+		Assert.assertEquals(user, user2);
 	}
 
 }

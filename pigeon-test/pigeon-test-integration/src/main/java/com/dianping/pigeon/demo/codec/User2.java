@@ -7,7 +7,7 @@ package com.dianping.pigeon.demo.codec;
 public class User2 implements java.io.Serializable {
 	private long age2;
 	
-	private String uname2;
+	private String name2;
 	private String email;
 	
 	public long getAge2() {
@@ -26,20 +26,20 @@ public class User2 implements java.io.Serializable {
 		this.email = email;
 	}
 
-	public String getUName2() {
-		return uname2;
+	public String getName2() {
+		return name2;
 	}
 
-	public void setUName2(String name) {
-		this.uname2 = name;
+	public void setName2(String name) {
+		this.name2 = name;
 	}
 
 	public boolean equals(Object obj) {
 		User2 an = (User2) obj;
-		return this.uname2.equals(an.getUName2()) && this.age2 == an.getAge2();
+		return this.name2.equals(an.getName2()) && this.age2 == an.getAge2();
 	}
 
 	public String toString() {
-		return uname2 + "# " + age2 + "# " + email;
+		return name2 + "# " + age2 + "# " + email;
 	}
 }

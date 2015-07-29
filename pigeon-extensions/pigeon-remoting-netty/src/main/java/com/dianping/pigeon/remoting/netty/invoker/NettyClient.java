@@ -60,10 +60,6 @@ public class NettyClient extends AbstractClient {
 
 	public static final int CLIENT_CONNECTIONS = Runtime.getRuntime().availableProcessors();
 
-	private static final int LOG_LIMIT_INITIAL = 5;
-
-	private static final int LOG_LIMIT_INTERVAL = 60;
-
 	private long logCount;
 
 	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
@@ -112,11 +108,10 @@ public class NettyClient extends AbstractClient {
 	}
 
 	public synchronized void connect() {
-		if (this.connected || this.closed) {
-			resetLogCount();
+		if (this.connected) {
 			return;
 		}
-		incLogCount();
+		logger.info("client is connecting to " + this.host + ":" + this.port);
 		ChannelFuture future = null;
 		try {
 			future = bootstrap.connect(new InetSocketAddress(host, port));
@@ -127,9 +122,7 @@ public class NettyClient extends AbstractClient {
 						// 关闭旧的连接
 						Channel oldChannel = this.channel;
 						if (oldChannel != null) {
-							if (logger.isDebugEnabled()) {
-								logger.debug("close old netty channel " + oldChannel);
-							}
+							logger.info("close old netty channel " + oldChannel);
 							try {
 								oldChannel.close();
 							} catch (Throwable t) {
@@ -140,17 +133,14 @@ public class NettyClient extends AbstractClient {
 					}
 					logger.info("client is connected to " + this.host + ":" + this.port);
 					this.connected = true;
-					resetLogCount();
-				} else if (isLog()) {
+				} else {
 					logger.info("client is not connected to " + this.host + ":" + this.port);
 				}
-			} else if (isLog()) {
+			} else {
 				logger.info("timeout while connecting to " + this.host + ":" + this.port);
 			}
 		} catch (Throwable e) {
-			if (isLog()) {
-				logger.info("error while connecting to " + this.host + ":" + this.port, e);
-			}
+			logger.info("error while connecting to " + this.host + ":" + this.port, e);
 		}
 	}
 
@@ -180,9 +170,7 @@ public class NettyClient extends AbstractClient {
 	}
 
 	private void connectionException(Client client, Object attachment, Throwable e) {
-		if (isLog()) {
-			logger.info("exception while connecting to " + client + ", exception:" + e.getMessage());
-		}
+		logger.info("exception while connecting to " + client, e);
 		if (attachment == null) {
 			return;
 		}
@@ -261,6 +249,7 @@ public class NettyClient extends AbstractClient {
 
 	@Override
 	public void close() {
+		logger.info("close client:" + this.host + ":" + this.port);
 		closed = true;
 		channel.close();
 	}
@@ -296,22 +285,6 @@ public class NettyClient extends AbstractClient {
 	@Override
 	public ConnectInfo getConnectInfo() {
 		return connectInfo;
-	}
-
-	private void resetLogCount() {
-		logCount = 0;
-	}
-
-	private boolean isLog() {
-		boolean isLog = true;
-		if (logCount > LOG_LIMIT_INITIAL && logCount % LOG_LIMIT_INTERVAL != 0) {
-			isLog = false;
-		}
-		return isLog;
-	}
-
-	private void incLogCount() {
-		logCount = logCount + 1;
 	}
 
 	@Override
