@@ -106,8 +106,11 @@ public class ProviderAvailableListener implements Runnable {
 				Set<InvokerConfig<?>> services = ServiceFactory.getAllServiceInvokers().keySet();
 				Map<String, String> serviceGroupMap = new HashMap<String, String>();
 				for (InvokerConfig<?> invokerConfig : services) {
-					serviceGroupMap
-							.put(invokerConfig.getUrl(), invokerConfig.getGroup() + "#" + invokerConfig.getVip());
+					String vip = "";
+					if (StringUtils.isNotBlank(invokerConfig.getVip())) {
+						vip = invokerConfig.getVip();
+					}
+					serviceGroupMap.put(invokerConfig.getUrl(), invokerConfig.getGroup() + "#" + vip);
 				}
 				long now = System.currentTimeMillis();
 				for (String url : serviceGroupMap.keySet()) {

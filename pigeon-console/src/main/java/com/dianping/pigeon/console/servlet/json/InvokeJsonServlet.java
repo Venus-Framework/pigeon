@@ -51,8 +51,6 @@ public class InvokeJsonServlet extends ServiceServlet {
 
 	private static boolean logInvoke = configManager.getBooleanValue("pigeon.console.invoke.log", true);
 
-	private static boolean directInvoke = configManager.getBooleanValue("pigeon.console.invoke.direct", false);
-
 	static {
 		builtInMap.put("int", Integer.TYPE);
 		builtInMap.put("long", Long.TYPE);

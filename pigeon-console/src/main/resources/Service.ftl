@@ -67,10 +67,10 @@
 						});
 						</#if>
 					});
-					if('${environment}'=='product'){
+					if('${validate}'=='true'){
 						$("#invokeBtn").easyconfirm({locale: {
 							title: 'WARNING',
-							text: 'Are you sure you want to continue? Be careful in the production environment!!!',
+							text: 'Are you sure you want to continue?',
 							button: ['cancel','ok'],
 							closeText: 'cancel'
 						}});

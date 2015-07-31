@@ -23,7 +23,6 @@ import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
-import com.dianping.pigeon.remoting.common.monitor.MonitorHelper;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -48,9 +47,6 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 	private static Map<String, AtomicInteger> appTimeouts = new ConcurrentHashMap<String, AtomicInteger>();
 
 	private static final String KEY_LOG_TIMEOUT_PERIOD = "pigeon.invoker.log.timeout.period.apps";
-
-	private static boolean isLogParameters = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.provider.log.parameters", true);
 
 	private static class InnerConfigChangeListener implements ConfigChangeListener {
 
@@ -133,7 +129,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						logger.logEvent("PigeonCall.app", targetApp, "");
 
 						String parameters = "";
-						if (isLogParameters) {
+						if (Constants.LOG_PARAMETERS) {
 							parameters = InvocationUtils.toJsonString(request.getParameters(), 1000, 50);
 						}
 						logger.logEvent("PigeonCall.server", client.getAddress(), parameters);

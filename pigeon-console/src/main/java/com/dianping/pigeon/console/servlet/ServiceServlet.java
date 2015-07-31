@@ -71,6 +71,8 @@ public class ServiceServlet extends HttpServlet {
 
 	protected static boolean isValidate = configManager.getBooleanValue("pigeon.console.invoke.validation", false);
 
+	protected static boolean directInvoke = configManager.getBooleanValue("pigeon.console.invoke.direct", false);
+
 	protected static String token;
 
 	{
@@ -154,7 +156,11 @@ public class ServiceServlet extends HttpServlet {
 		page.setOnline("" + GlobalStatusChecker.isOnline());
 		page.setPhase(StatusContainer.getPhase().toString());
 		setStatus(page, serviceProviders.isEmpty());
-		page.setDirect(request.getParameter("direct"));
+		String direct = request.getParameter("direct");
+		if (direct == null) {
+			direct = directInvoke + "";
+		}
+		page.setDirect(direct);
 		page.setEnvironment(configManager.getEnv());
 		page.setGroup(configManager.getGroup());
 		page.setServiceWeights(ServiceProviderFactory.getServerWeight());

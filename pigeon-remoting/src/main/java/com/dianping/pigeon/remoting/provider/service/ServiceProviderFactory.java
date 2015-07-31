@@ -55,6 +55,12 @@ public final class ServiceProviderFactory {
 	private static final int UNPUBLISH_WAITTIME = configManager.getIntValue(Constants.KEY_UNPUBLISH_WAITTIME,
 			Constants.DEFAULT_UNPUBLISH_WAITTIME);
 
+	private static final boolean THROW_EXCEPTION_IF_FORBIDDEN = configManager.getBooleanValue(
+			"pigeon.publish.forbidden.throwexception", false);
+
+	private static final boolean GROUP_FORBIDDEN = configManager.getBooleanValue("pigeon.publish.forbidden.group",
+			false);
+
 	public static String getServiceUrlWithVersion(String url, String version) {
 		String newUrl = url;
 		if (!StringUtils.isBlank(version)) {
@@ -175,7 +181,19 @@ public final class ServiceProviderFactory {
 	private synchronized static <T> void publishService(String url, int port, String group) throws RegistryException {
 		String ip = configManager.getLocalIp();
 		if (!SecurityUtils.canRegister(ip)) {
-			throw new SecurityException("service registration of " + ip + " is not allowed!");
+			boolean canRegister = false;
+			if (StringUtils.isNotBlank(group) && !GROUP_FORBIDDEN) {
+				canRegister = true;
+			}
+			if (!canRegister) {
+				if (THROW_EXCEPTION_IF_FORBIDDEN) {
+					throw new SecurityException("service registration of " + ip + " is not allowed!");
+				} else {
+					logger.warn("service registration of " + ip + " is not allowed, url:" + url + ", port:" + port
+							+ ", group:" + group);
+					return;
+				}
+			}
 		}
 		String serverAddress = ip + ":" + port;
 		int weight = Constants.WEIGHT_INITIAL;

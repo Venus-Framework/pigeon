@@ -19,7 +19,7 @@
 			<value>5000</value>
 		</property>
 		<property name="autoSelectPort">
-			<value>false</value>
+			<value>true</value>
 		</property>
 	</bean>
 	
@@ -34,7 +34,7 @@
 			<value>5300</value>
 		</property>
 		<property name="autoSelectPort">
-			<value>false</value>
+			<value>true</value>
 		</property>
 	</bean>
 

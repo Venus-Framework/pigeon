@@ -43,9 +43,6 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 	private static boolean isAccessLogEnabled = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.provider.accesslog.enable", false);
 
-	private static boolean isLogParameters = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.provider.log.parameters", true);
-
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
@@ -78,7 +75,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 				monitorLogger.logEvent("PigeonService.app", request.getApp(), "");
 				String parameters = "";
 				fromIp = channel.getRemoteAddress();
-				if (isLogParameters) {
+				if (Constants.LOG_PARAMETERS) {
 					StringBuilder event = new StringBuilder();
 					event.append(InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
 					parameters = event.toString();
