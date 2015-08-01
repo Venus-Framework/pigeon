@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN" monitorInterval="30">
+<Configuration status="trace" monitorInterval="30">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout
@@ -15,7 +15,7 @@
 	</Appenders>
 	<Loggers>
 		<Logger name="com.dianping.pigeon.governor" level="INFO" additivity="true">
-			<AppenderRef ref="File" />
+			<AppenderRef ref="File" level="INFO"/>
 		</Logger>
 		<root level="INFO">
 		</root>
