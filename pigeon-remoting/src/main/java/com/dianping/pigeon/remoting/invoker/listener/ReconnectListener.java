@@ -55,7 +55,7 @@ public class ReconnectListener implements Runnable, ClusterListener {
 							try {
 								client.connect();
 							} catch (Throwable e) {
-								logger.warn("[reconnect] connect server[" + providerUrl + "] failed:" + e.getMessage());
+								logger.info("[reconnect] connect server[" + providerUrl + "] failed:" + e.getMessage());
 							}
 						}
 						if (client.isConnected()) {

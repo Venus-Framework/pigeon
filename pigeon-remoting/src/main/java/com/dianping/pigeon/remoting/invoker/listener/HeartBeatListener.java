@@ -177,7 +177,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 								}
 								sendHeartBeatRequest(client);
 							} else {
-								logger.warn("[heartbeat] remove connect:" + client.getAddress());
+								logger.info("[heartbeat] remove connect:" + client.getAddress());
 								clusterListenerManager.removeConnect(client);
 							}
 						}
@@ -211,7 +211,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			heartBeatStat.incrFailed();
 			notifyHeartBeatStatChanged(client);
 			if (client.isActive()) {
-				logger.warn("[heartbeat] send heartbeat to server[" + client.getAddress() + "] failed");
+				logger.info("[heartbeat] send heartbeat to server[" + client.getAddress() + "] failed");
 			}
 		}
 	}
@@ -257,7 +257,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			heartStat.incrSucceed();
 			notifyHeartBeatStatChanged(client);
 		} else {
-			logger.warn("[heartbeat] inconsistent heartbeat sequence " + request.getSequence() + ":"
+			logger.info("[heartbeat] inconsistent heartbeat sequence " + request.getSequence() + ":"
 					+ response.getSequence() + " from:" + client);
 		}
 	}
@@ -269,7 +269,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 				if (!client.isActive()) {
 					client.setActive(true);
 					inactiveAddresses.remove(client.getAddress());
-					logger.warn("@service-activate:" + client + ", service:" + getServiceName(client)
+					logger.info("@service-activate:" + client + ", service:" + getServiceName(client)
 							+ ", inactive addresses:" + inactiveAddresses);
 
 					if (logPickOn) {
@@ -285,7 +285,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 					if (isHeartBeatAutoPickOff && canPickOff(client)) {
 						client.setActive(false);
 						inactiveAddresses.add(client.getAddress());
-						logger.warn("@service-deactivate:" + client + ", inactive addresses:" + inactiveAddresses);
+						logger.info("@service-deactivate:" + client + ", inactive addresses:" + inactiveAddresses);
 
 						if (logPickOff) {
 							ServiceStatusException ex = new ServiceStatusException("remote server " + client
@@ -294,7 +294,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 							monitor.logError(ex);
 						}
 					} else {
-						logger.warn("@service-dieaway:" + client + ", inactive addresses:" + inactiveAddresses);
+						logger.info("@service-dieaway:" + client + ", inactive addresses:" + inactiveAddresses);
 					}
 				}
 				heartStat.resetCounter();
@@ -342,13 +342,13 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 					}
 				}
 				if (working <= leastAvailable) {
-					logger.warn("can not pick off:" + client + ", working:" + working + ", least:" + leastAvailable
+					logger.info("can not pick off:" + client + ", working:" + working + ", least:" + leastAvailable
 							+ ", total:" + total);
 					return false;
 				}
 			}
 		}
-		logger.warn("can pick off:" + client);
+		logger.info("can pick off:" + client);
 		return true;
 	}
 
