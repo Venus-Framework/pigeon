@@ -50,9 +50,6 @@ public final class ContextUtils {
 
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
-	private static boolean createContextIfNotExists = configManager.getBooleanValue("pigeon.context.createifnotexists",
-			false);
-
 	private static boolean enableTrackerContext = false;
 
 	private static boolean enableGlobalContext = configManager.getBooleanValue("pigeon.context.global.enable", false);
@@ -103,8 +100,7 @@ public final class ContextUtils {
 
 				enableTrackerContext = true;
 			} catch (Throwable e) {
-				logger.error("failed to load tracker context", e);
-				throw new RuntimeException("failed to load tracker context", e);
+				logger.warn("failed to load tracker context", e);
 			}
 		}
 	}
@@ -116,12 +112,7 @@ public final class ContextUtils {
 
 		@Override
 		public void onKeyUpdated(String key, String value) {
-			if (key.endsWith("pigeon.context.createifnotexists")) {
-				try {
-					createContextIfNotExists = Boolean.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			} else if (key.endsWith("pigeon.context.tracker.enable")) {
+			if (key.endsWith("pigeon.context.tracker.enable")) {
 				try {
 					enableTrackerContext = Boolean.valueOf(value);
 				} catch (RuntimeException e) {
@@ -148,9 +139,6 @@ public final class ContextUtils {
 			StringBuilder sb = new StringBuilder();
 			sb.append(serviceName).append(".").append(methodName).append("@").append(host).append(":").append(port);
 			try {
-				if (createContextIfNotExists && getContext() == null) {
-					setContext(new TrackerContext());
-				}
 				return createContextMethod.invoke(null, new Object[] { sb.toString() });
 			} catch (Throwable e) {
 				throw new RuntimeException(e);

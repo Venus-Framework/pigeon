@@ -39,7 +39,7 @@ public class DisposeTask implements Runnable {
 
 	@Override
 	public void run() {
-		while (!Thread.interrupted()) {
+		while (true) {
 			CheckTask result;
 			try {
 				result = manager.getResultQueue().take();

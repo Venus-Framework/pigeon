@@ -97,7 +97,16 @@ public class HealthCheckManager extends Thread {
 					new ArrayBlockingQueue<Runnable>(queueSize), new NamingThreadFactory("pigeon-healthcheck"),
 					new BlockProviderPolicy());
 
-			bossPool = Executors.newCachedThreadPool();
+			bossPool = Executors.newCachedThreadPool(new ThreadFactory() {
+
+				@Override
+				public Thread newThread(Runnable r) {
+					Thread t = new Thread(r);
+					t.setName("Pigeon-Governor-Checker");
+					return t;
+				}
+
+			});
 			for (Environment env : this.getEnvSet()) {
 				bossPool.submit(new GenerateTask(this, env));
 			}

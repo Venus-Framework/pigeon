@@ -21,7 +21,7 @@ public class HealthCheckBean {
 		try {
 			source = new ConfigurationSource(HealthCheckManager.class.getResourceAsStream("/log4j2.xml"));
 			Configurator.shutdown(LoggerLoader.getLoggerContext());
-			Configurator.initialize(null, source);
+			Configurator.initialize(null, source, LoggerLoader.getLoggerContext());
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
