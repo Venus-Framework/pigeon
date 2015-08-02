@@ -174,7 +174,7 @@ public class CheckTask implements Runnable {
 			socket = new Socket();
 			socket.setReuseAddress(true);
 			SocketAddress sa = new InetSocketAddress(host.getIp(), host.getPort());
-			socket.connect(sa, 3000);
+			socket.connect(sa, 2000);
 			return true;
 		} catch (IOException e) {
 			return false;

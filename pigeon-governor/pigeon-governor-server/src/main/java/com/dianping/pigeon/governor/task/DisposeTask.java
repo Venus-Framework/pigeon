@@ -54,7 +54,7 @@ public class DisposeTask implements Runnable {
 		}
 	}
 
-	private void processResult(CheckTask task) throws RegistryException, InterruptedException {
+	private void processResult(final CheckTask task) throws RegistryException, InterruptedException {
 		if (task == null)
 			return;
 		if (task.getHost().isAlive())
@@ -62,7 +62,19 @@ public class DisposeTask implements Runnable {
 
 		int deadThreshold = manager.getDeadThreshold(task.getHost().getService().getEnv());
 		if (task.getHost().getDeadCount() >= deadThreshold) {
-			disposeAddress(task);
+			Runnable disposeTask = new Runnable() {
+				@Override
+				public void run() {
+					try {
+						disposeAddress(task);
+					} catch (RegistryException e) {
+						logger.error("", e);
+					} catch (InterruptedException e) {
+						logger.error("", e);
+					}
+				}
+			};
+			manager.getWorkerPool().submit(disposeTask);
 		} else {
 			checkAgain(task);
 		}

@@ -45,7 +45,8 @@ public class HealthCheckManager extends Thread {
 	private BlockingQueue<CheckTask> resultQueue = new LinkedBlockingQueue<CheckTask>();
 
 	private ThreadPoolExecutor workerPool;
-	private ExecutorService bossPool;
+	private ExecutorService generatePool;
+	private ExecutorService disposePool;
 
 	private String action;
 	private String minhosts;
@@ -98,11 +99,12 @@ public class HealthCheckManager extends Thread {
 					new ArrayBlockingQueue<Runnable>(queueSize), new NamingThreadFactory("pigeon-healthcheck"),
 					new BlockProviderPolicy());
 
-			bossPool = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Governor-Checker"));
+			generatePool = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Governor-Checker-Generate"));
 			for (Environment env : this.getEnvSet()) {
-				bossPool.submit(new GenerateTask(this, env));
+				generatePool.submit(new GenerateTask(this, env));
 			}
-			bossPool.submit(new DisposeTask(this));
+			generatePool = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Governor-Checker-Dispose"));
+			disposePool.submit(new DisposeTask(this));
 		}
 	}
 
