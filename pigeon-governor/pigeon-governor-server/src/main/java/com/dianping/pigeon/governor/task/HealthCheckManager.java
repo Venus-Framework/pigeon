@@ -66,6 +66,9 @@ public class HealthCheckManager extends Thread {
 
 	public HealthCheckManager() {
 		configManager.registerConfigChangeListener(new ConfigChangeHandler());
+		corePoolSize = configManager.getIntValue("pigeon-governor-server.pool.check.coresize", 100);
+		queueSize = configManager.getIntValue("pigeon-governor-server.pool.check.queuesize", 10000);
+		maxPoolSize = configManager.getIntValue("pigeon-governor-server.pool.check.maxsize", 300);
 		action = configManager.getStringValue(Constants.KEY_ACTION, "dev:remove");
 		interval = configManager.getLongValue(Constants.KEY_INTERVAL, 10 * 1000);
 		hostInterval = configManager.getLongValue(Constants.KEY_HOST_INTERVAL, 5 * 1000);
@@ -96,14 +99,14 @@ public class HealthCheckManager extends Thread {
 		}
 		if (enable) {
 			workerPool = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 60, TimeUnit.SECONDS,
-					new ArrayBlockingQueue<Runnable>(queueSize), new NamingThreadFactory("pigeon-healthcheck"),
+					new ArrayBlockingQueue<Runnable>(queueSize), new NamingThreadFactory("Pigeon-Governor-Check"),
 					new BlockProviderPolicy());
 
-			generatePool = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Governor-Checker-Generate"));
+			generatePool = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Governor-Generate"));
 			for (Environment env : this.getEnvSet()) {
 				generatePool.submit(new GenerateTask(this, env));
 			}
-			disposePool = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Governor-Checker-Dispose"));
+			disposePool = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Governor-Dispose"));
 			disposePool.submit(new DisposeTask(this));
 		}
 	}
