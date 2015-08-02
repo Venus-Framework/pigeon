@@ -103,7 +103,7 @@ public class HealthCheckManager extends Thread {
 			for (Environment env : this.getEnvSet()) {
 				generatePool.submit(new GenerateTask(this, env));
 			}
-			generatePool = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Governor-Checker-Dispose"));
+			disposePool = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Governor-Checker-Dispose"));
 			disposePool.submit(new DisposeTask(this));
 		}
 	}
