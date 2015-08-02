@@ -29,6 +29,7 @@ import com.dianping.pigeon.governor.util.Constants.Action;
 import com.dianping.pigeon.governor.util.Constants.Environment;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.threadpool.NamedThreadFactory;
 import com.dianping.pigeon.util.NetUtils;
 
 public class HealthCheckManager extends Thread {
@@ -97,16 +98,7 @@ public class HealthCheckManager extends Thread {
 					new ArrayBlockingQueue<Runnable>(queueSize), new NamingThreadFactory("pigeon-healthcheck"),
 					new BlockProviderPolicy());
 
-			bossPool = Executors.newCachedThreadPool(new ThreadFactory() {
-
-				@Override
-				public Thread newThread(Runnable r) {
-					Thread t = new Thread(r);
-					t.setName("Pigeon-Governor-Checker");
-					return t;
-				}
-
-			});
+			bossPool = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Governor-Checker"));
 			for (Environment env : this.getEnvSet()) {
 				bossPool.submit(new GenerateTask(this, env));
 			}
