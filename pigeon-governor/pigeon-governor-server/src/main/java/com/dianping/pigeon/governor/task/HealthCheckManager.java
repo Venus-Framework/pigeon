@@ -38,9 +38,9 @@ public class HealthCheckManager extends Thread {
 
 	private Registry registryClass = ExtensionLoader.getExtension(Registry.class);
 
-	private int corePoolSize = 50;
+	private int corePoolSize = 100;
 	private int maxPoolSize = 300;
-	private int queueSize = 500;
+	private int queueSize = 10000;
 
 	private BlockingQueue<CheckTask> resultQueue = new LinkedBlockingQueue<CheckTask>();
 
