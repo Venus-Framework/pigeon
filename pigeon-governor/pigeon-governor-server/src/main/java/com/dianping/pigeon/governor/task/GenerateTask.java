@@ -26,8 +26,8 @@ public class GenerateTask implements Runnable {
 
 	private static final Logger logger = LogManager.getLogger(GenerateTask.class);
 
-	private static final String ROOT = ConfigManagerLoader.getConfigManager().getStringValue("pigeon-governor-server.root",
-			"/DP/SERVER");
+	private static final String ROOT = ConfigManagerLoader.getConfigManager().getStringValue(
+			"pigeon-governor-server.root", "/DP/SERVER");
 
 	private static ConcurrentHashMap<String, Service> services = new ConcurrentHashMap<String, Service>();
 
@@ -65,10 +65,12 @@ public class GenerateTask implements Runnable {
 
 	private void waitForTaskComplete() throws InterruptedException {
 		AtomicInteger n = new AtomicInteger(0);
-		while (manager.getWorkerPool().getActiveCount() > 0 || !manager.getResultQueue().isEmpty()) {
-			if (n.getAndIncrement() % 30 == 0) {
-				String message = String.format(env.name() + "#active threads: %d, queue size: %d, result queue size: %d", manager
-						.getWorkerPool().getActiveCount(), manager.getWorkerPool().getQueue().size(), manager.getResultQueue().size());
+		while (manager.getWorkerPool().getActiveCount() > 0 || !manager.getWorkerPool().getQueue().isEmpty()
+				|| !manager.getResultQueue().isEmpty()) {
+			if (n.getAndIncrement() % 100 == 0) {
+				String message = String.format(env.name()
+						+ "#active threads: %d, queue size: %d, result queue size: %d", manager.getWorkerPool()
+						.getActiveCount(), manager.getWorkerPool().getQueue().size(), manager.getResultQueue().size());
 				if (logger.isInfoEnabled()) {
 					logger.info(message);
 				}
