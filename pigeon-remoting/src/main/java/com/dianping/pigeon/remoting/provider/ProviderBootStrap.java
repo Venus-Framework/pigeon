@@ -53,6 +53,7 @@ public final class ProviderBootStrap {
 				monitor.init();
 			}
 			Thread shutdownHook = new Thread(new ShutdownHookListener());
+			shutdownHook.setDaemon(true);
 			shutdownHook.setPriority(Thread.MAX_PRIORITY);
 			Runtime.getRuntime().addShutdownHook(shutdownHook);
 
