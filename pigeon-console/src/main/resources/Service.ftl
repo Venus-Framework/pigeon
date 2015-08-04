@@ -29,7 +29,7 @@
 						return;
 					}
 					if('${validate}'=='true'){
-						content.append("<p>verification code(from /data/applogs/dpsflog/pigeon.*.log):<input type='text' id='token' value=''/></p>");
+						content.append("<p>verification code(from /data/applogs/pigeon/pigeon.*.log):<input type='text' id='token' value=''/></p>");
 					}
 					if(treeNode.parameters>0){
 						content.append("<p>parameter values:</p>");

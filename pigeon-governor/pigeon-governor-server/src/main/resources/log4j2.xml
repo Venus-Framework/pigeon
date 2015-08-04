@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="trace" monitorInterval="30">
+<Configuration status="info" monitorInterval="30">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout
@@ -10,12 +10,14 @@
 			filePattern="/data/applogs/pigeon-governor-server/pigeon-governor-server.log.%d{yyyy-MM-dd}.gz">
 			<PatternLayout
 				pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %class{36} %L %M - %msg%xEx%n" />
-			<TimeBasedTriggeringPolicy />
+			<TimeBasedTriggeringPolicy interval="1"
+				modulate="true" />
 		</RollingFile>
 	</Appenders>
 	<Loggers>
-		<Logger name="com.dianping.pigeon.governor" level="INFO" additivity="true">
-			<AppenderRef ref="File" level="INFO"/>
+		<Logger name="com.dianping.pigeon.governor" level="INFO"
+			additivity="false">
+			<AppenderRef ref="File" level="INFO" />
 		</Logger>
 		<root level="INFO">
 		</root>

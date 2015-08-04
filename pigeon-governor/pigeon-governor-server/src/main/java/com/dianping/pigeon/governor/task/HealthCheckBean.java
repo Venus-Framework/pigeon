@@ -17,15 +17,15 @@ public class HealthCheckBean {
 	}
 
 	public void init() {
-		ConfigurationSource source;
-		try {
-			source = new ConfigurationSource(HealthCheckManager.class.getResourceAsStream("/log4j2.xml"));
-			Configurator.shutdown(LoggerLoader.getLoggerContext());
-			Configurator.initialize(null, source, LoggerLoader.getLoggerContext());
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
+//		ConfigurationSource source;
+//		try {
+//			source = new ConfigurationSource(HealthCheckManager.class.getResourceAsStream("/log4j2.xml"));
+//			Configurator.shutdown(LoggerLoader.getLoggerContext());
+//			Configurator.initialize(null, source, LoggerLoader.getLoggerContext());
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			System.exit(1);
+//		}
 		new HealthCheckManager().start();
 		logger.info("HealthCheckManager started");
 	}

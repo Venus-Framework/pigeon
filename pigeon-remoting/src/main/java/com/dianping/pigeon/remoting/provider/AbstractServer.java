@@ -105,7 +105,7 @@ public abstract class AbstractServer implements Server {
 		if (!useLastPort) {
 			lastPort = NetUtils.getAvailablePort(lastPort);
 		} else {
-			String filePath = "/data/applogs/dpsflog/pigeon-port.conf";
+			String filePath = LoggerLoader.LOG_ROOT + "/pigeon-port.conf";
 			File file = new File(filePath);
 			Properties properties = null;
 			String key = null;
