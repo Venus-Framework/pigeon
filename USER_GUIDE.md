@@ -985,6 +985,7 @@ xxx.pigeon.provider.logserviceexception为true
 xxx是应用的app.name，需要与lion项目名称保持一致
 
 ### 获取服务注册信息
+
 使用pigeon客户端接口：
 com.dianping.pigeon.governor.service.RegistrationInfoService 
 用法:
@@ -995,7 +996,7 @@ com.dianping.pigeon.governor.service.RegistrationInfoService
 依赖：
 <groupId>com.dianping</groupId>
 <artifactId>pigeon-governor-api</artifactId>
-<version>2.5.4</version>
+<version>2.5.6</version>
 
 
 接口说明：
