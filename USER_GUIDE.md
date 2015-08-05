@@ -42,7 +42,7 @@ pom依赖定义：
 		<dependency>
 		<groupId>com.dianping.dpsf</groupId>
 		<artifactId>dpsf-net</artifactId>
-		<version>2.5.5</version>
+		<version>2.5.6</version>
 		</dependency>
 
 pigeon在运行时会依赖以下jar包，但不是强依赖某个版本，需要应用自行加上以下jar(版本建议高于或等于以下基础版本)：
@@ -50,13 +50,13 @@ pigeon在运行时会依赖以下jar包，但不是强依赖某个版本，需�
 		<dependency>
 		<groupId>com.dianping.lion</groupId>
 		<artifactId>lion-client</artifactId>
-		<version>0.5.1</version>
+		<version>0.5.3</version>
 		</dependency>
 		<dependency>
 		<dependency>
 		<groupId>com.dianping.cat</groupId>
 		<artifactId>cat-core</artifactId>
-		<version>1.2.7</version>
+		<version>1.3.4</version>
 		</dependency>
 		<dependency>
 		<groupId>com.dianping</groupId>
