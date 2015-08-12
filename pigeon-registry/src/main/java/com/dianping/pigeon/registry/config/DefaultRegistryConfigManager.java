@@ -7,6 +7,7 @@ package com.dianping.pigeon.registry.config;
 import java.util.Properties;
 
 import com.dianping.pigeon.log.LoggerLoader;
+
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;

@@ -25,8 +25,8 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 		System.out.println("request-key:" + ContextUtils.getLocalContext("key1"));
 		//System.out.println("global-SOURCE_APP:" + ContextUtils.getGlobalContext("SOURCE_APP"));
-		System.out.println("SOURCE_APP:" + ContextUtils.getGlobalContext("SOURCE_APP"));
-		System.out.println("SOURCE_IP:" + ContextUtils.getGlobalContext("SOURCE_IP"));
+		//System.out.println("SOURCE_APP:" + ContextUtils.getGlobalContext("SOURCE_APP"));
+		//System.out.println("SOURCE_IP:" + ContextUtils.getGlobalContext("SOURCE_IP"));
 		try {
 			Thread.sleep(20);
 		} catch (InterruptedException e) {
@@ -34,10 +34,9 @@ public class EchoServiceDefaultImpl implements EchoService {
 		// return "echo:" + userService.echo(input);
 		// ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(),
 		// "echo1#" + userService.echo(input));
-		//ContextUtils.putRequestContext("key1", "2");
-		//return "echo:" + userService.echo(input);
-		ContextUtils.putResponseContext("key1", "repsonse1");
-		return "echo:" + input;
+		//ContextUtils.putRequestContext("key1", "repsonse1");
+		return "echo:" + userService.echo(input);
+		//return "echo:" + input;
 	}
 
 	@Override

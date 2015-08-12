@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.dianping.pigeon.log.LoggerLoader;
+
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;

@@ -7,7 +7,9 @@ import java.util.Properties;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
+
 import com.dianping.pigeon.log.LoggerLoader;
+
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;

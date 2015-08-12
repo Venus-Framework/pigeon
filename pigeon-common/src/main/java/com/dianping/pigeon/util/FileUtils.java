@@ -11,12 +11,7 @@ import java.io.PrintWriter;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import com.dianping.pigeon.log.LoggerLoader;
-import org.apache.logging.log4j.Logger;
-
 public class FileUtils {
-
-	private static Logger logger = LoggerLoader.getLogger(FileUtils.class);
 
 	public static Properties readFile(InputStream is) {
 		Properties properties = new Properties();
@@ -34,7 +29,7 @@ public class FileUtils {
 					}
 				}
 			} catch (Throwable e) {
-				logger.error("", e);
+				e.printStackTrace();
 			} finally {
 				if (br != null) {
 					try {

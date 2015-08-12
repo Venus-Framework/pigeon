@@ -5,7 +5,7 @@
 	<groupId>com.dianping</groupId>
 	<artifactId>pigeon-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>2.5.6</version>
+	<version>2.5.7</version>
 	<name>pigeon-parent</name>
 	<organization>
 		<name>dianping</name>
@@ -19,6 +19,7 @@
 	</properties>
 	<modules>
 		<module>pigeon-common</module>
+		<module>pigeon-config</module>
 		<module>pigeon-registry</module>
 		<module>pigeon-remoting</module>
 		<module>pigeon-monitor</module>
@@ -213,6 +214,11 @@
 			<dependency>
 				<groupId>com.dianping</groupId>
 				<artifactId>pigeon-common</artifactId>
+				<version>${pigeon.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.dianping</groupId>
+				<artifactId>pigeon-config</artifactId>
 				<version>${pigeon.version}</version>
 			</dependency>
 			<dependency>

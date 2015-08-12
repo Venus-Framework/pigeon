@@ -4,14 +4,10 @@
  */
 package com.dianping.pigeon.container;
 
-import com.dianping.pigeon.log.LoggerLoader;
-import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public final class SpringContainer {
-
-	private static final Logger logger = LoggerLoader.getLogger(SpringContainer.class);
 
 	public String DEFAULT_SPRING_CONFIG = "classpath*:META-INF/spring/*.xml";
 
@@ -63,7 +59,6 @@ public final class SpringContainer {
 				context = null;
 			}
 		} catch (Throwable e) {
-			logger.error(e.getMessage(), e);
 		}
 	}
 

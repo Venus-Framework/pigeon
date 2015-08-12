@@ -10,10 +10,6 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.logging.log4j.Logger;
-
-import com.dianping.pigeon.log.LoggerLoader;
-
 /**
  * 
  * @author xiangwu
@@ -21,8 +17,6 @@ import com.dianping.pigeon.log.LoggerLoader;
  * 
  */
 public final class ExtensionLoader {
-
-	private static final Logger logger = LoggerLoader.getLogger(ExtensionLoader.class);
 
 	private static Map<Class<?>, Object> extensionMap = new ConcurrentHashMap<Class<?>, Object>();
 
@@ -55,7 +49,6 @@ public final class ExtensionLoader {
 		for (T service : serviceLoader) {
 			return service;
 		}
-		logger.info("no extension found for class:" + clazz.getName());
 		return null;
 	}
 
@@ -64,9 +57,6 @@ public final class ExtensionLoader {
 		List<T> extensions = new ArrayList<T>();
 		for (T service : serviceLoader) {
 			extensions.add(service);
-		}
-		if (extensions.isEmpty()) {
-			logger.info("no extension found for class:" + clazz.getName());
 		}
 		return extensions;
 	}

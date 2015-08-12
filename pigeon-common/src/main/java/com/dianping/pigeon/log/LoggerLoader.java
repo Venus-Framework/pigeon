@@ -24,7 +24,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.filter.ThresholdFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
-import com.dianping.pigeon.config.LocalConfigLoader;
+import com.dianping.pigeon.util.AppUtils;
 
 public class LoggerLoader {
 
@@ -37,7 +37,7 @@ public class LoggerLoader {
 	}
 
 	public static synchronized void init() {
-		String appName = LocalConfigLoader.getAppName();
+		String appName = AppUtils.getAppName();
 		System.setProperty("app.name", appName);
 
 		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);

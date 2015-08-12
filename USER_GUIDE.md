@@ -987,6 +987,7 @@ xxx是应用的app.name，需要与lion项目名称保持一致
 
 ###	获取服务注册信息
 
+
 使用pigeon客户端接口：
 
 com.dianping.pigeon.governor.service.RegistrationInfoService 

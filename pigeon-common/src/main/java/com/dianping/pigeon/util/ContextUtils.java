@@ -12,9 +12,6 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.avatar.tracker.TrackerContext;
-import com.dianping.pigeon.config.ConfigChangeListener;
-import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 
 public final class ContextUtils {
@@ -48,90 +45,57 @@ public final class ContextUtils {
 
 	private static ThreadLocal<Map<String, Serializable>> responseContext = new ThreadLocal<Map<String, Serializable>>();
 
-	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
-
 	private static boolean enableTrackerContext = false;
 
-	private static boolean enableGlobalContext = configManager.getBooleanValue("pigeon.context.global.enable", false);
-
 	static {
-		enableTrackerContext = configManager.getBooleanValue("pigeon.context.tracker.enable", true);
-		if (enableTrackerContext) {
-			try {
-				Class contextHolderClass = Class.forName("com.dianping.avatar.tracker.ExecutionContextHolder");
-				Class contextClass = Class.forName("com.dianping.avatar.tracker.TrackerContext");
+		try {
+			Class contextHolderClass = Class.forName("com.dianping.avatar.tracker.ExecutionContextHolder");
+			Class contextClass = Class.forName("com.dianping.avatar.tracker.TrackerContext");
 
-				createContextMethod = contextHolderClass.getDeclaredMethod("createRemoteTrackerContext",
-						new Class[] { String.class });
-				createContextMethod.setAccessible(true);
+			createContextMethod = contextHolderClass.getDeclaredMethod("createRemoteTrackerContext",
+					new Class[] { String.class });
+			createContextMethod.setAccessible(true);
 
-				setContextMethod = contextHolderClass.getDeclaredMethod("setTrackerContext",
-						new Class[] { contextClass });
-				setContextMethod.setAccessible(true);
+			setContextMethod = contextHolderClass.getDeclaredMethod("setTrackerContext", new Class[] { contextClass });
+			setContextMethod.setAccessible(true);
 
-				getContextMethod = contextHolderClass.getDeclaredMethod("getTrackerContext", new Class[] {});
-				getContextMethod.setAccessible(true);
+			getContextMethod = contextHolderClass.getDeclaredMethod("getTrackerContext", new Class[] {});
+			getContextMethod.setAccessible(true);
 
-				clearContextMethod = contextHolderClass.getDeclaredMethod("clearContext", new Class[] {});
-				clearContextMethod.setAccessible(true);
+			clearContextMethod = contextHolderClass.getDeclaredMethod("clearContext", new Class[] {});
+			clearContextMethod.setAccessible(true);
 
-				addSuccessContextMethod = contextHolderClass.getDeclaredMethod("addSucceedRemoteTrackerContext",
-						new Class[] { contextClass });
-				addSuccessContextMethod.setAccessible(true);
+			addSuccessContextMethod = contextHolderClass.getDeclaredMethod("addSucceedRemoteTrackerContext",
+					new Class[] { contextClass });
+			addSuccessContextMethod.setAccessible(true);
 
-				addFailedContextMethod = contextHolderClass.getDeclaredMethod("addFailedRemoteTrackerContext",
-						new Class[] { contextClass });
-				addFailedContextMethod.setAccessible(true);
+			addFailedContextMethod = contextHolderClass.getDeclaredMethod("addFailedRemoteTrackerContext",
+					new Class[] { contextClass });
+			addFailedContextMethod.setAccessible(true);
 
-				getTokenMethod = contextClass.getDeclaredMethod("getToken", new Class[] {});
-				getTokenMethod.setAccessible(true);
+			getTokenMethod = contextClass.getDeclaredMethod("getToken", new Class[] {});
+			getTokenMethod.setAccessible(true);
 
-				getExtensionMethod = contextClass.getDeclaredMethod("getExtension", new Class[] { String.class });
-				getExtensionMethod.setAccessible(true);
+			getExtensionMethod = contextClass.getDeclaredMethod("getExtension", new Class[] { String.class });
+			getExtensionMethod.setAccessible(true);
 
-				getExtensionsMethod = contextClass.getDeclaredMethod("getExtension", new Class[] {});
-				getExtensionsMethod.setAccessible(true);
+			getExtensionsMethod = contextClass.getDeclaredMethod("getExtension", new Class[] {});
+			getExtensionsMethod.setAccessible(true);
 
-				addExtensionMethod = contextClass.getDeclaredMethod("addExtension", new Class[] { String.class,
-						Object.class });
-				addExtensionMethod.setAccessible(true);
+			addExtensionMethod = contextClass.getDeclaredMethod("addExtension", new Class[] { String.class,
+					Object.class });
+			addExtensionMethod.setAccessible(true);
 
-				configManager.registerConfigChangeListener(new InnerConfigChangeListener());
+			// configManager.registerConfigChangeListener(new
+			// InnerConfigChangeListener());
 
-				enableTrackerContext = true;
-			} catch (Throwable e) {
-				logger.warn("failed to load tracker context", e);
-			}
+			enableTrackerContext = true;
+		} catch (Throwable e) {
+			logger.warn("failed to load tracker context", e);
 		}
 	}
 
 	public static void init() {
-	}
-
-	private static class InnerConfigChangeListener implements ConfigChangeListener {
-
-		@Override
-		public void onKeyUpdated(String key, String value) {
-			if (key.endsWith("pigeon.context.tracker.enable")) {
-				try {
-					enableTrackerContext = Boolean.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			} else if (key.endsWith("pigeon.context.global.enable")) {
-				try {
-					enableGlobalContext = Boolean.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			}
-		}
-
-		@Override
-		public void onKeyAdded(String key, String value) {
-		}
-
-		@Override
-		public void onKeyRemoved(String key) {
-		}
 	}
 
 	public static Object createContext(String serviceName, String methodName, String host, int port) {
@@ -223,9 +187,6 @@ public final class ContextUtils {
 			}
 			ContextUtils.putContextValue(context, key, value);
 		}
-		if (enableGlobalContext) {
-			ContextUtils.putGlobalContext(key, value);
-		}
 	}
 
 	public static void putContextValue(Object context, String key, Serializable value) {
@@ -236,9 +197,6 @@ public final class ContextUtils {
 				throw new RuntimeException(e);
 			}
 		}
-		if (enableGlobalContext || context == null) {
-			ContextUtils.putGlobalContext(key, value);
-		}
 	}
 
 	public static <T> T getContextValue(String key) {
@@ -246,10 +204,6 @@ public final class ContextUtils {
 	}
 
 	public static <T> T getContextValue(Object context, String key) {
-		Object value = getGlobalContext(key);
-		if (value != null) {
-			return (T) value;
-		}
 		if (enableTrackerContext && context != null) {
 			try {
 				return (T) getExtensionMethod.invoke(context, new Object[] { key });
