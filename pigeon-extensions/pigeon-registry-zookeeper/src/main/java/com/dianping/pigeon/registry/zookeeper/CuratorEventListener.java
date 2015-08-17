@@ -6,15 +6,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CuratorEvent;
 import org.apache.curator.framework.api.CuratorListener;
-
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.listener.DefaultServiceChangeListener;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
@@ -30,7 +28,7 @@ public class CuratorEventListener implements CuratorListener {
 	private static final int APP = 3;
 	private static final int VERSION = 4;
 
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private CuratorClient client;
 

@@ -5,9 +5,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
+
+import com.dianping.pigeon.log.LoggerLoader;
 
 public class CapacityChecker implements Runnable {
 

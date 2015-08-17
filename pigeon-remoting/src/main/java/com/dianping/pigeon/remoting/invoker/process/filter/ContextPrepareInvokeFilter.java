@@ -12,9 +12,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
@@ -31,7 +31,7 @@ import com.dianping.pigeon.util.VersionUtils;
 public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
 	private static final Logger logger = LoggerLoader.getLogger(ContextPrepareInvokeFilter.class);
-	private MonitorLogger monitorLogger = ExtensionLoader.getExtension(MonitorLogger.class);
+	private Monitor monitor = MonitorLoader.getMonitor();
 	private ConcurrentHashMap<String, Boolean> versionSupportedMap = new ConcurrentHashMap<String, Boolean>();
 
 	@Override
@@ -69,7 +69,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 					}
 				}
 			}
-			MonitorTransaction transaction = monitorLogger.getCurrentTransaction();
+			MonitorTransaction transaction = monitor.getCurrentTransaction();
 			if (transaction != null) {
 				transaction.addData("CurrentTimeout", request.getTimeout());
 			}

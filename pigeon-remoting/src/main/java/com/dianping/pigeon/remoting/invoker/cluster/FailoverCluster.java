@@ -3,11 +3,10 @@ package com.dianping.pigeon.remoting.invoker.cluster;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;

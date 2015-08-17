@@ -15,10 +15,9 @@ import org.springframework.util.CollectionUtils;
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -37,7 +36,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 
 	private static final Logger logger = LoggerLoader.getLogger(RemoteCallMonitorInvokeFilter.class);
 
-	private Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
+	private Monitor monitor = MonitorLoader.getMonitor();
 
 	private static Map<String, Integer> appLogTimeoutPeriodMap = new ConcurrentHashMap<String, Integer>();
 
@@ -104,41 +103,35 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		if (logger.isDebugEnabled()) {
 			logger.debug("invoke the RemoteCallMonitorInvokeFilter, invocationContext:" + invocationContext);
 		}
-		MonitorLogger logger = null;
 		MonitorTransaction transaction = null;
 		InvocationRequest request = invocationContext.getRequest();
 		String targetApp = null;
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		if (monitor != null) {
-			logger = monitor.getLogger();
-			if (logger != null) {
-				try {
-					transaction = logger.createTransaction(
-							"PigeonCall",
-							InvocationUtils.getRemoteCallFullName(invokerConfig.getUrl(),
-									invocationContext.getMethodName(), invocationContext.getParameterTypes()),
-							invocationContext);
-					if (transaction != null) {
-						transaction.setStatusOk();
-						transaction.addData("CallType", invokerConfig.getCallType());
-						transaction.addData("Timeout", invokerConfig.getTimeout());
-						transaction.addData("Serialize", invokerConfig.getSerialize());
+			try {
+				transaction = monitor.createTransaction("PigeonCall", InvocationUtils.getRemoteCallFullName(
+						invokerConfig.getUrl(), invocationContext.getMethodName(),
+						invocationContext.getParameterTypes()), invocationContext);
+				if (transaction != null) {
+					transaction.setStatusOk();
+					transaction.addData("CallType", invokerConfig.getCallType());
+					transaction.addData("Timeout", invokerConfig.getTimeout());
+					transaction.addData("Serialize", invokerConfig.getSerialize());
 
-						Client client = invocationContext.getClient();
-						targetApp = RegistryManager.getInstance().getServerApp(client.getAddress());
-						logger.logEvent("PigeonCall.app", targetApp, "");
+					Client client = invocationContext.getClient();
+					targetApp = RegistryManager.getInstance().getServerApp(client.getAddress());
+					monitor.logEvent("PigeonCall.app", targetApp, "");
 
-						String parameters = "";
-						if (Constants.LOG_PARAMETERS) {
-							parameters = InvocationUtils.toJsonString(request.getParameters(), 1000, 50);
-						}
-						logger.logEvent("PigeonCall.server", client.getAddress(), parameters);
-
-						transaction.readMonitorContext();
+					String parameters = "";
+					if (Constants.LOG_PARAMETERS) {
+						parameters = InvocationUtils.toJsonString(request.getParameters(), 1000, 50);
 					}
-				} catch (Throwable e) {
-					logger.logMonitorError(e);
+					monitor.logEvent("PigeonCall.server", client.getAddress(), parameters);
+
+					transaction.readMonitorContext();
 				}
+			} catch (Throwable e) {
+				monitor.logMonitorError(e);
 			}
 		}
 		boolean error = false;
@@ -172,11 +165,11 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 					try {
 						transaction.setStatusError(e);
 					} catch (Throwable e2) {
-						logger.logMonitorError(e2);
+						monitor.logMonitorError(e2);
 					}
 				}
-				if (logger != null) {
-					logger.logError(e);
+				if (monitor != null) {
+					monitor.logError(e);
 				}
 			}
 			throw e;
@@ -186,11 +179,11 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 				try {
 					transaction.setStatusError(e);
 				} catch (Throwable e2) {
-					logger.logMonitorError(e2);
+					monitor.logMonitorError(e2);
 				}
 			}
-			if (logger != null) {
-				logger.logError(e);
+			if (monitor != null) {
+				monitor.logError(e);
 			}
 			throw e;
 		} finally {
@@ -204,7 +197,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 						transaction.complete();
 					}
 				} catch (Throwable e) {
-					logger.logMonitorError(e);
+					monitor.logMonitorError(e);
 				}
 			}
 		}

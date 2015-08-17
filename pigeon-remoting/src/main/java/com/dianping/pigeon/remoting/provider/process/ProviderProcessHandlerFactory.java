@@ -8,12 +8,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.Disposable;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -46,7 +45,7 @@ public final class ProviderProcessHandlerFactory {
 
 	private static ServiceInvocationHandler healthCheckInvocationHandler = null;
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static boolean isMonitorEnabled = configManager.getBooleanValue(Constants.KEY_MONITOR_ENABLED, true);
 

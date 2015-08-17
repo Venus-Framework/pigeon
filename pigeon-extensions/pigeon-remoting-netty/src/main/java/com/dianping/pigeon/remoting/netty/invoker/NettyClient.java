@@ -18,7 +18,7 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -60,9 +60,7 @@ public class NettyClient extends AbstractClient {
 
 	public static final int CLIENT_CONNECTIONS = Runtime.getRuntime().availableProcessors();
 
-	private long logCount;
-
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static ExecutorService bossExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory(
 			"Pigeon-Netty-Client-Boss"));

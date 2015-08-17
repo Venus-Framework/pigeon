@@ -13,6 +13,20 @@ public interface Monitor {
 
 	void init();
 
-	public MonitorLogger getLogger();
+	void logError(String msg, Throwable t);
 
+	void logError(Throwable t);
+
+	void logEvent(String name, String event, String desc);
+
+	/**
+	 * write monitor's own error to local log files or console
+	 * 
+	 * @param t
+	 */
+	void logMonitorError(Throwable t);
+
+	MonitorTransaction createTransaction(String name, String uri, Object invocationContext);
+
+	MonitorTransaction getCurrentTransaction();
 }

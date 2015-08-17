@@ -17,6 +17,7 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
@@ -44,11 +45,12 @@ public final class ProviderBootStrap {
 	public static void init() {
 		if (!isInitialized) {
 			LoggerLoader.init();
+			ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 			RegistryConfigLoader.init();
 			ProviderProcessHandlerFactory.init();
 			SerializerFactory.init();
 			ClassUtils.loadClasses("com.dianping.pigeon");
-			Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
+			Monitor monitor = MonitorLoader.getMonitor();
 			if (monitor != null) {
 				monitor.init();
 			}
@@ -59,7 +61,6 @@ public final class ProviderBootStrap {
 
 			ServerConfig config = new ServerConfig();
 			config.setProtocol(Constants.PROTOCOL_HTTP);
-			ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 			String poolStrategy = ConfigManagerLoader.getConfigManager().getStringValue(
 					"pigeon.provider.pool.strategy", "shared");
 			if ("server".equals(poolStrategy)) {

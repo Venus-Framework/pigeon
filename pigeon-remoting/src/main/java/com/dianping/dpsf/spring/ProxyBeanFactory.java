@@ -11,7 +11,7 @@ import org.springframework.beans.factory.FactoryBean;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
@@ -21,7 +21,7 @@ import com.dianping.pigeon.util.ClassUtils;
 
 public class ProxyBeanFactory implements FactoryBean {
 
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private String serviceName;
 

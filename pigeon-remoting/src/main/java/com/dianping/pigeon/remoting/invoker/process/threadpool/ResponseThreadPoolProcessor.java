@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.RejectedException;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -26,7 +26,7 @@ public class ResponseThreadPoolProcessor extends AbstractResponseProcessor {
 	private static ThreadPool responseProcessThreadPool;
 
 	public ResponseThreadPoolProcessor() {
-		ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+		ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 		int corePoolSize = configManager.getIntValue(Constants.KEY_RESPONSE_COREPOOLSIZE,
 				Constants.DEFAULT_RESPONSE_COREPOOLSIZE);
 		int maxPoolSize = configManager.getIntValue(Constants.KEY_RESPONSE_MAXPOOLSIZE,

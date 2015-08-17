@@ -42,7 +42,7 @@ public final class ServiceProviderFactory {
 
 	private static ConcurrentHashMap<String, ProviderConfig<?>> serviceCache = new ConcurrentHashMap<String, ProviderConfig<?>>();
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static ServiceChangeListener serviceChangeListener = ExtensionLoader
 			.getExtension(ServiceChangeListener.class);

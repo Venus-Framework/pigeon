@@ -14,7 +14,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
@@ -34,7 +34,7 @@ public class InvokerConfig<T> {
 	public static final String SERIALIZE_JSON = SerializerFactory.JSON;
 	public static final String SERIALIZE_FST = SerializerFactory.FST;
 
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private Class<T> serviceInterface;
 

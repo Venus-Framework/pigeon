@@ -8,15 +8,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.Disposable;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -38,7 +35,7 @@ import com.dianping.pigeon.util.ThreadPoolUtils;
 public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderContext>, Disposable {
 
 	private static final Logger logger = LoggerLoader.getLogger(GatewayProcessFilter.class);
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 	private static boolean isAppLimitEnabled = configManager.getBooleanValue("pigeon.provider.applimit.enable", false);
 	private static boolean isAppLimitQps = configManager.getBooleanValue("pigeon.provider.applimit.qps", true);
 	private static Map<String, Long> appLimitMap = new ConcurrentHashMap<String, Long>();

@@ -5,12 +5,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -24,7 +23,7 @@ public class ProviderStatusChecker implements StatusChecker {
 
 	private static final Logger logger = LoggerLoader.getLogger(ProviderStatusChecker.class);
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static final boolean CHECK_PROVIDER_EXIST = configManager.getBooleanValue(
 			"pigeon.status.checkproviderexist", false);

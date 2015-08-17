@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.status.Phase;
@@ -38,7 +39,7 @@ public final class InvokerBootStrap {
 					InvokerProcessHandlerFactory.init();
 					SerializerFactory.init();
 					LoadBalanceManager.init();
-					Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
+					Monitor monitor = MonitorLoader.getMonitor();
 					if (monitor != null) {
 						monitor.init();
 					}

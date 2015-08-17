@@ -4,75 +4,40 @@
  */
 package com.dianping.pigeon.remoting.provider.config.spring;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
-import com.dianping.pigeon.log.LoggerLoader;
 
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
-import com.dianping.pigeon.remoting.provider.config.ProviderMethodConfig;
-import com.dianping.pigeon.util.ClassUtils;
-import com.dianping.pigeon.util.CollectionUtils;
+import com.dianping.pigeon.remoting.provider.config.ServerConfig;
+import com.dianping.pigeon.remoting.provider.listener.ServiceInitializeListener;
 
-public class ServiceBean {
+public final class ServiceBean extends ServiceInitializeListener {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceBean.class);
 
-	private String url;
-	private Object serviceImpl;
-	private String version;
-	private String interfaceName;
-	private ServerBean serverBean;
+	private boolean publish = true;
+	private Map<String, Object> services;
+	private int port = ServerConfig.DEFAULT_PORT;
+	private int httpPort = ServerConfig.DEFAULT_HTTP_PORT;
+	private boolean autoSelectPort = true;
 	private boolean cancelTimeout = Constants.DEFAULT_TIMEOUT_CANCEL;
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
-	private boolean useSharedPool = configManager.getBooleanValue(Constants.KEY_SERVICE_SHARED,
-			Constants.DEFAULT_SERVICE_SHARED);
-	private List<ProviderMethodConfig> methods;
-	private ClassLoader classLoader;
-	private int actives;
-
-	public int getActives() {
-		return actives;
-	}
-
-	public void setActives(int actives) {
-		this.actives = actives;
-	}
-
-	public ClassLoader getClassLoader() {
-		return classLoader;
-	}
-
-	public void setClassLoader(ClassLoader classLoader) {
-		this.classLoader = classLoader;
-	}
-
-	public List<ProviderMethodConfig> getMethods() {
-		return methods;
-	}
-
-	public void setMethods(List<ProviderMethodConfig> methods) {
-		this.methods = methods;
-	}
-
-	public boolean isUseSharedPool() {
-		return useSharedPool;
-	}
-
-	public void setUseSharedPool(boolean useSharedPool) {
-		this.useSharedPool = useSharedPool;
-	}
+	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
+			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
+	private int maxPoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_MAXPOOLSIZE,
+			Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
+	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
+			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
+	private boolean enableTest = configManager
+			.getBooleanValue(Constants.KEY_TEST_ENABLE, Constants.DEFAULT_TEST_ENABLE);
 
 	public boolean isCancelTimeout() {
 		return cancelTimeout;
@@ -82,77 +47,98 @@ public class ServiceBean {
 		this.cancelTimeout = cancelTimeout;
 	}
 
-	public ServerBean getServerBean() {
-		return serverBean;
+	public boolean isEnableTest() {
+		return enableTest;
 	}
 
-	public void setServerBean(ServerBean serverBean) {
-		this.serverBean = serverBean;
+	public void setEnableTest(boolean enableTest) {
+		this.enableTest = enableTest;
 	}
 
-	public String getInterfaceName() {
-		return interfaceName;
+	public boolean isAutoSelectPort() {
+		return autoSelectPort;
 	}
 
-	public void setInterfaceName(String interfaceName) {
-		this.interfaceName = interfaceName;
+	public void setAutoSelectPort(boolean autoSelectPort) {
+		this.autoSelectPort = autoSelectPort;
 	}
 
-	public String getVersion() {
-		return version;
+	public int getHttpPort() {
+		return httpPort;
 	}
 
-	public void setVersion(String version) {
-		this.version = version;
+	public void setHttpPort(int httpPort) {
+		// this.httpPort = httpPort;
 	}
 
-	public String getUrl() {
-		return url;
+	public int getCorePoolSize() {
+		return corePoolSize;
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
+	public void setCorePoolSize(int corePoolSize) {
+		this.corePoolSize = corePoolSize;
 	}
 
-	public Object getServiceImpl() {
-		return serviceImpl;
+	public int getMaxPoolSize() {
+		return maxPoolSize;
 	}
 
-	public void setServiceImpl(Object serviceImpl) {
-		this.serviceImpl = serviceImpl;
+	public void setMaxPoolSize(int maxPoolSize) {
+		this.maxPoolSize = maxPoolSize;
+	}
+
+	public int getWorkQueueSize() {
+		return workQueueSize;
+	}
+
+	public void setWorkQueueSize(int workQueueSize) {
+		this.workQueueSize = workQueueSize;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
 	}
 
 	public void init() throws Exception {
-		if (serviceImpl == null) {
-			throw new IllegalArgumentException("service not found:" + this);
+		ServerConfig serverConfig = new ServerConfig();
+		serverConfig.setPort(port);
+		serverConfig.setAutoSelectPort(autoSelectPort);
+		serverConfig.setCorePoolSize(corePoolSize);
+		serverConfig.setMaxPoolSize(maxPoolSize);
+		serverConfig.setWorkQueueSize(workQueueSize);
+		serverConfig.setEnableTest(enableTest);
+		List<ProviderConfig<?>> providerConfigList = new ArrayList<ProviderConfig<?>>();
+		for (String url : services.keySet()) {
+			ProviderConfig<Object> providerConfig = new ProviderConfig<Object>(services.get(url));
+			providerConfig.setUrl(url);
+			providerConfig.setServerConfig(serverConfig);
+			providerConfig.setCancelTimeout(cancelTimeout);
+			providerConfigList.add(providerConfig);
 		}
-		ProviderConfig<?> providerConfig = null;
-		if (StringUtils.isBlank(interfaceName)) {
-			providerConfig = new ProviderConfig<Object>(serviceImpl);
-		} else {
-			Class<?> cl = ClassUtils.loadClass(interfaceName);
-			providerConfig = new ProviderConfig(cl, serviceImpl);
-		}
-		providerConfig.setVersion(version);
-		providerConfig.setUrl(url);
-		providerConfig.setCancelTimeout(cancelTimeout);
-		providerConfig.setSharedPool(useSharedPool);
-		if (!CollectionUtils.isEmpty(methods)) {
-			Map<String, ProviderMethodConfig> methodMap = new HashMap<String, ProviderMethodConfig>();
-			providerConfig.setMethods(methodMap);
-			for (ProviderMethodConfig method : methods) {
-				methodMap.put(method.getName(), method);
-			}
-		}
-		providerConfig.setActives(actives);
-		if (serverBean != null) {
-			providerConfig.setServerConfig(serverBean.init());
-		}
-		ServiceFactory.addService(providerConfig);
+		ServiceFactory.addServices(providerConfigList);
 	}
 
-	@Override
-	public String toString() {
-		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	/**
+	 * @return the publish
+	 */
+	public boolean isPublish() {
+		return publish;
 	}
+
+	public void setPublish(boolean publish) {
+		this.publish = publish;
+	}
+
+	public Map<String, Object> getServices() {
+		return services;
+	}
+
+	public void setServices(Map<String, Object> services) {
+		this.services = services;
+	}
+
 }

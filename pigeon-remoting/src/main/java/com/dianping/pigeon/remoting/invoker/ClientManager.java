@@ -20,7 +20,6 @@ import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryConnectionListener;
@@ -60,7 +59,7 @@ public class ClientManager {
 
 	private RouteManager routerManager = new DefaultRouteManager();
 
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private ServiceProviderChangeListener providerChangeListener = new InnerServiceProviderChangeListener();
 

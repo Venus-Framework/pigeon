@@ -18,10 +18,10 @@ import org.apache.zookeeper.data.Stat;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 
@@ -31,7 +31,7 @@ public class CuratorClient {
 
 	private static Logger logger = LoggerLoader.getLogger(CuratorClient.class);
 
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private CuratorFramework client;
 
@@ -51,7 +51,7 @@ public class CuratorClient {
 	private static ExecutorService curatorEventListenerThreadPool = Executors
 			.newCachedThreadPool(new DefaultThreadFactory("Pigeon-Curator-Event-Listener"));
 
-	private static MonitorLogger monitor = ExtensionLoader.getExtension(Monitor.class).getLogger();
+	private static Monitor monitor = MonitorLoader.getMonitor();
 
 	private String address;
 

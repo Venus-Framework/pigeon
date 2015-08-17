@@ -4,13 +4,12 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 import com.dianping.pigeon.util.ContextUtils;
 
@@ -36,7 +35,7 @@ public class TimelineManager {
 	private static String localIp;
 
 	static {
-		ConfigManager config = ExtensionLoader.getExtension(ConfigManager.class);
+		ConfigManager config = ConfigManagerLoader.getConfigManager();
 		config.registerConfigChangeListener(new InnerConfigChangeListener());
 		enabled = config.getBooleanValue("pigeon.timeline.log.enabled", true);
 		abnormalThreshold = config.getLongValue("pigeon.timeline.abnormal.threshold", 50);

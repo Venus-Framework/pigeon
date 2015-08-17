@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
@@ -37,7 +37,7 @@ import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 public class ServiceFactory {
 
 	static Logger logger = LoggerLoader.getLogger(ServiceFactory.class);
-	static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 	static Map<InvokerConfig<?>, Object> services = new ConcurrentHashMap<InvokerConfig<?>, Object>();
 
 	static {

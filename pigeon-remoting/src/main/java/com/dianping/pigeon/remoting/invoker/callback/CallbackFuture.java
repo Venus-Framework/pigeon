@@ -12,15 +12,13 @@ import org.apache.logging.log4j.Logger;
 
 import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.dpsf.exception.NetTimeoutException;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
@@ -30,7 +28,7 @@ public class CallbackFuture implements Callback, CallFuture {
 
 	private static final Logger logger = LoggerLoader.getLogger(CallbackFuture.class);
 
-	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
+	private static final Monitor monitor = MonitorLoader.getMonitor();
 
 	protected InvocationResponse response;
 	private CallFuture future;
@@ -84,7 +82,7 @@ public class CallbackFuture implements Callback, CallFuture {
 						.append(client.getHost()).append(":").append(client.getPort()).append("\r\nresponse:")
 						.append(response);
 				logger.error(sb.toString(), cause);
-				monitorLogger.logError(sb.toString(), cause);
+				monitor.logError(sb.toString(), cause);
 			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 				if (Constants.LOG_INVOKER_APP_EXCEPTION) {
 					Throwable cause = InvokerUtils.toApplicationException(response);
@@ -93,7 +91,7 @@ public class CallbackFuture implements Callback, CallFuture {
 							.append(client.getHost()).append(":").append(client.getPort()).append("\r\nresponse:")
 							.append(response);
 					logger.error(sb.toString(), cause);
-					monitorLogger.logError(sb.toString(), cause);
+					monitor.logError(sb.toString(), cause);
 				}
 			}
 			return this.response;

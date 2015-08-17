@@ -15,7 +15,7 @@ import org.springframework.beans.factory.FactoryBean;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
@@ -27,7 +27,7 @@ import com.dianping.pigeon.util.CollectionUtils;
 
 public class ReferenceBean implements FactoryBean {
 
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private String url;
 
@@ -43,11 +43,6 @@ public class ReferenceBean implements FactoryBean {
 	 * 用于支持P2P调用的服务IP地址，也作为注册中心无法访问时的备用地址
 	 */
 	private String vip;
-
-	/**
-	 * zone配置，仅用于测试
-	 */
-	private String zone;
 
 	private int retries = 1;
 
@@ -99,20 +94,6 @@ public class ReferenceBean implements FactoryBean {
 
 	private String group = configManager.getGroup();
 
-	/**
-	 * 1. Random LoadBalance：随机，按权重设置随机概率，在一个截面上碰撞的概率高，但调用量越大分布越均匀，
-	 * 而且按概率使用权重后也比较均匀，有利于动态调整提供者权重。
-	 * 
-	 * 2. RoundRobin LoadBalance 轮循，按公约后的权重设置轮循比率，存在慢的提供者累积请求问题，
-	 * 比如：第二台机器很慢，但没挂，当请求调到第二台时就卡在那，久而久之，所有请求都卡在调到第二台上。
-	 * 
-	 * 3. AutoAware LoadBalance： 最少活跃调用数，相同活跃数的随机，活跃数指调用前后计数差。
-	 * 使慢的提供者收到更少请求，因为越慢的提供者的调用前后计数差会越大。
-	 * 
-	 * 4. ConsistentHash LoadBalance 一致性Hash，相同参数的请求总是发到同一提供者。
-	 * 当某一台提供者挂时，原本发往该提供者的请求，基于虚拟节点，平摊到其它提供者，不会引起剧烈变动。
-	 * 
-	 */
 	private String loadBalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
 
 	private Class<? extends LoadBalance> loadBalanceClass;
@@ -142,14 +123,6 @@ public class ReferenceBean implements FactoryBean {
 
 	public void setVip(String vip) {
 		this.vip = vip;
-	}
-
-	public String getZone() {
-		return zone;
-	}
-
-	public void setZone(String zone) {
-		this.zone = zone;
 	}
 
 	public String getLoadBalance() {

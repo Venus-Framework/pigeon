@@ -21,9 +21,9 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 
 import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
@@ -39,7 +39,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 		super(serverConfig, port);
 	}
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	JacksonSerializer jacksonSerializer = new JacksonSerializer();
 

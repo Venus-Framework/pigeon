@@ -64,4 +64,6 @@ public interface ConfigManager {
 
 	public List<ConfigChangeListener> getConfigChangeListeners();
 
+	public void init();
+
 }

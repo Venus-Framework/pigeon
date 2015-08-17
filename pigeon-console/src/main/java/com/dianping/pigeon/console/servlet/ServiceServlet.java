@@ -22,13 +22,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.console.domain.Service;
 import com.dianping.pigeon.console.domain.ServiceMethod;
 import com.dianping.pigeon.console.status.checker.GlobalStatusChecker;
 import com.dianping.pigeon.console.status.checker.ProviderStatusChecker;
 import com.dianping.pigeon.console.status.checker.StatusChecker;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.ServiceFactory;
@@ -65,7 +65,7 @@ public class ServiceServlet extends HttpServlet {
 
 	protected final Logger logger = LoggerLoader.getLogger(this.getClass());
 
-	protected static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	protected static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static final StatusChecker providerStatusChecker = new ProviderStatusChecker();
 

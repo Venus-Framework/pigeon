@@ -7,10 +7,9 @@ package com.dianping.pigeon.remoting.invoker.service;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;

@@ -7,9 +7,6 @@ package com.dianping.pigeon.remoting.provider.config.spring;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
-
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -19,7 +16,8 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.provider.process.threadpool.RequestThreadPoolProcessor;
 
 public class ServerBeanDefinitionParser implements BeanDefinitionParser {
@@ -37,7 +35,7 @@ public class ServerBeanDefinitionParser implements BeanDefinitionParser {
 
 	public static AtomicInteger idCounter = new AtomicInteger();
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	public ServerBeanDefinitionParser(Class<?> beanClass, boolean required) {
 		this.beanClass = beanClass;

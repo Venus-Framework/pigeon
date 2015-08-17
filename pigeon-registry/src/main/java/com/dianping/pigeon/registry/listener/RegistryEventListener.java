@@ -7,9 +7,9 @@ package com.dianping.pigeon.registry.listener;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
+
+import com.dianping.pigeon.log.LoggerLoader;
 
 /**
  * 将lion推送的动态服务信息发送到感兴趣的listener

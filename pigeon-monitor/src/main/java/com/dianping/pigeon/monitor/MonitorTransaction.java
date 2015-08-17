@@ -21,8 +21,6 @@ public interface MonitorTransaction {
 
 	public void addData(String name, Object data);
 
-	public MonitorLogger getLogger();
-
 	public void readMonitorContext();
 
 	public void writeMonitorContext();

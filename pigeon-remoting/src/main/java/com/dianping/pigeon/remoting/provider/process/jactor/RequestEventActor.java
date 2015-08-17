@@ -9,10 +9,9 @@ import java.util.Map;
 import org.agilewiki.jactor.lpc.JLPCActor;
 import org.apache.logging.log4j.Logger;
 
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.provider.domain.DefaultProviderContext;
@@ -31,7 +30,8 @@ public class RequestEventActor extends JLPCActor {
 
 	private static final Logger logger = LoggerLoader.getLogger(RequestEventActor.class);
 
-	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
+	private static final Monitor monitor = MonitorLoader.getMonitor();
+
 	private Map<InvocationRequest, ProviderContext> requestContextMap = null;
 
 	public RequestEventActor(Map<InvocationRequest, ProviderContext> requestContextMap) {
@@ -54,8 +54,8 @@ public class RequestEventActor extends JLPCActor {
 						"the request has not been executed by actor", providerContext, request));
 				te.setStackTrace(new StackTraceElement[] {});
 				logger.error(te.getMessage(), te);
-				if (monitorLogger != null) {
-					monitorLogger.logError(te);
+				if (monitor != null) {
+					monitor.logError(te);
 				}
 			} else {
 				ServiceInvocationHandler invocationHandler = ProviderProcessHandlerFactory
@@ -68,8 +68,8 @@ public class RequestEventActor extends JLPCActor {
 		} catch (Throwable t) {
 			logger.error(ProviderUtils.getRequestDetailInfo("Process request failed with event actor", providerContext,
 					request), t);
-			if (monitorLogger != null) {
-				monitorLogger.logError(t);
+			if (monitor != null) {
+				monitor.logError(t);
 			}
 		} finally {
 			requestContextMap.remove(request);

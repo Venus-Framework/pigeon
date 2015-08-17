@@ -9,13 +9,13 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.util.LangUtils;
 
 public class ServerConfig {
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 	public static final int DEFAULT_PORT = getDefaultPort();
 	public static final int DEFAULT_HTTP_PORT = 4080;
 	private int port = configManager.getIntValue("pigeon.server.defaultport", DEFAULT_PORT);

@@ -4,15 +4,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorLoader;
 
 public class SizeMonitor {
 
 	private static Logger logger = LogManager.getLogger(SizeMonitor.class);
 
-	private static MonitorLogger monitor = ExtensionLoader.getExtension(Monitor.class).getLogger();
+	private static Monitor monitor = MonitorLoader.getMonitor();
 
 	private static final String sizeRangeConfig = ConfigManagerLoader.getConfigManager().getStringValue(
 			"pigeon.monitor.size.range", "1,2,4,8,16,32,64,128,256,512,1024");

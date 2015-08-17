@@ -8,12 +8,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 
 public class Utils {
 
 	private static final List<String> LOCAL_IP_LIST = new ArrayList<String>();
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 	private static final String DEFAULT_SIGN = "WQMlgikuPfCFNE8=ZEhN2k8xxJMu";
 	private static final String SIGN = configManager.getStringValue("pigeon.console.sign", DEFAULT_SIGN);
 

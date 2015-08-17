@@ -97,7 +97,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 	public Float getFloatValue(String key) {
 		return getProperty(key, Float.class);
 	}
-	
+
 	public double getDoubleValue(String key, double defaultValue) {
 		Double value = getDoubleValue(key);
 		return value != null ? value : defaultValue;
@@ -229,7 +229,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 					value = Boolean.valueOf(strValue);
 				} else if (Double.class == type) {
 					value = Double.valueOf(strValue);
-				} 
+				}
 			}
 			if (value != null) {
 				localCache.put(key, value);
@@ -309,6 +309,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			}
 			if (value != null) {
 				localCache.put(KEY_ENV, value);
+				logger.info("environment:" + value);
 			}
 		}
 		return value;
@@ -326,41 +327,34 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				localCache.put(KEY_APP_NAME, value);
 			}
 			if (StringUtils.isNotBlank(value)) {
-				System.out.println("app name:" + value);
+				logger.info("app name:" + value);
 			}
 		}
 		return value;
 	}
 
 	public String getLocalIp() {
-		String value = getLocalProperty(KEY_LOCAL_IP);
-		if (value == null) {
-			try {
-				value = doGetLocalIp();
-			} catch (Throwable e) {
-				logger.error("error while reading local ip:" + e.getMessage());
-			}
-			if (StringUtils.isBlank(value)) {
-				value = NetUtils.getFirstLocalIp();
-			}
-			if (value != null) {
-				localCache.put(KEY_LOCAL_IP, value);
-			}
+		String value = null;
+		try {
+			value = doGetLocalIp();
+		} catch (Throwable e) {
+			logger.error("error while reading local ip:" + e.getMessage());
+		}
+		if (StringUtils.isBlank(value)) {
+			value = NetUtils.getFirstLocalIp();
+		}
+		if (value != null) {
+			localCache.put(KEY_LOCAL_IP, value);
 		}
 		return value;
 	}
 
 	public String getGroup() {
-		String value = getLocalProperty(KEY_GROUP);
-		if (value == null) {
-			try {
-				value = doGetGroup();
-			} catch (Throwable e) {
-				logger.error("error while reading group:" + e.getMessage());
-			}
-			if (value != null) {
-				localCache.put(KEY_GROUP, value);
-			}
+		String value = null;
+		try {
+			value = doGetGroup();
+		} catch (Throwable e) {
+			logger.error("error while reading group:" + e.getMessage());
 		}
 		if (value == null) {
 			return DEFAULT_GROUP;

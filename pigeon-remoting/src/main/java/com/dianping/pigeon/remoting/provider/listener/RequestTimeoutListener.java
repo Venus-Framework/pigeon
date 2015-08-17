@@ -11,13 +11,12 @@ import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
@@ -30,10 +29,10 @@ import com.dianping.pigeon.util.ContextUtils;
 public class RequestTimeoutListener implements Runnable {
 
 	private static final Logger logger = LoggerLoader.getLogger(RequestTimeoutListener.class);
-	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
+	private static final Monitor monitor = MonitorLoader.getMonitor();
 	private Map<InvocationRequest, ProviderContext> requestContextMap;
 	private RequestProcessor requestProcessor;
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 	private long timeoutInterval = configManager.getLongValue(Constants.KEY_TIMEOUT_INTERVAL,
 			Constants.DEFAULT_TIMEOUT_INTERVAL);
 	private boolean defaultCancelTimeout = configManager.getBooleanValue(Constants.KEY_TIMEOUT_CANCEL,
@@ -106,7 +105,7 @@ public class RequestTimeoutListener implements Runnable {
 									msg.append("timeout while processing request, from:")
 											.append(rc.getChannel() == null ? "" : rc.getChannel().getRemoteAddress())
 											.append(", to:")
-											.append(ExtensionLoader.getExtension(ConfigManager.class).getLocalIp())
+											.append(ConfigManagerLoader.getConfigManager().getLocalIp())
 											.append(", process time:").append(System.currentTimeMillis())
 											.append("\r\nrequest:").append(request)
 											.append("\r\nprocessor stats:interrupt:").append(cancelTimeout).append(",")
@@ -123,8 +122,8 @@ public class RequestTimeoutListener implements Runnable {
 									}
 									ContextUtils.setContext(request.getContext());
 									logger.error(te.getMessage(), te);
-									if (monitorLogger != null) {
-										monitorLogger.logError(te);
+									if (monitor != null) {
+										monitor.logError(te);
 									}
 									Future<?> future = rc.getFuture();
 									if (future != null && !future.isCancelled()) {

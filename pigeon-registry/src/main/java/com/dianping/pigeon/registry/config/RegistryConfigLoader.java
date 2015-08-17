@@ -6,12 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 
-import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 
 public class RegistryConfigLoader {
 
@@ -41,7 +39,7 @@ public class RegistryConfigLoader {
 			}
 
 			config = normalizeConfig(config);
-			ExtensionLoader.getExtension(ConfigManager.class).init(config);
+			ConfigManagerLoader.getConfigManager().init(config);
 			// RegistryManager.getInstance().init(config);
 			isInitialized = true;
 		}

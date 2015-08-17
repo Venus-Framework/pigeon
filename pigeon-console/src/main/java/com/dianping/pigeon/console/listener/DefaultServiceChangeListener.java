@@ -19,11 +19,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.console.exception.ServiceNotifyException;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.listener.ServiceChangeListener;
@@ -32,11 +32,11 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 
 	private static final Logger logger = LoggerLoader.getLogger(DefaultServiceChangeListener.class);
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private Map<String, NotifyEvent> failedNotifyEvents = new ConcurrentHashMap<String, NotifyEvent>();
 
-	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
+	private static final Monitor monitor = MonitorLoader.getMonitor();
 
 	public DefaultServiceChangeListener() {
 	}
@@ -147,7 +147,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		}
 		if (!isSuccess) {
 			logger.warn("error while notifying service change to url:" + url + ", response:" + response);
-			monitorLogger.logError(new ServiceNotifyException("error while notifying service change to url:" + url
+			monitor.logError(new ServiceNotifyException("error while notifying service change to url:" + url
 					+ ", response:" + response, notifyException));
 		}
 		return isSuccess;

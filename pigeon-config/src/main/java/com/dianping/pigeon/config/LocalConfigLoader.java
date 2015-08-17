@@ -16,7 +16,7 @@ public class LocalConfigLoader {
 
 	private static final String GLOBAL_PROPERTIES_PATH = "/data/webapps/config/pigeon/pigeon.properties";
 
-	private static void loadProperties(Map<String, Object> results, Properties properties) {
+	public static void loadProperties(Map<String, Object> results, Properties properties) {
 		for (Iterator ir = properties.keySet().iterator(); ir.hasNext();) {
 			String key = ir.next().toString();
 			if (key.startsWith("#")) {

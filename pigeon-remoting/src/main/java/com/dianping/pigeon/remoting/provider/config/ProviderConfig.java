@@ -10,7 +10,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ServiceConfigUtils;
 
@@ -23,7 +23,7 @@ public class ProviderConfig<T> {
 	private ServerConfig serverConfig = new ServerConfig();
 	private boolean published = false;
 	private boolean cancelTimeout = Constants.DEFAULT_TIMEOUT_CANCEL;
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 	private boolean useSharedPool = configManager.getBooleanValue(Constants.KEY_SERVICE_SHARED,
 			Constants.DEFAULT_SERVICE_SHARED);
 	private Map<String, ProviderMethodConfig> methods;

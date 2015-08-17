@@ -3,11 +3,11 @@ package com.dianping.pigeon.remoting.common.util;
 import org.apache.commons.lang.StringUtils;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 
 public class SecurityUtils {
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static final String registryBlackList = configManager.getStringValue("pigeon.registry.blacklist", "");
 

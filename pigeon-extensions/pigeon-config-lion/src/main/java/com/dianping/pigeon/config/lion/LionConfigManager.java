@@ -4,6 +4,11 @@
  */
 package com.dianping.pigeon.config.lion;
 
+import java.io.FileInputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.lion.EnvZooKeeperConfig;
@@ -12,7 +17,9 @@ import com.dianping.lion.client.ConfigChange;
 import com.dianping.lion.client.LionException;
 import com.dianping.pigeon.config.AbstractConfigManager;
 import com.dianping.pigeon.config.ConfigChangeListener;
+import com.dianping.pigeon.config.LocalConfigLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.util.FileUtils;
 
 /**
  * @author xiangwu
@@ -24,6 +31,12 @@ public class LionConfigManager extends AbstractConfigManager {
 	private static Logger logger = LoggerLoader.getLogger(LionConfigManager.class);
 
 	private ConfigCache configCache = null;
+
+	private static final String ENV_FILE = "/data/webapps/appenv";
+
+	private String env = null;
+	private String group = null;
+	private String ip = null;
 
 	public LionConfigManager() {
 		try {
@@ -41,17 +54,7 @@ public class LionConfigManager extends AbstractConfigManager {
 	}
 
 	private ConfigCache getConfigCache() throws LionException {
-		if (configCache == null) {
-			synchronized (this) {
-				if (configCache == null) {
-					try {
-						configCache = ConfigCache.getInstance();
-					} catch (Exception e) {
-						configCache = ConfigCache.getInstance(getConfigServerAddress());
-					}
-				}
-			}
-		}
+		init();
 		return configCache;
 	}
 
@@ -80,7 +83,7 @@ public class LionConfigManager extends AbstractConfigManager {
 
 	@Override
 	public String doGetLocalIp() throws Exception {
-		return null;
+		return ip;
 	}
 
 	@Override
@@ -129,4 +132,29 @@ public class LionConfigManager extends AbstractConfigManager {
 	public void doRegisterConfigChangeListener(ConfigChangeListener configChangeListener) throws Exception {
 	}
 
+	@Override
+	public void init() {
+		Map<String, Object> config = new HashMap<String, Object>();
+		try {
+			LocalConfigLoader.loadProperties(config, FileUtils.readFile(new FileInputStream(ENV_FILE)));
+		} catch (Throwable e) {
+		}
+		ip = (String) config.get("ip");
+
+		if (configCache == null) {
+			synchronized (this) {
+				if (configCache == null) {
+					try {
+						configCache = ConfigCache.getInstance();
+					} catch (Exception e) {
+						configCache = ConfigCache.getInstance(getConfigServerAddress());
+					}
+				}
+			}
+		}
+	}
+
+	public String toString() {
+		return "LionConfigManager";
+	}
 }

@@ -6,12 +6,11 @@ package com.dianping.pigeon.registry.config;
 
 import java.util.Properties;
 
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.util.Constants;
 
 /**
@@ -25,7 +24,7 @@ public class DefaultRegistryConfigManager implements RegistryConfigManager {
 
 	@Override
 	public Properties getRegistryConfig() {
-		ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+		ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 		
 		String registryType = configManager.getStringValue(Constants.KEY_REGISTRY_TYPE, Constants.DEFAULT_REGISTRY_TYPE);
 		String registryAddr = configManager.getStringValue(Constants.KEY_REGISTRY_ADDRESS, configManager.getConfigServerAddress());

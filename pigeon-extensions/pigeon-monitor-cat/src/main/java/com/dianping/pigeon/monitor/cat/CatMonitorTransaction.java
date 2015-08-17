@@ -11,8 +11,6 @@ import com.dianping.cat.message.Transaction;
 import com.dianping.cat.message.internal.DefaultTransaction;
 import com.dianping.cat.message.spi.MessageManager;
 import com.dianping.cat.message.spi.MessageTree;
-import com.dianping.phoenix.environment.PhoenixContext;
-import com.dianping.pigeon.monitor.MonitorLogger;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -25,16 +23,12 @@ import com.dianping.pigeon.util.ContextUtils;
  */
 public class CatMonitorTransaction implements MonitorTransaction {
 
-	private MonitorLogger logger = null;
+	private CatMonitor monitor = null;
 	private Transaction transaction = null;
 	private InvocationContext invocationContext = null;
 
-	public static final String REQUEST_ID = "requestId";
-	public static final String REFER_REQUEST_ID = "referRequestId";
-	public static final String GUID = "guid";
-
-	public CatMonitorTransaction(CatLogger logger, Transaction transaction, InvocationContext invocationContext) {
-		this.logger = logger;
+	public CatMonitorTransaction(CatMonitor monitor, Transaction transaction, InvocationContext invocationContext) {
+		this.monitor = monitor;
 		this.transaction = transaction;
 		this.invocationContext = invocationContext;
 	}
@@ -80,16 +74,10 @@ public class CatMonitorTransaction implements MonitorTransaction {
 	}
 
 	@Override
-	public MonitorLogger getLogger() {
-		return logger;
-	}
-
-	@Override
 	public void readMonitorContext() {
 		InvocationContext invocationContext = getInvocationContext();
 		if (invocationContext != null) {
-			CatLogger logger = (CatLogger) getLogger();
-			MessageProducer producer = logger.getMessageProducer();
+			MessageProducer producer = monitor.getMessageProducer();
 			MessageManager messageManager = Cat.getManager();
 			MessageTree tree = messageManager.getThreadLocalMessageTree();
 			if (tree == null) {
@@ -101,17 +89,13 @@ public class CatMonitorTransaction implements MonitorTransaction {
 				currentMessageId = producer.createMessageId();
 				tree.setMessageId(currentMessageId);
 			}
-			String serverMessageId = logger.getMessageProducer().createMessageId();
+			String serverMessageId = monitor.getMessageProducer().createMessageId();
 			String rootMsgId = tree.getRootMessageId();
 			String rootMessageId = rootMsgId == null ? currentMessageId : rootMsgId;
 
-			invocationContext.putContextValue(CatConstants.PIGEON_ROOT_MESSAGE_ID, rootMessageId);
-			invocationContext.putContextValue(CatConstants.PIGEON_CURRENT_MESSAGE_ID, currentMessageId);
-			invocationContext.putContextValue(CatConstants.PIGEON_SERVER_MESSAGE_ID, serverMessageId);
-			// Transfer requestId and referRequestId
-			invocationContext.putContextValue(REQUEST_ID, PhoenixContext.getInstance().getRequestId());
-			invocationContext.putContextValue(REFER_REQUEST_ID, PhoenixContext.getInstance().getReferRequestId());
-			invocationContext.putContextValue(GUID, PhoenixContext.getInstance().getGuid());
+			ContextUtils.putRequestContext(CatConstants.PIGEON_ROOT_MESSAGE_ID, rootMessageId);
+			ContextUtils.putRequestContext(CatConstants.PIGEON_CURRENT_MESSAGE_ID, currentMessageId);
+			ContextUtils.putRequestContext(CatConstants.PIGEON_SERVER_MESSAGE_ID, serverMessageId);
 
 			ContextUtils.putLocalContext(CatConstants.PIGEON_CURRENT_MESSAGE_ID, currentMessageId);
 
@@ -121,22 +105,12 @@ public class CatMonitorTransaction implements MonitorTransaction {
 
 	}
 
-	@Override
 	public void writeMonitorContext() {
 		InvocationContext invocationContext = getInvocationContext();
 		if (invocationContext != null) {
-			InvocationRequest request = invocationContext.getRequest();
-			Object context = request.getContext();
-			String rootMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_ROOT_MESSAGE_ID);
-			String serverMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_CURRENT_MESSAGE_ID);
-			String currentMessageId = ContextUtils.getContextValue(context, CatConstants.PIGEON_SERVER_MESSAGE_ID);
-			// Set requestId & referRequestId
-			String requestId = ContextUtils.getContextValue(context, REQUEST_ID);
-			String referRequestId = ContextUtils.getContextValue(context, REFER_REQUEST_ID);
-			String guid = ContextUtils.getContextValue(context, GUID);
-			PhoenixContext.getInstance().setRequestId(requestId);
-			PhoenixContext.getInstance().setReferRequestId(referRequestId);
-			PhoenixContext.getInstance().setGuid(guid);
+			String rootMessageId = (String) ContextUtils.getLocalContext(CatConstants.PIGEON_ROOT_MESSAGE_ID);
+			String serverMessageId = (String) ContextUtils.getLocalContext(CatConstants.PIGEON_CURRENT_MESSAGE_ID);
+			String currentMessageId = (String) ContextUtils.getLocalContext(CatConstants.PIGEON_SERVER_MESSAGE_ID);
 
 			MessageManager messageManager = Cat.getManager();
 			MessageTree tree = messageManager.getThreadLocalMessageTree();

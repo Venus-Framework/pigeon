@@ -9,12 +9,11 @@ import java.util.Map;
 
 import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.ProviderExceptionTranslator;
 import com.dianping.pigeon.util.LangUtils;
@@ -22,7 +21,7 @@ import com.dianping.pigeon.util.VersionUtils;
 
 public final class ProviderUtils {
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static ProviderExceptionTranslator exceptionTranslator = new ProviderExceptionTranslator();
 
@@ -106,7 +105,7 @@ public final class ProviderUtils {
 		StringBuilder msg = new StringBuilder();
 		msg.append(title).append(", from:")
 				.append(providerContext.getChannel() == null ? "" : providerContext.getChannel().getRemoteAddress())
-				.append(", to:").append(ExtensionLoader.getExtension(ConfigManager.class).getLocalIp())
+				.append(", to:").append(ConfigManagerLoader.getConfigManager().getLocalIp())
 				.append(", time:").append(System.currentTimeMillis()).append("\r\nrequest:")
 				.append(request);
 		return msg.toString();

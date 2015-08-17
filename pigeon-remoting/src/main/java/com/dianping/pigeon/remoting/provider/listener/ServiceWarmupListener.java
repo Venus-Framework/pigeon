@@ -7,13 +7,11 @@ package com.dianping.pigeon.remoting.provider.listener;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.status.Phase;
 import com.dianping.pigeon.remoting.common.status.StatusContainer;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -24,7 +22,7 @@ public class ServiceWarmupListener implements Runnable {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceWarmupListener.class);
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static final int CHECK_INTERVAL = configManager.getIntValue(Constants.KEY_WEIGHT_WARMUPPERIOD,
 			Constants.DEFAULT_WEIGHT_WAMUPPERIOD);

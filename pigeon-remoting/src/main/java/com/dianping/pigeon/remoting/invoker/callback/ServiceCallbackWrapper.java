@@ -11,10 +11,9 @@ import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.exception.DPSFException;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
@@ -28,7 +27,7 @@ public class ServiceCallbackWrapper implements Callback {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceCallbackWrapper.class);
 
-	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
+	private static final Monitor monitor = MonitorLoader.getMonitor();
 
 	private InvocationResponse response;
 
@@ -59,20 +58,20 @@ public class ServiceCallbackWrapper implements Callback {
 						.append(request.getServiceName()).append(",method:").append(request.getMethodName())
 						.append("\r\nhost:").append(client.getHost()).append(":").append(client.getPort());
 				logger.error(sb.toString(), cause);
-				monitorLogger.logError(sb.toString(), cause);
+				monitor.logError(sb.toString(), cause);
 				this.callback.frameworkException(new DPSFException(cause));
 			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 				Throwable cause = InvokerUtils.toApplicationException(response);
 				Exception businessException = (Exception) cause;
 				if (Constants.LOG_INVOKER_APP_EXCEPTION) {
 					logger.error("error with remote business callback", businessException);
-					monitorLogger.logError("error with remote business callback", businessException);
+					monitor.logError("error with remote business callback", businessException);
 				}
 				this.callback.serviceException(businessException);
 			} else {
 				RpcException e = new InvalidParameterException("unsupported response with message type:"
 						+ response.getMessageType());
-				monitorLogger.logError(e);
+				monitor.logError(e);
 			}
 		} catch (Throwable e) {
 			logger.error("error while executing service callback", e);

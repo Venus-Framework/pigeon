@@ -10,10 +10,9 @@ import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceFuture;
 import com.dianping.dpsf.exception.DPSFException;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
@@ -26,7 +25,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceFutureImpl.class);
 
-	private static final MonitorLogger monitorLogger = ExtensionLoader.getExtension(Monitor.class).getLogger();
+	private static final Monitor monitor = MonitorLoader.getMonitor();
 
 	private long timeout = Long.MAX_VALUE;
 
@@ -38,7 +37,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		super();
 		this.timeout = timeout;
 		callerThread = Thread.currentThread();
-		transaction = monitorLogger.getCurrentTransaction();
+		transaction = monitor.getCurrentTransaction();
 	}
 
 	@Override
@@ -69,12 +68,12 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 				rpcEx = new RpcException(e);
 			}
 			logger.error(rpcEx);
-			monitorLogger.logError(rpcEx);
+			monitor.logError(rpcEx);
 			if (transaction != null) {
 				try {
 					transaction.setStatusError(e);
 				} catch (Throwable e2) {
-					monitorLogger.logMonitorError(e2);
+					monitor.logMonitorError(e2);
 				}
 			}
 			throw rpcEx;
@@ -83,7 +82,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 				try {
 					transaction.complete();
 				} catch (Throwable e) {
-					monitorLogger.logMonitorError(e);
+					monitor.logMonitorError(e);
 				}
 			}
 		}
@@ -94,19 +93,19 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 			RpcException cause = InvokerUtils.toRpcException(response);
 			logger.error("error with future call", cause);
-			monitorLogger.logError("error with future call", cause);
+			monitor.logError("error with future call", cause);
 			throw cause;
 		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 			RuntimeException cause = InvokerUtils.toApplicationRuntimeException(response);
 			if (Constants.LOG_INVOKER_APP_EXCEPTION) {
 				logger.error("error with remote business future call", cause);
-				monitorLogger.logError("error with remote business future call", cause);
+				monitor.logError("error with remote business future call", cause);
 			}
 			throw cause;
 		} else {
 			RpcException e = new InvalidParameterException("unsupported response with message type:"
 					+ response.getMessageType());
-			monitorLogger.logError(e);
+			monitor.logError(e);
 			throw e;
 		}
 

@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
@@ -22,7 +22,7 @@ public class CuratorRegistry implements Registry {
 
 	private static Logger logger = LoggerLoader.getLogger(CuratorRegistry.class);
 
-	private ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private CuratorClient client;
 

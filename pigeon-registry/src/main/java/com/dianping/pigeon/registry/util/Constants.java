@@ -5,7 +5,7 @@
 package com.dianping.pigeon.registry.util;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 
 public final class Constants {
 
@@ -36,7 +36,7 @@ public final class Constants {
 	public static final String REGISTRY_TYPE_LOCAL = "local";
 	public static final String DEFAULT_REGISTRY_TYPE = REGISTRY_TYPE_ZOOKEEPER;
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	public static final String KEY_WEIGHT_DEFAULT = "pigeon.weight.default";
 	public static final int WEIGHT_ON = 1;

@@ -15,8 +15,8 @@ import org.springframework.util.CollectionUtils;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
@@ -32,7 +32,7 @@ public class ProviderAvailableListener implements Runnable {
 
 	private Map<String, List<Client>> workingClients;
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static long interval = configManager.getLongValue("pigeon.providerlistener.interval", 3000);
 

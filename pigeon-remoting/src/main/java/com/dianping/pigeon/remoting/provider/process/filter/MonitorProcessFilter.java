@@ -12,10 +12,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -38,7 +37,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 
 	private static final Logger accessLogger = LoggerLoader.getLogger("pigeon-access");
 
-	private Monitor monitor = ExtensionLoader.getExtension(Monitor.class);
+	private static final Monitor monitor = MonitorLoader.getMonitor();
 
 	private static boolean isAccessLogEnabled = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.provider.accesslog.enable", false);
@@ -52,12 +51,8 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 		InvocationRequest request = invocationContext.getRequest();
 		ProviderChannel channel = invocationContext.getChannel();
 		MonitorTransaction transaction = null;
-		MonitorLogger monitorLogger = null;
 		String fromIp = null;
 		if (monitor != null) {
-			monitorLogger = monitor.getLogger();
-		}
-		if (monitorLogger != null) {
 			String strMethod = null;
 			try {
 				ServiceMethod serviceMethod = ServiceMethodFactory.getMethod(request);
@@ -71,8 +66,8 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					strMethod = InvocationUtils.getRemoteCallFullName(request.getServiceName(),
 							request.getMethodName(), request.getParamClassName());
 				}
-				transaction = monitorLogger.createTransaction("PigeonService", strMethod, invocationContext);
-				monitorLogger.logEvent("PigeonService.app", request.getApp(), "");
+				transaction = monitor.createTransaction("PigeonService", strMethod, invocationContext);
+				monitor.logEvent("PigeonService.app", request.getApp(), "");
 				String parameters = "";
 				fromIp = channel.getRemoteAddress();
 				if (Constants.LOG_PARAMETERS) {
@@ -80,7 +75,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					event.append(InvocationUtils.toJsonString(request.getParameters(), 1000, 50));
 					parameters = event.toString();
 				}
-				monitorLogger.logEvent("PigeonService.client", fromIp, parameters);
+				monitor.logEvent("PigeonService.client", fromIp, parameters);
 				SizeMonitor.getInstance().logSize(request.getSize(), "PigeonService.requestSize", null);
 				if (!Constants.PROTOCOL_DEFAULT.equals(channel.getProtocol())) {
 					transaction.addData("Protocol", channel.getProtocol());
@@ -88,7 +83,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 				ContextUtils.putLocalContext("CurrentServiceUrl",
 						request.getServiceName() + "#" + request.getMethodName());
 			} catch (Throwable e) {
-				monitorLogger.logError(e);
+				monitor.logError(e);
 			}
 		}
 		InvocationResponse response = null;
@@ -100,11 +95,11 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					try {
 						transaction.setStatusError(e);
 					} catch (Throwable e2) {
-						monitorLogger.logMonitorError(e2);
+						monitor.logMonitorError(e2);
 					}
 				}
-				if (monitorLogger != null) {
-					monitorLogger.logError(e);
+				if (monitor != null) {
+					monitor.logError(e);
 				}
 			}
 			if (transaction != null) {
@@ -126,17 +121,17 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					String from = (String) ContextUtils.getLocalContext("RequestIp");
 					if (from != null) {
 						transaction.addData("RequestIp", from);
-						monitorLogger.logEvent("PigeonConsole.client", from, "");
+						monitor.logEvent("PigeonConsole.client", from, "");
 					}
 					transaction.writeMonitorContext();
 					transaction.setStatusOk();
 				} catch (Throwable e) {
-					monitorLogger.logError(e);
+					monitor.logError(e);
 				}
 			}
 		} finally {
-			if (invocationContext.getServiceError() != null && monitorLogger != null) {
-				monitorLogger.logError(invocationContext.getServiceError());
+			if (invocationContext.getServiceError() != null && monitor != null) {
+				monitor.logError(invocationContext.getServiceError());
 			}
 			if (transaction != null) {
 				try {
@@ -150,7 +145,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 								.append("@").append(request).toString());
 					}
 				} catch (Throwable e) {
-					monitorLogger.logMonitorError(e);
+					monitor.logMonitorError(e);
 				}
 			}
 			ContextUtils.clearContext();

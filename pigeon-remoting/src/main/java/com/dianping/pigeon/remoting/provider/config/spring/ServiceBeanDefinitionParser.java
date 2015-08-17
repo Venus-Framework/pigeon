@@ -7,9 +7,6 @@ package com.dianping.pigeon.remoting.provider.config.spring;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
-
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -24,7 +21,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.provider.config.ProviderMethodConfig;
 import com.dianping.pigeon.remoting.provider.process.threadpool.RequestThreadPoolProcessor;
 
@@ -43,7 +41,7 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 
 	public static AtomicInteger idCounter = new AtomicInteger();
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static boolean checkRefExists = configManager.getBooleanValue("pigeon.config.spring.checkrefexists", false);
 
@@ -64,7 +62,7 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.isBlank(id)) {
 			id = "pigeonService_" + idCounter.incrementAndGet();
 		}
-		beanDefinition.setBeanClass(ServiceBean.class);
+		beanDefinition.setBeanClass(SingleServiceBean.class);
 		beanDefinition.setInitMethodName("init");
 
 		MutablePropertyValues properties = beanDefinition.getPropertyValues();

@@ -22,10 +22,9 @@ import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLogger;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -57,7 +56,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 	private final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
-	private static ConfigManager configManager = ExtensionLoader.getExtension(ConfigManager.class);
+	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static long heartBeatDeadCount = configManager.getLongValue(Constants.KEY_HEARTBEAT_DEADTHRESHOLD,
 			Constants.DEFAULT_HEARTBEAT_DEADCOUNT);
@@ -72,7 +71,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	private static float pickoffRatio = configManager.getFloatValue("pigeon.heartbeat.pickoffratio", 0.5f);
 	private static boolean logPickOff = configManager.getBooleanValue("pigeon.heartbeat.logpickoff", true);
 	private static boolean logPickOn = configManager.getBooleanValue("pigeon.heartbeat.logpickon", true);
-	private static MonitorLogger monitor = ExtensionLoader.getExtension(Monitor.class).getLogger();
+	private static Monitor monitor = MonitorLoader.getMonitor();
 
 	private static volatile Set<String> inactiveAddresses = new HashSet<String>();
 
@@ -131,13 +130,11 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 		@Override
 		public void onKeyAdded(String key, String value) {
-			// TODO Auto-generated method stub
 
 		}
 
 		@Override
 		public void onKeyRemoved(String key) {
-			// TODO Auto-generated method stub
 
 		}
 	}
