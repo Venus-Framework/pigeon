@@ -18,7 +18,7 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.domain.phase.Disposable;
+import com.dianping.pigeon.remoting.common.domain.Disposable;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.AbstractServer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;

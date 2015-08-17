@@ -5,7 +5,7 @@
 	<groupId>com.dianping</groupId>
 	<artifactId>pigeon-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>2.5.7</version>
+	<version>2.5.8</version>
 	<name>pigeon-parent</name>
 	<organization>
 		<name>dianping</name>
@@ -25,7 +25,7 @@
 		<module>pigeon-monitor</module>
 		<module>pigeon-extensions</module>
 		<module>pigeon-governor</module>
-		<module>pigeon-test</module>
+		<module>pigeon-demo</module>
 		<module>pigeon-console</module>
 		<module>pigeon</module>
 	</modules>
