@@ -25,13 +25,33 @@ public class InvocationUtils {
 
 	private static final int defaultStrMaxItems = configManager.getIntValue(Constants.KEY_STRING_MAXITEMS,
 			Constants.DEFAULT_STRING_MAXITEMS);
-	
+
 	public static String toJsonString(Object obj) {
 		return Stringizers.forJson().from(obj, defaultStrMaxLength, defaultStrMaxItems);
 	}
 
 	public static String toJsonString(Object obj, int strMaxLength, int strMaxItems) {
 		return Stringizers.forJson().from(obj, strMaxLength, strMaxItems);
+	}
+
+	public static String getRemoteCallFullName(String methodName, Object[] parameters) {
+		if (parameters != null) {
+			StringBuilder str = new StringBuilder(methodName).append("(");
+			for (int i = 0; i < parameters.length; i++) {
+				if (parameters[i] == null) {
+					str.append("null,");
+				} else {
+					str.append(parameters[i].getClass().getName()).append(",");
+				}
+			}
+			if (parameters.length > 0) {
+				str.deleteCharAt(str.length() - 1);
+			}
+			str.append(")");
+			return str.toString();
+		} else {
+			return methodName;
+		}
 	}
 
 	public static String getRemoteCallFullName(String serviceName, String methodName, Class<?>[] parameterTypes) {

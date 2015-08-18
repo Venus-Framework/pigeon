@@ -10,6 +10,8 @@ import java.lang.reflect.Method;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
+
 public class ServiceMethod {
 
 	private Method method;
@@ -45,7 +47,6 @@ public class ServiceMethod {
 	private int parameterLength;
 
 	public ServiceMethod(Object service, Method method) {
-
 		this.service = service;
 		this.method = method;
 		this.parameterClasses = regulateTypes(this.method.getParameterTypes());
@@ -114,9 +115,20 @@ public class ServiceMethod {
 					}
 					argumentsCast[i] = arg;
 				}
-				return this.getMethod().invoke(this.getService(), argumentsCast);
+				try {
+					return this.getMethod().invoke(this.getService(), argumentsCast);
+				} catch (IllegalArgumentException e) {
+					throw new IllegalArgumentException("invalid parameter types:"
+							+ InvocationUtils.getRemoteCallFullName(this.getMethod().getName(), argumentsCast),
+							e.getCause());
+				}
 			}
 		}
-		return this.getMethod().invoke(this.getService(), arguments);
+		try {
+			return this.getMethod().invoke(this.getService(), arguments);
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException("invalid parameter types:"
+					+ InvocationUtils.getRemoteCallFullName(this.getMethod().getName(), arguments), e.getCause());
+		}
 	}
 }
