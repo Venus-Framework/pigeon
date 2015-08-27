@@ -149,7 +149,7 @@ public class NettyServer extends AbstractServer implements Disposable {
 
 	@Override
 	public String toString() {
-		return "NettyServer-" + this.port;
+		return "netty server-" + this.port;
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceFutureFactory;
+import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -65,13 +66,15 @@ public class ForkingCluster implements Cluster {
 		if (request.getTimeout() > 0) {
 			ret = ref.poll(request.getTimeout(), TimeUnit.MILLISECONDS);
 		} else {
-			ret = ref.poll();
+			ret = ref.take();
 		}
 		if (ret instanceof Throwable) {
 			throw (Throwable) ret;
 		} else if ((ret instanceof FutureResponse)
 				&& Constants.CALL_FUTURE.equalsIgnoreCase(invokerConfig.getCallType())) {
 			ServiceFutureFactory.setFuture(((FutureResponse) ret).getServiceFuture());
+		} else if (ret == null) {
+			throw new NetTimeoutException("timeout while waiting forking response:" + request);
 		}
 		return (InvocationResponse) ret;
 	}

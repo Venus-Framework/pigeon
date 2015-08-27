@@ -24,8 +24,6 @@ import com.dianping.pigeon.remoting.netty.codec.NettyCodecUtils;
 
 public class InvokerEncoder extends AbstractEncoder {
 
-	private static final String eventName = "PigeonCall.requestSize";
-
 	public InvokerEncoder() {
 		super();
 	}

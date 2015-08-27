@@ -21,8 +21,6 @@ import com.dianping.pigeon.remoting.netty.codec.AbstractEncoder;
 
 public class ProviderEncoder extends AbstractEncoder {
 
-	private static final String eventName = "PigeonService.responseSize";
-
 	public ProviderEncoder() {
 		super();
 	}

@@ -1,36 +1,22 @@
 ## Pigeon开发指南
 ______
 
-Pigeon主要解决以下问题：
-
-分布式服务通信框架（RPC），当垂直应用越来越多，应用之间交互不可避免，将核心业务抽取出来，作为独立的服务，逐渐形成稳定的服务中心，通过pigeon可以实现应用之间的交互。
-基于pigeon实现服务监控治理、资源调度等。
-
-### 架构
-
-1、服务体系
-
-Provider:暴露服务的服务提供方。
-Invoker:调用远程服务的服务消费方。
-Registry: 服务注册与发现的注册中心。
-Monitor:统计服务的调用次调和调用时间的监控中心。
-Container:服务运行容器。
-调用关系说明：
-0、服务容器负责启动，加载，运行服务提供者。
-1、服务提供者在启动时，向注册中心注册自己提供的服务。
-2、服务消费者在启动时，向注册中心订阅自己所需的服务。
-3、注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者。
-4、服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。
-5、服务消费者和提供者，在内存中累计调用次数和调用时间等统计信息，定时发送统计数据到监控中心。
+Pigeon是一个分布式服务通信框架（RPC），在大众点评内部广泛使用，是大众点评最基础的底层框架之一。
 
 ### 主要特色
 
 除了支持spring schema等配置方式，也支持代码annotation方式发布服务、引用远程服务，并提供原生api接口的用法。
+
 支持http协议，方便非java应用调用pigeon的服务。
-序列化方式除了pigeon1.x已有的hessian方式，还支持fst、protostuff。
+
+序列化方式除了hessian，还支持fst、protostuff。
+
 提供了服务器单机控制台pigeon-console，包含单机服务测试工具。
-创新的weightedAutoware客户端路由策略，提供服务预热功能，解决线上流量大的service重启时大量超时的问题。
+
+创新的客户端路由策略，提供服务预热功能，解决线上流量大的service重启时大量超时的问题。
+
 记录每个请求的对象大小、返回对象大小等监控信息。
+
 服务端可对方法设置单独的线程池进行服务隔离，可配置客户端应用的最大并发数进行限流。
 
 ### 依赖
@@ -90,6 +76,46 @@ pigeon在运行时会依赖以下jar包，但不是强依赖某个版本，需�
 		<version>2.5-20081211</version>
 		</dependency>
 
+### 准备工作
+
+如果是在外部公司使用开源版本pigeon，需要关注此章节，进行一些准备工作：
+
+1、下载代码后，通过maven构建项目：
+
+git clone git地址 pigeon-parent
+
+cd pigeon-parent
+
+mvn clean install -DskipTests
+
+2、环境准备
+
+a、zookeeper安装
+pigeon内部使用zookeeper作为注册中心，需要安装好zookeeper集群。
+
+b、配置pigeon的zookeeper集群地址
+如未使用大众点评配置框架lion，需在应用代码resources/config/pigeon.properties里（也可以在绝对路径/data/webapps/config/pigeon.properties里）设置注册中心zookeeper地址：
+
+pigeon.registry.address=10.1.1.1:2181,10.1.1.2:2181,10.1.1.3:2181,10.1.1.4:2181,10.1.1.5:2181
+
+
+c、配置摘除服务的脚本：
+
+由于pigeon内部是在zookeeper里使用持久化节点，如果非正常关闭jvm，不会从zookeeper集群里摘除相应的本机服务的ip、port，需要在关闭jvm脚本里（比如tomcat的shutdown.sh脚本）加入以下调用：
+
+/usr/bin/curl -s --connect-timeout 5  --speed-time 6 --speed-limit 1 "http://127.0.0.1:4080/services.unpublish"
+
+该脚本内部会等待3秒，如果成功会返回ok，等该脚本执行成功再关闭jvm
+
+d、应用名称配置：
+
+在应用代码resources/META-INF/app.properties文件里设置
+
+app.name=xxx
+
+代表此应用名称为xxx，定义应用名称是基于规范应用的考虑
+
+
 ### 快速入门
 
 本文档相关示例代码可以参考pigeon-demo项目：
@@ -119,9 +145,7 @@ EchoServiceImpl.java
 
 2、服务提供者注册服务
 
-可以选择以下两种方式之一编写代码
-
-2.1、spring方式
+这里先介绍传统spring方式，后边章节会介绍annotation方式、spring schema定义方式、api方式。
 
 Spring配置声明暴露服务：
 
@@ -151,29 +175,8 @@ Provider.java
 		}
 		}
 
-2.2、api方式
-
-Provider.java
-
-		public class Provider {
-		public static void main(String[] args) throws Exception {
-			ServiceFactory.addService(EchoService.class, new EchoServiceImpl());
-			System.in.read(); // 按任意键退出
-		}
-		}
-		
-注意兼容性：如果使用pigeon的api方式时需要考虑兼容性，由于pigeon1.x里需要在spring配置定义服务名称url，如http://service.dianping.com/demoService/echoService_1.0.0还需要定义端口，
-而api方式可以不定义这个服务名称和端口（自动分配端口），有的场合仍需要自定义，可以参考以下代码：
-
-		ServiceFactory.publishService("http://service.dianping.com/demoService/echoService_1.0.0", EchoService.class, new EchoServiceImpl(), 4040);
-
-更详细的api接口可以参考下面的api详细说明。
 
 3、服务调用者
-
-可以选择以下两种方式之一编写代码
-
-3.1、spring方式
 
 通过Spring配置引用远程服务：
 
@@ -207,35 +210,6 @@ Invoker.java
 			}
 		}
 
-3.2、api方式
-
-Invoker.java
-
-		public class Invoker {
-			public static void main(String[] args) throws Exception {
-				EchoService echoService = ServiceFactory.getService(EchoService.class); // 获取远程服务代理
-				String hello = echoService.echo("world");
-				System.out.println( hello );
-			}
-		}
-		
-注意兼容性：如果使用pigeon的api方式时需要考虑兼容性，pigeon1.x里需要在spring配置定义服务名称url，如http://service.dianping.com/demoService/echoService_1.0.0
-而api方式可以不定义这个服务名称，有的场合仍需要自定义，可以按如下代码：
-
-		EchoService echoService = ServiceFactory.getService("http://service.dianping.com/demoService/echoService_1.0.0", EchoService.class, 2000); // 获取远程服务代理
-		String hello = echoService.echo("world");
-		System.out.println( hello );
-
-如果要程序指定序列化方式或协议类型，可以参考如下代码：
-
-		InvokerConfig<EchoService> config = new InvokerConfig<EchoService>(EchoService.class);
-		config.setProtocol(InvokerConfig.PROTOCOL_DEFAULT);
-		config.setSerialize(InvokerConfig.SERIALIZE_HESSIAN);
-		EchoService service = ServiceFactory.getService(config);
-		String hello = service.echo("world");
-		System.out.println( hello );
-		
-更详细的api接口可以参考下面的api详细说明。
 
 ### annotation编程方式
 
@@ -407,9 +381,56 @@ EchoService是一个远程服务的接口：
 		      interface="com.dianping.pigeon.demo.EchoService" callType="callback"
 		      callback="echoServiceCallback" />
 
+
 ### api编程方式
 
-ServiceFactory接口：
+1、服务提供者
+
+Provider.java
+
+		public class Provider {
+		public static void main(String[] args) throws Exception {
+			ServiceFactory.addService(EchoService.class, new EchoServiceImpl());
+			System.in.read(); // 按任意键退出
+		}
+		}
+		
+如需自定义服务url（代表这个服务的唯一性标识，默认是接口类名）或端口等参数，可以参考以下代码：
+
+		ServiceFactory.publishService("http://service.dianping.com/demoService/echoService_1.0.0", EchoService.class, new EchoServiceImpl(), 4040);
+
+更详细的api接口可以参考ServiceFactory类的api详细说明。
+
+2、服务调用者
+
+Invoker.java
+
+		public class Invoker {
+			public static void main(String[] args) throws Exception {
+				EchoService echoService = ServiceFactory.getService(EchoService.class); // 获取远程服务代理
+				String hello = echoService.echo("world");
+				System.out.println( hello );
+			}
+		}
+		
+如果要调用的服务定义了特定的url（代表这个服务的唯一性标识，默认是接口类名），需要客户端指定服务url，可以参考如下代码：
+
+		EchoService echoService = ServiceFactory.getService("http://service.dianping.com/demoService/echoService_1.0.0", EchoService.class, 2000); // 获取远程服务代理
+		String hello = echoService.echo("world");
+		System.out.println( hello );
+
+如果要程序指定序列化方式或协议类型，可以参考如下代码：
+
+		InvokerConfig<EchoService> config = new InvokerConfig<EchoService>(EchoService.class);
+		config.setProtocol(InvokerConfig.PROTOCOL_DEFAULT);
+		config.setSerialize(InvokerConfig.SERIALIZE_HESSIAN);
+		EchoService service = ServiceFactory.getService(config);
+		String hello = service.echo("world");
+		System.out.println( hello );
+		
+更详细的api接口可以参考ServiceFactory类的api详细说明。
+
+3、ServiceFactory接口：
 
 		public static <T> T getService(Class<T> serviceInterface) throws RpcException
 		public static <T> T getService(Class<T> serviceInterface, int timeout) throws RpcException
@@ -528,6 +549,7 @@ ServiceFactory接口：
 		public static void setServerWeight(int weight) throws RegistryException
 		public static void online() throws RegistryException
 		public static void offline() throws RegistryException
+
 
 ### 序列化支持
 

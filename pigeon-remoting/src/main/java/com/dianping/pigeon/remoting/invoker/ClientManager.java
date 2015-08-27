@@ -153,7 +153,7 @@ public class ClientManager {
 			}
 			if (vip.startsWith("console:")) {
 				useVip = true;
-				vip = vip.replaceAll("console", NetUtils.getFirstLocalIp());
+				vip = vip.replaceAll("console", configManager.getLocalIp());
 			}
 		}
 		try {
@@ -184,7 +184,7 @@ public class ClientManager {
 	public Set<HostInfo> registerServiceInvokers(String serviceName, String group, String vip) {
 		String localHost = null;
 		if (vip != null && vip.startsWith("console:")) {
-			localHost = NetUtils.getFirstLocalIp() + vip.substring(vip.indexOf(":"));
+			localHost = configManager.getLocalIp() + vip.substring(vip.indexOf(":"));
 		}
 		String serviceAddress = getServiceAddress(serviceName, group, vip);
 		String[] addressArray = serviceAddress.split(",");

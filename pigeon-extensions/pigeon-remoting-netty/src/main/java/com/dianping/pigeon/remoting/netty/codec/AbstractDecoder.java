@@ -63,13 +63,6 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 			cb.writeBytes(cb_);
 		}
 
-		// if (SizeMonitor.isLogDecoder()) {
-		// int size = cb_.readableBytes();
-		// String ip = ((InetSocketAddress)
-		// channel.getRemoteAddress()).getAddress().getHostAddress();
-		// SizeMonitor.getInstance().logSize(size, getEventName(), ip);
-		// }
-
 		List<Object> messages = null;
 		int lastReadIndex = cb.readerIndex();
 		while (cb.readable()) {
