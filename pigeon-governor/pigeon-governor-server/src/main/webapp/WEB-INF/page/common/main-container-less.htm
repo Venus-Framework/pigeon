@@ -1,3 +1,5 @@
+#set($layout="layoutblank.htm")
+			
 <script type="text/javascript">
 	try{ace.settings.check('main-container' , 'fixed')}catch(e){}
 </script>
@@ -6,16 +8,11 @@
 	#parse("common/sidebar.htm")
 </div>
 <div class="main-content">
-
-
-<div class="col-md-8">
-
-        <xmp>
-#parse("main/help/USER_GUIDE.md")
-        </xmp>
-</div>
-
-
+ 	#if(${subPath})
+      	#parse("main/${path}/${subPath}.htm")
+     #else
+      	#parse("main/${path}/main.htm")
+     #end
 </div><!-- /.main-content -->
 <div class="footer">
 	#parse("common/sub-footer.htm")

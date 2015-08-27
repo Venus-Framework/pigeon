@@ -21,6 +21,6 @@ public class DocumentController {
 	public ModelAndView viewHelp(HttpServletRequest request, HttpServletResponse response) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("path", "help");
-		return new ModelAndView("common/main-container", map);
+		return new ModelAndView("main/help/main", map);
 	}
 }
