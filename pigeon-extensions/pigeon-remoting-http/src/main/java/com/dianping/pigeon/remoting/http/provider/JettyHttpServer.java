@@ -125,7 +125,7 @@ public class JettyHttpServer extends AbstractServer implements Disposable {
 
 	@Override
 	public String toString() {
-		return "JettyServer-" + port;
+		return "http server-" + port;
 	}
 
 	@Override

@@ -9,13 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 
-/**
- * 
- * 这个类应该是helper类，TODO，修改名称。。。。
- * 
- * @author jianhuihuang
- * @version $Id: DPSFUtils.java, v 0.1 2013-6-18 上午10:38:07 jianhuihuang Exp $
- */
 public final class NettyCodecUtils {
 
 	private NettyCodecUtils() {
@@ -28,16 +21,6 @@ public final class NettyCodecUtils {
 			attachments = createAttachment(ctx);
 		}
 		attachments.put(seq, value);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Object getAttachmentNotRemove(ChannelHandlerContext ctx, int seq) {
-		Map<Integer, Object> attachments = (Map<Integer, Object>) ctx.getAttachment();
-		if (attachments == null) {
-			//attachments = createAttachment(ctx);
-			return null;
-		}
-		return attachments.get(seq);
 	}
 
 	@SuppressWarnings("unchecked")

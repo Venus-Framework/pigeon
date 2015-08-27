@@ -67,7 +67,7 @@ public class StatisticsJsonServlet extends ServiceServlet {
 		for (Server server : servers.values()) {
 			RequestProcessor processor = server.getRequestProcessor();
 			if (processor != null) {
-				serverProcessorStatistics.put(server.getProtocol() + "-" + server.getPort(),
+				serverProcessorStatistics.put(server.toString(),
 						processor.getProcessorStatistics());
 			}
 		}

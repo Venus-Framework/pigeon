@@ -14,7 +14,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	List<User<?>> users = new ArrayList<User<?>>();
 
-	UserService userService = ServiceFactory.getService(UserService.class, 1000);
+	//UserService userService = ServiceFactory.getService(UserService.class, 1000);
 
 	public EchoServiceDefaultImpl() {
 	}
@@ -37,7 +37,8 @@ public class EchoServiceDefaultImpl implements EchoService {
 		}
 		System.out.println(msg);
 		ContextUtils.putResponseContext("key1", "repsonse1");
-		return "echo:" + userService.echo(msg);
+		// return "echo:" + userService.echo(msg);
+		return "echo:" + msg;
 	}
 
 	@Override

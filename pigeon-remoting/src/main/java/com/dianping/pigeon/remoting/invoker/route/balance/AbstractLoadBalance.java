@@ -11,6 +11,8 @@ import java.util.Random;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -20,13 +22,14 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
-import com.dianping.pigeon.util.NetUtils;
 
 public abstract class AbstractLoadBalance implements LoadBalance {
 
 	private static final Logger logger = LoggerLoader.getLogger(AbstractLoadBalance.class);
 
 	protected Random random = new Random();
+	
+	private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	@Override
 	public Client select(List<Client> clients, InvokerConfig<?> invokerConfig, InvocationRequest request) {
@@ -39,7 +42,7 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 			// 客户端强制路由
 			if (forceAddress.startsWith("localhost") || forceAddress.startsWith("127.0.0.1")) {
 				if (forceAddress.lastIndexOf(":") != -1) {
-					forceAddress = NetUtils.getFirstLocalIp() + forceAddress.substring(forceAddress.lastIndexOf(":"));
+					forceAddress = configManager.getLocalIp() + forceAddress.substring(forceAddress.lastIndexOf(":"));
 				}
 			}
 			for (Client client : clients) {

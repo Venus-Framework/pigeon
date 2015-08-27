@@ -79,8 +79,8 @@ public final class ProviderBootStrap {
 						server.start(config);
 						httpServer = server;
 						serversMap.put(server.getProtocol() + server.getPort(), server);
-						logger.warn("pigeon server[version:" + VersionUtils.VERSION + "] has been started at port:"
-								+ server.getPort());
+						logger.warn("pigeon " + server + "[version:" + VersionUtils.VERSION
+								+ "] has been started");
 					}
 				}
 			}
@@ -106,10 +106,8 @@ public final class ProviderBootStrap {
 							s.start(serverConfig);
 							s.addService(providerConfig);
 							serversMap.put(s.getProtocol() + serverConfig.getPort(), s);
-							if (logger.isInfoEnabled()) {
-								logger.info("pigeon server[version:" + VersionUtils.VERSION
-										+ "] has been started at port:" + s.getPort());
-							}
+							logger.warn("pigeon " + s + "[version:" + VersionUtils.VERSION
+									+ "] has been started");
 							break;
 						}
 					}

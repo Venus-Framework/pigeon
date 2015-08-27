@@ -38,15 +38,14 @@ import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
-import com.dianping.pigeon.util.NetUtils;
 
 public class HeartBeatListener implements Runnable, ClusterListener {
 
 	private static final Logger logger = LoggerLoader.getLogger(HeartBeatListener.class);
 
-	public static final String HEART_TASK_SERVICE = "http://service.dianping.com/piegonService/heartTaskService";
+	public static final String HEART_TASK_SERVICE = "HeartbeatService/";
 
-	public static final String HEART_TASK_METHOD = "heartBeat";
+	public static final String HEART_TASK_METHOD = "heartbeat";
 
 	private Map<String, List<Client>> workingClients;
 
@@ -71,7 +70,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	private static float pickoffRatio = configManager.getFloatValue("pigeon.heartbeat.pickoffratio", 0.5f);
 	private static boolean logPickOff = configManager.getBooleanValue("pigeon.heartbeat.logpickoff", true);
 	private static boolean logPickOn = configManager.getBooleanValue("pigeon.heartbeat.logpickon", true);
-	private static Monitor monitor = MonitorLoader.getMonitor();
+	private static final Monitor monitor = MonitorLoader.getMonitor();
 
 	private static volatile Set<String> inactiveAddresses = new HashSet<String>();
 
@@ -130,11 +129,13 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 		@Override
 		public void onKeyAdded(String key, String value) {
+			// TODO Auto-generated method stub
 
 		}
 
 		@Override
 		public void onKeyRemoved(String key) {
+			// TODO Auto-generated method stub
 
 		}
 	}
@@ -168,7 +169,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 								&& (RegistryManager.getInstance().getServiceWeight(client.getAddress()) > 0);
 						if (enable) {
 							if (client.isConnected()) {
-								if (NetUtils.getFirstLocalIp().equals(client.getHost())
+								if (configManager.getLocalIp().equals(client.getHost())
 										&& serverPorts.contains(client.getPort())) {
 									continue;
 								}
@@ -226,8 +227,8 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	}
 
 	private InvocationRequest createHeartRequest(Client client) {
-		InvocationRequest request = new DefaultRequest(HEART_TASK_SERVICE, HEART_TASK_METHOD, null,
-				SerializerFactory.SERIALIZE_HESSIAN, Constants.MESSAGE_TYPE_HEART, heartBeatTimeout, null);
+		InvocationRequest request = new DefaultRequest(HEART_TASK_SERVICE + client.getAddress(), HEART_TASK_METHOD,
+				null, SerializerFactory.SERIALIZE_HESSIAN, Constants.MESSAGE_TYPE_HEART, heartBeatTimeout, null);
 		request.setSequence(generateHeartSeq(client));
 		request.setCreateMillisTime(System.currentTimeMillis());
 		request.setCallType(Constants.CALLTYPE_REPLY);
