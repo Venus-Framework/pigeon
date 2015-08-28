@@ -23,4 +23,11 @@ public class DocumentController {
 		map.put("path", "help");
 		return new ModelAndView("main/help/main", map);
 	}
+	
+	@RequestMapping(value = { "/update" })
+	public ModelAndView viewUpdate(HttpServletRequest request, HttpServletResponse response) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("path", "update");
+		return new ModelAndView("main/update/main", map);
+	}
 }
