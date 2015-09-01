@@ -120,14 +120,6 @@ public class ServicePage {
 		this.registry = registry;
 	}
 
-	public String getPhase() {
-		return phase;
-	}
-
-	public void setPhase(String phase) {
-		this.phase = phase;
-	}
-
 	public String getOnline() {
 		return online;
 	}

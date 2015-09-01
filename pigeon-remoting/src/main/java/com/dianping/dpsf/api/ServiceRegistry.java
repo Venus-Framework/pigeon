@@ -15,7 +15,6 @@ import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
-import com.dianping.pigeon.remoting.provider.listener.ServiceInitializeListener;
 
 /**
  * <p>
@@ -29,7 +28,7 @@ import com.dianping.pigeon.remoting.provider.listener.ServiceInitializeListener;
  * @version 1.0
  * @created 2010-8-26 上午10:43:19
  */
-public class ServiceRegistry extends ServiceInitializeListener {
+public class ServiceRegistry {
 
 	private Map<String, Object> services;
 	private int port = 20000;

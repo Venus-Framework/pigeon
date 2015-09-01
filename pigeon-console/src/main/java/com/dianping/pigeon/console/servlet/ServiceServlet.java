@@ -32,8 +32,6 @@ import com.dianping.pigeon.console.status.checker.StatusChecker;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.common.status.Phase;
-import com.dianping.pigeon.remoting.common.status.StatusContainer;
 import com.dianping.pigeon.remoting.common.util.ServiceConfigUtils;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
@@ -154,7 +152,6 @@ public class ServiceServlet extends HttpServlet {
 			page.addService(s);
 		}
 		page.setOnline("" + GlobalStatusChecker.isOnline());
-		page.setPhase(StatusContainer.getPhase().toString());
 		setStatus(page, serviceProviders.isEmpty());
 		String direct = request.getParameter("direct");
 		if (direct == null) {
@@ -178,30 +175,28 @@ public class ServiceServlet extends HttpServlet {
 			page.setStatus("error");
 		}
 		if (isClientSide) {// client-side
-			// set published
 			page.setPublished("none");
-			// set status
-			if (!"error".equals(page.getStatus())) {
-				page.setStatus("ok");
-			}
 		} else {// server-side
-			// set published
-			Phase phase = StatusContainer.getPhase();
-			page.setPublished(phase.toString());
-			// set status
-			if (phase.equals(Phase.PUBLISHED) || phase.equals(Phase.WARMINGUP) || phase.equals(Phase.WARMEDUP)) {
+			int publishedCount = 0;
+			int unpublishedCount = 0;
+			Map<String, ProviderConfig<?>> services = ServiceProviderFactory.getAllServiceProviders();
+			for (Entry<String, ProviderConfig<?>> entry : services.entrySet()) {
+				ProviderConfig<?> providerConfig = entry.getValue();
+				if (providerConfig.isPublished()) {
+					publishedCount++;
+				} else {
+					unpublishedCount++;
+				}
+			}
+			if (publishedCount > 0 && unpublishedCount == 0) {
 				page.setPublished("true");
 			} else {
 				page.setPublished("false");
 			}
-			// set status
-			if (!"error".equals(page.getStatus())) {
-				if ("true".equals(page.getPublished())) {
-					page.setStatus("ok");
-				} else {
-					page.setStatus(phase.toString());
-				}
-			}
+		}
+		// set status
+		if (!"error".equals(page.getStatus())) {
+			page.setStatus("ok");
 		}
 	}
 

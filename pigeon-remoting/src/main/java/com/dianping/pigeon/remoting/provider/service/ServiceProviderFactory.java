@@ -19,8 +19,6 @@ import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.remoting.common.status.Phase;
-import com.dianping.pigeon.remoting.common.status.StatusContainer;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.SecurityUtils;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
@@ -139,7 +137,6 @@ public final class ServiceProviderFactory {
 					if (isNotify && serviceChangeListener != null) {
 						serviceChangeListener.notifyServicePublished(providerConfig);
 					}
-					StatusContainer.setPhase(Phase.PUBLISHING);
 
 					boolean autoRegisterEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
 							Constants.KEY_AUTOREGISTER_ENABLE, true);
@@ -243,11 +240,6 @@ public final class ServiceProviderFactory {
 			}
 			serverWeightCache.put(serverAddress, weight);
 		}
-		if (weight <= 0) {
-			StatusContainer.setPhase(Phase.OFFLINE);
-		} else {
-			StatusContainer.setPhase(Phase.ONLINE);
-		}
 	}
 
 	public synchronized static <T> void unpublishService(ProviderConfig<T> providerConfig) throws RegistryException {
@@ -265,7 +257,6 @@ public final class ServiceProviderFactory {
 					+ existingService);
 		}
 		if (existingService) {
-			StatusContainer.setPhase(Phase.TOUNPUBLISH);
 			List<Server> servers = ProviderBootStrap.getServers(providerConfig);
 			for (Server server : servers) {
 				String serverAddress = configManager.getLocalIp() + ":" + server.getPort();
@@ -346,7 +337,6 @@ public final class ServiceProviderFactory {
 			logger.info("unpublish all services");
 		}
 		ServiceWarmupListener.stop();
-		StatusContainer.setPhase(Phase.TOUNPUBLISH);
 		setServerWeight(0);
 		try {
 			Thread.sleep(UNPUBLISH_WAITTIME);
@@ -358,7 +348,6 @@ public final class ServiceProviderFactory {
 				unpublishService(providerConfig);
 			}
 		}
-		StatusContainer.setPhase(Phase.UNPUBLISHED);
 	}
 
 	public static void publishAllServices() throws RegistryException {
@@ -375,7 +364,6 @@ public final class ServiceProviderFactory {
 				publishService(providerConfig, forcePublish);
 			}
 		}
-		StatusContainer.setPhase(Phase.PUBLISHED);
 	}
 
 	public static Map<String, ProviderConfig<?>> getAllServiceProviders() {

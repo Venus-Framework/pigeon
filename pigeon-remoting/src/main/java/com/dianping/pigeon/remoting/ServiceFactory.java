@@ -396,8 +396,7 @@ public class ServiceFactory {
 	}
 
 	public static void online() throws RegistryException {
-		ServiceProviderFactory.setServerWeight(Constants.WEIGHT_START);
-		ServiceWarmupListener.start();
+		ServiceProviderFactory.setServerWeight(Constants.WEIGHT_DEFAULT);
 	}
 
 	public static void offline() throws RegistryException {

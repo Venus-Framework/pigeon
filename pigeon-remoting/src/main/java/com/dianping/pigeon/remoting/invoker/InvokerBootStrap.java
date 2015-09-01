@@ -6,14 +6,11 @@ package com.dianping.pigeon.remoting.invoker;
 
 import org.apache.logging.log4j.Logger;
 
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.config.RegistryConfigLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
-import com.dianping.pigeon.remoting.common.status.Phase;
-import com.dianping.pigeon.remoting.common.status.StatusContainer;
 import com.dianping.pigeon.remoting.invoker.process.InvokerProcessHandlerFactory;
 import com.dianping.pigeon.remoting.invoker.process.ResponseProcessorFactory;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
@@ -44,7 +41,6 @@ public final class InvokerBootStrap {
 						monitor.init();
 					}
 					isStartup = true;
-					StatusContainer.setPhase(Phase.INVOKER_READY);
 					logger.warn("pigeon client[version:" + VersionUtils.VERSION + "] has been started");
 				}
 			}

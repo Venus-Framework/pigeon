@@ -17,7 +17,6 @@ import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
-import com.dianping.pigeon.remoting.provider.listener.ServiceInitializeListener;
 
 public final class ServiceBean extends ServiceInitializeListener {
 
