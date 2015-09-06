@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="description" content="overview &amp; stats"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>Pigeon</title>
+    
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css">
+    
+</head>
+<body>
+
+<div class="col-md-12">
+
+	<form action="/services/${service.id}" accept-charset="UTF-8" method="post">
+	
+		<input type="hidden" value="${service.id}" name="id">
+		
+	  <div class="field">
+	    <label for="service_name">Name</label><br>
+	    <input type="text" value="${service.name}" name="name" id="service_name">
+	  </div>
+	  <div class="field">
+	    <label for="service_desc">Description</label><br>
+	    <input type="text" value="${service.desc}" name="desc" id="service_desc">
+	  </div>
+	  <div class="field">
+	    <label for="service_swimlane">Swimlane</label><br>
+	    <input type="text" value="${service.group}" name="group" id="service_swimlane">
+	  </div>
+	  <div class="field">
+	    <label for="service_hosts">Hosts</label><br>
+	    <input type="text" value="${service.hosts}" name="hosts" id="service_hosts">
+	  </div>
+	  <div class="field">
+	    <label for="service_projectid">projectId</label><br>
+	    <input type="text" value="${service.projectid}" name="projectid" id="service_projectid">
+	  </div>
+	  <div class="field">
+	    <label for="service_envid">envId</label><br>
+	    <input type="text" value="${service.envid}" name="envid" id="service_envid">
+	  </div>
+	  
+	  <div class="actions">
+	    <input type="submit" name="commit" value="Update Service">
+	  </div>
+	
+	</form>
+
+</div>
+
+<script src="${rc.contextPath}/resources/assets/js/jquery.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap.min.js"></script>
+
+</body>
+</html>

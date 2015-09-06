@@ -22,56 +22,46 @@
 
 	<task:annotation-driven />
 
-	<!-- <pigeon:reference id="logService" timeout="3000" interface="com.dianping.dae.sdk.log.LogService" 
-		/> -->
-
-	<!-- scan for mappers and let them be autowired -->
-	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.dianping.pigeon.governor.persistence" />
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+    	<property name="driverClass" value="com.mysql.jdbc.Driver" />
+    	<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/pigeon-governor-server?characterEncoding=UTF8" />
+    	<property name="user" value="root" />
+    	<property name="password" value="root" />
+    	<property name="minPoolSize" value="1" /> 
+		<property name="maxPoolSize" value="10" /> 
+		<property name="initialPoolSize" value="1" /> 
+		<property name="maxIdleTime" value="300" /> 
+		<property name="idleConnectionTestPeriod" value="60" /> 
+		<property name="acquireRetryAttempts" value="3" /> 
+		<property name="acquireRetryDelay" value="300" />
+		<property name="maxStatements" value="0"/> 
+		<property name="maxStatementsPerConnection" value="100"/>
+		<property name="numHelperThreads" value="6"/>
+		<property name="maxAdministrativeTaskTime" value="5"/>
+		<property name="preferredTestQuery" value="SELECT 1"/>
+    </bean>
+    
+    <!-- SessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations" value="classpath:com/dianping/pigeon/governor/dao/*.xml" />
 	</bean>
 
-	<!-- in-memory database and a datasource -->
-	<!-- <jdbc:embedded-database id="dataSource"> <jdbc:script location="classpath:database/hsqldb-schema.sql" 
-		/> <jdbc:script location="classpath:database/hsqldb-dataload.sql" /> </jdbc:embedded-database> -->
-
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-		destroy-method="close">
-		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://localhost:3306/test1" />
-		<property name="username" value="test" />
-		<property name="password" value="123456" />
-		<property name="maxActive" value="5" />
-		<property name="initialSize" value="1" />
-		<property name="maxIdle" value="5" />
-		<property name="minIdle" value="1" />
-		<property name="removeAbandoned" value="true" />
-		<property name="removeAbandonedTimeout" value="600" />
-		<property name="validationQuery" value="SELECT 1" />
-		<property name="testOnBorrow" value="true" />
-		<property name="testOnReturn" value="false" />
-		<property name="testWhileIdle" value="true" />
-	</bean>
-
-	<!-- transaction manager, use JtaTransactionManager for global tx -->
+	<!-- Transaction -->
 	<bean id="transactionManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
+	
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- MyBatis Mappers -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.dianping.pigeon.governor.dao" />
+	</bean>
 
 	<!-- enable autowire -->
 	<context:annotation-config />
-
-	<!-- enable transaction demarcation with annotations -->
-	<tx:annotation-driven />
-
-	<!-- define the SqlSessionFactory -->
-	<!-- <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"> -->
-	<!-- <property name="dataSource" ref="dataSource" /> -->
-	<!-- <property name="typeAliasesPackage" value="com.dianping.pigeon.governor.domain" 
-		/> -->
-	<!-- <property name="mapperLocations" -->
-	<!-- value="classpath:com/dianping/pigeon/governor/persistence/*.xml" /> -->
-	<!-- </bean> -->
 
 	<!-- enable component scanning (beware that this does not enable mapper 
 		scanning!) -->
