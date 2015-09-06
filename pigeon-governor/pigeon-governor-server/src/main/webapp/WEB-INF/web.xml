@@ -24,7 +24,7 @@
 		<filter-class>org.apache.logging.log4j.web.Log4jServletFilter</filter-class>
 	</filter> -->
 	<servlet>
-		<servlet-name>rest</servlet-name>
+		<servlet-name>rest_servlet</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
@@ -34,7 +34,7 @@
 	</servlet>
 
 	<servlet-mapping>
-		<servlet-name>rest</servlet-name>
+		<servlet-name>rest_serlvet</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 
