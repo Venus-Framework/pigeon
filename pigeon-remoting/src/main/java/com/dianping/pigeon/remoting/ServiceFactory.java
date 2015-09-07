@@ -19,8 +19,8 @@ import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
+import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
@@ -148,11 +148,11 @@ public class ServiceFactory {
 				throw new RpcException("error while trying to get service:" + invokerConfig, t);
 			}
 			try {
-				ClientManager.getInstance().registerServiceInvokers(invokerConfig.getUrl(), invokerConfig.getGroup(),
+				ClientManager.getInstance().registerClients(invokerConfig.getUrl(), invokerConfig.getGroup(),
 						invokerConfig.getVip());
 			} catch (Throwable t) {
 				try {
-					ClientManager.getInstance().registerServiceInvokers(invokerConfig.getUrl(),
+					ClientManager.getInstance().registerClients(invokerConfig.getUrl(),
 							invokerConfig.getGroup(), invokerConfig.getVip());
 				} catch (Throwable t2) {
 					logger.warn("error while trying to setup service client:" + invokerConfig, t2);

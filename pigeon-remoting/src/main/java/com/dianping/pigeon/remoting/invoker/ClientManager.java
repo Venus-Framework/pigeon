@@ -16,7 +16,6 @@ import java.util.concurrent.Executors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
-import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
@@ -40,7 +39,6 @@ import com.dianping.pigeon.remoting.invoker.listener.ReconnectListener;
 import com.dianping.pigeon.remoting.invoker.route.DefaultRouteManager;
 import com.dianping.pigeon.remoting.invoker.route.RouteManager;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
-import com.dianping.pigeon.util.NetUtils;
 import com.dianping.pigeon.util.ThreadPoolUtils;
 
 public class ClientManager {
@@ -78,6 +76,9 @@ public class ClientManager {
 
 	private static boolean reloadWeight = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.register.weight.reload", true);
+	
+	private static boolean enableVip = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.invoker.vip.enable", false);
 
 	public static ClientManager getInstance() {
 		return instance;
@@ -137,18 +138,10 @@ public class ClientManager {
 	}
 
 	public String getServiceAddress(String serviceName, String group, String vip) {
-		if (!RegistryManager.isInitialized()) {
-			logger.info("waitting for registry initialized");
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-		}
 		String serviceAddress = null;
 		boolean useVip = false;
 		if (StringUtils.isNotBlank(vip)) {
-			if ((ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv()) || ConfigConstants.ENV_ALPHA
-					.equalsIgnoreCase(configManager.getEnv()))) {
+			if (enableVip) {
 				useVip = true;
 			}
 			if (vip.startsWith("console:")) {
@@ -181,7 +174,7 @@ public class ClientManager {
 		return serviceAddress;
 	}
 
-	public Set<HostInfo> registerServiceInvokers(String serviceName, String group, String vip) {
+	public Set<HostInfo> registerClients(String serviceName, String group, String vip) {
 		String localHost = null;
 		if (vip != null && vip.startsWith("console:")) {
 			localHost = configManager.getLocalIp() + vip.substring(vip.indexOf(":"));
@@ -283,7 +276,7 @@ public class ClientManager {
 			logger.info("begin to sync service addresses:" + serviceGroupMap.size());
 			for (String url : serviceGroupMap.keySet()) {
 				try {
-					Set<HostInfo> addresses = registerServiceInvokers(url, serviceGroupMap.get(url), null);
+					Set<HostInfo> addresses = registerClients(url, serviceGroupMap.get(url), null);
 					// remove unreferenced service address
 					Set<HostInfo> currentAddresses = serviceAddresses.get(url);
 					if (currentAddresses != null && addresses != null) {

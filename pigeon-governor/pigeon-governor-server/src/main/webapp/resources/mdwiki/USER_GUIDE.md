@@ -39,7 +39,6 @@ pigeon在运行时会依赖以下jar包，但不是强依赖某个版本，需�
 		<version>0.5.3</version>
 		</dependency>
 		<dependency>
-		<dependency>
 		<groupId>com.dianping.cat</groupId>
 		<artifactId>cat-core</artifactId>
 		<version>1.3.4</version>

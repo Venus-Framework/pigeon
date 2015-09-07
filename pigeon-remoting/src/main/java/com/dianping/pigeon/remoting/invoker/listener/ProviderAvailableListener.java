@@ -129,7 +129,7 @@ public class ProviderAvailableListener implements Runnable {
 						logger.info("check provider available for service:" + url);
 						String error = null;
 						try {
-							ClientManager.getInstance().registerServiceInvokers(url, group, vip);
+							ClientManager.getInstance().registerClients(url, group, vip);
 						} catch (Throwable e) {
 							error = e.getMessage();
 						}
@@ -138,7 +138,7 @@ public class ProviderAvailableListener implements Runnable {
 							if (available < providerAvailableLeast) {
 								logger.info("check provider available with default group for service:" + url);
 								try {
-									ClientManager.getInstance().registerServiceInvokers(url, Constants.DEFAULT_GROUP,
+									ClientManager.getInstance().registerClients(url, Constants.DEFAULT_GROUP,
 											vip);
 								} catch (Throwable e) {
 									error = e.getMessage();

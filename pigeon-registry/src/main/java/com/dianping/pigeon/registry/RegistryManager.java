@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
-import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
@@ -58,6 +57,9 @@ public class RegistryManager {
 
 	private static final boolean fallbackDefaultGroup = configManager.getBooleanValue("pigeon.registry.group.fallback",
 			true);
+	
+	private static boolean enableLocalConfig = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.registry.config.local", false);
 
 	private RegistryManager() {
 	}
@@ -139,8 +141,7 @@ public class RegistryManager {
 			}
 			return props.getProperty(serviceKey);
 		}
-		if (ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv())
-				|| ConfigConstants.ENV_ALPHA.equalsIgnoreCase(configManager.getEnv())) {
+		if (enableLocalConfig) {
 			String addr = configManager.getLocalStringValue(Utils.escapeServiceName(serviceKey));
 			if (addr == null) {
 				try {
@@ -149,8 +150,8 @@ public class RegistryManager {
 				}
 			}
 			if (!StringUtils.isBlank(addr)) {
-				if (logger.isInfoEnabled()) {
-					logger.info("get service address from local properties, service name:" + serviceName + "  address:"
+				if (logger.isDebugEnabled()) {
+					logger.debug("get service address from local properties, service name:" + serviceName + "  address:"
 							+ addr);
 				}
 				return addr;
@@ -168,7 +169,7 @@ public class RegistryManager {
 		if (StringUtils.isBlank(group)) {
 			return serviceName;
 		} else {
-			return serviceName + "?group=" + group;
+			return serviceName + "?" + group;
 		}
 	}
 

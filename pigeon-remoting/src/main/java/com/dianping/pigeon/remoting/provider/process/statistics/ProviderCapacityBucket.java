@@ -81,6 +81,11 @@ public class ProviderCapacityBucket implements Serializable {
 		return counter != null ? counter.get() : 0;
 	}
 
+	public int getRequestsInSecond(int second) {
+		AtomicInteger counter = totalRequestsInSecond.get(second);
+		return counter != null ? counter.get() : 0;
+	}
+
 	public int getRequestsInLastMinute() {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MINUTE, -1);
