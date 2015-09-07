@@ -41,7 +41,9 @@
 			<columnOverride column="desc" delimitedColumnName="true" />
 			<columnOverride column="group" delimitedColumnName="true" />
 		</table>
-		<table schema="" tableName="project" domainObjectName="Project" />
+		<table schema="" tableName="project" domainObjectName="Project">
+			<columnOverride column="%" delimitedColumnName="true" />
+		</table>
 		
 	</context>
 	

@@ -16,8 +16,6 @@ public class ServiceBean {
 
     private Integer projectid;
 
-    private Integer envid;
-
 	public Integer getId() {
 		return id;
 	}
@@ -40,10 +38,6 @@ public class ServiceBean {
 
 	public Integer getProjectid() {
 		return projectid;
-	}
-
-	public Integer getEnvid() {
-		return envid;
 	}
 
 	public void setId(Integer id) {
@@ -70,10 +64,6 @@ public class ServiceBean {
 		this.projectid = projectid;
 	}
 
-	public void setEnvid(Integer envid) {
-		this.envid = envid;
-	}
-	
 	public Service createService(){
 		Service service = new Service();
 		
@@ -82,7 +72,6 @@ public class ServiceBean {
 		service.setGroup(this.group);
 		service.setHosts(this.hosts);
 		service.setProjectid(this.projectid);
-		service.setEnvid(this.envid);
 		
 		return service;
 	}

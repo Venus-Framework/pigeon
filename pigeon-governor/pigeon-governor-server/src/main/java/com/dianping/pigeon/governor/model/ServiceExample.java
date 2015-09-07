@@ -593,66 +593,6 @@ public class ServiceExample {
             addCriterion("projectId not between", value1, value2, "projectid");
             return (Criteria) this;
         }
-
-        public Criteria andEnvidIsNull() {
-            addCriterion("envId is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvidIsNotNull() {
-            addCriterion("envId is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvidEqualTo(Integer value) {
-            addCriterion("envId =", value, "envid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvidNotEqualTo(Integer value) {
-            addCriterion("envId <>", value, "envid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvidGreaterThan(Integer value) {
-            addCriterion("envId >", value, "envid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvidGreaterThanOrEqualTo(Integer value) {
-            addCriterion("envId >=", value, "envid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvidLessThan(Integer value) {
-            addCriterion("envId <", value, "envid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvidLessThanOrEqualTo(Integer value) {
-            addCriterion("envId <=", value, "envid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvidIn(List<Integer> values) {
-            addCriterion("envId in", values, "envid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvidNotIn(List<Integer> values) {
-            addCriterion("envId not in", values, "envid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvidBetween(Integer value1, Integer value2) {
-            addCriterion("envId between", value1, value2, "envid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvidNotBetween(Integer value1, Integer value2) {
-            addCriterion("envId not between", value1, value2, "envid");
-            return (Criteria) this;
-        }
     }
 
     /**

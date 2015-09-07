@@ -77,7 +77,7 @@ public class PigeonConfigController {
 		
 		int sqlResult = -1;
 		
-		if(StringUtils.isBlank(service.getName()) || service.getProjectid() == null || service.getEnvid() == null){
+		if(StringUtils.isBlank(service.getName()) || service.getProjectid() == null){
 			sqlResult = -1;
 		} else {
 			sqlResult = serviceMapper.insertSelective(service);
@@ -105,7 +105,7 @@ public class PigeonConfigController {
 		
 		int sqlResult = -1;
 		
-		if(StringUtils.isBlank(service.getName()) || service.getProjectid() == null || service.getEnvid() == null){
+		if(StringUtils.isBlank(service.getName()) || service.getProjectid() == null){
 			sqlResult = -1;
 		} else {
 			sqlResult = serviceMapper.updateByPrimaryKeySelective(service);
