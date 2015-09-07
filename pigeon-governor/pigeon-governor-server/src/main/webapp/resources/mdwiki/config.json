@@ -1,6 +1,7 @@
 {
     "useSideMenu": true,
     "lineBreaks": "gfm",
-    "additionalFooterText": "All content and images &copy; by John Doe",
-    "anchorCharacter": "#"
+    "additionalFooterText": "",
+    "anchorCharacter": "&para;",
+    "title": "Pigeon文档"
 }

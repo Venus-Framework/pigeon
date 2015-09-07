@@ -16,10 +16,11 @@
 	</Appenders>
 	<Loggers>
 		<Logger name="com.dianping.pigeon.governor" level="INFO"
-			additivity="false">
+			additivity="true">
 			<AppenderRef ref="File" level="INFO" />
 		</Logger>
 		<root level="INFO">
+			<AppenderRef ref="Console" />
 		</root>
 	</Loggers>
 </Configuration>

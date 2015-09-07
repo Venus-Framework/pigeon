@@ -16,13 +16,31 @@
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 
-<!-- 	<listener>
+	<!-- log4j2-begin -->
+	<context-param>
+	    <param-name>log4jContextName</param-name>
+	    <param-value>myApplication</param-value>
+	</context-param>
+	<context-param>
+	    <param-name>log4jConfiguration</param-name>
+	    <param-value>classpath:log4j2.xml</param-value>
+	</context-param>
+	<listener>
 		<listener-class>org.apache.logging.log4j.web.Log4jServletContextListener</listener-class>
 	</listener>
 	<filter>
 		<filter-name>log4jServletFilter</filter-name>
 		<filter-class>org.apache.logging.log4j.web.Log4jServletFilter</filter-class>
-	</filter> -->
+	</filter>
+	<filter-mapping>
+		<filter-name>log4jServletFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+    	<dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	    <dispatcher>ERROR</dispatcher>
+	</filter-mapping>
+	<!-- log4j2-end -->
 	<servlet>
 		<servlet-name>rest_servlet</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
