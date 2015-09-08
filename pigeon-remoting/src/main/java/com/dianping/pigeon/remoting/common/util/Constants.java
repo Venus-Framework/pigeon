@@ -181,7 +181,7 @@ public final class Constants {
 			"pigeon.log.parameters", false);
 	
 	public static final int QPS_INTERVAL = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.monitor.qps.interval", 5);
+			"pigeon.monitor.qps.interval", 60);
 
 	public static final String KEY_SERVICE_COREPOOLSIZE = "pigeon.provider.service.corePoolSize";
 	public static final String KEY_SERVICE_MAXPOOLSIZE = "pigeon.provider.service.maxPoolSize";

@@ -1,6 +1,9 @@
 ## pigeon版本发布说明
 ------
 
+### 2.6.0
+增加pigeonCall.QPS和pigeonService.QPS监控信息
+
 ### 2.5.9
 修复服务注册时会引起客户端少量超时的问题
 
