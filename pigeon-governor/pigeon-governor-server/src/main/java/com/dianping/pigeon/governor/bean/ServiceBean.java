@@ -4,7 +4,7 @@ import com.dianping.pigeon.governor.model.Service;
 
 public class ServiceBean {
 	
-	private Integer id;
+	private String id;
 	
 	private String name;
 	
@@ -15,8 +15,18 @@ public class ServiceBean {
     private String hosts;
 
     private Integer projectid;
+    
+    private String oper;
 
-	public Integer getId() {
+	public String getOper() {
+		return oper;
+	}
+
+	public void setOper(String oper) {
+		this.oper = oper;
+	}
+
+	public String getId() {
 		return id;
 	}
 
@@ -40,7 +50,7 @@ public class ServiceBean {
 		return projectid;
 	}
 
-	public void setId(Integer id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -78,7 +88,8 @@ public class ServiceBean {
 
 	public Service convertToService(){
 		Service service = this.createService();
-		service.setId(this.id);
+		Integer id = Integer.parseInt(this.id);
+		service.setId(id);
 		
 		return service;
 	}

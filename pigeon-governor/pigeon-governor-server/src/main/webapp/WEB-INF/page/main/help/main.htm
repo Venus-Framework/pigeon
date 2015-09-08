@@ -1,34 +1,78 @@
-<script type="text/javascript">
-	try{ace.settings.check('main-container' , 'fixed')}catch(e){}
-</script>
-<!-- #section:basics/sidebar -->
-<div id="sidebar" class="sidebar   responsive">
-	#parse("common/sidebar.htm")
-</div>
-<div class="main-content">
+#set($layout="layout_jqGrid.htm")
+	<script type="text/javascript">
+		try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+	</script>
+	<!-- #section:basics/sidebar -->
+	<div id="sidebar" class="sidebar   responsive">
+		#parse("common/sidebar.htm")
+	</div>
 
+	<div class="main-content">
+	 	
+	 	<!-- #section:basics/content.breadcrumbs -->
+		<div class="breadcrumbs" id="breadcrumbs">
+			<script type="text/javascript">
+				try {
+					ace.settings.check('breadcrumbs', 'fixed')
+				} catch (e) {
+				}
+			</script>
+		
+			<ul class="breadcrumb">
+				<li><i class="ace-icon fa fa-home home-icon"></i> <a href="#">主页</a>
+				</li>
+		
+				<li class="active">配置服务</li>
+			</ul>
+			<!-- /.breadcrumb -->
+		</div>
+		
+		<!-- /section:basics/content.breadcrumbs -->
+		<div class="page-content">
+		
+			<!-- /section:settings.box -->
+			<div class="page-content-area">
+				<div class="page-header">
+					<h1>
+						配置服务
+						<small>
+							<i class="ace-icon fa fa-angle-double-right"></i>
+							添加、删除、修改、查看pigeon服务配置
+						</small>
+					</h1>
+				</div><!-- /.page-header -->
 
-<div class="col-md-12">
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- PAGE CONTENT BEGINS -->
+						<div class="well well-sm">
+							<button type="button" class="close line-height-0" data-dismiss="alert">
+								<i class="ace-icon fa fa-times smaller-75"></i>
+							</button>
 
-	<iframe src="/resources/mdwiki/index.html#!USER_GUIDE.md" 
-			width="1040"
-			height="630"
-			frameborder="no" 
-			border="0" 
-			marginwidth="0" 
-			marginheight="0" 
-			scrolling="yes" 
-			allowtransparency="yes"
-			/>
+							更多帮助请咨询架构组。
+						</div>
+
+						<table id="grid-table"></table>
+
+						<div id="grid-pager"></div>
+
+						<!-- PAGE CONTENT ENDS -->
+					</div><!-- /.col -->
+				</div><!-- /.row -->
+			</div>
 			
-</div>
+		</div>
+		<!-- /.page-content -->
+	 	
+	 	
+	</div><!-- /.main-content -->
 
-
-</div><!-- /.main-content -->
-<div class="footer">
-	#parse("common/sub-footer.htm")
-</div>
-
-<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
-	<i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
-</a>
+	
+	<div class="footer">
+		#parse("common/sub-footer.htm")
+	</div>
+	
+	<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+		<i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+	</a>

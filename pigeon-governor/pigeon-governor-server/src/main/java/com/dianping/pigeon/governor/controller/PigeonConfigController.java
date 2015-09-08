@@ -5,6 +5,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,9 +19,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.dianping.pigeon.governor.bean.ServiceBean;
+import com.dianping.pigeon.governor.bean.ServiceRetrieveBean;
+import com.dianping.pigeon.governor.bean.ServiceRetrieveFilters;
 import com.dianping.pigeon.governor.bean.WebResult;
-import com.dianping.pigeon.governor.dao.ServiceMapper;
 import com.dianping.pigeon.governor.model.Service;
+import com.dianping.pigeon.governor.service.PigeonConfigService;
 
 @Controller
 public class PigeonConfigController {
@@ -27,25 +31,69 @@ public class PigeonConfigController {
 	private Logger log = LogManager.getLogger();
 	
 	@Autowired
-	private ServiceMapper serviceMapper;
+	private PigeonConfigService pigeonConfigService;
+	
+	@RequestMapping(value = {"/services/test"}, method = RequestMethod.GET)
+	public String allinone(ModelMap modelMap,
+			HttpServletRequest request, HttpServletResponse response) {
+		
+		return "/services/test";
+	}
 	
 	@RequestMapping(value = {"/services"}, method = RequestMethod.GET)
 	public String index(ModelMap modelMap,
 			HttpServletRequest request, HttpServletResponse response) {
 		
-		log.info("into list services ...");
-		
-		List<Service> services = serviceMapper.selectByExample(null);
+		List<Service> services = pigeonConfigService.retrieveAll();
 		modelMap.addAttribute("services", services);
 		
 		return "/services/index";
+	}
+	
+	@RequestMapping(value = {"/services.api"}, method = RequestMethod.POST)
+	public void servicesapi(ModelMap modelMap, ServiceBean serviceBean,
+			HttpServletRequest request, HttpServletResponse response) {
+		
+		log.info("into services.api");
+		
+		String oper = serviceBean.getOper();
+		
+		if("edit".equals(oper)){
+			pigeonConfigService.updateById(serviceBean);
+			
+		}else if("del".equals(oper)){
+			pigeonConfigService.deleteByIdSplitByComma(serviceBean.getId());
+		
+		}else if("add".equals(oper)){
+			pigeonConfigService.create(serviceBean);
+		
+		}
+		
+	}
+	
+	@RequestMapping(value = {"/services.json"}, method = RequestMethod.GET)
+	@ResponseBody
+	public List<Service> servicesjson(ModelMap modelMap, ServiceRetrieveBean serviceRetrieveBean,
+			HttpServletRequest request, HttpServletResponse response) {
+		
+		ServiceRetrieveFilters filters = null;
+		
+		if(StringUtils.isNotBlank(serviceRetrieveBean.getFilters())){
+			JSONObject jsonObj = JSONObject.fromObject(serviceRetrieveBean.getFilters());
+			filters = (ServiceRetrieveFilters) JSONObject.toBean(jsonObj, ServiceRetrieveFilters.class);
+			//log.info(JSONObject.fromObject(filters));
+		}
+		
+		List<Service> services = pigeonConfigService.retrieveAll();
+		
+		return services;
 	}
 
 	@RequestMapping(value = {"/services/{id}"}, method = RequestMethod.GET)
 	public String show(ModelMap modelMap, @PathVariable Integer id,
 			HttpServletRequest request, HttpServletResponse response) {
 		
-		modelMap.addAttribute("service", serviceMapper.selectByPrimaryKey(id));
+		modelMap.addAttribute("service", pigeonConfigService.retrieveById(id));
 		
 		return "/services/show";
 	}
@@ -61,7 +109,7 @@ public class PigeonConfigController {
 	public String edit(ModelMap modelMap, @PathVariable Integer id,
 			HttpServletRequest request, HttpServletResponse response) {
 		
-		modelMap.addAttribute("service", serviceMapper.selectByPrimaryKey(id));
+		modelMap.addAttribute("service", pigeonConfigService.retrieveById(id));
 		
 		return "/services/edit";
 	}
@@ -73,15 +121,7 @@ public class PigeonConfigController {
 		
 		WebResult result = new WebResult(request);
 		
-		Service service = serviceBean.createService();
-		
-		int sqlResult = -1;
-		
-		if(StringUtils.isBlank(service.getName()) || service.getProjectid() == null){
-			sqlResult = -1;
-		} else {
-			sqlResult = serviceMapper.insertSelective(service);
-		}
+		int sqlResult = pigeonConfigService.create(serviceBean);
 		
 		if(sqlResult > 0){
 			result.setStatus(200);
@@ -101,15 +141,8 @@ public class PigeonConfigController {
 			HttpServletRequest request, HttpServletResponse response) {
 		
 		WebResult result = new WebResult(request);
-		Service service = serviceBean.convertToService();
 		
-		int sqlResult = -1;
-		
-		if(StringUtils.isBlank(service.getName()) || service.getProjectid() == null){
-			sqlResult = -1;
-		} else {
-			sqlResult = serviceMapper.updateByPrimaryKeySelective(service);
-		}
+		int sqlResult = pigeonConfigService.updateById(serviceBean);
 		
 		if(sqlResult > 0){
 			result.setStatus(200);
@@ -122,7 +155,8 @@ public class PigeonConfigController {
 		return result;
 	}
 	
-	@RequestMapping(value = {"/services/{id}/delete"}, method = {RequestMethod.GET, RequestMethod.DELETE})
+	@RequestMapping(value = {"/services/{id}/delete"}, 
+					method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE})
 	@ResponseBody
 	public WebResult destroy(ModelMap modelMap, @PathVariable Integer id,
 			HttpServletRequest request, HttpServletResponse response) {
@@ -132,7 +166,7 @@ public class PigeonConfigController {
 		// TODO 加入一些权限之类的判断条件
 		int sqlResult = -1;
 		if(authenticate()){
-			sqlResult = serviceMapper.deleteByPrimaryKey(id);
+			sqlResult = pigeonConfigService.deleteById(id);
 		}
 		
 		if(sqlResult > 0){

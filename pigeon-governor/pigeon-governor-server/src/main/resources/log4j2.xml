@@ -16,11 +16,15 @@
 	</Appenders>
 	<Loggers>
 		<Logger name="com.dianping.pigeon.governor" level="INFO"
-			additivity="true">
+			additivity="false">
 			<AppenderRef ref="File" level="INFO" />
 		</Logger>
+		<Logger name="com.dianping.pigeon.governor.controller" level="INFO"
+			additivity="true">
+			<AppenderRef ref="Console" level="INFO" />
+		</Logger>
 		<root level="INFO">
-			<AppenderRef ref="Console" />
+			<AppenderRef ref="Console" level="ERROR"/>
 		</root>
 	</Loggers>
 </Configuration>
