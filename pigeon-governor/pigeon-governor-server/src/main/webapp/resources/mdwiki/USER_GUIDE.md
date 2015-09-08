@@ -1022,7 +1022,7 @@ com.dianping.pigeon.governor.service.RegistrationInfoService
 
 		<groupId>com.dianping</groupId>
 		<artifactId>pigeon-governor-api</artifactId>
-		<version>2.5.6</version>
+		<version>{参考pigeon版本}</version>
 
 
 接口说明：
@@ -1102,7 +1102,12 @@ swimlane代表tg这个泳道，对于pigeon来说，如果一个service的机器
 对于客户端来说，假设配置了泳道为tg，那么这个客户端机器调用远程服务时，会优先选择服务端泳道配置同样为tg的机器，如果tg泳道的机器不可用或不存在，才会调用其他未配置泳道的机器
 
 ### QPS监控信息
-pigeon会将QPS信息输出到监控系统（cat）
+1、可以通过ip:4080/stats.json查看QPS信息
+appRequestsReceived下会显示requests-lastsecond代表服务收到的请求最近一秒的QPS
+appRequestsSent下会显示requests-lastsecond代表发出的请求最近一秒的QPS
+
+2、QPS信息输出到监控系统
+在cat的event里可以查看：
 客户端发送的QPS：pigeonCall.QPS
 服务端接收的QPS：pigeonService.QPS
 默认是每分钟输出一次，记录每分钟的最高QPS值，在cat上会显示QPS的范围值，如<1000，<2000，在logview里也会记录该最高QPS发生的时分秒
