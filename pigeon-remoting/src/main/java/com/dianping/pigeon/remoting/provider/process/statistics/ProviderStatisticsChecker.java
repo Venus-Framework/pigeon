@@ -6,16 +6,14 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
-import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.monitor.QpsMonitor;
+import com.dianping.pigeon.remoting.common.util.Constants;
 
 public class ProviderStatisticsChecker implements Runnable {
 
 	private static final Logger logger = LoggerLoader.getLogger(ProviderStatisticsChecker.class);
 
-	public static final int qpsInterval = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.monitor.qps.interval", 60);
 
 	@Override
 	public void run() {
@@ -44,7 +42,6 @@ public class ProviderStatisticsChecker implements Runnable {
 							bucket.resetRequestsInSecondCounter();
 						}
 					}
-
 					for (String key : buckets.keySet()) {
 						ProviderCapacityBucket bucket = buckets.get(key);
 						int qps = bucket.getRequestsInSecond(lastSecond);
@@ -54,11 +51,12 @@ public class ProviderStatisticsChecker implements Runnable {
 						maxQps = totalQps;
 						timeOfMaxQps = time;
 					}
-					if (i % qpsInterval == 0 && StringUtils.isNotBlank(timeOfMaxQps)) {
+					if (i % Constants.QPS_INTERVAL == 0 && StringUtils.isNotBlank(timeOfMaxQps)) {
 						QpsMonitor.getInstance().logQps("PigeonService.QPS", maxQps, timeOfMaxQps);
 						maxQps = 0;
 						timeOfMaxQps = "";
 					}
+					
 					if (i % 60 == 0) {
 						i = 0;
 						for (ProviderCapacityBucket bucket : ProviderStatisticsHolder.getCapacityBuckets().values()) {

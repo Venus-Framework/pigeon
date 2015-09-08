@@ -6,6 +6,7 @@ package com.dianping.pigeon.demo.annotation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -38,5 +39,11 @@ public class EchoServiceAnnotationImpl implements EchoService {
 	@Override
 	public void addUser(User<?> user) {
 		users.add(user);
+	}
+
+	@Override
+	public String test(Map<User, String> values) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -78,6 +78,11 @@ public class InvokerCapacityBucket implements Serializable {
 		return totalRequestsInSecond;
 	}
 
+	public int getRequestsInSecond(int second) {
+		AtomicInteger counter = totalRequestsInSecond.get(second);
+		return counter != null ? counter.get() : 0;
+	}
+	
 	public int getRequestsInLastSecond() {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.SECOND, -1);

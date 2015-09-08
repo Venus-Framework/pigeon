@@ -179,6 +179,9 @@ public final class Constants {
 
 	public static final boolean LOG_PARAMETERS = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.log.parameters", false);
+	
+	public static final int QPS_INTERVAL = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.monitor.qps.interval", 5);
 
 	public static final String KEY_SERVICE_COREPOOLSIZE = "pigeon.provider.service.corePoolSize";
 	public static final String KEY_SERVICE_MAXPOOLSIZE = "pigeon.provider.service.maxPoolSize";

@@ -7,6 +7,7 @@ package com.dianping.pigeon.demo;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -19,6 +20,8 @@ public interface EchoService {
 	void addUser(User<?> user);
 
 	List<User<?>> findUsers(int count);
+	
+	String test(Map<User, String> values);
 
 	enum Grade {
 		low, high

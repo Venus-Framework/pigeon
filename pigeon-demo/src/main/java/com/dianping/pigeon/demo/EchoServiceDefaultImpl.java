@@ -5,16 +5,19 @@
 package com.dianping.pigeon.demo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class EchoServiceDefaultImpl implements EchoService {
 
 	List<User<?>> users = new ArrayList<User<?>>();
 
-	//UserService userService = ServiceFactory.getService(UserService.class, 1000);
+	// UserService userService = ServiceFactory.getService(UserService.class,
+	// 1000);
 
 	public EchoServiceDefaultImpl() {
 	}
@@ -57,4 +60,15 @@ public class EchoServiceDefaultImpl implements EchoService {
 		users.add(user);
 	}
 
+	@Override
+	public String test(Map<User, String> values) {
+		System.out.println(users);
+		return values.size() + "";
+	}
+
+	public static void main(String[] args) {
+		Map<User, String> values = new HashMap<User, String>();
+		values.put(new User(1, "wuxiang", "wuxiang@dianping.com", "", 35), "hello, wuxiang");
+		System.out.println(new JacksonSerializer().serializeObject(values));
+	}
 }
