@@ -1,6 +1,6 @@
 package com.dianping.pigeon.governor.bean;
 
-public class ServiceRetrieveBean {
+public class JqGridReqBean {
 
 	private boolean _search;
 	

@@ -2,7 +2,7 @@ package com.dianping.pigeon.governor.bean;
 
 import java.util.List;
 
-public class JqGridTableBean {
+public class JqGridRespBean {
 	
 	private List<?> data;
 	

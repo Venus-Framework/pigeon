@@ -72,7 +72,7 @@
 				<li><i class="ace-icon fa fa-home home-icon"></i> <a href="/">主页</a>
 				</li>
 		
-				<li class="active">配置服务</li>
+				<li class="active">应用信息</li>
 			</ul>
 			<!-- /.breadcrumb -->
 		</div>
@@ -84,10 +84,10 @@
 			<div class="page-content-area">
 				<div class="page-header">
 					<h1>
-						配置服务
+						应用信息
 						<small>
 							<i class="ace-icon fa fa-angle-double-right"></i>
-							添加、删除、修改、查看pigeon服务配置
+							添加、删除、修改、查看应用信息
 						</small>
 					</h1>
 				</div><!-- /.page-header -->
@@ -163,7 +163,7 @@
 
 <script>
 $(function(){
-	$('li[id="pigeon_config"]').addClass("active");
+	$('li[id="project_info"]').addClass("active");
 });
 
 jQuery(function($) {
@@ -189,7 +189,7 @@ jQuery(function($) {
 
 	jQuery(grid_selector).jqGrid({
 
-		url:"${rc.contextPath}/services.json",
+		url:"${rc.contextPath}/projects.json",
 		datatype: "json",
 		mtype:"GET",
 		jsonReader: {
@@ -200,7 +200,7 @@ jQuery(function($) {
 			repeatitems : true
 		},
 		height: 350,
-		colNames:[' ', 'ID','Name','描述', '泳道', 'Hosts','PID'],
+		colNames:[' ', 'ID', 'name', 'bu', 'owner', 'email', 'phone', 'level', 'createTime', 'modifyTime'],
 		colModel:[
 			{name:'myac',index:'', width:70, fixed:true, sortable:false, resize:false,
 				formatter:'actions', 
@@ -213,11 +213,14 @@ jQuery(function($) {
 				}
 			},
 			{name:'id', index:'id', width:20, sorttype:"int", search:false, editable:false},
-			{name:'name', index:'name', width:220, editable:true, editoptions:{size:"20", maxlength:"250"}},
-			{name:'desc', index:'desc', width:100, editable:true, search:false, sortable:false, editoptions:{size:"20", maxlength:"250"}},
-			{name:'group',index:'group', width:50, editable:true, editoptions:{size:"20", maxlength:"100"}},
-			{name:'hosts',index:'hosts', width:200, editable:true, search:false, sortable:false, editoptions:{size:"20", maxlength:"2000"}},
-			{name:'projectid',index:'projectid', width:20, sorttype:"int",editable: true} 
+			{name:'name', index:'name', width:100, editable:true, editoptions:{size:"20", maxlength:"50"}},
+			{name:'bu', index:'bu', width:80, editable:true, search:true, sortable:true, editoptions:{size:"20", maxlength:"50"}},
+			{name:'owner', index:'owner', width:50, editable:true, search:false, sortable:true, editoptions:{size:"20", maxlength:"50"}},
+			{name:'email',index:'email', width:80, editable:true, sortable:false, editoptions:{size:"20", maxlength:"50"}},
+			{name:'phone',index:'phone', width:50, editable:true, search:false, sortable:false, editoptions:{size:"15", maxlength:"15"}},
+			{name:'level',index:'level', width:20, sorttype:"int",editable: true},
+			{name:'createTime',index:'createTime',width:90, hidden:true, editable:false, sorttype:"date",unformat: pickDate},
+			{name:'modifyTime',index:'modifyTime',width:90, hidden:true, editable:false, sorttype:"date",unformat: pickDate}
 		], 
 
 		viewrecords : true,
@@ -242,8 +245,8 @@ jQuery(function($) {
 			}, 0);
 		},
 
-		editurl: "/services.api",//nothing is saved
-		caption: "加载全部服务配置"
+		editurl: "/projects.api",//nothing is saved
+		caption: "加载全部应用信息"
 
 		//,autowidth: true,
 

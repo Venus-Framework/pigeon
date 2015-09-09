@@ -3,21 +3,21 @@ package com.dianping.pigeon.governor.bean;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServiceRetrieveFilters {
+public class JqGridReqFilters {
 
 	private String groupOp;
 	
-	private List<ServiceRetrieveFiltersRule> rules;
+	private List<JqGridReqFiltersRule> rules;
 	
-	public ServiceRetrieveFilters(){
-		rules = new ArrayList<ServiceRetrieveFiltersRule>();
+	public JqGridReqFilters(){
+		rules = new ArrayList<JqGridReqFiltersRule>();
 	}
 	
 	public String getGroupOp() {
 		return groupOp;
 	}
 
-	public List<ServiceRetrieveFiltersRule> getRules() {
+	public List<JqGridReqFiltersRule> getRules() {
 		return rules;
 	}
 
@@ -25,7 +25,7 @@ public class ServiceRetrieveFilters {
 		this.groupOp = groupOp;
 	}
 
-	public void setRules(List<ServiceRetrieveFiltersRule> rules) {
+	public void setRules(List<JqGridReqFiltersRule> rules) {
 		this.rules = rules;
 	}
 

@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.dianping.pigeon.governor.bean.JqGridTableBean;
+import com.dianping.pigeon.governor.bean.JqGridRespBean;
 import com.dianping.pigeon.governor.bean.ServiceBean;
-import com.dianping.pigeon.governor.bean.ServiceRetrieveBean;
-import com.dianping.pigeon.governor.bean.ServiceRetrieveFilters;
+import com.dianping.pigeon.governor.bean.JqGridReqBean;
+import com.dianping.pigeon.governor.bean.JqGridReqFilters;
 import com.dianping.pigeon.governor.bean.WebResult;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.service.PigeonConfigService;
@@ -62,21 +62,20 @@ public class PigeonConfigController {
 	
 	@RequestMapping(value = {"/services.json"}, method = RequestMethod.GET)
 	@ResponseBody
-	public JqGridTableBean servicesjson(ModelMap modelMap, ServiceRetrieveBean serviceRetrieveBean,
+	public JqGridRespBean servicesjson(ModelMap modelMap, JqGridReqBean jqGridReqBean,
 			HttpServletRequest request, HttpServletResponse response) {
 		
-		ServiceRetrieveFilters filters = null;
+		JqGridReqFilters filters = null;
 		
-		if(StringUtils.isNotBlank(serviceRetrieveBean.getFilters())){
-			JSONObject jsonObj = JSONObject.fromObject(serviceRetrieveBean.getFilters());
-			filters = (ServiceRetrieveFilters) JSONObject.toBean(jsonObj, ServiceRetrieveFilters.class);
-			//log.info(JSONObject.fromObject(filters));
+		if(StringUtils.isNotBlank(jqGridReqBean.getFilters())){
+			JSONObject jsonObj = JSONObject.fromObject(jqGridReqBean.getFilters());
+			filters = (JqGridReqFilters) JSONObject.toBean(jsonObj, JqGridReqFilters.class);
 		}
 		
-		JqGridTableBean jqGridTableBean;
+		JqGridRespBean jqGridTableBean;
 		
-		int page = serviceRetrieveBean.getPage();
-		int rows = serviceRetrieveBean.getRows();
+		int page = jqGridReqBean.getPage();
+		int rows = jqGridReqBean.getRows();
 		
 		if(page > 0 && rows > 0){
 			jqGridTableBean = pigeonConfigService.retrieveByJqGrid(page, rows);

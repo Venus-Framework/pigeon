@@ -1,6 +1,6 @@
 package com.dianping.pigeon.governor.bean;
 
-public class ServiceRetrieveFiltersRule {
+public class JqGridReqFiltersRule {
 
 	private String field;
 	

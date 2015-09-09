@@ -2,7 +2,9 @@ package com.dianping.pigeon.governor.dao;
 
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.ProjectExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface ProjectMapper {
@@ -93,4 +95,6 @@ public interface ProjectMapper {
      * @mbggenerated
      */
     int updateByPrimaryKey(Project record);
+
+	List<Project> selectByPageAndRows(@Param("offset") Integer offset, @Param("rows") Integer rows);
 }
