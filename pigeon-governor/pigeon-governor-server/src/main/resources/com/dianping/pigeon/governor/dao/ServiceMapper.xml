@@ -285,4 +285,11 @@
       projectId = #{projectid,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
+  <select id="selectByPageAndRows" parameterType="map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from service
+    limit #{offset},#{rows}
+  </select>
 </mapper>

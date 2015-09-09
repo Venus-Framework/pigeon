@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.dianping.pigeon.governor.bean.JqGridTableBean;
 import com.dianping.pigeon.governor.bean.ServiceBean;
 import com.dianping.pigeon.governor.bean.ServiceRetrieveBean;
 import com.dianping.pigeon.governor.bean.ServiceRetrieveFilters;
@@ -33,19 +34,9 @@ public class PigeonConfigController {
 	@Autowired
 	private PigeonConfigService pigeonConfigService;
 	
-	@RequestMapping(value = {"/services/test"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/services"}, method = RequestMethod.GET)
 	public String allinone(ModelMap modelMap,
 			HttpServletRequest request, HttpServletResponse response) {
-		
-		return "/services/test";
-	}
-	
-	@RequestMapping(value = {"/services"}, method = RequestMethod.GET)
-	public String index(ModelMap modelMap,
-			HttpServletRequest request, HttpServletResponse response) {
-		
-		List<Service> services = pigeonConfigService.retrieveAll();
-		modelMap.addAttribute("services", services);
 		
 		return "/services/index";
 	}
@@ -53,8 +44,6 @@ public class PigeonConfigController {
 	@RequestMapping(value = {"/services.api"}, method = RequestMethod.POST)
 	public void servicesapi(ModelMap modelMap, ServiceBean serviceBean,
 			HttpServletRequest request, HttpServletResponse response) {
-		
-		log.info("into services.api");
 		
 		String oper = serviceBean.getOper();
 		
@@ -73,7 +62,7 @@ public class PigeonConfigController {
 	
 	@RequestMapping(value = {"/services.json"}, method = RequestMethod.GET)
 	@ResponseBody
-	public List<Service> servicesjson(ModelMap modelMap, ServiceRetrieveBean serviceRetrieveBean,
+	public JqGridTableBean servicesjson(ModelMap modelMap, ServiceRetrieveBean serviceRetrieveBean,
 			HttpServletRequest request, HttpServletResponse response) {
 		
 		ServiceRetrieveFilters filters = null;
@@ -84,9 +73,43 @@ public class PigeonConfigController {
 			//log.info(JSONObject.fromObject(filters));
 		}
 		
-		List<Service> services = pigeonConfigService.retrieveAll();
+		JqGridTableBean jqGridTableBean;
 		
-		return services;
+		int page = serviceRetrieveBean.getPage();
+		int rows = serviceRetrieveBean.getRows();
+		
+		if(page > 0 && rows > 0){
+			jqGridTableBean = pigeonConfigService.retrieveByJqGrid(page, rows);
+		}else{
+			jqGridTableBean = pigeonConfigService.retrieveByJqGrid(1, 10);
+		}
+		
+		return jqGridTableBean;
+	}
+	
+	/**
+	 * 敏感操作权限控制
+	 * @return
+	 */
+	public boolean authenticate(){
+		
+		return true;
+	}
+	
+	
+	
+	
+	
+	//oldways
+	
+	@RequestMapping(value = {"/services.old"}, method = RequestMethod.GET)
+	public String index(ModelMap modelMap,
+			HttpServletRequest request, HttpServletResponse response) {
+		
+		List<Service> services = pigeonConfigService.retrieveAll();
+		modelMap.addAttribute("services", services);
+		
+		return "/services/old";
 	}
 
 	@RequestMapping(value = {"/services/{id}"}, method = RequestMethod.GET)
@@ -181,12 +204,4 @@ public class PigeonConfigController {
 		return result;
 	}
 	
-	/**
-	 * 敏感操作权限控制
-	 * @return
-	 */
-	public boolean authenticate(){
-		
-		return true;
-	}
 }

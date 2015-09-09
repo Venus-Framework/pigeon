@@ -93,4 +93,6 @@ public interface ServiceMapper {
      * @mbggenerated
      */
     int updateByPrimaryKey(Service record);
+    
+    List<Service> selectByPageAndRows(@Param("offset") Integer offset, @Param("rows") Integer rows);
 }

@@ -3,6 +3,7 @@ package com.dianping.pigeon.governor.service;
 import java.util.List;
 
 import com.dianping.pigeon.governor.bean.ServiceBean;
+import com.dianping.pigeon.governor.bean.JqGridTableBean;
 import com.dianping.pigeon.governor.model.Service;
 
 public interface PigeonConfigService {
@@ -19,5 +20,9 @@ public interface PigeonConfigService {
 	public List<Service> retrieveAll();
 	
 	public Service retrieveById(Integer id);
+	
+	public List<Service> retrieveByPageAndRows(int page, int rows);
+	
+	public JqGridTableBean retrieveByJqGrid(int page, int rows);
 	
 }

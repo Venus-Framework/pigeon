@@ -24,13 +24,13 @@
 
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
     	<property name="driverClass" value="com.mysql.jdbc.Driver" />
-    	<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/pigeon-governor-server?characterEncoding=UTF8" />
-    	<property name="user" value="root" />
-    	<property name="password" value="root" />
-    	<property name="minPoolSize" value="1" /> 
+    	<property name="jdbcUrl" value="${pigeon-governor-server.jdbc.url}" />
+    	<property name="user" value="${pigeon-governor-server.jdbc.username}" />
+    	<property name="password" value="${pigeon-governor-server.jdbc.password}" />
+    	<property name="minPoolSize" value="5" /> 
 		<property name="maxPoolSize" value="10" /> 
-		<property name="initialPoolSize" value="1" /> 
-		<property name="maxIdleTime" value="300" /> 
+		<property name="initialPoolSize" value="5" /> 
+		<property name="maxIdleTime" value="1800" /> 
 		<property name="idleConnectionTestPeriod" value="60" /> 
 		<property name="acquireRetryAttempts" value="3" /> 
 		<property name="acquireRetryDelay" value="300" />

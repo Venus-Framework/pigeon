@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.dianping.pigeon.governor.bean.ServiceBean;
+import com.dianping.pigeon.governor.bean.JqGridTableBean;
 import com.dianping.pigeon.governor.dao.ServiceMapper;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.service.PigeonConfigService;
@@ -97,6 +98,36 @@ public class PigeonConfigServiceImpl implements PigeonConfigService {
 		
 		return service;
 		
+	}
+
+	@Override
+	public List<Service> retrieveByPageAndRows(int page, int rows) {
+		List<Service> services = null;
+		
+		if(page > 0){
+			services = serviceMapper.selectByPageAndRows((page - 1) * rows, rows);
+		}
+		
+		return services;
+	}
+
+	@Override
+	public JqGridTableBean retrieveByJqGrid(int page, int rows) {
+		JqGridTableBean jqGridTableBean = null;
+		
+		if(page > 0){
+			List<Service> services = serviceMapper.selectByPageAndRows((page - 1) * rows, rows);
+			int totalRecords = serviceMapper.countByExample(null);
+			int totalPages = (totalRecords - 1) / rows + 1;
+			
+			jqGridTableBean = new JqGridTableBean();
+			jqGridTableBean.setData(services);
+			jqGridTableBean.setCurrentPage(page);
+			jqGridTableBean.setTotalRecords(totalRecords);
+			jqGridTableBean.setTotalPages(totalPages);
+		}
+		
+		return jqGridTableBean;
 	}
 
 }

@@ -1,0 +1,70 @@
+#set($layout="layoutblank.htm")
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="description" content="overview &amp; stats"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>Pigeon</title>
+    
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css">
+    
+</head>
+<body>
+
+<div class="col-md-12">
+
+	<table id="services" class="table">
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>Description</th>
+			<th>Swimlane</th>
+			<th>Hosts</th>
+			<th colspan="3">操作&nbsp;&nbsp;<a href='/services/new'>add</a></th>
+		</tr>
+	#if($services)
+	#foreach($service in $services)
+		<tr>
+			<td>${service.id}</td>
+			<td>${service.name}</td>
+			<td>${service.desc}</td>
+			<td>${service.group}</td>
+			<td>${service.hosts}</td>
+			<td>${service.projectid}</td>
+			<td><a href='/services/${service.id}'>Show</a></td>
+			<td><a href='/services/${service.id}/edit'>Edit</a></td>
+			<td>
+				<a href='javascript:void(0)' onclick="deleteItem(this, ${service.id})">Destroy</a>
+			</td>
+	#end
+	#end
+	
+	</table>
+
+</div>
+
+<script src="${rc.contextPath}/resources/assets/js/jquery.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap.min.js"></script>
+<script>
+	function deleteItem(nowA, id){
+		
+		//TODO 增加一个确认删除的操作
+		
+		$.ajax({
+			type: 'get',
+			url: 'services/'+id+'/delete',
+			success: function(data,textStatus) {
+				if(data.hasError == true){
+					alert(data.errorMsg);
+					return false;
+				}
+				alert(data.message);
+				$(nowA).closest('tr').remove();  //清空当前行
+			},
+			dataType: 'json'
+		});
+	}
+</script>
+
+</body>
+</html>
