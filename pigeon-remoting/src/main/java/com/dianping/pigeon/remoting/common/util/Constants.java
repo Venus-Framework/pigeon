@@ -104,7 +104,6 @@ public final class Constants {
 	public static final String KEY_WRITE_BUFFER_HIGH_WATER = "pigeon.channel.writebuff.high";
 	public static final String KEY_WRITE_BUFFER_LOW_WATER = "pigeon.channel.writebuff.low";
 	public static final String KEY_DEFAULT_WRITE_BUFF_LIMIT = "pigeon.channel.writebuff.defaultlimit";
-	public static final String KEY_MANAGER_ADDRESS = "pigeon.manager.address";
 	public static final String KEY_NOTIFY_ENABLE = "pigeon.notify.enable";
 	public static final String KEY_TEST_ENABLE = "pigeon.test.enable";
 	public static final String KEY_CONNECT_TIMEOUT = "pigeon.netty.connecttimeout";
@@ -129,7 +128,6 @@ public final class Constants {
 	public static final boolean DEFAULT_WRITE_BUFF_LIMIT = false;
 	public static final String DEFAULT_PROCESS_TYPE = "threadpool";
 	public static final long DEFAULT_TIMEOUT_INTERVAL = 1000;
-	public static final String DEFAULT_MANAGER_ADDRESS = "lionapi.dp:8080";
 	public static final boolean DEFAULT_NOTIFY_ENABLE = true;
 	public static final boolean DEFAULT_TEST_ENABLE = true;
 	public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
@@ -179,7 +177,10 @@ public final class Constants {
 
 	public static final boolean LOG_PARAMETERS = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.log.parameters", false);
-	
+
+	public static final boolean LOG_INVOKER_TIMEOUT = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.invoker.logtimeout", true);
+
 	public static final int QPS_INTERVAL = ConfigManagerLoader.getConfigManager().getIntValue(
 			"pigeon.monitor.qps.interval", 60);
 

@@ -2,13 +2,11 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.console.listener;
+package com.dianping.pigeon.remoting.provider.listener;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpConnectionManager;
@@ -20,13 +18,12 @@ import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.console.exception.ServiceNotifyException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
-import com.dianping.pigeon.remoting.provider.listener.ServiceChangeListener;
+import com.dianping.pigeon.remoting.provider.exception.ServiceNotifyException;
 
 public class DefaultServiceChangeListener implements ServiceChangeListener {
 
@@ -34,18 +31,12 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
-	private Map<String, NotifyEvent> failedNotifyEvents = new ConcurrentHashMap<String, NotifyEvent>();
-
 	private static final Monitor monitor = MonitorLoader.getMonitor();
 
 	public DefaultServiceChangeListener() {
 	}
 
 	public void destroy() throws Exception {
-	}
-
-	public Map<String, NotifyEvent> getFailedNotifyEvents() {
-		return failedNotifyEvents;
 	}
 
 	private HttpClient getHttpClient() {
@@ -72,8 +63,8 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 	}
 
 	public synchronized void notifyServiceChange(String action, ProviderConfig<?> providerConfig) {
-		String managerAddress = configManager.getStringValue(Constants.KEY_MANAGER_ADDRESS,
-				Constants.DEFAULT_MANAGER_ADDRESS);
+		String managerAddress = configManager.getStringValue("pigeon.governor.notify.address",
+				"http://lionapi.dp:8080/service/");
 		String env = providerConfig.getServerConfig().getEnv();
 		if (StringUtils.isBlank(env)) {
 			env = configManager.getEnv();
@@ -87,7 +78,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			group = Constants.DEFAULT_GROUP;
 		}
 		StringBuilder url = new StringBuilder();
-		url.append("http://").append(managerAddress).append("/service/").append(action);
+		url.append(managerAddress).append(action);
 		url.append("?env=").append(env).append("&id=3&updatezk=false&service=");
 		url.append(providerConfig.getUrl());
 		url.append("&group=").append(group);
@@ -97,17 +88,10 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			url.append("&app=").append(configManager.getAppName());
 		}
 
-		failedNotifyEvents.remove(providerConfig.getUrl());
-		boolean isSuccess = false;
 		try {
-			isSuccess = doNotify(url.toString());
+			doNotify(url.toString());
 		} catch (Throwable t) {
 			logger.warn("error while notifying service change to url:" + url, t);
-		}
-		if (!isSuccess) {
-			NotifyEvent event = new NotifyEvent();
-			event.setNotifyUrl(url.toString());
-			failedNotifyEvents.put(providerConfig.getUrl(), event);
 		}
 	}
 

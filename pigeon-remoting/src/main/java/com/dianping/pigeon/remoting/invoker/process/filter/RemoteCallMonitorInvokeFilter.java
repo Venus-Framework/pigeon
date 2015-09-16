@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
+import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -121,7 +122,10 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 					Client client = invocationContext.getClient();
 					targetApp = RegistryManager.getInstance().getServerApp(client.getAddress());
 					monitor.logEvent("PigeonCall.app", targetApp, "");
-
+					monitor.logEvent("PigeonCall.QPS", "S" + Calendar.getInstance().get(Calendar.SECOND), "");
+					if (Constants.LOG_INVOKER_TIMEOUT) {
+						monitor.logEvent("PigeonCall.timeout", invokerConfig.getTimeout() + "", "");
+					}
 					String parameters = "";
 					if (Constants.LOG_PARAMETERS) {
 						parameters = InvocationUtils.toJsonString(request.getParameters(), 1000, 50);

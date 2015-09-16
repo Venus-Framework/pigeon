@@ -1,4 +1,4 @@
-package com.dianping.pigeon.console.exception;
+package com.dianping.pigeon.remoting.provider.exception;
 
 public class ServiceNotifyException extends RuntimeException {
 

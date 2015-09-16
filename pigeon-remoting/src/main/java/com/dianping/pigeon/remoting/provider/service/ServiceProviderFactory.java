@@ -15,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 import com.dianping.pigeon.config.ConfigConstants;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
@@ -24,6 +23,7 @@ import com.dianping.pigeon.remoting.common.util.SecurityUtils;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.listener.DefaultServiceChangeListener;
 import com.dianping.pigeon.remoting.provider.listener.ServiceChangeListener;
 import com.dianping.pigeon.remoting.provider.listener.ServiceWarmupListener;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethodFactory;
@@ -42,8 +42,7 @@ public final class ServiceProviderFactory {
 
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
-	private static ServiceChangeListener serviceChangeListener = ExtensionLoader
-			.getExtension(ServiceChangeListener.class);
+	private static ServiceChangeListener serviceChangeListener = new DefaultServiceChangeListener();
 
 	private static boolean DEFAULT_NOTIFY_ENABLE = ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv()) ? false
 			: Constants.DEFAULT_NOTIFY_ENABLE;

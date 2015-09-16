@@ -5,6 +5,7 @@
 package com.dianping.pigeon.remoting.provider.process.filter;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -76,6 +77,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					parameters = event.toString();
 				}
 				monitor.logEvent("PigeonService.client", fromIp, parameters);
+				monitor.logEvent("PigeonService.QPS", "S" + Calendar.getInstance().get(Calendar.SECOND), "");
 				SizeMonitor.getInstance().logSize(request.getSize(), "PigeonService.requestSize", null);
 				if (!Constants.PROTOCOL_DEFAULT.equals(channel.getProtocol())) {
 					transaction.addData("Protocol", channel.getProtocol());

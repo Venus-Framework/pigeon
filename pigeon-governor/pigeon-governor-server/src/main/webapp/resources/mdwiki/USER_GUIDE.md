@@ -1110,13 +1110,6 @@ appRequestsSent下会显示requests-lastsecond代表发出的请求最近一秒�
 在cat的event里可以查看：
 客户端发送的QPS：pigeonCall.QPS
 服务端接收的QPS：pigeonService.QPS
-默认是每分钟输出一次，记录每分钟的最高QPS值，在cat上会显示QPS的范围值，如<1000，<2000，在logview里也会记录该最高QPS发生的时分秒
+在cat上可以看到从0-59秒在每一分钟的QPS值
 
-如果需要更改输出频率，需要修改lion配置：
-xxx.pigeon.monitor.qps.interval，如配置为5代表5秒输出一次QPS值，默认是60
-xxx是应用的app.name，需要与lion项目名称保持一致
-
-如果QPS超过1000，也会输出到本地pigeon日志里/data/applogs/pigeon/pigeon.xxx.log
-如果需调整该阀值，需要修改lion配置：
-xxx.pigeon.monitor.qps.log.min，如配置为10000代表QPS超过10000才会记录到本地日志，默认是1000
 
