@@ -1113,3 +1113,63 @@ appRequestsSent下会显示requests-lastsecond代表发出的请求最近一秒�
 在cat上可以看到从0-59秒在每一分钟的QPS值
 
 
+### 异步编程
+如果要追求最好的单机性能，需要通过pigeon进行完全的异步编程。
+1、客户端调用方式选择callback方式。
+2、服务端也可以在IO调用的callback里回写服务调用结果：
+服务端需要加lion配置xxx.pigeon.provider.reply.manual为true（xxx为应用app name）
+
+pigeon服务里如果有任何IO操作，需要该IO操作支持callback编程，IO操作常见的有缓存访问（支持callback调用）、数据库访问（正在开发callback调用支持）、pigeon服务调用（支持callback调用）
+例如在一个pigeon服务里调用了cache操作，需要在cache框架也支持callback模式，然后在callback里调用pigeon的api去回写最终返回客户端的结果
+
+
+		@Service
+		public class XXXDefaultService implements XXXService {
+		
+		    public XXXDefaultService() {
+		    }
+		    
+		    @Autowired
+		    private CacheService cacheService;
+		    
+		    @Override
+		    public String get(CacheKey cacheKey) {
+		        cacheService.asyncGet(cacheKey, new CacheCallback<String>() {
+		
+		            private ProviderContext providerContext = ProviderHelper.getContext();
+		            
+		            @Override
+		            public void onSuccess(String result) {
+		                ProviderHelper.writeSuccessResponse(providerContext, result);
+		            }
+		
+		            @Override
+		            public void onFailure(String msg, Throwable e) {
+		                ProviderHelper.writeFailureResponse(providerContext, new RuntimeException(msg));
+		            }
+		            
+		        });
+		        return null;
+		    }
+		
+		    @Override
+		    public Map<CacheKey, String> batchGet(List<CacheKey> cacheKeys) {
+		        cacheService.asyncBatchGet(cacheKeys, new CacheCallback<Map<CacheKey, String>>() {
+		            
+		            private ProviderContext providerContext = ProviderHelper.getContext();
+		            
+		            @Override
+		            public void onSuccess(Map<CacheKey, String> result) {
+		                ProviderHelper.writeSuccessResponse(providerContext, result);
+		            }
+		
+		            @Override
+		            public void onFailure(String msg, Throwable e) {
+		                ProviderHelper.writeFailureResponse(providerContext, new RuntimeException(msg));
+		            }
+		            
+		        });
+		        return null;
+		    }
+		
+		}
