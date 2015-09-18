@@ -818,7 +818,11 @@ Callback类：
 				logger.error("", e);
 			}
 		}
+
 		
+如果需要动态设置callback，比如在一个线程里发起多次服务调用请求，每次使用不同的callback，可以按照以下代码：
+InvokerHelper.setCallback(new ServiceCallback(){...});
+
 ### 配置客户端集群策略模式
 
 客户端配置cluster属性：
@@ -1116,6 +1120,9 @@ appRequestsSent下会显示requests-lastsecond代表发出的请求最近一秒�
 ### 异步编程
 如果要追求最好的单机性能，需要通过pigeon进行完全的异步编程。
 1、客户端调用方式选择callback方式。
+如果需要动态设置callback，比如在一个线程里发起多次服务调用请求，每次使用不同的callback，可以按照以下代码：
+InvokerHelper.setCallback(new ServiceCallback(){...});
+
 2、服务端也可以在IO调用的callback里回写服务调用结果：
 服务端需要加lion配置xxx.pigeon.provider.reply.manual为true（xxx为应用app name）
 
