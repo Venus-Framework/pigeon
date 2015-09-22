@@ -36,6 +36,8 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 	private static final Logger logger = LoggerLoader.getLogger(JacksonSerializer.class);
 	private static boolean deserializeMap = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.codec.jackson.deserializemap", true);
+	private static boolean enableClassInfo = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.codec.jackson.classinfo", false);
 
 	static ObjectMapper mapper = new ObjectMapper();
 
@@ -52,7 +54,9 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 		mapper.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
 		mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
-		mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+		if (enableClassInfo) {
+			mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+		}
 		SimpleModule module = new SimpleModule();
 		module.addKeySerializer(Object.class, new JsonSerializer<Object>() {
 

@@ -1,6 +1,9 @@
 ## pigeon版本发布说明
 ------
 
+### 2.6.2
+修改了jackson序列化的默认class信息配置
+
 ### 2.6.1
 修改pigeonCall.QPS和pigeonService.QPS监控信息，cat event改成秒显示
 
