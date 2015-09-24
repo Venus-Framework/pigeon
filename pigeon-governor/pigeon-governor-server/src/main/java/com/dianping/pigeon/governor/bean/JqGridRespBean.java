@@ -2,6 +2,11 @@ package com.dianping.pigeon.governor.bean;
 
 import java.util.List;
 
+/**
+ * 
+ * @author chenchongze
+ *
+ */
 public class JqGridRespBean {
 	
 	private List<?> data;

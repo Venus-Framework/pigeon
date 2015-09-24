@@ -336,4 +336,19 @@ public class CuratorRegistry implements Registry {
 	public String getStatistics() {
 		return "curator:" + client.getStatistics();
 	}
+
+	@Override
+	public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
+		String servicePath = Utils.getServicePath(serviceName, group);
+		try {
+			if (client.exists(servicePath, false)) {
+				client.set(servicePath, hosts);
+			} else {
+				client.create(servicePath, hosts);
+			}
+		} catch (Throwable e) {
+			logger.error("failed to set service hosts of " + serviceName + " to " + hosts);
+			throw new RegistryException(e);
+		}
+	}
 }

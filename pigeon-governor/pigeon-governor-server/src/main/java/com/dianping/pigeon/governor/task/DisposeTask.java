@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.governor.util.Constants.Action;
 import com.dianping.pigeon.governor.util.Constants.Environment;
 import com.dianping.pigeon.governor.util.Constants.Host;
@@ -327,7 +328,12 @@ public class DisposeTask implements Runnable {
 
 	private String generateUrl(CheckTask task) {
 		Host host = task.getHost();
-		StringBuilder sb = new StringBuilder("http://lionapi.dp:8080/service/unpublish?id=3");
+		
+		String managerAddress = ConfigManagerLoader.getConfigManager()
+				.getStringValue("pigeon.governor.notify.address","http://127.0.0.1/api/service/");
+		StringBuilder sb = new StringBuilder(managerAddress);
+		sb.append("unpublish?id=3");
+		
 		sb.append('&').append("env=").append(host.getService().getEnv().name());
 		sb.append('&').append("service=").append(host.getService().getUrl());
 		if (StringUtils.isNotBlank(host.getService().getGroup()))

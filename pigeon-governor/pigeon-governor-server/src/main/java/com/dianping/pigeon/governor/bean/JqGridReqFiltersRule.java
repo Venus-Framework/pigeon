@@ -1,5 +1,10 @@
 package com.dianping.pigeon.governor.bean;
 
+/**
+ * 
+ * @author chenchongze
+ *
+ */
 public class JqGridReqFiltersRule {
 
 	private String field;

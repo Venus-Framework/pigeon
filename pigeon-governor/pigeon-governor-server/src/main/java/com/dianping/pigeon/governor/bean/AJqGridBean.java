@@ -1,5 +1,10 @@
 package com.dianping.pigeon.governor.bean;
 
+/**
+ * 
+ * @author chenchongze
+ *
+ */
 public abstract class AJqGridBean {
 
 	private String oper;

@@ -378,4 +378,18 @@ public class RegistryManager {
 			}
 		}
 	}
+	
+	/**
+	 * 
+	 * @author chenchongze
+	 * @param serviceName
+	 * @param group
+	 * @param hosts
+	 */
+	public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
+		if( registry != null) {
+			registry.setServerService(serviceName, group, hosts);
+			monitor.logEvent("PigeonService.setHosts", serviceName, "swimlane=" + group + "&hosts=" + hosts);
+		}
+	}
 }

@@ -1,5 +1,6 @@
 package com.dianping.pigeon.governor.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -10,8 +11,14 @@ import com.dianping.pigeon.governor.bean.JqGridRespBean;
 import com.dianping.pigeon.governor.bean.ProjectBean;
 import com.dianping.pigeon.governor.dao.ProjectMapper;
 import com.dianping.pigeon.governor.model.Project;
+import com.dianping.pigeon.governor.model.ProjectExample;
 import com.dianping.pigeon.governor.service.ProjectService;
 
+/**
+ * 
+ * @author chenchongze
+ *
+ */
 @Service
 public class ProjectServiceImpl implements ProjectService {
 	
@@ -23,10 +30,10 @@ public class ProjectServiceImpl implements ProjectService {
 		int sqlSucCount = -1;
 		Project project = projectBean.createProject();
 		
-		if(StringUtils.isNotBlank(project.getName()) 
-						&& project.getCreatetime() != null
-						&& project.getModifytime() != null)
-		{
+		if(StringUtils.isNotBlank(project.getName())) {
+			Date now = new Date();
+			project.setCreatetime(now);
+			project.setModifytime(now);
 			sqlSucCount = projectMapper.insertSelective(project);
 		}
 		
@@ -64,12 +71,14 @@ public class ProjectServiceImpl implements ProjectService {
 		Project project = projectBean.convertToProject();
 		
 		if(StringUtils.isNotBlank(project.getName())
-						&& project.getCreatetime() != null
-						&& project.getModifytime() != null
+						&& project.getCreatetime() == null
 						&& project.getId() != null
 						&& project.getId() > 0)
 		{
-			sqlSucCount = projectMapper.updateByPrimaryKey(project);
+			Date now = new Date();
+			project.setModifytime(now);
+			//TODO 这里修改用selective保持null就不更新，只更新有值部分，createtime和id不要更新
+			sqlSucCount = projectMapper.updateByPrimaryKeySelective(project);
 		}
 		
 		return sqlSucCount;
@@ -92,6 +101,31 @@ public class ProjectServiceImpl implements ProjectService {
 		}
 		
 		return jqGridTableBean;
+	}
+
+
+	@Override
+	public Project findProject(String name) {
+		Project result = null;
+		
+		if (StringUtils.isBlank(name)) {
+			return result;
+		}
+		
+		
+		ProjectExample example = new ProjectExample();
+		example.createCriteria().andNameEqualTo(name);
+		List<Project> projects = projectMapper.selectByExample(example);
+		
+		if(projects != null){
+			
+			if(projects.size() > 0){
+				result = projects.get(0);
+			}
+				
+		}
+		
+		return result;
 	}
 
 }

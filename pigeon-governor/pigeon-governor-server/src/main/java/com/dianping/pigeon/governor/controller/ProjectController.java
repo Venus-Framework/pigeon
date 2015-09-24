@@ -1,7 +1,5 @@
 package com.dianping.pigeon.governor.controller;
 
-import java.util.Date;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -23,8 +21,13 @@ import com.dianping.pigeon.governor.bean.JqGridRespBean;
 import com.dianping.pigeon.governor.bean.ProjectBean;
 import com.dianping.pigeon.governor.service.ProjectService;
 
+/**
+ * 
+ * @author chenchongze
+ *
+ */
 @Controller
-public class ProjectController {
+public class ProjectController extends BaseController {
 
 	private Logger log = LogManager.getLogger();
 	
@@ -43,9 +46,13 @@ public class ProjectController {
 			HttpServletRequest request, HttpServletResponse response) {
 		String oper = projectBean.getOper();
 		
-		Date date = new Date();
-		projectBean.setCreatetime(date);
-		projectBean.setModifytime(date);
+		try {
+			verifyIdentity(request, 3);
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			return ;
+		}
 		
 		if("edit".equals(oper)){
 			projectService.updateById(projectBean);
@@ -59,7 +66,7 @@ public class ProjectController {
 		}
 	}
 	
-	@RequestMapping(value = {"/projects.json"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/projects.json"}, method = RequestMethod.POST)
 	@ResponseBody
 	public JqGridRespBean allinonejson(ModelMap modelMap, JqGridReqBean jqGridReqBean,
 			HttpServletRequest request, HttpServletResponse response) {

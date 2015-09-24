@@ -24,15 +24,15 @@ import com.dianping.pigeon.governor.bean.JqGridReqBean;
 import com.dianping.pigeon.governor.bean.JqGridReqFilters;
 import com.dianping.pigeon.governor.bean.WebResult;
 import com.dianping.pigeon.governor.model.Service;
-import com.dianping.pigeon.governor.service.PigeonConfigService;
+import com.dianping.pigeon.governor.service.ServiceService;
 
 @Controller
-public class PigeonConfigController {
+public class ServiceController extends BaseController {
 	
 	private Logger log = LogManager.getLogger();
 	
 	@Autowired
-	private PigeonConfigService pigeonConfigService;
+	private ServiceService serviceService;
 	
 	@RequestMapping(value = {"/services"}, method = RequestMethod.GET)
 	public String allinone(ModelMap modelMap,
@@ -47,20 +47,31 @@ public class PigeonConfigController {
 		
 		String oper = serviceBean.getOper();
 		
+		try {
+			verifyIdentity(request, 3);
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			return ;
+		}
+		
 		if("edit".equals(oper)){
-			pigeonConfigService.updateById(serviceBean);
+			//TODO 同步ZK
+			serviceService.updateById(serviceBean);
 			
 		}else if("del".equals(oper)){
-			pigeonConfigService.deleteByIdSplitByComma(serviceBean.getId());
+			//TODO 同步ZK
+			serviceService.deleteByIdSplitByComma(serviceBean.getId());
 		
 		}else if("add".equals(oper)){
-			pigeonConfigService.create(serviceBean);
+			//TODO 同步ZK
+			serviceService.create(serviceBean);
 		
 		}
 		
 	}
 	
-	@RequestMapping(value = {"/services.json"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/services.json"}, method = RequestMethod.POST)
 	@ResponseBody
 	public JqGridRespBean servicesjson(ModelMap modelMap, JqGridReqBean jqGridReqBean,
 			HttpServletRequest request, HttpServletResponse response) {
@@ -78,9 +89,9 @@ public class PigeonConfigController {
 		int rows = jqGridReqBean.getRows();
 		
 		if(page > 0 && rows > 0){
-			jqGridTableBean = pigeonConfigService.retrieveByJqGrid(page, rows);
+			jqGridTableBean = serviceService.retrieveByJqGrid(page, rows);
 		}else{
-			jqGridTableBean = pigeonConfigService.retrieveByJqGrid(1, 10);
+			jqGridTableBean = serviceService.retrieveByJqGrid(1, 10);
 		}
 		
 		return jqGridTableBean;
@@ -105,7 +116,7 @@ public class PigeonConfigController {
 	public String index(ModelMap modelMap,
 			HttpServletRequest request, HttpServletResponse response) {
 		
-		List<Service> services = pigeonConfigService.retrieveAll();
+		List<Service> services = serviceService.retrieveAll();
 		modelMap.addAttribute("services", services);
 		
 		return "/services/old";
@@ -115,7 +126,7 @@ public class PigeonConfigController {
 	public String show(ModelMap modelMap, @PathVariable Integer id,
 			HttpServletRequest request, HttpServletResponse response) {
 		
-		modelMap.addAttribute("service", pigeonConfigService.retrieveById(id));
+		modelMap.addAttribute("service", serviceService.retrieveById(id));
 		
 		return "/services/show";
 	}
@@ -131,7 +142,7 @@ public class PigeonConfigController {
 	public String edit(ModelMap modelMap, @PathVariable Integer id,
 			HttpServletRequest request, HttpServletResponse response) {
 		
-		modelMap.addAttribute("service", pigeonConfigService.retrieveById(id));
+		modelMap.addAttribute("service", serviceService.retrieveById(id));
 		
 		return "/services/edit";
 	}
@@ -143,7 +154,7 @@ public class PigeonConfigController {
 		
 		WebResult result = new WebResult(request);
 		
-		int sqlResult = pigeonConfigService.create(serviceBean);
+		int sqlResult = serviceService.create(serviceBean);
 		
 		if(sqlResult > 0){
 			result.setStatus(200);
@@ -164,7 +175,7 @@ public class PigeonConfigController {
 		
 		WebResult result = new WebResult(request);
 		
-		int sqlResult = pigeonConfigService.updateById(serviceBean);
+		int sqlResult = serviceService.updateById(serviceBean);
 		
 		if(sqlResult > 0){
 			result.setStatus(200);
@@ -188,7 +199,7 @@ public class PigeonConfigController {
 		// TODO 加入一些权限之类的判断条件
 		int sqlResult = -1;
 		if(authenticate()){
-			sqlResult = pigeonConfigService.deleteById(id);
+			sqlResult = serviceService.deleteById(id);
 		}
 		
 		if(sqlResult > 0){

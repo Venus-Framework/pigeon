@@ -1,5 +1,10 @@
 package com.dianping.pigeon.governor.bean;
 
+/**
+ * 
+ * @author chenchongze
+ *
+ */
 public class JqGridReqBean {
 
 	private boolean _search;

@@ -3,6 +3,11 @@ package com.dianping.pigeon.governor.bean;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 
+ * @author chenchongze
+ *
+ */
 public class JqGridReqFilters {
 
 	private String groupOp;

@@ -2,7 +2,12 @@ package com.dianping.pigeon.governor.bean;
 
 import com.dianping.pigeon.governor.model.Service;
 
-public class ServiceBean {
+/**
+ * 
+ * @author chenchongze
+ *
+ */
+public class ServiceBean extends AJqGridBean{
 	
 	private String id;
 	
@@ -16,16 +21,6 @@ public class ServiceBean {
 
     private Integer projectid;
     
-    private String oper;
-
-	public String getOper() {
-		return oper;
-	}
-
-	public void setOper(String oper) {
-		this.oper = oper;
-	}
-
 	public String getId() {
 		return id;
 	}

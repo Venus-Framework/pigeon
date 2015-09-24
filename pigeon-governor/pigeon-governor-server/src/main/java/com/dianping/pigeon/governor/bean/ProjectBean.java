@@ -4,6 +4,11 @@ import java.util.Date;
 
 import com.dianping.pigeon.governor.model.Project;
 
+/**
+ * 
+ * @author chenchongze
+ *
+ */
 public class ProjectBean extends AJqGridBean{
 
 	private String id;
