@@ -1180,3 +1180,100 @@ pigeon服务里如果有任何IO操作，需要该IO操作支持callback编程�
 		    }
 		
 		}
+		
+
+### zookeeper协议格式
+每台机器的/data/webapps/config/appenv里会写上所处环境和zk地址，例如：
+deployenv=qa
+zkserver=192.168.1.12:2181,192.168.1.13:2181,192.168.1.14:2181
+
+1、服务地址配置
+每个服务都有一个全局唯一的url代表服务名称，比如我们有一个服务：
+http://service.dianping.com/com.dianping.pigeon.demo.EchoService
+服务名称url格式不固定，只要求是字符串在点评内部唯一即可。
+Pigeon服务端每次启动后会将自身ip/port注册到zookeeper集群中。
+在zookeeper中pigeon服务具体格式是这样的：
+pigeon服务都会写到/DP/SERVER节点下：
+/DP/SERVER/http:^^service.dianping.com^com.dianping.pigeon.demo.EchoService
+的值为：192.168.93.1:4088,192.168.93.2:4088
+多台服务器就是逗号分隔，客户端只需要拿到这个值就能知道这个服务的服务器地址列表。
+
+2、服务权重配置
+pigeon服务还会写到/DP/WEIGHT/192.168.93.1:4088这个节点，值为1代表权重，如果为0代表这台机器暂时不提供服务，目前只有1和0两种值。
+
+3、服务所属应用配置
+pigeon服务还会写到/DP/APP/192.168.93.1:4088这个节点，值为这个服务所属的应用名，这个应用名是读取本地classpath下META-INF/app.properties里的app.name值。
+
+客户端需要拿到服务对应的地址列表、每个地址对应的权重weight，就可以自己实现负载均衡策略去调其中一台服务器。
+
+
+对于http服务，与上述机制类似，pigeon的每个服务都有一个对应的http服务，其地址是在：
+/DP/SERVER节点下：
+/DP/SERVER/@HTTP@http:^^service.dianping.com^com.dianping.pigeon.demo.EchoService
+的值为：192.168.93.1:4080, 192.168.93.2:4080
+权重同样是在：/DP/WEIGHT/192.168.93.1:4080
+http端口通常固定为4080端口
+
+### tcp协议格式
+
+tcp+hessian序列化是pigeon默认的通信方式，如果有业务场景需要实现其他语言作为客户端来调用pigeon服务，需要了解pigeon发送消息和接收消息的协议格式，使用场景：
+a）一般的服务调用需要发出请求和接收响应
+b）为了维持正常的tcp连接，还需要定期发送心跳消息和接收心跳响应消息，建议3秒发送一次，并接收响应，如果心跳未正常返回，需要客户端本地摘除这个服务端节点，在后续路由选择时不再选择不正常的节点
+
+1、发送请求消息的字节序列：
+#消息头，固定7个字节
+第1-3个字节固定为：57，58，2；
+第4-7个字节：消息体长度，int，占4个字节，值为消息体长度（hessian序列化字节长度）+消息尾长度11
+
+#消息体，从第8个字节开始：hessian序列化字节，对象类型为com.dianping.dpsf.protocol.DefaultRequest
+
+public class DefaultRequest implements InvocationRequest {
+
+	private byte serialize;//必填，序列化类型，hessian为2
+
+	private long seq;//必填，消息sequence，long型，值请从0开始递增，每个消息的sequence都不同
+
+	private int callType = 1;//必填，如果调用需要返回结果，固定为1
+
+	private int timeout = 0;//必填，超时时间，单位毫秒
+
+	private String serviceName;//必填，服务名称url，服务唯一的标识
+
+	private String methodName;//必填，服务方法名称
+
+	private Object[] parameters;//必填，服务方法的参数值
+
+	private int messageType = 2;//必填，消息类型，服务调用固定为2，心跳为1
+
+	private Object context;//老的avatar-tracker上下文传递内容，如果要传递对象，需设置
+
+	private String app = "";//必填，调用者所属应用名称，在META-INF/app.properties里的app.name值
+
+	private Map<String, Serializable> globalValues = null;//用于新的全局上下文传递，可不填
+
+	private Map<String, Serializable> requestValues = null;//用于新的上下文传递，可不填
+	
+}
+
+#消息尾：固定11个字节
+前8个字节为消息sequence，long型，值请从0开始递增，每个消息的sequence都不同；
+后3个字节固定为：29，30，31
+
+2、接收响应消息的字节序列：
+与发送消息的字节序列相同，不过消息体的内容不同，对象类型为com.dianping.dpsf.protocol.DefaultResponse
+只需要拿到消息体进行hessian反序列化即可
+public class DefaultResponse implements InvocationResponse {
+
+	private long seq;//返回的消息sequence，对应发送的消息sequence，long型
+
+	private int messageType;//消息类型，服务调用为2，服务调用业务异常为4，服务框架异常为3，心跳为1
+
+	private Object returnVal;//返回服务调用结果，如果是异常，返回类型为
+
+	private Object context;//老的avatar-tracker上下文传递内容
+	
+	private Map<String, Serializable> responseValues = null;//用于新的上下文传递返回的结果
+
+}
+
+
