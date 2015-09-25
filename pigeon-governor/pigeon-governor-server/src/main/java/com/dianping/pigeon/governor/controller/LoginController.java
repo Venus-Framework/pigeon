@@ -52,6 +52,7 @@ public class LoginController extends BaseController {
 		log.info("ssoUserInfo: " + userInfoStr);
 		
 		if(StringUtils.isBlank(userInfoStr)){
+			//TODO
 			response.sendRedirect(request.getContextPath() + "/error");
 			return ;
 		}

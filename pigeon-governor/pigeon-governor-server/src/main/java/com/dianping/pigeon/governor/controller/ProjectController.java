@@ -37,6 +37,7 @@ public class ProjectController extends BaseController {
 	@RequestMapping(value = {"/projects"}, method = RequestMethod.GET)
 	public String allinone(ModelMap modelMap,
 			HttpServletRequest request, HttpServletResponse response) {
+		commonnav(modelMap, request);
 		
 		return "/projects/index";
 	}

@@ -37,6 +37,7 @@ public class ServiceController extends BaseController {
 	@RequestMapping(value = {"/services"}, method = RequestMethod.GET)
 	public String allinone(ModelMap modelMap,
 			HttpServletRequest request, HttpServletResponse response) {
+		commonnav(modelMap, request);
 		
 		return "/services/index";
 	}

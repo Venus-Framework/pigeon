@@ -2,6 +2,9 @@ package com.dianping.pigeon.governor.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.ui.ModelMap;
+
+import com.dianping.pigeon.governor.util.Constants;
 import com.dianping.pigeon.governor.util.IPUtils;
 
 /**
@@ -11,6 +14,11 @@ import com.dianping.pigeon.governor.util.IPUtils;
  */
 public class BaseController {
 
+	public void commonnav(ModelMap modelMap, HttpServletRequest request) {
+		String currentUser = (String) request.getSession().getAttribute(Constants.USER_NAME);
+		modelMap.addAttribute("currentUser", currentUser);
+	}
+	
 	public void verifyIdentity(int userId) throws Exception{
 		
 		if(userId != 3){
