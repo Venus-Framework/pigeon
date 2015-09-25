@@ -179,6 +179,9 @@
 	<filter-mapping>
 		<filter-name>encodingFilter</filter-name>
 		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+    	<dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
 	
 	<!-- 本机身份验证 -->
