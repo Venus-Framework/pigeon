@@ -195,7 +195,11 @@
 			<classifier>jdk15</classifier>
 			<scope>compile</scope>
 		</dependency>
-		
+	 	<dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>4.2.0.Final</version>
+        </dependency>
 		<!-- 公司依赖 -->
 		<dependency>
 			<groupId>com.dianping.cat</groupId>
@@ -210,10 +214,10 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.dianping</groupId>
-			<artifactId>avatar-tracker</artifactId>
-			<version>2.1.9</version>
-		</dependency>
+            <groupId>com.dianping</groupId>
+            <artifactId>avatar-cache</artifactId>
+            <version>2.6.8</version>
+        </dependency>
 		<!-- sso -->
 		<dependency>
 		  <groupId>org.jasig.cas.client</groupId>
@@ -227,10 +231,6 @@
                 <exclusion>
                 	<groupId>com.dianping.lion</groupId>
                     <artifactId>lion-client</artifactId>
-                </exclusion>
-                <exclusion>
-                	<artifactId>avatar-cache</artifactId>
-                	<groupId>com.dianping</groupId>
                 </exclusion>
                 <exclusion>
                 	<artifactId>httpcore</artifactId>
