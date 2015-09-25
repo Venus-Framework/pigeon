@@ -37,9 +37,10 @@ public class NonAuthFilter implements Filter {
 			if (requestURI.toLowerCase().startsWith(uri)){
 				String queryString = req.getQueryString();
 				
-				if (StringUtil.isNotBlank(queryString)) {
+				//这里千万不要画蛇添足，会导致queryString添加两次
+				/*if (StringUtil.isNotBlank(queryString)) {
 					requestURI = requestURI + "?" + queryString;
-				}
+				}*/
 				
 				request.getRequestDispatcher(requestURI).forward(request, response);
 				
