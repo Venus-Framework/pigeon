@@ -22,23 +22,17 @@ import com.dianping.pigeon.governor.service.RegistrationInfoService;
 import com.dianping.pigeon.governor.util.GsonUtils;
 
 @Controller
-public class ServiceRegitrationInfoQueryController {
+public class ServiceRegitrationInfoQueryController extends BaseController {
 
 	private static final Logger LOG = LogManager.getLogger(ServiceRegitrationInfoQueryController.class);
 
 	@Autowired
 	RegistrationInfoService registrationInfoService;
 
-	@RequestMapping(value = { "/" })
-	public ModelAndView viewHome(HttpServletRequest request, HttpServletResponse response) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("path", "service");
-		return new ModelAndView("common/main-container", map);
-	}
-
-	@RequestMapping(value = { "/service" })
+	@RequestMapping(value = { "/","/service" })
 	public ModelAndView viewSerivice(HttpServletRequest request, HttpServletResponse response) {
 		Map<String, Object> map = new HashMap<String, Object>();
+		commonnav(map, request);
 		map.put("path", "service");
 		return new ModelAndView("common/main-container", map);
 	}
@@ -100,6 +94,7 @@ public class ServiceRegitrationInfoQueryController {
 	@RequestMapping(value = { "/address" })
 	public ModelAndView viewAddress(HttpServletRequest request, HttpServletResponse response) {
 		Map<String, Object> map = new HashMap<String, Object>();
+		commonnav(map, request);
 		map.put("path", "address");
 		return new ModelAndView("common/main-container", map);
 	}

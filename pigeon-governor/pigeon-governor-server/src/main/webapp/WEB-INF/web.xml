@@ -36,7 +36,7 @@
     </listener>
 
 	<!-- log4j2-begin -->
-	<!-- <context-param>
+	<context-param>
 	    <param-name>log4jContextName</param-name>
 	    <param-value>myApplication</param-value>
 	</context-param>
@@ -58,7 +58,7 @@
     	<dispatcher>FORWARD</dispatcher>
 	    <dispatcher>INCLUDE</dispatcher>
 	    <dispatcher>ERROR</dispatcher>
-	</filter-mapping> -->
+	</filter-mapping>
 	<!-- log4j2-end -->
 	
 	<!-- sso文档给的顺序不对，必须按下面这个顺序严格排放 -->
@@ -84,7 +84,7 @@
 	    <init-param>
 	        <param-name>excludeURLs</param-name>
 	        <!-- sso这里有个天坑，只放get，不放其他请求，如果是api想办法跳过sso -->
-	        <param-value>/api/*,/ssologout</param-value>
+	        <param-value>/api/*,/ssologout,/resources/*,/images/*</param-value>
 	    </init-param>
 	    <init-param>
             <param-name>formal</param-name>
@@ -168,7 +168,7 @@
 		<filter-class>com.dianping.pigeon.governor.filter.AuthenticationFilter</filter-class>
 		<init-param>
 			<param-name>excludePage</param-name>
-			<param-value>/api/,/ssologin,/ssologout</param-value>
+			<param-value>/api/,/ssologin,/ssologout,/resources/,/images/</param-value>
 		</init-param>
 	</filter>
 	<filter-mapping>

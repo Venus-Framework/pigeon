@@ -1,5 +1,7 @@
 package com.dianping.pigeon.governor.controller;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.ui.ModelMap;
@@ -14,6 +16,11 @@ import com.dianping.pigeon.governor.util.IPUtils;
  */
 public class BaseController {
 
+	public void commonnav(Map<String, Object> map, HttpServletRequest request) {
+		String currentUser = (String) request.getSession().getAttribute(Constants.USER_NAME);
+		map.put("currentUser", currentUser);
+	}
+	
 	public void commonnav(ModelMap modelMap, HttpServletRequest request) {
 		String currentUser = (String) request.getSession().getAttribute(Constants.USER_NAME);
 		modelMap.addAttribute("currentUser", currentUser);
