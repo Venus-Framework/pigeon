@@ -19,6 +19,8 @@
 		class="com.dianping.lion.client.InitializeConfig">
 		<property name="propertiesPath" value="config/applicationContext.properties" />
 	</bean>
+	
+	<bean name="configHolder" class="com.dianping.pigeon.governor.lion.ConfigHolder" init-method="init" />
 
 	<task:annotation-driven />
 
