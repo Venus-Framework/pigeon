@@ -60,8 +60,19 @@
 	    <dispatcher>ERROR</dispatcher>
 	</filter-mapping>
 	<!-- log4j2-end -->
-	
-	<!-- sso文档给的顺序不对，必须按下面这个顺序严格排放 -->
+	<filter>
+        <filter-name>NonAuthFilter</filter-name>
+        <filter-class>com.dianping.pigeon.governor.filter.NonAuthFilter</filter-class>
+        <init-param>
+            <param-name>excludes</param-name>
+            <param-value>/api/,/resources/,/images/</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>NonAuthFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+	<!-- sso -->
 	<filter>
 	    <filter-name>CAS Authentication Filter</filter-name>
 	    <filter-class>org.jasig.cas.client.authentication.Saml11AuthenticationFilter</filter-class>
@@ -155,6 +166,14 @@
 	<filter>
 		<filter-name>encodingFilter</filter-name>
 		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
 	</filter>
 
 	<filter-mapping>
@@ -186,7 +205,7 @@
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
-			<param-value>classpath*:/servlet-context.xml</param-value>
+			<param-value>classpath*:servlet-context.xml</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
