@@ -247,6 +247,14 @@
 		<finalName>${artifactId}-${env}-${version}</finalName>
 		<plugins>
 			<plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <warName>${artifactId}-${env}-${version}</warName>
+                </configuration>
+            </plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-eclipse-plugin</artifactId>
 				<configuration>
