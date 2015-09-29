@@ -1118,12 +1118,12 @@ appRequestsSent下会显示requests-lastsecond代表发出的请求最近一秒�
 
 
 ### 异步编程
-如果要追求最好的单机性能，需要通过pigeon进行完全的异步编程。
-1、客户端调用方式选择callback方式。
-如果需要动态设置callback，比如在一个线程里发起多次服务调用请求，每次使用不同的callback，可以按照以下代码：
-InvokerHelper.setCallback(new ServiceCallback(){...});
+如果要追求最好的单机性能，需要通过pigeon进行异步编程。
+1、客户端调用方式选择future或callback方式。
+可以参考前面的“配置客户端调用模式”说明
 
-2、服务端也可以在IO调用的callback里回写服务调用结果：
+2、服务端一般业务场景都采用多线程实现并发，如果要实现异步编程，需要使用事件驱动callback模式
+一般可以在IO调用的callback里回写服务调用结果
 服务端需要加lion配置xxx.pigeon.provider.reply.manual为true（xxx为应用app name）
 
 pigeon服务里如果有任何IO操作，需要该IO操作支持callback编程，IO操作常见的有缓存访问（支持callback调用）、数据库访问（正在开发callback调用支持）、pigeon服务调用（支持callback调用）
