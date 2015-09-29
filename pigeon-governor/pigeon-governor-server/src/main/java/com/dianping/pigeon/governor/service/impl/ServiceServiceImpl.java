@@ -1,9 +1,6 @@
 package com.dianping.pigeon.governor.service.impl;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,20 +9,19 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.dianping.pigeon.governor.bean.ServiceBean;
 import com.dianping.pigeon.governor.bean.JqGridRespBean;
+import com.dianping.pigeon.governor.bean.ServiceBean;
 import com.dianping.pigeon.governor.dao.ProjectMapper;
 import com.dianping.pigeon.governor.dao.ServiceMapper;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.ProjectExample;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.model.ServiceExample;
-import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceService;
+import com.dianping.pigeon.governor.util.CmdbUtils;
 import com.dianping.pigeon.governor.util.IPUtils;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.registry.zookeeper.Utils;
 import com.dianping.pigeon.remoting.common.util.Constants;
 
 /**
@@ -169,9 +165,7 @@ public class ServiceServiceImpl implements ServiceService {
 		
 		if(StringUtils.isNotBlank(service.getName()) 
 						&& service.getProjectid() != null
-						&& service.getId() != null
-						&& service.getProjectid() > 0
-						&& service.getId() > 0)
+						&& service.getId() != null)
 		{
 			sqlSucCount = serviceMapper.updateByPrimaryKeySelective(service);
 		}
@@ -241,8 +235,7 @@ public class ServiceServiceImpl implements ServiceService {
 		int sqlSucCount = -1;
 		
 		if(StringUtils.isNotBlank(service.getName()) 
-						&& service.getProjectid() != null
-						&& service.getProjectid() > 0)
+						&& service.getProjectid() != null)
 		{
 			sqlSucCount = serviceMapper.insertSelective(service);
 		}
@@ -273,11 +266,7 @@ public class ServiceServiceImpl implements ServiceService {
 			return result;
 		}
 		
-		Project project = new Project();
-		project.setName(projectName);
-		Date now = new Date();
-		project.setCreatetime(now);
-		project.setModifytime(now);
+		Project project =CmdbUtils.getProjectInfo(projectName);
 		projectMapper.insertSelective(project);
 		
 		ProjectExample projectExample = new ProjectExample();

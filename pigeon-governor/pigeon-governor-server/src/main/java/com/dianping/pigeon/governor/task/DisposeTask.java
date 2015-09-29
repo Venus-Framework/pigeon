@@ -330,7 +330,7 @@ public class DisposeTask implements Runnable {
 		Host host = task.getHost();
 		
 		String managerAddress = ConfigManagerLoader.getConfigManager()
-				.getStringValue("pigeon.governor.notify.address","http://127.0.0.1/api/service/");
+				.getStringValue("pigeon.governor.notify.address","http://lionapi.dp:8080/service/");
 		StringBuilder sb = new StringBuilder(managerAddress);
 		sb.append("unpublish?id=3");
 		

@@ -9,7 +9,9 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 
 public class Constants {
 
-	public static final String USER_NAME = "pigeon-user";
+	public static final String DP_ACCOUNT = "dp-account";
+	
+	public static final String CMDB_API_BASE = "http://api.cmdb.dp/api/v0.1";
 	
 	public static final String KEY_ACTION = "pigeon-governor-server.healthcheck.action";
 	public static final String KEY_INTERVAL = "pigeon-governor-server.healthcheck.interval";

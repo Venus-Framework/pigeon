@@ -72,8 +72,7 @@ public class ProjectServiceImpl implements ProjectService {
 		
 		if(StringUtils.isNotBlank(project.getName())
 						&& project.getCreatetime() == null
-						&& project.getId() != null
-						&& project.getId() > 0)
+						&& project.getId() != null)
 		{
 			Date now = new Date();
 			project.setModifytime(now);

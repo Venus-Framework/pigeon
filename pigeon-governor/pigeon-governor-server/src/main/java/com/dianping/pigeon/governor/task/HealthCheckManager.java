@@ -91,12 +91,12 @@ public class HealthCheckManager extends Thread {
 
 	public void run() {
 		boolean enable = true;
-		if ("product".equalsIgnoreCase(configManager.getEnv())) {
-			String ip = configManager.getStringValue("pigeon-governor-server.enable.ip", "");
-			if (!NetUtils.getFirstLocalIp().equals(ip)) {
-				enable = false;
-			}
+		String ip = configManager.getStringValue("pigeon-governor-server.enable.ip", "");
+		
+		if (!NetUtils.getFirstLocalIp().equals(ip)) {
+			enable = false;
 		}
+		
 		if (enable) {
 			workerPool = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 60, TimeUnit.SECONDS,
 					new ArrayBlockingQueue<Runnable>(queueSize), new NamingThreadFactory("Pigeon-Governor-Check"),

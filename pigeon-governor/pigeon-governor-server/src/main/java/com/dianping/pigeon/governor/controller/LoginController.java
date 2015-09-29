@@ -11,6 +11,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.dianping.pigeon.governor.lion.ConfigHolder;
 import com.dianping.pigeon.governor.lion.LionKeys;
+import com.dianping.pigeon.governor.model.User;
+import com.dianping.pigeon.governor.service.UserService;
 import com.dianping.pigeon.governor.util.Constants;
 
 /**
@@ -30,7 +33,10 @@ public class LoginController extends BaseController {
 
 	private Logger log = LogManager.getLogger();
 	
+	@Autowired
+	private UserService userService;
     
+	@Deprecated
 	/**
 	 * 登陆sso
 	 * @param modelMap
@@ -49,7 +55,6 @@ public class LoginController extends BaseController {
 	    if (StringUtils.isBlank(encodedUrl)) { encodedUrl = "/"; }
 	    
 		String userInfoStr = request.getRemoteUser();
-		log.info("ssoUserInfo: " + userInfoStr);
 		
 		if(StringUtils.isBlank(userInfoStr)){
 			//TODO
@@ -57,19 +62,14 @@ public class LoginController extends BaseController {
 			return ;
 		}
 		
-		String userName = userInfoStr.split("\\|")[0];
-		
+		//createIfNotExist
+		User user = checkUser(userInfoStr);
 		
 		//sso登录成功之后
 		HttpSession session = request.getSession(true);
-		session.setAttribute(Constants.USER_NAME, userName);
+		session.setAttribute(Constants.DP_ACCOUNT, user.getDpaccount());
 		log.info("login success!");
 
-		//createIfNotExist
-//		UserDTO userDTO = setUserInfo(userName);
-//		ClientResource cr = new ClientResource(LionConfigUtil.RESTLET_API_BASE + "user");
-//		cr.post(userDTO);
-		
 		response.setStatus(200);
 		response.sendRedirect(URLDecoder.decode(encodedUrl, "UTF-8"));
 		
@@ -96,6 +96,24 @@ public class LoginController extends BaseController {
         String taurusUrl = ConfigHolder.get(LionKeys.WEB_SERVERNAME);
         
         response.sendRedirect(ssoLogoutUrl + "?service=" + URLEncoder.encode(taurusUrl, "UTF-8"));
+	}
+	
+	@Deprecated
+	private User checkUser(String ssoUserInfo) {
+		String[] ssoInfos = ssoUserInfo.split("\\|");
+		String dpaccount = ssoInfos[0];
+		User user = userService.retrieveByDpaccount(dpaccount);
+		
+		if(user == null){
+			user = new User();
+			user.setDpaccount(dpaccount);
+			user.setSsologinid(Integer.parseInt(ssoInfos[1]));
+			user.setJobnumber(ssoInfos[2]);
+			user.setUsername(ssoInfos[3]);
+			userService.create(user);
+		}
+		
+		return user;
 	}
 	
 }

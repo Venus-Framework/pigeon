@@ -40,7 +40,7 @@ public class CustomBatisGenerator {
 		}
 		
 		List<String> warnings = new ArrayList<String>();
-		File configFile = new File("src/main/resources/generatorConfig.xml");
+		File configFile = new File("src/test/resources/generatorConfig.xml");
 		ConfigurationParser cp = new ConfigurationParser(warnings);
 		Configuration config = cp.parseConfiguration(configFile);
 		DefaultShellCallback callback = new DefaultShellCallback(overwrite);

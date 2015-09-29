@@ -1,11 +1,10 @@
 package com.dianping.pigeon.governor.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -25,6 +24,9 @@ import com.dianping.pigeon.governor.bean.JqGridReqFilters;
 import com.dianping.pigeon.governor.bean.WebResult;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.service.ServiceService;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 public class ServiceController extends BaseController {
@@ -80,8 +82,20 @@ public class ServiceController extends BaseController {
 		JqGridReqFilters filters = null;
 		
 		if(StringUtils.isNotBlank(jqGridReqBean.getFilters())){
-			JSONObject jsonObj = JSONObject.fromObject(jqGridReqBean.getFilters());
-			filters = (JqGridReqFilters) JSONObject.toBean(jsonObj, JqGridReqFilters.class);
+			
+			ObjectMapper objectMapper = new ObjectMapper();
+			try {
+				filters = objectMapper.readValue(jqGridReqBean.getFilters(), JqGridReqFilters.class);
+			} catch (JsonParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JsonMappingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		JqGridRespBean jqGridTableBean;

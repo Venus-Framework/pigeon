@@ -65,7 +65,7 @@
         <filter-class>com.dianping.pigeon.governor.filter.NonAuthFilter</filter-class>
         <init-param>
             <param-name>excludes</param-name>
-            <param-value>/api/,/resources/,/images/</param-value>
+            <param-value>/api/,/resources/,/images/,/error,/ssologout</param-value>
         </init-param>
     </filter>
     <filter-mapping>
@@ -95,7 +95,7 @@
 	    <init-param>
 	        <param-name>excludeURLs</param-name>
 	        <!-- sso这里有个天坑，只放get，不放其他请求，如果是api想办法跳过sso -->
-	        <param-value>/api/*,/ssologout,/resources/*,/images/*</param-value>
+	        <param-value></param-value>
 	    </init-param>
 	    <init-param>
             <param-name>formal</param-name>
@@ -188,10 +188,6 @@
 	<filter>
 		<filter-name>authenticationFilter</filter-name>
 		<filter-class>com.dianping.pigeon.governor.filter.AuthenticationFilter</filter-class>
-		<init-param>
-			<param-name>excludePage</param-name>
-			<param-value>/api/,/ssologin,/ssologout,/resources/,/images/</param-value>
-		</init-param>
 	</filter>
 	<filter-mapping>
 		<filter-name>authenticationFilter</filter-name>

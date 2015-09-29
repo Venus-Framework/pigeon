@@ -290,4 +290,13 @@ public class Project {
     public void setModifytime(Date modifytime) {
         this.modifytime = modifytime;
     }
+
+	@Override
+	public String toString() {
+		return "Project [id=" + id + ", name=" + name + ", level=" + level
+				+ ", bu=" + bu + ", owner=" + owner + ", email=" + email
+				+ ", phone=" + phone + ", createtime=" + createtime
+				+ ", modifytime=" + modifytime + "]";
+	}
+    
 }
