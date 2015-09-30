@@ -22,8 +22,12 @@ import com.dianping.pigeon.governor.bean.ServiceBean;
 import com.dianping.pigeon.governor.bean.JqGridReqBean;
 import com.dianping.pigeon.governor.bean.JqGridReqFilters;
 import com.dianping.pigeon.governor.bean.WebResult;
+import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.Service;
+import com.dianping.pigeon.governor.service.ProjectOwnerSerivce;
+import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceService;
+import com.dianping.pigeon.governor.util.Constants;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,6 +39,96 @@ public class ServiceController extends BaseController {
 	
 	@Autowired
 	private ServiceService serviceService;
+	@Autowired
+	private ProjectService projectService;
+	@Autowired
+	private ProjectOwnerSerivce projectOwnerService;
+	
+	@RequestMapping(value = {"/services/{projectName}"}, method = RequestMethod.GET)
+	public String projectInfo(ModelMap modelMap,
+								@PathVariable String projectName,
+								HttpServletRequest request) {
+		
+		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
+		modelMap.addAttribute("currentUser", currentUser);
+		Project project = projectService.findProject(projectName);
+		
+		if(project == null){
+			modelMap.addAttribute("errorMsg", "找不到项目：" + projectName);
+			
+			return "/error/500";
+		}
+		
+		modelMap.addAttribute("isProjectOwner", projectOwnerService.isProjectOwner(currentUser, project));
+		modelMap.addAttribute("projectName", projectName);
+		modelMap.addAttribute("projectId", project.getId());
+		
+		return "/services/list";
+	}
+	
+	@RequestMapping(value = {"/services/{projectName}"}, method = RequestMethod.POST)
+	@ResponseBody
+	public JqGridRespBean servicesRetrieve(JqGridReqBean jqGridReqBean,
+											@PathVariable String projectName) {
+		
+		/*JqGridReqFilters filters = null;
+		
+		if(StringUtils.isNotBlank(jqGridReqBean.getFilters())){
+			
+			ObjectMapper objectMapper = new ObjectMapper();
+			try {
+				filters = objectMapper.readValue(jqGridReqBean.getFilters(), JqGridReqFilters.class);
+			} catch (JsonParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JsonMappingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}*/
+		
+		JqGridRespBean jqGridTableBean;
+		
+		int page = jqGridReqBean.getPage();
+		int rows = jqGridReqBean.getRows();
+		
+		if(page > 0 && rows > 0){
+			jqGridTableBean = serviceService.retrieveByJqGrid(page, rows, projectName);
+		}else{
+			jqGridTableBean = serviceService.retrieveByJqGrid(1, 10, projectName);
+		}
+		
+		return jqGridTableBean;
+	}
+	
+	@RequestMapping(value = {"/services.api/{projectId}"}, method = RequestMethod.POST)
+	public void servicesapi4project(ServiceBean serviceBean,
+									@PathVariable Integer projectId,
+									HttpServletRequest request,
+									HttpServletResponse response) {//设置为void的时候要设置response参数
+		
+		String oper = serviceBean.getOper();
+		
+		serviceBean.setProjectid(projectId);
+		
+		if("edit".equals(oper)){
+			//TODO 同步ZK
+			serviceService.updateById(serviceBean);
+			
+		}else if("del".equals(oper)){
+			//TODO 同步ZK
+			serviceService.deleteByIdSplitByComma(serviceBean.getId());
+		
+		}else if("add".equals(oper)){
+			//TODO 同步ZK
+			serviceService.create(serviceBean);
+		
+		}
+		
+	}
 	
 	@RequestMapping(value = {"/services"}, method = RequestMethod.GET)
 	public String allinone(ModelMap modelMap,
@@ -110,123 +204,6 @@ public class ServiceController extends BaseController {
 		}
 		
 		return jqGridTableBean;
-	}
-	
-	/**
-	 * 敏感操作权限控制
-	 * @return
-	 */
-	public boolean authenticate(){
-		
-		return true;
-	}
-	
-	
-	
-	
-	
-	//oldways
-	
-	@RequestMapping(value = {"/services.old"}, method = RequestMethod.GET)
-	public String index(ModelMap modelMap,
-			HttpServletRequest request, HttpServletResponse response) {
-		
-		List<Service> services = serviceService.retrieveAll();
-		modelMap.addAttribute("services", services);
-		
-		return "/services/old";
-	}
-
-	@RequestMapping(value = {"/services/{id}"}, method = RequestMethod.GET)
-	public String show(ModelMap modelMap, @PathVariable Integer id,
-			HttpServletRequest request, HttpServletResponse response) {
-		
-		modelMap.addAttribute("service", serviceService.retrieveById(id));
-		
-		return "/services/show";
-	}
-	
-	@RequestMapping(value = {"/services/new"}, method = RequestMethod.GET)
-	public String newPage(ModelMap modelMap,
-			HttpServletRequest request, HttpServletResponse response) {
-		
-		return "/services/new";
-	}
-	
-	@RequestMapping(value = {"/services/{id}/edit"}, method = RequestMethod.GET)
-	public String edit(ModelMap modelMap, @PathVariable Integer id,
-			HttpServletRequest request, HttpServletResponse response) {
-		
-		modelMap.addAttribute("service", serviceService.retrieveById(id));
-		
-		return "/services/edit";
-	}
-	
-	@RequestMapping(value = {"/services"}, method = RequestMethod.POST)
-	@ResponseBody
-	public WebResult create(ModelMap modelMap, ServiceBean serviceBean,
-			HttpServletRequest request, HttpServletResponse response) {
-		
-		WebResult result = new WebResult(request);
-		
-		int sqlResult = serviceService.create(serviceBean);
-		
-		if(sqlResult > 0){
-			result.setStatus(200);
-			result.setMessage("Insert service successfully...");
-		}else{
-			result.setHasError(true);
-			result.setErrorMsg("Failed to insert service...");
-		}
-		
-		return result;
-	}
-	
-	@RequestMapping(value = {"/services/{id}"}, method = {RequestMethod.POST, RequestMethod.PUT})
-	@ResponseBody
-	public WebResult update(ModelMap modelMap,
-			ServiceBean serviceBean, @PathVariable Integer id,
-			HttpServletRequest request, HttpServletResponse response) {
-		
-		WebResult result = new WebResult(request);
-		
-		int sqlResult = serviceService.updateById(serviceBean);
-		
-		if(sqlResult > 0){
-			result.setStatus(200);
-			result.setMessage("Update service successfully...");
-		}else{
-			result.setHasError(true);
-			result.setErrorMsg("Failed to update service...");
-		}
-		
-		return result;
-	}
-	
-	@RequestMapping(value = {"/services/{id}/delete"}, 
-					method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE})
-	@ResponseBody
-	public WebResult destroy(ModelMap modelMap, @PathVariable Integer id,
-			HttpServletRequest request, HttpServletResponse response) {
-		
-		WebResult result = new WebResult(request);
-		
-		// TODO 加入一些权限之类的判断条件
-		int sqlResult = -1;
-		if(authenticate()){
-			sqlResult = serviceService.deleteById(id);
-		}
-		
-		if(sqlResult > 0){
-			result.setStatus(200);
-			result.setMessage("Destroy service successfully...");
-		}else{
-			result.setStatus(500);
-			result.setHasError(true);
-			result.setErrorMsg("Failed to destroy service...");
-		}
-		
-		return result;
 	}
 	
 }

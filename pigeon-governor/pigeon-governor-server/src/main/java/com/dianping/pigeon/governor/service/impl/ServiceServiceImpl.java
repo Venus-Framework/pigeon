@@ -11,14 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.dianping.pigeon.governor.bean.JqGridRespBean;
 import com.dianping.pigeon.governor.bean.ServiceBean;
-import com.dianping.pigeon.governor.dao.ProjectMapper;
 import com.dianping.pigeon.governor.dao.ServiceMapper;
 import com.dianping.pigeon.governor.model.Project;
-import com.dianping.pigeon.governor.model.ProjectExample;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.model.ServiceExample;
+import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceService;
-import com.dianping.pigeon.governor.util.CmdbUtils;
 import com.dianping.pigeon.governor.util.IPUtils;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
@@ -35,7 +33,7 @@ public class ServiceServiceImpl implements ServiceService {
 	@Autowired
 	private ServiceMapper serviceMapper;
 	@Autowired
-	private ProjectMapper projectMapper;
+	private ProjectService projectService;
 	
 	@Override
 	public int create(ServiceBean serviceBean) {
@@ -210,7 +208,8 @@ public class ServiceServiceImpl implements ServiceService {
 	        
 	    } else {
 	    	
-	        Project newProject = createProject(project);
+	        Project newProject = projectService.createProject(project, true);
+	        
 	        if(newProject == null){
 	        	return null;
 	        }
@@ -259,33 +258,6 @@ public class ServiceServiceImpl implements ServiceService {
 	}
 
 	@Override
-	public Project createProject(String projectName) {
-		Project result = null;
-		
-		if(StringUtils.isBlank(projectName)) {
-			return result;
-		}
-		
-		Project project =CmdbUtils.getProjectInfo(projectName);
-		projectMapper.insertSelective(project);
-		
-		ProjectExample projectExample = new ProjectExample();
-		projectExample.createCriteria().andNameEqualTo(projectName);
-		List<Project> projects = projectMapper.selectByExample(projectExample);
-		
-		if(projects != null){
-			
-			if(projects.size() > 0){
-				result = projects.get(0);
-			}
-				
-		}
-		
-		return result;
-		
-	}
-
-	@Override
 	public String unpublishService(String service, String group, String ip,
 									String port, String updatezk) throws RegistryException {
 		boolean writeZk = "true".equalsIgnoreCase(updatezk);
@@ -302,6 +274,37 @@ public class ServiceServiceImpl implements ServiceService {
         }
         
         return newService.getHosts();
+	}
+
+	@Override
+	public JqGridRespBean retrieveByJqGrid(int page, int rows,
+			String projectName) {
+		JqGridRespBean jqGridTableBean = null;
+		
+		if(page > 0 && rows > 0 ){
+			Project project = projectService.findProject(projectName);
+			
+			if(project != null){
+				Integer projectId = project.getId();
+				List<Service> services = serviceMapper.selectByPageRowsProjectId((page - 1) * rows, rows, projectId);
+				
+				ServiceExample example = new ServiceExample();
+				example.createCriteria().andProjectidEqualTo(projectId);
+				int totalRecords = serviceMapper.countByExample(example);
+				
+				int totalPages = (totalRecords - 1) / rows + 1;
+				
+				jqGridTableBean = new JqGridRespBean();
+				jqGridTableBean.setData(services);
+				jqGridTableBean.setCurrentPage(page);
+				jqGridTableBean.setTotalRecords(totalRecords);
+				jqGridTableBean.setTotalPages(totalPages);
+			}
+			
+			
+		}
+		
+		return jqGridTableBean;
 	}
 
 }

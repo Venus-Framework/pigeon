@@ -13,6 +13,7 @@ import com.dianping.pigeon.governor.dao.ProjectMapper;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.ProjectExample;
 import com.dianping.pigeon.governor.service.ProjectService;
+import com.dianping.pigeon.governor.util.CmdbUtils;
 
 /**
  * 
@@ -115,6 +116,44 @@ public class ProjectServiceImpl implements ProjectService {
 		ProjectExample example = new ProjectExample();
 		example.createCriteria().andNameEqualTo(name);
 		List<Project> projects = projectMapper.selectByExample(example);
+		
+		if(projects != null){
+			
+			if(projects.size() > 0){
+				result = projects.get(0);
+			}
+				
+		}
+		
+		return result;
+	}
+
+
+	@Override
+	public Project createProject(String projectName, boolean fromCmdb) {
+		Project result = null;
+		
+		if(StringUtils.isBlank(projectName)) {
+			return result;
+		}
+		
+		Project project = null;
+		
+		if(fromCmdb) {
+			project = CmdbUtils.getProjectInfo(projectName);
+		} else {
+			project = new Project();
+			project.setName(projectName);
+	    	Date now = new Date();
+			project.setCreatetime(now);
+			project.setModifytime(now);
+		}
+		
+		projectMapper.insertSelective(project);
+		
+		ProjectExample projectExample = new ProjectExample();
+		projectExample.createCriteria().andNameEqualTo(projectName);
+		List<Project> projects = projectMapper.selectByExample(projectExample);
 		
 		if(projects != null){
 			

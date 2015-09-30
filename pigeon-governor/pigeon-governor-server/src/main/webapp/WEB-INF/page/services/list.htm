@@ -71,8 +71,8 @@
 			<ul class="breadcrumb">
 				<li><i class="ace-icon fa fa-home home-icon"></i> <a href="/">主页</a>
 				</li>
-		
-				<li class="active">配置服务</li>
+				<li>配置服务</li>
+				<li class="active">${projectName}</li>
 			</ul>
 			<!-- /.breadcrumb -->
 		</div>
@@ -84,7 +84,7 @@
 			<div class="page-content-area">
 				<div class="page-header">
 					<h1>
-						配置服务
+						${projectName}
 						<small>
 							<i class="ace-icon fa fa-angle-double-right"></i>
 							添加、删除、修改、查看pigeon服务配置
@@ -185,11 +185,16 @@ jQuery(function($) {
 		}
     })
 
-
+	$.extend($.fn.fmatter, {
+        actionFormatter: function(cellvalue, options, rowObject) {
+            var retVal = "";
+            return retVal;
+        }
+    } );
 
 	jQuery(grid_selector).jqGrid({
 
-		url:"${rc.contextPath}/services.json",
+		url:"${rc.contextPath}/services/${projectName}",
 		datatype: "json",
 		mtype:"POST",
 		jsonReader: {
@@ -200,24 +205,28 @@ jQuery(function($) {
 			repeatitems : true
 		},
 		height: 350,
-		colNames:[' ', 'ID','Name','描述', '泳道', 'Hosts','PID'],
+		colNames:['操作', 'ID','Name','描述', '泳道', 'Hosts','PID'],
 		colModel:[
 			{name:'myac',index:'', width:70, fixed:true, sortable:false, resize:false,
-				formatter:'actions', 
+				formatter:#if($isProjectOwner)'actions'#else'actionFormatter'#end, 
 				formatoptions:{ 
 					keys:true,
 					//delbutton: false,//disable delete button
-					
 					delOptions:{recreateForm: true, beforeShowForm:beforeDeleteCallback},
 					//editformbutton:true, editOptions:{recreateForm: true, beforeShowForm:beforeEditCallback}
 				}
 			},
 			{name:'id', index:'id', width:20, sorttype:"int", search:false, editable:false},
-			{name:'name', index:'name', width:220, editable:true, editoptions:{size:"20", maxlength:"250"}},
-			{name:'desc', index:'desc', width:100, editable:true, search:false, sortable:false, editoptions:{size:"20", maxlength:"250"}},
-			{name:'group',index:'group', width:50, editable:true, editoptions:{size:"20", maxlength:"100"}},
-			{name:'hosts',index:'hosts', width:200, editable:true, search:false, sortable:false, editoptions:{size:"20", maxlength:"2000"}},
-			{name:'projectid',index:'projectid', width:20, sorttype:"int",editable: true} 
+			{name:'name', index:'name', width:220, editable:true,editoptions:{size:"80", maxlength:"250"}},
+			{name:'desc', index:'desc', width:100, editable:true, search:false, sortable:false, editoptions:{size:"80", maxlength:"250"}},
+			{name:'group',index:'group', width:50, editable:true, editoptions:{size:"80", maxlength:"100"}},
+			{name:'hosts',index:'hosts', width:200, editable:true, search:false, sortable:false, 
+				editoptions:{
+					size:"80", maxlength:"2000"
+					
+				}
+			},
+			{name:'projectid',index:'projectid', width:20, hidden:true} 
 		], 
 
 		viewrecords : true,
@@ -240,9 +249,18 @@ jQuery(function($) {
 				updatePagerIcons(table);
 				enableTooltips(table);
 			}, 0);
+			
+			$('.ui-inline-edit').click(function(e){
+				var btnId = e.currentTarget.id;
+				var rowId = btnId.split("_")[1];
+				var nameCol = '#'+rowId + '_name';
+				var groupCol = '#'+rowId + '_group';
+                $(nameCol).attr("disabled","disabled");
+                $(groupCol).attr("disabled","disabled");
+			});
 		},
 
-		editurl: "/services.api",//nothing is saved
+		editurl: "${rc.contextPath}/services.api/${projectId}",//nothing is saved
 		caption: "加载全部服务配置"
 
 		//,autowidth: true,
@@ -261,6 +279,14 @@ jQuery(function($) {
 		*/
 
 	});
+	
+	/* jQuery(grid_selector).jqGrid('editRow',rowid, 
+			{ 
+			    keys : true, 
+			    oneditfunc: function() {
+			        alert ("edited"); 
+			    }
+			}); */
 	
 	$(window).triggerHandler('resize.jqGrid');//trigger window resize to make the grid get the correct size
 	
@@ -289,13 +315,13 @@ jQuery(function($) {
 	//navButtons
 	jQuery(grid_selector).jqGrid('navGrid',pager_selector,
 		{ 	//navbar options
-			edit: true,
+			edit: #if($isProjectOwner) true #else false #end,
 			editicon : 'ace-icon fa fa-pencil blue',
-			add: true,
+			add: #if($isProjectOwner) true #else false #end,
 			addicon : 'ace-icon fa fa-plus-circle purple',
-			del: true,
+			del: #if($isProjectOwner) true #else false #end,
 			delicon : 'ace-icon fa fa-trash-o red',
-			search: true,
+			search: false,
 			searchicon : 'ace-icon fa fa-search orange',
 			refresh: true,
 			refreshicon : 'ace-icon fa fa-refresh green',
@@ -305,21 +331,25 @@ jQuery(function($) {
 		{
 			//edit record form
 			//closeAfterEdit: true,
-			//width: 700,
+			width: 650,
 			recreateForm: true,
 			beforeShowForm : function(e) {
+				//console.log(e);
 				var form = $(e[0]);
+				form.find('#name').attr('readOnly',true);
+				form.find('#group').attr('readOnly',true);
 				form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
 				style_edit_form(form);
 			}
 		},
 		{
 			//new record form
-			//width: 700,
+			width: 650,
 			closeAfterAdd: true,
 			recreateForm: true,
 			viewPagerButtons: false,
 			beforeShowForm : function(e) {
+				//console.log(e);
 				var form = $(e[0]);
 				form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar')
 				.wrapInner('<div class="widget-header" />')
@@ -362,6 +392,7 @@ jQuery(function($) {
 		},
 		{
 			//view record form
+			width: 650,
 			recreateForm: true,
 			beforeShowForm: function(e){
 				var form = $(e[0]);
@@ -370,7 +401,16 @@ jQuery(function($) {
 		}
 	)
 
-
+	/* jQuery(grid_selector).navButtonAdd(pager_selector,{
+		caption: "",
+		title:"添加新记录", 
+		buttonicon:'ace-icon fa fa-plus-circle purple', 
+		onClickButton: function(){ 
+			alert("导出excel");
+		},
+		position:"last",
+		id: "customAddBtn"
+	}); */
 	
 	function style_edit_form(form) {
 		//enable datepicker on "sdate" field and switches for "stock" field
@@ -500,6 +540,7 @@ jQuery(function($) {
 </script>
 
 <style>
+/* 使表格内容自动换行 */
 .ui-jqgrid tr.jqgrow td {
     word-wrap: break-word; /* IE 5.5+ and CSS3 */
     white-space: pre-wrap; /* CSS3 */

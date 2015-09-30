@@ -42,9 +42,9 @@ public interface ServiceService {
 	
 	public void registryCreateService(Service service) throws RegistryException;
 	
-	public Project createProject(String projectName);
-	
 	public String unpublishService(String service, String group, 
 									String ip, String port, String updatezk) throws RegistryException;
+	
+	public JqGridRespBean retrieveByJqGrid(int page, int rows, String projectName);
 	
 }

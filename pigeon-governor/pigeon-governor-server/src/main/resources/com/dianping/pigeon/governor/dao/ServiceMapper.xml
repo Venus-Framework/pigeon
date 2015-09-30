@@ -292,4 +292,13 @@
     from service
     limit #{offset},#{rows}
   </select>
+  
+  <select id="selectByPageRowsProjectId" parameterType="map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from service
+    where projectId = #{projectId}
+    limit #{offset},#{rows}
+  </select>
+  
 </mapper>
