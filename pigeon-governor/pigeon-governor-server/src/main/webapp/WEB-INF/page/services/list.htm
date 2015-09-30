@@ -315,11 +315,11 @@ jQuery(function($) {
 	//navButtons
 	jQuery(grid_selector).jqGrid('navGrid',pager_selector,
 		{ 	//navbar options
-			edit: #if($isProjectOwner) true #else false #end,
+			edit: ${isProjectOwner},
 			editicon : 'ace-icon fa fa-pencil blue',
-			add: #if($isProjectOwner) true #else false #end,
+			add: ${isProjectOwner},
 			addicon : 'ace-icon fa fa-plus-circle purple',
-			del: #if($isProjectOwner) true #else false #end,
+			del: ${isProjectOwner},
 			delicon : 'ace-icon fa fa-trash-o red',
 			search: false,
 			searchicon : 'ace-icon fa fa-search orange',

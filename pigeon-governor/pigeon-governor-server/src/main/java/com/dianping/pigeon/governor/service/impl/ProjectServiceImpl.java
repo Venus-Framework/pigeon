@@ -12,7 +12,9 @@ import com.dianping.pigeon.governor.bean.ProjectBean;
 import com.dianping.pigeon.governor.dao.ProjectMapper;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.ProjectExample;
+import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.ProjectService;
+import com.dianping.pigeon.governor.service.UserService;
 import com.dianping.pigeon.governor.util.CmdbUtils;
 
 /**
@@ -25,6 +27,8 @@ public class ProjectServiceImpl implements ProjectService {
 	
 	@Autowired
 	private ProjectMapper projectMapper;
+	@Autowired
+	private UserService userService;
 	
 	@Override
 	public int create(ProjectBean projectBean) {
@@ -72,7 +76,6 @@ public class ProjectServiceImpl implements ProjectService {
 		Project project = projectBean.convertToProject();
 		
 		if(StringUtils.isNotBlank(project.getName())
-						&& project.getCreatetime() == null
 						&& project.getId() != null)
 		{
 			Date now = new Date();
@@ -164,6 +167,33 @@ public class ProjectServiceImpl implements ProjectService {
 		}
 		
 		return result;
+	}
+
+
+	@Override
+	public JqGridRespBean retrieveByJqGrid(int page, int rows,
+			String projectOwner) {
+		JqGridRespBean jqGridTableBean = null;
+		
+		if(page > 0){
+			User user = userService.retrieveByDpaccount(projectOwner);
+			
+			if(user != null){
+				Integer ownerId = user.getId();
+				List<Project> projects = projectMapper.selectByPageRowsOwnerId((page - 1) * rows, rows, ownerId);
+				int totalRecords = projectMapper.countByOwnerId(ownerId);
+				int totalPages = (totalRecords - 1) / rows + 1;
+				
+				jqGridTableBean = new JqGridRespBean();
+				jqGridTableBean.setData(projects);
+				jqGridTableBean.setCurrentPage(page);
+				jqGridTableBean.setTotalRecords(totalRecords);
+				jqGridTableBean.setTotalPages(totalPages);
+			}
+			
+		}
+		
+		return jqGridTableBean;
 	}
 
 }

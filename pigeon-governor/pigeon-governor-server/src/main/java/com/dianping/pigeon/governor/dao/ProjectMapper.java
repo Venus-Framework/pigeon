@@ -97,4 +97,8 @@ public interface ProjectMapper {
     int updateByPrimaryKey(Project record);
 
 	List<Project> selectByPageAndRows(@Param("offset") Integer offset, @Param("rows") Integer rows);
+	
+	List<Project> selectByPageRowsOwnerId(@Param("offset") Integer offset, @Param("rows") Integer rows, @Param("ownerId") Integer ownerId);
+	
+	int countByOwnerId(Integer ownerId);
 }

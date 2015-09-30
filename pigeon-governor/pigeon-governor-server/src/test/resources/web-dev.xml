@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+
+	<display-name>Pigeon Governor</display-name>
+	<description />
+
+	<context-param>
+    	<param-name>contextConfigLocation</param-name>
+	    <param-value>
+	    	classpath*:app-context-dev.xml
+	    </param-value>
+	</context-param>
+
+	<!-- 日志记录 -->
+    <context-param>
+        <!-- 日志配置文件路径 -->
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>classpath:log4j.properties</param-value>
+    </context-param>
+    <context-param>
+        <!-- 日志页面的刷新间隔 -->
+        <param-name>log4jRefreshInterval</param-name>
+        <param-value>6000</param-value>
+    </context-param>
+	<listener>
+        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
+    
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+	<!-- log4j2-begin -->
+	<context-param>
+	    <param-name>log4jContextName</param-name>
+	    <param-value>myApplication</param-value>
+	</context-param>
+	<context-param>
+	    <param-name>log4jConfiguration</param-name>
+	    <param-value>classpath:log4j2.xml</param-value>
+	</context-param>
+	<listener>
+		<listener-class>org.apache.logging.log4j.web.Log4jServletContextListener</listener-class>
+	</listener>
+	<filter>
+		<filter-name>log4jServletFilter</filter-name>
+		<filter-class>org.apache.logging.log4j.web.Log4jServletFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>log4jServletFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+    	<dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	    <dispatcher>ERROR</dispatcher>
+	</filter-mapping>
+	<!-- log4j2-end -->
+	<filter>
+        <filter-name>NonAuthFilter</filter-name>
+        <filter-class>com.dianping.pigeon.governor.filter.NonAuthFilter</filter-class>
+        <init-param>
+            <param-name>excludes</param-name>
+            <param-value>/api/,/resources/,/images/,/error,/ssologout</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>NonAuthFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+	
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+    	<dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+	
+	<!-- 本机身份验证 -->
+	<filter>
+		<filter-name>NonSsoFilter</filter-name>
+		<filter-class>com.dianping.pigeon.governor.filter.NonSsoFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>NonSsoFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<session-config>
+		<!-- 12 hours -->
+		<session-timeout>720</session-timeout>
+	</session-config>
+	
+	<servlet>
+		<servlet-name>rest_servlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath*:servlet-context.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>rest_servlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+</web-app>

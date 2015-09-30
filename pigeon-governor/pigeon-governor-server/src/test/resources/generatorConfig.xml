@@ -16,9 +16,9 @@
 		</commentGenerator>
 	
 		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
-						connectionURL="jdbc:mysql://192.168.7.105:3306/PigeonGovernor" 
-						userId="pigeon"
-						password="dp!@4zmKzyV8p">
+						connectionURL="jdbc:mysql://127.0.0.1:3306/PigeonGovernor" 
+						userId="root"
+						password="root">
 		</jdbcConnection>
 
 		<javaModelGenerator targetPackage="com.dianping.pigeon.governor.model" 

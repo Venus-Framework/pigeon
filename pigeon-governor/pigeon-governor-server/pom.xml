@@ -23,6 +23,7 @@
 		<jackson.version>2.1.4</jackson.version>
 		<jaxb-api.version>2.2.11</jaxb-api.version>
 		<mybatis.version>3.2.4</mybatis.version>
+		<webXmlPath>src/main/webapp/WEB-INF/web.xml</webXmlPath>
 	</properties>
 
 	<dependencies>
@@ -252,6 +253,7 @@
                 <version>2.5</version>
                 <configuration>
                     <warName>${artifactId}-${env}-${version}</warName>
+                    <webXml>${webXmlPath}</webXml>
                 </configuration>
             </plugin>
 			<plugin>
@@ -282,8 +284,20 @@
 				<version>6.1.10</version>
 				<configuration>
                     <contextPath>/</contextPath>
+                    <webXml>${webXmlPath}</webXml>
                 </configuration>
 			</plugin>
 		</plugins>
 	</build>
+	
+	<!-- 启动指定profile如dev使用maven命令加 -P dev -->
+	<profiles>
+		<profile>
+			<id>dev</id>
+			<properties>
+            	<webXmlPath>src/test/resources/web-dev.xml</webXmlPath>
+        	</properties>
+		</profile>
+	</profiles>
+	
 </project>

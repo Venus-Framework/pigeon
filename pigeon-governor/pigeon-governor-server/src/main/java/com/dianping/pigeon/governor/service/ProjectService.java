@@ -17,4 +17,6 @@ public interface ProjectService {
 	public Project findProject(String name);
 	
 	public Project createProject(String projectName, boolean fromCmdb);
+	
+	public JqGridRespBean retrieveByJqGrid(int page, int rows, String projectOwner);
 }

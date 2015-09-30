@@ -337,4 +337,19 @@
     from project
     limit #{offset},#{rows}
   </select>
+  <select id="selectByPageRowsOwnerId" parameterType="map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from project a 
+    INNER JOIN 
+    (select b.projectId from `project_owner` b where b.userId=#{ownerId}) c 
+    ON a.id = c.projectId 
+    limit #{offset},#{rows}
+  </select>
+  <select id="countByOwnerId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+    select count(1) from project a 
+    INNER JOIN 
+    (select b.projectId from `project_owner` b where b.userId=#{ownerId}) c 
+    ON a.id = c.projectId 
+  </select>
 </mapper>

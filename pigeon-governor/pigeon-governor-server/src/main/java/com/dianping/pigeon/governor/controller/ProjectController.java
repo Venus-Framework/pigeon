@@ -1,6 +1,7 @@
 package com.dianping.pigeon.governor.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +15,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.dianping.pigeon.governor.bean.JqGridReqBean;
@@ -23,6 +25,7 @@ import com.dianping.pigeon.governor.bean.ProjectBean;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.service.ProjectOwnerSerivce;
 import com.dianping.pigeon.governor.service.ProjectService;
+import com.dianping.pigeon.governor.service.UserService;
 import com.dianping.pigeon.governor.util.Constants;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -40,11 +43,71 @@ public class ProjectController extends BaseController {
 	
 	@Autowired
 	private ProjectService projectService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private ProjectOwnerSerivce projectOwnerService;
+	
+	@RequestMapping(value = {"/projects/{projectOwner}"}, method = RequestMethod.GET)
+	public String projectOwnerInfo(ModelMap modelMap,
+									@PathVariable String projectOwner,
+									HttpServletRequest request,
+									HttpServletResponse response) {
+		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
+		modelMap.addAttribute("currentUser", currentUser);
+		//User user = projectOwnerService.retrieveUser(projectOwner);
+		modelMap.addAttribute("projectOwner", currentUser);
+		
+		return "/projects/list";
+	}
+	
+	@RequestMapping(value = {"/projects"}, method = RequestMethod.POST)
+	@ResponseBody
+	public JqGridRespBean projectsRetrieve(ModelMap modelMap,
+											JqGridReqBean jqGridReqBean,
+											@RequestParam(value="projectOwner") String projectOwner,
+											HttpServletRequest request,
+											HttpServletResponse response) {
+		
+		/*JqGridReqFilters filters = null;
+		
+		if(StringUtils.isNotBlank(jqGridReqBean.getFilters())){
+			ObjectMapper objectMapper = new ObjectMapper();
+			try {
+				filters = objectMapper.readValue(jqGridReqBean.getFilters(), JqGridReqFilters.class);
+			} catch (JsonParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JsonMappingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}*/
+		
+		JqGridRespBean jqGridTableBean;
+		
+		int page = jqGridReqBean.getPage();
+		int rows = jqGridReqBean.getRows();
+		
+		if(page > 0 && rows > 0){
+			jqGridTableBean = projectService.retrieveByJqGrid(page, rows, projectOwner);
+		}else{
+			jqGridTableBean = projectService.retrieveByJqGrid(1, 10, projectOwner);
+		}
+		
+		return jqGridTableBean;
+		
+	}
 	
 	@RequestMapping(value = {"/projects"}, method = RequestMethod.GET)
 	public String allinone(ModelMap modelMap,
 			HttpServletRequest request, HttpServletResponse response) {
-		commonnav(modelMap, request);
+		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
+		modelMap.addAttribute("currentUser", currentUser);
+		modelMap.addAttribute("projectOwner", currentUser);
 		
 		return "/projects/index";
 	}
