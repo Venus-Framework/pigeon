@@ -392,4 +392,11 @@ public class RegistryManager {
 			monitor.logEvent("PigeonService.setHosts", serviceName, "swimlane=" + group + "&hosts=" + hosts);
 		}
 	}
+	
+	public void delServerService(String serviceName, String group) throws RegistryException {
+		if( registry != null) {
+			registry.delServerService(serviceName, group);
+			monitor.logEvent("PigeonService.delService", serviceName, "swimlane=" + group);
+		}
+	}
 }

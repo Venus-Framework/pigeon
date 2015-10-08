@@ -24,10 +24,11 @@ import com.dianping.pigeon.governor.bean.JqGridReqFilters;
 import com.dianping.pigeon.governor.bean.WebResult;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.Service;
-import com.dianping.pigeon.governor.service.ProjectOwnerSerivce;
+import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.util.Constants;
+import com.dianping.pigeon.registry.exception.RegistryException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +43,7 @@ public class ServiceController extends BaseController {
 	@Autowired
 	private ProjectService projectService;
 	@Autowired
-	private ProjectOwnerSerivce projectOwnerService;
+	private ProjectOwnerService projectOwnerService;
 	
 	@RequestMapping(value = {"/services/{projectName}"}, method = RequestMethod.GET)
 	public String projectInfo(ModelMap modelMap,
@@ -113,19 +114,20 @@ public class ServiceController extends BaseController {
 		String oper = serviceBean.getOper();
 		
 		serviceBean.setProjectid(projectId);
-		
-		if("edit".equals(oper)){
-			//TODO 同步ZK
-			serviceService.updateById(serviceBean);
+		try {
+			if("edit".equals(oper)){
+				serviceService.updateById(serviceBean, "true");
+				
+			}else if("del".equals(oper)){
+				serviceService.deleteByIdSplitByComma(serviceBean.getId(), "true");
 			
-		}else if("del".equals(oper)){
-			//TODO 同步ZK
-			serviceService.deleteByIdSplitByComma(serviceBean.getId());
-		
-		}else if("add".equals(oper)){
-			//TODO 同步ZK
-			serviceService.create(serviceBean);
-		
+			}else if("add".equals(oper)){
+				serviceService.create(serviceBean, "true");
+			
+			}
+		} catch (RegistryException e) {
+			e.printStackTrace();
+			log.error("update zk error");
 		}
 		
 	}
@@ -138,7 +140,7 @@ public class ServiceController extends BaseController {
 		return "/services/index";
 	}
 	
-	@RequestMapping(value = {"/services.api"}, method = RequestMethod.POST)
+	/*@RequestMapping(value = {"/services.api"}, method = RequestMethod.POST)
 	public void servicesapi(ModelMap modelMap, ServiceBean serviceBean,
 			HttpServletRequest request, HttpServletResponse response) {
 		
@@ -153,20 +155,17 @@ public class ServiceController extends BaseController {
 		}
 		
 		if("edit".equals(oper)){
-			//TODO 同步ZK
 			serviceService.updateById(serviceBean);
 			
 		}else if("del".equals(oper)){
-			//TODO 同步ZK
 			serviceService.deleteByIdSplitByComma(serviceBean.getId());
 		
 		}else if("add".equals(oper)){
-			//TODO 同步ZK
 			serviceService.create(serviceBean);
 		
 		}
 		
-	}
+	}*/
 	
 	@RequestMapping(value = {"/services.json"}, method = RequestMethod.POST)
 	@ResponseBody

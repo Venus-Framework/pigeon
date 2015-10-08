@@ -9,6 +9,8 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 
 public class Constants {
 
+	public static final String DP_EMAIL_BASE = "@dianping.com";
+	
 	public static final String DP_ACCOUNT = "dp-account";
 	
 	public static final String CMDB_API_BASE = "http://api.cmdb.dp/api/v0.1";

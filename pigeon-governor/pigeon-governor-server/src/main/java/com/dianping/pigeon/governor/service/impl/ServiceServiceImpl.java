@@ -1,11 +1,7 @@
 package com.dianping.pigeon.governor.service.impl;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,12 +11,12 @@ import com.dianping.pigeon.governor.dao.ServiceMapper;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.model.ServiceExample;
+import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
+import com.dianping.pigeon.governor.service.RegistryService;
 import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.util.IPUtils;
-import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.remoting.common.util.Constants;
 
 /**
  * 
@@ -34,12 +30,22 @@ public class ServiceServiceImpl implements ServiceService {
 	private ServiceMapper serviceMapper;
 	@Autowired
 	private ProjectService projectService;
+	@Autowired
+	private RegistryService registryService;
+	@Autowired
+	private ProjectOwnerService projectOwnerService;
 	
 	@Override
-	public int create(ServiceBean serviceBean) {
+	public int create(ServiceBean serviceBean, String updatezk) throws RegistryException {
+		boolean writeZk = "true".equalsIgnoreCase(updatezk);
 		Service service = serviceBean.createService();
+		int count = create(service);
 		
-		return create(service);
+		if(count > 0 && writeZk) {
+			registryService.registryCreateService(service);
+		}
+		
+		return count;
 	}
 	
 	@Override
@@ -54,7 +60,8 @@ public class ServiceServiceImpl implements ServiceService {
 	}
 	
 	@Override
-	public int deleteByIdSplitByComma(String idsComma) {
+	public int deleteByIdSplitByComma(String idsComma, String updatezk) throws RegistryException {
+		boolean writeZk = "true".equalsIgnoreCase(updatezk);
 		int sqlSucCount = 0;
 		String idsArr[] = idsComma.split(",");
 		
@@ -64,7 +71,29 @@ public class ServiceServiceImpl implements ServiceService {
 			
 			try {
 				id = Integer.parseInt(ids);
-				count = serviceMapper.deleteByPrimaryKey(id);;
+				Service service = serviceMapper.selectByPrimaryKey(id);
+				
+				if(service != null){
+					count = serviceMapper.deleteByPrimaryKey(id);
+					
+					if(count > 0 && writeZk){
+						registryService.registryDeleteService(service);
+						
+						if(StringUtils.isNotEmpty(service.getGroup())) {
+							ServiceExample example = new ServiceExample();
+							example.createCriteria().andNameEqualTo(service.getName());
+				            List<Service> services = serviceMapper.selectByExample(example);
+				            
+				            if(services != null && services.size() == 0) {
+				                // Last service for name, delete parent node in ZK
+				                service.setGroup("");
+				                registryService.registryDeleteService(service);
+				            }
+				        }
+					}
+					
+				}
+				
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
 			}finally{
@@ -77,10 +106,17 @@ public class ServiceServiceImpl implements ServiceService {
 	}
 
 	@Override
-	public int updateById(ServiceBean serviceBean) {
+	public int updateById(ServiceBean serviceBean, String updatezk) throws RegistryException {
+		boolean writeZk = "true".equalsIgnoreCase(updatezk);
 		Service service = serviceBean.convertToService();
+		Service oriService = getService(service.getName(), service.getGroup());
+		int count = updateById(service);
 		
-		return updateById(service);
+		if(count > 0 && writeZk) {
+			registryService.registryUpdateService(oriService, service);
+		}
+		
+		return count;
 	}
 
 	@Override
@@ -172,25 +208,6 @@ public class ServiceServiceImpl implements ServiceService {
 	}
 
 	@Override
-	public void registryUpdateService(Service oriService, Service newService) throws RegistryException {
-		RegistryManager.getInstance().setServerService(
-				newService.getName(),newService.getGroup(),newService.getHosts());
-		
-		Set<String> oriHostSet = new HashSet<String>();
-        for(String host : oriService)
-            oriHostSet.add(host);
-        
-        Set<String> hostSet = new HashSet<String>();
-        for(String host : newService)
-            hostSet.add(host);
-        
-        Collection<String> addSet = CollectionUtils.subtract(hostSet, oriHostSet);
-        for(String host : addSet) {
-        	RegistryManager.getInstance().setServerWeight(host, Constants.WEIGHT_DEFAULT);
-        }
-	}
-
-	@Override
 	public String publishService(String project,String service, String group, 
 									String ip, String port, String updatezk) throws RegistryException {
 		
@@ -204,7 +221,7 @@ public class ServiceServiceImpl implements ServiceService {
 	        updateById(newService);
 	        
 	        if(writeZk)
-	        	registryUpdateService(oriService, newService);
+	        	registryService.registryUpdateService(oriService, newService);
 	        
 	    } else {
 	    	
@@ -214,6 +231,9 @@ public class ServiceServiceImpl implements ServiceService {
 	        	return null;
 	        }
 	        
+	        //create default project owner
+	        projectOwnerService.createDefaultOwner(newProject.getEmail());
+	        
 	        newService = new Service();
 	        newService.setProjectid(newProject.getId());
 	        newService.setName(service);
@@ -222,7 +242,7 @@ public class ServiceServiceImpl implements ServiceService {
 	        create(newService);
 	        
 	        if(writeZk)
-	        	registryCreateService(newService);
+	        	registryService.registryCreateService(newService);
 	        
 	    }
 	    
@@ -242,20 +262,6 @@ public class ServiceServiceImpl implements ServiceService {
 		return sqlSucCount;
 	}
 
-	@Override
-	public void registryCreateService(Service service) throws RegistryException {
-		RegistryManager.getInstance().setServerService(
-				service.getName(),service.getGroup(),service.getHosts());
-		
-		Set<String> hostSet = new HashSet<String>();
-        for(String host : service)
-            hostSet.add(host);
-        
-        for(String host : hostSet) {
-        	RegistryManager.getInstance().setServerWeight(host, Constants.WEIGHT_DEFAULT);
-        }
-		
-	}
 
 	@Override
 	public String unpublishService(String service, String group, String ip,
@@ -270,7 +276,7 @@ public class ServiceServiceImpl implements ServiceService {
         	updateById(newService);
 	        
 	        if(writeZk)
-	        	registryUpdateService(oriService, newService);
+	        	registryService.registryUpdateService(oriService, newService);
         }
         
         return newService.getHosts();

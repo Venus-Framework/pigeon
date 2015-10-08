@@ -340,6 +340,7 @@ public class CuratorRegistry implements Registry {
 	@Override
 	public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
 		String servicePath = Utils.getServicePath(serviceName, group);
+		
 		try {
 			if (client.exists(servicePath, false)) {
 				client.set(servicePath, hosts);
@@ -348,6 +349,24 @@ public class CuratorRegistry implements Registry {
 			}
 		} catch (Throwable e) {
 			logger.error("failed to set service hosts of " + serviceName + " to " + hosts);
+			throw new RegistryException(e);
+		}
+	}
+
+	@Override
+	public void delServerService(String serviceName, String group) throws RegistryException {
+		String servicePath = Utils.getServicePath(serviceName, group);
+		
+		try {
+			List<String> children = client.getChildren(servicePath);
+			
+			if (children != null && children.size() > 0) {
+				client.set(servicePath, "");
+			} else {
+				client.delete(servicePath);
+			}
+		} catch (Throwable e) {
+			logger.error("failed to delete service hosts of " + serviceName);
 			throw new RegistryException(e);
 		}
 	}

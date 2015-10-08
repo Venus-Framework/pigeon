@@ -2,6 +2,8 @@ package com.dianping.pigeon.governor.util;
 
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.dianping.pigeon.governor.bean.CmdbBuBean;
 import com.dianping.pigeon.governor.bean.CmdbProjectBean;
 import com.dianping.pigeon.governor.bean.CmdbSingleBu;
@@ -55,6 +57,16 @@ public class CmdbUtils {
 		project.setModifytime(now);
     	
     	return project;
+	}
+	
+	public static String getEmail(String dpAccount) {
+		String result = null;
+		
+		if(StringUtils.isNotBlank(dpAccount)) {
+			result = dpAccount + Constants.DP_EMAIL_BASE;
+		}
+		
+		return result;
 	}
 	
 }

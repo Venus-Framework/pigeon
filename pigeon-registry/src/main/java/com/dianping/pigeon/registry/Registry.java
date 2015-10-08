@@ -53,4 +53,6 @@ public interface Registry {
 	 * @param hosts
 	 */
 	void setServerService(String serviceName, String group, String hosts) throws RegistryException;
+	
+	void delServerService(String serviceName, String group) throws RegistryException;
 }

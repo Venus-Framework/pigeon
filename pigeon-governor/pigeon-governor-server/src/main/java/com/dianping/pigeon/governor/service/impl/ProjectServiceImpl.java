@@ -196,4 +196,18 @@ public class ProjectServiceImpl implements ProjectService {
 		return jqGridTableBean;
 	}
 
+
+	@Override
+	public Project retrieveByEmail(String email) {
+		ProjectExample projectExample = new ProjectExample();
+		projectExample.createCriteria().andEmailEqualTo(email);
+		List<Project> projects = projectMapper.selectByExample(projectExample);
+		
+		if(projects != null && projects.size() > 0) {
+			return projects.get(0);
+		}
+		
+		return null;
+	}
+
 }

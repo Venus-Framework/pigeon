@@ -4,17 +4,16 @@ import java.util.List;
 
 import com.dianping.pigeon.governor.bean.JqGridRespBean;
 import com.dianping.pigeon.governor.bean.ServiceBean;
-import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.registry.exception.RegistryException;
 
 public interface ServiceService {
 
-	public int create(ServiceBean serviceBean);
+	public int create(ServiceBean serviceBean, String updatezk) throws RegistryException;
 	
-	public int deleteByIdSplitByComma(String idsComma);
+	public int deleteByIdSplitByComma(String idsComma, String updatezk) throws RegistryException;
 	
-	public int updateById(ServiceBean serviceBean);
+	public int updateById(ServiceBean serviceBean, String updatezk) throws RegistryException;
 	
 	public int deleteById(Integer id);
 	
@@ -33,14 +32,10 @@ public interface ServiceService {
 	
 	public int updateById(Service service);
 	
-	public void registryUpdateService(Service oriService, Service newService) throws RegistryException;
-	
 	public String publishService(String project, String service, String group, 
 									String ip, String port, String updatezk) throws RegistryException;
 	
 	public int create(Service service);
-	
-	public void registryCreateService(Service service) throws RegistryException;
 	
 	public String unpublishService(String service, String group, 
 									String ip, String port, String updatezk) throws RegistryException;

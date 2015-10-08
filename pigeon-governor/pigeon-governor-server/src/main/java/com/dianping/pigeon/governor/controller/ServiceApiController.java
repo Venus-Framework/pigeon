@@ -21,6 +21,7 @@ import com.dianping.pigeon.governor.bean.Result;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.service.ProjectService;
+import com.dianping.pigeon.governor.service.RegistryService;
 import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.registry.exception.RegistryException;
 
@@ -37,6 +38,8 @@ public class ServiceApiController extends BaseController {
 	private ServiceService serviceService;
 	@Autowired
 	private ProjectService projectService;
+	@Autowired
+	private RegistryService registryService;
 	
 	public static final String SUCCESS_CODE = "0|";		//正确返回码
 	public static final String ERROR_CODE = "1|";		//错误返回码
@@ -123,7 +126,7 @@ public class ServiceApiController extends BaseController {
         	
             try {
                 serviceService.updateById(newService);
-                serviceService.registryUpdateService(oriService, newService);
+                registryService.registryUpdateService(oriService, newService);
                 
                 String message = String.format("Updated service %s for group [%s] to address %s", service, group, address);
                 return Result.createSuccessResult(message);

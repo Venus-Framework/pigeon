@@ -1,5 +1,6 @@
 package com.dianping.pigeon.governor.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +11,13 @@ import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.ProjectOwner;
 import com.dianping.pigeon.governor.model.ProjectOwnerExample;
 import com.dianping.pigeon.governor.model.User;
-import com.dianping.pigeon.governor.service.ProjectOwnerSerivce;
+import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.UserService;
+import com.dianping.pigeon.governor.util.CmdbUtils;
 
 @Service
-public class ProjectOwnerSerivceImpl implements ProjectOwnerSerivce {
+public class ProjectOwnerServiceImpl implements ProjectOwnerService {
 
 	@Autowired
 	private ProjectOwnerMapper projectOwnerMapper;
@@ -61,6 +63,24 @@ public class ProjectOwnerSerivceImpl implements ProjectOwnerSerivce {
 		}
 		
 		return false;
+	}
+
+	@Override
+	public void createDefaultOwner(String email) {
+		Project project = projectService.retrieveByEmail(email);
+		
+		if(project != null) {
+			String dpAccount = email.split("@")[0];
+			User user = userService.retrieveByDpaccount(dpAccount);
+			
+			if(user != null) {
+				ProjectOwner projectOwner = new ProjectOwner();
+				projectOwner.setProjectid(project.getId());
+				projectOwner.setUserid(user.getId());
+				projectOwner.setCreatetime(new Date());
+				projectOwnerMapper.insertSelective(projectOwner);
+			}
+		}
 	}
 
 	

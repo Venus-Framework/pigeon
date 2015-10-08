@@ -23,7 +23,7 @@ import com.dianping.pigeon.governor.bean.JqGridReqFilters;
 import com.dianping.pigeon.governor.bean.JqGridRespBean;
 import com.dianping.pigeon.governor.bean.ProjectBean;
 import com.dianping.pigeon.governor.model.Project;
-import com.dianping.pigeon.governor.service.ProjectOwnerSerivce;
+import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.UserService;
 import com.dianping.pigeon.governor.util.Constants;
@@ -46,7 +46,7 @@ public class ProjectController extends BaseController {
 	@Autowired
 	private UserService userService;
 	@Autowired
-	private ProjectOwnerSerivce projectOwnerService;
+	private ProjectOwnerService projectOwnerService;
 	
 	@RequestMapping(value = {"/projects/{projectOwner}"}, method = RequestMethod.GET)
 	public String projectOwnerInfo(ModelMap modelMap,
