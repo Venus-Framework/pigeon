@@ -18,6 +18,7 @@
 		<Logger name="com.dianping.pigeon.governor" level="INFO"
 			additivity="false">
 			<AppenderRef ref="File" level="INFO" />
+			<AppenderRef ref="Console" level="INFO" />
 		</Logger>
 		<Logger name="com.dianping.pigeon.governor.controller" level="INFO"
 			additivity="true">

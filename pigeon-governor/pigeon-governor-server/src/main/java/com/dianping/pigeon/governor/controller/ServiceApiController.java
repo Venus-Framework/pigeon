@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.mortbay.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.dianping.pigeon.governor.bean.Result;
+import com.dianping.pigeon.governor.lion.ConfigHolder;
+import com.dianping.pigeon.governor.lion.LionKeys;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.service.ProjectService;
@@ -162,7 +163,8 @@ public class ServiceApiController extends BaseController {
 
     	String hosts = null;
 		try {
-			hosts = serviceService.publishService(appname, service, group, ip, port, updatezk);
+			hosts = serviceService.publishService(appname, service, group, ip, port, 
+										ConfigHolder.get(LionKeys.IS_ZK_DOUBLE_WRITE));
 		} catch (RegistryException e) {
 			writer.write(ERROR_CODE + String.format("Service %s for group [%s] update to ZK failed", service, group));
 		}
@@ -195,7 +197,8 @@ public class ServiceApiController extends BaseController {
 
     	String hosts = null;
 		try {
-			hosts = serviceService.unpublishService(service, group, ip, port, updatezk);
+			hosts = serviceService.unpublishService(service, group, ip, port, 
+									ConfigHolder.get(LionKeys.IS_ZK_DOUBLE_WRITE));
 		} catch (RegistryException e) {
 			writer.write(ERROR_CODE + String.format("Service %s for group [%s] update to ZK failed", service, group));
 		}

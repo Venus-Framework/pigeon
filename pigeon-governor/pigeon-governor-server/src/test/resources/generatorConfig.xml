@@ -15,10 +15,16 @@
 		    <property name="suppressDate" value="true"/>
 		</commentGenerator>
 	
-		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+		<!-- <jdbcConnection driverClass="com.mysql.jdbc.Driver"
 						connectionURL="jdbc:mysql://127.0.0.1:3306/PigeonGovernor" 
 						userId="root"
 						password="root">
+		</jdbcConnection> -->
+		
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+						connectionURL="jdbc:mysql://192.168.7.105:3306/PigeonGovernor" 
+						userId="pigeon"
+						password="dp!@4zmKzyV8p">
 		</jdbcConnection>
 
 		<javaModelGenerator targetPackage="com.dianping.pigeon.governor.model" 
@@ -43,11 +49,13 @@
 		</table>
 		<table schema="" tableName="project" domainObjectName="Project">
 			<columnOverride column="%" delimitedColumnName="true" />
-		</table> -->
+		</table>
 		
 		<table schema="" tableName="user" domainObjectName="User" />
-		<!-- <table schema="" tableName="role" domainObjectName="Role" />
+		<table schema="" tableName="role" domainObjectName="Role" />
 		<table schema="" tableName="project_owner" domainObjectName="ProjectOwner" /> -->
+		
+		<table schema="" tableName="process" domainObjectName="Process" />
 		
 	</context>
 	

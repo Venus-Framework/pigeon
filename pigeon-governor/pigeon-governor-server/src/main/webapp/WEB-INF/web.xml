@@ -60,6 +60,11 @@
 	    <dispatcher>ERROR</dispatcher>
 	</filter-mapping>
 	<!-- log4j2-end -->
+	
+	<listener>
+    	<listener-class>com.dianping.pigeon.governor.util.MyServletContextListener</listener-class>
+    </listener>
+    
 	<filter>
         <filter-name>NonAuthFilter</filter-name>
         <filter-class>com.dianping.pigeon.governor.filter.NonAuthFilter</filter-class>

@@ -7,4 +7,6 @@ public interface UserService {
 	public int create(User user);
 	
 	public User retrieveByDpaccount(String dpaccount);
+	
+	public boolean isAdmin(String dpaccount);
 }

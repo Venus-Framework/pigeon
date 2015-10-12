@@ -10,6 +10,7 @@ import com.dianping.pigeon.governor.dao.UserMapper;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.model.UserExample;
 import com.dianping.pigeon.governor.service.UserService;
+import com.dianping.pigeon.governor.util.UserRole;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -38,6 +39,24 @@ public class UserServiceImpl implements UserService {
 		}
 		
 		return null;
+	}
+
+	@Override
+	public boolean isAdmin(String dpaccount) {
+		UserExample example = new UserExample();
+		example.createCriteria().andDpaccountEqualTo(dpaccount);
+		List<User> users = userMapper.selectByExample(example);
+		User user = null;
+		
+		if(users != null && users.size() > 0) {
+			user = users.get(0);
+			
+			if (user.getRoleid() == UserRole.USER_SCM.value()) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 }

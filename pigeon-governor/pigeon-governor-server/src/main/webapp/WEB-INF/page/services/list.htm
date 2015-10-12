@@ -400,17 +400,22 @@ jQuery(function($) {
 			}
 		}
 	)
-
-	/* jQuery(grid_selector).navButtonAdd(pager_selector,{
+	
+	#if(! $isProjectOwner)
+	jQuery(grid_selector).navButtonAdd(pager_selector,{
 		caption: "",
-		title:"添加新记录", 
-		buttonicon:'ace-icon fa fa-plus-circle purple', 
-		onClickButton: function(){ 
-			alert("导出excel");
+		title:"申请成为管理员", 
+		buttonicon:'ace-icon fa fa-user red', 
+		onClickButton: function(){
+			var currentUser = "${currentUser}";
+			var projectName = "${projectName}";
+			alert(currentUser+","+projectName);
+			//alert("请在crab.dp中填写应用的项目邮件组，邮件组的第一个点评email的dpaccount可自动申请项目管理员");
 		},
-		position:"last",
+		position:"first",
 		id: "customAddBtn"
-	}); */
+	});
+	#end
 	
 	function style_edit_form(form) {
 		//enable datepicker on "sdate" field and switches for "stock" field
