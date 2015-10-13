@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.codehaus.plexus.util.StringUtils;
 
 import com.dianping.lion.client.ConfigChange;
 import com.dianping.lion.client.Lion;
@@ -47,7 +48,14 @@ public class ConfigHolder {
 					log.info("ConfigHolder initialize ...");
 					
 					for(LionKeys key : LionKeys.values()){
-						lionConfigMap.put(key.value(), Lion.get(key.value()));
+						
+						String lionValue = Lion.get(key.value());
+						
+						if(StringUtils.isBlank(lionValue)) {
+							lionValue = "";
+						}
+						
+						lionConfigMap.put(key.value(), lionValue);
 					}
 					
 					Lion.addConfigChangeListener(new ConfigChange(){
