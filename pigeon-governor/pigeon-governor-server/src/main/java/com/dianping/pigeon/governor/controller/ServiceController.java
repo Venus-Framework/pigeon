@@ -125,7 +125,7 @@ public class ServiceController extends BaseController {
 				serviceService.create(serviceBean, "true");
 			
 			}
-		} catch (RegistryException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			log.error("update zk error");
 		}

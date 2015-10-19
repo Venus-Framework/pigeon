@@ -3,7 +3,10 @@ package com.dianping.pigeon.governor.service.impl;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.dianping.pigeon.governor.bean.JqGridRespBean;
 import com.dianping.pigeon.governor.bean.ServiceBean;
@@ -16,7 +19,6 @@ import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.RegistryService;
 import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.util.IPUtils;
-import com.dianping.pigeon.registry.exception.RegistryException;
 
 /**
  * 
@@ -26,17 +28,20 @@ import com.dianping.pigeon.registry.exception.RegistryException;
 @org.springframework.stereotype.Service
 public class ServiceServiceImpl implements ServiceService {
 
+	private Logger logger = LogManager.getLogger();
+	
 	@Autowired
 	private ServiceMapper serviceMapper;
 	@Autowired
 	private ProjectService projectService;
 	@Autowired
+	@Qualifier("doubleWriteRegistrySerivce")
 	private RegistryService registryService;
 	@Autowired
 	private ProjectOwnerService projectOwnerService;
 	
 	@Override
-	public int create(ServiceBean serviceBean, String updatezk) throws RegistryException {
+	public int create(ServiceBean serviceBean, String updatezk) throws Exception {
 		boolean writeZk = "true".equalsIgnoreCase(updatezk);
 		Service service = serviceBean.createService();
 		int count = create(service);
@@ -60,7 +65,7 @@ public class ServiceServiceImpl implements ServiceService {
 	}
 	
 	@Override
-	public int deleteByIdSplitByComma(String idsComma, String updatezk) throws RegistryException {
+	public int deleteByIdSplitByComma(String idsComma, String updatezk) throws Exception {
 		boolean writeZk = "true".equalsIgnoreCase(updatezk);
 		int sqlSucCount = 0;
 		String idsArr[] = idsComma.split(",");
@@ -106,7 +111,7 @@ public class ServiceServiceImpl implements ServiceService {
 	}
 
 	@Override
-	public int updateById(ServiceBean serviceBean, String updatezk) throws RegistryException {
+	public int updateById(ServiceBean serviceBean, String updatezk) throws Exception {
 		boolean writeZk = "true".equalsIgnoreCase(updatezk);
 		Service service = serviceBean.convertToService();
 		Service oriService = getService(service.getName(), service.getGroup());
@@ -208,9 +213,8 @@ public class ServiceServiceImpl implements ServiceService {
 	}
 
 	@Override
-	public String publishService(String project,String service, String group, 
-									String ip, String port, String updatezk) throws RegistryException {
-		
+	public String publishService(String project, String service, String group, 
+									String ip, String port, String updatezk) throws Exception {
 		boolean writeZk = "true".equalsIgnoreCase(updatezk);
 	    Service oriService = getService(service, group);
 	    Service newService = null;
@@ -224,14 +228,18 @@ public class ServiceServiceImpl implements ServiceService {
 	        	registryService.registryUpdateService(oriService, newService);
 	        
 	    } else {
+	    	Project newProject = projectService.findProject(project);
 	    	
-	        Project newProject = projectService.createProject(project, true);
+	    	if(newProject == null){
+	    		newProject = projectService.createProject(project, true);
+	    	}
 	        
 	        if(newProject == null){
 	        	return null;
 	        }
 	        
 	        //create default project owner
+	        //TODO product from workflow
 	        projectOwnerService.createDefaultOwner(newProject.getEmail());
 	        
 	        newService = new Service();
@@ -265,7 +273,7 @@ public class ServiceServiceImpl implements ServiceService {
 
 	@Override
 	public String unpublishService(String service, String group, String ip,
-									String port, String updatezk) throws RegistryException {
+									String port, String updatezk) throws Exception {
 		boolean writeZk = "true".equalsIgnoreCase(updatezk);
 	    Service oriService = getService(service, group);
 	    Service newService = null;

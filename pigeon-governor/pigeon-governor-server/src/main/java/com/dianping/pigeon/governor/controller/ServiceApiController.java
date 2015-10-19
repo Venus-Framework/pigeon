@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,6 +41,7 @@ public class ServiceApiController extends BaseController {
 	@Autowired
 	private ProjectService projectService;
 	@Autowired
+	@Qualifier("doubleWriteRegistrySerivce")
 	private RegistryService registryService;
 	
 	public static final String SUCCESS_CODE = "0|";		//正确返回码
@@ -165,8 +167,9 @@ public class ServiceApiController extends BaseController {
 		try {
 			hosts = serviceService.publishService(appname, service, group, ip, port, 
 										ConfigHolder.get(LionKeys.IS_ZK_DOUBLE_WRITE));
-		} catch (RegistryException e) {
+		} catch (Exception e) {
 			writer.write(ERROR_CODE + String.format("Service %s for group [%s] update to ZK failed", service, group));
+			return;
 		}
     	
         if(hosts == null) {
@@ -199,7 +202,7 @@ public class ServiceApiController extends BaseController {
 		try {
 			hosts = serviceService.unpublishService(service, group, ip, port, 
 									ConfigHolder.get(LionKeys.IS_ZK_DOUBLE_WRITE));
-		} catch (RegistryException e) {
+		} catch (Exception e) {
 			writer.write(ERROR_CODE + String.format("Service %s for group [%s] update to ZK failed", service, group));
 		}
     	

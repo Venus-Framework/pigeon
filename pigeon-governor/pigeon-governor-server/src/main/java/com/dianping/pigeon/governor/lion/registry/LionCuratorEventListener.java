@@ -43,16 +43,16 @@ public class LionCuratorEventListener implements CuratorListener {
 	public void eventReceived(CuratorFramework client, CuratorEvent curatorEvent) throws Exception {
 		WatchedEvent event = (curatorEvent == null ? null : curatorEvent.getWatchedEvent());
 
-		if (event == null
-				|| (event.getType() != EventType.NodeCreated && event.getType() != EventType.NodeDataChanged
-						&& event.getType() != EventType.NodeDeleted && event.getType() != EventType.NodeChildrenChanged)) {
+		if (event == null) {
 			return;
 		}
 
 		if (logger.isInfoEnabled())
 			logEvent(event);
 
-		try {
+		logger.info(event.toString());
+		this.client.watchChildren(event.getPath());
+		/*try {
 			PathInfo pathInfo = parsePath(event.getPath());
 			if (pathInfo == null) {
 				logger.warn("Failed to parse path " + event.getPath());
@@ -71,7 +71,7 @@ public class LionCuratorEventListener implements CuratorListener {
 		} catch (Throwable e) {
 			logger.error("Error in ZookeeperWatcher.process()", e);
 			return;
-		}
+		}*/
 	}
 
 	private void logEvent(WatchedEvent event) {

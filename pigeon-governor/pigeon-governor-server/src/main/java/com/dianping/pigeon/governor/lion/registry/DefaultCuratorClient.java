@@ -20,16 +20,14 @@ import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 
-public class LionCuratorClient {
+public class DefaultCuratorClient {
 
 	private static final String CHARSET = "UTF-8";
 
-	private static Logger logger = LoggerLoader.getLogger(LionCuratorClient.class);
+	private static Logger logger = LoggerLoader.getLogger(DefaultCuratorClient.class);
 
 	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
@@ -51,13 +49,13 @@ public class LionCuratorClient {
 	/*private static ExecutorService curatorEventListenerThreadPool = Executors
 			.newCachedThreadPool(new DefaultThreadFactory("Pigeon-Curator-Event-Listener"));*/
 
-	private static Monitor monitor = MonitorLoader.getMonitor();
+	//private static Monitor monitor = MonitorLoader.getMonitor();
 
 	private String address;
 
-	private final String EVENT_NAME = "Lion.registry";
+	//private final String EVENT_NAME = "Lion.registry";
 
-	public LionCuratorClient(String zkAddress) throws Exception {
+	public DefaultCuratorClient(String zkAddress) throws Exception {
 		this.address = zkAddress;
 		newCuratorClient();
 		curatorStateListenerThreadPool.execute(new CuratorStateListener());
@@ -75,7 +73,7 @@ public class LionCuratorClient {
 				/*if (newState == ConnectionState.RECONNECTED) {
 					RegistryEventListener.connectionReconnected();
 				}*/
-				monitor.logEvent(EVENT_NAME, "zookeeper:" + newState.name().toLowerCase(), "");
+				//monitor.logEvent(EVENT_NAME, "zookeeper:" + newState.name().toLowerCase(), "");
 			}
 		});
 		
@@ -89,11 +87,11 @@ public class LionCuratorClient {
 		close(oldClient);
 		logger.info("succeed to create zookeeper client, connected:" + isConnected);
 
-		if (isConnected) {
+		/*if (isConnected) {
 			monitor.logEvent(EVENT_NAME, "zookeeper:rebuild_success", "");
 		} else {
 			monitor.logEvent(EVENT_NAME, "zookeeper:rebuild_failure", "");
-		}
+		}*/
 
 		return isConnected;
 	}
@@ -198,6 +196,22 @@ public class LionCuratorClient {
 			return null;
 		}
 	}
+	
+	public void setByte(String path, byte[] value) throws Exception {
+		if (exists(path, false)) {
+			client.setData().forPath(path, value);
+		} else {
+			client.create().creatingParentsIfNeeded().forPath(path, value);
+		}
+	}
+	
+	public void updateByte(String path, byte[] value) throws Exception {
+		client.setData().forPath(path, value);
+	}
+	
+	public void createByte(String path, byte[] value) throws Exception {
+		client.create().creatingParentsIfNeeded().forPath(path, value);
+	}
 
 	public void set(String path, Object value) throws Exception {
 		byte[] bytes = (value == null ? new byte[0] : value.toString().getBytes(CHARSET));
@@ -266,6 +280,10 @@ public class LionCuratorClient {
 		}
 	}
 
+	public void deleteWithChildren(String path) throws Exception {
+		client.delete().guaranteed().deletingChildrenIfNeeded().forPath(path);
+	}
+	
 	public void delete(String path) throws Exception {
 		client.delete().forPath(path);
 		if (logger.isInfoEnabled()) {
@@ -277,9 +295,8 @@ public class LionCuratorClient {
 		client.checkExists().watched().forPath(path);
 	}
 
-	//修改了一下
 	public void watchChildren(String path) throws Exception {
-		if (client.checkExists().forPath(path) != null)
+		if (exists(path))
 			client.getChildren().watched().forPath(path);
 	}
 

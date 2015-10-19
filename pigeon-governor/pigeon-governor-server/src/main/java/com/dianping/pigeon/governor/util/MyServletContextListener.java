@@ -3,34 +3,25 @@ package com.dianping.pigeon.governor.util;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import com.dianping.pigeon.governor.lion.registry.LionCuratorClient;
-import com.dianping.pigeon.governor.lion.registry.LionCuratorRegistry;
-import com.dianping.pigeon.governor.lion.registry.LionRegistryManager;
-import com.dianping.pigeon.registry.Registry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.dianping.pigeon.governor.lion.registry.ZkListenerFactory;
 
 public class MyServletContextListener implements ServletContextListener {
 
+	private Logger logger = LogManager.getLogger();
+	
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
-		System.out.println("----------- 终止环境 ------------");
-		
+		logger.info("----------- 终止环境 ------------");
+		ZkListenerFactory.destroy();
 	}
 
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
-		System.out.println("----------- 启动环境 ------------");
-		
-		dynamicLoad();
+		logger.info("----------- 启动环境 ------------");
+		ZkListenerFactory.init();
 	}
 
-	public static void dynamicLoad() {
-		Registry registry = LionRegistryManager.getInstance().getRegistry();
-		LionCuratorClient client = ((LionCuratorRegistry) registry).getLionCuratorClient();
-		try {
-			client.watchChildren("/DP/SERVER");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 }

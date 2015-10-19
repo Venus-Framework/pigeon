@@ -1,6 +1,7 @@
 package com.dianping.piegon.governor.test;
 
 import java.io.IOException;
+import java.util.LinkedList;
 
 import org.junit.Test;
 
@@ -16,9 +17,12 @@ public class NormalTest {
 
 	@Test
 	public void testSub(){
-		String path = "/DP/SERVER/yesterday";
-		String serviceName = path.substring(Constants.SERVICE_PATH.length() + 1);
-		System.out.println(serviceName);
+		LinkedList<Integer> ls = new LinkedList<Integer>();
+		ls.add(1);
+		ls.add(2);
+		System.out.println(ls.pop());
+		ls.add(3);
+		System.out.println(ls.pop());
 	}
 	
 	//@Test
