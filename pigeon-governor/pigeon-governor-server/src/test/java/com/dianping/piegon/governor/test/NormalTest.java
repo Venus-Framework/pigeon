@@ -16,6 +16,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class NormalTest {
 
 	@Test
+	public void testSplit(){
+		String test = "/DP/WEIGHT/1.1.1.1:4080";
+
+		String[] aa = test.split("/");
+		/*for (String b : aa){
+			System.out.println(b);
+		}*/
+		System.out.println(aa[3]);
+	}
+
+	@Test
 	public void testSub(){
 		LinkedList<Integer> ls = new LinkedList<Integer>();
 		ls.add(1);

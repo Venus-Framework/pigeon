@@ -20,20 +20,20 @@ public class BaseController {
 		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
 		map.put("currentUser", currentUser);
 	}
-	
+
 	public void commonnav(ModelMap modelMap, HttpServletRequest request) {
 		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
 		modelMap.addAttribute("currentUser", currentUser);
 	}
-	
+
 	public void verifyIdentity(int userId) throws Exception{
-		
+
 		if(userId != 3){
 			throw new Exception(String.format("User id %d is not system level", userId));
 		}
-		
+
 	}
-	
+
 	public void verifyIdentity(HttpServletRequest request, int userId) throws Exception{
 		
 		String ip = IPUtils.getUserIP(request);

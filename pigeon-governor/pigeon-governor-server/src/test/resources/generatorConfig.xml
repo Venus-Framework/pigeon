@@ -55,7 +55,7 @@
 		<table schema="" tableName="role" domainObjectName="Role" />
 		<table schema="" tableName="project_owner" domainObjectName="ProjectOwner" /> -->
 		
-		<table schema="" tableName="process" domainObjectName="Process" />
+		<table schema="" tableName="host" domainObjectName="Host" />
 		
 	</context>
 	

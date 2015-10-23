@@ -140,33 +140,6 @@ public class ServiceController extends BaseController {
 		return "/services/index";
 	}
 	
-	/*@RequestMapping(value = {"/services.api"}, method = RequestMethod.POST)
-	public void servicesapi(ModelMap modelMap, ServiceBean serviceBean,
-			HttpServletRequest request, HttpServletResponse response) {
-		
-		String oper = serviceBean.getOper();
-		
-		try {
-			verifyIdentity(request, 3);
-		} catch (Exception e) {
-			
-			e.printStackTrace();
-			return ;
-		}
-		
-		if("edit".equals(oper)){
-			serviceService.updateById(serviceBean);
-			
-		}else if("del".equals(oper)){
-			serviceService.deleteByIdSplitByComma(serviceBean.getId());
-		
-		}else if("add".equals(oper)){
-			serviceService.create(serviceBean);
-		
-		}
-		
-	}*/
-	
 	@RequestMapping(value = {"/services.json"}, method = RequestMethod.POST)
 	@ResponseBody
 	public JqGridRespBean servicesjson(ModelMap modelMap, JqGridReqBean jqGridReqBean,

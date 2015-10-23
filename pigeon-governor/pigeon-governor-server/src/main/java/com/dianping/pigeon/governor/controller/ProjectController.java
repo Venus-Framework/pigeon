@@ -68,25 +68,6 @@ public class ProjectController extends BaseController {
 											@RequestParam(value="projectOwner") String projectOwner,
 											HttpServletRequest request,
 											HttpServletResponse response) {
-		
-		/*JqGridReqFilters filters = null;
-		
-		if(StringUtils.isNotBlank(jqGridReqBean.getFilters())){
-			ObjectMapper objectMapper = new ObjectMapper();
-			try {
-				filters = objectMapper.readValue(jqGridReqBean.getFilters(), JqGridReqFilters.class);
-			} catch (JsonParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JsonMappingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}*/
-		
 		JqGridRespBean jqGridTableBean;
 		
 		int page = jqGridReqBean.getPage();

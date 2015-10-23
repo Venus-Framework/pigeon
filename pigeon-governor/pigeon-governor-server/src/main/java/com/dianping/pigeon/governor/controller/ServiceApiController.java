@@ -8,6 +8,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.dianping.pigeon.governor.model.Host;
+import com.dianping.pigeon.governor.service.HostService;
+import com.dianping.pigeon.governor.util.Constants;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,8 +44,10 @@ public class ServiceApiController extends BaseController {
 	@Autowired
 	private ProjectService projectService;
 	@Autowired
-	@Qualifier("doubleWriteRegistrySerivce")
+    @Qualifier("registrySerivce")
 	private RegistryService registryService;
+    @Autowired
+    private HostService hostService;
 	
 	public static final String SUCCESS_CODE = "0|";		//正确返回码
 	public static final String ERROR_CODE = "1|";		//错误返回码
@@ -167,6 +172,13 @@ public class ServiceApiController extends BaseController {
 		try {
 			hosts = serviceService.publishService(appname, service, group, ip, port, 
 										ConfigHolder.get(LionKeys.IS_ZK_DOUBLE_WRITE));
+            Host host = hostService.retrieveByIpPort(ip,port);
+
+            if(host != null && host.getRegistry() == Constants.HOST_REGISTRY_LION) {
+                host.setRegistry(Constants.HOST_REGISTRY_PIGEON);
+                hostService.update(host);
+            }
+
 		} catch (Exception e) {
 			writer.write(ERROR_CODE + String.format("Service %s for group [%s] update to ZK failed", service, group));
 			return;

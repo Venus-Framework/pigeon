@@ -9,8 +9,10 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -40,12 +42,26 @@ public class AuthenticationFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
 	      ServletException {
 		HttpServletRequest req = (HttpServletRequest) request;
+		HttpServletResponse res = (HttpServletResponse) response;
+		String userInfoStr = req.getRemoteUser();
+		
+		if(StringUtils.isBlank(userInfoStr)){
+			res.sendRedirect(req.getContextPath() + "/error");
+			return ;
+		}
+		
+		String[] ssoInfos = userInfoStr.split("\\|");
+		String dpaccount = ssoInfos[0];
+		HttpSession session = req.getSession(true);
+		String sessionAccount = (String) session.getAttribute(Constants.DP_ACCOUNT);
+		
+		if(dpaccount.equalsIgnoreCase(sessionAccount)){
+			chain.doFilter(request, response);
+			return;
+		}
 		
 		//createIfNotExist
-		User user = checkUser(req.getRemoteUser());
-		
-		//sso登录成功之后
-		HttpSession session = req.getSession(true);
+		User user = checkUser(ssoInfos);
 		session.setAttribute(Constants.DP_ACCOUNT, user.getDpaccount());
 		
 		chain.doFilter(request, response);
@@ -56,8 +72,7 @@ public class AuthenticationFilter implements Filter {
 	public void destroy() {
 	}
 	
-	private User checkUser(String ssoUserInfo) {
-		String[] ssoInfos = ssoUserInfo.split("\\|");
+	private User checkUser(String[] ssoInfos) {
 		String dpaccount = ssoInfos[0];
 		User user = userService.retrieveByDpaccount(dpaccount);
 		

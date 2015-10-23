@@ -9,6 +9,10 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 
 public class Constants {
 
+	public static final int HOST_REGISTRY_LION = 0;
+
+	public static final int HOST_REGISTRY_PIGEON = 1;
+
 	public static final String DP_EMAIL_BASE = "@dianping.com";
 	
 	public static final String DP_ACCOUNT = "dp-account";

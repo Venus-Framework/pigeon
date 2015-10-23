@@ -1,4 +1,4 @@
-package com.dianping.piegon.governor.cmdb;
+package com.dianping.piegon.governor.test.cmdb;
 
 import java.util.Iterator;
 import java.util.Map;

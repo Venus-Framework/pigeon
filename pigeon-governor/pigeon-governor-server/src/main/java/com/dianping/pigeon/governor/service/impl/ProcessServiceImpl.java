@@ -15,7 +15,6 @@ public class ProcessServiceImpl implements ProcessService {
 	
 	@Override
 	public void create(Process process) {
-		// TODO Auto-generated method stub
 		processMapper.insert(process);
 	}
 

@@ -1,8 +1,6 @@
-package com.dianping.piegon.governor.cmdb;
+package com.dianping.piegon.governor.test.cmdb;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
 
 import org.junit.Test;
 

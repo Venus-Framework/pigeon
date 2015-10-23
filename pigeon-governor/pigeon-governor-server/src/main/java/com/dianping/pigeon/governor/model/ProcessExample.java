@@ -634,6 +634,76 @@ public class ProcessExample {
             addCriterion("modifyTime not between", value1, value2, "modifytime");
             return (Criteria) this;
         }
+
+        public Criteria andOpratorIsNull() {
+            addCriterion("oprator is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOpratorIsNotNull() {
+            addCriterion("oprator is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOpratorEqualTo(String value) {
+            addCriterion("oprator =", value, "oprator");
+            return (Criteria) this;
+        }
+
+        public Criteria andOpratorNotEqualTo(String value) {
+            addCriterion("oprator <>", value, "oprator");
+            return (Criteria) this;
+        }
+
+        public Criteria andOpratorGreaterThan(String value) {
+            addCriterion("oprator >", value, "oprator");
+            return (Criteria) this;
+        }
+
+        public Criteria andOpratorGreaterThanOrEqualTo(String value) {
+            addCriterion("oprator >=", value, "oprator");
+            return (Criteria) this;
+        }
+
+        public Criteria andOpratorLessThan(String value) {
+            addCriterion("oprator <", value, "oprator");
+            return (Criteria) this;
+        }
+
+        public Criteria andOpratorLessThanOrEqualTo(String value) {
+            addCriterion("oprator <=", value, "oprator");
+            return (Criteria) this;
+        }
+
+        public Criteria andOpratorLike(String value) {
+            addCriterion("oprator like", value, "oprator");
+            return (Criteria) this;
+        }
+
+        public Criteria andOpratorNotLike(String value) {
+            addCriterion("oprator not like", value, "oprator");
+            return (Criteria) this;
+        }
+
+        public Criteria andOpratorIn(List<String> values) {
+            addCriterion("oprator in", values, "oprator");
+            return (Criteria) this;
+        }
+
+        public Criteria andOpratorNotIn(List<String> values) {
+            addCriterion("oprator not in", values, "oprator");
+            return (Criteria) this;
+        }
+
+        public Criteria andOpratorBetween(String value1, String value2) {
+            addCriterion("oprator between", value1, value2, "oprator");
+            return (Criteria) this;
+        }
+
+        public Criteria andOpratorNotBetween(String value1, String value2) {
+            addCriterion("oprator not between", value1, value2, "oprator");
+            return (Criteria) this;
+        }
     }
 
     /**

@@ -57,7 +57,7 @@ public class ProjectServiceImpl implements ProjectService {
 			
 			try {
 				id = Integer.parseInt(ids);
-				count = projectMapper.deleteByPrimaryKey(id);;
+				count = projectMapper.deleteByPrimaryKey(id);
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
 			}finally{

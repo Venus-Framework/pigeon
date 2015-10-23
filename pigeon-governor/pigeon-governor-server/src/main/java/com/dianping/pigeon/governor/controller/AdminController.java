@@ -19,17 +19,17 @@ import com.dianping.pigeon.governor.util.Constants;
 public class AdminController extends BaseController {
 
 	private Logger log = LogManager.getLogger();
-	
+
 	@Autowired
 	private UserService userService;
-	
+
 	@RequestMapping(value = {"/","/index"}, method = RequestMethod.GET)
 	public String index(ModelMap modelMap,
-			HttpServletRequest request, HttpServletResponse response) {
+						HttpServletRequest request, HttpServletResponse response) {
 		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
 		userService.isAdmin(currentUser);
-		
+
 		return "/admin/index";
 	}
-	
+
 }

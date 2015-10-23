@@ -78,7 +78,6 @@ public class DefaultCuratorClient {
 		});
 		
 		
-		//client.getCuratorListenable().addListener(new LionCuratorEventListener(this), curatorEventListenerThreadPool);
 		client.start();
 		
 		boolean isConnected = client.getZookeeperClient().blockUntilConnectedOrTimedOut();

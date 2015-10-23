@@ -35,7 +35,7 @@ public class ServiceServiceImpl implements ServiceService {
 	@Autowired
 	private ProjectService projectService;
 	@Autowired
-	@Qualifier("doubleWriteRegistrySerivce")
+	@Qualifier("registrySerivce")
 	private RegistryService registryService;
 	@Autowired
 	private ProjectOwnerService projectOwnerService;
@@ -156,7 +156,7 @@ public class ServiceServiceImpl implements ServiceService {
 	public JqGridRespBean retrieveByJqGrid(int page, int rows) {
 		JqGridRespBean jqGridTableBean = null;
 		
-		if(page > 0){
+		if(page > 0 && rows > 0){
 			List<Service> services = serviceMapper.selectByPageAndRows((page - 1) * rows, rows);
 			int totalRecords = serviceMapper.countByExample(null);
 			int totalPages = (totalRecords - 1) / rows + 1;

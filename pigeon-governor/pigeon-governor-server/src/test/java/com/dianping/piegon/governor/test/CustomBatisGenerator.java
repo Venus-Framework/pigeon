@@ -2,6 +2,7 @@ package com.dianping.piegon.governor.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,9 @@ public class CustomBatisGenerator {
 		}
 		
 		List<String> warnings = new ArrayList<String>();
-		File configFile = new File("src/test/resources/generatorConfig.xml");
+		URL url = Thread.currentThread().getContextClassLoader().getResource("generatorConfig.xml");
+		System.out.println(url.toString());
+		File configFile = new File(url.getFile());
 		ConfigurationParser cp = new ConfigurationParser(warnings);
 		Configuration config = cp.parseConfiguration(configFile);
 		DefaultShellCallback callback = new DefaultShellCallback(overwrite);

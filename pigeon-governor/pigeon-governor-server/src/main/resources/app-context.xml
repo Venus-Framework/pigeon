@@ -74,4 +74,8 @@
 	</bean>
 
 	<pigeon:annotation />
+
+	<!-- 临时 -->
+	<bean id="hostDbProcess" class="com.dianping.pigeon.governor.lion.registry.HostDbProcess" />
+
 </beans>
