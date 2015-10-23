@@ -179,6 +179,14 @@ public class ServiceApiController extends BaseController {
                 hostService.update(host);
             }
 
+            if(host == null) {
+                host = new Host();
+                host.setIpport(ip + ":" + port);
+                host.setAppname(appname);
+                host.setRegistry(Constants.HOST_REGISTRY_PIGEON);
+                hostService.create(host);
+            }
+
 		} catch (Exception e) {
 			writer.write(ERROR_CODE + String.format("Service %s for group [%s] update to ZK failed", service, group));
 			return;
