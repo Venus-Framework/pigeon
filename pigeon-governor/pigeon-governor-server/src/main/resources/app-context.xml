@@ -75,6 +75,10 @@
 
 	<pigeon:annotation />
 
+	<pigeon:reference id="masterDataEmployeeService"  timeout="5000"
+					  url="http://service.dianping.com/ba/hris/masterdata/EmployeeService_1.0.0"
+					  interface="com.dianping.ba.hris.md.api.service.EmployeeService" />
+
 	<!-- 临时 -->
 	<bean id="hostDbProcess" class="com.dianping.pigeon.governor.lion.registry.HostDbProcess" />
 

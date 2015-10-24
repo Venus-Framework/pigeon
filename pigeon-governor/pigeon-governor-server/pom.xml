@@ -218,6 +218,11 @@
             <artifactId>avatar-cache</artifactId>
             <version>2.6.8</version>
         </dependency>
+		<dependency>
+			<groupId>com.dianping.ba</groupId>
+			<artifactId>masterdata-api</artifactId>
+			<version>0.1.1</version>
+		</dependency>
 		<!-- sso -->
 		<dependency>
 		  <groupId>org.jasig.cas.client</groupId>

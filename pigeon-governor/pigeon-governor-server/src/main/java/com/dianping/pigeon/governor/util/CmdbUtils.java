@@ -63,7 +63,7 @@ public class CmdbUtils {
 		String result = null;
 		
 		if(StringUtils.isNotBlank(dpAccount)) {
-			result = dpAccount + Constants.DP_EMAIL_BASE;
+			result = dpAccount + "@" + Constants.DP_EMAIL_BASE;
 		}
 		
 		return result;

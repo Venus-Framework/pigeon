@@ -1,6 +1,10 @@
 package com.dianping.pigeon.governor.service.impl;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +33,8 @@ import com.dianping.pigeon.governor.util.IPUtils;
 public class ServiceServiceImpl implements ServiceService {
 
 	private Logger logger = LogManager.getLogger();
+
+	private ExecutorService proOwnerThreadPool = new ThreadPoolExecutor(2, 4, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 	
 	@Autowired
 	private ServiceMapper serviceMapper;
@@ -213,7 +219,7 @@ public class ServiceServiceImpl implements ServiceService {
 	}
 
 	@Override
-	public String publishService(String project, String service, String group, 
+	public String publishService(String project, String service, String group,
 									String ip, String port, String updatezk) throws Exception {
 		boolean writeZk = "true".equalsIgnoreCase(updatezk);
 	    Service oriService = getService(service, group);
@@ -228,20 +234,29 @@ public class ServiceServiceImpl implements ServiceService {
 	        	registryService.registryUpdateService(oriService, newService);
 	        
 	    } else {
-	    	Project newProject = projectService.findProject(project);
-	    	
-	    	if(newProject == null){
-	    		newProject = projectService.createProject(project, true);
-	    	}
-	        
-	        if(newProject == null){
-	        	return null;
-	        }
-	        
-	        //create default project owner
-	        //TODO product from workflow
-	        projectOwnerService.createDefaultOwner(newProject.getEmail());
-	        
+
+			Project newProject = projectService.findProject(project);
+
+			if(newProject == null){
+				newProject = projectService.createProject(project, true);
+			}
+
+			if(newProject == null){
+				return null;
+			}
+
+			// 加入线程池并发处理创建新项目和新项目管理员
+			final String emails = newProject.getEmail();
+			proOwnerThreadPool.execute(new Runnable() {
+				@Override
+				public void run() {
+					//create default project owner
+					//TODO product from workflow
+					projectOwnerService.createDefaultOwner(emails);
+				}
+			});
+
+
 	        newService = new Service();
 	        newService.setProjectid(newProject.getId());
 	        newService.setName(service);

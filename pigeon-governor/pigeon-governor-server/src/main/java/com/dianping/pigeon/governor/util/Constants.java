@@ -13,7 +13,7 @@ public class Constants {
 
 	public static final int HOST_REGISTRY_PIGEON = 1;
 
-	public static final String DP_EMAIL_BASE = "@dianping.com";
+	public static final String DP_EMAIL_BASE = "dianping.com";
 	
 	public static final String DP_ACCOUNT = "dp-account";
 	
