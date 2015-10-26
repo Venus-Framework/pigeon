@@ -86,7 +86,7 @@ public class ProjectOwnerServiceImpl implements ProjectOwnerService {
 				User user = userService.retrieveByDpaccount(dpAccount);
 
 				if(user != null) {
-					create(user,project);
+					create(user.getId(), project.getId());
 				}
 
 				if(user == null) {
@@ -106,7 +106,7 @@ public class ProjectOwnerServiceImpl implements ProjectOwnerService {
 						user = userService.retrieveByDpaccount(dpAccount);
 
 						if(user != null) {
-							create(user,project);
+							create(user.getId(),project.getId());
 						}
 
 					} else {
@@ -121,11 +121,21 @@ public class ProjectOwnerServiceImpl implements ProjectOwnerService {
 	}
 
 	@Override
-	public void create(User user, Project project) {
-		if(user.getId() != null && project.getId() != null) {
+	public void create(Integer userId, Integer projectId) {
+
+		if(userId != null && projectId != null) {
+			ProjectOwnerExample projectOwnerExample = new ProjectOwnerExample();
+			projectOwnerExample.createCriteria().andUseridEqualTo(userId).andProjectidEqualTo(projectId);
+			List<ProjectOwner> projectOwners = projectOwnerMapper.selectByExample(projectOwnerExample);
+
+			if(projectOwners.size() > 0) {
+				logger.warn("projectOwner already exists in database");
+				return;
+			}
+
 			ProjectOwner projectOwner = new ProjectOwner();
-			projectOwner.setProjectid(project.getId());
-			projectOwner.setUserid(user.getId());
+			projectOwner.setProjectid(projectId);
+			projectOwner.setUserid(userId);
 			projectOwner.setCreatetime(new Date());
 			projectOwnerMapper.insertSelective(projectOwner);
 		}
