@@ -141,6 +141,8 @@ public final class ServiceProviderFactory {
 							Constants.KEY_AUTOREGISTER_ENABLE, true);
 					if (autoRegisterEnable) {
 						ServiceWarmupListener.start();
+					} else {
+						logger.info("auto register is disabled");
 					}
 
 					providerConfig.setPublished(true);

@@ -150,10 +150,10 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 			error = true;
 			boolean isLog = false;
 			int logTimeoutPeriod = 0;
-			if (appLogTimeoutPeriodMap.containsKey(targetApp)) {
+			if (targetApp != null && appLogTimeoutPeriodMap.containsKey(targetApp)) {
 				logTimeoutPeriod = appLogTimeoutPeriodMap.get(targetApp);
 			}
-			if (logTimeoutPeriod > 0) {
+			if (targetApp != null && logTimeoutPeriod > 0) {
 				if (logTimeoutPeriod <= logTimeoutPeriodLimit) {
 					AtomicInteger timeouts = appTimeouts.get(targetApp);
 					if (timeouts != null && timeouts.incrementAndGet() > logTimeoutPeriod) {

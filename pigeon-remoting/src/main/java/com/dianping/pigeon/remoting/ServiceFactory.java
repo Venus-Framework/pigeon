@@ -392,14 +392,17 @@ public class ServiceFactory {
 	}
 
 	public static void setServerWeight(int weight) throws RegistryException {
+		logger.info("set weight:" + weight);
 		ServiceProviderFactory.setServerWeight(weight);
 	}
 
 	public static void online() throws RegistryException {
+		logger.info("online");
 		ServiceProviderFactory.setServerWeight(Constants.WEIGHT_DEFAULT);
 	}
 
 	public static void offline() throws RegistryException {
+		logger.info("offline");
 		ServiceWarmupListener.stop();
 		ServiceProviderFactory.setServerWeight(0);
 	}

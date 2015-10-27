@@ -39,11 +39,14 @@ public class ServiceWarmupListener implements Runnable {
 				Constants.KEY_SERVICEWARMUP_ENABLE, true);
 		if (!isServiceWarmupListenerStarted && warmupEnable && ServiceProviderFactory.isAutoPublish()) {
 			currentWarmupListener = new ServiceWarmupListener(delay);
+			logger.info("warm up listener is enabled");
 			Thread t = new Thread(currentWarmupListener);
 			t.setDaemon(true);
 			t.setName("Pigeon-Service-Warmup-Listener");
 			t.start();
 			isServiceWarmupListenerStarted = true;
+		} else {
+			logger.info("warm up listener is disabled");
 		}
 	}
 
@@ -75,6 +78,7 @@ public class ServiceWarmupListener implements Runnable {
 	}
 
 	public void run() {
+		logger.info("Warm-up task start");
 		try {
 			Thread.sleep(delay);
 			if (!isStop) {

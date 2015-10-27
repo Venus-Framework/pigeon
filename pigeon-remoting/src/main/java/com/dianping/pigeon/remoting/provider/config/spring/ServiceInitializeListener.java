@@ -23,6 +23,7 @@ public class ServiceInitializeListener implements ApplicationListener {
 
 						@Override
 						public void run() {
+							logger.info("service initialized");
 							try {
 								ServiceFactory.online();
 							} catch (RegistryException e) {
