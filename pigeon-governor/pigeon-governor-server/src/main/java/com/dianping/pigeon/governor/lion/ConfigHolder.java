@@ -21,6 +21,9 @@ public class ConfigHolder {
 	public static String get(LionKeys keyEnum){
 		return get(keyEnum.value(),"");
 	}
+	public static String get(LionKeys keyEnum, String defaultValue){
+		return get(keyEnum.value(), defaultValue);
+	}
 	
 	public static String get(String key){
 		return get(key,"");

@@ -171,7 +171,7 @@ public class ServiceApiController extends BaseController {
     	String hosts = null;
 		try {
 			hosts = serviceService.publishService(appname, service, group, ip, port, 
-										ConfigHolder.get(LionKeys.IS_ZK_DOUBLE_WRITE));
+										ConfigHolder.get(LionKeys.IS_ZK_DOUBLE_WRITE, "false"));
             Host host = hostService.retrieveByIpPort(ip,port);
 
             if(host != null && host.getRegistry() == Constants.HOST_REGISTRY_LION) {
@@ -221,7 +221,7 @@ public class ServiceApiController extends BaseController {
     	String hosts = null;
 		try {
 			hosts = serviceService.unpublishService(service, group, ip, port, 
-									ConfigHolder.get(LionKeys.IS_ZK_DOUBLE_WRITE));
+									ConfigHolder.get(LionKeys.IS_ZK_DOUBLE_WRITE, "false"));
 		} catch (Exception e) {
 			writer.write(ERROR_CODE + String.format("Service %s for group [%s] update to ZK failed", service, group));
 		}

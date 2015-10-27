@@ -48,9 +48,10 @@ public class ServiceServiceImpl implements ServiceService {
 	
 	@Override
 	public int create(ServiceBean serviceBean, String updatezk) throws Exception {
+		int count = -1;
 		boolean writeZk = "true".equalsIgnoreCase(updatezk);
 		Service service = serviceBean.createService();
-		int count = create(service);
+		count = create(service);
 		
 		if(count > 0 && writeZk) {
 			registryService.registryCreateService(service);
@@ -118,10 +119,11 @@ public class ServiceServiceImpl implements ServiceService {
 
 	@Override
 	public int updateById(ServiceBean serviceBean, String updatezk) throws Exception {
+		int count = -1;
 		boolean writeZk = "true".equalsIgnoreCase(updatezk);
 		Service service = serviceBean.convertToService();
 		Service oriService = getService(service.getName(), service.getGroup());
-		int count = updateById(service);
+		count = updateById(service);
 		
 		if(count > 0 && writeZk) {
 			registryService.registryUpdateService(oriService, service);
@@ -268,8 +270,12 @@ public class ServiceServiceImpl implements ServiceService {
 	        	registryService.registryCreateService(newService);
 	        
 	    }
-	    
-	    return newService.getHosts();
+
+		if(newService != null){
+			return newService.getHosts();
+		}
+
+		return null;
 	}
 
 	@Override
@@ -301,8 +307,12 @@ public class ServiceServiceImpl implements ServiceService {
 	        if(writeZk)
 	        	registryService.registryUpdateService(oriService, newService);
         }
+
+		if(newService != null){
+			return newService.getHosts();
+		}
         
-        return newService.getHosts();
+        return null;
 	}
 
 	@Override
