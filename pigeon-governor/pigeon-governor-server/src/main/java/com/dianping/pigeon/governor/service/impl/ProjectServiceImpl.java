@@ -134,10 +134,9 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public Project createProject(String projectName, boolean fromCmdb) {
-		Project result = null;
-		
+
 		if(StringUtils.isBlank(projectName)) {
-			return result;
+			return null;
 		}
 		
 		Project project = null;
@@ -153,20 +152,9 @@ public class ProjectServiceImpl implements ProjectService {
 		}
 		
 		projectMapper.insertSelective(project);
+
+		return findProject(projectName);
 		
-		ProjectExample projectExample = new ProjectExample();
-		projectExample.createCriteria().andNameEqualTo(projectName);
-		List<Project> projects = projectMapper.selectByExample(projectExample);
-		
-		if(projects != null){
-			
-			if(projects.size() > 0){
-				result = projects.get(0);
-			}
-				
-		}
-		
-		return result;
 	}
 
 
@@ -208,6 +196,20 @@ public class ProjectServiceImpl implements ProjectService {
 		}
 		
 		return null;
+	}
+
+	@Override
+	public int create(Project project) {
+		int sqlSucCount = -1;
+
+		if(StringUtils.isNotBlank(project.getName())) {
+			Date now = new Date();
+			project.setCreatetime(now);
+			project.setModifytime(now);
+			sqlSucCount = projectMapper.insertSelective(project);
+		}
+
+		return sqlSucCount;
 	}
 
 }

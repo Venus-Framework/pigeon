@@ -82,4 +82,6 @@
 	<!-- 临时 -->
 	<bean id="hostDbProcess" class="com.dianping.pigeon.governor.lion.registry.HostDbProcess" />
 
+	<bean id="dailyTaskBean" class="com.dianping.pigeon.governor.task.DailyTaskBean" />
+
 </beans>

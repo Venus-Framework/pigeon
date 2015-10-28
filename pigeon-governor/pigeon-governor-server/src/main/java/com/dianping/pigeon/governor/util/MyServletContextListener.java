@@ -4,6 +4,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import com.dianping.pigeon.governor.task.DailyTaskBean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.plexus.util.StringUtils;
@@ -31,9 +32,17 @@ public class MyServletContextListener implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent sce) {
 		logger.info("----------- 启动环境 ------------");
 		
-		//临时
 		initWeight(sce.getServletContext());
 
+		//临时
+		//localInit(sce.getServletContext());
+
+	}
+
+	private void localInit(ServletContext servletContext) {
+		applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+		DailyTaskBean dailyTaskBean = (DailyTaskBean) BeanFactoryUtils.beanOfType(applicationContext, DailyTaskBean.class);
+		dailyTaskBean.init();
 	}
 
 	/**

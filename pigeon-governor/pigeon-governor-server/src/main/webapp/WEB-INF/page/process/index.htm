@@ -71,8 +71,8 @@
 			<ul class="breadcrumb">
 				<li><i class="ace-icon fa fa-home home-icon"></i> <a href="/">主页</a>
 				</li>
-				<li>配置服务</li>
-				<li class="active">${projectName}</li>
+		
+				<li class="active">流程审批</li>
 			</ul>
 			<!-- /.breadcrumb -->
 		</div>
@@ -84,10 +84,10 @@
 			<div class="page-content-area">
 				<div class="page-header">
 					<h1>
-						${projectName}
+						审批信息
 						<small>
 							<i class="ace-icon fa fa-angle-double-right"></i>
-							添加、删除、修改、查看pigeon服务配置
+							流程信息查看和审核
 						</small>
 					</h1>
 				</div><!-- /.page-header -->
@@ -163,7 +163,7 @@
 
 <script>
 $(function(){
-	$('li[id="pigeon_config"]').addClass("active");
+	$('li[id="project_info"]').addClass("active");
 });
 
 jQuery(function($) {
@@ -187,46 +187,45 @@ jQuery(function($) {
 
 	$.extend($.fn.fmatter, {
         actionFormatter: function(cellvalue, options, rowObject) {
-            var retVal = "";
+            var retVal = "<a href='/process/" + rowObject.name + "'>通过</a>";
             return retVal;
         }
     } );
 
 	jQuery(grid_selector).jqGrid({
 
-		url:"${rc.contextPath}/services/${projectName}",
+		url:"${rc.contextPath}/process",
 		datatype: "json",
 		mtype:"POST",
 		jsonReader: {
-			root:"data",	
-			page: "currentPage",	
+			root:"data",
+			page: "currentPage",
 			total: "totalPages",
 			records: "totalRecords",
 			repeatitems : true
 		},
 		height: 350,
-		colNames:['操作', 'ID','Name','描述', '泳道', 'Hosts','PID'],
+		colNames:[' ', 'ID', 'name', 'bu', 'owner', 'email', 'phone', 'level', 'createTime', 'modifyTime'],
 		colModel:[
 			{name:'myac',index:'', width:70, fixed:true, sortable:false, resize:false,
-				formatter:#if($isProjectOwner)'actions'#else'actionFormatter'#end, 
+				formatter:'actionFormatter', 
 				formatoptions:{ 
 					keys:true,
 					//delbutton: false,//disable delete button
+					
 					delOptions:{recreateForm: true, beforeShowForm:beforeDeleteCallback},
 					//editformbutton:true, editOptions:{recreateForm: true, beforeShowForm:beforeEditCallback}
 				}
 			},
 			{name:'id', index:'id', width:20, sorttype:"int", search:false, editable:false},
-			{name:'name', index:'name', width:220, editable:true,editoptions:{size:"80", maxlength:"250"}},
-			{name:'desc', index:'desc', width:100, editable:true, search:false, sortable:false, editoptions:{size:"80", maxlength:"250"}},
-			{name:'group',index:'group', width:50, editable:true, editoptions:{size:"80", maxlength:"100"}},
-			{name:'hosts',index:'hosts', width:200, editable:true, search:false, sortable:false, 
-				editoptions:{
-					size:"80", maxlength:"2000"
-					
-				}
-			},
-			{name:'projectid',index:'projectid', width:20, hidden:true} 
+			{name:'name', index:'name', width:100, editable:true, editoptions:{size:"20", maxlength:"50"}},
+			{name:'bu', index:'bu', width:80, editable:true, search:true, sortable:true, editoptions:{size:"20", maxlength:"50"}},
+			{name:'owner', index:'owner', width:50, editable:true, search:false, sortable:true, editoptions:{size:"20", maxlength:"50"}},
+			{name:'email',index:'email', width:80, editable:true, sortable:false, editoptions:{size:"20", maxlength:"50"}},
+			{name:'phone',index:'phone', width:50, editable:true, search:false, sortable:false, editoptions:{size:"15", maxlength:"15"}},
+			{name:'level',index:'level', width:20, sorttype:"int",editable: true},
+			{name:'createTime',index:'createTime',width:90, hidden:true, editable:false, sorttype:"date",unformat: pickDate},
+			{name:'modifyTime',index:'modifyTime',width:90, hidden:true, editable:false, sorttype:"date",unformat: pickDate}
 		], 
 
 		viewrecords : true,
@@ -249,19 +248,10 @@ jQuery(function($) {
 				updatePagerIcons(table);
 				enableTooltips(table);
 			}, 0);
-			
-			$('.ui-inline-edit').click(function(e){
-				var btnId = e.currentTarget.id;
-				var rowId = btnId.split("_")[1];
-				var nameCol = '#'+rowId + '_name';
-				var groupCol = '#'+rowId + '_group';
-                $(nameCol).attr("disabled","disabled");
-                $(groupCol).attr("disabled","disabled");
-			});
 		},
 
-		editurl: "${rc.contextPath}/services.api/${projectId}",//nothing is saved
-		caption: "加载服务配置"
+		editurl: "${rc.contextPath}/process.api",//nothing is saved
+		caption: "加载全部应用信息"
 
 		//,autowidth: true,
 
@@ -279,14 +269,6 @@ jQuery(function($) {
 		*/
 
 	});
-	
-	/* jQuery(grid_selector).jqGrid('editRow',rowid, 
-			{ 
-			    keys : true, 
-			    oneditfunc: function() {
-			        alert ("edited"); 
-			    }
-			}); */
 	
 	$(window).triggerHandler('resize.jqGrid');//trigger window resize to make the grid get the correct size
 	
@@ -315,41 +297,37 @@ jQuery(function($) {
 	//navButtons
 	jQuery(grid_selector).jqGrid('navGrid',pager_selector,
 		{ 	//navbar options
-			edit: ${isProjectOwner},
+			edit: false,
 			editicon : 'ace-icon fa fa-pencil blue',
-			add: ${isProjectOwner},
+			add: false,
 			addicon : 'ace-icon fa fa-plus-circle purple',
-			del: ${isProjectOwner},
+			del: false,
 			delicon : 'ace-icon fa fa-trash-o red',
-			search: false,
+			search: true,
 			searchicon : 'ace-icon fa fa-search orange',
-			refresh: false,
+			refresh: true,
 			refreshicon : 'ace-icon fa fa-refresh green',
-			view: true,
+			view: false,
 			viewicon : 'ace-icon fa fa-search-plus grey',
 		},
 		{
 			//edit record form
 			//closeAfterEdit: true,
-			width: 650,
+			//width: 700,
 			recreateForm: true,
 			beforeShowForm : function(e) {
-				//console.log(e);
 				var form = $(e[0]);
-				form.find('#name').attr('readOnly',true);
-				form.find('#group').attr('readOnly',true);
 				form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
 				style_edit_form(form);
 			}
 		},
 		{
 			//new record form
-			width: 650,
+			//width: 700,
 			closeAfterAdd: true,
 			recreateForm: true,
 			viewPagerButtons: false,
 			beforeShowForm : function(e) {
-				//console.log(e);
 				var form = $(e[0]);
 				form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar')
 				.wrapInner('<div class="widget-header" />')
@@ -392,7 +370,6 @@ jQuery(function($) {
 		},
 		{
 			//view record form
-			width: 650,
 			recreateForm: true,
 			beforeShowForm: function(e){
 				var form = $(e[0]);
@@ -400,47 +377,8 @@ jQuery(function($) {
 			}
 		}
 	)
-	
-	#if(! $isProjectOwner)
-	jQuery(grid_selector).navButtonAdd(pager_selector,{
-		caption: "",
-		title:"申请成为管理员", 
-		buttonicon:'ace-icon fa fa-user red', 
-		onClickButton: function(){
-			var currentUser = "${currentUser}";
-			var projectName = "${projectName}";
-			alert("功能开发中，请先向架构组陈充泽申请添加项目管理员");
-			//alert(currentUser+","+projectName);
-			//alert("请在crab.dp中填写应用的项目邮件组，邮件组的第一个点评email的dpaccount可自动申请项目管理员");
-		},
-		position:"first",
-		id: "addOwnerBtn"
-	});
-	#end
-	
-	#if($isProjectOwner)
-	/* jQuery(grid_selector).navButtonAdd(pager_selector,{
-		caption: "",
-		title:"从lion同步配置服务", 
-		buttonicon:'ace-icon fa fa-user red', 
-		onClickButton: function(){
-			var projectName = "${projectName}";
-			//alert("将覆盖本地配置");
-			$.ajax({
-				url: '/registry/update',
-		        type: 'POST',
-				error: function(){
-					alert("error!");
-				},
-				success: function(response, textStatus) {
-					
-				}
-			});
-		},
-		position:"last",
-		id: "refreshZkBtn"
-	}); */
-	#end
+
+
 	
 	function style_edit_form(form) {
 		//enable datepicker on "sdate" field and switches for "stock" field
@@ -570,7 +508,6 @@ jQuery(function($) {
 </script>
 
 <style>
-/* 使表格内容自动换行 */
 .ui-jqgrid tr.jqgrow td {
     word-wrap: break-word; /* IE 5.5+ and CSS3 */
     white-space: pre-wrap; /* CSS3 */

@@ -21,4 +21,7 @@ public interface ProjectService {
 	public JqGridRespBean retrieveByJqGrid(int page, int rows, String projectOwner);
 	
 	public Project retrieveByEmail(String email);
+
+	public int create(Project project);
+
 }

@@ -1,6 +1,7 @@
 package com.dianping.piegon.governor.test.cmdb;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -13,8 +14,15 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ApiTest {
-	
+
 	@Test
+	public void testCmdbUtils2(){
+		List list = CmdbUtils.getProjectsInfoByPage(1);
+		System.out.println(list);
+		System.out.println(list.size());
+	}
+
+	//@Test
 	public void testCmdbUtils1(){
 		System.out.println(CmdbUtils.getProjectInfo("pigeon-governor-server"));
 	}
