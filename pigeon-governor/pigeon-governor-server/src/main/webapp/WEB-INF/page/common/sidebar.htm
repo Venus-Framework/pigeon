@@ -51,14 +51,38 @@
 			class="menu-icon fa fa-desktop"></i> <span class="menu-text">
 				服务地址查询 </span>
 	</a> <b class="arrow"></b></li>
-	<li id="project_info"><a href="${rc.contextPath}/projects"> <i
-			class="menu-icon fa fa-desktop"></i> <span class="menu-text">
-				我的应用信息 </span>
-	</a> <b class="arrow"></b></li>
-	<li id="pigeon_config"><a href="${rc.contextPath}/services"> <i
-			class="menu-icon fa fa-desktop"></i> <span class="menu-text">
-				配置服务信息 </span>
-	</a> <b class="arrow"></b></li>
+
+	<li id="projects_index" class="">
+		<a href="#" class="dropdown-toggle">
+			<i class="menu-icon fa fa-list"></i>
+			<span class="menu-text">应用信息</span>
+
+			<b class="arrow fa fa-angle-down"></b>
+		</a>
+
+		<b class="arrow"></b>
+
+		<ul class="submenu">
+			<li id="project_info" class="">
+				<a href="${rc.contextPath}/projects">
+					<i class="menu-icon fa fa-caret-right"></i>
+					我的应用
+				</a>
+
+				<b class="arrow"></b>
+			</li>
+
+			<li id="project_all" class="">
+				<a href="${rc.contextPath}/projects.all">
+					<i class="menu-icon fa fa-caret-right"></i>
+					全部应用
+				</a>
+
+				<b class="arrow"></b>
+			</li>
+		</ul>
+	</li>
+
 </ul>
 <!-- /.nav-list -->
 <!-- #section:basics/sidebar.layout.minimize -->

@@ -48,16 +48,13 @@ public class ProjectController extends BaseController {
 	@Autowired
 	private ProjectOwnerService projectOwnerService;
 	
-	@RequestMapping(value = {"/projects/{projectOwner}"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/projects.all"}, method = RequestMethod.GET)
 	public String projectOwnerInfo(ModelMap modelMap,
-									@PathVariable String projectOwner,
 									HttpServletRequest request,
 									HttpServletResponse response) {
 		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
 		modelMap.addAttribute("currentUser", currentUser);
-		//User user = projectOwnerService.retrieveUser(projectOwner);
-		modelMap.addAttribute("projectOwner", currentUser);
-		
+
 		return "/projects/list";
 	}
 	

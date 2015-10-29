@@ -163,7 +163,8 @@
 
 <script>
 $(function(){
-	$('li[id="project_info"]').addClass("active");
+	$('li[id="projects_index"]').addClass("active open");
+	$('li[id="project_all"]').addClass("active");
 });
 
 jQuery(function($) {
@@ -194,7 +195,7 @@ jQuery(function($) {
 
 	jQuery(grid_selector).jqGrid({
 
-		url:"${rc.contextPath}/projects?projectOwner=${projectOwner}",
+		url:"${rc.contextPath}/projects.json",
 		datatype: "json",
 		mtype:"POST",
 		jsonReader: {

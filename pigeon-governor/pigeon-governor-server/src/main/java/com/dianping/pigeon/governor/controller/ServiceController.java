@@ -53,7 +53,7 @@ public class ServiceController extends BaseController {
 			project = projectService.createProjectFromCmdbOrNot(projectName);
 
 			if(project == null){
-				modelMap.addAttribute("errorMsg", "找不到项目：" + projectName);
+				modelMap.addAttribute("errorMsg", "cmdb找不到项目：" + projectName);
 				return "/error/500";
 			}
 
