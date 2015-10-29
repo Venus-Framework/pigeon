@@ -409,7 +409,18 @@ jQuery(function($) {
 		onClickButton: function(){
 			var currentUser = "${currentUser}";
 			var projectName = "${projectName}";
-			alert("功能开发中，请先向架构组陈充泽申请添加项目管理员");
+			alert("请前往http://crab.dp/cmdb/app_manage添加管理员邮箱到项目邮件组，然后点击按钮即可添加");
+			$.ajax({
+				url: '/projectowners/cmdb',
+		        type: 'POST',
+		        data:{"dpaccount": currentUser, "projectName": projectName},
+				error: function(){
+					alert("server error!");
+				},
+				success: function(response, textStatus) {
+					alert(response.result);
+				}
+			});
 			//alert(currentUser+","+projectName);
 			//alert("请在crab.dp中填写应用的项目邮件组，邮件组的第一个点评email的dpaccount可自动申请项目管理员");
 		},

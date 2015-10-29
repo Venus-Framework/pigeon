@@ -2,10 +2,8 @@ package com.dianping.pigeon.governor.service.impl;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
+import com.dianping.pigeon.governor.util.ThreadPoolFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +32,7 @@ public class ServiceServiceImpl implements ServiceService {
 
 	private Logger logger = LogManager.getLogger();
 
-	private ExecutorService proOwnerThreadPool = new ThreadPoolExecutor(2, 4, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+	private ExecutorService proOwnerThreadPool = ThreadPoolFactory.getProOwnerThreadPool();
 	
 	@Autowired
 	private ServiceMapper serviceMapper;
@@ -221,7 +219,7 @@ public class ServiceServiceImpl implements ServiceService {
 	}
 
 	@Override
-	public String publishService(String project, String service, String group,
+	public String publishService(final String project, String service, String group,
 									String ip, String port, String updatezk) throws Exception {
 		boolean writeZk = "true".equalsIgnoreCase(updatezk);
 	    Service oriService = getService(service, group);
@@ -254,7 +252,7 @@ public class ServiceServiceImpl implements ServiceService {
 				public void run() {
 					//create default project owner
 					//TODO product from workflow
-					projectOwnerService.createDefaultOwner(emails);
+					projectOwnerService.createDefaultOwner(emails, project);
 				}
 			});
 

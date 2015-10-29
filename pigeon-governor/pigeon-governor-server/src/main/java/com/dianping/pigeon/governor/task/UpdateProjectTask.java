@@ -51,13 +51,14 @@ public class UpdateProjectTask implements Runnable {
                         //创建项目默认拥有者
                         if(project != null) {
                             // 加入线程池并发处理创建新项目和新项目管理员
+                            final String projectName = project.getName();
                             final String emails = project.getEmail();
                             proOwnerThreadPool.execute(new Runnable() {
                                 @Override
                                 public void run() {
                                     //create default project owner
                                     //TODO product from workflow
-                                    projectOwnerService.createDefaultOwner(emails);
+                                    projectOwnerService.createDefaultOwner(emails, projectName);
                                 }
                             });
                         }

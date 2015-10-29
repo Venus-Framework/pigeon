@@ -8,6 +8,7 @@ import com.dianping.ba.hris.md.api.service.EmployeeService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.dianping.pigeon.governor.dao.ProjectOwnerMapper;
@@ -18,7 +19,6 @@ import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.UserService;
-import com.dianping.pigeon.governor.util.CmdbUtils;
 
 @Service
 public class ProjectOwnerServiceImpl implements ProjectOwnerService {
@@ -75,8 +75,8 @@ public class ProjectOwnerServiceImpl implements ProjectOwnerService {
 	}
 
 	@Override
-	public void createDefaultOwner(String email) {
-		Project project = projectService.retrieveByEmail(email);
+	public void createDefaultOwner(String email, String projectName) {
+		Project project = projectService.findProject(projectName);
 		
 		if(project != null) {
 			String[] emails = email.split(",");
@@ -137,7 +137,11 @@ public class ProjectOwnerServiceImpl implements ProjectOwnerService {
 			projectOwner.setProjectid(projectId);
 			projectOwner.setUserid(userId);
 			projectOwner.setCreatetime(new Date());
-			projectOwnerMapper.insertSelective(projectOwner);
+			try {
+				projectOwnerMapper.insertSelective(projectOwner);
+			} catch (DataAccessException e) {
+				logger.error("insert projectOwner error! userId: %s,projectId: %s", userId, projectId);
+			}
 		}
 	}
 

@@ -1,11 +1,18 @@
 package com.dianping.pigeon.governor.controller;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.dianping.pigeon.governor.bean.JqGridReqBean;
+import com.dianping.pigeon.governor.bean.JqGridReqFilters;
+import com.dianping.pigeon.governor.bean.JqGridRespBean;
+import com.dianping.pigeon.governor.bean.ServiceBean;
+import com.dianping.pigeon.governor.model.Project;
+import com.dianping.pigeon.governor.service.ProjectOwnerService;
+import com.dianping.pigeon.governor.service.ProjectService;
+import com.dianping.pigeon.governor.service.ServiceService;
+import com.dianping.pigeon.governor.util.Constants;
+import com.dianping.pigeon.governor.util.ThreadPoolFactory;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,21 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.dianping.pigeon.governor.bean.JqGridRespBean;
-import com.dianping.pigeon.governor.bean.ServiceBean;
-import com.dianping.pigeon.governor.bean.JqGridReqBean;
-import com.dianping.pigeon.governor.bean.JqGridReqFilters;
-import com.dianping.pigeon.governor.bean.WebResult;
-import com.dianping.pigeon.governor.model.Project;
-import com.dianping.pigeon.governor.model.Service;
-import com.dianping.pigeon.governor.service.ProjectOwnerService;
-import com.dianping.pigeon.governor.service.ProjectService;
-import com.dianping.pigeon.governor.service.ServiceService;
-import com.dianping.pigeon.governor.util.Constants;
-import com.dianping.pigeon.registry.exception.RegistryException;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Controller
 public class ServiceController extends BaseController {
@@ -47,7 +42,7 @@ public class ServiceController extends BaseController {
 	
 	@RequestMapping(value = {"/services/{projectName}"}, method = RequestMethod.GET)
 	public String projectInfo(ModelMap modelMap,
-								@PathVariable String projectName,
+								@PathVariable final String projectName,
 								HttpServletRequest request) {
 		
 		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
@@ -55,9 +50,23 @@ public class ServiceController extends BaseController {
 		Project project = projectService.findProject(projectName);
 		
 		if(project == null){
-			modelMap.addAttribute("errorMsg", "找不到项目：" + projectName);
-			
-			return "/error/500";
+			project = projectService.createProjectFromCmdbOrNot(projectName);
+
+			if(project == null){
+				modelMap.addAttribute("errorMsg", "找不到项目：" + projectName);
+				return "/error/500";
+			}
+
+			final String emails = project.getEmail();
+			ThreadPoolFactory.getProOwnerThreadPool().execute(new Runnable() {
+				@Override
+				public void run() {
+					//create default project owner
+					//TODO product from workflow
+					projectOwnerService.createDefaultOwner(emails, projectName);
+				}
+			});
+
 		}
 		
 		modelMap.addAttribute("isProjectOwner", projectOwnerService.isProjectOwner(currentUser, project));

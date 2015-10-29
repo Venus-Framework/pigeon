@@ -8,7 +8,7 @@ public interface ProjectOwnerService {
 	
 	public boolean isProjectOwner(String dpaccount, Project project);
 	
-	public void createDefaultOwner(String email);
+	public void createDefaultOwner(String email, String projectName);
 
 	public void create(Integer userId, Integer projectId);
 	

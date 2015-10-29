@@ -16,6 +16,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class NormalTest {
 
 	@Test
+	public void testFormat(){
+		String test = String.format("insert projectOwner error! userId: %s,projectId: %s", 5L, 4);
+		System.out.print(test);
+	}
+
+	@Test
 	public void testSplit(){
 		String test = "/DP/WEIGHT/1.1.1.1:4080";
 

@@ -24,4 +24,6 @@ public interface ProjectService {
 
 	public int create(Project project);
 
+	public Project createProjectFromCmdbOrNot(String projectName);
+
 }

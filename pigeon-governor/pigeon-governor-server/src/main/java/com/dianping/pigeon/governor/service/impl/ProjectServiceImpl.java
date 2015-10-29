@@ -212,4 +212,19 @@ public class ProjectServiceImpl implements ProjectService {
 		return sqlSucCount;
 	}
 
+	@Override
+	public Project createProjectFromCmdbOrNot(String projectName) {
+		Project project = CmdbUtils.getProjectInfoOrNot(projectName);
+
+		if(project != null){
+			Date now = new Date();
+			project.setCreatetime(now);
+			project.setModifytime(now);
+			projectMapper.insertSelective(project);
+		}
+
+		return findProject(projectName);
+
+	}
+
 }
