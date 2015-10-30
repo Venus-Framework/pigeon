@@ -16,6 +16,8 @@ public class Constants {
 	public static final String DP_EMAIL_BASE = "dianping.com";
 	
 	public static final String DP_ACCOUNT = "dp-account";
+
+	public static final String NON_SSO_FLAG = "is-non-sso";
 	
 	public static final String CMDB_API_BASE = "http://api.cmdb.dp/api/v0.1";
 	

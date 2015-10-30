@@ -1,5 +1,12 @@
 package com.dianping.pigeon.governor.filter;
 
+import com.ctc.wstx.util.StringUtil;
+import com.dianping.lion.client.Lion;
+import com.dianping.pigeon.governor.lion.ConfigHolder;
+import com.dianping.pigeon.governor.lion.LionKeys;
+import com.dianping.pigeon.governor.util.Constants;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -9,12 +16,15 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 public class NonAuthFilter implements Filter {
 	
 	private static String[] excludes;
 	
-	static final String ALREADY_FILTERED_ATTRIBUTE = NonAuthFilter.class.getName() + ".FILTERED";
+	private static final String ALREADY_FILTERED_ATTRIBUTE = NonAuthFilter.class.getName() + ".FILTERED";
+
+	private static final String CAN_SKIP_SSO = Lion.get("pigeon-governor-server.canskip.sso","false");
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -35,21 +45,25 @@ public class NonAuthFilter implements Filter {
             
         } else {
             request.setAttribute(ALREADY_FILTERED_ATTRIBUTE, Boolean.TRUE);
-            
-    		String requestURI = ((HttpServletRequest) request).getRequestURI();
-    		
+			String requestURI = ((HttpServletRequest) request).getRequestURI();
+
+			if("true".equalsIgnoreCase(CAN_SKIP_SSO)) {
+				HttpServletRequest req = (HttpServletRequest) request;
+				HttpSession session = req.getSession(true);
+				Boolean isNonSso = (Boolean) session.getAttribute(Constants.NON_SSO_FLAG);
+				String sessionAccount = (String) session.getAttribute(Constants.DP_ACCOUNT);
+
+				if( Boolean.TRUE.equals(isNonSso) && StringUtils.isNotBlank(sessionAccount)) {
+					request.getRequestDispatcher(requestURI).forward(request, response);
+					return;
+				}
+			}
+
+
     		for (String uri : excludes) {
-    			
+
     			if (requestURI.toLowerCase().startsWith(uri)){
-    				
-    				//这里千万不要画蛇添足，会导致queryString添加两次
-    				/*String queryString = req.getQueryString();
-    				if (StringUtil.isNotBlank(queryString)) {
-    					requestURI = requestURI + "?" + queryString;
-    				}*/
-    				
     				request.getRequestDispatcher(requestURI).forward(request, response);
-    				
     				return;
     			}
     			

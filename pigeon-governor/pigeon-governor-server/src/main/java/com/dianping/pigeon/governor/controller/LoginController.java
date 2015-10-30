@@ -1,6 +1,7 @@
 package com.dianping.pigeon.governor.controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
@@ -8,12 +9,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.dianping.pigeon.governor.bean.Result;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -22,6 +25,7 @@ import com.dianping.pigeon.governor.lion.LionKeys;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.UserService;
 import com.dianping.pigeon.governor.util.Constants;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * 
@@ -35,7 +39,45 @@ public class LoginController extends BaseController {
 	
 	@Autowired
 	private UserService userService;
-    
+
+	/**
+	 * 免sso火箭登陆
+	 * @param request
+	 * @param response
+	 */
+	@RequestMapping(value = "/rocket/{dpAccount:.+}")
+	public String rocketlogin(@PathVariable final String dpAccount, ModelMap modelMap,
+							  HttpServletRequest request, HttpServletResponse response) {
+		HttpSession session = request.getSession(true);
+		String sessionAccount = (String) session.getAttribute(Constants.DP_ACCOUNT);
+
+		if(dpAccount.equals(sessionAccount) != true) {
+			User user = userService.retrieveByDpaccount(dpAccount);
+
+			if(user == null) {
+				modelMap.addAttribute("errorMsg", "pigeon数据库中找不到用户，请至少用sso登陆一次");
+				return "/error/500";
+			}
+
+			session.setAttribute(Constants.DP_ACCOUNT, user.getDpaccount());
+
+		}
+
+		session.setAttribute(Constants.NON_SSO_FLAG, true);
+		log.info("rocket login success!");
+		modelMap.addAttribute("currentUser", dpAccount);
+		modelMap.addAttribute("path", "service");
+		return "common/main-container";
+
+	}
+
+	@RequestMapping(value = "/ruok")
+	public void ruok(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/plain;charset=utf-8");
+		PrintWriter writer = response.getWriter();
+		writer.write("imok");
+	}
+
 	@Deprecated
 	/**
 	 * 登陆sso

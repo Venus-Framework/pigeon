@@ -127,14 +127,11 @@ public class ProjectController extends BaseController {
 			try {
 				filters = objectMapper.readValue(jqGridReqBean.getFilters(), JqGridReqFilters.class);
 			} catch (JsonParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("JsonParse",e);
 			} catch (JsonMappingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("JsonMapping", e);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("IO",e);
 			}
 		}
 		

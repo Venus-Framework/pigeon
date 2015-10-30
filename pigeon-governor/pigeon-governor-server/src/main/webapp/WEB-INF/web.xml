@@ -70,7 +70,7 @@
         <filter-class>com.dianping.pigeon.governor.filter.NonAuthFilter</filter-class>
         <init-param>
             <param-name>excludes</param-name>
-            <param-value>/api/,/resources/,/images/,/error,/ssologout</param-value>
+            <param-value>/api/,/resources/,/images/,/error,/ssologout,/rocket,/ruok</param-value>
         </init-param>
     </filter>
     <filter-mapping>
