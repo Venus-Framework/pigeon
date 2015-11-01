@@ -46,4 +46,10 @@ public class EchoServiceAnnotationImpl implements EchoService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String asyncEcho(String msg) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

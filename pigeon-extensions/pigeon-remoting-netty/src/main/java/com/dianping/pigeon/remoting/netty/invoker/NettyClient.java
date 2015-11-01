@@ -110,6 +110,11 @@ public class NettyClient extends AbstractClient {
 			return;
 		}
 		logger.info("client is connecting to " + this.host + ":" + this.port);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
 		ChannelFuture future = null;
 		try {
 			future = bootstrap.connect(new InetSocketAddress(host, port));

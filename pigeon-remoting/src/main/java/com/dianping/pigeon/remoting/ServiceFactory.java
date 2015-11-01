@@ -151,12 +151,13 @@ public class ServiceFactory {
 				ClientManager.getInstance().registerClients(invokerConfig.getUrl(), invokerConfig.getGroup(),
 						invokerConfig.getVip());
 			} catch (Throwable t) {
-				try {
-					ClientManager.getInstance().registerClients(invokerConfig.getUrl(),
-							invokerConfig.getGroup(), invokerConfig.getVip());
-				} catch (Throwable t2) {
-					logger.warn("error while trying to setup service client:" + invokerConfig, t2);
-				}
+//				try {
+//					ClientManager.getInstance().registerClients(invokerConfig.getUrl(),
+//							invokerConfig.getGroup(), invokerConfig.getVip());
+//				} catch (Throwable t2) {
+//					logger.warn("error while trying to setup service client:" + invokerConfig, t2);
+//				}
+				logger.warn("error while trying to setup service client:" + invokerConfig, t);
 			}
 			services.put(invokerConfig, service);
 		}

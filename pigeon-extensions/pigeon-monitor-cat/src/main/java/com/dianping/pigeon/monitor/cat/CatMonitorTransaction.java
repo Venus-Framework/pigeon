@@ -4,6 +4,9 @@
  */
 package com.dianping.pigeon.monitor.cat;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.dianping.cat.Cat;
 import com.dianping.cat.CatConstants;
 import com.dianping.cat.message.MessageProducer;
@@ -13,7 +16,6 @@ import com.dianping.cat.message.spi.MessageManager;
 import com.dianping.cat.message.spi.MessageTree;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext;
-import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.util.ContextUtils;
 
 /**
@@ -26,11 +28,33 @@ public class CatMonitorTransaction implements MonitorTransaction {
 	private CatMonitor monitor = null;
 	private Transaction transaction = null;
 	private InvocationContext invocationContext = null;
+	private String name;
+	private String uri;
+	private Map<String, Object> dataMap = new HashMap<String, Object>();
+	String rootMessageId = null;
+	String parentMessageId = null;
+	String currentMessageId = null;
 
 	public CatMonitorTransaction(CatMonitor monitor, Transaction transaction, InvocationContext invocationContext) {
 		this.monitor = monitor;
 		this.transaction = transaction;
 		this.invocationContext = invocationContext;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getUri() {
+		return uri;
+	}
+
+	public void setUri(String uri) {
+		this.uri = uri;
 	}
 
 	public Transaction getTransaction() {
@@ -50,6 +74,18 @@ public class CatMonitorTransaction implements MonitorTransaction {
 		((DefaultTransaction) this.transaction).setDurationInMillis(duration);
 	}
 
+	public long getDuration() {
+		return ((DefaultTransaction) this.transaction).getDurationInMillis();
+	}
+
+	public void setDurationStart(long durationStart) {
+		((DefaultTransaction) this.transaction).setDurationStart(durationStart);
+	}
+	
+	public long getDurationStart() {
+		return ((DefaultTransaction) this.transaction).getTimestamp();
+	}
+
 	@Override
 	public void complete() {
 		this.transaction.complete();
@@ -63,6 +99,7 @@ public class CatMonitorTransaction implements MonitorTransaction {
 	@Override
 	public void addData(String name, Object data) {
 		this.transaction.addData(name, data);
+		dataMap.put(name, data);
 	}
 
 	public void setInvocationContext(InvocationContext invocationContext) {
@@ -122,8 +159,41 @@ public class CatMonitorTransaction implements MonitorTransaction {
 				tree.setRootMessageId(rootMessageId);
 				tree.setParentMessageId(serverMessageId);
 				tree.setMessageId(currentMessageId);
+
+				setCurrentMessageId(currentMessageId);
+				setParentMessageId(serverMessageId);
+				setRootMessageId(rootMessageId);
 			}
 		}
+	}
+
+	public String getRootMessageId() {
+		return rootMessageId;
+	}
+
+	public void setRootMessageId(String rootMessageId) {
+		this.rootMessageId = rootMessageId;
+	}
+
+	public String getParentMessageId() {
+		return parentMessageId;
+	}
+
+	public void setParentMessageId(String parentMessageId) {
+		this.parentMessageId = parentMessageId;
+	}
+
+	public String getCurrentMessageId() {
+		return currentMessageId;
+	}
+
+	public void setCurrentMessageId(String currentMessageId) {
+		this.currentMessageId = currentMessageId;
+	}
+
+	@Override
+	public Map<String, Object> getDataMap() {
+		return dataMap;
 	}
 
 }

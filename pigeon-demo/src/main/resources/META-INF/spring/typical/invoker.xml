@@ -24,7 +24,7 @@
 		<property name="interfaceName" value="com.dianping.pigeon.demo.EchoService" />
 		<property name="serialize" value="hessian" />
 		<property name="callType" value="future" />
-		<property name="timeout" value="1000" />
+		<property name="timeout" value="500" />
 	</bean>
 
 	<bean id="echoServiceWithCallback"

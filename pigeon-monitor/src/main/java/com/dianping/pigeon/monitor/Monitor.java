@@ -29,4 +29,8 @@ public interface Monitor {
 	MonitorTransaction createTransaction(String name, String uri, Object invocationContext);
 
 	MonitorTransaction getCurrentTransaction();
+
+	void clearTransaction();
+
+	MonitorTransaction copyTransaction(String name, String uri, Object invocationContext, MonitorTransaction transaction);
 }

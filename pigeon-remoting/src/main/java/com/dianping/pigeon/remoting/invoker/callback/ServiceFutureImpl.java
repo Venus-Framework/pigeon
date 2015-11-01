@@ -54,9 +54,6 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		long start = System.currentTimeMillis();
 		try {
 			response = super.get(timeoutMillis);
-			if (transaction != null) {
-				transaction.setDuration(System.currentTimeMillis() - start);
-			}
 			SizeMonitor.getInstance().logSize(response.getSize(), "PigeonCall.responseSize", null);
 		} catch (Throwable e) {
 			RuntimeException rpcEx = null;
@@ -81,6 +78,9 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 			if (transaction != null) {
 				try {
 					transaction.complete();
+					if (transaction != null) {
+						transaction.setDuration(System.currentTimeMillis() - start);
+					}
 				} catch (Throwable e) {
 					monitor.logMonitorError(e);
 				}

@@ -53,6 +53,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 		ProviderChannel channel = invocationContext.getChannel();
 		MonitorTransaction transaction = null;
 		String fromIp = null;
+		boolean error = false;
 		if (monitor != null) {
 			String strMethod = null;
 			try {
@@ -93,6 +94,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			try {
 				response = handler.handle(invocationContext);
 			} catch (RuntimeException e) {
+				error = true;
 				if (transaction != null) {
 					try {
 						transaction.setStatusError(e);
@@ -141,13 +143,18 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 						Timeline timeline = TimelineManager.tryRemoveTimeline(request, TimelineManager.getRemoteIp());
 						transaction.addData("Timeline", timeline);
 					}
-					transaction.complete();
+					if (!Constants.REPLY_MANUAL || error) {
+						transaction.complete();
+					}
 					if (isAccessLogEnabled) {
 						accessLogger.info(new StringBuilder().append(request.getApp()).append("@").append(fromIp)
 								.append("@").append(request).toString());
 					}
 				} catch (Throwable e) {
 					monitor.logMonitorError(e);
+				}
+				if (monitor != null) {
+					monitor.clearTransaction();
 				}
 			}
 			ContextUtils.clearContext();

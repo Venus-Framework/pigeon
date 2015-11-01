@@ -31,16 +31,19 @@ public class DefaultClusterListener implements ClusterListener {
 
 	private static final Logger logger = LoggerLoader.getLogger(DefaultClusterListener.class);
 
-	private Map<String, List<Client>> serviceClients = new ConcurrentHashMap<String, List<Client>>();
+	private ConcurrentHashMap<String, List<Client>> serviceClients = new ConcurrentHashMap<String, List<Client>>();
 
-	private Map<String, Client> allClients = new ConcurrentHashMap<String, Client>();
+	private ConcurrentHashMap<String, Client> allClients = new ConcurrentHashMap<String, Client>();
 
 	private HeartBeatListener heartbeatListener;
 
 	private ReconnectListener reconnectListener;
 
-	private ScheduledThreadPoolExecutor closeExecutor = new ScheduledThreadPoolExecutor(5, new DefaultThreadFactory(
+	private ScheduledThreadPoolExecutor closeExecutor = new ScheduledThreadPoolExecutor(3, new DefaultThreadFactory(
 			"Pigeon-Client-Cache-Close-ThreadPool"));
+
+	private static int closeWaitTime = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.invoker.close.waittime", 3000);
 
 	private ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
@@ -85,17 +88,20 @@ public class DefaultClusterListener implements ClusterListener {
 				return;
 			}
 		}
-
 		if (client == null) {
 			client = ClientSelector.selectClient(connectInfo);
 		}
-
 		if (!this.allClients.containsKey(connectInfo.getConnect())) {
-			this.allClients.put(connectInfo.getConnect(), client);
+			Client oldClient = this.allClients.putIfAbsent(connectInfo.getConnect(), client);
+			if (oldClient != null) {
+				client = oldClient;
+			}
 		}
 		try {
 			if (!client.isConnected()) {
 				client.connect();
+			} else {
+				logger.info("client already connected:" + client);
 			}
 			if (client.isConnected()) {
 				for (Entry<String, Integer> sw : connectInfo.getServiceNames().entrySet()) {
@@ -103,7 +109,10 @@ public class DefaultClusterListener implements ClusterListener {
 					List<Client> clientList = this.serviceClients.get(serviceName);
 					if (clientList == null) {
 						clientList = new ArrayList<Client>();
-						this.serviceClients.put(serviceName, clientList);
+						List<Client> oldClientList = this.serviceClients.putIfAbsent(serviceName, clientList);
+						if (oldClientList != null) {
+							clientList = oldClientList;
+						}
 					}
 					if (!clientList.contains(client)) {
 						clientList.add(client);
@@ -196,26 +205,17 @@ public class DefaultClusterListener implements ClusterListener {
 	}
 
 	private void closeClientInFuture(final Client client) {
-
 		Runnable command = new Runnable() {
 
 			@Override
 			public void run() {
 				client.close();
+				logger.info("close client:" + client.getAddress());
 			}
 
 		};
-
 		try {
-			String waitTimeStr = System.getProperty("com.dianping.pigeon.invoker.closewaittime");
-			int waitTime = 3000;
-			if (waitTimeStr != null) {
-				try {
-					waitTime = Integer.parseInt(waitTimeStr);
-				} catch (RuntimeException e) {
-					logger.error("error parsing com.dianping.pigeon.invoker.closewaittime", e);
-				}
-			}
+			int waitTime = closeWaitTime;
 			if (waitTime < 0) {
 				waitTime = 3000;
 			}

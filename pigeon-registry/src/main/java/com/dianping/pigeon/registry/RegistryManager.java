@@ -45,9 +45,9 @@ public class RegistryManager {
 
 	private static Registry registry = ExtensionLoader.getExtension(Registry.class);
 
-	private static Map<String, Set<HostInfo>> referencedServiceAddresses = new ConcurrentHashMap<String, Set<HostInfo>>();
+	private static ConcurrentHashMap<String, Set<HostInfo>> referencedServiceAddresses = new ConcurrentHashMap<String, Set<HostInfo>>();
 
-	private static Map<String, HostInfo> referencedAddresses = new ConcurrentHashMap<String, HostInfo>();
+	private static ConcurrentHashMap<String, HostInfo> referencedAddresses = new ConcurrentHashMap<String, HostInfo>();
 
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
@@ -57,7 +57,7 @@ public class RegistryManager {
 
 	private static final boolean fallbackDefaultGroup = configManager.getBooleanValue("pigeon.registry.group.fallback",
 			true);
-	
+
 	private static boolean enableLocalConfig = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.registry.config.local", false);
 
@@ -151,8 +151,8 @@ public class RegistryManager {
 			}
 			if (!StringUtils.isBlank(addr)) {
 				if (logger.isDebugEnabled()) {
-					logger.debug("get service address from local properties, service name:" + serviceName + "  address:"
-							+ addr);
+					logger.debug("get service address from local properties, service name:" + serviceName
+							+ "  address:" + addr);
 				}
 				return addr;
 			}
@@ -258,7 +258,10 @@ public class RegistryManager {
 		Set<HostInfo> hostInfos = referencedServiceAddresses.get(serviceName);
 		if (hostInfos == null) {
 			hostInfos = new HashSet<HostInfo>();
-			referencedServiceAddresses.put(serviceName, hostInfos);
+			Set<HostInfo> oldHostInfos = referencedServiceAddresses.putIfAbsent(serviceName, hostInfos);
+			if (oldHostInfos != null) {
+				hostInfos = oldHostInfos;
+			}
 		}
 		hostInfos.add(hostInfo);
 
@@ -378,7 +381,7 @@ public class RegistryManager {
 			}
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @author chenchongze
@@ -387,14 +390,14 @@ public class RegistryManager {
 	 * @param hosts
 	 */
 	public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
-		if( registry != null) {
+		if (registry != null) {
 			registry.setServerService(serviceName, group, hosts);
 			monitor.logEvent("PigeonService.setHosts", serviceName, "swimlane=" + group + "&hosts=" + hosts);
 		}
 	}
-	
+
 	public void delServerService(String serviceName, String group) throws RegistryException {
-		if( registry != null) {
+		if (registry != null) {
 			registry.delServerService(serviceName, group);
 			monitor.logEvent("PigeonService.delService", serviceName, "swimlane=" + group);
 		}

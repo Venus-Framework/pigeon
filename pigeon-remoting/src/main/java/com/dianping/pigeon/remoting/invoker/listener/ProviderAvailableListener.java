@@ -38,8 +38,6 @@ public class ProviderAvailableListener implements Runnable {
 
 	private static int providerAvailableLeast = configManager.getIntValue("pigeon.providerlistener.availableleast", 1);
 
-	private static String ignoredServices = configManager.getStringValue("pigeon.providerlistener.ignoredservices", "");
-
 	public ProviderAvailableListener() {
 		configManager.registerConfigChangeListener(new InnerConfigChangeListener());
 	}
@@ -56,11 +54,6 @@ public class ProviderAvailableListener implements Runnable {
 			} else if (key.endsWith("pigeon.providerlistener.interval")) {
 				try {
 					interval = Long.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			} else if (key.endsWith("pigeon.providerlistener.ignoredservices")) {
-				try {
-					ignoredServices = value;
 				} catch (RuntimeException e) {
 				}
 			}
@@ -114,9 +107,6 @@ public class ProviderAvailableListener implements Runnable {
 				}
 				long now = System.currentTimeMillis();
 				for (String url : serviceGroupMap.keySet()) {
-					if (StringUtils.isNotBlank(ignoredServices) && ignoredServices.indexOf(url) != -1) {
-						continue;
-					}
 					String groupValue = serviceGroupMap.get(url);
 					String group = groupValue.substring(0, groupValue.lastIndexOf("#"));
 					String vip = groupValue.substring(groupValue.lastIndexOf("#") + 1);
@@ -133,20 +123,19 @@ public class ProviderAvailableListener implements Runnable {
 						} catch (Throwable e) {
 							error = e.getMessage();
 						}
-						if (StringUtils.isNotBlank(group)) {
-							available = getAvailableClients(this.getWorkingClients().get(url));
-							if (available < providerAvailableLeast) {
-								logger.info("check provider available with default group for service:" + url);
-								try {
-									ClientManager.getInstance().registerClients(url, Constants.DEFAULT_GROUP,
-											vip);
-								} catch (Throwable e) {
-									error = e.getMessage();
-								}
-							}
-						}
+//						if (StringUtils.isNotBlank(group)) {
+//							available = getAvailableClients(this.getWorkingClients().get(url));
+//							if (available < providerAvailableLeast) {
+//								logger.info("check provider available with default group for service:" + url);
+//								try {
+//									ClientManager.getInstance().registerClients(url, Constants.DEFAULT_GROUP, vip);
+//								} catch (Throwable e) {
+//									error = e.getMessage();
+//								}
+//							}
+//						}
 						if (error != null) {
-							logger.warn("[provider-available] failed to get providers, caused by " + error);
+							logger.warn("[provider-available] failed to get providers, caused by:" + error);
 						}
 					}
 				}

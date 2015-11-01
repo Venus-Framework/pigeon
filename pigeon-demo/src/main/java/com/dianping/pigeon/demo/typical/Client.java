@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.demo.typical;
 
+import com.dianping.dpsf.async.ServiceFuture;
+import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.util.ContextUtils;
@@ -28,17 +30,17 @@ public class Client {
 		while (true) {
 			try {
 				ContextUtils.putRequestContext("key1", "1");
-				System.out.println(echoService.echo("hi " + i++));
-
-				// echoServiceWithFuture.echo("hi " + i++);
-				// ServiceFuture<String> future =
-				// ServiceFutureFactory.getFuture(String.class);
-				// System.out.println(future.get());
+				System.out.println(echoService.now());
+				//System.out.println(echoService.now());
+//				echoServiceWithFuture.echo("hi " + i++);
+//				ServiceFuture future = ServiceFutureFactory.getFuture();
+//				Thread.sleep(100);
+//				System.out.println(future._get());
 
 				// System.out.println("response:" +
 				// ContextUtils.getResponseContext("key1"));
 			} catch (Exception e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 			}
 		}
 	}

@@ -47,6 +47,19 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 	private static ThreadPool sharedRequestProcessThreadPool = null;
 
+	private static final int SLOW_POOL_CORESIZE = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.provider.pool.slow.coresize", 10);
+
+	private static final int SLOW_POOL_MAXSIZE = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.provider.pool.slow.maxsize", 50);
+
+	private static final int SLOW_POOL_QUEUESIZE = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.provider.pool.slow.queuesize", 1000);
+
+	private static ThreadPool slowRequestProcessThreadPool = new DefaultThreadPool(
+			"Pigeon-Server-Slow-Request-Processor", SLOW_POOL_CORESIZE, SLOW_POOL_MAXSIZE,
+			new LinkedBlockingQueue<Runnable>(SLOW_POOL_QUEUESIZE));
+
 	private ThreadPool requestProcessThreadPool = null;
 
 	private ConcurrentHashMap<String, ThreadPool> methodThreadPools = null;
@@ -69,6 +82,9 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 	public static String sharedPoolMaxSizeKey = null;
 
 	public static String sharedPoolQueueSizeKey = null;
+
+	private static boolean enableSlowPool = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.provider.pool.slow.enable", true);
 
 	public RequestThreadPoolProcessor(ServerConfig serverConfig) {
 		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
@@ -128,10 +144,14 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 			pool = serviceThreadPools.get(request.getServiceName());
 		}
 		if (pool == null) {
-			if ("server".equals(poolStrategy)) {
-				pool = requestProcessThreadPool;
+			if (enableSlowPool && requestTimeoutListener.isSlowRequest(request)) {
+				pool = slowRequestProcessThreadPool;
 			} else {
-				pool = sharedRequestProcessThreadPool;
+				if ("server".equals(poolStrategy)) {
+					pool = requestProcessThreadPool;
+				} else {
+					pool = sharedRequestProcessThreadPool;
+				}
 			}
 		}
 		return pool;
@@ -145,6 +165,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 		} else {
 			stats.append("[shared=").append(getThreadPoolStatistics(sharedRequestProcessThreadPool)).append("]");
 		}
+		stats.append("[slow=").append(getThreadPoolStatistics(slowRequestProcessThreadPool)).append("]");
 		if (!CollectionUtils.isEmpty(serviceThreadPools)) {
 			for (String key : serviceThreadPools.keySet()) {
 				stats.append(",[").append(key).append("=").append(getThreadPoolStatistics(serviceThreadPools.get(key)))
@@ -271,7 +292,9 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 		@Override
 		public void onKeyUpdated(String key, String value) {
-			if (key.endsWith("pigeon.timeout.cancelratio")) {
+			if (key.endsWith("pigeon.provider.pool.slow.enable")) {
+				enableSlowPool = Boolean.valueOf(value);
+			} else if (key.endsWith("pigeon.timeout.cancelratio")) {
 				cancelRatio = Float.valueOf(value);
 			} else if (key.endsWith("pigeon.provider.pool.ratio.core")) {
 				DEFAULT_POOL_RATIO_CORE = Integer.valueOf(value);
@@ -282,11 +305,11 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 						ThreadPool oldPool = sharedRequestProcessThreadPool;
 						int queueSize = oldPool.getExecutor().getQueue().remainingCapacity()
 								+ oldPool.getExecutor().getQueue().size();
-						ThreadPool newPool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method", size,
-								oldPool.getExecutor().getMaximumPoolSize(),
-								new LinkedBlockingQueue<Runnable>(queueSize));
-						sharedRequestProcessThreadPool = newPool;
 						try {
+							ThreadPool newPool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method", size,
+									oldPool.getExecutor().getMaximumPoolSize(), new LinkedBlockingQueue<Runnable>(
+											queueSize));
+							sharedRequestProcessThreadPool = newPool;
 							oldPool.getExecutor().shutdown();
 							oldPool.getExecutor().awaitTermination(5, TimeUnit.SECONDS);
 							oldPool = null;
@@ -307,10 +330,11 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 						ThreadPool oldPool = sharedRequestProcessThreadPool;
 						int queueSize = oldPool.getExecutor().getQueue().remainingCapacity()
 								+ oldPool.getExecutor().getQueue().size();
-						ThreadPool newPool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method", oldPool
-								.getExecutor().getCorePoolSize(), size, new LinkedBlockingQueue<Runnable>(queueSize));
-						sharedRequestProcessThreadPool = newPool;
 						try {
+							ThreadPool newPool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method",
+									oldPool.getExecutor().getCorePoolSize(), size, new LinkedBlockingQueue<Runnable>(
+											queueSize));
+							sharedRequestProcessThreadPool = newPool;
 							oldPool.getExecutor().shutdown();
 							oldPool.getExecutor().awaitTermination(5, TimeUnit.SECONDS);
 							oldPool = null;
@@ -331,11 +355,11 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 						+ oldPool.getExecutor().getQueue().size();
 				if (size != queueSize && size >= 0) {
 					try {
-						ThreadPool newPool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method", oldPool
-								.getExecutor().getCorePoolSize(), oldPool.getExecutor().getMaximumPoolSize(),
-								new LinkedBlockingQueue<Runnable>(size));
-						sharedRequestProcessThreadPool = newPool;
 						try {
+							ThreadPool newPool = new DefaultThreadPool("Pigeon-Server-Request-Processor-method",
+									oldPool.getExecutor().getCorePoolSize(),
+									oldPool.getExecutor().getMaximumPoolSize(), new LinkedBlockingQueue<Runnable>(size));
+							sharedRequestProcessThreadPool = newPool;
 							oldPool.getExecutor().shutdown();
 							oldPool.getExecutor().awaitTermination(5, TimeUnit.SECONDS);
 							oldPool = null;
@@ -366,11 +390,11 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 												: actives;
 										int queueSize = actives;
 										int maxSize = actives;
-										ThreadPool newPool = new DefaultThreadPool(
-												"Pigeon-Server-Request-Processor-method", coreSize, maxSize,
-												new LinkedBlockingQueue<Runnable>(queueSize));
-										methodThreadPools.put(serviceKey, newPool);
 										try {
+											ThreadPool newPool = new DefaultThreadPool(
+													"Pigeon-Server-Request-Processor-method", coreSize, maxSize,
+													new LinkedBlockingQueue<Runnable>(queueSize));
+											methodThreadPools.put(serviceKey, newPool);
 											pool.getExecutor().shutdown();
 											pool.getExecutor().awaitTermination(5, TimeUnit.SECONDS);
 											pool = null;

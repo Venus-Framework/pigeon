@@ -33,6 +33,8 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 	protected static final Logger logger = LoggerLoader.getLogger(RequestThreadPoolProcessor.class);
 
 	private static final Monitor monitor = MonitorLoader.getMonitor();
+	
+	protected RequestTimeoutListener requestTimeoutListener;
 
 	public AbstractRequestProcessor() {
 	}
@@ -43,7 +45,8 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 	public abstract void doStart();
 
 	public void start() {
-		timeCheckThreadPool.execute(new RequestTimeoutListener(this, requestContextMap));
+		requestTimeoutListener = new RequestTimeoutListener(this, requestContextMap);
+		timeCheckThreadPool.execute(requestTimeoutListener);
 		doStart();
 	}
 

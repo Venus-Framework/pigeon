@@ -43,4 +43,17 @@ public class SimpleMonitor implements Monitor {
 	public String toString() {
 		return "SimpleMonitor";
 	}
+
+	@Override
+	public MonitorTransaction copyTransaction(String name, String uri, Object invocationContext,
+			MonitorTransaction transaction) {
+		return transaction;
+	}
+
+	@Override
+	public void clearTransaction() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

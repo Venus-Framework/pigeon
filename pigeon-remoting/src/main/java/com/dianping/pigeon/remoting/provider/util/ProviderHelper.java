@@ -6,6 +6,9 @@ package com.dianping.pigeon.remoting.provider.util;
 
 import java.util.List;
 
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLoader;
+import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
@@ -18,6 +21,8 @@ import com.dianping.pigeon.remoting.provider.process.statistics.ProviderStatisti
 
 public final class ProviderHelper {
 
+	private static final Monitor monitor = MonitorLoader.getMonitor();
+
 	private static ThreadLocal<ProviderContext> tlContext = new ThreadLocal<ProviderContext>();
 
 	public static void setContext(ProviderContext context) {
@@ -26,6 +31,9 @@ public final class ProviderHelper {
 
 	public static ProviderContext getContext() {
 		ProviderContext context = tlContext.get();
+		if (context != null) {
+			context.setTransaction(monitor.getCurrentTransaction());
+		}
 		return context;
 	}
 
@@ -34,11 +42,23 @@ public final class ProviderHelper {
 			InvocationRequest request = context.getRequest();
 			InvocationResponse response = ProviderUtils.createSuccessResponse(request, returnObj);
 			ProviderChannel channel = context.getChannel();
-			channel.write(response);
-			if (response != null) {
-				SizeMonitor.getInstance().logSize(response.getSize(), "PigeonService.responseSize", null);
+			try {
+				channel.write(response);
+			} finally {
+				MonitorTransaction transaction = context.getTransaction();
+				if (transaction != null) {
+					transaction.complete();
+					MonitorTransaction newTransaction = monitor.copyTransaction("PigeonServiceCallback",
+							transaction.getUri(), context, transaction);
+					if (response != null) {
+						SizeMonitor.getInstance().logSize(response.getSize(), "PigeonService.responseSize", null);
+					}
+					newTransaction.setStatusOk();
+					newTransaction.complete();
+					newTransaction.setDuration(transaction.getDuration());
+				}
+				ProviderStatisticsHolder.flowOut(request);
 			}
-			ProviderStatisticsHolder.flowOut(request);
 			List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
 			for (ProviderProcessInterceptor interceptor : interceptors) {
 				interceptor.postInvoke(request, response);

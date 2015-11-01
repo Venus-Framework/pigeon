@@ -43,7 +43,7 @@ public class LoggerLoader {
 		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 		final Configuration config = ctx.getConfiguration();
 		Layout layout = PatternLayout.createLayout(
-				"%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %class{36} %L %M - %msg%xEx%n", config, null, null, true, false,
+				"%d [%t] %-5p [%c{2}] %m%n", config, null, null, true, false,
 				null, null);
 
 		// file info
@@ -62,13 +62,14 @@ public class LoggerLoader {
 				"false", "false");
 		config.addAppender(consoleErrorAppender);
 		consoleErrorAppender.start();
-		AppenderRef consoleErrorAppenderRef = AppenderRef.createAppenderRef("ConsoleError", Level.ERROR, null);
-		AsyncAppender asyncConsoleErrorAppender = AsyncAppender.createAppender(
-				new AppenderRef[] { consoleErrorAppenderRef }, null, true, 128, "AsyncConsoleError", false, null,
-				config, false);
-		asyncConsoleErrorAppender.start();
-		config.addAppender(asyncConsoleErrorAppender);
-		AppenderRef asyncConsoleErrorRef = AppenderRef.createAppenderRef("AsyncConsoleError", Level.ERROR, null);
+//		AppenderRef consoleErrorAppenderRef = AppenderRef.createAppenderRef("ConsoleError", Level.ERROR, null);
+//		AsyncAppender asyncConsoleErrorAppender = AsyncAppender.createAppender(
+//				new AppenderRef[] { consoleErrorAppenderRef }, null, true, 128, "AsyncConsoleError", false, null,
+//				config, false);
+//		consoleErrorAppenderRef.start();
+//		config.addAppender(consoleErrorAppenderRef);
+//		config.addAppender(consoleErrorAppender);
+//		AppenderRef asyncConsoleErrorRef = AppenderRef.createAppenderRef("AsyncConsoleError", Level.ERROR, null);
 
 		// console warn
 		Filter consoleWarnFilter = ThresholdFilter.createFilter(Level.ERROR, Result.DENY, Result.NEUTRAL);
@@ -78,11 +79,13 @@ public class LoggerLoader {
 		consoleWarnAppender.start();
 		AppenderRef consoleWarnAppenderRef = AppenderRef
 				.createAppenderRef("ConsoleWarn", Level.WARN, consoleWarnFilter);
+		AppenderRef consoleErrorAppenderRef = AppenderRef
+				.createAppenderRef("ConsoleError", Level.WARN, null);
 
-		AppenderRef[] refs = new AppenderRef[] { asyncConsoleErrorRef, consoleWarnAppenderRef, fileInfoRef };
+		AppenderRef[] refs = new AppenderRef[] { consoleErrorAppenderRef, consoleWarnAppenderRef, fileInfoRef };
 		LoggerConfig loggerConfig = LoggerConfig.createLogger("false", Level.INFO, "com.dianping.pigeon", "true", refs,
 				null, config, null);
-		loggerConfig.addAppender(asyncConsoleErrorAppender, Level.ERROR, null);
+		loggerConfig.addAppender(consoleErrorAppender, Level.ERROR, null);
 		loggerConfig.addAppender(consoleWarnAppender, Level.WARN, null);
 		loggerConfig.addAppender(fileInfoAppender, Level.INFO, null);
 
