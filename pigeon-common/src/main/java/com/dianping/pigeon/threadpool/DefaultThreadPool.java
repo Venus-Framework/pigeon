@@ -14,7 +14,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.Logger;
+
+import com.dianping.pigeon.log.LoggerLoader;
+
 public class DefaultThreadPool implements ThreadPool {
+
+	private static final Logger logger = LoggerLoader.getLogger(DefaultThreadPool.class);
 
 	private String name;
 
@@ -37,6 +43,14 @@ public class DefaultThreadPool implements ThreadPool {
 
 	public DefaultThreadPool(String poolName, int corePoolSize, int maximumPoolSize, BlockingQueue<Runnable> workQueue,
 			RejectedExecutionHandler handler) {
+		if (maximumPoolSize > 1000) {
+			logger.warn("the 'maximumPoolSize' property is too big");
+			maximumPoolSize = 1000;
+		}
+		if (corePoolSize > 300) {
+			logger.warn("the 'corePoolSize' property is too big");
+			corePoolSize = 300;
+		}
 		this.name = poolName;
 		this.factory = new DefaultThreadFactory(this.name);
 		this.executor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, 30, TimeUnit.SECONDS, workQueue,

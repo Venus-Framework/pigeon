@@ -127,6 +127,8 @@ public class ServerConfig {
 	public int getCorePoolSize() {
 		if (corePoolSize <= 0) {
 			corePoolSize = 1;
+		} else if (corePoolSize > 300) {
+			corePoolSize = 300;
 		}
 		return corePoolSize;
 	}
@@ -138,6 +140,8 @@ public class ServerConfig {
 	public int getMaxPoolSize() {
 		if (maxPoolSize <= 0) {
 			maxPoolSize = 5;
+		} else if (maxPoolSize > 1000) {
+			maxPoolSize = 1000;
 		}
 		return maxPoolSize;
 	}
@@ -147,6 +151,11 @@ public class ServerConfig {
 	}
 
 	public int getWorkQueueSize() {
+		if (workQueueSize < 1) {
+			workQueueSize = 1;
+		} else if (workQueueSize > 50000) {
+			workQueueSize = 50000;
+		}
 		return workQueueSize;
 	}
 

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
+import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.util.ProviderHelper;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class EchoServiceDefaultImpl implements EchoService {
@@ -35,7 +37,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 		// System.out.println("SOURCE_IP:" +
 		// ContextUtils.getGlobalContext("SOURCE_IP"));
 		try {
-			Thread.sleep(20);
+			Thread.sleep(Integer.valueOf(msg));
 		} catch (InterruptedException e) {
 		}
 		System.out.println(msg);
@@ -71,4 +73,26 @@ public class EchoServiceDefaultImpl implements EchoService {
 		values.put(new User(1, "wuxiang", "wuxiang@dianping.com", "", 35), "hello, wuxiang");
 		System.out.println(new JacksonSerializer().serializeObject(values));
 	}
+
+	@Override
+	public String asyncEcho(String msg) {
+		final String innerMsg = msg;
+		Runnable r = new Runnable() {
+			private ProviderContext context = ProviderHelper.getContext();
+
+			@Override
+			public void run() {
+				System.out.println(innerMsg);
+				try {
+					Thread.sleep(30);
+				} catch (InterruptedException e) {
+				}
+				ProviderHelper.writeSuccessResponse(context, "async echo:" + innerMsg);
+			}
+
+		};
+		new Thread(r).start();
+		return null;
+	}
+
 }

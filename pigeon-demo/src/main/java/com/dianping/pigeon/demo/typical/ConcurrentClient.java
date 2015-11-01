@@ -27,7 +27,7 @@ public class ConcurrentClient {
 
 		final EchoService echoService = (EchoService) CLIENT_CONTAINER.getBean("echoService");
 
-		int threads = 20;
+		int threads = 70;
 
 		ExecutorService executor = Executors.newFixedThreadPool(threads);
 		for (int i = 0; i < threads; i++) {
@@ -37,7 +37,7 @@ public class ConcurrentClient {
 				public void run() {
 					while (true) {
 						try {
-							System.out.println(echoService.echo("" + counter.getAndIncrement()));
+							System.out.println(echoService.echo("500"));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}

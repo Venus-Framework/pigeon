@@ -10,8 +10,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -39,6 +42,8 @@ import com.dianping.pigeon.remoting.invoker.listener.ReconnectListener;
 import com.dianping.pigeon.remoting.invoker.route.DefaultRouteManager;
 import com.dianping.pigeon.remoting.invoker.route.RouteManager;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
+import com.dianping.pigeon.threadpool.DefaultThreadPool;
+import com.dianping.pigeon.threadpool.ThreadPool;
 import com.dianping.pigeon.util.ThreadPoolUtils;
 
 public class ClientManager {
@@ -70,15 +75,31 @@ public class ClientManager {
 	private static ExecutorService providerAvailableThreadPool = Executors.newFixedThreadPool(1,
 			new DefaultThreadFactory("Pigeon-Client-ProviderAvailable-ThreadPool"));
 
+	private static int registerPoolCoreSize = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.invoker.registerpool.coresize", 10);
+
+	private static int registerPoolMaxSize = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.invoker.registerpool.maxsize", 30);
+
+	private static int registerPoolQueueSize = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.invoker.registerpool.queuesize", 50);
+
+	private static ThreadPool registerThreadPool = new DefaultThreadPool("Pigeon-Client-Register-Pool",
+			registerPoolCoreSize, registerPoolMaxSize, new LinkedBlockingQueue<Runnable>(registerPoolQueueSize),
+			new CallerRunsPolicy());
+
 	private static ClientManager instance = new ClientManager();
 
 	private RegistryConnectionListener registryConnectionListener = new InnerRegistryConnectionListener();
 
 	private static boolean reloadWeight = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.register.weight.reload", true);
-	
+
 	private static boolean enableVip = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.invoker.vip.enable", false);
+
+	private static boolean enableRegisterConcurrently = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.invoker.registerconcurrently.enable", true);
 
 	public static ClientManager getInstance() {
 		return instance;
@@ -103,7 +124,7 @@ public class ClientManager {
 		RegistryEventListener.addListener(registryConnectionListener);
 	}
 
-	public synchronized void registerClient(String serviceName, String host, int port, int weight) {
+	public void registerClient(String serviceName, String host, int port, int weight) {
 		ConnectInfo connectInfo = new ConnectInfo(serviceName, host, port, weight);
 		this.clusterListenerManager.addConnect(connectInfo);
 		RegistryManager.getInstance().addServiceAddress(serviceName, host, port, weight);
@@ -175,6 +196,7 @@ public class ClientManager {
 	}
 
 	public Set<HostInfo> registerClients(String serviceName, String group, String vip) {
+		logger.info("start to register clients for service '" + serviceName + "#" + group + "'");
 		String localHost = null;
 		if (vip != null && vip.startsWith("console:")) {
 			localHost = configManager.getLocalIp() + vip.substring(vip.indexOf(":"));
@@ -203,7 +225,6 @@ public class ClientManager {
 						try {
 							int weight = RegistryManager.getInstance().getServiceWeight(address, !reloadWeight);
 							addresses.add(new HostInfo(host, port, weight));
-							RegistryEventListener.providerAdded(serviceName, host, port, weight);
 						} catch (Throwable e) {
 							logger.error("error while registering service invoker:" + serviceName + ", address:"
 									+ address + ", env:" + configManager.getEnv(), e);
@@ -216,6 +237,39 @@ public class ClientManager {
 				}
 			}
 		}
+		final String url = serviceName;
+		long start = System.currentTimeMillis();
+		if (enableRegisterConcurrently) {
+			final CountDownLatch latch = new CountDownLatch(addresses.size());
+			for (final HostInfo hostInfo : addresses) {
+				Runnable r = new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							RegistryEventListener.providerAdded(url, hostInfo.getHost(), hostInfo.getPort(),
+									hostInfo.getWeight());
+						} finally {
+							latch.countDown();
+						}
+					}
+
+				};
+				registerThreadPool.submit(r);
+			}
+			try {
+				latch.await();
+			} catch (InterruptedException e) {
+				logger.info("", e);
+			}
+		} else {
+			for (final HostInfo hostInfo : addresses) {
+				RegistryEventListener.providerAdded(url, hostInfo.getHost(), hostInfo.getPort(), hostInfo.getWeight());
+			}
+		}
+		long end = System.currentTimeMillis();
+		logger.info("end to register clients for service '" + serviceName + "#" + group + "', cost:" + (end - start));
+
 		return addresses;
 	}
 

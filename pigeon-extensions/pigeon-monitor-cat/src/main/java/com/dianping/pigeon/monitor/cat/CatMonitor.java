@@ -4,12 +4,18 @@
  */
 package com.dianping.pigeon.monitor.cat;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Event;
+import com.dianping.cat.message.Message;
 import com.dianping.cat.message.MessageProducer;
 import com.dianping.cat.message.Transaction;
+import com.dianping.cat.message.spi.MessageManager;
+import com.dianping.cat.message.spi.MessageTree;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorTransaction;
@@ -25,6 +31,7 @@ public class CatMonitor implements Monitor {
 	private static final Logger logger = LoggerLoader.getLogger(CatMonitor.class);
 	private volatile long errorCounter = 0L;
 	private MessageProducer producer = null;
+	private ThreadLocal<MonitorTransaction> tlTransaction = new ThreadLocal<MonitorTransaction>();
 
 	volatile boolean isInitialized = false;
 
@@ -49,9 +56,20 @@ public class CatMonitor implements Monitor {
 
 	@Override
 	public MonitorTransaction createTransaction(String name, String uri, Object invocationContext) {
+		MonitorTransaction transaction = doCreateTransaction(name, uri, invocationContext);
+		tlTransaction.set(transaction);
+		return transaction;
+	}
+
+	private MonitorTransaction doCreateTransaction(String name, String uri, Object invocationContext) {
 		if (producer != null) {
 			Transaction transaction = producer.newTransaction(name, uri);
-			return new CatMonitorTransaction(this, transaction, (InvocationContext) invocationContext);
+			CatMonitorTransaction catTransaction = new CatMonitorTransaction(this, transaction,
+					(InvocationContext) invocationContext);
+			catTransaction.setName(name);
+			catTransaction.setUri(uri);
+			tlTransaction.set(catTransaction);
+			return catTransaction;
 		}
 		return null;
 	}
@@ -131,16 +149,44 @@ public class CatMonitor implements Monitor {
 
 	@Override
 	public MonitorTransaction getCurrentTransaction() {
-		if (Cat.getManager() != null) {
-			Transaction transaction = Cat.getManager().getPeekTransaction();
-			if (transaction != null) {
-				return new CatMonitorTransaction(this, transaction, null);
-			}
-		}
-		return null;
+		return tlTransaction.get();
 	}
-	
+
 	public String toString() {
 		return "CatMonitor";
+	}
+
+	@Override
+	public MonitorTransaction copyTransaction(String name, String uri, Object invocationContext,
+			MonitorTransaction transaction) {
+		CatMonitorTransaction newTransaction = (CatMonitorTransaction) doCreateTransaction(name, uri, invocationContext);
+		newTransaction.setDurationStart(((CatMonitorTransaction) transaction).getDurationStart());
+		Map<String, Object> dataMap = transaction.getDataMap();
+		for (String key : dataMap.keySet()) {
+			newTransaction.addData(key, dataMap.get(key));
+		}
+		Transaction catTransaction = ((CatMonitorTransaction) transaction).getTransaction();
+		List<Message> children = catTransaction.getChildren();
+		for (Message child : children) {
+			newTransaction.getTransaction().addChild(child);
+		}
+		MessageManager messageManager = Cat.getManager();
+		MessageTree tree = messageManager.getThreadLocalMessageTree();
+		if (tree == null) {
+			Cat.setup(null);
+			tree = Cat.getManager().getThreadLocalMessageTree();
+		}
+		if (tree != null) {
+			tree.setRootMessageId(((CatMonitorTransaction) transaction).getRootMessageId());
+			tree.setParentMessageId(((CatMonitorTransaction) transaction).getParentMessageId());
+			tree.setMessageId(((CatMonitorTransaction) transaction).getCurrentMessageId());
+		}
+
+		return newTransaction;
+	}
+
+	@Override
+	public void clearTransaction() {
+		tlTransaction.remove();
 	}
 }

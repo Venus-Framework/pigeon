@@ -110,9 +110,9 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		if (monitor != null) {
 			try {
-				transaction = monitor.createTransaction("PigeonCall", InvocationUtils.getRemoteCallFullName(
-						invokerConfig.getUrl(), invocationContext.getMethodName(),
-						invocationContext.getParameterTypes()), invocationContext);
+				String callInterface = InvocationUtils.getRemoteCallFullName(invokerConfig.getUrl(),
+						invocationContext.getMethodName(), invocationContext.getParameterTypes());
+				transaction = monitor.createTransaction("PigeonCall", callInterface, invocationContext);
 				if (transaction != null) {
 					transaction.setStatusOk();
 					transaction.addData("CallType", invokerConfig.getCallType());
@@ -124,7 +124,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 					monitor.logEvent("PigeonCall.app", targetApp, "");
 					monitor.logEvent("PigeonCall.QPS", "S" + Calendar.getInstance().get(Calendar.SECOND), "");
 					if (Constants.LOG_INVOKER_TIMEOUT) {
-						monitor.logEvent("PigeonCall.timeout", invokerConfig.getTimeout() + "", "");
+						monitor.logEvent("PigeonCall.timeout." + callInterface, invokerConfig.getTimeout() + "", "");
 					}
 					String parameters = "";
 					if (Constants.LOG_PARAMETERS) {
@@ -202,6 +202,9 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 					}
 				} catch (Throwable e) {
 					monitor.logMonitorError(e);
+				}
+				if (monitor != null) {
+					monitor.clearTransaction();
 				}
 			}
 		}

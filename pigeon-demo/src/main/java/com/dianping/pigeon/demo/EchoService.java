@@ -14,6 +14,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public interface EchoService {
 
 	String echo(String msg);
+	
+	String asyncEcho(String msg);
 
 	long now();
 
