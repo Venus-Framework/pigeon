@@ -3,6 +3,9 @@ package com.dianping.piegon.governor.test;
 import java.io.IOException;
 import java.util.LinkedList;
 
+import com.dianping.pigeon.governor.bean.ServiceBean;
+import com.dianping.pigeon.governor.util.IPUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
 import com.dianping.pigeon.extension.ExtensionLoader;
@@ -14,6 +17,19 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class NormalTest {
+
+	@Test
+	public void testObjNullAttr(){
+		ServiceBean serviceBean = new ServiceBean();
+		serviceBean.setId("1,2,3");
+		System.out.println(serviceBean.getHosts());
+	}
+
+	@Test
+	public void testValidHosts(){
+		String test = "1.1.1.1:4040,2.2.2.2:4040,fjdslfjsk,:1:4080,";
+		System.out.println(IPUtils.getValidHosts(test));
+	}
 
 	@Test
 	public void testFormat(){

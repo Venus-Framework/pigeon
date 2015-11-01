@@ -9,6 +9,7 @@ import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.util.Constants;
+import com.dianping.pigeon.governor.util.IPUtils;
 import com.dianping.pigeon.governor.util.ThreadPoolFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -119,10 +120,14 @@ public class ServiceController extends BaseController {
 									@PathVariable Integer projectId,
 									HttpServletRequest request,
 									HttpServletResponse response) {//设置为void的时候要设置response参数
-		
 		String oper = serviceBean.getOper();
-		
 		serviceBean.setProjectid(projectId);
+		String ipPorts = serviceBean.getHosts();
+
+		if(StringUtils.isNotBlank(ipPorts)) {
+			serviceBean.setHosts(IPUtils.getValidHosts(ipPorts));
+		}
+
 		try {
 			if("edit".equals(oper)){
 				serviceService.updateById(serviceBean, "true");

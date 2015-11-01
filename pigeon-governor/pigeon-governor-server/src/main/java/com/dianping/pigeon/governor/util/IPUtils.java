@@ -1,9 +1,10 @@
 package com.dianping.pigeon.governor.util;
 
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -11,6 +12,8 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 
 public class IPUtils {
+
+    private static Logger logger = LogManager.getLogger();
 
 	public static String getFirstNoLoopbackIP4Address() {
         Collection<String> allNoLoopbackIP4Addresses = getNoLoopbackIP4Addresses();
@@ -135,5 +138,49 @@ public class IPUtils {
 	            ((idx2==-1 || idx2==hosts.length()-1) ? "" : hosts.substring(idx2 + 1));
 	    return newHosts;
 	}
+
+    /**
+     * @author chenchongze
+     * @param ipAddr
+     * @return
+     */
+    public static InetAddress validateIpAddr(String ipAddr) {
+        InetAddress realip = null;
+
+        try {
+            realip = InetAddress.getByName(ipAddr);
+        } catch (UnknownHostException e) {
+            logger.error("error address [" + ipAddr + "]");
+        }
+
+        return realip;
+    }
+
+    /**
+     * @author chenchongze
+     * @param hosts
+     * @return
+     */
+    public static String getValidHosts(String hosts) {
+        String result = "";
+        String[] ipPorts = hosts.split(",");
+
+        for(String ipPort : ipPorts) {
+
+            if(StringUtils.isNotBlank(ipPort)) {
+                int length = ipPort.split(":").length;
+
+                if(length > 1 && length < 10) {
+                    String ip = ipPort.substring(0, ipPort.lastIndexOf(":"));
+
+                    if(validateIpAddr(ip) != null) {
+                        result += ipPort + ",";
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
 
 }
