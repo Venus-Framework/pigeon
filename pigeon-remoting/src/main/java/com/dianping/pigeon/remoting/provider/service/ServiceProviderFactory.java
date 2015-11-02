@@ -370,5 +370,29 @@ public final class ServiceProviderFactory {
 	public static Map<String, ProviderConfig<?>> getAllServiceProviders() {
 		return serviceCache;
 	}
+	
+	public static void notifyServicePublished() {
+		for (String url : serviceCache.keySet()) {
+			ProviderConfig<?> providerConfig = serviceCache.get(url);
+			if (providerConfig != null) {
+				//do notify
+				if (serviceChangeListener != null) {
+					serviceChangeListener.notifyServicePublished(providerConfig);
+				}
+			}
+		}
+	}
+	
+	public static void notifyServiceUnpublished() {
+		for (String url : serviceCache.keySet()) {
+			ProviderConfig<?> providerConfig = serviceCache.get(url);
+			if (providerConfig != null) {
+				//do notify
+				if (serviceChangeListener != null) {
+					serviceChangeListener.notifyServiceUnpublished(providerConfig);
+				}
+			}
+		}
+	}
 
 }
