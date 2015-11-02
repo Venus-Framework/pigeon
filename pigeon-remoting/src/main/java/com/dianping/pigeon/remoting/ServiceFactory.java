@@ -398,10 +398,12 @@ public class ServiceFactory {
 		
 		if(weight == 0) {
 			ServiceProviderFactory.notifyServiceUnpublished();
+			return ;
 		}
 		
 		if(weight > 0 && weight <= 100) {
 			ServiceProviderFactory.notifyServicePublished();
+			return ;
 		}
 	}
 
