@@ -999,10 +999,13 @@ xxx.pigeon.invoker.log.timeout.period.apps配置为shop-server:0,data-server:100
 
 pigeon可以设在服务端记录客户端发过来的每个请求的详细信息，需要在lion相应项目里配置：
 xxx.pigeon.provider.accesslog.enable为true，配置好了之后pigeon会将日志记录在本地以下位置：
-/data/applogs/dpsflog/pigeon-access.log
+/data/applogs/pigeon/pigeon-access.log
 每个请求记录的日志内容为：
  应用名称+ "@" + 来源ip+ "@" + 请求对象内容（包含请求参数值等）+ "@" + 时间区间消耗
  
+如果要记录每个参数值的内容，必须在lion添加配置：
+xxx.pigeon.log.parameters设置为true
+
 ### 记录服务端业务异常详细日志
 
 pigeon在服务端默认不会记录业务方法抛出的异常详细信息，如果需要记录这类业务异常，需要在lion相应项目里配置：
