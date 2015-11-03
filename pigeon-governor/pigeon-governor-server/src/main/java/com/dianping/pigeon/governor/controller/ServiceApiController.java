@@ -11,7 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 import com.dianping.pigeon.governor.model.Host;
 import com.dianping.pigeon.governor.service.HostService;
 import com.dianping.pigeon.governor.util.Constants;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -29,6 +32,7 @@ import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.RegistryService;
 import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.mysql.jdbc.log.Log;
 
 /**
  * 
@@ -38,6 +42,8 @@ import com.dianping.pigeon.registry.exception.RegistryException;
 @Controller
 @RequestMapping("/api")
 public class ServiceApiController extends BaseController {
+	
+	private Logger logger = LogManager.getLogger();
 
 	@Autowired
 	private ServiceService serviceService;
@@ -154,7 +160,8 @@ public class ServiceApiController extends BaseController {
     						@RequestParam(value="group", required=false, defaultValue="") String group,
     						@RequestParam(value="ip") String ip,
     						@RequestParam(value="port") String port,
-    						@RequestParam(value="updatezk", required=false, defaultValue="") String updatezk) throws IOException {
+    						@RequestParam(value="updatezk", required=false, defaultValue="") String updatezk,
+    						@RequestParam(value="op", required=false, defaultValue="") String op) throws IOException {
         
     	response.setContentType("text/plain;charset=utf-8");
         PrintWriter writer = response.getWriter();
@@ -187,6 +194,8 @@ public class ServiceApiController extends BaseController {
                 hostService.create(host);
             }
 
+            if(StringUtils.isNotBlank(op))
+				logger.info("publish op is: " + op);
 		} catch (Exception e) {
 			writer.write(ERROR_CODE + String.format("Service %s for group [%s] update to ZK failed", service, group));
 			return;
@@ -206,7 +215,8 @@ public class ServiceApiController extends BaseController {
     						@RequestParam(value="group", required=false, defaultValue="") String group,
     						@RequestParam(value="ip") String ip,
     						@RequestParam(value="port") String port,
-    						@RequestParam(value="updatezk", required=false, defaultValue="") String updatezk) throws IOException {
+    						@RequestParam(value="updatezk", required=false, defaultValue="") String updatezk,
+    						@RequestParam(value="op", required=false, defaultValue="") String op) throws IOException {
     	
     	response.setContentType("text/plain;charset=utf-8");
     	PrintWriter writer = response.getWriter();
@@ -222,6 +232,9 @@ public class ServiceApiController extends BaseController {
 		try {
 			hosts = serviceService.unpublishService(service, group, ip, port, 
 									ConfigHolder.get(LionKeys.IS_ZK_DOUBLE_WRITE, "false"));
+			
+			if(StringUtils.isNotBlank(op))
+				logger.info("unpublish op is: " + op);
 		} catch (Exception e) {
 			writer.write(ERROR_CODE + String.format("Service %s for group [%s] update to ZK failed", service, group));
 		}

@@ -58,11 +58,11 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 	@Override
 	public synchronized void notifyServicePublished(ProviderConfig<?> providerConfig) {
 		logger.info("start to notify service published:" + providerConfig);
-		notifyServiceChange("publish", providerConfig);
+		notifyServiceChange("publish", null, providerConfig);
 		logger.info("succeed to notify service published:" + providerConfig);
 	}
 
-	public synchronized void notifyServiceChange(String action, ProviderConfig<?> providerConfig) {
+	public synchronized void notifyServiceChange(String action, String op, ProviderConfig<?> providerConfig) {
 		String managerAddress = configManager.getStringValue("pigeon.governor.notify.address",
 				"http://lionapi.dp:8080/service/");
 		String env = providerConfig.getServerConfig().getEnv();
@@ -86,6 +86,9 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		url.append("&port=").append(providerConfig.getServerConfig().getActualPort());
 		if (StringUtils.isNotBlank(configManager.getAppName())) {
 			url.append("&app=").append(configManager.getAppName());
+		}
+		if (StringUtils.isNotBlank(op)) {
+			url.append("&op=").append(op);
 		}
 
 		try {
@@ -141,8 +144,30 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 	public synchronized void notifyServiceUnpublished(ProviderConfig<?> providerConfig) {
 		logger.info("start to notify service unpublished:" + providerConfig);
 		try {
-			notifyServiceChange("unpublish", providerConfig);
+			notifyServiceChange("unpublish", null, providerConfig);
 			logger.info("succeed to notify service unpublished:" + providerConfig);
+		} catch (Throwable t) {
+			logger.warn(t.getMessage());
+		}
+	}
+
+	@Override
+	public synchronized void notifyServiceOnline(ProviderConfig<?> providerConfig) {
+		logger.info("start to notify service online:" + providerConfig);
+		try {
+			notifyServiceChange("publish", "online", providerConfig);
+			logger.info("succeed to notify service online:" + providerConfig);
+		} catch (Throwable t) {
+			logger.warn(t.getMessage());
+		}
+	}
+
+	@Override
+	public synchronized void notifyServiceOffline(ProviderConfig<?> providerConfig) {
+		logger.info("start to notify service offline:" + providerConfig);
+		try {
+			notifyServiceChange("unpublish", "offline", providerConfig);
+			logger.info("succeed to notify service offline:" + providerConfig);
 		} catch (Throwable t) {
 			logger.warn(t.getMessage());
 		}

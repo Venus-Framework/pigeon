@@ -371,25 +371,25 @@ public final class ServiceProviderFactory {
 		return serviceCache;
 	}
 	
-	public static void notifyServicePublished() {
+	public static void notifyServiceOnline() {
 		for (String url : serviceCache.keySet()) {
 			ProviderConfig<?> providerConfig = serviceCache.get(url);
 			if (providerConfig != null) {
 				//do notify
 				if (serviceChangeListener != null) {
-					serviceChangeListener.notifyServicePublished(providerConfig);
+					serviceChangeListener.notifyServiceOnline(providerConfig);
 				}
 			}
 		}
 	}
 	
-	public static void notifyServiceUnpublished() {
+	public static void notifyServiceOffline() {
 		for (String url : serviceCache.keySet()) {
 			ProviderConfig<?> providerConfig = serviceCache.get(url);
 			if (providerConfig != null) {
 				//do notify
 				if (serviceChangeListener != null) {
-					serviceChangeListener.notifyServiceUnpublished(providerConfig);
+					serviceChangeListener.notifyServiceOffline(providerConfig);
 				}
 			}
 		}
