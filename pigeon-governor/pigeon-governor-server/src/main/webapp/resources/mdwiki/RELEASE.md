@@ -1,6 +1,9 @@
 ## pigeon版本发布说明
 ------
 
+### 2.6.5
+修复netty连接过长的问题
+
 ### 2.6.4
 修复关闭自动注册后，客户端调用ServiceFactory中online()、offline()和
 setServerWeight()方法时，客户端不会调用governor-server的api问题
