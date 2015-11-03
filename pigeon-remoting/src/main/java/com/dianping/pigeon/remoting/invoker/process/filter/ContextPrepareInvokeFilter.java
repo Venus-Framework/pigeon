@@ -87,7 +87,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 		if (request.getSerialize() == SerializerFactory.SERIALIZE_PROTO
 				|| request.getSerialize() == SerializerFactory.SERIALIZE_FST) {
 			Client client = invokerContext.getClient();
-			String version = RegistryManager.getInstance().getServerVersion(client.getAddress());
+			String version = RegistryManager.getInstance().getReferencedVersion(client.getAddress());
 			boolean supported = true;
 			if (StringUtils.isBlank(version)) {
 				supported = false;

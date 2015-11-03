@@ -311,7 +311,7 @@ public class RegistryManager {
 		return referencedServiceAddresses;
 	}
 
-	public String getServerApp(String serverAddress) {
+	public String getReferencedApp(String serverAddress) {
 		HostInfo hostInfo = referencedAddresses.get(serverAddress);
 		String app = null;
 		if (hostInfo != null) {
@@ -323,6 +323,13 @@ public class RegistryManager {
 			return app;
 		}
 		return "";
+	}
+
+	public void setReferencedApp(String serverAddress, String app) {
+		HostInfo hostInfo = referencedAddresses.get(serverAddress);
+		if (hostInfo != null) {
+			hostInfo.setApp(app);
+		}
 	}
 
 	public void setServerApp(String serverAddress, String app) {
@@ -337,13 +344,20 @@ public class RegistryManager {
 		}
 	}
 
+	public void setReferencedVersion(String serverAddress, String version) {
+		HostInfo hostInfo = referencedAddresses.get(serverAddress);
+		if (hostInfo != null) {
+			hostInfo.setVersion(version);
+		}
+	}
+
 	public void setServerVersion(String serverAddress, String version) {
 		if (registry != null) {
 			registry.setServerVersion(serverAddress, version);
 		}
 	}
 
-	public String getServerVersion(String serverAddress) {
+	public String getReferencedVersion(String serverAddress) {
 		HostInfo hostInfo = referencedAddresses.get(serverAddress);
 		String version = null;
 		if (hostInfo != null) {

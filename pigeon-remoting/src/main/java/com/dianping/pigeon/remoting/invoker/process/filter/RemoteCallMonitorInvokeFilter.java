@@ -120,7 +120,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 					transaction.addData("Serialize", invokerConfig.getSerialize());
 
 					Client client = invocationContext.getClient();
-					targetApp = RegistryManager.getInstance().getServerApp(client.getAddress());
+					targetApp = RegistryManager.getInstance().getReferencedApp(client.getAddress());
 					monitor.logEvent("PigeonCall.app", targetApp, "");
 					monitor.logEvent("PigeonCall.QPS", "S" + Calendar.getInstance().get(Calendar.SECOND), "");
 					if (Constants.LOG_INVOKER_TIMEOUT) {

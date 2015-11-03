@@ -20,7 +20,6 @@ import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
-import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
@@ -123,17 +122,20 @@ public class ProviderAvailableListener implements Runnable {
 						} catch (Throwable e) {
 							error = e.getMessage();
 						}
-//						if (StringUtils.isNotBlank(group)) {
-//							available = getAvailableClients(this.getWorkingClients().get(url));
-//							if (available < providerAvailableLeast) {
-//								logger.info("check provider available with default group for service:" + url);
-//								try {
-//									ClientManager.getInstance().registerClients(url, Constants.DEFAULT_GROUP, vip);
-//								} catch (Throwable e) {
-//									error = e.getMessage();
-//								}
-//							}
-//						}
+						// if (StringUtils.isNotBlank(group)) {
+						// available =
+						// getAvailableClients(this.getWorkingClients().get(url));
+						// if (available < providerAvailableLeast) {
+						// logger.info("check provider available with default group for service:"
+						// + url);
+						// try {
+						// ClientManager.getInstance().registerClients(url,
+						// Constants.DEFAULT_GROUP, vip);
+						// } catch (Throwable e) {
+						// error = e.getMessage();
+						// }
+						// }
+						// }
 						if (error != null) {
 							logger.warn("[provider-available] failed to get providers, caused by:" + error);
 						}
@@ -161,11 +163,13 @@ public class ProviderAvailableListener implements Runnable {
 						String app = registry.getServerApp(host.getConnect());
 						logger.info("set " + host.getConnect() + "'s app to " + app);
 						host.setApp(app);
+						RegistryManager.getInstance().setReferencedApp(host.getConnect(), app);
 					}
 					if (host.getVersion() == null) {
 						String version = registry.getServerVersion(host.getConnect());
 						logger.info("set " + host.getConnect() + "'s version to " + version);
 						host.setVersion(version);
+						RegistryManager.getInstance().setReferencedVersion(host.getConnect(), version);
 					}
 				}
 			}

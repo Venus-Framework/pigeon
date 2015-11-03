@@ -44,7 +44,7 @@ public class GatewayInvokeFilter extends InvocationInvokeFilter {
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		InvocationRequest request = invocationContext.getRequest();
 		Client client = invocationContext.getClient();
-		String targetApp = RegistryManager.getInstance().getServerApp(client.getAddress());
+		String targetApp = RegistryManager.getInstance().getReferencedApp(client.getAddress());
 		try {
 			InvokerStatisticsHolder.flowIn(request, targetApp);
 			try {
