@@ -60,7 +60,7 @@ public class ProjectController extends BaseController {
 		List<Project> projects = projectService.retrieveAllByCache();
 
 		//modelMap.addAttribute("projectNames",new Gson().toJson(projectNames));
-		modelMap.addAttribute("projects",projects);
+		modelMap.addAttribute("projects",new Gson().toJson(projects));
 
 		return "/index";
 	}
