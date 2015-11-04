@@ -29,7 +29,7 @@ public class ServiceRegitrationInfoQueryController extends BaseController {
 	@Autowired
 	RegistrationInfoService registrationInfoService;
 
-	@RequestMapping(value = { "/","/service" })
+	@RequestMapping(value = { "/service" })
 	public ModelAndView viewSerivice(HttpServletRequest request, HttpServletResponse response) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		commonnav(map, request);
@@ -78,15 +78,17 @@ public class ServiceRegitrationInfoQueryController extends BaseController {
 	}
 
 	@RequestMapping(value = { "/service/query" }, method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-	public ModelAndView queryServiceInfoByPost(String url, String group) {
+	public ModelAndView queryServiceInfoByPost(String url, String group, HttpServletRequest request) {
 		Map<String, Object> map = queryServiceInfoByUrlAndGroup(url, group);
+		commonnav(map, request);
 
 		return new ModelAndView("common/main-container", map);
 	}
 
 	@RequestMapping(value = { "/address/query" }, method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-	public ModelAndView queryAddressInfoByPost(String address) {
+	public ModelAndView queryAddressInfoByPost(String address, HttpServletRequest request) {
 		Map<String, Object> map = queryAddressInfo(address);
+		commonnav(map, request);
 
 		return new ModelAndView("common/main-container", map);
 	}

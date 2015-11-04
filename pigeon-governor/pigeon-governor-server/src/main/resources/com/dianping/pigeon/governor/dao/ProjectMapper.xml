@@ -352,4 +352,8 @@
     (select b.projectId from `project_owner` b where b.userId=#{ownerId}) c 
     ON a.id = c.projectId 
   </select>
+
+  <select id="selectAllProjectNames" resultType="java.lang.String">
+    select name from project a
+  </select>
 </mapper>
