@@ -42,6 +42,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ProjectController extends BaseController {
 
 	private Logger logger = LogManager.getLogger();
+
+	private Gson gson = new Gson();
 	
 	@Autowired
 	private ProjectService projectService;
@@ -57,10 +59,10 @@ public class ProjectController extends BaseController {
 		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
 		modelMap.addAttribute("currentUser", currentUser);
 		//List<String> projectNames = projectService.retrieveAllNameByCache();
-		List<Project> projects = projectService.retrieveAllByCache();
+		List<Project> projects = projectService.retrieveAllIdNamesByCache();
 
-		//modelMap.addAttribute("projectNames",new Gson().toJson(projectNames));
-		modelMap.addAttribute("projects",new Gson().toJson(projects));
+		//modelMap.addAttribute("projectNames",gson.toJson(projectNames));
+		modelMap.addAttribute("projects",gson.toJson(projects));
 
 		return "/index";
 	}

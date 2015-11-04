@@ -238,11 +238,11 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public List<Project> retrieveAllByCache() {
+	public List<Project> retrieveAllIdNamesByCache() {
 		long currentTime = System.currentTimeMillis();
 
 		if(currentTime - projectsCacheLastUpdateTime > checkCacheInternal){
-			projectsCache = retrieveAll();
+			projectsCache = retrieveAllIdNames();
 			projectsCacheLastUpdateTime = currentTime;
 		}
 
@@ -250,10 +250,10 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public List<Project> retrieveAll() {
+	public List<Project> retrieveAllIdNames() {
 		List<Project> projects = null;
 		try {
-			projects = projectMapper.selectByExample(null);
+			projects = projectMapper.selectAllProjectIdNames();
 		} catch (DataAccessException e) {
 			logger.error("DB error",e);
 		}

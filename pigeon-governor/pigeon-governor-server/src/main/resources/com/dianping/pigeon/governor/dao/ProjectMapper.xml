@@ -356,4 +356,7 @@
   <select id="selectAllProjectNames" resultType="java.lang.String">
     select name from project a
   </select>
+  <select id="selectAllProjectIdNames" resultMap="BaseResultMap">
+    select id,name from project a
+  </select>
 </mapper>

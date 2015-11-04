@@ -28,9 +28,9 @@ public interface ProjectService {
 
 	public Project createProjectFromCmdbOrNot(String projectName);
 
-	public List<Project> retrieveAllByCache();
+	public List<Project> retrieveAllIdNamesByCache();
 
-	public List<Project> retrieveAll();
+	public List<Project> retrieveAllIdNames();
 
 	public List<String> retrieveAllNameByCache();
 

@@ -103,4 +103,6 @@ public interface ProjectMapper {
 	int countByOwnerId(Integer ownerId);
 
     List<String> selectAllProjectNames();
+
+    List<Project> selectAllProjectIdNames();
 }
