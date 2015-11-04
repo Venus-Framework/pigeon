@@ -4,6 +4,8 @@ import com.dianping.pigeon.governor.bean.JqGridRespBean;
 import com.dianping.pigeon.governor.bean.ProjectBean;
 import com.dianping.pigeon.governor.model.Project;
 
+import java.util.List;
+
 public interface ProjectService {
 	
 	public int create(ProjectBean projectBean);
@@ -25,5 +27,13 @@ public interface ProjectService {
 	public int create(Project project);
 
 	public Project createProjectFromCmdbOrNot(String projectName);
+
+	public List<Project> retrieveAllByCache();
+
+	public List<Project> retrieveAll();
+
+	public List<String> retrieveAllNameByCache();
+
+	public List<String> retrieveAllName();
 
 }

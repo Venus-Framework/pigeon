@@ -1,18 +1,21 @@
 package com.dianping.pigeon.governor.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.dianping.pigeon.governor.dao.ProjectMapper;
+import com.dianping.pigeon.governor.model.Project;
+import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +25,6 @@ import com.dianping.pigeon.governor.bean.JqGridReqBean;
 import com.dianping.pigeon.governor.bean.JqGridReqFilters;
 import com.dianping.pigeon.governor.bean.JqGridRespBean;
 import com.dianping.pigeon.governor.bean.ProjectBean;
-import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.UserService;
@@ -39,7 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Controller
 public class ProjectController extends BaseController {
 
-	private Logger log = LogManager.getLogger();
+	private Logger logger = LogManager.getLogger();
 	
 	@Autowired
 	private ProjectService projectService;
@@ -47,6 +49,21 @@ public class ProjectController extends BaseController {
 	private UserService userService;
 	@Autowired
 	private ProjectOwnerService projectOwnerService;
+
+	@RequestMapping(value = {"/"}, method = RequestMethod.GET)
+	public String index(ModelMap modelMap,
+								   HttpServletRequest request,
+								   HttpServletResponse response) {
+		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
+		modelMap.addAttribute("currentUser", currentUser);
+		//List<String> projectNames = projectService.retrieveAllNameByCache();
+		List<Project> projects = projectService.retrieveAllByCache();
+
+		//modelMap.addAttribute("projectNames",new Gson().toJson(projectNames));
+		modelMap.addAttribute("projects",projects);
+
+		return "/index";
+	}
 	
 	@RequestMapping(value = {"/projects.all"}, method = RequestMethod.GET)
 	public String projectOwnerInfo(ModelMap modelMap,
@@ -127,11 +144,11 @@ public class ProjectController extends BaseController {
 			try {
 				filters = objectMapper.readValue(jqGridReqBean.getFilters(), JqGridReqFilters.class);
 			} catch (JsonParseException e) {
-				log.error("JsonParse",e);
+				logger.error("JsonParse", e);
 			} catch (JsonMappingException e) {
-				log.error("JsonMapping", e);
+				logger.error("JsonMapping", e);
 			} catch (IOException e) {
-				log.error("IO",e);
+				logger.error("IO", e);
 			}
 		}
 

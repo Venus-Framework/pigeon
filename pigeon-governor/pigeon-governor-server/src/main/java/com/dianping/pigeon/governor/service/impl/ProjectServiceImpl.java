@@ -1,12 +1,5 @@
 package com.dianping.pigeon.governor.service.impl;
 
-import java.util.Date;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.dianping.pigeon.governor.bean.JqGridRespBean;
 import com.dianping.pigeon.governor.bean.ProjectBean;
 import com.dianping.pigeon.governor.dao.ProjectMapper;
@@ -16,6 +9,15 @@ import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.UserService;
 import com.dianping.pigeon.governor.util.CmdbUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * 
@@ -24,11 +26,19 @@ import com.dianping.pigeon.governor.util.CmdbUtils;
  */
 @Service
 public class ProjectServiceImpl implements ProjectService {
+
+	private Logger logger = LogManager.getLogger();
 	
 	@Autowired
 	private ProjectMapper projectMapper;
 	@Autowired
 	private UserService userService;
+
+	private List<Project> projectsCache;
+	private List<String> projectNamesCache;
+	private long projectNamesCacheLastUpdateTime = 0;
+	private long projectsCacheLastUpdateTime = 0;
+	private long checkCacheInternal = 30000;
 	
 	@Override
 	public int create(ProjectBean projectBean) {
@@ -225,6 +235,54 @@ public class ProjectServiceImpl implements ProjectService {
 
 		return findProject(projectName);
 
+	}
+
+	@Override
+	public List<Project> retrieveAllByCache() {
+		long currentTime = System.currentTimeMillis();
+
+		if(currentTime - projectsCacheLastUpdateTime > checkCacheInternal){
+			projectsCache = retrieveAll();
+			projectsCacheLastUpdateTime = currentTime;
+		}
+
+		return projectsCache;
+	}
+
+	@Override
+	public List<Project> retrieveAll() {
+		List<Project> projects = null;
+		try {
+			projects = projectMapper.selectByExample(null);
+		} catch (DataAccessException e) {
+			logger.error("DB error",e);
+		}
+
+		return projects;
+	}
+
+	@Override
+	public List<String> retrieveAllNameByCache() {
+		long currentTime = System.currentTimeMillis();
+
+		if(currentTime - projectNamesCacheLastUpdateTime > checkCacheInternal){
+			projectNamesCache = retrieveAllName();
+			projectNamesCacheLastUpdateTime = currentTime;
+		}
+
+		return projectNamesCache;
+	}
+
+	@Override
+	public List<String> retrieveAllName() {
+		List<String> projects = null;
+		try {
+			projects = projectMapper.selectAllProjectNames();
+		} catch (DataAccessException e) {
+			logger.error("DB error",e);
+		}
+
+		return projects;
 	}
 
 }

@@ -101,4 +101,6 @@ public interface ProjectMapper {
 	List<Project> selectByPageRowsOwnerId(@Param("offset") Integer offset, @Param("rows") Integer rows, @Param("ownerId") Integer ownerId);
 	
 	int countByOwnerId(Integer ownerId);
+
+    List<String> selectAllProjectNames();
 }
