@@ -24,7 +24,34 @@
 
 	<task:annotation-driven />
 
-	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+	<bean id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource" destroy-method="close">
+		<property name="poolProperties">
+			<bean class="org.apache.tomcat.jdbc.pool.PoolProperties">
+				<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+				<property name="url" value="${pigeon-governor-server.jdbc.url}"/>
+				<property name="username" value="${pigeon-governor-server.jdbc.username}"/>
+				<property name="password" value="${pigeon-governor-server.jdbc.password}"/>
+				<property name="jmxEnabled" value="true"/>
+				<property name="testWhileIdle" value="true"/>
+				<property name="testOnBorrow" value="true"/>
+				<property name="testOnReturn" value="false"/>
+				<property name="validationInterval" value="30000"/>
+				<property name="validationQuery" value="SELECT 1"/>
+				<property name="timeBetweenEvictionRunsMillis" value="30000"/>
+				<property name="maxActive" value="100"/>
+				<property name="initialSize" value="10"/>
+				<property name="maxWait" value="10000"/>
+				<property name="minEvictableIdleTimeMillis" value="30000"/>
+				<property name="minIdle" value="10"/>
+				<property name="logAbandoned" value="false"/>
+				<property name="removeAbandoned" value="true"/>
+				<property name="removeAbandonedTimeout" value="60"/>
+				<property name="jdbcInterceptors" value="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"/>
+			</bean>
+		</property>
+	</bean>
+
+	<!--<bean id="c3p0DataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
     	<property name="driverClass" value="com.mysql.jdbc.Driver" />
     	<property name="jdbcUrl" value="${pigeon-governor-server.jdbc.url}" />
     	<property name="user" value="${pigeon-governor-server.jdbc.username}" />
@@ -41,7 +68,7 @@
 		<property name="numHelperThreads" value="6"/>
 		<property name="maxAdministrativeTaskTime" value="5"/>
 		<property name="preferredTestQuery" value="SELECT 1"/>
-    </bean>
+    </bean>-->
     
     <!-- SessionFactory -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
