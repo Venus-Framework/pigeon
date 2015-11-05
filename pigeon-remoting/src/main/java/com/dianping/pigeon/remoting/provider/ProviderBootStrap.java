@@ -58,7 +58,6 @@ public final class ProviderBootStrap {
 			shutdownHook.setDaemon(true);
 			shutdownHook.setPriority(Thread.MAX_PRIORITY);
 			Runtime.getRuntime().addShutdownHook(shutdownHook);
-
 			ServerConfig config = new ServerConfig();
 			config.setProtocol(Constants.PROTOCOL_HTTP);
 			String poolStrategy = ConfigManagerLoader.getConfigManager().getStringValue(
