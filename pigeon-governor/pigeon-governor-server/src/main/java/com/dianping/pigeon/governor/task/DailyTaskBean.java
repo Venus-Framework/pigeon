@@ -1,5 +1,6 @@
 package com.dianping.pigeon.governor.task;
 
+import com.dianping.pigeon.governor.service.HostService;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.threadpool.NamedThreadFactory;
@@ -13,7 +14,7 @@ import java.util.concurrent.Executors;
  */
 public class DailyTaskBean {
 
-    private ExecutorService updateProjectPool;
+    private ExecutorService taskPool;
 
     @Autowired
     private ProjectService projectService;
@@ -21,9 +22,13 @@ public class DailyTaskBean {
     @Autowired
     private ProjectOwnerService projectOwnerService;
 
+    @Autowired
+    private HostService hostService;
+
     public void init() {
-        updateProjectPool = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Governor-UpdateProject"));
-        updateProjectPool.submit(new UpdateProjectTask(projectService, projectOwnerService));
+        taskPool = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Governor-CustomTask"));
+        //taskPool.submit(new UpdateProjectTask(projectService, projectOwnerService));
+        taskPool.submit(new ClearInvalidHostsInDB(hostService));
     }
 
 }

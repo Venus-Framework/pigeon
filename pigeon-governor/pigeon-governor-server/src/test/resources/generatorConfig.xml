@@ -53,9 +53,9 @@
 		
 		<table schema="" tableName="user" domainObjectName="User" />
 		<table schema="" tableName="role" domainObjectName="Role" />
-		<table schema="" tableName="project_owner" domainObjectName="ProjectOwner" /> -->
+		<table schema="" tableName="project_owner" domainObjectName="ProjectOwner" />
 		
-		<table schema="" tableName="host" domainObjectName="Host" />
+		<table schema="" tableName="host" domainObjectName="Host" /> -->
 		
 	</context>
 	
