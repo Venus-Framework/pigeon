@@ -61,6 +61,8 @@ public class MyServletContextListener implements ServletContextListener {
 			String env = Environment.getEnv();
 			String id = "2";
 			String url = "http://lionapi.dp:8080/config2/set?env="+env+"&id="+id+"&key=pigeon-governor-server.enable.custom.task&value=";
+			String result = RestCallUtils.getRestCall(url, String.class);
+			logger.info(result);
 		}
 
 	}
