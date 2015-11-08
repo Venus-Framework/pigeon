@@ -139,11 +139,16 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 		if (frame == null) {
 			return null;
 		}
-		Object obj = deserialize(serializerType, new ChannelBufferInputStream(frame));
+		ChannelBufferInputStream is = new ChannelBufferInputStream(frame);
+		int available = is.available();
+		Object obj = deserialize(serializerType, is);
 		if (obj instanceof InvocationSerializable) {
 			int msgType = ((InvocationSerializable) obj).getMessageType();
-			if (msgType == Constants.MESSAGE_TYPE_SERVICE && size > 0) {
-				((InvocationSerializable) obj).setSize(size + 3);
+			if (msgType == Constants.MESSAGE_TYPE_SERVICE && available > 0) {
+				((InvocationSerializable) obj).setSize(available + 3);
+				if(available == 0) {
+					System.out.println(obj);
+				}
 			}
 		}
 		return obj;

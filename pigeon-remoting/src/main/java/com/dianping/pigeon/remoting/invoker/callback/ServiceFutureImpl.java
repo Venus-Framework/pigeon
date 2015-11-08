@@ -37,7 +37,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		super();
 		this.timeout = timeout;
 		callerThread = Thread.currentThread();
-		transaction = monitor.getCurrentTransaction();
+		transaction = monitor.getCurrentCallTransaction();
 	}
 
 	@Override
@@ -51,10 +51,11 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		if (transaction != null) {
 			transaction.addData("FutureTimeout", timeoutMillis);
 		}
-		long start = System.currentTimeMillis();
+		long start = System.nanoTime();
 		try {
 			response = super.get(timeoutMillis);
-			SizeMonitor.getInstance().logSize(response.getSize(), "PigeonCall.responseSize", null);
+			transaction.logEvent("PigeonCall.responseSize", SizeMonitor.getInstance().getLogSize(response.getSize()),
+					"" + response.getSize());
 		} catch (Throwable e) {
 			RuntimeException rpcEx = null;
 			if (e instanceof DPSFException) {
@@ -77,17 +78,15 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		} finally {
 			if (transaction != null) {
 				try {
+					transaction.setStartTime(start);
 					transaction.complete();
-					if (transaction != null) {
-						transaction.setDuration(System.currentTimeMillis() - start);
-					}
 				} catch (Throwable e) {
 					monitor.logMonitorError(e);
 				}
 			}
 		}
 		setResponseContext(response);
-		
+
 		if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 			return response.getReturn();
 		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {

@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +32,7 @@ import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHo
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
 import com.dianping.pigeon.util.ClassUtils;
+import com.dianping.pigeon.util.ThreadPoolUtils;
 
 public class LoadBalanceManager {
 
@@ -62,6 +62,13 @@ public class LoadBalanceManager {
 	private static ThreadPool loadbalanceThreadPool = new DefaultThreadPool("Pigeon-Client-Loadbalance-ThreadPool");
 
 	private static volatile int errorLogSeed = 0;
+
+	static {
+		LoadBalanceManager.register(RandomLoadBalance.NAME, null, RandomLoadBalance.instance);
+		LoadBalanceManager.register(AutoawareLoadBalance.NAME, null, AutoawareLoadBalance.instance);
+		LoadBalanceManager.register(RoundRobinLoadBalance.NAME, null, RoundRobinLoadBalance.instance);
+		LoadBalanceManager.register(WeightedAutoawareLoadBalance.NAME, null, WeightedAutoawareLoadBalance.instance);
+	}
 
 	/**
 	 * 
@@ -149,15 +156,7 @@ public class LoadBalanceManager {
 	}
 
 	public static void destroy() throws Exception {
-		if (loadbalanceThreadPool != null) {
-			try {
-				loadbalanceThreadPool.getExecutor().shutdown();
-				loadbalanceThreadPool.getExecutor().awaitTermination(2, TimeUnit.SECONDS);
-				loadbalanceThreadPool = null;
-			} catch (InterruptedException e) {
-				logger.warn("interrupted when shuting down the query executor:\n{}", e);
-			}
-		}
+		ThreadPoolUtils.shutdown(loadbalanceThreadPool.getExecutor());
 	}
 
 	public static void init() {

@@ -14,12 +14,16 @@ import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
+import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
+import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
+import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.util.ContextUtils;
 
@@ -37,7 +41,10 @@ public class ServiceCallbackWrapper implements Callback {
 
 	private ServiceCallback callback;
 
-	public ServiceCallbackWrapper(ServiceCallback callback) {
+	private InvokerContext invocationContext;
+
+	public ServiceCallbackWrapper(InvokerContext invocationContext, ServiceCallback callback) {
+		this.invocationContext = invocationContext;
 		this.callback = callback;
 	}
 
@@ -49,7 +56,35 @@ public class ServiceCallbackWrapper implements Callback {
 					logger.debug("response:" + response);
 					logger.debug("callback:" + callback);
 				}
+				long currentTime = System.currentTimeMillis();
 				this.callback.callback(response.getReturn());
+				if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
+						&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
+					StringBuilder msg = new StringBuilder();
+					msg.append("request callback timeout:").append(request);
+					Exception te = new RequestTimeoutException(msg.toString());
+					te.setStackTrace(new StackTraceElement[] {});
+					logger.error(msg);
+					if (monitor != null) {
+						monitor.logError(te);
+					}
+				}
+//				MonitorTransaction transaction = invocationContext.getMonitorTransaction();
+//				if (transaction != null) {
+//					MonitorTransaction newTransaction = monitor.copyTransaction("PigeonCall", transaction.getUri(),
+//							invocationContext, transaction);
+//					if (newTransaction != null) {
+//						if (response != null) {
+//							newTransaction.logEvent("PigeonCall.responseSize",
+//									SizeMonitor.getInstance().getLogSize(response.getSize()), "" + response.getSize());
+//						}
+//						newTransaction.setStatusOk();
+//						newTransaction.complete();
+//						newTransaction.setDurationStart(transaction.getDurationStart());
+//						newTransaction.setDuration(System.currentTimeMillis() - transaction.getDurationStart());
+//					}
+//					transaction.complete();
+//				}
 			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 				RpcException cause = InvokerUtils.toRpcException(response);
 				StringBuilder sb = new StringBuilder();
@@ -88,7 +123,7 @@ public class ServiceCallbackWrapper implements Callback {
 			}
 		}
 	}
-	
+
 	@Override
 	public void setClient(Client client) {
 		this.client = client;
@@ -111,7 +146,7 @@ public class ServiceCallbackWrapper implements Callback {
 
 	@Override
 	public void dispose() {
-		
+
 	}
 
 }

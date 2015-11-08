@@ -32,7 +32,7 @@ public final class ProviderHelper {
 	public static ProviderContext getContext() {
 		ProviderContext context = tlContext.get();
 		if (context != null) {
-			context.setTransaction(monitor.getCurrentTransaction());
+			context.setMonitorTransaction(monitor.getCurrentServiceTransaction());
 		}
 		return context;
 	}
@@ -45,17 +45,19 @@ public final class ProviderHelper {
 			try {
 				channel.write(response);
 			} finally {
-				MonitorTransaction transaction = context.getTransaction();
+				MonitorTransaction transaction = context.getMonitorTransaction();
 				if (transaction != null) {
-					transaction.complete();
 					MonitorTransaction newTransaction = monitor.copyTransaction("PigeonServiceCallback",
 							transaction.getUri(), context, transaction);
-					if (response != null) {
-						SizeMonitor.getInstance().logSize(response.getSize(), "PigeonService.responseSize", null);
+					if (newTransaction != null) {
+						if (response != null) {
+							newTransaction.logEvent("PigeonService.responseSize",
+									SizeMonitor.getInstance().getLogSize(response.getSize()), "" + response.getSize());
+						}
+						newTransaction.setStatusOk();
+						newTransaction.complete();
 					}
-					newTransaction.setStatusOk();
-					newTransaction.complete();
-					newTransaction.setDuration(transaction.getDuration());
+					transaction.complete();
 				}
 				ProviderStatisticsHolder.flowOut(request);
 			}

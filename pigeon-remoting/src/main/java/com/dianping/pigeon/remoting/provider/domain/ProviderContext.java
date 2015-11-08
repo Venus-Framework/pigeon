@@ -30,7 +30,7 @@ public interface ProviderContext extends InvocationContext {
 	
 	ServiceMethod getServiceMethod();
 	
-	MonitorTransaction getTransaction();
+	MonitorTransaction getMonitorTransaction();
 	
-	void setTransaction(MonitorTransaction transaction);
+	void setMonitorTransaction(MonitorTransaction transaction);
 }

@@ -8,6 +8,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.dianping.pigeon.monitor.MonitorTransaction;
+
 public abstract class AbstractInvocationContext implements InvocationContext {
 
 	protected InvocationRequest request;
@@ -15,6 +17,7 @@ public abstract class AbstractInvocationContext implements InvocationContext {
 	private Map<String, Serializable> contextValues;
 	// 不会通过request传递到服务端，可用于filter之间传递参数
 	private Map<String, Object> transientContextValues;
+	private MonitorTransaction transaction;
 
 	public AbstractInvocationContext(InvocationRequest request) {
 		this.request = request;
@@ -59,4 +62,11 @@ public abstract class AbstractInvocationContext implements InvocationContext {
 		return contextValues;
 	}
 
+	public MonitorTransaction getMonitorTransaction() {
+		return transaction;
+	}
+
+	public void setMonitorTransaction(MonitorTransaction transaction) {
+		this.transaction = transaction;
+	}
 }

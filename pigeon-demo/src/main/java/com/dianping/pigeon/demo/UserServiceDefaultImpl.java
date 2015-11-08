@@ -7,6 +7,7 @@ package com.dianping.pigeon.demo;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dianping.pigeon.remoting.provider.util.ProviderHelper;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class UserServiceDefaultImpl implements UserService {
@@ -40,8 +41,12 @@ public class UserServiceDefaultImpl implements UserService {
 		// ContextUtils.getGlobalContext("SOURCE_APP"));
 		// System.out.println("SOURCE_IP:" +
 		// ContextUtils.getGlobalContext("SOURCE_IP"));
-		// ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(),
-		System.out.println(msg);
+		//System.out.println(msg);
+		try {
+			Thread.sleep(30);
+		} catch (InterruptedException e) {
+		}
+		ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(), "user service:" + msg);
 		return msg;
 	}
 

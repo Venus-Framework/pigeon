@@ -4,14 +4,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLoader;
 
 public class SizeMonitor {
 
 	private static Logger logger = LogManager.getLogger(SizeMonitor.class);
-
-	private static Monitor monitor = MonitorLoader.getMonitor();
 
 	private static final String sizeRangeConfig = ConfigManagerLoader.getConfigManager().getStringValue(
 			"pigeon.monitor.size.range", "1,2,4,8,16,32,64,128,256,512,1024");
@@ -54,24 +50,26 @@ public class SizeMonitor {
 		return rangeArray;
 	}
 
-	public void logSize(int size, String event, String source) {
+	public String getLogSize(int size) {
 		if (size > sizeMin) {
 			try {
-				logSize(size, sizeRangeArray, event, source);
+				return getLogSize(size, sizeRangeArray);
 			} catch (Throwable t) {
 				logger.warn("error while logging size:" + t.getMessage());
 			}
 		}
+		return null;
 	}
 
-	private void logSize(int size, int[] rangeArray, String eventName, String source) {
+	private String getLogSize(int size, int[] rangeArray) {
 		if (size > 0 && rangeArray != null && rangeArray.length > 0) {
 			String value = ">" + rangeArray[rangeArray.length - 1] + "k";
 			int sizeK = (int) Math.ceil(size * 1d / 1024);
 			if (rangeArray.length > sizeK) {
 				value = "<" + rangeArray[sizeK] + "k";
 			}
-			monitor.logEvent(eventName, value, size + "");
+			return value;
 		}
+		return null;
 	}
 }

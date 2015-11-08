@@ -121,7 +121,6 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			response = sb.toString();
 			br.close();
 		} catch (Throwable t) {
-			logger.warn("error while notifying service change to url:" + url, t);
 			notifyException = t;
 		} finally {
 			if (getMethod != null) {
@@ -133,9 +132,10 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			isSuccess = true;
 		}
 		if (!isSuccess) {
-			logger.warn("error while notifying service change to url:" + url + ", response:" + response);
-			monitor.logError(new ServiceNotifyException("error while notifying service change to url:" + url
-					+ ", response:" + response, notifyException));
+			logger.warn("failed to notify service change to url:" + url + ", response:" + response + ", reason:"
+					+ notifyException.getMessage());
+			monitor.logError(new ServiceNotifyException("failed to notify service change to url:" + url + ", response:"
+					+ response, notifyException));
 		}
 		return isSuccess;
 	}

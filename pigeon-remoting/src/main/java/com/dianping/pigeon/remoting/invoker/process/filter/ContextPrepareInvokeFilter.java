@@ -69,7 +69,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 					}
 				}
 			}
-			MonitorTransaction transaction = monitor.getCurrentTransaction();
+			MonitorTransaction transaction = monitor.getCurrentCallTransaction();
 			if (transaction != null) {
 				transaction.addData("CurrentTimeout", request.getTimeout());
 			}

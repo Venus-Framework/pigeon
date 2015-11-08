@@ -9,7 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.dianping.dpsf.async.ServiceCallback;
+import com.dianping.dpsf.exception.DPSFException;
+import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.util.ProviderHelper;
 import com.dianping.pigeon.util.ContextUtils;
@@ -18,10 +23,13 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	List<User<?>> users = new ArrayList<User<?>>();
 
-	// UserService userService = ServiceFactory.getService(UserService.class,
-	// 1000);
-
+	UserService userService = null;
+	
 	public EchoServiceDefaultImpl() {
+		InvokerConfig<UserService> config = new InvokerConfig<UserService>(UserService.class);
+		config.setTimeout(1000);
+		config.setCallType("callback");
+		userService = ServiceFactory.getService(config);
 	}
 
 	@Override
@@ -36,12 +44,14 @@ public class EchoServiceDefaultImpl implements EchoService {
 		// ContextUtils.getGlobalContext("SOURCE_APP"));
 		// System.out.println("SOURCE_IP:" +
 		// ContextUtils.getGlobalContext("SOURCE_IP"));
-		try {
-			Thread.sleep(Integer.valueOf(msg));
-		} catch (InterruptedException e) {
-		}
-		System.out.println(msg);
+//		 try {
+//		 Thread.sleep(100);
+//		 } catch (InterruptedException e) {
+//		 }
+		//System.out.println(msg);
 		ContextUtils.putResponseContext("key1", "repsonse1");
+		//ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(), "async echo:" + msg);
+
 		// return "echo:" + userService.echo(msg);
 		return "echo:" + msg;
 	}
@@ -76,22 +86,27 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public String asyncEcho(String msg) {
-		final String innerMsg = msg;
-		Runnable r = new Runnable() {
+		ServiceCallback callback = new ServiceCallback() {
 			private ProviderContext context = ProviderHelper.getContext();
 
 			@Override
-			public void run() {
-				System.out.println(innerMsg);
-				try {
-					Thread.sleep(30);
-				} catch (InterruptedException e) {
-				}
-				ProviderHelper.writeSuccessResponse(context, "async echo:" + innerMsg);
+			public void callback(Object result) {
+				ProviderHelper.writeSuccessResponse(context, "echo service:" + result);
+			}
+
+			@Override
+			public void serviceException(Exception e) {
+
+			}
+
+			@Override
+			public void frameworkException(DPSFException e) {
+
 			}
 
 		};
-		new Thread(r).start();
+		InvokerHelper.setCallback(callback);
+		userService.echo(msg);
 		return null;
 	}
 

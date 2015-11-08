@@ -6,7 +6,6 @@ package com.dianping.pigeon.remoting.provider.domain;
 
 import java.util.concurrent.Future;
 
-import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.AbstractInvocationContext;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethod;
@@ -18,7 +17,6 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 	private Future<?> future;
 	private Thread thread;
 	private ServiceMethod serviceMethod;
-	private MonitorTransaction transaction;
 
 	public DefaultProviderContext(InvocationRequest request, ProviderChannel channel) {
 		super(request);
@@ -67,11 +65,4 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 		return serviceMethod;
 	}
 
-	public MonitorTransaction getTransaction() {
-		return transaction;
-	}
-
-	public void setTransaction(MonitorTransaction transaction) {
-		this.transaction = transaction;
-	}
 }

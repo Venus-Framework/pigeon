@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.monitor;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,8 +20,6 @@ public interface MonitorTransaction {
 
 	public void setStatusOk();
 
-	public void setDuration(long duration);
-
 	public void addData(String name, Object data);
 
 	public void readMonitorContext();
@@ -28,11 +27,23 @@ public interface MonitorTransaction {
 	public void writeMonitorContext();
 
 	public String getName();
-	
+
 	public String getUri();
-	
+
 	public Map<String, Object> getDataMap();
+
+	public long getStartTime();
 	
-	public long getDuration();
+	public void setStartTime(long startTime);
+
+	public void setAutoCommit(boolean autoCommit);
+
+	public boolean isAutoCommit();
 	
+	public void logEvent(String name, String event, String desc);
+	
+	public void addTransaction(MonitorTransaction transaction);
+	
+	public List<MonitorTransaction> getTransactions();
+
 }

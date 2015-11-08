@@ -4,16 +4,40 @@
  */
 package com.dianping.pigeon.demo.typical;
 
+import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.async.ServiceFuture;
 import com.dianping.dpsf.async.ServiceFutureFactory;
+import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class Client {
 
 	private static SpringContainer CLIENT_CONTAINER = new SpringContainer(
 			"classpath*:META-INF/spring/typical/invoker.xml");
+
+	static ServiceCallback callback = new ServiceCallback() {
+
+		@Override
+		public void callback(Object result) {
+			System.out.println("echo:" + result);
+		}
+
+		@Override
+		public void serviceException(Exception e) {
+
+		}
+
+		@Override
+		public void frameworkException(DPSFException e) {
+
+		}
+
+	};
+
+	static EchoService echoServiceCallback = ServiceFactory.getService(EchoService.class, callback, 1000);
 
 	/**
 	 * @param args
@@ -30,12 +54,15 @@ public class Client {
 		while (true) {
 			try {
 				ContextUtils.putRequestContext("key1", "1");
-				System.out.println(echoService.now());
-				//System.out.println(echoService.now());
-//				echoServiceWithFuture.echo("hi " + i++);
-//				ServiceFuture future = ServiceFutureFactory.getFuture();
-//				Thread.sleep(100);
-//				System.out.println(future._get());
+				//echoService.echo("" + (i++));
+				echoServiceCallback.echo("" + (i++));
+				//Thread.sleep(120000);
+				// System.out.println(echoService.asyncEcho("" + (i++)));
+				// System.out.println(echoService.now());
+				//echoServiceWithFuture.echo("hi " + i++);
+				//ServiceFuture future = ServiceFutureFactory.getFuture();
+				//Thread.sleep(20);
+				//System.out.println(future._get());
 
 				// System.out.println("response:" +
 				// ContextUtils.getResponseContext("key1"));
