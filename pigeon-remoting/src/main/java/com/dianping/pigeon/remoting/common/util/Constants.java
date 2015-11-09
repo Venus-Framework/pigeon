@@ -6,6 +6,7 @@ package com.dianping.pigeon.remoting.common.util;
 
 import java.util.regex.Pattern;
 
+import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 
 public final class Constants {
@@ -169,7 +170,7 @@ public final class Constants {
 	public static final boolean RESET_TIMEOUT = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.timeout.reset", true);
 
-	public static final boolean REPLY_MANUAL = ConfigManagerLoader.getConfigManager().getBooleanValue(
+	public static boolean REPLY_MANUAL = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.provider.reply.manual", false);
 
 	public static final boolean RETRY_NETWORK_EXCEPTION = ConfigManagerLoader.getConfigManager().getBooleanValue(
@@ -195,4 +196,31 @@ public final class Constants {
 	public static final String CONTEXT_KEY_SOURCE_IP = "SOURCE_IP";
 	public static final String CONTEXT_KEY_SOURCE_APP = "SOURCE_APP";
 
+	static {
+		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
+	}
+
+	private static class InnerConfigChangeListener implements ConfigChangeListener {
+
+		@Override
+		public void onKeyUpdated(String key, String value) {
+			if (key.endsWith("pigeon.provider.reply.manual")) {
+				try {
+					REPLY_MANUAL = Boolean.valueOf(value);
+				} catch (RuntimeException e) {
+				}
+			}
+		}
+
+		@Override
+		public void onKeyAdded(String key, String value) {
+
+		}
+
+		@Override
+		public void onKeyRemoved(String key) {
+
+		}
+
+	}
 }

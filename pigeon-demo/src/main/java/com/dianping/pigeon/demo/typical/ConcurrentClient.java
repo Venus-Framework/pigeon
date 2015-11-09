@@ -8,8 +8,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dianping.dpsf.async.ServiceCallback;
+import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.remoting.ServiceFactory;
 
 public class ConcurrentClient {
 
@@ -17,6 +20,27 @@ public class ConcurrentClient {
 			"classpath*:META-INF/spring/typical/invoker.xml");
 
 	static AtomicInteger counter = new AtomicInteger(0);
+	
+	static ServiceCallback callback = new ServiceCallback() {
+
+		@Override
+		public void callback(Object result) {
+			
+		}
+
+		@Override
+		public void serviceException(Exception e) {
+
+		}
+
+		@Override
+		public void frameworkException(DPSFException e) {
+
+		}
+
+	};
+
+	static EchoService echoServiceCallback = ServiceFactory.getService(EchoService.class, callback, 1000);
 
 	/**
 	 * @param args
@@ -37,7 +61,7 @@ public class ConcurrentClient {
 				public void run() {
 					while (true) {
 						try {
-							System.out.println(echoService.echo("500"));
+							echoServiceCallback.echo("xx");
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
