@@ -1,6 +1,9 @@
 ## pigeon版本发布说明
 ------
 
+### 2.6.6
+修改callback模式下CAT Transaction打点信息
+
 ### 2.6.5
 修复netty连接过长的问题
 
