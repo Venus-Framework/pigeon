@@ -1,6 +1,9 @@
 ## pigeon版本发布说明
 ------
 
+### 2.6.7
+修复curator通知会block线程的问题
+
 ### 2.6.6
 修改callback模式下CAT Transaction打点信息
 

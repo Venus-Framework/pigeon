@@ -20,7 +20,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 	}
 
 	@Override
-	public synchronized void onServiceHostChange(String serviceName, List<String[]> hostList) {
+	public void onServiceHostChange(String serviceName, List<String[]> hostList) {
 		try {
 			Set<HostInfo> newHpSet = parseHostPortList(serviceName, hostList);
 			Set<HostInfo> oldHpSet = RegistryManager.getInstance().getReferencedServiceAddresses(serviceName);
@@ -66,7 +66,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 	}
 
 	@Override
-	public synchronized void onHostWeightChange(String connect, int weight) {
+	public void onHostWeightChange(String connect, int weight) {
 		HostInfo hostInfo = Utils.parseHost(connect, weight);
 		if (hostInfo != null) {
 			RegistryEventListener.hostWeightChanged(hostInfo.getHost(), hostInfo.getPort(), weight);
