@@ -142,7 +142,6 @@ public class ServiceController extends BaseController {
 			opLog.setDpaccount(currentUser);
 			opLog.setProjectid(projectId);
 			opLog.setReqip(reqIp);
-			opLog.setOptype(OpType.UPDATE_PIGEON_SERVICE.getValue());
 			opLog.setOptime(new Date());
 
 			if("edit".equals(oper)){
@@ -151,6 +150,7 @@ public class ServiceController extends BaseController {
 				String content = String.format("%s edited service %s for group [%s], address is %s",
 						currentUser, serviceBean.getName(), serviceBean.getGroup(), serviceBean.getHosts());
 				opLog.setContent(content);
+				opLog.setOptype(OpType.UPDATE_PIGEON_SERVICE.getValue());
 				opLogService.create(opLog);
 				
 			}else if("del".equals(oper)){
@@ -159,6 +159,7 @@ public class ServiceController extends BaseController {
 				String content = String.format("%s deleted services, ids: %s",
 						currentUser, serviceBean.getId());
 				opLog.setContent(content);
+				opLog.setOptype(OpType.DELETE_PIGEON_SERVICE.getValue());
 				opLogService.create(opLog);
 			
 			}else if("add".equals(oper)){
@@ -167,6 +168,7 @@ public class ServiceController extends BaseController {
 				String content = String.format("%s created service %s for group [%s], address is %s",
 						currentUser, serviceBean.getName(), serviceBean.getGroup(), serviceBean.getHosts());
 				opLog.setContent(content);
+				opLog.setOptype(OpType.CREATE_PIGEON_SERVICE.getValue());
 				opLogService.create(opLog);
 			
 			}
