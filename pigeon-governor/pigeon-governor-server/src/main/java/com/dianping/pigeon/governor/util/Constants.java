@@ -15,7 +15,7 @@ public class Constants {
 
 	public static final String DP_EMAIL_BASE = "dianping.com";
 	
-	public static final String DP_ACCOUNT = "dp-account";
+	public static final String DP_USER = "dp-user";
 
 	public static final String NON_SSO_FLAG = "is-non-sso";
 	

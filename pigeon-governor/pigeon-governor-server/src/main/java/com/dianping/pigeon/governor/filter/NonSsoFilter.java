@@ -46,7 +46,7 @@ public class NonSsoFilter implements Filter {
 		
 		//sso登录成功之后
 		HttpSession session = req.getSession(true);
-		session.setAttribute(Constants.DP_ACCOUNT, user.getDpaccount());
+		session.setAttribute(Constants.DP_USER, user);
 		
 		chain.doFilter(request, response);
 		

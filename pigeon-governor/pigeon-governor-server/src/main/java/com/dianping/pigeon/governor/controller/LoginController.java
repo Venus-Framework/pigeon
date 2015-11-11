@@ -48,25 +48,21 @@ public class LoginController extends BaseController {
 	@RequestMapping(value = "/rocket/{dpAccount:.+}")
 	public String rocketlogin(@PathVariable final String dpAccount, ModelMap modelMap,
 							  HttpServletRequest request, HttpServletResponse response) {
-		HttpSession session = request.getSession(true);
-		String sessionAccount = (String) session.getAttribute(Constants.DP_ACCOUNT);
+		User user = userService.retrieveByDpaccount(dpAccount);
 
-		if(dpAccount.equals(sessionAccount) != true) {
-			User user = userService.retrieveByDpaccount(dpAccount);
-
-			if(user == null) {
-				modelMap.addAttribute("errorMsg", "pigeon数据库中找不到用户，请至少用sso登陆一次");
-				return "/error/500";
-			}
-
-			session.setAttribute(Constants.DP_ACCOUNT, user.getDpaccount());
-
+		if(user == null) {
+			modelMap.addAttribute("errorMsg", "pigeon数据库中找不到用户，请至少用sso登陆一次");
+			return "/error/500";
 		}
 
+		HttpSession session = request.getSession(true);
+		session.setAttribute(Constants.DP_USER, user);
 		session.setAttribute(Constants.NON_SSO_FLAG, true);
-		log.info("rocket login success!");
+		log.info("welcome! "+ user.getUsername() +", rocket login success!");
+
 		modelMap.addAttribute("currentUser", dpAccount);
 		modelMap.addAttribute("path", "service");
+
 		return "common/main-container";
 
 	}
@@ -109,8 +105,8 @@ public class LoginController extends BaseController {
 		
 		//sso登录成功之后
 		HttpSession session = request.getSession(true);
-		session.setAttribute(Constants.DP_ACCOUNT, user.getDpaccount());
-		log.info("login success!");
+		session.setAttribute(Constants.DP_USER, user);
+		log.info(user.getUsername() + " login success!");
 
 		response.setStatus(200);
 		response.sendRedirect(URLDecoder.decode(encodedUrl, "UTF-8"));

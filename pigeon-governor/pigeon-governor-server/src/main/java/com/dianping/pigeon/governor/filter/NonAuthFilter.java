@@ -4,6 +4,7 @@ import com.ctc.wstx.util.StringUtil;
 import com.dianping.lion.client.Lion;
 import com.dianping.pigeon.governor.lion.ConfigHolder;
 import com.dianping.pigeon.governor.lion.LionKeys;
+import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.util.Constants;
 import org.apache.commons.lang.StringUtils;
 
@@ -51,9 +52,9 @@ public class NonAuthFilter implements Filter {
 				HttpServletRequest req = (HttpServletRequest) request;
 				HttpSession session = req.getSession(true);
 				Boolean isNonSso = (Boolean) session.getAttribute(Constants.NON_SSO_FLAG);
-				String sessionAccount = (String) session.getAttribute(Constants.DP_ACCOUNT);
+				User user = (User) session.getAttribute(Constants.DP_USER);
 
-				if( Boolean.TRUE.equals(isNonSso) && StringUtils.isNotBlank(sessionAccount)) {
+				if( Boolean.TRUE.equals(isNonSso) && user != null ) {
 					request.getRequestDispatcher(requestURI).forward(request, response);
 					return;
 				}

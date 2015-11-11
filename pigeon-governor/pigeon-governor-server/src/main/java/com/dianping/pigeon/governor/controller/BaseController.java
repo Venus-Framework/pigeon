@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.dianping.pigeon.governor.model.User;
 import org.springframework.ui.ModelMap;
 
 import com.dianping.pigeon.governor.util.Constants;
@@ -17,12 +18,14 @@ import com.dianping.pigeon.governor.util.IPUtils;
 public class BaseController {
 
 	public void commonnav(Map<String, Object> map, HttpServletRequest request) {
-		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
+		User user = (User) request.getSession().getAttribute(Constants.DP_USER);
+		String currentUser = user!=null?user.getDpaccount():"";
 		map.put("currentUser", currentUser);
 	}
 
 	public void commonnav(ModelMap modelMap, HttpServletRequest request) {
-		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
+		User user = (User) request.getSession().getAttribute(Constants.DP_USER);
+		String currentUser = user!=null?user.getDpaccount():"";
 		modelMap.addAttribute("currentUser", currentUser);
 	}
 

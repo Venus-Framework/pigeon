@@ -5,6 +5,7 @@ import com.dianping.pigeon.governor.bean.JqGridReqFilters;
 import com.dianping.pigeon.governor.bean.JqGridRespBean;
 import com.dianping.pigeon.governor.bean.ServiceBean;
 import com.dianping.pigeon.governor.model.Project;
+import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceService;
@@ -45,8 +46,8 @@ public class ServiceController extends BaseController {
 	public String projectInfo(ModelMap modelMap,
 								@PathVariable final String projectName,
 								HttpServletRequest request) {
-		
-		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
+		User user = (User) request.getSession().getAttribute(Constants.DP_USER);
+		String currentUser = user.getDpaccount();
 		modelMap.addAttribute("currentUser", currentUser);
 		Project project = projectService.findProject(projectName);
 		

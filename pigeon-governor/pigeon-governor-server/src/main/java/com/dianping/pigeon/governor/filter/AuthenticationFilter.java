@@ -53,16 +53,16 @@ public class AuthenticationFilter implements Filter {
 		String[] ssoInfos = userInfoStr.split("\\|");
 		String dpaccount = ssoInfos[0];
 		HttpSession session = req.getSession(true);
-		String sessionAccount = (String) session.getAttribute(Constants.DP_ACCOUNT);
-		
-		if(dpaccount.equalsIgnoreCase(sessionAccount)){
+		User user = (User) session.getAttribute(Constants.DP_USER);
+
+		if(user != null && dpaccount.equalsIgnoreCase(user.getDpaccount())){
 			chain.doFilter(request, response);
 			return;
 		}
 		
 		//createIfNotExist
-		User user = checkUser(ssoInfos);
-		session.setAttribute(Constants.DP_ACCOUNT, user.getDpaccount());
+		user = checkUser(ssoInfos);
+		session.setAttribute(Constants.DP_USER, user);
 		
 		chain.doFilter(request, response);
 		

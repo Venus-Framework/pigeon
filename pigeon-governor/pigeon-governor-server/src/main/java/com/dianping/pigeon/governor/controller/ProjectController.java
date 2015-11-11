@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.dianping.pigeon.governor.dao.ProjectMapper;
 import com.dianping.pigeon.governor.model.Project;
+import com.dianping.pigeon.governor.model.User;
 import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -56,8 +57,7 @@ public class ProjectController extends BaseController {
 	public String index(ModelMap modelMap,
 								   HttpServletRequest request,
 								   HttpServletResponse response) {
-		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
-		modelMap.addAttribute("currentUser", currentUser);
+		commonnav(modelMap, request);
 		//List<String> projectNames = projectService.retrieveAllNameByCache();
 		List<Project> projects = projectService.retrieveAllIdNamesByCache();
 
@@ -71,8 +71,7 @@ public class ProjectController extends BaseController {
 	public String projectOwnerInfo(ModelMap modelMap,
 									HttpServletRequest request,
 									HttpServletResponse response) {
-		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
-		modelMap.addAttribute("currentUser", currentUser);
+		commonnav(modelMap, request);
 
 		return "/projects/list";
 	}
@@ -102,9 +101,10 @@ public class ProjectController extends BaseController {
 	@RequestMapping(value = {"/projects"}, method = RequestMethod.GET)
 	public String allinone(ModelMap modelMap,
 			HttpServletRequest request, HttpServletResponse response) {
-		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
-		modelMap.addAttribute("currentUser", currentUser);
-		modelMap.addAttribute("projectOwner", currentUser);
+		User user = (User) request.getSession().getAttribute(Constants.DP_USER);
+		String dpAccount = user!=null ? user.getDpaccount() : "";
+		modelMap.addAttribute("currentUser", dpAccount);
+		modelMap.addAttribute("projectOwner", dpAccount);
 		
 		return "/projects/index";
 	}
