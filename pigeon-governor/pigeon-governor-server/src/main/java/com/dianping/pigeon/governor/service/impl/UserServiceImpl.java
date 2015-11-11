@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
 		if(users != null && users.size() > 0) {
 			user = users.get(0);
 			
-			if (user.getRoleid() == UserRole.USER_SCM.value()) {
+			if (UserRole.USER_SCM.getValue().equals(user.getRoleid())) {
 				return true;
 			}
 		}

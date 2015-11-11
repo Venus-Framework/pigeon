@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.dianping.lion.Environment;
 import com.dianping.pigeon.governor.model.User;
 import org.springframework.ui.ModelMap;
 
@@ -38,13 +39,15 @@ public class BaseController {
 	}
 
 	public void verifyIdentity(HttpServletRequest request, int agentId) throws Exception{
-		
+
 		String ip = IPUtils.getUserIP(request);
 		if(!"0:0:0:0:0:0:0:1%0".equals(ip)){
 			throw new Exception("You have no privilege.");
 		}
-		
-		verifyIdentity(agentId);
-		
+
+		if(2 != agentId) {
+			throw new Exception(String.format("agentId %d is not system level", agentId));
+		}
+
 	}
 }

@@ -4,14 +4,14 @@ import com.dianping.pigeon.governor.bean.JqGridReqBean;
 import com.dianping.pigeon.governor.bean.JqGridReqFilters;
 import com.dianping.pigeon.governor.bean.JqGridRespBean;
 import com.dianping.pigeon.governor.bean.ServiceBean;
+import com.dianping.pigeon.governor.model.OpLog;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.User;
+import com.dianping.pigeon.governor.service.OpLogService;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceService;
-import com.dianping.pigeon.governor.util.Constants;
-import com.dianping.pigeon.governor.util.IPUtils;
-import com.dianping.pigeon.governor.util.ThreadPoolFactory;
+import com.dianping.pigeon.governor.util.*;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,11 +29,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 
 @Controller
 public class ServiceController extends BaseController {
 	
-	private Logger log = LogManager.getLogger();
+	private Logger logger = LogManager.getLogger();
 	
 	@Autowired
 	private ServiceService serviceService;
@@ -41,6 +42,8 @@ public class ServiceController extends BaseController {
 	private ProjectService projectService;
 	@Autowired
 	private ProjectOwnerService projectOwnerService;
+	@Autowired
+	private OpLogService opLogService;
 	
 	@RequestMapping(value = {"/services/{projectName}"}, method = RequestMethod.GET)
 	public String projectInfo(ModelMap modelMap,
@@ -70,8 +73,10 @@ public class ServiceController extends BaseController {
 			});
 
 		}
-		
-		modelMap.addAttribute("isProjectOwner", projectOwnerService.isProjectOwner(currentUser, project));
+
+		modelMap.addAttribute("isProjectOwner",
+				UserRole.USER_SCM.getValue().equals(user.getRoleid()) ||
+						projectOwnerService.isProjectOwner(currentUser, project));
 		modelMap.addAttribute("projectName", projectName);
 		modelMap.addAttribute("projectId", project.getId());
 		
@@ -130,19 +135,44 @@ public class ServiceController extends BaseController {
 		}
 
 		try {
+			User user = (User) request.getSession().getAttribute(Constants.DP_USER);
+			String currentUser = user.getDpaccount();
+			String reqIp = IPUtils.getUserIP(request);
+			OpLog opLog = new OpLog();
+			opLog.setDpaccount(currentUser);
+			opLog.setProjectid(projectId);
+			opLog.setReqip(reqIp);
+			opLog.setOptype(OpType.UPDATE_PIGEON_SERVICE.getValue());
+			opLog.setOptime(new Date());
+
 			if("edit".equals(oper)){
 				serviceService.updateById(serviceBean, "true");
+
+				String content = String.format("%s edited service %s for group [%s], address is %s",
+						currentUser, serviceBean.getName(), serviceBean.getGroup(), serviceBean.getHosts());
+				opLog.setContent(content);
+				opLogService.create(opLog);
 				
 			}else if("del".equals(oper)){
 				serviceService.deleteByIdSplitByComma(serviceBean.getId(), "true");
+
+				String content = String.format("%s deleted services, ids: %s",
+						currentUser, serviceBean.getId());
+				opLog.setContent(content);
+				opLogService.create(opLog);
 			
 			}else if("add".equals(oper)){
 				serviceService.create(serviceBean, "true");
+
+				String content = String.format("%s created service %s for group [%s], address is %s",
+						currentUser, serviceBean.getName(), serviceBean.getGroup(), serviceBean.getHosts());
+				opLog.setContent(content);
+				opLogService.create(opLog);
 			
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.error("update zk error");
+			logger.error("update zk error");
 		}
 		
 	}

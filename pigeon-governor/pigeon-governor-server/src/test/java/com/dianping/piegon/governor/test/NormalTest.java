@@ -21,10 +21,8 @@ public class NormalTest {
 
 	@Test
 	public void testIfNull(){
-		User user = null;
-		if(user != null && "yes".equalsIgnoreCase(user.getDpaccount())) {
-			System.out.println("11");
-		}
+		User user = new User();
+		System.out.println(user.getDpaccount());
 
 	}
 
