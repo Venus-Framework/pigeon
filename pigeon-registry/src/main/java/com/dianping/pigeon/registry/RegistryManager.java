@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.registry;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -257,7 +257,7 @@ public class RegistryManager {
 
 		Set<HostInfo> hostInfos = referencedServiceAddresses.get(serviceName);
 		if (hostInfos == null) {
-			hostInfos = new HashSet<HostInfo>();
+			hostInfos = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo,Boolean>());
 			Set<HostInfo> oldHostInfos = referencedServiceAddresses.putIfAbsent(serviceName, hostInfos);
 			if (oldHostInfos != null) {
 				hostInfos = oldHostInfos;

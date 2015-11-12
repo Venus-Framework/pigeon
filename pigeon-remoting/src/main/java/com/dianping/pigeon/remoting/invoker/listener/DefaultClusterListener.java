@@ -132,7 +132,7 @@ public class DefaultClusterListener implements ClusterListener {
 			List<Client> clientList = serviceClients.get(serviceName);
 			if (clientList != null) {
 				for (Client client : clientList) {
-					if (client.getAddress().equals(connectInfo.getConnect())) {
+					if (client != null && client.getAddress().equals(connectInfo.getConnect())) {
 						return true;
 					}
 				}
@@ -165,7 +165,7 @@ public class DefaultClusterListener implements ClusterListener {
 		}
 		Client clientFound = null;
 		for (Client client : cs) {
-			if (client.getHost() != null && client.getHost().equals(host) && client.getPort() == port) {
+			if (client != null && client.getHost() != null && client.getHost().equals(host) && client.getPort() == port) {
 				newCS.remove(client);
 				clientFound = client;
 			}

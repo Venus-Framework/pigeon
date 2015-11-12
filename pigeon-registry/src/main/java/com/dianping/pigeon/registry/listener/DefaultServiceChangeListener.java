@@ -1,9 +1,9 @@
 package com.dianping.pigeon.registry.listener;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Logger;
 
@@ -29,9 +29,11 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			if (oldHpSet == null) {
 				toAddHpSet = newHpSet;
 			} else {
-				toRemoveHpSet = new HashSet<HostInfo>(oldHpSet);
+				toRemoveHpSet = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo,Boolean>());
+				toRemoveHpSet.addAll(oldHpSet);
 				toRemoveHpSet.removeAll(newHpSet);
-				toAddHpSet = new HashSet<HostInfo>(newHpSet);
+				toAddHpSet = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo,Boolean>());
+				toAddHpSet.addAll(newHpSet);
 				toAddHpSet.removeAll(oldHpSet);
 			}
 			if (logger.isInfoEnabled()) {
@@ -51,7 +53,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 	}
 
 	private Set<HostInfo> parseHostPortList(String serviceName, List<String[]> hostList) {
-		Set<HostInfo> hpSet = new HashSet<HostInfo>();
+		Set<HostInfo> hpSet = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo,Boolean>());
 		if (hostList != null) {
 			for (String[] parts : hostList) {
 				String host = parts[0];

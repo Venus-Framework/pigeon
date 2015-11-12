@@ -165,18 +165,20 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 						if (logger.isDebugEnabled()) {
 							logger.debug("[heartbeat] checking service provider:" + client);
 						}
-						boolean enable = Constants.PROTOCOL_DEFAULT.equals(client.getProtocol())
-								&& (RegistryManager.getInstance().getServiceWeight(client.getAddress()) > 0);
-						if (enable) {
-							if (client.isConnected()) {
-								if (configManager.getLocalIp().equals(client.getHost())
-										&& serverPorts.contains(client.getPort())) {
-									continue;
+						if(client != null) {
+							boolean enable = Constants.PROTOCOL_DEFAULT.equals(client.getProtocol())
+									&& (RegistryManager.getInstance().getServiceWeight(client.getAddress()) > 0);
+							if (enable) {
+								if (client.isConnected()) {
+									if (configManager.getLocalIp().equals(client.getHost())
+											&& serverPorts.contains(client.getPort())) {
+										continue;
+									}
+									sendHeartBeatRequest(client);
+								} else {
+									logger.info("[heartbeat] remove connect:" + client.getAddress());
+									clusterListenerManager.removeConnect(client);
 								}
-								sendHeartBeatRequest(client);
-							} else {
-								logger.info("[heartbeat] remove connect:" + client.getAddress());
-								clusterListenerManager.removeConnect(client);
 							}
 						}
 					}

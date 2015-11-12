@@ -51,8 +51,11 @@ public final class ProviderHelper {
 							transaction.getUri(), context, transaction);
 					if (newTransaction != null) {
 						if (response != null) {
-							newTransaction.logEvent("PigeonService.responseSize",
-									SizeMonitor.getInstance().getLogSize(response.getSize()), "" + response.getSize());
+							String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
+							if (respSize != null) {
+								newTransaction
+										.logEvent("PigeonService.responseSize", respSize, "" + response.getSize());
+							}
 						}
 						newTransaction.setStatusOk();
 						newTransaction.complete();

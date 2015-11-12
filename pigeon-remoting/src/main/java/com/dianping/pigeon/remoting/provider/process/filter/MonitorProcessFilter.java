@@ -81,8 +81,10 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 				}
 				transaction.logEvent("PigeonService.client", fromIp, parameters);
 				transaction.logEvent("PigeonService.QPS", "S" + Calendar.getInstance().get(Calendar.SECOND), "");
-				transaction.logEvent("PigeonService.requestSize",
-						SizeMonitor.getInstance().getLogSize(request.getSize()), "" + request.getSize());
+				String reqSize = SizeMonitor.getInstance().getLogSize(request.getSize());
+				if (reqSize != null) {
+					transaction.logEvent("PigeonService.requestSize", reqSize, "" + request.getSize());
+				}
 
 				if (!Constants.PROTOCOL_DEFAULT.equals(channel.getProtocol())) {
 					transaction.addData("Protocol", channel.getProtocol());

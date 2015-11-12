@@ -152,11 +152,15 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		boolean error = false;
 		try {
 			InvocationResponse response = handler.handle(invocationContext);
-			transaction.logEvent("PigeonCall.requestSize", SizeMonitor.getInstance().getLogSize(request.getSize()), ""
-					+ request.getSize());
+			String reqSize = SizeMonitor.getInstance().getLogSize(request.getSize());
+			if (reqSize != null) {
+				transaction.logEvent("PigeonCall.requestSize", reqSize, "" + request.getSize());
+			}
 			if (response != null && response.getSize() > 0) {
-				transaction.logEvent("PigeonCall.responseSize", SizeMonitor.getInstance()
-						.getLogSize(response.getSize()), "" + response.getSize());
+				String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
+				if (respSize != null) {
+					transaction.logEvent("PigeonCall.responseSize", respSize, "" + response.getSize());
+				}
 			}
 			return response;
 		} catch (NetTimeoutException e) {
@@ -222,5 +226,4 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 			}
 		}
 	}
-
 }

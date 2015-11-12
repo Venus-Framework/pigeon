@@ -54,8 +54,10 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		long start = System.nanoTime();
 		try {
 			response = super.get(timeoutMillis);
-			transaction.logEvent("PigeonCall.responseSize", SizeMonitor.getInstance().getLogSize(response.getSize()),
-					"" + response.getSize());
+			String size = SizeMonitor.getInstance().getLogSize(response.getSize());
+			if (size != null) {
+				transaction.logEvent("PigeonCall.responseSize", size, "" + response.getSize());
+			}
 		} catch (Throwable e) {
 			RuntimeException rpcEx = null;
 			if (e instanceof DPSFException) {
