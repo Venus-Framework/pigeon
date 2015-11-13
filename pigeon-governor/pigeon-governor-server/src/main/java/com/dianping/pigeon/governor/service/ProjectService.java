@@ -36,4 +36,6 @@ public interface ProjectService {
 
 	public List<String> retrieveAllName();
 
+	public Project retrieveProjectById(Integer id);
+
 }

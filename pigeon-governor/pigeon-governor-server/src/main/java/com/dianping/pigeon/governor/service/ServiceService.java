@@ -40,5 +40,9 @@ public interface ServiceService {
 									String ip, String port, String updatezk) throws Exception;
 	
 	public JqGridRespBean retrieveByJqGrid(int page, int rows, String projectName);
+
+	public JqGridRespBean retrieveByJqGrid(String projectName);
+
+	public List<Service> retrieveAllByProjectName(String projectName);
 	
 }

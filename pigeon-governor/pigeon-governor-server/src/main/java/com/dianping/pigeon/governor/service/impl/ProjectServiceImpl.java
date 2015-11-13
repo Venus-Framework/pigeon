@@ -285,4 +285,28 @@ public class ProjectServiceImpl implements ProjectService {
 		return projects;
 	}
 
+	@Override
+	public Project retrieveProjectById(Integer id) {
+		Project result = null;
+
+		if (id == null) {
+			return result;
+		}
+
+
+		ProjectExample example = new ProjectExample();
+		example.createCriteria().andIdEqualTo(id);
+		List<Project> projects = projectMapper.selectByExample(example);
+
+		if(projects != null){
+
+			if(projects.size() > 0){
+				result = projects.get(0);
+			}
+
+		}
+
+		return result;
+	}
+
 }

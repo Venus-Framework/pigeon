@@ -167,6 +167,8 @@ $(function(){
 	//$('li[id="project_info"]').addClass("active");
 });
 
+var services = ${services};
+
 jQuery(function($) {
 	var grid_selector = "#grid-table";
 	var pager_selector = "#grid-pager";
@@ -193,9 +195,17 @@ jQuery(function($) {
         }
     } );
 
+	/*function refreshGrid($grid, results) {
+		$grid.jqGrid('clearGridData')
+				.jqGrid('setGridParam', { data: results })
+				.trigger('reloadGrid', [{ page: 1}]);
+	}*/
+
 	jQuery(grid_selector).jqGrid({
 
-		url:"${rc.contextPath}/services/${projectName}",
+		datatype: "local",
+		data: services,
+		/*url:"${rc.contextPath}/services/${projectName}",
 		datatype: "json",
 		mtype:"POST",
 		jsonReader: {
@@ -204,7 +214,7 @@ jQuery(function($) {
 			total: "totalPages",
 			records: "totalRecords",
 			repeatitems : true
-		},
+		},*/
 		height: 350,
 		colNames:['操作', 'ID','Name','描述', '泳道', 'Hosts','PID'],
 		colModel:[
@@ -212,9 +222,65 @@ jQuery(function($) {
 				formatter:#if($isProjectOwner)'actions'#else'actionFormatter'#end, 
 				formatoptions:{ 
 					keys:true,
-					//delbutton: false,//disable delete button
-					delOptions:{recreateForm: true, beforeShowForm:beforeDeleteCallback},
-					//editformbutton:true, editOptions:{recreateForm: true, beforeShowForm:beforeEditCallback}
+					delbutton: true,
+					delOptions:{
+						recreateForm: true, beforeShowForm:beforeDeleteCallback, afterComplete: function (resp, data) {
+							//console.log(data);
+							for(var j = 0; j < data.length; ++j) {
+								for(var i = 0; i < services.length; ++i) {
+									//console.log(data[j]);
+									//console.log(services[i].id);
+									if(data[j] == services[i].id) {
+										services.splice(i,1);
+									}
+								}
+							}
+							//console.log(services);
+						},
+						serializeDelData: function (data) {
+							//console.log(data);
+							return data;
+						}
+					},
+					//extraparam: {oper:'edit'},
+					editbutton:true,
+					editformbutton:false,
+					// 点击 edit 之后
+					onEdit: function (rowId) {
+						//console.log(rowId);
+						var nameCol = '#'+rowId + '_name';
+						var groupCol = '#'+rowId + '_group';
+						$(nameCol).attr("disabled","disabled");
+						$(groupCol).attr("disabled","disabled");
+					},
+					onSuccess:function (resp) {// edit 成功之后
+						//console.log(resp);
+						var status = resp.responseJSON.status;
+						var data = resp.responseJSON.result;
+						if(status == "success") {
+							for(var i = 0; i < services.length; ++i) {
+								if(data.id == services[i].id) {
+									services.splice(i,1,data);
+								}
+							}
+							return true;//turns to afterSave
+						} else if(status == "error") {
+							alert(resp.responseJSON.message);
+							return false;
+						}
+
+					},
+					onError:function(rowId, resp, textStatus) {// [click submit] and [if onSuccess return false]
+						console.log(rowId);
+					},
+					afterSave:function(rowId) { //if onSuccess return true
+						//console.log("in afterSave (Submit): rowid="+rowId+"\nWe don't need return anything");
+					},
+					afterRestore:function(rowId) { // [click cancel] or [if onSuccess return false]
+						console.log("in afterRestore (Cancel): rowid="+rowId+"\nWe don't need return anything");
+					},
+					editOptions: { /*recreateForm: true, beforeShowForm:beforeEditCallback*/ }
+
 				}
 			},
 			{name:'id', index:'id', width:20, sorttype:"int", search:false, editable:false},
@@ -231,8 +297,8 @@ jQuery(function($) {
 		], 
 
 		viewrecords : true,
-		rowNum:200,
-		rowList:[200,400],
+		rowNum:400,
+		rowList:[400,800],
 		pager : pager_selector,
 		altRows: true,
 		//toppager: true,
@@ -251,14 +317,15 @@ jQuery(function($) {
 				enableTooltips(table);
 			}, 0);
 			
-			$('.ui-inline-edit').click(function(e){
+			/*$('.ui-inline-edit').click(function(e){
+				//console.log(e);
 				var btnId = e.currentTarget.id;
 				var rowId = btnId.split("_")[1];
 				var nameCol = '#'+rowId + '_name';
 				var groupCol = '#'+rowId + '_group';
                 $(nameCol).attr("disabled","disabled");
                 $(groupCol).attr("disabled","disabled");
-			});
+			});*/
 		},
 
 		editurl: "${rc.contextPath}/services.api/${projectId}",//nothing is saved
@@ -312,7 +379,6 @@ jQuery(function($) {
 		}, 0);
 	}
 
-
 	//navButtons
 	jQuery(grid_selector).jqGrid('navGrid',pager_selector,
 		{ 	//navbar options
@@ -334,6 +400,30 @@ jQuery(function($) {
 			//closeAfterEdit: true,
 			width: 650,
 			recreateForm: true,
+			onclickSubmit: function (params) {
+				//console.log(params);
+			},
+			serializeEditData: function(data) {
+				//console.log(data);
+				return data;
+			},
+			afterComplete: function (resp, data) {
+				var status = resp.responseJSON.status;
+				delete data.oper;
+				if(status == "success") {
+					delete data.oper;
+					for(var i = 0; i < services.length; ++i) {
+						if(data.id == services[i].id) {
+							services.splice(i,1,data);
+						}
+					}
+					jQuery(grid_selector).jqGrid('clearGridData')
+							.jqGrid('setGridParam', { data: services })
+							.trigger('reloadGrid', [{ page: 1}]);
+				} else if(status == "error") {
+					alert(resp.responseJSON.message);
+				}
+			},
 			beforeShowForm : function(e) {
 				//console.log(e);
 				var form = $(e[0]);
@@ -349,6 +439,26 @@ jQuery(function($) {
 			closeAfterAdd: true,
 			recreateForm: true,
 			viewPagerButtons: false,
+			onclickSubmit: function (params) {
+				//console.log(params);
+			},
+			serializeEditData: function(data) {
+				//console.log(data);
+				return data;
+			},
+			afterComplete: function (resp, data) {
+				console.log(resp);
+				var status = resp.responseJSON.status;
+				if(status == "success") {
+					services.push(resp.responseJSON.result);
+					jQuery(grid_selector).jqGrid('clearGridData')
+							.jqGrid('setGridParam', { data: services })
+							.trigger('reloadGrid', [{ page: 1}]);
+				} else if(status == "error") {
+					alert(resp.responseJSON.message);
+				}
+
+			},
 			beforeShowForm : function(e) {
 				//console.log(e);
 				var form = $(e[0]);
@@ -360,6 +470,19 @@ jQuery(function($) {
 		{
 			//delete record form
 			recreateForm: true,
+			reloadAfterSubmit:true,
+			serializeDelData: function (data) {
+				return data;
+			},
+			afterComplete: function (resp, data) {
+				for(var j = 0; j < data.length; ++j) {
+					for(var i = 0; i < services.length; ++i) {
+						if(data[j] == services[i].id) {
+							services.splice(i,1);
+						}
+					}
+				}
+			},
 			beforeShowForm : function(e) {
 				var form = $(e[0]);
 				if(form.data('styled')) return false;

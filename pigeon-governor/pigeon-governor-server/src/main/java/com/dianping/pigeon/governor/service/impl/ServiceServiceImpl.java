@@ -1,5 +1,6 @@
 package com.dianping.pigeon.governor.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -21,6 +22,7 @@ import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.RegistryService;
 import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.util.IPUtils;
+import org.springframework.dao.DataAccessException;
 
 /**
  * 
@@ -32,7 +34,7 @@ public class ServiceServiceImpl implements ServiceService {
 
 	private Logger logger = LogManager.getLogger();
 
-	private ExecutorService proOwnerThreadPool = ThreadPoolFactory.getProOwnerThreadPool();
+	private ExecutorService proOwnerThreadPool = ThreadPoolFactory.getWorkThreadPool();
 	
 	@Autowired
 	private ServiceMapper serviceMapper;
@@ -46,13 +48,22 @@ public class ServiceServiceImpl implements ServiceService {
 	
 	@Override
 	public int create(ServiceBean serviceBean, String updatezk) throws Exception {
-		int count = -1;
+		int count = 0;
 		boolean writeZk = "true".equalsIgnoreCase(updatezk);
 		Service service = serviceBean.createService();
 		count = create(service);
 		
 		if(count > 0 && writeZk) {
-			registryService.registryCreateService(service);
+			try {
+				registryService.registryCreateService(service);
+			} catch (Exception e) {
+				logger.error("update zk error", e);
+				service = getService(service.getName(), service.getGroup());
+				if(service != null) {
+					deleteById(service.getId());
+				}
+				throw e;
+			}
 		}
 		
 		return count;
@@ -60,9 +71,9 @@ public class ServiceServiceImpl implements ServiceService {
 	
 	@Override
 	public int deleteById(Integer id) {
-		int sqlSucCount = -1;
+		int sqlSucCount = 0;
 		
-		if(id > 0){
+		if(id != null){
 			sqlSucCount = serviceMapper.deleteByPrimaryKey(id);
 		}
 		
@@ -190,8 +201,13 @@ public class ServiceServiceImpl implements ServiceService {
 	public Service getService(String name, String group) {
 		ServiceExample example = new ServiceExample();
 		example.createCriteria().andNameEqualTo(name).andGroupEqualTo(group);
-		List<Service> services = serviceMapper.selectByExample(example);
-		
+		List<Service> services = null;
+		try {
+			services = serviceMapper.selectByExample(example);
+		} catch (DataAccessException e) {
+			logger.error(e.getMessage());
+		}
+
 		if(services != null){
 			
 			if(services.size() > 0){
@@ -212,7 +228,11 @@ public class ServiceServiceImpl implements ServiceService {
 						&& service.getProjectid() != null
 						&& service.getId() != null)
 		{
-			sqlSucCount = serviceMapper.updateByPrimaryKeySelective(service);
+			try {
+				sqlSucCount = serviceMapper.updateByPrimaryKeySelective(service);
+			} catch (DataAccessException e) {
+				logger.error(e.getMessage());
+			}
 		}
 		
 		return sqlSucCount;
@@ -278,12 +298,16 @@ public class ServiceServiceImpl implements ServiceService {
 
 	@Override
 	public int create(Service service) {
-		int sqlSucCount = -1;
+		int sqlSucCount = 0;
 		
 		if(StringUtils.isNotBlank(service.getName()) 
 						&& service.getProjectid() != null)
 		{
-			sqlSucCount = serviceMapper.insertSelective(service);
+			try {
+				sqlSucCount = serviceMapper.insertSelective(service);
+			} catch (DataAccessException e) {
+				logger.error(e.getMessage());
+			}
 		}
 		
 		return sqlSucCount;
@@ -338,10 +362,53 @@ public class ServiceServiceImpl implements ServiceService {
 				jqGridTableBean.setTotalPages(totalPages);
 			}
 			
-			
 		}
 		
 		return jqGridTableBean;
+	}
+
+	@Override
+	public JqGridRespBean retrieveByJqGrid(String projectName) {
+		JqGridRespBean jqGridTableBean = null;
+
+		if(StringUtils.isNotBlank(projectName)) {
+			Project project = projectService.findProject(projectName);
+
+			if(project != null){
+				Integer projectId = project.getId();
+				ServiceExample serviceExample = new ServiceExample();
+				serviceExample.createCriteria().andProjectidEqualTo(projectId);
+				List<Service> services = serviceMapper.selectByExample(serviceExample);
+
+				jqGridTableBean = new JqGridRespBean();
+				jqGridTableBean.setData(services);
+				//jqGridTableBean.setCurrentPage(page);
+				jqGridTableBean.setTotalRecords(services.size());
+				//jqGridTableBean.setTotalPages(totalPages);
+			}
+
+		}
+
+		return jqGridTableBean;
+	}
+
+	@Override
+	public List<Service> retrieveAllByProjectName(String projectName) {
+		List<Service> services = new ArrayList<Service>();
+
+		if(StringUtils.isNotBlank(projectName)) {
+			Project project = projectService.findProject(projectName);
+
+			if(project != null){
+				Integer projectId = project.getId();
+				ServiceExample serviceExample = new ServiceExample();
+				serviceExample.createCriteria().andProjectidEqualTo(projectId);
+				services = serviceMapper.selectByExample(serviceExample);
+			}
+
+		}
+
+		return services;
 	}
 
 }

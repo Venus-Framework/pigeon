@@ -53,7 +53,14 @@ public class ProjectController extends BaseController {
 	@Autowired
 	private ProjectOwnerService projectOwnerService;
 
-	@RequestMapping(value = {"/"}, method = RequestMethod.GET)
+	/**
+	 * 首页：查询缓存中的所有应用，跳转到应用服务配置页
+	 * @param modelMap
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = {"/","/index"}, method = RequestMethod.GET)
 	public String index(ModelMap modelMap,
 								   HttpServletRequest request,
 								   HttpServletResponse response) {
@@ -66,16 +73,50 @@ public class ProjectController extends BaseController {
 
 		return "/index";
 	}
-	
+
+	/**
+	 * 显示我的应用
+	 * @param modelMap
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = {"/projects"}, method = RequestMethod.GET)
+	public String allinone(ModelMap modelMap,
+						   HttpServletRequest request, HttpServletResponse response) {
+		User user = (User) request.getSession().getAttribute(Constants.DP_USER);
+		String dpAccount = user!=null ? user.getDpaccount() : "";
+		modelMap.addAttribute("currentUser", dpAccount);
+		modelMap.addAttribute("projectOwner", dpAccount);
+
+		return "/projects/mine";
+	}
+
+	/**
+	 * 显示所有应用
+	 * @param modelMap
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value = {"/projects.all"}, method = RequestMethod.GET)
 	public String projectOwnerInfo(ModelMap modelMap,
 									HttpServletRequest request,
 									HttpServletResponse response) {
 		commonnav(modelMap, request);
 
-		return "/projects/list";
+		return "/projects/all";
 	}
-	
+
+	/**
+	 * jqgrid表格插件根据应用拥有者（默认为当前登录人）查询应用列表
+	 * @param modelMap
+	 * @param jqGridReqBean
+	 * @param projectOwner
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value = {"/projects"}, method = RequestMethod.POST)
 	@ResponseBody
 	public JqGridRespBean projectsRetrieve(ModelMap modelMap,
@@ -97,25 +138,21 @@ public class ProjectController extends BaseController {
 		return jqGridTableBean;
 		
 	}
-	
-	@RequestMapping(value = {"/projects"}, method = RequestMethod.GET)
-	public String allinone(ModelMap modelMap,
-			HttpServletRequest request, HttpServletResponse response) {
-		User user = (User) request.getSession().getAttribute(Constants.DP_USER);
-		String dpAccount = user!=null ? user.getDpaccount() : "";
-		modelMap.addAttribute("currentUser", dpAccount);
-		modelMap.addAttribute("projectOwner", dpAccount);
-		
-		return "/projects/index";
-	}
-	
+
+	/**
+	 * jqgrid应用编辑接口
+	 * @param modelMap
+	 * @param projectBean
+	 * @param request
+	 * @param response
+	 */
 	@RequestMapping(value = {"/projects.api"}, method = RequestMethod.POST)
 	public void allinoneapi(ModelMap modelMap, ProjectBean projectBean,
 			HttpServletRequest request, HttpServletResponse response) {
 		String oper = projectBean.getOper();
 		
 		try {
-			verifyIdentity(request, 3);
+			verifyIdentity(request, 2);
 		} catch (Exception e) {
 			
 			e.printStackTrace();
@@ -133,7 +170,15 @@ public class ProjectController extends BaseController {
 		
 		}
 	}
-	
+
+	/**
+	 * jqgrid表格插件查询所有应用列表
+	 * @param modelMap
+	 * @param jqGridReqBean
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value = {"/projects.json"}, method = RequestMethod.POST)
 	@ResponseBody
 	public JqGridRespBean allinonejson(ModelMap modelMap, JqGridReqBean jqGridReqBean,

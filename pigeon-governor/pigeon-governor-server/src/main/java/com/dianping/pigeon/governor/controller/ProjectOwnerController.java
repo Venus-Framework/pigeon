@@ -43,7 +43,7 @@ public class ProjectOwnerController extends BaseController {
         }
 
         final String emails = project.getEmail();
-        ThreadPoolFactory.getProOwnerThreadPool().execute(new Runnable() {
+        ThreadPoolFactory.getWorkThreadPool().execute(new Runnable() {
             @Override
             public void run() {
                 //create default project owner
