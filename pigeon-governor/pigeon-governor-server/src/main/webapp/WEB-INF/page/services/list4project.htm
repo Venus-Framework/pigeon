@@ -99,8 +99,11 @@
 							<button type="button" class="close line-height-0" data-dismiss="alert">
 								<i class="ace-icon fa fa-times smaller-75"></i>
 							</button>
-
-							更多帮助请咨询架构组。
+							#if($isProjectOwner)
+							更多帮助请前往架构客服群咨询。
+							#else
+							点击左下角小红人可申请管理员。
+							#end
 						</div>
 
 						<table id="grid-table"></table>
@@ -125,6 +128,18 @@
 	<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
 		<i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
 	</a>
+
+	<div id="dialog-message" class="hide">
+		<p>
+			请点击<a href="http://crab.dp/cmdb/app_manage?project=${projectName}" target="_blank">此处</a>添加管理员邮箱到项目邮件组，然后点击按钮即可添加
+		</p>
+
+		<div class="hr hr-12 hr-double"></div>
+
+		<p>
+			<b class="red">项目邮件组添加完成后,点击OK即可.</b>
+		</p>
+	</div><!-- #dialog-message -->
 	
 </div>
 
@@ -149,6 +164,9 @@
 <script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
 <script src="${rc.contextPath}/resources/assets/js/jqGrid/jquery.jqGrid.min.js"></script>
 <script src="${rc.contextPath}/resources/assets/js/jqGrid/i18n/grid.locale-cn.js"></script>
+
+<script src="${rc.contextPath}/resources/assets/js/jquery-ui.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.ui.touch-punch.min.js"></script>
 
 <!-- ace scripts -->
 <script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
@@ -205,7 +223,7 @@ jQuery(function($) {
 						recreateForm: true, beforeShowForm:beforeDeleteCallback,
 						serializeDelData: function (data) {
 							return data;
-						}，
+						},
 						afterComplete: function (resp, data) {
 							for(var j = 0; j < data.length; ++j) {
 								for(var i = 0; i < services.length; ++i) {
@@ -480,25 +498,46 @@ jQuery(function($) {
 	jQuery(grid_selector).navButtonAdd(pager_selector,{
 		caption: "",
 		title:"申请成为管理员", 
-		buttonicon:'ace-icon fa fa-user red', 
-		onClickButton: function(){
-			var currentUser = "${currentUser}";
-			var projectName = "${projectName}";
-			alert("请前往http://crab.dp/cmdb/app_manage添加管理员邮箱到项目邮件组，然后点击按钮即可添加");
-			//TODO 加入添加管理员按钮置为不可用
-			//console.log(this);console.log($("#addOwnerBtn"));
-			$.ajax({
-				url: '/projectowners/cmdb',
-		        type: 'POST',
-		        data:{"dpaccount": currentUser, "projectName": projectName},
-				error: function(){
-					alert("server error!");
-				},
-				success: function(response, textStatus) {
-					alert(response.result);
-					window.location.reload();
-				}
+		buttonicon:'ace-icon fa fa-user red',
+		onClickButton: function(e){
+			e.preventDefault();
+
+			var dialog = $( "#dialog-message" ).removeClass('hide').dialog({
+				modal: true,
+				title: "<div class='widget-header widget-header-small'><h4 class='smaller'><i class='ace-icon fa fa-check'></i>申请管理员?</h4></div>",
+				title_html: true,
+				buttons: [
+					{
+						text: "Cancel",
+						"class" : "btn btn-xs",
+						click: function() {
+							$( this ).dialog( "close" );
+						}
+					},
+					{
+						text: "OK",
+						"class" : "btn btn-primary btn-xs",
+						click: function() {
+							//TODO ajax 应用管理员
+							var currentUser = "${currentUser}";
+							var projectName = "${projectName}";
+							$.ajax({
+								url: '/projectowners/cmdb',
+								type: 'POST',
+								data:{"dpaccount": currentUser, "projectName": projectName},
+								error: function(){
+									console.log("server error!");
+								},
+								success: function(response, textStatus) {
+									//console.log(response.result);
+									window.location.reload();
+								}
+							});
+						}
+					}
+				]
 			});
+
 		},
 		position:"first",
 		id: "addOwnerBtn"
@@ -651,6 +690,18 @@ jQuery(function($) {
 		$(grid_selector).jqGrid('GridUnload');
 		$('.ui-jqdialog').remove();
 	});
+
+
+
+	//override dialog's title function to allow for HTML titles
+	$.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
+		_title: function(title) {
+			var $title = this.options.title || '&nbsp;'
+			if( ("title_html" in this.options) && this.options.title_html == true )
+				title.html($title);
+			else title.text($title);
+		}
+	}));
 	
 });
 </script>
