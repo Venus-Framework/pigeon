@@ -48,26 +48,6 @@ public class ServiceController extends BaseController {
 
 	private Gson gson = new Gson();
 
-	@RequestMapping(value = {"/exp"}, method = RequestMethod.GET)
-	public void testExp(ModelMap modelMap,
-						   HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		throw new Exception("test");
-
-	}
-
-	@RequestMapping(value = {"/exp2"}, method = RequestMethod.GET)
-	public void testExp2(ModelMap modelMap,
-						HttpServletRequest request, HttpServletResponse response) {
-
-		try {
-			throw new Exception("test");
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-
-	}
-
 	/**
 	 * 显示 projectName 的服务配置页面
 	 * @param modelMap
