@@ -99,8 +99,11 @@
 							<button type="button" class="close line-height-0" data-dismiss="alert">
 								<i class="ace-icon fa fa-times smaller-75"></i>
 							</button>
-
-							更多帮助请咨询架构组。
+							#if($isProjectOwner)
+							更多帮助请前往架构客服群咨询。
+							#else
+							点击左下角小红人可申请管理员。
+							#end
 						</div>
 
 						<table id="grid-table"></table>
@@ -125,22 +128,27 @@
 	<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
 		<i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
 	</a>
+
+	<div id="dialog-message" class="hide">
+		<p>
+			请点击<a href="http://crab.dp/cmdb/app_manage?project=${projectName}" target="_blank">此处</a>添加管理员邮箱到项目邮件组，然后点击按钮即可添加
+		</p>
+
+		<div class="hr hr-12 hr-double"></div>
+
+		<p>
+			<b class="red">项目邮件组添加完成后,点击OK即可.</b>
+		</p>
+	</div><!-- #dialog-message -->
 	
 </div>
 
-
-
-
-
 <!-- basic scripts -->
-
 <!--[if !IE]> -->
 <script type="text/javascript">
 	window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.min.js'>"+"<"+"/script>");
 </script>
-
 <!-- <![endif]-->
-
 <!--[if IE]>
 <script type="text/javascript">
  window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery1x.min.js'>"+"<"+"/script>");
@@ -157,6 +165,9 @@
 <script src="${rc.contextPath}/resources/assets/js/jqGrid/jquery.jqGrid.min.js"></script>
 <script src="${rc.contextPath}/resources/assets/js/jqGrid/i18n/grid.locale-cn.js"></script>
 
+<script src="${rc.contextPath}/resources/assets/js/jquery-ui.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.ui.touch-punch.min.js"></script>
+
 <!-- ace scripts -->
 <script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
 <script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
@@ -166,6 +177,9 @@ $(function(){
 	$('li[id="projects_index"]').addClass("active open");
 	//$('li[id="project_info"]').addClass("active");
 });
+
+// 本地数据
+var services = ${services};
 
 jQuery(function($) {
 	var grid_selector = "#grid-table";
@@ -195,26 +209,68 @@ jQuery(function($) {
 
 	jQuery(grid_selector).jqGrid({
 
-		url:"${rc.contextPath}/services/${projectName}",
-		datatype: "json",
-		mtype:"POST",
-		jsonReader: {
-			root:"data",	
-			page: "currentPage",	
-			total: "totalPages",
-			records: "totalRecords",
-			repeatitems : true
-		},
+		datatype: "local",
+		data: services,
 		height: 350,
 		colNames:['操作', 'ID','Name','描述', '泳道', 'Hosts','PID'],
 		colModel:[
 			{name:'myac',index:'', width:70, fixed:true, sortable:false, resize:false,
-				formatter:#if($isProjectOwner)'actions'#else'actionFormatter'#end, 
+				formatter: #if($isProjectOwner)'actions'#else'actionFormatter'#end,
 				formatoptions:{ 
 					keys:true,
-					//delbutton: false,//disable delete button
-					delOptions:{recreateForm: true, beforeShowForm:beforeDeleteCallback},
-					//editformbutton:true, editOptions:{recreateForm: true, beforeShowForm:beforeEditCallback}
+					delbutton: true,
+					delOptions:{
+						recreateForm: true, beforeShowForm:beforeDeleteCallback,
+						serializeDelData: function (data) {
+							return data;
+						},
+						afterComplete: function (resp, data) {
+							for(var j = 0; j < data.length; ++j) {
+								for(var i = 0; i < services.length; ++i) {
+									if(data[j] == services[i].id) {
+										services.splice(i,1);
+									}
+								}
+							}
+						}
+					},
+
+					editformbutton: false,
+					editOptions: { /*recreateForm: true, beforeShowForm:beforeEditCallback*/ },
+					//extraparam: {oper:'edit'},
+					editbutton: true,
+					onEdit: function(rowId) {// 点击 edit 之后
+						var nameCol = '#'+rowId + '_name';
+						var groupCol = '#'+rowId + '_group';
+						$(nameCol).attr("disabled","disabled");
+						$(groupCol).attr("disabled","disabled");
+					},
+					onSuccess:function (resp) {// edit 成功之后
+						//console.log(resp);
+						var status = resp.responseJSON.status;
+						var data = resp.responseJSON.result;
+						if(status == "success") {
+							for(var i = 0; i < services.length; ++i) {
+								if(data.id == services[i].id) {
+									services.splice(i,1,data);
+								}
+							}
+							return true;//turns to afterSave
+						} else if(status == "error") {
+							alert(resp.responseJSON.message);
+							return false;
+						}
+
+					},
+					onError:function(rowId, resp, textStatus) {// [click submit] and [if onSuccess return false]
+						//console.log(rowId);
+					},
+					afterSave:function(rowId) { //if onSuccess return true
+						//console.log("in afterSave (Submit): rowid="+rowId+"\nWe don't need return anything");
+					},
+					afterRestore:function(rowId) { // [click cancel] or [if onSuccess return false]
+						//console.log("in afterRestore (Cancel): rowid="+rowId+"\nWe don't need return anything");
+					}
 				}
 			},
 			{name:'id', index:'id', width:20, sorttype:"int", search:false, editable:false},
@@ -231,8 +287,8 @@ jQuery(function($) {
 		], 
 
 		viewrecords : true,
-		rowNum:200,
-		rowList:[200,400],
+		rowNum:400,
+		rowList:[400,800],
 		pager : pager_selector,
 		altRows: true,
 		//toppager: true,
@@ -251,14 +307,15 @@ jQuery(function($) {
 				enableTooltips(table);
 			}, 0);
 			
-			$('.ui-inline-edit').click(function(e){
+			/*$('.ui-inline-edit').click(function(e){
+				//console.log(e);
 				var btnId = e.currentTarget.id;
 				var rowId = btnId.split("_")[1];
 				var nameCol = '#'+rowId + '_name';
 				var groupCol = '#'+rowId + '_group';
                 $(nameCol).attr("disabled","disabled");
                 $(groupCol).attr("disabled","disabled");
-			});
+			});*/
 		},
 
 		editurl: "${rc.contextPath}/services.api/${projectId}",//nothing is saved
@@ -266,35 +323,14 @@ jQuery(function($) {
 
 		//,autowidth: true,
 
-
-		/**
-		,
-		grouping:true, 
-		groupingView : { 
-			 groupField : ['name'],
-			 groupDataSorted : true,
-			 plusicon : 'fa fa-chevron-down bigger-110',
-			 minusicon : 'fa fa-chevron-up bigger-110'
-		},
-		caption: "Grouping"
-		*/
-
 	});
-	
-	/* jQuery(grid_selector).jqGrid('editRow',rowid, 
-			{ 
-			    keys : true, 
-			    oneditfunc: function() {
-			        alert ("edited"); 
-			    }
-			}); */
+
 	
 	$(window).triggerHandler('resize.jqGrid');//trigger window resize to make the grid get the correct size
 	
 	//enable search/filter toolbar
 	//jQuery(grid_selector).jqGrid('filterToolbar',{defaultSearch:true,stringResult:true})
 	//jQuery(grid_selector).filterToolbar({});
-
 
 	//switch element when editing inline
 	function aceSwitch( cellvalue, options, cell ) {
@@ -311,7 +347,6 @@ jQuery(function($) {
 					.datepicker({format:'yyyy-mm-dd' , autoclose:true}); 
 		}, 0);
 	}
-
 
 	//navButtons
 	jQuery(grid_selector).jqGrid('navGrid',pager_selector,
@@ -334,6 +369,30 @@ jQuery(function($) {
 			//closeAfterEdit: true,
 			width: 650,
 			recreateForm: true,
+			onclickSubmit: function (params) {
+				//console.log(params);
+			},
+			serializeEditData: function(data) {
+				//console.log(data);
+				return data;
+			},
+			afterComplete: function (resp, data) {
+				var status = resp.responseJSON.status;
+				delete data.oper;
+				if(status == "success") {
+					delete data.oper;
+					for(var i = 0; i < services.length; ++i) {
+						if(data.id == services[i].id) {
+							services.splice(i,1,data);
+						}
+					}
+					jQuery(grid_selector).jqGrid('clearGridData')
+							.jqGrid('setGridParam', { data: services })
+							.trigger('reloadGrid', [{ page: 1}]);
+				} else if(status == "error") {
+					alert(resp.responseJSON.message);
+				}
+			},
 			beforeShowForm : function(e) {
 				//console.log(e);
 				var form = $(e[0]);
@@ -349,6 +408,26 @@ jQuery(function($) {
 			closeAfterAdd: true,
 			recreateForm: true,
 			viewPagerButtons: false,
+			onclickSubmit: function (params) {
+				//console.log(params);
+			},
+			serializeEditData: function(data) {
+				//console.log(data);
+				return data;
+			},
+			afterComplete: function (resp, data) {
+				console.log(resp);
+				var status = resp.responseJSON.status;
+				if(status == "success") {
+					services.push(resp.responseJSON.result);
+					jQuery(grid_selector).jqGrid('clearGridData')
+							.jqGrid('setGridParam', { data: services })
+							.trigger('reloadGrid', [{ page: 1}]);
+				} else if(status == "error") {
+					alert(resp.responseJSON.message);
+				}
+
+			},
 			beforeShowForm : function(e) {
 				//console.log(e);
 				var form = $(e[0]);
@@ -360,6 +439,19 @@ jQuery(function($) {
 		{
 			//delete record form
 			recreateForm: true,
+			reloadAfterSubmit:true,
+			serializeDelData: function (data) {
+				return data;
+			},
+			afterComplete: function (resp, data) {
+				for(var j = 0; j < data.length; ++j) {
+					for(var i = 0; i < services.length; ++i) {
+						if(data[j] == services[i].id) {
+							services.splice(i,1);
+						}
+					}
+				}
+			},
 			beforeShowForm : function(e) {
 				var form = $(e[0]);
 				if(form.data('styled')) return false;
@@ -406,25 +498,46 @@ jQuery(function($) {
 	jQuery(grid_selector).navButtonAdd(pager_selector,{
 		caption: "",
 		title:"申请成为管理员", 
-		buttonicon:'ace-icon fa fa-user red', 
-		onClickButton: function(){
-			var currentUser = "${currentUser}";
-			var projectName = "${projectName}";
-			alert("请前往http://crab.dp/cmdb/app_manage添加管理员邮箱到项目邮件组，然后点击按钮即可添加");
-			$.ajax({
-				url: '/projectowners/cmdb',
-		        type: 'POST',
-		        data:{"dpaccount": currentUser, "projectName": projectName},
-				error: function(){
-					alert("server error!");
-				},
-				success: function(response, textStatus) {
-					alert(response.result);
-					window.location.reload();
-				}
+		buttonicon:'ace-icon fa fa-user red',
+		onClickButton: function(e){
+			e.preventDefault();
+
+			var dialog = $( "#dialog-message" ).removeClass('hide').dialog({
+				modal: true,
+				title: "<div class='widget-header widget-header-small'><h4 class='smaller'><i class='ace-icon fa fa-check'></i>申请管理员?</h4></div>",
+				title_html: true,
+				buttons: [
+					{
+						text: "Cancel",
+						"class" : "btn btn-xs",
+						click: function() {
+							$( this ).dialog( "close" );
+						}
+					},
+					{
+						text: "OK",
+						"class" : "btn btn-primary btn-xs",
+						click: function() {
+							//TODO ajax 应用管理员
+							var currentUser = "${currentUser}";
+							var projectName = "${projectName}";
+							$.ajax({
+								url: '/projectowners/cmdb',
+								type: 'POST',
+								data:{"dpaccount": currentUser, "projectName": projectName},
+								error: function(){
+									console.log("server error!");
+								},
+								success: function(response, textStatus) {
+									//console.log(response.result);
+									window.location.reload();
+								}
+							});
+						}
+					}
+				]
 			});
-			//alert(currentUser+","+projectName);
-			//alert("请在crab.dp中填写应用的项目邮件组，邮件组的第一个点评email的dpaccount可自动申请项目管理员");
+
 		},
 		position:"first",
 		id: "addOwnerBtn"
@@ -529,7 +642,6 @@ jQuery(function($) {
 		.wrap('<label />').after('<span class="lbl align-top" />');
 	*/
 	}
-	
 
 	//unlike navButtons icons, action icons in rows seem to be hard-coded
 	//you can change them like this in here if you want
@@ -578,6 +690,18 @@ jQuery(function($) {
 		$(grid_selector).jqGrid('GridUnload');
 		$('.ui-jqdialog').remove();
 	});
+
+
+
+	//override dialog's title function to allow for HTML titles
+	$.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
+		_title: function(title) {
+			var $title = this.options.title || '&nbsp;'
+			if( ("title_html" in this.options) && this.options.title_html == true )
+				title.html($title);
+			else title.text($title);
+		}
+	}));
 	
 });
 </script>

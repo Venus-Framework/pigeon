@@ -2,8 +2,10 @@ package com.dianping.piegon.governor.test;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import com.dianping.pigeon.governor.bean.ServiceBean;
+import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.util.IPUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
@@ -17,6 +19,14 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class NormalTest {
+
+	@Test
+	public void testIfNull(){
+
+		User user = new User();
+		System.out.println(user.getDpaccount());
+
+	}
 
 	@Test
 	public void testObjNullAttr(){

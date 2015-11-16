@@ -12,7 +12,7 @@ public enum UserRole {
 		this.value = value;
 	}
 	
-	public Integer value(){
+	public Integer getValue(){
 		return value;
 	}
 }

@@ -3,6 +3,7 @@ package com.dianping.pigeon.governor.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.dianping.pigeon.governor.model.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,7 @@ public class AdminController extends BaseController {
 	@RequestMapping(value = {"/","/index"}, method = RequestMethod.GET)
 	public String index(ModelMap modelMap,
 						HttpServletRequest request, HttpServletResponse response) {
-		String currentUser = (String) request.getSession().getAttribute(Constants.DP_ACCOUNT);
-		userService.isAdmin(currentUser);
+		User user = (User) request.getSession().getAttribute(Constants.DP_USER);
 
 		return "/admin/index";
 	}

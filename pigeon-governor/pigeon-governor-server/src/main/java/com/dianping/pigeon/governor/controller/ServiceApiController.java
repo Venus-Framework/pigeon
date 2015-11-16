@@ -3,15 +3,19 @@ package com.dianping.pigeon.governor.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.dianping.pigeon.governor.model.Host;
-import com.dianping.pigeon.governor.service.HostService;
+import com.dianping.pigeon.governor.model.OpLog;
+import com.dianping.pigeon.governor.service.*;
 import com.dianping.pigeon.governor.util.Constants;
 
+import com.dianping.pigeon.governor.util.IPUtils;
+import com.dianping.pigeon.governor.util.OpType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,9 +32,6 @@ import com.dianping.pigeon.governor.lion.ConfigHolder;
 import com.dianping.pigeon.governor.lion.LionKeys;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.Service;
-import com.dianping.pigeon.governor.service.ProjectService;
-import com.dianping.pigeon.governor.service.RegistryService;
-import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.mysql.jdbc.log.Log;
 
@@ -54,7 +55,7 @@ public class ServiceApiController extends BaseController {
 	private RegistryService registryService;
     @Autowired
     private HostService hostService;
-	
+
 	public static final String SUCCESS_CODE = "0|";		//正确返回码
 	public static final String ERROR_CODE = "1|";		//错误返回码
 	
@@ -105,63 +106,18 @@ public class ServiceApiController extends BaseController {
         }
     }
     
-    /**
-     * 设置服务地址
-     * @author chenchongze
-     * @param request
-     * @param id
-     * @param service
-     * @param group
-     * @param address
-     * @return
-     */
-    @RequestMapping(value = "/service2/set", method = RequestMethod.GET)
-    @ResponseBody
-    public Result set(HttpServletRequest request,
-                      @RequestParam(value="id") int id,
-                      @RequestParam(value="service") String service,
-                      @RequestParam(value="group", required=false, defaultValue="") String group,
-                      @RequestParam(value="address") String address) {
-        try {
-            verifyIdentity(id);
-        } catch (Exception e) {
-            return Result.createErrorResult(e.getMessage());
-        }
-        
-        Service oriService = serviceService.getService(service, group);
-        
-        if(oriService == null) {
-        	
-            return Result.createErrorResult(String.format("Service %s for group [%s] does not exist", service, group));
-            
-        } else {
-        	Service newService = new Service(oriService);
-        	newService.setHosts(address);
-        	
-            try {
-                serviceService.updateById(newService);
-                registryService.registryUpdateService(oriService, newService);
-                
-                String message = String.format("Updated service %s for group [%s] to address %s", service, group, address);
-                return Result.createSuccessResult(message);
-            } catch (Exception e) {
-                return Result.createErrorResult(String.format("Failed to update service %s: %s",service, e.getMessage()));
-            }
-            
-        }
-        
-    }
-    
     @RequestMapping(value = "/service/publish", method = RequestMethod.GET)
-    public void publish(HttpServletResponse response, @RequestParam(value="id") int id,
-    						@RequestParam(value="project", required=false, defaultValue="") String project,
-    						@RequestParam(value="app", required=false, defaultValue="") String app,
-    						@RequestParam(value="service") String service,
-    						@RequestParam(value="group", required=false, defaultValue="") String group,
-    						@RequestParam(value="ip") String ip,
-    						@RequestParam(value="port") String port,
-    						@RequestParam(value="updatezk", required=false, defaultValue="") String updatezk,
-    						@RequestParam(value="op", required=false, defaultValue="") String op) throws IOException {
+    public void publish(HttpServletRequest request,
+                        HttpServletResponse response,
+                        @RequestParam(value="id") int id,
+    					@RequestParam(value="project", required=false, defaultValue="") String project,
+    					@RequestParam(value="app", required=false, defaultValue="") String app,
+    					@RequestParam(value="service") String service,
+    					@RequestParam(value="group", required=false, defaultValue="") String group,
+    					@RequestParam(value="ip") String ip,
+    					@RequestParam(value="port") String port,
+    					@RequestParam(value="updatezk", required=false, defaultValue="") String updatezk,
+    					@RequestParam(value="op", required=false, defaultValue="") String op) throws IOException {
         
     	response.setContentType("text/plain;charset=utf-8");
         PrintWriter writer = response.getWriter();
@@ -205,18 +161,23 @@ public class ServiceApiController extends BaseController {
         	writer.write(ERROR_CODE + String.format("Service %s for group [%s] update to DB failed", service, group));
         } else {
         	writer.write(SUCCESS_CODE + hosts);
+            String reqIp = IPUtils.getUserIP(request);
+            String content = String.format("%s published service %s for group [%s], address is %s", reqIp, service, group, ip+":"+port);
+            logger.info(content);
         }
         
     }
     
     @RequestMapping(value = "/service/unpublish", method = RequestMethod.GET)
-    public void unpublish(HttpServletResponse response, @RequestParam(value="id") int id,
-    						@RequestParam(value="service") String service,
-    						@RequestParam(value="group", required=false, defaultValue="") String group,
-    						@RequestParam(value="ip") String ip,
-    						@RequestParam(value="port") String port,
-    						@RequestParam(value="updatezk", required=false, defaultValue="") String updatezk,
-    						@RequestParam(value="op", required=false, defaultValue="") String op) throws IOException {
+    public void unpublish(HttpServletRequest request,
+                          HttpServletResponse response,
+                          @RequestParam(value="id") int id,
+                          @RequestParam(value="service") String service,
+                          @RequestParam(value="group", required=false, defaultValue="") String group,
+                          @RequestParam(value="ip") String ip,
+                          @RequestParam(value="port") String port,
+                          @RequestParam(value="updatezk", required=false, defaultValue="") String updatezk,
+                          @RequestParam(value="op", required=false, defaultValue="") String op) throws IOException {
     	
     	response.setContentType("text/plain;charset=utf-8");
     	PrintWriter writer = response.getWriter();
@@ -243,7 +204,57 @@ public class ServiceApiController extends BaseController {
         	writer.write(ERROR_CODE + String.format("Service %s for group [%s] update to DB failed", service, group));
         } else {
         	writer.write(SUCCESS_CODE + hosts);
+            String reqIp = IPUtils.getUserIP(request);
+            String content = String.format("%s unpublished service %s for group [%s], address is %s", reqIp, service, group, ip+":"+port);
+            logger.info(content);
         }
     }
 
+    /**
+     * 设置服务地址
+     * @author chenchongze
+     * @param request
+     * @param id
+     * @param service
+     * @param group
+     * @param address
+     * @return
+     */
+    @Deprecated
+    @RequestMapping(value = "/service2/set", method = RequestMethod.PUT)
+    @ResponseBody
+    public Result set(HttpServletRequest request,
+                      @RequestParam(value="id") int id,
+                      @RequestParam(value="service") String service,
+                      @RequestParam(value="group", required=false, defaultValue="") String group,
+                      @RequestParam(value="address") String address) {
+        try {
+            verifyIdentity(id);
+        } catch (Exception e) {
+            return Result.createErrorResult(e.getMessage());
+        }
+
+        Service oriService = serviceService.getService(service, group);
+
+        if(oriService == null) {
+
+            return Result.createErrorResult(String.format("Service %s for group [%s] does not exist", service, group));
+
+        } else {
+            Service newService = new Service(oriService);
+            newService.setHosts(address);
+
+            try {
+                serviceService.updateById(newService);
+                registryService.registryUpdateService(oriService, newService);
+
+                String message = String.format("Updated service %s for group [%s] to address %s", service, group, address);
+                return Result.createSuccessResult(message);
+            } catch (Exception e) {
+                return Result.createErrorResult(String.format("Failed to update service %s: %s",service, e.getMessage()));
+            }
+
+        }
+
+    }
 }
