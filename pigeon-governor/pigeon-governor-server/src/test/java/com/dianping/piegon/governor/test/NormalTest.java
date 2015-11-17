@@ -49,13 +49,14 @@ public class NormalTest {
 
 	@Test
 	public void testSplit(){
-		String test = "/DP/WEIGHT/1.1.1.1:4080";
+		String test = ",,";
 
-		String[] aa = test.split("/");
-		/*for (String b : aa){
-			System.out.println(b);
-		}*/
-		System.out.println(aa[3]);
+		String[] aa = test.split(",");
+		System.out.println(aa[0]);
+		for (String b : aa){
+			System.out.println(b+ "1");
+		}
+		//System.out.println(aa[3]);
 	}
 
 	@Test
