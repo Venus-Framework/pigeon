@@ -18,8 +18,6 @@ public class ProcessBean {
 	
 	private Date createtime;
 
-    private Date modifytime;
-
 	public String getId() {
 		return id;
 	}
@@ -42,10 +40,6 @@ public class ProcessBean {
 
 	public Date getCreatetime() {
 		return createtime;
-	}
-
-	public Date getModifytime() {
-		return modifytime;
 	}
 
 	public void setId(String id) {
@@ -71,10 +65,6 @@ public class ProcessBean {
 	public void setCreatetime(Date createtime) {
 		this.createtime = createtime;
 	}
-
-	public void setModifytime(Date modifytime) {
-		this.modifytime = modifytime;
-	}
     
 	public Process createProcess() {
 		Process process = new Process();
@@ -83,7 +73,6 @@ public class ProcessBean {
 		process.setArgs(args);
 		process.setStatus(status);
 		process.setCreatetime(createtime);
-		process.setModifytime(modifytime);
 		
 		return process;
 	}

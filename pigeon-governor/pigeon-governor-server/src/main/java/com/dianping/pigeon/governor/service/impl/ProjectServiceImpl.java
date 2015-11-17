@@ -48,7 +48,6 @@ public class ProjectServiceImpl implements ProjectService {
 		if(StringUtils.isNotBlank(project.getName())) {
 			Date now = new Date();
 			project.setCreatetime(now);
-			project.setModifytime(now);
 			sqlSucCount = projectMapper.insertSelective(project);
 		}
 		
@@ -88,8 +87,6 @@ public class ProjectServiceImpl implements ProjectService {
 		if(StringUtils.isNotBlank(project.getName())
 						&& project.getId() != null)
 		{
-			Date now = new Date();
-			project.setModifytime(now);
 			//TODO 这里修改用selective保持null就不更新，只更新有值部分，createtime和id不要更新
 			sqlSucCount = projectMapper.updateByPrimaryKeySelective(project);
 		}
@@ -158,7 +155,6 @@ public class ProjectServiceImpl implements ProjectService {
 			project.setName(projectName);
 	    	Date now = new Date();
 			project.setCreatetime(now);
-			project.setModifytime(now);
 		}
 		
 		projectMapper.insertSelective(project);
@@ -215,7 +211,6 @@ public class ProjectServiceImpl implements ProjectService {
 		if(StringUtils.isNotBlank(project.getName())) {
 			Date now = new Date();
 			project.setCreatetime(now);
-			project.setModifytime(now);
 			sqlSucCount = projectMapper.insertSelective(project);
 		}
 
@@ -229,7 +224,6 @@ public class ProjectServiceImpl implements ProjectService {
 		if(project != null){
 			Date now = new Date();
 			project.setCreatetime(now);
-			project.setModifytime(now);
 			projectMapper.insertSelective(project);
 		}
 

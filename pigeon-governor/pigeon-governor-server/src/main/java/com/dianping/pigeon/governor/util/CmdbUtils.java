@@ -59,7 +59,6 @@ public class CmdbUtils {
 					project.setName(cmdbProjectBean.getProject_name());
 					Date now = new Date();
 					project.setCreatetime(now);
-					project.setModifytime(now);
 
 					projects.add(project);
 				}
@@ -102,7 +101,6 @@ public class CmdbUtils {
     	project.setName(projectName);
     	Date now = new Date();
 		project.setCreatetime(now);
-		project.setModifytime(now);
     	
     	return project;
 	}

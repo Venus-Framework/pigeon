@@ -27,8 +27,6 @@ public class ProjectBean extends AJqGridBean{
 
     private Date createtime;
 
-    private Date modifytime;
-
 	public String getId() {
 		return id;
 	}
@@ -59,10 +57,6 @@ public class ProjectBean extends AJqGridBean{
 
 	public Date getCreatetime() {
 		return createtime;
-	}
-
-	public Date getModifytime() {
-		return modifytime;
 	}
 
 	public void setId(String id) {
@@ -96,10 +90,6 @@ public class ProjectBean extends AJqGridBean{
 	public void setCreatetime(Date createtime) {
 		this.createtime = createtime;
 	}
-
-	public void setModifytime(Date modifytime) {
-		this.modifytime = modifytime;
-	}
     
 	public Project createProject(){
 		Project project = new Project();
@@ -110,7 +100,6 @@ public class ProjectBean extends AJqGridBean{
 		project.setEmail(this.email);
 		project.setPhone(this.phone);
 		project.setCreatetime(createtime);
-		project.setModifytime(this.modifytime);
 		
 		return project;
 	}
