@@ -113,8 +113,11 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 			if (transaction != null) {
 				try {
 					if (response != null) {
-						transaction.logEvent("PigeonService.responseSize",
-								SizeMonitor.getInstance().getLogSize(response.getSize()), "" + response.getSize());
+						String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
+						if (respSize != null) {
+							transaction.logEvent("PigeonService.responseSize",
+									SizeMonitor.getInstance().getLogSize(response.getSize()), "" + response.getSize());
+						}
 					}
 					Map<String, Serializable> globalContext = ContextUtils.getGlobalContext();
 					if (!CollectionUtils.isEmpty(globalContext)) {
