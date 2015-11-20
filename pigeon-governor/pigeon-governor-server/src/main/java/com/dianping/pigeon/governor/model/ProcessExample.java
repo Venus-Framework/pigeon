@@ -575,66 +575,6 @@ public class ProcessExample {
             return (Criteria) this;
         }
 
-        public Criteria andModifytimeIsNull() {
-            addCriterion("modifyTime is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andModifytimeIsNotNull() {
-            addCriterion("modifyTime is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andModifytimeEqualTo(Date value) {
-            addCriterion("modifyTime =", value, "modifytime");
-            return (Criteria) this;
-        }
-
-        public Criteria andModifytimeNotEqualTo(Date value) {
-            addCriterion("modifyTime <>", value, "modifytime");
-            return (Criteria) this;
-        }
-
-        public Criteria andModifytimeGreaterThan(Date value) {
-            addCriterion("modifyTime >", value, "modifytime");
-            return (Criteria) this;
-        }
-
-        public Criteria andModifytimeGreaterThanOrEqualTo(Date value) {
-            addCriterion("modifyTime >=", value, "modifytime");
-            return (Criteria) this;
-        }
-
-        public Criteria andModifytimeLessThan(Date value) {
-            addCriterion("modifyTime <", value, "modifytime");
-            return (Criteria) this;
-        }
-
-        public Criteria andModifytimeLessThanOrEqualTo(Date value) {
-            addCriterion("modifyTime <=", value, "modifytime");
-            return (Criteria) this;
-        }
-
-        public Criteria andModifytimeIn(List<Date> values) {
-            addCriterion("modifyTime in", values, "modifytime");
-            return (Criteria) this;
-        }
-
-        public Criteria andModifytimeNotIn(List<Date> values) {
-            addCriterion("modifyTime not in", values, "modifytime");
-            return (Criteria) this;
-        }
-
-        public Criteria andModifytimeBetween(Date value1, Date value2) {
-            addCriterion("modifyTime between", value1, value2, "modifytime");
-            return (Criteria) this;
-        }
-
-        public Criteria andModifytimeNotBetween(Date value1, Date value2) {
-            addCriterion("modifyTime not between", value1, value2, "modifytime");
-            return (Criteria) this;
-        }
-
         public Criteria andOpratorIsNull() {
             addCriterion("oprator is null");
             return (Criteria) this;

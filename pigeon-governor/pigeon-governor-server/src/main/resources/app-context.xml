@@ -24,7 +24,7 @@
 
 	<task:annotation-driven />
 
-	<bean id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource" destroy-method="close">
+	<!--<bean id="tomcatDataSource" class="org.apache.tomcat.jdbc.pool.DataSource" destroy-method="close">
 		<property name="poolProperties">
 			<bean class="org.apache.tomcat.jdbc.pool.PoolProperties">
 				<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
@@ -49,45 +49,56 @@
 				<property name="jdbcInterceptors" value="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"/>
 			</bean>
 		</property>
-	</bean>
+	</bean>-->
 
-	<!--<bean id="c3p0DataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-    	<property name="driverClass" value="com.mysql.jdbc.Driver" />
-    	<property name="jdbcUrl" value="${pigeon-governor-server.jdbc.url}" />
-    	<property name="user" value="${pigeon-governor-server.jdbc.username}" />
-    	<property name="password" value="${pigeon-governor-server.jdbc.password}" />
-    	<property name="minPoolSize" value="5" /> 
-		<property name="maxPoolSize" value="10" /> 
-		<property name="initialPoolSize" value="5" /> 
-		<property name="maxIdleTime" value="1800" /> 
-		<property name="idleConnectionTestPeriod" value="60" /> 
-		<property name="acquireRetryAttempts" value="3" /> 
+	<bean id="zebraDataSource" class="com.dianping.zebra.group.jdbc.GroupDataSource" init-method="init">
+		<!-- 唯一确定数据库的key，请咨询DBA使用哪个key -->
+		<property name="jdbcRef" value="pigeongovernor" />
+		<!-- 只走写库 -->
+		<!--<property name="routerType" value="fail-over" />-->
+		<!-- 选择使用背后使用哪种数据源，"c3p0"或者"tomcat-jdbc"，可以不配，默认值为"c3p0" -->
+		<property name="poolType" value="c3p0" />
+		<!-- 该值对应tomcat-jdbc的"minIdle" -->
+		<property name="minPoolSize" value="${pigeon-governor-server.zebra.minPoolSize}" />
+		<!-- 该值对应tomcat-jdbc的"maxActive" -->
+		<property name="maxPoolSize" value="${pigeon-governor-server.zebra.maxPoolSize}" />
+		<!-- 该值对应tomcat-jdbc的"initialSize" -->
+		<property name="initialPoolSize" value="${pigeon-governor-server.zebra.initialPoolSize}" />
+		<!-- 该值对应tomcat-jdbc的"maxWait" -->
+		<property name="checkoutTimeout" value="1000" />
+		<property name="maxIdleTime" value="1800" />
+		<property name="idleConnectionTestPeriod" value="60" />
+		<property name="acquireRetryAttempts" value="3" />
 		<property name="acquireRetryDelay" value="300" />
-		<property name="maxStatements" value="0"/> 
-		<property name="maxStatementsPerConnection" value="100"/>
-		<property name="numHelperThreads" value="6"/>
-		<property name="maxAdministrativeTaskTime" value="5"/>
-		<property name="preferredTestQuery" value="SELECT 1"/>
-    </bean>-->
-    
-    <!-- SessionFactory -->
-	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<property name="mapperLocations" value="classpath:com/dianping/pigeon/governor/dao/*.xml" />
+		<property name="maxStatements" value="0" />
+		<property name="maxStatementsPerConnection" value="100" />
+		<property name="numHelperThreads" value="6" />
+		<property name="maxAdministrativeTaskTime" value="5" />
+		<property name="preferredTestQuery" value="SELECT 1" />
 	</bean>
 
-	<!-- Transaction -->
-	<bean id="transactionManager"
-		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="dataSource" />
-	</bean>
-	
-	<tx:annotation-driven transaction-manager="transactionManager" />
+	<!--<bean class="com.dianping.zebra.dao.mybatis.ZebraMapperScannerConfigurer">
+		<property name="basePackage" value="com.dianping.pigeon.governor.dao" />
+	</bean>-->
 
 	<!-- MyBatis Mappers -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="com.dianping.pigeon.governor.dao" />
 	</bean>
+    
+    <!-- SessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="zebraDataSource" />
+		<property name="mapperLocations" value="classpath:com/dianping/pigeon/governor/dao/*.xml" />
+	</bean>
+
+	<!-- Transaction -->
+	<bean id="transactionManager"
+		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="zebraDataSource" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
 
 	<!-- enable autowire -->
 	<context:annotation-config />

@@ -171,7 +171,7 @@ public class ServiceController extends BaseController {
 					Service service = serviceService.getService(serviceBean.getName(),serviceBean.getGroup());
 
 					if(service != null){
-						String content = String.format("edited service %s for group [%s], address is %s",
+						String content = String.format("edit srv=%s&grp=%s&hsts=%s",
 								serviceBean.getName(), serviceBean.getGroup(), serviceBean.getHosts());
 						workThreadPool.submit(new LogOpRun(request, OpType.UPDATE_PIGEON_SERVICE, content, projectId));
 
@@ -187,7 +187,8 @@ public class ServiceController extends BaseController {
 			}else if("del".equals(oper)){
 				serviceService.deleteByIdSplitByComma(serviceBean.getId(), "true");
 
-				String content = String.format("deleted services, ids: %s", serviceBean.getId());
+				String content = String.format("del srvs=%s&grps=%s&hsts=%s",
+						serviceBean.getName(), serviceBean.getGroup(), serviceBean.getHosts());
 				workThreadPool.submit(new LogOpRun(request, OpType.DELETE_PIGEON_SERVICE, content, projectId));
 				result = Result.createSuccessResult(content);
 
@@ -196,7 +197,7 @@ public class ServiceController extends BaseController {
 				Service service = serviceService.getService(serviceBean.getName(),serviceBean.getGroup());
 
 				if(count == 1 && service != null) {
-					String content = String.format("created service %s for group [%s], address is %s",
+					String content = String.format("add srv=%s&grp=%s&hsts=%s",
 							serviceBean.getName(), serviceBean.getGroup(), serviceBean.getHosts());
 					workThreadPool.submit(new LogOpRun(request, OpType.CREATE_PIGEON_SERVICE, content, projectId));
 

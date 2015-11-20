@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
-	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:avatar="http://www.dianping.com/schema/avatar" xmlns:pigeon="http://code.dianping.com/schema/pigeon"
-	xmlns:task="http://www.springframework.org/schema/task"
-	xsi:schemaLocation="
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:avatar="http://www.dianping.com/schema/avatar" xmlns:pigeon="http://code.dianping.com/schema/pigeon"
+	   xmlns:task="http://www.springframework.org/schema/task"
+	   xsi:schemaLocation="
      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
      http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
@@ -16,51 +16,89 @@
      http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd">
 
 	<bean name="placeholder" lazy-init="false"
-		class="com.dianping.lion.client.InitializeConfig">
+		  class="com.dianping.lion.client.InitializeConfig">
 		<property name="propertiesPath" value="config/applicationContext.properties" />
 	</bean>
-	
+
 	<bean name="configHolder" class="com.dianping.pigeon.governor.lion.ConfigHolder" init-method="init" />
 
 	<task:annotation-driven />
 
-	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-    	<property name="driverClass" value="com.mysql.jdbc.Driver" />
-    	<property name="jdbcUrl" value="jdbc:mysql://127.0.0.1:3306/PigeonGovernor?characterEncoding=utf-8" />
-    	<property name="user" value="root" />
-    	<property name="password" value="root" />
-    	<property name="minPoolSize" value="5" /> 
-		<property name="maxPoolSize" value="10" /> 
-		<property name="initialPoolSize" value="5" /> 
-		<property name="maxIdleTime" value="1800" /> 
-		<property name="idleConnectionTestPeriod" value="60" /> 
-		<property name="acquireRetryAttempts" value="3" /> 
-		<property name="acquireRetryDelay" value="300" />
-		<property name="maxStatements" value="0"/> 
-		<property name="maxStatementsPerConnection" value="100"/>
-		<property name="numHelperThreads" value="6"/>
-		<property name="maxAdministrativeTaskTime" value="5"/>
-		<property name="preferredTestQuery" value="SELECT 1"/>
-    </bean>
-    
-    <!-- SessionFactory -->
-	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<property name="mapperLocations" value="classpath:com/dianping/pigeon/governor/dao/*.xml" />
+	<bean id="tomcatDataSource" class="org.apache.tomcat.jdbc.pool.DataSource" destroy-method="close">
+		<property name="poolProperties">
+			<bean class="org.apache.tomcat.jdbc.pool.PoolProperties">
+				<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+				<property name="url" value="${pigeon-governor-server.jdbc.url}"/>
+				<property name="username" value="${pigeon-governor-server.jdbc.username}"/>
+				<property name="password" value="${pigeon-governor-server.jdbc.password}"/>
+				<property name="jmxEnabled" value="true"/>
+				<property name="testWhileIdle" value="true"/>
+				<property name="testOnBorrow" value="true"/>
+				<property name="testOnReturn" value="false"/>
+				<property name="validationInterval" value="30000"/>
+				<property name="validationQuery" value="SELECT 1"/>
+				<property name="timeBetweenEvictionRunsMillis" value="30000"/>
+				<property name="maxActive" value="100"/>
+				<property name="initialSize" value="10"/>
+				<property name="maxWait" value="10000"/>
+				<property name="minEvictableIdleTimeMillis" value="30000"/>
+				<property name="minIdle" value="10"/>
+				<property name="logAbandoned" value="false"/>
+				<property name="removeAbandoned" value="true"/>
+				<property name="removeAbandonedTimeout" value="60"/>
+				<property name="jdbcInterceptors" value="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"/>
+			</bean>
+		</property>
 	</bean>
 
-	<!-- Transaction -->
-	<bean id="transactionManager"
-		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="dataSource" />
+	<!--<bean id="zebraDataSource" class="com.dianping.zebra.group.jdbc.GroupDataSource" init-method="init">
+		&lt;!&ndash; 唯一确定数据库的key，请咨询DBA使用哪个key &ndash;&gt;
+		<property name="jdbcRef" value="pigeongovernor" />
+		&lt;!&ndash; 只走写库 &ndash;&gt;
+		<property name="routerType" value="fail-over" />
+		&lt;!&ndash; 选择使用背后使用哪种数据源，"c3p0"或者"tomcat-jdbc"，可以不配，默认值为"c3p0" &ndash;&gt;
+		<property name="poolType" value="c3p0" />
+		&lt;!&ndash; 该值对应tomcat-jdbc的"minIdle" &ndash;&gt;
+		<property name="minPoolSize" value="${pigeon-governor-server.zebra.minPoolSize}" />
+		&lt;!&ndash; 该值对应tomcat-jdbc的"maxActive" &ndash;&gt;
+		<property name="maxPoolSize" value="${pigeon-governor-server.zebra.maxPoolSize}" />
+		&lt;!&ndash; 该值对应tomcat-jdbc的"initialSize" &ndash;&gt;
+		<property name="initialPoolSize" value="${pigeon-governor-server.zebra.initialPoolSize}" />
+		&lt;!&ndash; 该值对应tomcat-jdbc的"maxWait" &ndash;&gt;
+		<property name="checkoutTimeout" value="1000" />
+		<property name="maxIdleTime" value="1800" />
+		<property name="idleConnectionTestPeriod" value="60" />
+		<property name="acquireRetryAttempts" value="3" />
+		<property name="acquireRetryDelay" value="300" />
+		<property name="maxStatements" value="0" />
+		<property name="maxStatementsPerConnection" value="100" />
+		<property name="numHelperThreads" value="6" />
+		<property name="maxAdministrativeTaskTime" value="5" />
+		<property name="preferredTestQuery" value="SELECT 1" />
 	</bean>
-	
-	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<bean class="com.dianping.zebra.dao.mybatis.ZebraMapperScannerConfigurer">
+		<property name="basePackage" value="com.dianping.pigeon.governor.dao" />
+	</bean>-->
 
 	<!-- MyBatis Mappers -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="com.dianping.pigeon.governor.dao" />
 	</bean>
+
+	<!-- SessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="tomcatDataSource" />
+		<property name="mapperLocations" value="classpath:com/dianping/pigeon/governor/dao/*.xml" />
+	</bean>
+
+	<!-- Transaction -->
+	<bean id="transactionManager"
+		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="tomcatDataSource" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
 
 	<!-- enable autowire -->
 	<context:annotation-config />
@@ -70,8 +108,18 @@
 	<context:component-scan base-package="com.dianping.pigeon.governor.service" />
 
 	<bean id="healthCheck" class="com.dianping.pigeon.governor.task.HealthCheckBean"
-		lazy-init="false" init-method="init">
+		  lazy-init="false" init-method="init">
 	</bean>
 
 	<pigeon:annotation />
+
+	<pigeon:reference id="masterDataEmployeeService"  timeout="5000"
+					  url="http://service.dianping.com/ba/hris/masterdata/EmployeeService_1.0.0"
+					  interface="com.dianping.ba.hris.md.api.service.EmployeeService" />
+
+	<!-- 临时 -->
+	<bean id="hostDbProcess" class="com.dianping.pigeon.governor.lion.registry.HostDbProcess" />
+
+	<bean id="dailyTaskBean" class="com.dianping.pigeon.governor.task.DailyTaskBean" />
+
 </beans>

@@ -221,17 +221,26 @@ jQuery(function($) {
 					delbutton: true,
 					delOptions:{
 						recreateForm: true, beforeShowForm:beforeDeleteCallback,
+						onclickSubmit: function (params) {
+							//console.log(params);
+							var arraySelected = jQuery(grid_selector).jqGrid('getGridParam', 'selarrrow');
+							return { name: $(grid_selector).getRowData(arraySelected[0]).name,
+									group: $(grid_selector).getRowData(arraySelected[0]).group,
+									hosts: $(grid_selector).getRowData(arraySelected[0]).hosts};
+						},
 						serializeDelData: function (data) {
+							//console.log(data);
 							return data;
 						},
 						afterComplete: function (resp, data) {
-							for(var j = 0; j < data.length; ++j) {
+							//console.log(data);
+							//for(var j = 0; j < data.length; ++j) {
 								for(var i = 0; i < services.length; ++i) {
-									if(data[j] == services[i].id) {
+									if(data[0] == services[i].id) {
 										services.splice(i,1);
 									}
 								}
-							}
+							//}
 						}
 					},
 
@@ -416,7 +425,7 @@ jQuery(function($) {
 				return data;
 			},
 			afterComplete: function (resp, data) {
-				console.log(resp);
+				//console.log(resp);
 				var status = resp.responseJSON.status;
 				if(status == "success") {
 					services.push(resp.responseJSON.result);
@@ -440,10 +449,25 @@ jQuery(function($) {
 			//delete record form
 			recreateForm: true,
 			reloadAfterSubmit:true,
+			onclickSubmit: function (params) {
+				//console.log(params);
+				var names = [];
+				var groups = [];
+				var hostsArr = [];
+				var arraySelected = jQuery(grid_selector).jqGrid('getGridParam', 'selarrrow');
+				for (var i = 0; i < arraySelected.length; i++) {
+					names.push($(grid_selector).getRowData(arraySelected[i]).name);
+					groups.push($(grid_selector).getRowData(arraySelected[i]).group);
+					hostsArr.push($(grid_selector).getRowData(arraySelected[i]).hosts)
+				}
+				return { name: names.join(','), group: groups.join(','), hosts: hostsArr.join(',') };
+			},
 			serializeDelData: function (data) {
+				//console.log(data);
 				return data;
 			},
 			afterComplete: function (resp, data) {
+				//console.log(data)
 				for(var j = 0; j < data.length; ++j) {
 					for(var i = 0; i < services.length; ++i) {
 						if(data[j] == services[i].id) {
