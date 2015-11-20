@@ -12,7 +12,6 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.invoker.callback.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
@@ -21,8 +20,8 @@ public class InvocationTimeoutListener implements Runnable {
 
 	private static final Logger logger = LoggerLoader.getLogger(InvocationTimeoutListener.class);
 	private Map<Long, RemoteInvocationBean> invocations;
-	private long timeoutInterval = ConfigManagerLoader.getConfigManager().getLongValue(
-			Constants.KEY_TIMEOUT_INTERVAL, Constants.DEFAULT_TIMEOUT_INTERVAL);
+	private long timeoutInterval = ConfigManagerLoader.getConfigManager().getLongValue(Constants.KEY_TIMEOUT_INTERVAL,
+			Constants.DEFAULT_TIMEOUT_INTERVAL);
 
 	public InvocationTimeoutListener(Map<Long, RemoteInvocationBean> invocations) {
 		this.invocations = invocations;
@@ -30,7 +29,11 @@ public class InvocationTimeoutListener implements Runnable {
 
 	@Override
 	public void run() {
+		int timeoutCountInLastSecond = 0;
+		int timeoutCountInCurrentSecond = 0;
 		while (true) {
+			timeoutCountInLastSecond = timeoutCountInCurrentSecond;
+			timeoutCountInCurrentSecond = 0;
 			try {
 				Thread.sleep(timeoutInterval);
 				long currentTime = System.currentTimeMillis();
@@ -40,25 +43,32 @@ public class InvocationTimeoutListener implements Runnable {
 						InvocationRequest request = invocationBean.request;
 						if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
 								&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
+							timeoutCountInCurrentSecond++;
 							Callback callback = invocationBean.callback;
 							if (callback != null && callback.getClient() != null) {
 								ServiceStatisticsHolder.flowOut(request, callback.getClient().getAddress());
 							}
 							callback.dispose();
 							invocations.remove(sequence);
-							StringBuilder msg = new StringBuilder();
-							msg.append("remove timeout request, process time:").append(System.currentTimeMillis())
-									.append("\r\n").append("request:").append(request);
-							logger.warn(msg.toString());
-							// RequestTimeoutException e = new
-							// RequestTimeoutException(msg.toString());
-							// if (monitorLogger != null) {
-							// monitorLogger.logError(e);
-							// }
+							boolean isLog = true;
+							if (timeoutCountInLastSecond > Constants.LOG_THRESHOLD
+									&& timeoutCountInCurrentSecond % Constants.LOG_INTERVAL == 1) {
+								isLog = false;
+							}
+							if (isLog) {
+								StringBuilder msg = new StringBuilder();
+								msg.append("remove timeout request, process time:").append(System.currentTimeMillis())
+										.append("\r\n").append("request:").append(request);
+								logger.warn(msg.toString());
+								// RequestTimeoutException e = new
+								// RequestTimeoutException(msg.toString());
+								// if (monitorLogger != null) {
+								// monitorLogger.logError(e);
+								// }
+							}
 						}
 					}
 				}
-				TimelineManager.removeLegacyTimelines();
 			} catch (Throwable e) {
 				logger.warn("checking remote call timeout failed", e);
 			}

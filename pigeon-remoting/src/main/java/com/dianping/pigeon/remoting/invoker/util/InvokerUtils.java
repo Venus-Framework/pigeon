@@ -16,8 +16,6 @@ import com.dianping.pigeon.remoting.common.exception.ApplicationException;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.TimelineManager;
-import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.callback.Callback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
@@ -46,19 +44,16 @@ public class InvokerUtils {
 			callback.setClient(client);
 			invocationRepository.put(request.getSequence(), invocationBean);
 		}
-		TimelineManager.time(request, TimelineManager.getLocalIp(), Phase.Start);
 		InvocationResponse response = null;
 		try {
 			response = client.write(request, callback);
 		} catch (NetworkException e) {
 			invocationRepository.remove(request.getSequence());
-			TimelineManager.removeTimeline(request, TimelineManager.getLocalIp());
 			logger.warn("network exception ocurred:" + request, e);
 			throw e;
 		} finally {
 			if (response != null) {
 				invocationRepository.remove(request.getSequence());
-				TimelineManager.removeTimeline(request, TimelineManager.getLocalIp());
 			}
 		}
 		return response;

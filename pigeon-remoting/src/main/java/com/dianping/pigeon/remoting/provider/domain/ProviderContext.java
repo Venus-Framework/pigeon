@@ -6,7 +6,6 @@ package com.dianping.pigeon.remoting.provider.domain;
 
 import java.util.concurrent.Future;
 
-import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethod;
 
@@ -30,7 +29,4 @@ public interface ProviderContext extends InvocationContext {
 	
 	ServiceMethod getServiceMethod();
 	
-	MonitorTransaction getMonitorTransaction();
-	
-	void setMonitorTransaction(MonitorTransaction transaction);
 }

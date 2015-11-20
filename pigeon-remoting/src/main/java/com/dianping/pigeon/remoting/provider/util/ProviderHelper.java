@@ -30,11 +30,7 @@ public final class ProviderHelper {
 	}
 
 	public static ProviderContext getContext() {
-		ProviderContext context = tlContext.get();
-		if (context != null) {
-			context.setMonitorTransaction(monitor.getCurrentServiceTransaction());
-		}
-		return context;
+		return tlContext.get();
 	}
 
 	public static void writeSuccessResponse(ProviderContext context, Object returnObj) {
@@ -45,22 +41,42 @@ public final class ProviderHelper {
 			try {
 				channel.write(response);
 			} finally {
-				MonitorTransaction transaction = context.getMonitorTransaction();
-				if (transaction != null) {
-					MonitorTransaction newTransaction = monitor.copyTransaction("PigeonServiceCallback",
-							transaction.getUri(), context, transaction);
-					if (newTransaction != null) {
-						if (response != null) {
-							String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
-							if (respSize != null) {
-								newTransaction
-										.logEvent("PigeonService.responseSize", respSize, "" + response.getSize());
+				if (Constants.PROVIDER_CALLBACK_MONITOR_ENABLE) {
+					MonitorTransaction currentTransaction = monitor.getCurrentServiceTransaction();
+					MonitorTransaction transaction = null;
+					try {
+						if (currentTransaction == null) {
+							transaction = monitor.createTransaction("PigeonServiceCallback", context.getMethodUri(),
+									context);
+							if (transaction != null) {
+								transaction.setStatusOk();
+								monitor.logEvent("PigeonService.app", request.getApp(), "");
+								String reqSize = SizeMonitor.getInstance().getLogSize(request.getSize());
+								if (reqSize != null) {
+									monitor.logEvent("PigeonService.requestSize", reqSize, "" + request.getSize());
+								}
 							}
 						}
-						newTransaction.setStatusOk();
-						newTransaction.complete();
+						if (response != null && response.getSize() > 0) {
+							String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
+							if (respSize != null) {
+								monitor.logEvent("PigeonService.responseSize", respSize, "" + response.getSize());
+							}
+						}
+					} catch (Throwable e) {
+						monitor.logMonitorError(e);
+					} finally {
+						if (transaction != null) {
+							try {
+								if (request.getCreateMillisTime() > 0) {
+									transaction.setStartTime(request.getCreateMillisTime() * 1000 * 1000);
+								}
+								transaction.complete();
+							} catch (Throwable e) {
+								monitor.logMonitorError(e);
+							}
+						}
 					}
-					transaction.complete();
 				}
 				ProviderStatisticsHolder.flowOut(request);
 			}

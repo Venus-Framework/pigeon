@@ -11,8 +11,6 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
-import com.dianping.pigeon.remoting.common.util.TimelineManager;
-import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 
 public class NettyChannel implements ProviderChannel {
@@ -33,9 +31,6 @@ public class NettyChannel implements ProviderChannel {
 			@Override
 			public void operationComplete(ChannelFuture future)
 					throws Exception {
-				String ip = ((InetSocketAddress)channel.getRemoteAddress()).getAddress().getHostAddress();
-				// TIMELINE_server_sent
-				TimelineManager.time(response, ip, Phase.ServerSent);
 			}
 			
 		});

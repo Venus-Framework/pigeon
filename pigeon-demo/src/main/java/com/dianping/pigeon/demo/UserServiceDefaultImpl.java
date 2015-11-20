@@ -42,10 +42,10 @@ public class UserServiceDefaultImpl implements UserService {
 		// System.out.println("SOURCE_IP:" +
 		// ContextUtils.getGlobalContext("SOURCE_IP"));
 		//System.out.println(msg);
-		try {
-			Thread.sleep(30);
-		} catch (InterruptedException e) {
-		}
+//		try {
+//			Thread.sleep(30);
+//		} catch (InterruptedException e) {
+//		}
 		ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(), "user service:" + msg);
 		return msg;
 	}

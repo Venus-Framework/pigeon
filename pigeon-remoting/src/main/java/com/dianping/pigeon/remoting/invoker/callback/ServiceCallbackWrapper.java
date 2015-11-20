@@ -21,7 +21,9 @@ import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
@@ -48,43 +50,64 @@ public class ServiceCallbackWrapper implements Callback {
 		this.callback = callback;
 	}
 
+	private void addMonitorInfo() {
+		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
+		MonitorTransaction transaction = null;
+		long currentTime = System.currentTimeMillis();
+		try {
+
+			if (Constants.INVOKER_CALLBACK_MONITOR_ENABLE) {
+				String callInterface = InvocationUtils.getRemoteCallFullName(invokerConfig.getUrl(),
+						invocationContext.getMethodName(), invocationContext.getParameterTypes());
+				transaction = monitor.createTransaction("PigeonCallback", callInterface, invocationContext);
+			}
+			if (transaction != null) {
+				transaction.setStatusOk();
+				transaction.addData("CallType", invokerConfig.getCallType());
+				transaction.addData("Timeout", invokerConfig.getTimeout());
+				transaction.addData("Serialize", invokerConfig.getSerialize());
+				if (response != null && response.getSize() > 0) {
+					String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
+					if (respSize != null) {
+						monitor.logEvent("PigeonCall.responseSize", respSize, "" + response.getSize());
+					}
+				}
+			}
+			if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
+					&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
+				StringBuilder msg = new StringBuilder();
+				msg.append("request callback timeout:").append(request);
+				Exception te = new RequestTimeoutException(msg.toString());
+				te.setStackTrace(new StackTraceElement[] {});
+				if (Constants.INVOKER_LOG_TIMEOUT_EXCEPTION) {
+					logger.error(msg);
+				}
+				if (monitor != null) {
+					monitor.logError(te);
+				}
+			}
+		} catch (Throwable e) {
+			monitor.logMonitorError(e);
+		} finally {
+			if (transaction != null) {
+				try {
+					if (request.getCreateMillisTime() > 0) {
+						transaction.setStartTime(request.getCreateMillisTime() * 1000 * 1000);
+					}
+					transaction.complete();
+				} catch (Throwable e) {
+					monitor.logMonitorError(e);
+				}
+			}
+		}
+	}
+
 	@Override
 	public void run() {
 		try {
 			if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("response:" + response);
-					logger.debug("callback:" + callback);
-				}
-				long currentTime = System.currentTimeMillis();
+				addMonitorInfo();
 				this.callback.callback(response.getReturn());
-				if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
-						&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
-					StringBuilder msg = new StringBuilder();
-					msg.append("request callback timeout:").append(request);
-					Exception te = new RequestTimeoutException(msg.toString());
-					te.setStackTrace(new StackTraceElement[] {});
-					logger.error(msg);
-					if (monitor != null) {
-						monitor.logError(te);
-					}
-				}
-//				MonitorTransaction transaction = invocationContext.getMonitorTransaction();
-//				if (transaction != null) {
-//					MonitorTransaction newTransaction = monitor.copyTransaction("PigeonCall", transaction.getUri(),
-//							invocationContext, transaction);
-//					if (newTransaction != null) {
-//						if (response != null) {
-//							newTransaction.logEvent("PigeonCall.responseSize",
-//									SizeMonitor.getInstance().getLogSize(response.getSize()), "" + response.getSize());
-//						}
-//						newTransaction.setStatusOk();
-//						newTransaction.complete();
-//						newTransaction.setDurationStart(transaction.getDurationStart());
-//						newTransaction.setDuration(System.currentTimeMillis() - transaction.getDurationStart());
-//					}
-//					transaction.complete();
-//				}
 			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 				RpcException cause = InvokerUtils.toRpcException(response);
 				StringBuilder sb = new StringBuilder();
@@ -98,7 +121,7 @@ public class ServiceCallbackWrapper implements Callback {
 			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 				Throwable cause = InvokerUtils.toApplicationException(response);
 				Exception businessException = (Exception) cause;
-				if (Constants.LOG_INVOKER_APP_EXCEPTION) {
+				if (Constants.INVOKER_LOG_APP_EXCEPTION) {
 					logger.error("error with remote business callback", businessException);
 					monitor.logError("error with remote business callback", businessException);
 				}
@@ -112,7 +135,6 @@ public class ServiceCallbackWrapper implements Callback {
 			logger.error("error while executing service callback", e);
 		}
 		setResponseContext(response);
-		// TIMELINE_remove
 	}
 
 	protected void setResponseContext(InvocationResponse response) {

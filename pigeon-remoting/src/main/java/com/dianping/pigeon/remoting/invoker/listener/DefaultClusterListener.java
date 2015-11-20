@@ -4,13 +4,13 @@
  */
 package com.dianping.pigeon.remoting.invoker.listener;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -41,9 +41,6 @@ public class DefaultClusterListener implements ClusterListener {
 
 	private ScheduledThreadPoolExecutor closeExecutor = new ScheduledThreadPoolExecutor(3, new DefaultThreadFactory(
 			"Pigeon-Client-Cache-Close-ThreadPool"));
-
-	private static int closeWaitTime = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.invoker.close.waittime", 3000);
 
 	private ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
@@ -108,7 +105,7 @@ public class DefaultClusterListener implements ClusterListener {
 					String serviceName = sw.getKey();
 					List<Client> clientList = this.serviceClients.get(serviceName);
 					if (clientList == null) {
-						clientList = new ArrayList<Client>();
+						clientList = new CopyOnWriteArrayList<Client>();
 						List<Client> oldClientList = this.serviceClients.putIfAbsent(serviceName, clientList);
 						if (oldClientList != null) {
 							clientList = oldClientList;
@@ -159,7 +156,7 @@ public class DefaultClusterListener implements ClusterListener {
 			logger.info("[cluster-listener] do not use service provider:" + serviceName + ":" + host + ":" + port);
 		}
 		List<Client> cs = serviceClients.get(serviceName);
-		List<Client> newCS = new ArrayList<Client>();
+		List<Client> newCS = new CopyOnWriteArrayList<Client>();
 		if (cs != null && !cs.isEmpty()) {
 			newCS.addAll(cs);
 		}
@@ -189,7 +186,8 @@ public class DefaultClusterListener implements ClusterListener {
 		Iterator<String> iterator = keySet.iterator();
 		while (iterator.hasNext()) {
 			String connect = iterator.next();
-			if (closedClients.get(connect).equals(clientToRemove)) {
+			Client client = closedClients.get(connect);
+			if (client != null && client.equals(clientToRemove)) {
 				iterator.remove();
 			}
 		}
@@ -215,11 +213,7 @@ public class DefaultClusterListener implements ClusterListener {
 
 		};
 		try {
-			int waitTime = closeWaitTime;
-			if (waitTime < 0) {
-				waitTime = 3000;
-			}
-			closeExecutor.schedule(command, waitTime, TimeUnit.MILLISECONDS);
+			closeExecutor.schedule(command, 3000, TimeUnit.MILLISECONDS);
 		} catch (Throwable e) {
 			logger.error("error schedule task to close client", e);
 		}

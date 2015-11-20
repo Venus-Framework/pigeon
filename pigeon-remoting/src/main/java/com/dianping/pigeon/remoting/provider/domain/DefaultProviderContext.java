@@ -17,6 +17,7 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 	private Future<?> future;
 	private Thread thread;
 	private ServiceMethod serviceMethod;
+	private String methodUri;
 
 	public DefaultProviderContext(InvocationRequest request, ProviderChannel channel) {
 		super(request);
@@ -63,6 +64,16 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 	@Override
 	public ServiceMethod getServiceMethod() {
 		return serviceMethod;
+	}
+
+	@Override
+	public String getMethodUri() {
+		return methodUri;
+	}
+
+	@Override
+	public void setMethodUri(String uri) {
+		this.methodUri = uri;
 	}
 
 }

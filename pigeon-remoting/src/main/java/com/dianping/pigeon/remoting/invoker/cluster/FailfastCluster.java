@@ -36,7 +36,7 @@ public class FailfastCluster implements Cluster {
 			try {
 				return handler.handle(invocationContext);
 			} catch (NetworkException e) {
-				if (Constants.RETRY_NETWORK_EXCEPTION) {
+				if (Constants.INVOKER_RETRY_NETWORK_EXCEPTION) {
 					remoteClient = clientManager.getClient(invokerConfig, request, null);
 					invocationContext.setClient(remoteClient);
 					return handler.handle(invocationContext);
@@ -69,7 +69,7 @@ public class FailfastCluster implements Cluster {
 					try {
 						response = handler.handle(invocationContext);
 					} catch (NetworkException e) {
-						if (Constants.RETRY_NETWORK_EXCEPTION) {
+						if (Constants.INVOKER_RETRY_NETWORK_EXCEPTION) {
 							clientSelected = clientManager.getClient(invokerConfig, request, null);
 							invocationContext.setClient(clientSelected);
 							response = handler.handle(invocationContext);

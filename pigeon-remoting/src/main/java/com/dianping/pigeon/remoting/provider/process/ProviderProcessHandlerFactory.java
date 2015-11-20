@@ -10,8 +10,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
-import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.Disposable;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext;
@@ -45,10 +43,6 @@ public final class ProviderProcessHandlerFactory {
 
 	private static ServiceInvocationHandler healthCheckInvocationHandler = null;
 
-	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
-
-	private static boolean isMonitorEnabled = configManager.getBooleanValue(Constants.KEY_MONITOR_ENABLED, true);
-
 	public static ServiceInvocationHandler selectInvocationHandler(int messageType) {
 		if (Constants.MESSAGE_TYPE_HEART == messageType) {
 			return heartBeatInvocationHandler;
@@ -60,7 +54,7 @@ public final class ProviderProcessHandlerFactory {
 	}
 
 	public static void init() {
-		if (isMonitorEnabled) {
+		if (Constants.MONITOR_ENABLE) {
 			registerBizProcessFilter(new MonitorProcessFilter());
 		}
 		registerBizProcessFilter(new WriteResponseProcessFilter());

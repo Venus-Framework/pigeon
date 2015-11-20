@@ -257,7 +257,7 @@ public class RegistryManager {
 
 		Set<HostInfo> hostInfos = referencedServiceAddresses.get(serviceName);
 		if (hostInfos == null) {
-			hostInfos = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo,Boolean>());
+			hostInfos = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo, Boolean>());
 			Set<HostInfo> oldHostInfos = referencedServiceAddresses.putIfAbsent(serviceName, hostInfos);
 			if (oldHostInfos != null) {
 				hostInfos = oldHostInfos;
@@ -279,7 +279,7 @@ public class RegistryManager {
 	public void removeServiceAddress(String serviceName, HostInfo hostInfo) {
 		Set<HostInfo> hostInfos = referencedServiceAddresses.get(serviceName);
 		if (hostInfos == null || !hostInfos.contains(hostInfo)) {
-			logger.warn("address:" + hostInfo + " is not in address list of service " + serviceName);
+			logger.info("address:" + hostInfo + " is not in address list of service " + serviceName);
 			return;
 		}
 		hostInfos.remove(hostInfo);
@@ -292,9 +292,12 @@ public class RegistryManager {
 	}
 
 	private boolean isAddressReferenced(HostInfo hostInfo) {
-		for (Set<HostInfo> hostInfos : referencedServiceAddresses.values()) {
-			if (hostInfos.contains(hostInfo))
+		for (String key : referencedServiceAddresses.keySet()) {
+			Set<HostInfo> hostInfos = referencedServiceAddresses.get(key);
+			if (hostInfos.contains(hostInfo)) {
+				logger.info("address:" + hostInfo + " still been referenced for service:" + key);
 				return true;
+			}
 		}
 		return false;
 	}

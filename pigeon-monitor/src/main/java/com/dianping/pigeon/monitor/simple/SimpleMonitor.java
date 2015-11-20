@@ -31,16 +31,6 @@ public class SimpleMonitor implements Monitor {
 	}
 
 	@Override
-	public MonitorTransaction createTransaction(String name, String uri, Object invocationContext, boolean autoCommit) {
-		return null;
-	}
-
-	@Override
-	public MonitorTransaction getCurrentServiceTransaction() {
-		return null;
-	}
-	
-	@Override
 	public MonitorTransaction getCurrentCallTransaction() {
 		return null;
 	}
@@ -50,19 +40,26 @@ public class SimpleMonitor implements Monitor {
 	}
 
 	@Override
-	public MonitorTransaction copyTransaction(String name, String uri, Object invocationContext,
-			MonitorTransaction transaction) {
-		return transaction;
-	}
-
-	@Override
-	public void clearServiceTransaction() {
-		
-	}
-
-	@Override
 	public void clearCallTransaction() {
-		
+
+	}
+
+	@Override
+	public void setCurrentCallTransaction(MonitorTransaction transaction) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public MonitorTransaction createTransaction(String name, String uri, Object invocationContext) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public MonitorTransaction getCurrentServiceTransaction() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -72,7 +69,7 @@ public class SimpleMonitor implements Monitor {
 	}
 
 	@Override
-	public void setCurrentCallTransaction(MonitorTransaction transaction) {
+	public void clearServiceTransaction() {
 		// TODO Auto-generated method stub
 		
 	}

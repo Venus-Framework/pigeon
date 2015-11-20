@@ -29,12 +29,9 @@ public final class ServiceRegistry {
 	private boolean autoSelectPort = true;
 	private boolean cancelTimeout = Constants.DEFAULT_TIMEOUT_CANCEL;
 	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
-	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
-			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
-	private int maxPoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_MAXPOOLSIZE,
-			Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
-	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
-			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
+	private int corePoolSize = Constants.PROVIDER_POOL_CORE_SIZE;
+	private int maxPoolSize = Constants.PROVIDER_POOL_MAX_SIZE;
+	private int workQueueSize = Constants.PROVIDER_POOL_QUEUE_SIZE;
 	private boolean enableTest = configManager
 			.getBooleanValue(Constants.KEY_TEST_ENABLE, Constants.DEFAULT_TEST_ENABLE);
 	@Deprecated

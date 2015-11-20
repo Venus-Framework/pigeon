@@ -24,7 +24,6 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
@@ -135,7 +134,11 @@ public class RequestTimeoutListener implements Runnable {
 				processor = server.getRequestProcessor();
 			}
 		}
+		int timeoutCountInLastSecond = 0;
+		int timeoutCountInCurrentSecond = 0;
 		while (true) {
+			timeoutCountInLastSecond = timeoutCountInCurrentSecond;
+			timeoutCountInCurrentSecond = 0;
 			try {
 				Thread.sleep(timeoutInterval);
 				if (timeoutRequestQueue.size() >= requestQueueSize) {
@@ -162,6 +165,7 @@ public class RequestTimeoutListener implements Runnable {
 										future.cancel(cancelTimeout);
 									}
 								} else {
+									timeoutCountInCurrentSecond++;
 									String requestUrl = getRequestUrl(request);
 									Integer timeoutCount = timeoutRequests.get(requestUrl);
 									if (timeoutCount == null) {
@@ -189,7 +193,13 @@ public class RequestTimeoutListener implements Runnable {
 										te.setStackTrace(t.getStackTrace());
 									}
 									ContextUtils.setContext(request.getContext());
-									logger.error(te.getMessage(), te);
+									boolean isLog = true;
+									if (timeoutCountInLastSecond > Constants.LOG_THRESHOLD && timeoutCountInCurrentSecond % Constants.LOG_INTERVAL == 1) {
+										isLog = false;
+									}
+									if (isLog) {
+										logger.error(te.getMessage(), te);
+									}
 									if (monitor != null) {
 										monitor.logError(te);
 									}
@@ -209,8 +219,6 @@ public class RequestTimeoutListener implements Runnable {
 				}
 				timeoutRequestQueue.offer(timeoutRequests);
 				countTotalTimeoutRequests();
-
-				TimelineManager.removeLegacyTimelines();
 			} catch (Throwable e) {
 				logger.warn(e.getMessage(), e);
 			}

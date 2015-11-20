@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceFuture;
 import com.dianping.dpsf.exception.DPSFException;
+import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
@@ -54,9 +55,11 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		long start = System.nanoTime();
 		try {
 			response = super.get(timeoutMillis);
-			String size = SizeMonitor.getInstance().getLogSize(response.getSize());
-			if (size != null) {
-				transaction.logEvent("PigeonCall.responseSize", size, "" + response.getSize());
+			if (transaction != null) {
+				String size = SizeMonitor.getInstance().getLogSize(response.getSize());
+				if (size != null) {
+					transaction.logEvent("PigeonCall.responseSize", size, "" + response.getSize());
+				}
 			}
 		} catch (Throwable e) {
 			RuntimeException rpcEx = null;
@@ -67,7 +70,13 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 			} else {
 				rpcEx = new RpcException(e);
 			}
-			logger.error(rpcEx);
+			if (e instanceof NetTimeoutException) {
+				if (Constants.INVOKER_LOG_TIMEOUT_EXCEPTION) {
+					logger.error(rpcEx);
+				}
+			} else {
+				logger.error(rpcEx);
+			}
 			monitor.logError(rpcEx);
 			if (transaction != null) {
 				try {
@@ -98,7 +107,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 			throw cause;
 		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 			RuntimeException cause = InvokerUtils.toApplicationRuntimeException(response);
-			if (Constants.LOG_INVOKER_APP_EXCEPTION) {
+			if (Constants.INVOKER_LOG_APP_EXCEPTION) {
 				logger.error("error with remote business future call", cause);
 				monitor.logError("error with remote business future call", cause);
 			}

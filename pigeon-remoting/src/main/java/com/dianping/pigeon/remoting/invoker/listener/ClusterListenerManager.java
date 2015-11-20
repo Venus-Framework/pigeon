@@ -4,9 +4,9 @@
  */
 package com.dianping.pigeon.remoting.invoker.listener;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
@@ -25,7 +25,7 @@ public class ClusterListenerManager implements Disposable {
 
 	public static final String PLACEHOLDER = ":";
 
-	private List<ClusterListener> listeners = new ArrayList<ClusterListener>();
+	private List<ClusterListener> listeners = new CopyOnWriteArrayList<ClusterListener>();
 
 	private ServiceProviderChangeListener providerChangeListener = new InnerServiceProviderChangeListener();
 

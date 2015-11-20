@@ -7,8 +7,6 @@ package com.dianping.pigeon.remoting.common.domain;
 import java.io.Serializable;
 import java.util.Map;
 
-import com.dianping.pigeon.monitor.MonitorTransaction;
-
 public interface InvocationContext {
 
 	InvocationRequest getRequest();
@@ -40,8 +38,8 @@ public interface InvocationContext {
 	 */
 	Map<String, Serializable> getContextValues();
 
-	MonitorTransaction getMonitorTransaction();
+	String getMethodUri();
 
-	void setMonitorTransaction(MonitorTransaction transaction);
+	void setMethodUri(String uri);
 
 }

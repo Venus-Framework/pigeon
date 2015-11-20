@@ -71,4 +71,13 @@ public class DefaultInvokerContext extends AbstractInvocationContext implements 
 		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 
+	@Override
+	public String getMethodUri() {
+		return null;
+	}
+
+	@Override
+	public void setMethodUri(String uri) {
+	}
+
 }

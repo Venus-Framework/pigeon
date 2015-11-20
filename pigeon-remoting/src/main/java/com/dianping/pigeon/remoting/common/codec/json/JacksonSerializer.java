@@ -34,8 +34,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 public class JacksonSerializer extends DefaultAbstractSerializer {
 
 	private static final Logger logger = LoggerLoader.getLogger(JacksonSerializer.class);
-	private static boolean deserializeMap = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.codec.jackson.deserializemap", true);
 	private static boolean enableClassInfo = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.codec.jackson.classinfo", false);
 
@@ -106,11 +104,7 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 			if (logger.isDebugEnabled()) {
 				logger.debug("deserialize:" + new String(sw.toByteArray()));
 			}
-			if (deserializeMap) {
-				return JacksonObjectMapper.convertObject(mapper.readValue(sw.toByteArray(), clazz));
-			} else {
-				return mapper.readValue(sw.toByteArray(), clazz);
-			}
+			return JacksonObjectMapper.convertObject(mapper.readValue(sw.toByteArray(), clazz));
 		} catch (Throwable e) {
 			throw new SerializationException(e);
 		} finally {
@@ -131,11 +125,7 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 
 	public <T> T deserializeObject(Class<T> objType, String content) throws SerializationException {
 		try {
-			if (deserializeMap) {
-				return JacksonObjectMapper.convertObject(mapper.readValue(content, objType));
-			} else {
-				return mapper.readValue(content, objType);
-			}
+			return JacksonObjectMapper.convertObject(mapper.readValue(content, objType));
 		} catch (Throwable e) {
 			throw new SerializationException(e);
 		}

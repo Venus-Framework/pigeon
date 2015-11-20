@@ -134,7 +134,6 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 
 	public Object _decode(byte serializerType, ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 		ChannelBuffer buffer = (ChannelBuffer) msg;
-		int size = buffer.readableBytes();
 		ChannelBuffer frame = beforeDo(ctx, buffer);
 		if (frame == null) {
 			return null;
@@ -146,9 +145,6 @@ public abstract class AbstractDecoder extends OneToOneDecoder implements Decoder
 			int msgType = ((InvocationSerializable) obj).getMessageType();
 			if (msgType == Constants.MESSAGE_TYPE_SERVICE && available > 0) {
 				((InvocationSerializable) obj).setSize(available + 3);
-				if(available == 0) {
-					System.out.println(obj);
-				}
 			}
 		}
 		return obj;

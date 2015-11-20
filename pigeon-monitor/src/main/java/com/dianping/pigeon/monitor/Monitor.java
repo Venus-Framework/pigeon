@@ -26,19 +26,18 @@ public interface Monitor {
 	 */
 	void logMonitorError(Throwable t);
 
-	MonitorTransaction createTransaction(String name, String uri, Object invocationContext, boolean autoCommit);
-
-	MonitorTransaction getCurrentServiceTransaction();
+	MonitorTransaction createTransaction(String name, String uri, Object invocationContext);
 
 	MonitorTransaction getCurrentCallTransaction();
-	
-	void setCurrentServiceTransaction(MonitorTransaction transaction);
 
 	void setCurrentCallTransaction(MonitorTransaction transaction);
 
-	void clearServiceTransaction();
-
 	void clearCallTransaction();
 
-	MonitorTransaction copyTransaction(String name, String uri, Object invocationContext, MonitorTransaction transaction);
+	MonitorTransaction getCurrentServiceTransaction();
+
+	void setCurrentServiceTransaction(MonitorTransaction transaction);
+
+	void clearServiceTransaction();
+
 }

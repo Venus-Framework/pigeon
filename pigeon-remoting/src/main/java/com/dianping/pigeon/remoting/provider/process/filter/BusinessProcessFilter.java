@@ -15,8 +15,6 @@ import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.TimelineManager;
-import com.dianping.pigeon.remoting.common.util.TimelineManager.Phase;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.exception.RequestAbortedException;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
@@ -60,15 +58,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 				request.setCallType(Constants.CALLTYPE_NOREPLY);
 				ProviderHelper.setContext(invocationContext);
 			}
-			// TIMELINE_biz_start
-			if (TimelineManager.isEnabled()) {
-				TimelineManager.time(request, TimelineManager.getRemoteIp(), Phase.BusinessStart);
-			}
 			Object returnObj = method.invoke(request.getParameters());
-			if (TimelineManager.isEnabled()) {
-				TimelineManager.time(request, TimelineManager.getRemoteIp(), Phase.BusinessEnd);
-			}
-			// TIMELINE_biz_end
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 				response = ProviderUtils.createSuccessResponse(request, returnObj);
 			}

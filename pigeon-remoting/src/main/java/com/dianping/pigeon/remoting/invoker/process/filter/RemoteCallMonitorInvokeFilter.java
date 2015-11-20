@@ -6,6 +6,7 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import java.util.Calendar;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,8 +28,6 @@ import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
-import com.dianping.pigeon.remoting.common.util.TimelineManager;
-import com.dianping.pigeon.remoting.common.util.TimelineManager.Timeline;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
@@ -47,6 +46,8 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 	private static Map<String, AtomicInteger> appTimeouts = new ConcurrentHashMap<String, AtomicInteger>();
 
 	private static final String KEY_LOG_TIMEOUT_PERIOD = "pigeon.invoker.log.timeout.period.apps";
+
+	private static Random random = new Random();
 
 	private static class InnerConfigChangeListener implements ConfigChangeListener {
 
@@ -112,18 +113,9 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 			try {
 				String callInterface = InvocationUtils.getRemoteCallFullName(invokerConfig.getUrl(),
 						invocationContext.getMethodName(), invocationContext.getParameterTypes());
-				boolean isAutoCommit = true;
-				String callType = invokerConfig.getCallType();
-				if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
-					isAutoCommit = true;
-				}
-				transaction = monitor.createTransaction("PigeonCall", callInterface, invocationContext, isAutoCommit);
+				transaction = monitor.createTransaction("PigeonCall", callInterface, invocationContext);
 				if (transaction != null) {
 					monitor.setCurrentCallTransaction(transaction);
-					invocationContext.setMonitorTransaction(transaction);
-					// if (!isAutoCommit) {
-					// monitor.getCurrentServiceTransaction().addTransaction(transaction);
-					// }
 					transaction.setStatusOk();
 					transaction.addData("CallType", invokerConfig.getCallType());
 					transaction.addData("Timeout", invokerConfig.getTimeout());
@@ -133,7 +125,8 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 					targetApp = RegistryManager.getInstance().getReferencedApp(client.getAddress());
 					transaction.logEvent("PigeonCall.app", targetApp, "");
 					transaction.logEvent("PigeonCall.QPS", "S" + Calendar.getInstance().get(Calendar.SECOND), "");
-					if (Constants.LOG_INVOKER_TIMEOUT) {
+					boolean logTimeout = random.nextInt(Constants.INVOKER_LOG_TIMEOUT_PERCENT) < 1;
+					if (logTimeout) {
 						transaction
 								.logEvent("PigeonCall.timeout." + callInterface, invokerConfig.getTimeout() + "", "");
 					}
@@ -154,12 +147,12 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 			InvocationResponse response = handler.handle(invocationContext);
 			String reqSize = SizeMonitor.getInstance().getLogSize(request.getSize());
 			if (reqSize != null) {
-				transaction.logEvent("PigeonCall.requestSize", reqSize, "" + request.getSize());
+				monitor.logEvent("PigeonCall.requestSize", reqSize, "" + request.getSize());
 			}
 			if (response != null && response.getSize() > 0) {
 				String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
 				if (respSize != null) {
-					transaction.logEvent("PigeonCall.responseSize", respSize, "" + response.getSize());
+					monitor.logEvent("PigeonCall.responseSize", respSize, "" + response.getSize());
 				}
 			}
 			return response;
@@ -210,10 +203,6 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		} finally {
 			if (transaction != null) {
 				try {
-					if (TimelineManager.isEnabled()) {
-						Timeline timeline = TimelineManager.getTimeline(request, TimelineManager.getLocalIp());
-						transaction.addData("Timeline", timeline);
-					}
 					if (!Constants.CALL_FUTURE.equals(invokerConfig.getCallType()) || error) {
 						transaction.complete();
 					}

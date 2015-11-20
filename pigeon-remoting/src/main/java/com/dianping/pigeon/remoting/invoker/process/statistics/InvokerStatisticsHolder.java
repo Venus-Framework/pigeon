@@ -5,7 +5,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Logger;
 
-import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -15,9 +14,6 @@ public final class InvokerStatisticsHolder {
 	private static final Logger logger = LoggerLoader.getLogger(InvokerStatisticsHolder.class);
 
 	private static ConcurrentHashMap<String, InvokerCapacityBucket> appCapacityBuckets = new ConcurrentHashMap<String, InvokerCapacityBucket>();
-
-	public static final boolean statEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.invokerstat.enable", true);
 
 	public static void init() {
 	}
@@ -64,7 +60,7 @@ public final class InvokerStatisticsHolder {
 		if (request == null || request.getMessageType() != Constants.MESSAGE_TYPE_SERVICE) {
 			return false;
 		}
-		return statEnable;
+		return Constants.INVOKER_STAT_ENABLE;
 	}
 
 	public static void removeCapacityBucket(String fromApp) {

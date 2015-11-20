@@ -9,11 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Logger;
 
-import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
-import com.dianping.pigeon.remoting.common.util.TimelineManager;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.callback.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
@@ -30,8 +28,6 @@ public class ServiceInvocationRepository {
 	private static ServiceInvocationRepository instance = new ServiceInvocationRepository();
 	private static ThreadPool invocatinTimeCheckThreadPool = new DefaultThreadPool(
 			"Pigeon-Client-Invoke-Timeout-Check-ThreadPool");
-	private static boolean logExpiredResponse = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.logexpiredresponse.enable", true);
 
 	public static ServiceInvocationRepository getInstance() {
 		return instance;
@@ -64,12 +60,7 @@ public class ServiceInvocationRepository {
 				}
 			} finally {
 				invocations.remove(response.getSequence());
-				TimelineManager.removeTimeline(response, TimelineManager.getLocalIp());
 			}
-		} else if (logExpiredResponse) {
-			String msg = "the response has expired:" + response + ",timeline:"
-					+ TimelineManager.removeTimeline(response, TimelineManager.getLocalIp());
-			logger.warn(msg);
 		}
 	}
 

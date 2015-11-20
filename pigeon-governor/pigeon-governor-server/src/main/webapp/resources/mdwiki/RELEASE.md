@@ -1,6 +1,9 @@
 ## pigeon版本发布说明
 ------
 
+### 2.6.9
+增加PigeonCallback与PigeonServiceCallback监控信息
+
 ### 2.6.8
 解决服务配置变更通知的多线程问题
 

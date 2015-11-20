@@ -8,7 +8,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.logging.log4j.Logger;
 
-import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
@@ -22,14 +21,10 @@ public class ServerBean {
 	private int port = ServerConfig.DEFAULT_PORT;
 	private int httpPort = ServerConfig.DEFAULT_HTTP_PORT;
 	private boolean autoSelectPort = true;
-	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
-	private int corePoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE,
-			Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
-	private int maxPoolSize = configManager.getIntValue(Constants.KEY_PROVIDER_MAXPOOLSIZE,
-			Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
-	private int workQueueSize = configManager.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE,
-			Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
-	private String group = configManager.getGroup();
+	private int corePoolSize = Constants.PROVIDER_POOL_CORE_SIZE;
+	private int maxPoolSize = Constants.PROVIDER_POOL_MAX_SIZE;
+	private int workQueueSize = Constants.PROVIDER_POOL_QUEUE_SIZE;
+	private String group = ConfigManagerLoader.getConfigManager().getGroup();
 	private volatile ServerConfig serverConfig;
 
 	public boolean isAutoSelectPort() {

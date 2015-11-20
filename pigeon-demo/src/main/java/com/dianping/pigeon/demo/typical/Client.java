@@ -22,7 +22,6 @@ public class Client {
 
 		@Override
 		public void callback(Object result) {
-			System.out.println("echo:" + result);
 		}
 
 		@Override
@@ -55,14 +54,14 @@ public class Client {
 			try {
 				ContextUtils.putRequestContext("key1", "1");
 				//echoService.echo("" + (i++));
-				echoServiceCallback.echo("" + (i++));
+				echoServiceCallback.asyncEcho("" + (i++));
 				//Thread.sleep(120000);
 				// System.out.println(echoService.asyncEcho("" + (i++)));
 				// System.out.println(echoService.now());
 				//echoServiceWithFuture.echo("hi " + i++);
 				//ServiceFuture future = ServiceFutureFactory.getFuture();
 				//Thread.sleep(20);
-				//System.out.println(future._get());
+				//future._get();
 
 				// System.out.println("response:" +
 				// ContextUtils.getResponseContext("key1"));
