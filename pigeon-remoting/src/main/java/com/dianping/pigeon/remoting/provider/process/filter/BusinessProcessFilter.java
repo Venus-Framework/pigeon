@@ -58,7 +58,11 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 				request.setCallType(Constants.CALLTYPE_NOREPLY);
 				ProviderHelper.setContext(invocationContext);
 			}
+			invocationContext.getTimeline().add(System.currentTimeMillis());
+			
 			Object returnObj = method.invoke(request.getParameters());
+			
+			invocationContext.getTimeline().add(System.currentTimeMillis());
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 				response = ProviderUtils.createSuccessResponse(request, returnObj);
 			}

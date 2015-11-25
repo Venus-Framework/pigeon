@@ -18,8 +18,12 @@ public interface InvocationResponse extends InvocationSerializable {
 	Object getReturn();
 
 	void setReturn(Object obj);
-	
+
 	Map<String, Serializable> getResponseValues();
 
 	void setResponseValues(Map<String, Serializable> responseValues);
+
+	long getCreateMillisTime();
+
+	void setCreateMillisTime(long createMillisTime);
 }

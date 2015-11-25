@@ -5,6 +5,7 @@
 package com.dianping.pigeon.remoting.common.domain;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 public interface InvocationContext {
@@ -41,5 +42,6 @@ public interface InvocationContext {
 	String getMethodUri();
 
 	void setMethodUri(String uri);
-
+	
+	List<Long> getTimeline();
 }

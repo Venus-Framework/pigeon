@@ -154,6 +154,8 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 				if (respSize != null) {
 					monitor.logEvent("PigeonCall.responseSize", respSize, "" + response.getSize());
 				}
+				invocationContext.getTimeline().add(response.getCreateMillisTime());
+				invocationContext.getTimeline().add(System.currentTimeMillis());
 			}
 			return response;
 		} catch (NetTimeoutException e) {

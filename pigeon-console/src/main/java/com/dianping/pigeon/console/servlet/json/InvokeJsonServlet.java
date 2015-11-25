@@ -72,6 +72,10 @@ public class InvokeJsonServlet extends ServiceServlet {
 		return needValidate;
 	}
 
+	public String getContentType() {
+		return "application/json; charset=UTF-8";
+	}
+
 	protected void generateView(HttpServletRequest request, HttpServletResponse response) throws IOException,
 			ServletException {
 		if (!enableInvoke) {
@@ -152,6 +156,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 					response.addHeader("CurrentMessageId", (String) localContext.remove("CurrentMessageId"));
 				}
 			}
+			response.setContentType(getContentType());
 			response.getWriter().write(json);
 		} else {
 			response.getWriter().write("invalid verification code!");

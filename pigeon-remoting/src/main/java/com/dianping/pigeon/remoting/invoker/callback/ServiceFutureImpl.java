@@ -20,6 +20,7 @@ import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
 public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
@@ -34,9 +35,12 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 
 	private MonitorTransaction transaction;
 
-	public ServiceFutureImpl(long timeout) {
+	private InvokerContext invocationContext;
+
+	public ServiceFutureImpl(InvokerContext invocationContext, long timeout) {
 		super();
 		this.timeout = timeout;
+		this.invocationContext = invocationContext;
 		callerThread = Thread.currentThread();
 		transaction = monitor.getCurrentCallTransaction();
 	}
@@ -49,17 +53,20 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 	@Override
 	public Object _get(long timeoutMillis) throws InterruptedException {
 		InvocationResponse response = null;
+		long start = System.currentTimeMillis();
 		if (transaction != null) {
 			transaction.addData("FutureTimeout", timeoutMillis);
+			invocationContext.getTimeline().add(start);
 		}
-		long start = System.nanoTime();
 		try {
 			response = super.get(timeoutMillis);
-			if (transaction != null) {
+			if (transaction != null && response != null) {
 				String size = SizeMonitor.getInstance().getLogSize(response.getSize());
 				if (size != null) {
 					transaction.logEvent("PigeonCall.responseSize", size, "" + response.getSize());
 				}
+				invocationContext.getTimeline().add(response.getCreateMillisTime());
+				invocationContext.getTimeline().add(System.currentTimeMillis());
 			}
 		} catch (Throwable e) {
 			RuntimeException rpcEx = null;
@@ -89,8 +96,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		} finally {
 			if (transaction != null) {
 				try {
-					transaction.setStartTime(start);
-					transaction.complete();
+					transaction.complete(start);
 				} catch (Throwable e) {
 					monitor.logMonitorError(e);
 				}

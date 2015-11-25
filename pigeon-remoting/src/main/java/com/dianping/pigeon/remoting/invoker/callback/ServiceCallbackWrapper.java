@@ -71,6 +71,8 @@ public class ServiceCallbackWrapper implements Callback {
 					if (respSize != null) {
 						monitor.logEvent("PigeonCall.responseSize", respSize, "" + response.getSize());
 					}
+					invocationContext.getTimeline().add(response.getCreateMillisTime());
+					invocationContext.getTimeline().add(currentTime);
 				}
 			}
 			if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
@@ -91,9 +93,6 @@ public class ServiceCallbackWrapper implements Callback {
 		} finally {
 			if (transaction != null) {
 				try {
-					if (request.getCreateMillisTime() > 0) {
-						transaction.setStartTime(request.getCreateMillisTime() * 1000 * 1000);
-					}
 					transaction.complete();
 				} catch (Throwable e) {
 					monitor.logMonitorError(e);

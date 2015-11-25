@@ -23,6 +23,8 @@ public interface EchoService {
 
 	List<User<?>> findUsers(int count);
 	
+	Map<String, String> testMap(Map<String, String> values);
+
 	String test(Map<User, String> values);
 
 	enum Grade {

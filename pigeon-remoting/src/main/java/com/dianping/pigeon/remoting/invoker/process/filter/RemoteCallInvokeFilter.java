@@ -79,7 +79,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 					invocationContext, callback));
 			response = NO_RETURN_RESPONSE;
 		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
-			ServiceFutureImpl future = new ServiceFutureImpl(timeout);
+			ServiceFutureImpl future = new ServiceFutureImpl(invocationContext, timeout);
 			InvokerUtils.sendRequest(client, invocationContext.getRequest(), future);
 			ServiceFutureFactory.setFuture(future);
 			response = InvokerUtils.createFutureResponse(future);

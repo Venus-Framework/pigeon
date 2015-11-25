@@ -10,6 +10,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 
@@ -18,11 +19,14 @@ public class JsonNativeHttpClient {
 	static String postUrl = "http://localhost:4080/service?serialize=7";
 
 	public static void main(String[] args) throws Exception {
-		String request1 = "{\"seq\":-201,\"serialize\":7,\"callType\":1,\"timeout\":5000,\"methodName\":\"echo\",\"parameters\":[\"echoService_101\"],\"messageType\":2,\"context\":null,\"url\":\"com.dianping.pigeon.demo.EchoService\"}";
-		System.out.println(invoker(request1));
+		String url = "http://localhost:4080/invoke.json?url=com.dianping.pigeon.demo.EchoService&method=echo&parameterTypes=java.lang.String&parameters=hi";
+		System.out.println(get(url));
 
-		String request2 = "{\"seq\":-146,\"serialize\":7,\"callType\":1,\"timeout\":2000,\"methodName\":\"getUserDetail\",\"parameters\":[{\"@class\":\"com.dianping.pigeon.demo.UserService$User\",\"username\":\"user_73\",\"email\":null,\"password\":null},false],\"messageType\":2,\"url\":\"com.dianping.pigeon.demo.UserService\"}";
-		System.out.println(invoker(request2));
+//		String request1 = "{\"seq\":-201,\"serialize\":7,\"callType\":1,\"timeout\":5000,\"methodName\":\"echo\",\"parameters\":[\"echoService_101\"],\"messageType\":2,\"context\":null,\"url\":\"com.dianping.pigeon.demo.EchoService\"}";
+//		System.out.println(post(request1));
+//
+//		String request2 = "{\"seq\":-146,\"serialize\":7,\"callType\":1,\"timeout\":2000,\"methodName\":\"getUserDetail\",\"parameters\":[{\"@class\":\"com.dianping.pigeon.demo.UserService$User\",\"username\":\"user_73\",\"email\":null,\"password\":null},false],\"messageType\":2,\"url\":\"com.dianping.pigeon.demo.UserService\"}";
+//		System.out.println(post(request2));
 	}
 
 	private static HttpClient getHttpClient() {
@@ -41,7 +45,7 @@ public class JsonNativeHttpClient {
 		return httpClient;
 	}
 
-	public static String invoker(String request) throws Exception {
+	public static String post(String request) throws Exception {
 		HttpClient httpClient = getHttpClient();
 		PostMethod method = null;
 		String response = null;
@@ -56,6 +60,25 @@ public class JsonNativeHttpClient {
 			} finally {
 				baos.close();
 			}
+			httpClient.executeMethod(method);
+			if (method.getStatusCode() >= 300) {
+				throw new IllegalStateException("" + method.getStatusCode());
+			}
+			response = method.getResponseBodyAsString();
+			return response;
+		} finally {
+			if (method != null) {
+				method.releaseConnection();
+			}
+		}
+	}
+
+	public static String get(String url) throws Exception {
+		HttpClient httpClient = getHttpClient();
+		GetMethod method = null;
+		String response = null;
+		try {
+			method = new GetMethod(url);
 			httpClient.executeMethod(method);
 			if (method.getStatusCode() >= 300) {
 				throw new IllegalStateException("" + method.getStatusCode());

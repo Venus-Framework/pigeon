@@ -50,18 +50,20 @@ public class Client {
 		EchoService echoServiceWithFuture = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithFuture");
 
 		int i = 0;
-		while (true) {
+		while (true) 
+		{
 			try {
 				ContextUtils.putRequestContext("key1", "1");
-				//echoService.echo("" + (i++));
-				echoServiceCallback.asyncEcho("" + (i++));
-				//Thread.sleep(120000);
+				echoService.echo("" + (i++));
+				//echoServiceCallback.asyncEcho("" + (i++));
+
+				Thread.sleep(10);
 				// System.out.println(echoService.asyncEcho("" + (i++)));
 				// System.out.println(echoService.now());
-				//echoServiceWithFuture.echo("hi " + i++);
-				//ServiceFuture future = ServiceFutureFactory.getFuture();
-				//Thread.sleep(20);
-				//future._get();
+//				echoServiceWithFuture.echo("hi " + i++);
+//				ServiceFuture future = ServiceFutureFactory.getFuture();
+//				Thread.sleep(20);
+//				future._get();
 
 				// System.out.println("response:" +
 				// ContextUtils.getResponseContext("key1"));

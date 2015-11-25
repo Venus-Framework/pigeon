@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.monitor.cat;
 
+import java.util.List;
+
 import com.dianping.cat.Cat;
 import com.dianping.cat.CatConstants;
 import com.dianping.cat.message.MessageProducer;
@@ -47,16 +49,32 @@ public class CatMonitorTransaction implements MonitorTransaction {
 		}
 	}
 
-	public void setStartTime(long startTime) {
-		if (this.transaction != null) {
-			((DefaultTransaction) this.transaction).setDurationStart(startTime);
-		}
+	@Override
+	public void complete() {
+		this.complete(0);
 	}
 
 	@Override
-	public void complete() {
+	public void complete(long startTime) {
 		if (this.transaction != null) {
+			long now = System.currentTimeMillis();
+			this.invocationContext.getTimeline().add(now);
+			List<Long> timeline = this.invocationContext.getTimeline();
+			StringBuilder s = new StringBuilder();
+			s.append(timeline.get(0));
+			for (int i = 1; i < timeline.size(); i++) {
+				s.append(",").append(timeline.get(i) - timeline.get(i - 1));
+			}
+			long duration = 0;
+			long start = startTime;
+			if (startTime <= 0) {
+				start = timeline.get(0);
+			}
+			duration = now - start;
+			((DefaultTransaction) this.transaction).setDurationStart(start * 1000 * 1000);
+			this.transaction.addData("Timeline", s.toString());
 			this.transaction.complete();
+			((DefaultTransaction) this.transaction).setDurationInMillis(duration);
 		}
 	}
 

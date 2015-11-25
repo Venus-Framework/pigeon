@@ -27,7 +27,6 @@ public class CatMonitor implements Monitor {
 	private MessageProducer producer = null;
 	private ThreadLocal<MonitorTransaction> tlCallTransaction = new ThreadLocal<MonitorTransaction>();
 	private ThreadLocal<MonitorTransaction> tlServiceTransaction = new ThreadLocal<MonitorTransaction>();
-
 	volatile boolean isInitialized = false;
 
 	@Override

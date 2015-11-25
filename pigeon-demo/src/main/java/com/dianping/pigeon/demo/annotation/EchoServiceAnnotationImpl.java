@@ -52,4 +52,9 @@ public class EchoServiceAnnotationImpl implements EchoService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public Map<String, String> testMap(Map<String, String> values) {
+		return values;
+	}
 }

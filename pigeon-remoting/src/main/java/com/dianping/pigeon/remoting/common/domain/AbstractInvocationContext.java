@@ -5,19 +5,17 @@
 package com.dianping.pigeon.remoting.common.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import com.dianping.pigeon.monitor.MonitorTransaction;
 
 public abstract class AbstractInvocationContext implements InvocationContext {
 
 	protected InvocationRequest request;
 	protected InvocationResponse response;
 	private Map<String, Serializable> contextValues;
-	// 不会通过request传递到服务端，可用于filter之间传递参数
-	private Map<String, Object> transientContextValues;
-	private MonitorTransaction transaction;
+	private List<Long> timeline = new ArrayList<Long>();
 
 	public AbstractInvocationContext(InvocationRequest request) {
 		this.request = request;
@@ -62,11 +60,8 @@ public abstract class AbstractInvocationContext implements InvocationContext {
 		return contextValues;
 	}
 
-	public MonitorTransaction getMonitorTransaction() {
-		return transaction;
-	}
-
-	public void setMonitorTransaction(MonitorTransaction transaction) {
-		this.transaction = transaction;
+	@Override
+	public List<Long> getTimeline() {
+		return timeline;
 	}
 }

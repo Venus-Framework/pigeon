@@ -262,6 +262,16 @@ public class InvokerUtils {
 		public void setResponseValues(Map<String, Serializable> responseValues) {
 			
 		}
+
+		@Override
+		public long getCreateMillisTime() {
+			return 0;
+		}
+
+		@Override
+		public void setCreateMillisTime(long createMillisTime) {
+			
+		}
 	}
 
 	public static class FutureResponse implements InvocationResponse {
@@ -387,13 +397,21 @@ public class InvokerUtils {
 
 		@Override
 		public Map<String, Serializable> getResponseValues() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public void setResponseValues(Map<String, Serializable> responseValues) {
-			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public long getCreateMillisTime() {
+			return 0;
+		}
+
+		@Override
+		public void setCreateMillisTime(long createMillisTime) {
 			
 		}
 	}

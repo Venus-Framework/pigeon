@@ -1,6 +1,10 @@
 ## pigeon版本发布说明
 ------
 
+### 2.7.0
+增加了timeline信息
+修复了服务测试支持Map对象的问题
+
 ### 2.6.9
 增加PigeonCallback与PigeonServiceCallback监控信息
 

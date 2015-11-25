@@ -24,7 +24,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 	List<User<?>> users = new ArrayList<User<?>>();
 
 	UserService userService = null;
-	
+
 	public EchoServiceDefaultImpl() {
 		InvokerConfig<UserService> config = new InvokerConfig<UserService>(UserService.class);
 		config.setTimeout(1000);
@@ -44,13 +44,14 @@ public class EchoServiceDefaultImpl implements EchoService {
 		// ContextUtils.getGlobalContext("SOURCE_APP"));
 		// System.out.println("SOURCE_IP:" +
 		// ContextUtils.getGlobalContext("SOURCE_IP"));
-//		 try {
-//		 Thread.sleep(100);
-//		 } catch (InterruptedException e) {
-//		 }
-		//System.out.println(msg);
+		 try {
+		 Thread.sleep(30);
+		 } catch (InterruptedException e) {
+		 }
+		// System.out.println(msg);
 		ContextUtils.putResponseContext("key1", "repsonse1");
-		//ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(), "async echo:" + msg);
+		// ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(),
+		// "async echo:" + msg);
 
 		// return "echo:" + userService.echo(msg);
 		return "echo:" + msg;
@@ -91,6 +92,10 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 			@Override
 			public void callback(Object result) {
+				try {
+					Thread.sleep(60);
+				} catch (InterruptedException e) {
+				}
 				ProviderHelper.writeSuccessResponse(context, "echo service:" + result);
 			}
 
@@ -108,6 +113,12 @@ public class EchoServiceDefaultImpl implements EchoService {
 		InvokerHelper.setCallback(callback);
 		userService.echo(msg);
 		return null;
+	}
+
+	@Override
+	public Map<String, String> testMap(Map<String, String> values) {
+		System.out.println(values);
+		return values;
 	}
 
 }

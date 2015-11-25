@@ -26,6 +26,7 @@ public class DefaultInvokerContext extends AbstractInvocationContext implements 
 		this.methodName = methodName;
 		this.parameterTypes = parameterTypes;
 		this.arguments = arguments;
+		getTimeline().add(System.currentTimeMillis());
 	}
 
 	public InvokerConfig<?> getInvokerConfig() {

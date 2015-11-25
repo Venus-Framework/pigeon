@@ -15,6 +15,8 @@ public interface MonitorTransaction {
 	public void setStatusError(Throwable t);
 
 	public void complete();
+	
+	public void complete(long startTime);
 
 	public void setStatusOk();
 
@@ -23,8 +25,6 @@ public interface MonitorTransaction {
 	public void readMonitorContext();
 
 	public void writeMonitorContext();
-
-	public void setStartTime(long startTime);
 
 	public void logEvent(String name, String event, String desc);
 

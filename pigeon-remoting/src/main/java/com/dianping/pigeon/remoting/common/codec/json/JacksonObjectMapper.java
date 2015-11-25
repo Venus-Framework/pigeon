@@ -27,7 +27,7 @@ public class JacksonObjectMapper {
 		}
 		if (obj instanceof LinkedHashMap) {
 			LinkedHashMap map = (LinkedHashMap) obj;
-			return (T) convertObject(map);
+			return (T) convertMap(map);
 		} else if (obj instanceof Collection) {
 			Collection list = (Collection) obj;
 			Collection newList = (Collection) Class.forName(obj.getClass().getName()).newInstance();
@@ -107,7 +107,7 @@ public class JacksonObjectMapper {
 		}
 	}
 
-	public static Object convertObject(LinkedHashMap map) throws SerializationException, ClassNotFoundException,
+	public static Object convertMap(LinkedHashMap map) throws SerializationException, ClassNotFoundException,
 			InstantiationException, IllegalAccessException {
 		String type = (String) map.get("@class");
 		if (StringUtils.isNotBlank(type)) {

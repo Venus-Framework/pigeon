@@ -35,42 +35,41 @@ public final class ProviderHelper {
 
 	public static void writeSuccessResponse(ProviderContext context, Object returnObj) {
 		if (Constants.REPLY_MANUAL) {
+			context.getTimeline().add(System.currentTimeMillis());
 			InvocationRequest request = context.getRequest();
 			InvocationResponse response = ProviderUtils.createSuccessResponse(request, returnObj);
 			ProviderChannel channel = context.getChannel();
-			try {
-				channel.write(response);
-			} finally {
-				if (Constants.PROVIDER_CALLBACK_MONITOR_ENABLE) {
-					MonitorTransaction currentTransaction = monitor.getCurrentServiceTransaction();
-					MonitorTransaction transaction = null;
-					try {
-						if (currentTransaction == null) {
-							transaction = monitor.createTransaction("PigeonServiceCallback", context.getMethodUri(),
-									context);
-							if (transaction != null) {
-								transaction.setStatusOk();
-								monitor.logEvent("PigeonService.app", request.getApp(), "");
-								String reqSize = SizeMonitor.getInstance().getLogSize(request.getSize());
-								if (reqSize != null) {
-									monitor.logEvent("PigeonService.requestSize", reqSize, "" + request.getSize());
-								}
+			MonitorTransaction transaction = null;
+			if (Constants.PROVIDER_CALLBACK_MONITOR_ENABLE) {
+				MonitorTransaction currentTransaction = monitor.getCurrentServiceTransaction();
+				try {
+					if (currentTransaction == null) {
+						transaction = monitor.createTransaction("PigeonServiceCallback", context.getMethodUri(),
+								context);
+						if (transaction != null) {
+							transaction.setStatusOk();
+							monitor.logEvent("PigeonService.app", request.getApp(), "");
+							String reqSize = SizeMonitor.getInstance().getLogSize(request.getSize());
+							if (reqSize != null) {
+								monitor.logEvent("PigeonService.requestSize", reqSize, "" + request.getSize());
 							}
 						}
+					}
+				} catch (Throwable e) {
+					monitor.logMonitorError(e);
+				}
+				try {
+					channel.write(response);
+				} finally {
+					if (Constants.PROVIDER_CALLBACK_MONITOR_ENABLE) {
 						if (response != null && response.getSize() > 0) {
 							String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
 							if (respSize != null) {
 								monitor.logEvent("PigeonService.responseSize", respSize, "" + response.getSize());
 							}
 						}
-					} catch (Throwable e) {
-						monitor.logMonitorError(e);
-					} finally {
 						if (transaction != null) {
 							try {
-								if (request.getCreateMillisTime() > 0) {
-									transaction.setStartTime(request.getCreateMillisTime() * 1000 * 1000);
-								}
 								transaction.complete();
 							} catch (Throwable e) {
 								monitor.logMonitorError(e);

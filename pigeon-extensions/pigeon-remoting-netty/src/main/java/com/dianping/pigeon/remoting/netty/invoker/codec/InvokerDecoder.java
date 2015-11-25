@@ -19,6 +19,11 @@ public class InvokerDecoder extends AbstractDecoder {
 
 	@Override
 	public Object doInitMsg(Object message, Channel channel, long receiveTime) {
+		if(message instanceof InvocationResponse) {
+			InvocationResponse response = (InvocationResponse) message;
+			response.setCreateMillisTime(receiveTime);
+			return response;
+		}
 		return message;
 	}
 
