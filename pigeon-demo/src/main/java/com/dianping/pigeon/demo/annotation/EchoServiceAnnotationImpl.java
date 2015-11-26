@@ -8,9 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Service;
-
 import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 import com.google.common.collect.Lists;
 
 @Service

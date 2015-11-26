@@ -33,6 +33,7 @@ import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 import com.dianping.pigeon.util.ClassUtils;
+import com.dianping.pigeon.util.LangUtils;
 
 public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor, BeanPostProcessor,
 		ApplicationContextAware {
@@ -91,6 +92,19 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 		}
 	}
 
+	public int getDefaultPort(int port) {
+		if (port == 4040) {
+			try {
+				String app = ConfigManagerLoader.getConfigManager().getAppName();
+				if (StringUtils.isNotBlank(app)) {
+					return LangUtils.hash(app, 6000, 2000);
+				}
+			} catch (Throwable t) {
+			}
+		}
+		return port;
+	}
+
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (!isMatchPackage(bean)) {
 			return bean;
@@ -121,7 +135,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 			providerConfig.setActives(service.actives());
 
 			ServerConfig serverConfig = new ServerConfig();
-			serverConfig.setPort(service.port());
+			serverConfig.setPort(getDefaultPort(service.port()));
 			serverConfig.setGroup(service.group());
 			serverConfig.setAutoSelectPort(service.autoSelectPort());
 			providerConfig.setServerConfig(serverConfig);

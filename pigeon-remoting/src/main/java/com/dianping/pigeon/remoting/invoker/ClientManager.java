@@ -93,14 +93,11 @@ public class ClientManager {
 
 	private RegistryConnectionListener registryConnectionListener = new InnerRegistryConnectionListener();
 
-	private static boolean reloadWeight = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.register.weight.reload", true);
-
 	private static boolean enableVip = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.invoker.vip.enable", false);
 
-	private static boolean enableRegisterConcurrently = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.invoker.registerconcurrently.enable", true);
+	private static volatile boolean enableRegisterConcurrently = ConfigManagerLoader.getConfigManager()
+			.getBooleanValue("pigeon.invoker.registerconcurrently.enable", true);
 
 	public static ClientManager getInstance() {
 		return instance;
@@ -204,7 +201,7 @@ public class ClientManager {
 		}
 		String serviceAddress = getServiceAddress(serviceName, group, vip);
 		String[] addressArray = serviceAddress.split(",");
-		Set<HostInfo> addresses = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo,Boolean>());
+		Set<HostInfo> addresses = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo, Boolean>());
 		for (int i = 0; i < addressArray.length; i++) {
 			if (StringUtils.isNotBlank(addressArray[i])) {
 				// addressList.add(addressArray[i]);
@@ -224,7 +221,7 @@ public class ClientManager {
 							continue;
 						}
 						try {
-							int weight = RegistryManager.getInstance().getServiceWeight(address, !reloadWeight);
+							int weight = RegistryManager.getInstance().getServiceWeight(address, false);
 							addresses.add(new HostInfo(host, port, weight));
 						} catch (Throwable e) {
 							logger.error("error while registering service invoker:" + serviceName + ", address:"
@@ -272,6 +269,14 @@ public class ClientManager {
 		logger.info("end to register clients for service '" + serviceName + "#" + group + "', cost:" + (end - start));
 
 		return addresses;
+	}
+
+	public void closeRegisterThreadPool() {
+		if (enableRegisterConcurrently) {
+			enableRegisterConcurrently = false;
+			ThreadPoolUtils.shutdown(registerThreadPool.getExecutor());
+			logger.info("closed register thread pool");
+		}
 	}
 
 	public Map<String, Set<HostInfo>> getServiceHosts() {

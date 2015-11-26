@@ -28,7 +28,7 @@ import com.dianping.pigeon.threadpool.ThreadPool;
 public class GatewayInvokeFilter extends InvocationInvokeFilter {
 
 	private static final Logger logger = LoggerLoader.getLogger(GatewayInvokeFilter.class);
-	private static ThreadPool statisticsCheckerPool = new DefaultThreadPool("Pigeon-Server-Statistics-Checker");
+	private static ThreadPool statisticsCheckerPool = new DefaultThreadPool("Pigeon-Client-Statistics-Checker");
 
 	static {
 		InvokerStatisticsChecker appStatisticsChecker = new InvokerStatisticsChecker();
