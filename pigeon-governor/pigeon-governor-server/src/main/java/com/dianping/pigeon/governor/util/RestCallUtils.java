@@ -42,7 +42,7 @@ public class RestCallUtils {
 			String resStr = target.request().post(Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA), String.class);
 			result = getBeanFromJson(resStr, responseType);
 		} catch (Exception e) {
-			logger.error("http call error: " + e.getMessage());
+			logger.error("Failed to POST: "+ targetUrl + "; " + e.getMessage());
 		}
 
 		return result;
@@ -69,7 +69,7 @@ public class RestCallUtils {
 			String resStr = target.request().get(String.class);
 			result = getBeanFromJson(resStr, responseType);
 		} catch (Exception e) {
-			logger.error("http call error: " + e.getMessage());
+			logger.error("Failed to GET: "+ targetUrl + "; " + e.getMessage());
 		}
 
 		return result;

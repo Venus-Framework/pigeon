@@ -28,6 +28,7 @@
 		<dp.avatar.version>2.7.8</dp.avatar.version>
 		<dp.lion.version>0.5.3</dp.lion.version>
 		<webXmlPath>src/main/webapp/WEB-INF/web.xml</webXmlPath>
+		<env>dev</env>
 	</properties>
 
 	<dependencies>
@@ -319,7 +320,9 @@
 				<configuration>
                     <contextPath>/</contextPath>
                     <webXml>${webXmlPath}</webXml>
-                </configuration>
+					<stopKey/>
+					<stopPort/>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

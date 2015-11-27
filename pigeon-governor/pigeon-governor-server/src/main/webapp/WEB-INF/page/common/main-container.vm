@@ -1,21 +1,21 @@
-#set($layout = "layout.htm")
+#set($layout = "layout.vm")
 			
 <script type="text/javascript">
 	try{ace.settings.check('main-container' , 'fixed')}catch(e){}
 </script>
 <!-- #section:basics/sidebar -->
 <div id="sidebar" class="sidebar   responsive">
-	#parse("common/sidebar.htm")
+	#parse("common/sidebar.vm")
 </div>
 <div class="main-content">
  	#if(${subPath})
-      	#parse("main/${path}/${subPath}.htm")
+      	#parse("main/${path}/${subPath}.vm")
      #else
-      	#parse("main/${path}/main.htm")
+      	#parse("main/${path}/main.vm")
      #end
 </div><!-- /.main-content -->
 <div class="footer">
-	#parse("common/sub-footer.htm")
+	#parse("common/sub-footer.vm")
 </div>
 
 <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
