@@ -35,7 +35,7 @@ public class MyServletContextListener implements ServletContextListener {
 
 		customTaskInit(sce.getServletContext());
 		//临时
-		initWeight(sce.getServletContext());
+		//initWeight(sce.getServletContext());
 
 	}
 

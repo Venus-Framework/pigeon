@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		#parse("common/header.htm")
+		#parse("common/header.vm")
 	</head>
 	<body class="no-skin">
-		#parse("common/body.htm")
+		#parse("common/body.vm")
 	</body>
 </html>
