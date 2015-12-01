@@ -411,4 +411,13 @@ public class ServiceServiceImpl implements ServiceService {
 		return services;
 	}
 
+	@Override
+	public List<Service> getServiceList(int projectId, String group) {
+		ServiceExample example = new ServiceExample();
+		example.createCriteria().andProjectidEqualTo(projectId).andGroupEqualTo(group);
+		List<Service> services = serviceMapper.selectByExample(example);
+
+		return services;
+	}
+
 }

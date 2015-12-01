@@ -1,10 +1,13 @@
 package com.dianping.piegon.governor.test;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import com.dianping.pigeon.governor.bean.ServiceBean;
+import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.util.IPUtils;
 import org.apache.commons.lang.StringUtils;
@@ -21,9 +24,55 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class NormalTest {
 
 	@Test
+	public void testSplit2(){
+		String port = "4040/4080";
+		System.out.println(port.split("/")[0]);
+	}
+
+	@Test
+	public void testSet() {
+		HashSet<Service> set = new HashSet<Service>();
+		Service service1 = new Service();
+		service1.setName("111");
+		set.add(service1);
+		Service service2 = new Service(service1);
+		Service service3 = service1;
+		service1.setGroup("ccz");
+
+		System.out.println(set.contains(service2));
+		System.out.println(set.contains(service3));
+
+	}
+
+	@Test
+	public void testJoin(){
+		Set<String> set = new HashSet<String>();
+		for(String t: "".split(",")){
+			//System.out.println(t);
+			if(StringUtils.isNotBlank(t)){
+				set.add(t);
+			}
+		}
+		set.add("3232");
+		System.out.println(StringUtils.join(set,","));
+	}
+
+	@Test
+	public void testStrComp(){
+		String s1 = "2.6.8";
+		String s2 = "2.6.4";
+		String s3 = "2.6.3-SNAPSHOT";
+		System.out.println(s2.compareTo(s2));
+		System.out.println(s2.compareTo(s1));
+		System.out.println(s2.compareTo(s3));
+		System.out.println("a".compareTo("b"));
+
+	}
+
+	@Test
 	public void testIfNull(){
 
-		User user = new User();
+		User user = null;
 		System.out.println(user.getDpaccount());
 
 	}

@@ -1,10 +1,9 @@
 package com.dianping.pigeon.governor.controller;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.governor.bean.*;
-import com.dianping.pigeon.governor.model.OpLog;
-import com.dianping.pigeon.governor.model.Project;
-import com.dianping.pigeon.governor.model.Service;
-import com.dianping.pigeon.governor.model.User;
+import com.dianping.pigeon.governor.model.*;
 import com.dianping.pigeon.governor.service.OpLogService;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
@@ -20,15 +19,12 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 @Controller
@@ -232,6 +228,135 @@ public class ServiceController extends BaseController {
 		}
 
 		return result;
+	}
+
+	@RequestMapping(value = {"/services/oneClickAdd"}, method = {RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public Result oneClickAdd(@RequestParam(value="ip") final String ip,
+							  @RequestParam(value="port") final String port,
+							  HttpServletRequest request, HttpServletResponse response) {
+		Result result = null;
+		String url_base = "http://" + ip + ":" + port + "/services";
+		String online_url = url_base + ".publish?sign=" + Utils.getSign();
+		String onlineResult = RestCallUtils.getRestCall(online_url,String.class);
+
+		if(onlineResult != null && onlineResult.startsWith("ok")) {
+			result = Result.createSuccessResult("");
+		} else {
+			result = Result.createErrorResult("http call error or no services found: " + url_base);
+		}
+
+		return result;
+	}
+
+
+	@Deprecated
+	@RequestMapping(value = {"/services/oneClickAdd2"}, method = {RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public Result oneClickAdd2(@RequestParam(value="ip") final String ip,
+							  @RequestParam(value="port") final String port,
+							  HttpServletRequest request, HttpServletResponse response) {
+		Result result = null;
+		String url_base = "http://" + ip + ":" + port + "/services";
+		String online_url = url_base + ".online?sign=" + Utils.getSign();
+		String onlineResult = RestCallUtils.getRestCall(online_url,String.class);
+
+		if(onlineResult != null && onlineResult.startsWith("ok")) {
+			String status_url = url_base + ".status";
+			ServiceStatusBean serviceStatusBean = RestCallUtils.getRestCall(status_url, ServiceStatusBean.class);
+
+			if(serviceStatusBean != null && "2.6.4".compareTo(serviceStatusBean.getVersion()) > 0) {//2.6.4以前老版本
+				String json_url = url_base + ".json";
+				ConsoleServiceJsonBean consoleServiceJsonBean = RestCallUtils.getRestCall(json_url, ConsoleServiceJsonBean.class);
+
+				if(consoleServiceJsonBean != null && consoleServiceJsonBean.getServices().length > 0) {
+
+					if ("true".equals(consoleServiceJsonBean.getPublished())) {
+						String rPort = consoleServiceJsonBean.getPort().split("/")[0];
+						String host = ip + ":" + rPort;
+
+						String projectName = consoleServiceJsonBean.getApp();
+						String group = consoleServiceJsonBean.getGroup();
+						Project project = projectService.findProject(projectName);
+						int projectId = project.getId();
+						HashSet<Service> existServices = new HashSet<Service>(serviceService.getServiceList(projectId, group));
+						ConsoleService[] consoleServices = consoleServiceJsonBean.getServices();
+
+						for(ConsoleService consoleService : consoleServices) {
+
+							Service tService = null;
+							for(Service eService : existServices) {
+								if(consoleService.getName().equals(eService.getName())) {
+									HashSet<String> set = new HashSet<String>();
+
+									for(String eHost : eService.getHosts().split(",")){
+										if(StringUtils.isNotBlank(eHost)){
+											set.add(eHost);
+										}
+									}
+
+									set.add(host);
+									eService.setHosts(StringUtils.join(set, ","));
+									serviceService.updateById(eService);
+									tService = eService;
+									break;
+								}
+							}
+
+							if(tService != null) {
+								existServices.remove(tService);
+							} else {
+								tService = new Service();
+								tService.setName(consoleService.getName());
+								tService.setGroup(group);
+								tService.setHosts(host);
+								tService.setProjectid(projectId);
+								serviceService.create(tService);
+							}
+
+						}
+
+						result = Result.createSuccessResult("");
+					} else {
+						result = Result.createErrorResult("error, auto publish is set to false.");
+					}
+
+				} else {
+					result = Result.createErrorResult("http call error or no services found: " + url_base);
+				}
+			} else if(serviceStatusBean != null) {//2.6.4及以上版本调用services.online接口会自动注册
+				result = Result.createSuccessResult("");
+			} else {
+				result = Result.createErrorResult("http call error or no services found: " + url_base);
+			}
+
+		} else {
+			result = Result.createErrorResult("http call error or no services found: " + url_base);
+		}
+
+		return result;
+	}
+
+	@Deprecated
+	@RequestMapping(value = {"/services/oneClickAdd3"}, method = {RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public Result oneClickAdd3(@RequestParam(value="ip") final String ip,
+							  @RequestParam(value="port") final String port,
+							  HttpServletRequest request, HttpServletResponse response) {
+		String url = "http://" + ip + ":" + port + "/services.json";
+		ConsoleServiceJsonBean consoleServiceJsonBean = RestCallUtils.getRestCall(url,ConsoleServiceJsonBean.class);
+
+		if(consoleServiceJsonBean != null && consoleServiceJsonBean.getServices().length > 0) {
+			String projectName = consoleServiceJsonBean.getApp();
+			Project project = projectService.findProject(projectName);
+			List<Service> services = serviceService.getServiceList(project.getId());
+
+			return Result.createSuccessResult("");
+		} else {
+
+			return Result.createErrorResult("http call error or no services found: " + url);
+		}
+
 	}
 
 	/**
