@@ -143,7 +143,7 @@
 		</p>
 	</div><!-- #dialog-message -->
 
-	<div id="modal-form" class="modal" tabindex="-1">
+	<div id="onClickAdd-modal" class="modal" tabindex="-1">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -202,6 +202,66 @@
 			</div>
 		</div>
 	</div>
+
+    <div id="onClickOff-modal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="blue bigger">填写服务器信息</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+
+                        <div class="col-xs-12">
+
+                            <div class="form-group">
+                                <label for="form-field-provider-off-host">服务所在的ip:port</label>
+
+                                <div>
+                                    <input class="input-large" type="text" id="form-field-provider-off-host"
+                                           placeholder="ip:port, e.g. 10.1.77.131:5060" value="" />
+                                    &nbsp;&nbsp;
+                                    <a title="通常用于服务非正常关闭时的补救措施" data-rel="tooltip" href="#">
+                                        <i class="fa fa-question-circle dark"></i></a>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label for="form-field-provider-off-group">泳道(group)</label>
+
+                                <div>
+                                    <input class="input-medium" type="text" id="form-field-provider-off-group"
+                                           placeholder="default" value="" />
+                                    &nbsp;&nbsp;
+                                    <a title="一键删除指定泳道的指定ip:port，默认为无泳道" data-rel="tooltip" href="#">
+                                        <i class="fa fa-question-circle dark"></i></a>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-sm" data-dismiss="modal">
+                        <i class="ace-icon fa fa-times"></i>
+                        取消
+                    </button>
+
+                    <button id="submit-oneClick-off" class="btn btn-sm btn-primary">
+                        <i class="ace-icon fa fa-check"></i>
+                        提交
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 	
 </div>
 
@@ -239,10 +299,12 @@
 <script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
 
 <script>
+var projectId = ${projectId};
 $(function(){
 	$('li[id="projects_index"]').addClass("active open");
 	//$('li[id="project_info"]').addClass("active");
     $('[data-rel=tooltip]').tooltip();
+
 });
 
 $('#test-oneClick-add').on('click',function(){
@@ -265,13 +327,40 @@ $('#submit-oneClick-add').on('click',function(){
                 window.location.reload();
 			} else {
 				//console.log(response);
-                $('#modal-form').modal('hide');
+                $('#onClickAdd-modal').modal('hide');
                 $.gritter.add({
                     title: response.status,
                     text: response.message,
                     class_name: 'gritter-error gritter-center gritter-light'
                 });
 			}
+
+        }
+    });
+
+});
+
+$('#submit-oneClick-off').on('click',function(){
+    var data = {"host": $('#form-field-provider-off-host').val(), "group": $('#form-field-provider-off-group').val(), "projectId": projectId};
+    $.ajax({
+        url: '/services/oneClickOff',
+        type: 'POST',
+        data: data,
+        error: function(){
+            console.log("server error!");
+        },
+        success: function(response, textStatus) {
+            if(response.status == "success") {
+                window.location.reload();
+            } else {
+                //console.log(response);
+                $('#onClickOff-modal').modal('hide');
+                $.gritter.add({
+                    title: response.status,
+                    text: response.message,
+                    class_name: 'gritter-error gritter-center gritter-light'
+                });
+            }
 
         }
     });
@@ -687,7 +776,7 @@ jQuery(function($) {
 		title:"一键注册",
 		buttonicon:'ace-icon fa fa-plus-square red',
 		onClickButton: function(){
-			$('#modal-form').modal();
+			$('#onClickAdd-modal').modal();
 		},
 		position:"last",
 		id: "oneClickReg"
@@ -697,7 +786,7 @@ jQuery(function($) {
 		title:"一键下线",
 		buttonicon:'ace-icon fa fa-minus-square red',
 		onClickButton: function(){
-            $('#modal-form').modal();
+            $('#onClickOff-modal').modal();
 		},
 		position:"last",
 		id: "oneClickUnReg"

@@ -249,6 +249,32 @@ public class ServiceController extends BaseController {
 		return result;
 	}
 
+	@RequestMapping(value = {"/services/oneClickOff"}, method = {RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public Result oneClickOff(@RequestParam(value="host") final String host,
+							  @RequestParam(value="group") final String group,
+							  @RequestParam(value="projectId") final int projectId,
+							  HttpServletRequest request, HttpServletResponse response) {
+		List<Service> services = serviceService.getServiceList(projectId, group);
+
+		for(Service service : services) {
+			HashSet<String> set = new HashSet<String>(Arrays.asList(service.getHosts().split(",")));
+			set.remove(host);
+			service.setHosts(StringUtils.join(set, ","));
+			try {
+				serviceService.updateById(service, "true");
+			} catch (Exception e) {
+				logger.error("update service error!", e);
+			}
+		}
+
+		String content = String.format("Onclick Off host=%s&grp=%s",
+				host, group);
+		workThreadPool.submit(new LogOpRun(request, OpType.DELETE_PIGEON_SERVICE, content, projectId));
+
+		return Result.createSuccessResult("");
+	}
+
 
 	@Deprecated
 	@RequestMapping(value = {"/services/oneClickAdd2"}, method = {RequestMethod.GET, RequestMethod.POST})
@@ -297,7 +323,11 @@ public class ServiceController extends BaseController {
 
 									set.add(host);
 									eService.setHosts(StringUtils.join(set, ","));
-									serviceService.updateById(eService);
+									try {
+										serviceService.updateById(eService, "true");
+									} catch (Exception e) {
+										logger.error("update service error!", e);
+									}
 									tService = eService;
 									break;
 								}
@@ -311,7 +341,12 @@ public class ServiceController extends BaseController {
 								tService.setGroup(group);
 								tService.setHosts(host);
 								tService.setProjectid(projectId);
-								serviceService.create(tService);
+								try {
+									serviceService.create(tService, "true");
+								} catch (Exception e) {
+									logger.error("create service error!", e);
+									result = Result.createErrorResult("create service error!");
+								}
 							}
 
 						}

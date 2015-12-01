@@ -1,6 +1,7 @@
 package com.dianping.piegon.governor.test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -22,6 +23,15 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class NormalTest {
+
+	@Test
+	public void testArrToSet(){
+		String host = "1.1.1";
+
+		HashSet<String> set = new HashSet<String>(Arrays.asList("1.1.1,2.2.2,".split(",")));
+		set.remove(host);
+		System.out.println(StringUtils.join(set,","));
+	}
 
 	@Test
 	public void testSplit2(){
