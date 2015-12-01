@@ -236,14 +236,22 @@ public class ServiceController extends BaseController {
 							  @RequestParam(value="port") final String port,
 							  HttpServletRequest request, HttpServletResponse response) {
 		Result result = null;
-		String url_base = "http://" + ip + ":" + port + "/services";
-		String online_url = url_base + ".publish?sign=" + Utils.getSign();
-		String onlineResult = RestCallUtils.getRestCall(online_url,String.class);
+		String urlBase = "http://" + ip + ":" + port + "/services";
+		String publishUrl = urlBase + ".publish?force=true&sign=" + Utils.getSign();
+		String publishResult = RestCallUtils.getRestCall(publishUrl,String.class);
 
-		if(onlineResult != null && onlineResult.startsWith("ok")) {
-			result = Result.createSuccessResult("");
+		if(publishResult != null && publishResult.startsWith("ok")) {
+			String onlineUrl = urlBase + ".online?force=true&sign=" + Utils.getSign();
+			String onlineResult = RestCallUtils.getRestCall(onlineUrl,String.class);
+
+			if(onlineResult != null && onlineResult.startsWith("ok")) {
+				result = Result.createSuccessResult("");
+			} else {
+				result = Result.createErrorResult("服务权重注册失败，建议重试");
+			}
+
 		} else {
-			result = Result.createErrorResult("http call error or no services found: " + url_base);
+			result = Result.createErrorResult("http call error or no services found: " + urlBase);
 		}
 
 		return result;
