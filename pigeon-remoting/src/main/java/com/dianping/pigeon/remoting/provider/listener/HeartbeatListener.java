@@ -11,6 +11,7 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,7 +29,7 @@ public class HeartbeatListener extends Thread {
 
     private static Monitor monitor = MonitorLoader.getMonitor();
 
-    private static Set<String> serviceHeartbeatCache = new HashSet<String>();
+    private static Set<String> serviceHeartbeatCache = Collections.synchronizedSet(new HashSet<String>());
 
     private static volatile int REFRESH_INTERVAL = configManager.getIntValue(Constants.KEY_PROVIDER_HEARTBEAT_INTERNAL,
             Constants.DEFAULT_PROVIDER_HEARTBEAT_INTERNAL);
@@ -85,6 +86,7 @@ public class HeartbeatListener extends Thread {
         if(heartbeatListener == null) {
             serviceAddress = configManager.getLocalIp() + ":" + providerConfig.getServerConfig().getActualPort();
             initHeartbeat();
+            monitor.logEvent("Pigeon.Heartbeat", "ON", new Date()+"");
         }
         registryManager.registerServiceHeartbeat(serviceAddress, serviceName);
         /*String path = getHeartbeatPath(providerConfig);
@@ -100,13 +102,16 @@ public class HeartbeatListener extends Thread {
         System.out.println("del: " + path);*/
 
         if(serviceHeartbeatCache.size() == 0) {
+            // 删除zk心跳，销毁心跳线程
             isSendHeartbeat = false;
+            registryManager.deleteHeartbeat(serviceAddress);
+            monitor.logEvent("Pigeon.Heartbeat", "OFF", new Date()+"");
         }
 
     }
 
     private static synchronized void initHeartbeat() {
-        heartbeatListener = new HeartbeatListener("Pigeon-Heartbeat-Thread",new HeartbeatReboot(),true);
+        heartbeatListener = new HeartbeatListener("Pigeon-Heartbeat-Thread",new HeartbeatReboot(), true);
         heartbeatListener.createThead().start();
     }
 
@@ -122,23 +127,19 @@ public class HeartbeatListener extends Thread {
     @Override
     public void run() {
         try {
-            monitor.logEvent("Pigeon.Heartbeat", "ON", new Date()+"");
             while(isSendHeartbeat) {
                 Long heartbeat = System.currentTimeMillis();
                 // 写心跳
-                registryManager.updateHeartbeat(serviceAddress, heartbeat);
+                if(serviceHeartbeatCache.size() > 0) {
+                    registryManager.updateHeartbeat(serviceAddress, heartbeat);
+                }
 
                 Long internal = REFRESH_INTERVAL - System.currentTimeMillis() + heartbeat;
                 if(internal > 0) {
                     Thread.sleep(internal);
                 }
             }
-
-            // 删除zk心跳，销毁心跳线程
-            monitor.logEvent("Pigeon.Heartbeat", "OFF", new Date()+"");
-            registryManager.deleteHeartbeat(serviceAddress);
             heartbeatListener = null;
-
         } catch (Throwable e) {
             tryRestartThread(this, e);
         } finally {
