@@ -45,7 +45,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 		// System.out.println("SOURCE_IP:" +
 		// ContextUtils.getGlobalContext("SOURCE_IP"));
 		 try {
-		 Thread.sleep(30);
+		 Thread.sleep(10);
 		 } catch (InterruptedException e) {
 		 }
 		// System.out.println(msg);

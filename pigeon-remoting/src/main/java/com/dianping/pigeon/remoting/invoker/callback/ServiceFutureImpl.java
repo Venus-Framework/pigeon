@@ -16,6 +16,8 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
@@ -56,7 +58,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 		long start = System.currentTimeMillis();
 		if (transaction != null) {
 			transaction.addData("FutureTimeout", timeoutMillis);
-			invocationContext.getTimeline().add(start);
+			invocationContext.getTimeline().add(new TimePoint(TimePhase.F, start));
 		}
 		try {
 			response = super.get(timeoutMillis);
@@ -65,8 +67,8 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 				if (size != null) {
 					transaction.logEvent("PigeonCall.responseSize", size, "" + response.getSize());
 				}
-				invocationContext.getTimeline().add(response.getCreateMillisTime());
-				invocationContext.getTimeline().add(System.currentTimeMillis());
+				invocationContext.getTimeline().add(new TimePoint(TimePhase.R, response.getCreateMillisTime()));
+				invocationContext.getTimeline().add(new TimePoint(TimePhase.F, System.currentTimeMillis()));
 			}
 		} catch (Throwable e) {
 			RuntimeException rpcEx = null;

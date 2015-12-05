@@ -22,6 +22,8 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
@@ -154,8 +156,8 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 				if (respSize != null) {
 					monitor.logEvent("PigeonCall.responseSize", respSize, "" + response.getSize());
 				}
-				invocationContext.getTimeline().add(response.getCreateMillisTime());
-				invocationContext.getTimeline().add(System.currentTimeMillis());
+				invocationContext.getTimeline().add(new TimePoint(TimePhase.R, response.getCreateMillisTime()));
+				invocationContext.getTimeline().add(new TimePoint(TimePhase.R, response.getCreateMillisTime()));
 			}
 			return response;
 		} catch (NetTimeoutException e) {

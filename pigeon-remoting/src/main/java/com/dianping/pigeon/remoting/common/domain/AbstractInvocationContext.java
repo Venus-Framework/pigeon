@@ -15,7 +15,7 @@ public abstract class AbstractInvocationContext implements InvocationContext {
 	protected InvocationRequest request;
 	protected InvocationResponse response;
 	private Map<String, Serializable> contextValues;
-	private List<Long> timeline = new ArrayList<Long>();
+	private List<TimePoint> timeline = new ArrayList<TimePoint>();
 
 	public AbstractInvocationContext(InvocationRequest request) {
 		this.request = request;
@@ -61,7 +61,7 @@ public abstract class AbstractInvocationContext implements InvocationContext {
 	}
 
 	@Override
-	public List<Long> getTimeline() {
+	public List<TimePoint> getTimeline() {
 		return timeline;
 	}
 }

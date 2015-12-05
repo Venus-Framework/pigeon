@@ -54,8 +54,8 @@ public class Client {
 		{
 			try {
 				ContextUtils.putRequestContext("key1", "1");
-				echoService.echo("" + (i++));
-				//echoServiceCallback.asyncEcho("" + (i++));
+				//echoService.echo("" + (i++));
+				echoServiceCallback.asyncEcho("" + (i++));
 
 				Thread.sleep(10);
 				// System.out.println(echoService.asyncEcho("" + (i++)));

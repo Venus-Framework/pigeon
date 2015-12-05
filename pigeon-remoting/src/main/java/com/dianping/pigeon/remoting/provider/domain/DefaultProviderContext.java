@@ -22,8 +22,8 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 	public DefaultProviderContext(InvocationRequest request, ProviderChannel channel) {
 		super(request);
 		this.channel = channel;
-		getTimeline().add(request.getCreateMillisTime());
-		getTimeline().add(System.currentTimeMillis());
+		getTimeline().add(new TimePoint(TimePhase.R, request.getCreateMillisTime()));
+		getTimeline().add(new TimePoint(TimePhase.R, System.currentTimeMillis()));
 	}
 
 	public Throwable getServiceError() {

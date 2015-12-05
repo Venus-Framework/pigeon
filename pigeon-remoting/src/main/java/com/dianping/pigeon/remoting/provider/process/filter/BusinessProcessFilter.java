@@ -9,6 +9,8 @@ import java.util.List;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
@@ -55,14 +57,20 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 				method = ServiceMethodFactory.getMethod(request);
 			}
 			if (Constants.REPLY_MANUAL && request.getCallType() == Constants.CALLTYPE_REPLY) {
-				request.setCallType(Constants.CALLTYPE_NOREPLY);
+				request.setCallType(Constants.CALLTYPE_MANUAL);
+			}
+			if (Constants.REPLY_MANUAL) {
 				ProviderHelper.setContext(invocationContext);
 			}
-			invocationContext.getTimeline().add(System.currentTimeMillis());
-			
-			Object returnObj = method.invoke(request.getParameters());
-			
-			invocationContext.getTimeline().add(System.currentTimeMillis());
+			invocationContext.getTimeline().add(new TimePoint(TimePhase.M, System.currentTimeMillis()));
+			Object returnObj = null;
+			try {
+				returnObj = method.invoke(request.getParameters());
+			} finally {
+				ProviderHelper.clearContext();
+			}
+
+			invocationContext.getTimeline().add(new TimePoint(TimePhase.M, System.currentTimeMillis()));
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
 				response = ProviderUtils.createSuccessResponse(request, returnObj);
 			}

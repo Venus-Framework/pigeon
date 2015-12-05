@@ -15,6 +15,8 @@ import com.dianping.cat.message.spi.MessageManager;
 import com.dianping.cat.message.spi.MessageTree;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.util.ContextUtils;
 
 /**
@@ -58,23 +60,29 @@ public class CatMonitorTransaction implements MonitorTransaction {
 	public void complete(long startTime) {
 		if (this.transaction != null) {
 			long now = System.currentTimeMillis();
-			this.invocationContext.getTimeline().add(now);
-			List<Long> timeline = this.invocationContext.getTimeline();
+			this.invocationContext.getTimeline().add(new TimePoint(TimePhase.E, now));
+			List<TimePoint> timeline = this.invocationContext.getTimeline();
 			StringBuilder s = new StringBuilder();
 			s.append(timeline.get(0));
 			for (int i = 1; i < timeline.size(); i++) {
-				s.append(",").append(timeline.get(i) - timeline.get(i - 1));
+				TimePoint tp = timeline.get(i);
+				TimePoint tp2 = timeline.get(i - 1);
+				s.append(",").append(tp.getPhase()).append(tp.getTime() - tp2.getTime());
 			}
 			long duration = 0;
 			long start = startTime;
 			if (startTime <= 0) {
-				start = timeline.get(0);
+				start = timeline.get(0).getTime();
 			}
 			duration = now - start;
-			((DefaultTransaction) this.transaction).setDurationStart(start * 1000 * 1000);
+			if (this.transaction instanceof DefaultTransaction) {
+				((DefaultTransaction) this.transaction).setDurationStart(start * 1000 * 1000);
+			}
 			this.transaction.addData("Timeline", s.toString());
 			this.transaction.complete();
-			((DefaultTransaction) this.transaction).setDurationInMillis(duration);
+			if (this.transaction instanceof DefaultTransaction) {
+				((DefaultTransaction) this.transaction).setDurationInMillis(duration);
+			}
 		}
 	}
 

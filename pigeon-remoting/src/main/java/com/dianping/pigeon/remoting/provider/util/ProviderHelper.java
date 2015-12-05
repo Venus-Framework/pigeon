@@ -9,6 +9,8 @@ import java.util.List;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
@@ -30,12 +32,18 @@ public final class ProviderHelper {
 	}
 
 	public static ProviderContext getContext() {
-		return tlContext.get();
+		ProviderContext context = tlContext.get();
+		tlContext.remove();
+		return context;
+	}
+
+	public static void clearContext() {
+		tlContext.remove();
 	}
 
 	public static void writeSuccessResponse(ProviderContext context, Object returnObj) {
-		if (Constants.REPLY_MANUAL) {
-			context.getTimeline().add(System.currentTimeMillis());
+		if (Constants.REPLY_MANUAL && context != null) {
+			context.getTimeline().add(new TimePoint(TimePhase.B, System.currentTimeMillis()));
 			InvocationRequest request = context.getRequest();
 			InvocationResponse response = ProviderUtils.createSuccessResponse(request, returnObj);
 			ProviderChannel channel = context.getChannel();
@@ -58,21 +66,23 @@ public final class ProviderHelper {
 				} catch (Throwable e) {
 					monitor.logMonitorError(e);
 				}
-				try {
-					channel.write(response);
-				} finally {
-					if (Constants.PROVIDER_CALLBACK_MONITOR_ENABLE) {
-						if (response != null && response.getSize() > 0) {
-							String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
-							if (respSize != null) {
-								monitor.logEvent("PigeonService.responseSize", respSize, "" + response.getSize());
+				if (request.getCallType() != Constants.CALLTYPE_NOREPLY) {
+					try {
+						channel.write(response);
+					} finally {
+						if (Constants.PROVIDER_CALLBACK_MONITOR_ENABLE) {
+							if (response != null && response.getSize() > 0) {
+								String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
+								if (respSize != null) {
+									monitor.logEvent("PigeonService.responseSize", respSize, "" + response.getSize());
+								}
 							}
-						}
-						if (transaction != null) {
-							try {
-								transaction.complete();
-							} catch (Throwable e) {
-								monitor.logMonitorError(e);
+							if (transaction != null) {
+								try {
+									transaction.complete();
+								} catch (Throwable e) {
+									monitor.logMonitorError(e);
+								}
 							}
 						}
 					}
