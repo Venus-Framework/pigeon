@@ -24,6 +24,7 @@ public final class Constants {
 
 	public static final int CALLTYPE_REPLY = 1;
 	public static final int CALLTYPE_NOREPLY = 2;
+	public static final int CALLTYPE_MANUAL = 3;
 
 	public static final String PROCESS_MODEL_DEFAULT = "default";
 	public static final String PROCESS_MODEL_THREAD = "thread";

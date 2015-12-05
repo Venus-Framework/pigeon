@@ -77,12 +77,12 @@ public class RequestTimeoutListener implements Runnable {
 					isolatedByApp = Boolean.valueOf(value);
 				} catch (RuntimeException e) {
 				}
-			}  else if (key.endsWith("pigeon.timeout.isolation.parameters")) {
+			} else if (key.endsWith("pigeon.timeout.isolation.parameters")) {
 				try {
 					isolatedByParameters = Boolean.valueOf(value);
 				} catch (RuntimeException e) {
 				}
-			} 
+			}
 		}
 
 		@Override
@@ -189,12 +189,14 @@ public class RequestTimeoutListener implements Runnable {
 										te = new RequestAbortedException(msg.toString());
 										te.setStackTrace(new StackTraceElement[] {});
 									} else {
+										msg.append("\r\nthread:").append(t.getName());
 										te = new ProcessTimeoutException(msg.toString());
 										te.setStackTrace(t.getStackTrace());
 									}
 									ContextUtils.setContext(request.getContext());
 									boolean isLog = true;
-									if (timeoutCountInLastSecond > Constants.LOG_THRESHOLD && timeoutCountInCurrentSecond % Constants.LOG_INTERVAL == 1) {
+									if (timeoutCountInLastSecond > Constants.LOG_THRESHOLD
+											&& timeoutCountInCurrentSecond % Constants.LOG_INTERVAL == 1) {
 										isLog = false;
 									}
 									if (isLog) {

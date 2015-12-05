@@ -15,6 +15,8 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
@@ -71,8 +73,8 @@ public class ServiceCallbackWrapper implements Callback {
 					if (respSize != null) {
 						monitor.logEvent("PigeonCall.responseSize", respSize, "" + response.getSize());
 					}
-					invocationContext.getTimeline().add(response.getCreateMillisTime());
-					invocationContext.getTimeline().add(currentTime);
+					invocationContext.getTimeline().add(new TimePoint(TimePhase.R, response.getCreateMillisTime()));
+					invocationContext.getTimeline().add(new TimePoint(TimePhase.R, currentTime));
 				}
 			}
 			if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0

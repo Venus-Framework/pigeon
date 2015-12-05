@@ -42,6 +42,40 @@ public interface InvocationContext {
 	String getMethodUri();
 
 	void setMethodUri(String uri);
-	
-	List<Long> getTimeline();
+
+	List<TimePoint> getTimeline();
+
+	enum TimePhase {
+		S, R, M, F, B, E
+	}
+
+	public static class TimePoint {
+		TimePhase phase;
+		long time;
+
+		public TimePoint(TimePhase phase, long time) {
+			this.phase = phase;
+			this.time = time;
+		}
+
+		public TimePhase getPhase() {
+			return phase;
+		}
+
+		public void setPhase(TimePhase phase) {
+			this.phase = phase;
+		}
+
+		public long getTime() {
+			return time;
+		}
+
+		public void setTime(long time) {
+			this.time = time;
+		}
+
+		public String toString() {
+			return phase + "" + time;
+		}
+	}
 }

@@ -69,7 +69,6 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			Constants.DEFAULT_HEARTBEAT_TIMEOUT);
 	private static float pickoffRatio = configManager.getFloatValue("pigeon.heartbeat.pickoffratio", 0.5f);
 	private static boolean logPickOff = configManager.getBooleanValue("pigeon.heartbeat.logpickoff", true);
-	private static boolean logPickOn = configManager.getBooleanValue("pigeon.heartbeat.logpickon", true);
 	private static final Monitor monitor = MonitorLoader.getMonitor();
 
 	private static volatile Set<String> inactiveAddresses = new HashSet<String>();
@@ -87,11 +86,6 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			if (key.endsWith("pigeon.heartbeat.logpickoff")) {
 				try {
 					logPickOff = Boolean.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			} else if (key.endsWith("pigeon.heartbeat.logpickon")) {
-				try {
-					logPickOn = Boolean.valueOf(value);
 				} catch (RuntimeException e) {
 				}
 			} else if (key.endsWith("pigeon.heartbeat.pickoffratio")) {
@@ -271,13 +265,6 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 					inactiveAddresses.remove(client.getAddress());
 					logger.info("@service-activate:" + client + ", service:" + getServiceName(client)
 							+ ", inactive addresses:" + inactiveAddresses);
-
-					if (logPickOn) {
-						ServiceStatusException ex = new ServiceStatusException("remote server " + client
-								+ " returned to normal");
-						ex.setStackTrace(new StackTraceElement[] {});
-						monitor.logError(ex);
-					}
 				}
 				heartStat.resetCounter();
 			} else if (heartStat.failedCounter.longValue() >= heartBeatDeadCount) {

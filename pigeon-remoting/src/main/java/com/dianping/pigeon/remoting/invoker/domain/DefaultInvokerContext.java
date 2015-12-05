@@ -8,6 +8,8 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.dianping.pigeon.remoting.common.domain.AbstractInvocationContext;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
@@ -26,7 +28,7 @@ public class DefaultInvokerContext extends AbstractInvocationContext implements 
 		this.methodName = methodName;
 		this.parameterTypes = parameterTypes;
 		this.arguments = arguments;
-		getTimeline().add(System.currentTimeMillis());
+		getTimeline().add(new TimePoint(TimePhase.S, System.currentTimeMillis()));
 	}
 
 	public InvokerConfig<?> getInvokerConfig() {
