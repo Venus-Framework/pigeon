@@ -46,4 +46,8 @@ public class Utils {
 		}
 		return isGranted;
 	}
+
+	public static String getSign() {
+		return SIGN;
+	}
 }

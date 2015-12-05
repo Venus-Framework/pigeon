@@ -44,5 +44,11 @@ public interface ServiceService {
 	public JqGridRespBean retrieveByJqGrid(String projectName);
 
 	public List<Service> retrieveAllByProjectName(String projectName);
+
+	public List<Service> getServiceList(int projectId, String group);
+
+	public int create(Service service, String updatezk) throws Exception;
+
+	public int updateById(Service service, String updatezk) throws Exception;
 	
 }

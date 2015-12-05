@@ -1,4 +1,4 @@
-#set($layout="layoutblank.htm")
+#set($layout="layoutblank.vm")
 <!DOCTYPE html>
 <html>
 <head>
@@ -45,7 +45,7 @@
 
 <!-- #section:basics/navbar.layout -->
 <div id="navbar" class="navbar navbar-default">
-    #parse("common/navbar.htm")
+    #parse("common/navbar.vm")
 </div>
 
 <div class="main-container" id="main-container">
@@ -55,7 +55,7 @@
     </script>
     <!-- #section:basics/sidebar -->
     <div id="sidebar" class="sidebar   responsive">
-        #parse("common/sidebar.htm")
+        #parse("common/sidebar.vm")
     </div>
     <div class="main-content">
 
@@ -111,7 +111,7 @@
     </div><!-- /.main-content -->
 
     <div class="footer">
-        #parse("common/sub-footer.htm")
+        #parse("common/sub-footer.vm")
     </div>
 
     <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">

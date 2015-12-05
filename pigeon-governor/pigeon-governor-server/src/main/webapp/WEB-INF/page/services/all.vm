@@ -1,4 +1,4 @@
-#set($layout="layoutblank.htm")
+#set($layout="layoutblank.vm")
 <!DOCTYPE html>
 <html>
 <head>
@@ -45,7 +45,7 @@
 
 <!-- #section:basics/navbar.layout -->
 <div id="navbar" class="navbar navbar-default">
-	#parse("common/navbar.htm")
+	#parse("common/navbar.vm")
 </div>
 
 <div class="main-container" id="main-container">
@@ -55,7 +55,7 @@
 	</script>
 	<!-- #section:basics/sidebar -->
 	<div id="sidebar" class="sidebar   responsive">
-		#parse("common/sidebar.htm")
+		#parse("common/sidebar.vm")
 	</div>
 	<div class="main-content">
 	 	
@@ -72,7 +72,7 @@
 				<li><i class="ace-icon fa fa-home home-icon"></i> <a href="/">主页</a>
 				</li>
 		
-				<li class="active">应用信息</li>
+				<li class="active">配置服务</li>
 			</ul>
 			<!-- /.breadcrumb -->
 		</div>
@@ -84,10 +84,10 @@
 			<div class="page-content-area">
 				<div class="page-header">
 					<h1>
-						应用信息
+						配置服务
 						<small>
 							<i class="ace-icon fa fa-angle-double-right"></i>
-							添加、删除、修改、查看应用信息
+							添加、删除、修改、查看pigeon服务配置
 						</small>
 					</h1>
 				</div><!-- /.page-header -->
@@ -119,7 +119,7 @@
 	</div><!-- /.main-content -->
 	
 	<div class="footer">
-		#parse("common/sub-footer.htm")
+		#parse("common/sub-footer.vm")
 	</div>
 	
 	<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
@@ -164,7 +164,7 @@
 <script>
 $(function(){
 	$('li[id="projects_index"]').addClass("active open");
-	$('li[id="project_info"]').addClass("active");
+	//$('li[id="project_info"]').addClass("active");
 });
 
 jQuery(function($) {
@@ -187,29 +187,29 @@ jQuery(function($) {
     })
 
 	$.extend($.fn.fmatter, {
-        actionFormatter: function(cellvalue, options, rowObject) {
-            var retVal = "<a href='/services/" + rowObject.name + "'>查看</a>";
-            return retVal;
-        }
-    } );
+		nullFormatter: function(cellvalue, options, rowObject) {
+			var retVal = "";
+			return retVal;
+		}
+	} );
 
 	jQuery(grid_selector).jqGrid({
 
-		url:"${rc.contextPath}/projects?projectOwner=${projectOwner}",
+		url:"${rc.contextPath}/services.json",
 		datatype: "json",
 		mtype:"POST",
 		jsonReader: {
-			root:"data",
-			page: "currentPage",
+			root:"data",	
+			page: "currentPage",	
 			total: "totalPages",
 			records: "totalRecords",
 			repeatitems : true
 		},
 		height: 350,
-		colNames:[' ', 'ID', 'name', 'bu', 'owner', 'email', 'phone', 'level', 'createTime', 'modifyTime'],
+		colNames:[' ', 'ID','Name','描述', '泳道', 'Hosts','PID'],
 		colModel:[
 			{name:'myac',index:'', width:70, fixed:true, sortable:false, resize:false,
-				formatter:'actionFormatter', 
+				formatter:'nullFormatter',
 				formatoptions:{ 
 					keys:true,
 					//delbutton: false,//disable delete button
@@ -219,14 +219,11 @@ jQuery(function($) {
 				}
 			},
 			{name:'id', index:'id', width:20, sorttype:"int", search:false, editable:false},
-			{name:'name', index:'name', width:100, editable:true, editoptions:{size:"20", maxlength:"50"}},
-			{name:'bu', index:'bu', width:80, editable:true, search:true, sortable:true, editoptions:{size:"20", maxlength:"50"}},
-			{name:'owner', index:'owner', width:50, editable:true, search:false, sortable:true, editoptions:{size:"20", maxlength:"50"}},
-			{name:'email',index:'email', width:80, editable:true, sortable:false, search:false, editoptions:{size:"20", maxlength:"50"}},
-			{name:'phone',index:'phone', width:50, editable:true, search:false, sortable:false, editoptions:{size:"15", maxlength:"15"}},
-			{name:'level',index:'level', width:20, sorttype:"int", search:false, editable: true},
-			{name:'createTime',index:'createTime',width:90, hidden:true, editable:false, sorttype:"date",unformat: pickDate},
-			{name:'modifyTime',index:'modifyTime',width:90, hidden:true, editable:false, sorttype:"date",unformat: pickDate}
+			{name:'name', index:'name', width:220, editable:true, editoptions:{size:"20", maxlength:"250"}},
+			{name:'desc', index:'desc', width:100, editable:true, search:false, sortable:false, editoptions:{size:"20", maxlength:"250"}},
+			{name:'group',index:'group', width:50, editable:true, editoptions:{size:"20", maxlength:"100"}},
+			{name:'hosts',index:'hosts', width:200, editable:true, search:false, sortable:false, editoptions:{size:"20", maxlength:"2000"}},
+			{name:'projectid',index:'projectid', width:20, sorttype:"int",editable: true} 
 		], 
 
 		viewrecords : true,
@@ -251,8 +248,8 @@ jQuery(function($) {
 			}, 0);
 		},
 
-		editurl: "${rc.contextPath}/projects.api",//nothing is saved
-		caption: "加载我的应用信息"
+		editurl: "/services.api",//nothing is saved
+		caption: "加载全部服务配置"
 
 		//,autowidth: true,
 
@@ -304,7 +301,7 @@ jQuery(function($) {
 			addicon : 'ace-icon fa fa-plus-circle purple',
 			del: false,
 			delicon : 'ace-icon fa fa-trash-o red',
-			search: false,
+			search: true,
 			searchicon : 'ace-icon fa fa-search orange',
 			refresh: true,
 			refreshicon : 'ace-icon fa fa-refresh green',

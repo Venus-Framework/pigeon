@@ -411,4 +411,49 @@ public class ServiceServiceImpl implements ServiceService {
 		return services;
 	}
 
+	@Override
+	public List<Service> getServiceList(int projectId, String group) {
+		ServiceExample example = new ServiceExample();
+		example.createCriteria().andProjectidEqualTo(projectId).andGroupEqualTo(group);
+		List<Service> services = serviceMapper.selectByExample(example);
+
+		return services;
+	}
+
+	@Override
+	public int create(Service service, String updatezk) throws Exception {
+		int count = 0;
+		boolean writeZk = "true".equalsIgnoreCase(updatezk);
+		count = create(service);
+
+		if(count > 0 && writeZk) {
+			try {
+				registryService.registryCreateService(service);
+			} catch (Exception e) {
+				logger.error("update zk error", e);
+				service = getService(service.getName(), service.getGroup());
+				if(service != null) {
+					deleteById(service.getId());
+				}
+				throw e;
+			}
+		}
+
+		return count;
+	}
+
+	@Override
+	public int updateById(Service service, String updatezk) throws Exception {
+		int count = -1;
+		boolean writeZk = "true".equalsIgnoreCase(updatezk);
+		Service oriService = getService(service.getName(), service.getGroup());
+		count = updateById(service);
+
+		if(count > 0 && writeZk) {
+			registryService.registryUpdateService(oriService, service);
+		}
+
+		return count;
+	}
+
 }
