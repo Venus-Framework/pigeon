@@ -135,7 +135,7 @@ public final class Constants {
 	public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
 	public static final int DEFAULT_WEIGHT_WAMUPPERIOD = 1000;
 	public static final int DEFAULT_WEIGHT_STARTDELAY = 30000;
-	public static final int DEFAULT_PROVIDER_HEARTBEAT_INTERNAL = 2000;
+	public static final int DEFAULT_PROVIDER_HEARTBEAT_INTERNAL = 60000;
 
 	public static final String PROTOCOL_HTTP = "http";
 	public static final String PROTOCOL_DEFAULT = "default";

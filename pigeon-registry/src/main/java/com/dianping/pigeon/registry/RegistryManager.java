@@ -419,4 +419,28 @@ public class RegistryManager {
 			monitor.logEvent("PigeonService.delService", serviceName, "swimlane=" + group);
 		}
 	}
+
+	public void registerServiceHeartbeat(String serviceAddress, String serviceName) {
+		if (registry != null) {
+			registry.registerServiceHeartbeat(serviceAddress, serviceName);
+		}
+	}
+
+	public void unregisterServiceHeartbeat(String serviceAddress, String serviceName) {
+		if (registry != null) {
+			registry.unregisterServiceHeartbeat(serviceAddress, serviceName);
+		}
+	}
+
+	public void updateHeartbeat(String serviceAddress, Long heartbeatTimeMillis) {
+		if (registry != null) {
+			registry.registerHeartbeat(serviceAddress, heartbeatTimeMillis);
+		}
+	}
+
+	public void deleteHeartbeat(String serviceAddress) {
+		if (registry != null) {
+			registry.unregisterHeartbeat(serviceAddress);
+		}
+	}
 }

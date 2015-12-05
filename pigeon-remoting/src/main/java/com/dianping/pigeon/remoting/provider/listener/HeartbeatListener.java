@@ -3,6 +3,9 @@ package com.dianping.pigeon.remoting.provider.listener;
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLoader;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.util.Utils;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
@@ -20,6 +23,10 @@ import java.util.logging.Logger;
 public class HeartbeatListener extends Thread {
 
     private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+
+    private static RegistryManager registryManager = RegistryManager.getInstance();
+
+    private static Monitor monitor = MonitorLoader.getMonitor();
 
     private static Set<String> serviceHeartbeatCache = new HashSet<String>();
 
@@ -52,6 +59,7 @@ public class HeartbeatListener extends Thread {
 
     private static HeartbeatListener heartbeatListener = null;
 
+    private static String serviceAddress;
     private String threadName;
     private Thread.UncaughtExceptionHandler uncaughtExceptionHandler;
     private boolean isDaemon;
@@ -72,21 +80,24 @@ public class HeartbeatListener extends Thread {
 
     public static void registerHeartbeat(ProviderConfig<?> providerConfig) {
         isSendHeartbeat = true;
-        serviceHeartbeatCache.add(providerConfig.getUrl());
+        String serviceName = providerConfig.getUrl();
+        serviceHeartbeatCache.add(serviceName);
         if(heartbeatListener == null) {
+            serviceAddress = configManager.getLocalIp() + ":" + providerConfig.getServerConfig().getActualPort();
             initHeartbeat();
         }
-        //TODO 写zk
-        String path = getHeartbeatPath(providerConfig);
-        System.out.println("add: " + path);
+        registryManager.registerServiceHeartbeat(serviceAddress, serviceName);
+        /*String path = getHeartbeatPath(providerConfig);
+        System.out.println("add: " + path);*/
 
     }
 
     public static void unregisterHeartbeat(ProviderConfig<?> providerConfig) {
-        serviceHeartbeatCache.remove(providerConfig.getUrl());
-        //TODO 删除zk
-        String path = getHeartbeatPath(providerConfig);
-        System.out.println("del: " + path);
+        String serviceName = providerConfig.getUrl();
+        serviceHeartbeatCache.remove(serviceName);
+        registryManager.unregisterServiceHeartbeat(serviceAddress, serviceName);
+        /*String path = getHeartbeatPath(providerConfig);
+        System.out.println("del: " + path);*/
 
         if(serviceHeartbeatCache.size() == 0) {
             isSendHeartbeat = false;
@@ -110,24 +121,28 @@ public class HeartbeatListener extends Thread {
 
     @Override
     public void run() {
-        Throwable thrown = null;
         try {
-            while(!Thread.currentThread().isInterrupted()){
-                if(isSendHeartbeat) {
-                    long heartbeat = System.currentTimeMillis();
-                    //TODO 写心跳
-                    System.out.println(heartbeat);
+            monitor.logEvent("Pigeon.Heartbeat", "ON", new Date()+"");
+            while(isSendHeartbeat) {
+                Long heartbeat = System.currentTimeMillis();
+                // 写心跳
+                registryManager.updateHeartbeat(serviceAddress, heartbeat);
 
-                    long internal = REFRESH_INTERVAL - System.currentTimeMillis() + heartbeat;
-                    if(internal > 0) {
-                        Thread.sleep(internal);
-                    }
+                Long internal = REFRESH_INTERVAL - System.currentTimeMillis() + heartbeat;
+                if(internal > 0) {
+                    Thread.sleep(internal);
                 }
             }
+
+            // 删除zk心跳，销毁心跳线程
+            monitor.logEvent("Pigeon.Heartbeat", "OFF", new Date()+"");
+            registryManager.deleteHeartbeat(serviceAddress);
+            heartbeatListener = null;
+
         } catch (Throwable e) {
-            thrown = e;
+            tryRestartThread(this, e);
         } finally {
-            tryRestartThread(this, thrown);
+            // release resources if needed
         }
     }
 

@@ -44,6 +44,17 @@ public class Utils {
 		return path;
 	}
 
+	public static String getServiceHeartbeatPath(String serviceAddress, String serviceName) {
+		String path = getHeartbeatPath(serviceAddress) + Constants.PATH_SEPARATOR + escapeServiceName(serviceName);
+		return path;
+	}
+
+
+	public static String getHeartbeatPath(String serviceAddress) {
+		String path = Constants.HEARTBEAT_PATH + Constants.PATH_SEPARATOR + serviceAddress;
+		return path;
+	}
+
 	public static String normalizeGroup(String group) {
 		return StringUtils.isBlank(group) ? Constants.DEFAULT_GROUP : group;
 	}
