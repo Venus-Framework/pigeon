@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dianping.pigeon.remoting.provider.listener.HeartbeatListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -46,6 +47,8 @@ public final class ServiceProviderFactory {
 
 	private static boolean DEFAULT_NOTIFY_ENABLE = ConfigConstants.ENV_DEV.equalsIgnoreCase(configManager.getEnv()) ? false
 			: Constants.DEFAULT_NOTIFY_ENABLE;
+
+	private static boolean DEFAULT_HEARTBEAT_ENABLE = true;
 
 	private static ConcurrentHashMap<String, Integer> serverWeightCache = new ConcurrentHashMap<String, Integer>();
 
@@ -131,6 +134,12 @@ public final class ServiceProviderFactory {
 					registerCount++;
 				}
 				if (registerCount > 0) {
+					boolean isHeartbeatEnable = configManager
+							.getBooleanValue(Constants.KEY_HEARTBEAT_ENABLE, DEFAULT_HEARTBEAT_ENABLE);
+					if(isHeartbeatEnable) {
+						HeartbeatListener.registerHeartbeat(providerConfig);
+					}
+
 					boolean isNotify = configManager
 							.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
 					if (isNotify && serviceChangeListener != null) {
@@ -269,6 +278,13 @@ public final class ServiceProviderFactory {
 					RegistryManager.getInstance().unregisterServerVersion(serverAddress);
 				}
 			}
+
+			boolean isHeartbeatEnable = configManager
+					.getBooleanValue(Constants.KEY_HEARTBEAT_ENABLE, DEFAULT_HEARTBEAT_ENABLE);
+			if(isHeartbeatEnable) {
+				HeartbeatListener.unregisterHeartbeat(providerConfig);
+			}
+
 			boolean isNotify = configManager.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
 			if (isNotify && serviceChangeListener != null) {
 				serviceChangeListener.notifyServiceUnpublished(providerConfig);

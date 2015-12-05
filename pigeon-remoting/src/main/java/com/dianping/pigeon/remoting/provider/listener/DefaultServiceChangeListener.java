@@ -61,12 +61,6 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		logger.info("start to notify service published:" + providerConfig);
 		notifyServiceChange("publish", null, providerConfig);
 		logger.info("succeed to notify service published:" + providerConfig);
-
-		try {
-			HeartbeatListener.registerHeartbeat(providerConfig);
-		} catch (Throwable t) {
-			logger.error("Error while register heartbeat of service.", t);
-		}
 	}
 
 	public synchronized void notifyServiceChange(String action, String op, ProviderConfig<?> providerConfig) {
@@ -155,12 +149,6 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			logger.info("succeed to notify service unpublished:" + providerConfig);
 		} catch (Throwable t) {
 			logger.warn(t.getMessage());
-		}
-
-		try {
-			HeartbeatListener.unregisterHeartbeat(providerConfig);
-		} catch (Throwable t) {
-			logger.error("Error while unregister heartbeat of service.", t);
 		}
 	}
 
