@@ -25,6 +25,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class NormalTest {
 
 	@Test
+	public void testSleep(){
+		try {
+			Thread.sleep(-1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
 	public void testArrToSet(){
 		String host = "1.1.1";
 

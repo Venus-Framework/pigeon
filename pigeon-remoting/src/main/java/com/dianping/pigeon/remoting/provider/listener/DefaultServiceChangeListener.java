@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -60,6 +61,12 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		logger.info("start to notify service published:" + providerConfig);
 		notifyServiceChange("publish", null, providerConfig);
 		logger.info("succeed to notify service published:" + providerConfig);
+
+		try {
+			HeartbeatListener.registerHeartbeat(providerConfig);
+		} catch (Throwable t) {
+			logger.error("Error while register heartbeat of service.", t);
+		}
 	}
 
 	public synchronized void notifyServiceChange(String action, String op, ProviderConfig<?> providerConfig) {
@@ -148,6 +155,12 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			logger.info("succeed to notify service unpublished:" + providerConfig);
 		} catch (Throwable t) {
 			logger.warn(t.getMessage());
+		}
+
+		try {
+			HeartbeatListener.unregisterHeartbeat(providerConfig);
+		} catch (Throwable t) {
+			logger.error("Error while unregister heartbeat of service.", t);
 		}
 	}
 

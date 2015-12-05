@@ -396,7 +396,7 @@ public class ServiceFactory {
 		logger.info("set weight:" + weight);
 		ServiceProviderFactory.setServerWeight(weight);
 		
-		if(weight == 0) {
+		/*if(weight == 0) {
 			ServiceProviderFactory.notifyServiceOffline();
 			return ;
 		}
@@ -404,20 +404,20 @@ public class ServiceFactory {
 		if(weight > 0 && weight <= 100) {
 			ServiceProviderFactory.notifyServiceOnline();
 			return ;
-		}
+		}*/
 	}
 
 	public static void online() throws RegistryException {
 		logger.info("online");
 		ServiceProviderFactory.setServerWeight(Constants.WEIGHT_DEFAULT);
-		ServiceProviderFactory.notifyServiceOnline();
+		/*ServiceProviderFactory.notifyServiceOnline();*/
 	}
 
 	public static void offline() throws RegistryException {
 		logger.info("offline");
 		ServiceWarmupListener.stop();
 		ServiceProviderFactory.setServerWeight(0);
-		ServiceProviderFactory.notifyServiceOffline();
+		/*ServiceProviderFactory.notifyServiceOffline();*/
 	}
 
 	public static boolean isAutoPublish() {

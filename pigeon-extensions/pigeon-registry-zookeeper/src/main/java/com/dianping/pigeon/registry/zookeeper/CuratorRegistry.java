@@ -370,4 +370,14 @@ public class CuratorRegistry implements Registry {
 			throw new RegistryException(e);
 		}
 	}
+
+	@Override
+	public void registerServiceHeartbeat(String serviceName, String serviceAddress) {
+
+	}
+
+	@Override
+	public void unregisterServiceHeartbeat(String serviceName, String serviceAddress) {
+
+	}
 }

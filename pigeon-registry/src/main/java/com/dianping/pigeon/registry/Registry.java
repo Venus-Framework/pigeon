@@ -44,15 +44,12 @@ public interface Registry {
 	void unregisterServerVersion(String serverAddress);
 
 	String getStatistics();
-	
-	/**
-	 * 
-	 * @author chenchongze
-	 * @param serviceName
-	 * @param group
-	 * @param hosts
-	 */
+
 	void setServerService(String serviceName, String group, String hosts) throws RegistryException;
 	
 	void delServerService(String serviceName, String group) throws RegistryException;
+
+	void registerServiceHeartbeat(String serviceName, String serviceAddress);
+
+	void unregisterServiceHeartbeat(String serviceName, String serviceAddress);
 }

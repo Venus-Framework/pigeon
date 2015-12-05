@@ -109,6 +109,7 @@ public final class Constants {
 	public static final String KEY_CONNECT_TIMEOUT = "pigeon.netty.connecttimeout";
 	public static final String KEY_WEIGHT_WARMUPPERIOD = "pigeon.weight.warmupperiod";
 	public static final String KEY_WEIGHT_STARTDELAY = "pigeon.weight.startdelay";
+	public static final String KEY_PROVIDER_HEARTBEAT_INTERNAL = "pigeon.provider.heartbeat.internal";
 
 	public static final int DEFAULT_INVOKER_TIMEOUT = 5000;
 	public static final int DEFAULT_PROVIDER_COREPOOLSIZE = 60;
@@ -133,6 +134,7 @@ public final class Constants {
 	public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
 	public static final int DEFAULT_WEIGHT_WAMUPPERIOD = 1000;
 	public static final int DEFAULT_WEIGHT_STARTDELAY = 30000;
+	public static final int DEFAULT_PROVIDER_HEARTBEAT_INTERNAL = 2000;
 
 	public static final String PROTOCOL_HTTP = "http";
 	public static final String PROTOCOL_DEFAULT = "default";
