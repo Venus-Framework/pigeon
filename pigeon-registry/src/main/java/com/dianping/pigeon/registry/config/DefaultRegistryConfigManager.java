@@ -27,7 +27,7 @@ public class DefaultRegistryConfigManager implements RegistryConfigManager {
 		ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 		
 		String registryType = configManager.getStringValue(Constants.KEY_REGISTRY_TYPE, Constants.DEFAULT_REGISTRY_TYPE);
-		String registryAddr = configManager.getStringValue(Constants.KEY_REGISTRY_ADDRESS, configManager.getConfigServerAddress());
+		String registryAddr = configManager.getStringValue(Constants.KEY_REGISTRY_ADDRESS, "");
 		
 		Properties properties = new Properties();
 		properties.put(Constants.KEY_REGISTRY_TYPE, registryType);
