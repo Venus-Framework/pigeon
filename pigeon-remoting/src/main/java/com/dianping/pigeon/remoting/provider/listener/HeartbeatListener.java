@@ -36,31 +36,14 @@ public class HeartbeatListener extends Thread {
 
     private static volatile boolean isSendHeartbeat = false;
 
-    static {
-        configManager.registerConfigChangeListener(new ConfigChangeListener() {
-
-            @Override
-            public void onKeyUpdated(String key, String value) {
-                if (Constants.KEY_PROVIDER_HEARTBEAT_INTERNAL.equals(key)) {
-                    REFRESH_INTERVAL = Integer.parseInt(value);
-                }
-            }
-
-            @Override
-            public void onKeyAdded(String key, String value) {
-
-            }
-
-            @Override
-            public void onKeyRemoved(String key) {
-
-            }
-        });
-    }
-
     private static HeartbeatListener heartbeatListener = null;
 
     private static String serviceAddress;
+
+    static {
+        registerConfigChangeListener();
+    }
+
     private String threadName;
     private Thread.UncaughtExceptionHandler uncaughtExceptionHandler;
     private boolean isDaemon;
@@ -69,6 +52,7 @@ public class HeartbeatListener extends Thread {
         this.threadName = threadName;
         this.uncaughtExceptionHandler = uncaughtExceptionHandler;
         this.isDaemon = isDaemon;
+
     }
 
     private Thread createThead() {
@@ -78,18 +62,19 @@ public class HeartbeatListener extends Thread {
         return t;
     }
 
-
     public static void registerHeartbeat(ProviderConfig<?> providerConfig) {
         try {
             isSendHeartbeat = true;
             String serviceName = providerConfig.getUrl();
             serviceHeartbeatCache.add(serviceName);
+
             if(heartbeatListener == null) {
                 serviceAddress = configManager.getLocalIp() + ":" + providerConfig.getServerConfig().getActualPort();
                 initHeartbeat();
-                monitor.logEvent("Pigeon.Heartbeat", "ON", new Date()+"");
+                registryManager.registerAppHostList(serviceAddress, configManager.getAppName());
+                monitor.logEvent("PigeonService.heartbeat", "ON", new Date()+"");
             }
-            registryManager.registerServiceHeartbeat(serviceAddress, serviceName);
+
         } catch (Throwable t) {
             logger.error("Error while register heartbeat of service.", t);
         }
@@ -99,14 +84,14 @@ public class HeartbeatListener extends Thread {
         try {
             String serviceName = providerConfig.getUrl();
             serviceHeartbeatCache.remove(serviceName);
-            registryManager.unregisterServiceHeartbeat(serviceAddress, serviceName);
 
             if(serviceHeartbeatCache.size() == 0) {
-                // 删除zk心跳，销毁心跳线程
                 isSendHeartbeat = false;
                 registryManager.deleteHeartbeat(serviceAddress);
-                monitor.logEvent("Pigeon.Heartbeat", "OFF", new Date()+"");
+                registryManager.unregisterAppHostList(serviceAddress, configManager.getAppName());
+                monitor.logEvent("PigeonService.heartbeat", "OFF", new Date()+"");
             }
+
         } catch (Throwable t) {
             logger.error("Error while unregister heartbeat of service.", t);
         }
@@ -160,6 +145,29 @@ public class HeartbeatListener extends Thread {
         public void uncaughtException(Thread t, Throwable e) {
             tryRestartThread(t, e);
         }
+    }
+
+    private static void registerConfigChangeListener(){
+
+        configManager.registerConfigChangeListener(new ConfigChangeListener() {
+
+            @Override
+            public void onKeyUpdated(String key, String value) {
+                if (Constants.KEY_PROVIDER_HEARTBEAT_INTERNAL.equals(key)) {
+                    REFRESH_INTERVAL = Integer.parseInt(value);
+                }
+            }
+
+            @Override
+            public void onKeyAdded(String key, String value) {
+
+            }
+
+            @Override
+            public void onKeyRemoved(String key) {
+
+            }
+        });
     }
 
 }

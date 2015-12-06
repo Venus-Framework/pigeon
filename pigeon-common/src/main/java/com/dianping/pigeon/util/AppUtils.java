@@ -31,7 +31,7 @@ public class AppUtils {
 			} catch (Throwable e) {
 			}
 			if (appName == null) {
-				return "";
+				return "NULL";
 			}
 		}
 		return appName;

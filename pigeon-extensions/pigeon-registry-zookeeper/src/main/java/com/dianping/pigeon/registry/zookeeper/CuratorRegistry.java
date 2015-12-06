@@ -368,30 +368,30 @@ public class CuratorRegistry implements Registry {
 	}
 
 	@Override
-	public void registerServiceHeartbeat(String serviceAddress, String serviceName) {
+	public void registerAppHostList(String serviceAddress, String appName) {
 		try {
-			String serviceHeartbeatPath = Utils.getServiceHeartbeatPath(serviceAddress, serviceName);
-			client.set(serviceHeartbeatPath, "");
+			String appHostPath = Utils.getAppHostPath(serviceAddress, appName);
+			client.set(appHostPath, "");
 		} catch (Throwable e) {
-			logger.fatal("failed to register service heartbeat of " + serviceName, e);
+			logger.fatal("failed to register service heartbeat of " + serviceAddress, e);
 		}
 
 
 	}
 
 	@Override
-	public void unregisterServiceHeartbeat(String serviceAddress, String serviceName) {
+	public void unregisterAppHostList(String serviceAddress, String appName) {
 		try {
-			String serviceHeartbeatPath = Utils.getServiceHeartbeatPath(serviceAddress, serviceName);
-			client.delete(serviceHeartbeatPath);
+			String appHostPath = Utils.getAppHostPath(serviceAddress, appName);
+			client.delete(appHostPath);
 		} catch (Throwable e) {
-			logger.fatal("failed to unregister service heartbeat of " + serviceName, e);
+			logger.fatal("failed to unregister service heartbeat of " + serviceAddress, e);
 		}
 
 	}
 
 	@Override
-	public void registerHeartbeat(String serviceAddress, Long heartbeatTimeMillis) {
+	public void updateHeartbeat(String serviceAddress, Long heartbeatTimeMillis) {
 		try {
 			String heartbeatPath = Utils.getHeartbeatPath(serviceAddress);
 			client.set(heartbeatPath, heartbeatTimeMillis);
@@ -401,7 +401,7 @@ public class CuratorRegistry implements Registry {
 	}
 
 	@Override
-	public void unregisterHeartbeat(String serviceAddress) {
+	public void deleteHeartbeat(String serviceAddress) {
 		try {
 			String heartbeatPath = Utils.getHeartbeatPath(serviceAddress);
 			client.delete(heartbeatPath);

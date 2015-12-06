@@ -44,8 +44,9 @@ public class Utils {
 		return path;
 	}
 
-	public static String getServiceHeartbeatPath(String serviceAddress, String serviceName) {
-		String path = getHeartbeatPath(serviceAddress) + Constants.PATH_SEPARATOR + escapeServiceName(serviceName);
+	public static String getAppHostPath(String serviceAddress, String appName) {
+		String path = Constants.APPNAME_PATH + Constants.PATH_SEPARATOR
+				+ appName + Constants.PATH_SEPARATOR + serviceAddress;
 		return path;
 	}
 

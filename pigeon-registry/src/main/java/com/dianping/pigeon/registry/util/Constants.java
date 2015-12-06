@@ -18,6 +18,7 @@ public final class Constants {
 	public static final String APP_PATH = "/DP/APP";
 	public static final String VERSION_PATH = "/DP/VERSION";
 	public static final String HEARTBEAT_PATH = "/DP/HEARTBEAT";
+	public static final String APPNAME_PATH = "/DP/APPNAME";
 	public static final String PATH_SEPARATOR = "/";
 	public static final String PLACEHOLDER = "^";
 

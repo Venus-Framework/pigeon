@@ -49,11 +49,11 @@ public interface Registry {
 	
 	void delServerService(String serviceName, String group) throws RegistryException;
 
-	void registerServiceHeartbeat(String serviceAddress, String serviceName);
+	void registerAppHostList(String serviceAddress, String appName);
 
-	void unregisterServiceHeartbeat(String serviceAddress, String serviceName);
+	void unregisterAppHostList(String serviceAddress, String appName);
 
-	void registerHeartbeat(String serviceAddress, Long heartbeatTimeMillis);
+	void updateHeartbeat(String serviceAddress, Long heartbeatTimeMillis);
 
-	void unregisterHeartbeat(String serviceAddress);
+	void deleteHeartbeat(String serviceAddress);
 }
