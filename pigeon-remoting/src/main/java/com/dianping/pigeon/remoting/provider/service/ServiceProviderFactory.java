@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.remoting.provider.listener.HeartbeatListener;
+import com.dianping.pigeon.remoting.provider.listener.HeartBeatListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -137,7 +137,7 @@ public final class ServiceProviderFactory {
 					boolean isHeartbeatEnable = configManager
 							.getBooleanValue(Constants.KEY_HEARTBEAT_ENABLE, DEFAULT_HEARTBEAT_ENABLE);
 					if(isHeartbeatEnable) {
-						HeartbeatListener.registerHeartbeat(providerConfig);
+						HeartBeatListener.registerHeartBeat(providerConfig);
 					}
 
 					boolean isNotify = configManager
@@ -282,7 +282,7 @@ public final class ServiceProviderFactory {
 			boolean isHeartbeatEnable = configManager
 					.getBooleanValue(Constants.KEY_HEARTBEAT_ENABLE, DEFAULT_HEARTBEAT_ENABLE);
 			if(isHeartbeatEnable) {
-				HeartbeatListener.unregisterHeartbeat(providerConfig);
+				HeartBeatListener.unregisterHeartBeat(providerConfig);
 			}
 
 			boolean isNotify = configManager.getBooleanValue(Constants.KEY_NOTIFY_ENABLE, DEFAULT_NOTIFY_ENABLE);
