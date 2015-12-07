@@ -29,7 +29,4 @@ public interface ProviderContext extends InvocationContext {
 	
 	ServiceMethod getServiceMethod();
 	
-	void complete();
-	
-	boolean isCompleted();
 }

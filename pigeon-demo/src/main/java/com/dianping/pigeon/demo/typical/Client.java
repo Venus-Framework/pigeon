@@ -5,11 +5,10 @@
 package com.dianping.pigeon.demo.typical;
 
 import com.dianping.dpsf.async.ServiceCallback;
-import com.dianping.dpsf.async.ServiceFuture;
-import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.demo.EchoService.User;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.util.ContextUtils;
 
@@ -50,20 +49,21 @@ public class Client {
 		EchoService echoServiceWithFuture = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithFuture");
 
 		int i = 0;
-		while (true) 
-		{
+		while (true) {
 			try {
 				ContextUtils.putRequestContext("key1", "1");
-				//echoService.echo("" + (i++));
-				echoServiceCallback.asyncEcho("" + (i++));
-
+				// echoService.echo("" + (i++));
+				// echoServiceCallback.asyncEcho("" + (i++));
+				User u = new User();
+				u.setName("" + (i++));
+				echoService.addUser(u);
 				Thread.sleep(10);
 				// System.out.println(echoService.asyncEcho("" + (i++)));
 				// System.out.println(echoService.now());
-//				echoServiceWithFuture.echo("hi " + i++);
-//				ServiceFuture future = ServiceFutureFactory.getFuture();
-//				Thread.sleep(20);
-//				future._get();
+				// echoServiceWithFuture.echo("hi " + i++);
+				// ServiceFuture future = ServiceFutureFactory.getFuture();
+				// Thread.sleep(20);
+				// future._get();
 
 				// System.out.println("response:" +
 				// ContextUtils.getResponseContext("key1"));

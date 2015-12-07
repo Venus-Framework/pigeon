@@ -42,10 +42,14 @@ public final class ProviderHelper {
 	}
 
 	public static void writeSuccessResponse(ProviderContext context, Object returnObj) {
-		if (Constants.REPLY_MANUAL && context != null && !context.isCompleted()) {
+		if (context == null) {
+			return;
+		}
+		InvocationRequest request = context.getRequest();
+		InvocationResponse response = null;
+		if (Constants.REPLY_MANUAL && request.getCallType() != Constants.CALLTYPE_NOREPLY) {
+			response = ProviderUtils.createSuccessResponse(request, returnObj);
 			context.getTimeline().add(new TimePoint(TimePhase.B, System.currentTimeMillis()));
-			InvocationRequest request = context.getRequest();
-			InvocationResponse response = ProviderUtils.createSuccessResponse(request, returnObj);
 			ProviderChannel channel = context.getChannel();
 			MonitorTransaction transaction = null;
 			if (Constants.PROVIDER_CALLBACK_MONITOR_ENABLE) {
@@ -67,34 +71,31 @@ public final class ProviderHelper {
 				} catch (Throwable e) {
 					monitor.logMonitorError(e);
 				}
-				if (request.getCallType() != Constants.CALLTYPE_NOREPLY) {
-					try {
-						channel.write(response);
-					} finally {
-						if (Constants.PROVIDER_CALLBACK_MONITOR_ENABLE) {
-							if (response != null && response.getSize() > 0) {
-								String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
-								if (respSize != null) {
-									monitor.logEvent("PigeonService.responseSize", respSize, "" + response.getSize());
-								}
+				try {
+					channel.write(response);
+				} finally {
+					if (Constants.PROVIDER_CALLBACK_MONITOR_ENABLE) {
+						if (response != null && response.getSize() > 0) {
+							String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
+							if (respSize != null) {
+								monitor.logEvent("PigeonService.responseSize", respSize, "" + response.getSize());
 							}
-							if (transaction != null) {
-								try {
-									transaction.complete();
-									context.complete();
-								} catch (Throwable e) {
-									monitor.logMonitorError(e);
-								}
+						}
+						if (transaction != null) {
+							try {
+								transaction.complete();
+							} catch (Throwable e) {
+								monitor.logMonitorError(e);
 							}
 						}
 					}
 				}
-				ProviderStatisticsHolder.flowOut(request);
 			}
-			List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
-			for (ProviderProcessInterceptor interceptor : interceptors) {
-				interceptor.postInvoke(request, response);
-			}
+		}
+		ProviderStatisticsHolder.flowOut(request);
+		List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
+		for (ProviderProcessInterceptor interceptor : interceptors) {
+			interceptor.postInvoke(request, response);
 		}
 	}
 
