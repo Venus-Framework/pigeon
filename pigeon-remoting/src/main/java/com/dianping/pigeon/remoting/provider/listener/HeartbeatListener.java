@@ -35,7 +35,7 @@ public class HeartBeatListener extends Thread {
     private static volatile int REFRESH_INTERVAL = configManager.getIntValue(Constants.KEY_PROVIDER_HEARTBEAT_INTERNAL,
             Constants.DEFAULT_PROVIDER_HEARTBEAT_INTERNAL);
 
-    private static HeartBeatListener heartBeatListener = null;
+    private static volatile HeartBeatListener heartBeatListener = null;
 
     static {
         registerConfigChangeListener();
@@ -52,7 +52,7 @@ public class HeartBeatListener extends Thread {
         this.serviceAddress = serviceAddress;
     }
 
-    public static void registerHeartBeat(ProviderConfig<?> providerConfig) {
+    public synchronized static void registerHeartBeat(ProviderConfig<?> providerConfig) {
         try {
             String serviceName = providerConfig.getUrl();
             serviceHeartBeatCache.add(serviceName);
@@ -66,13 +66,13 @@ public class HeartBeatListener extends Thread {
         }
     }
 
-    public static void unregisterHeartBeat(ProviderConfig<?> providerConfig) {
+    public synchronized static void unregisterHeartBeat(ProviderConfig<?> providerConfig) {
         try {
             String serviceName = providerConfig.getUrl();
             serviceHeartBeatCache.remove(serviceName);
 
-            if(serviceHeartBeatCache.size() == 0) {
-                stopHeartBeat();
+            if(serviceHeartBeatCache.size() == 0 && heartBeatListener != null) {
+                stopHeartBeat(heartBeatListener.serviceAddress);
             }
 
         } catch (Throwable t) {
@@ -82,17 +82,17 @@ public class HeartBeatListener extends Thread {
 
     private static synchronized void initHeartBeat(String serviceAddress) {
         heartBeatListener = new HeartBeatListener("Pigeon-Provider-HeartBeat",new HeartBeatReboot(), true, serviceAddress);
-        registryManager.registerAppHostList(serviceAddress, configManager.getAppName(), ProviderBootStrap.getHttpServer().getPort());
         heartBeatListener.isSendHeartBeat = true;
         heartBeatListener.start();
+        registryManager.registerAppHostList(serviceAddress, configManager.getAppName(), ProviderBootStrap.getHttpServer().getPort());
         monitor.logEvent("PigeonService.heartbeat", "ON", new Date()+"");
     }
 
-    private static synchronized void stopHeartBeat() {
-        registryManager.deleteHeartBeat(heartBeatListener.serviceAddress);
-        registryManager.unregisterAppHostList(heartBeatListener.serviceAddress, configManager.getAppName());
+    private static synchronized void stopHeartBeat(String serviceAddress) {
         heartBeatListener.isSendHeartBeat = false;
         heartBeatListener = null;
+        registryManager.deleteHeartBeat(serviceAddress);
+        registryManager.unregisterAppHostList(serviceAddress, configManager.getAppName());
         monitor.logEvent("PigeonService.heartbeat", "OFF", new Date()+"");
     }
 
