@@ -129,6 +129,7 @@ public class HeartBeatListener extends Thread {
             initHeartBeat(heartBeatListener.serviceAddress);
         } catch (Exception e) {
             logger.fatal("HeartBeat restart failed! Please check!", e);
+            heartBeatListener = null;
         }
     }
 
