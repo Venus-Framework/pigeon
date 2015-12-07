@@ -118,18 +118,18 @@ public class HeartBeatListener extends Thread {
         }
     }
 
-    private static void tryRestartThread(Thread t, Throwable e) {
-        logger.error("heartbeat thread terminated with exception: " + t.getName(), e);
+    private static void tryRestartThread(Thread t, Throwable thrown) {
+        logger.error("heartbeat thread terminated with exception: " + t.getName(), thrown);
         logger.info("Thread status: " + t.getState());
         logger.info("trying to start a new thread.");
 
         // 等待之后重启心跳线程
         try {
             Thread.sleep(REFRESH_INTERVAL);
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
+            initHeartBeat(heartBeatListener.serviceAddress);
+        } catch (Exception e) {
+            logger.fatal("HeartBeat restart failed! Please check!", e);
         }
-        initHeartBeat(heartBeatListener.serviceAddress);
     }
 
     private static class HeartBeatReboot implements Thread.UncaughtExceptionHandler {
