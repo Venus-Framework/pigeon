@@ -90,6 +90,7 @@ public class HeartBeatListener extends Thread {
 
             if(serviceHeartBeatCache.size() == 0) {
                 isSendHeartBeat = false;
+                heartBeatListener = null;
                 registryManager.deleteHeartBeat(serviceAddress);
                 registryManager.unregisterAppHostList(serviceAddress, configManager.getAppName());
                 monitor.logEvent("PigeonService.heartbeat", "OFF", new Date()+"");
@@ -120,7 +121,6 @@ public class HeartBeatListener extends Thread {
                     Thread.sleep(internal);
                 }
             }
-            heartBeatListener = null;
         } catch (Throwable e) {
             tryRestartThread(this, e);
         } finally {
