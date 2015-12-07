@@ -9,7 +9,6 @@ import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
-import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import org.apache.logging.log4j.Logger;
 
@@ -25,31 +24,32 @@ public class HeartBeatListener extends Thread {
 
     private static final Logger logger = LoggerLoader.getLogger(HeartBeatListener.class);
 
-    private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+    private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
-    private static RegistryManager registryManager = RegistryManager.getInstance();
+    private static final RegistryManager registryManager = RegistryManager.getInstance();
 
-    private static Monitor monitor = MonitorLoader.getMonitor();
+    private static final Monitor monitor = MonitorLoader.getMonitor();
 
-    private static Set<String> serviceHeartBeatCache = Collections.synchronizedSet(new HashSet<String>());
+    private static final Set<String> serviceHeartBeatCache = Collections.synchronizedSet(new HashSet<String>());
 
     private static volatile int REFRESH_INTERVAL = configManager.getIntValue(Constants.KEY_PROVIDER_HEARTBEAT_INTERNAL,
             Constants.DEFAULT_PROVIDER_HEARTBEAT_INTERNAL);
 
     private static HeartBeatListener heartBeatListener = null;
 
-    private static String serviceAddress;
-
     static {
         registerConfigChangeListener();
     }
 
-    private  boolean isSendHeartBeat;
+    private boolean isSendHeartBeat;
 
-    private HeartBeatListener(String threadName, Thread.UncaughtExceptionHandler uncaughtExceptionHandler, boolean isDaemon){
+    private final String serviceAddress;
+
+    private HeartBeatListener(String threadName, Thread.UncaughtExceptionHandler uncaughtExceptionHandler, boolean isDaemon, String serviceAddress){
         this.setName(threadName);
         this.setUncaughtExceptionHandler(uncaughtExceptionHandler);
         this.setDaemon(isDaemon);
+        this.serviceAddress = serviceAddress;
     }
 
     public static void registerHeartBeat(ProviderConfig<?> providerConfig) {
@@ -58,10 +58,7 @@ public class HeartBeatListener extends Thread {
             serviceHeartBeatCache.add(serviceName);
 
             if(heartBeatListener == null) {
-                initHeartBeat();
-                serviceAddress = configManager.getLocalIp() + ":" + providerConfig.getServerConfig().getActualPort();
-                registryManager.registerAppHostList(serviceAddress, configManager.getAppName(), ProviderBootStrap.getHttpServer().getPort());
-                monitor.logEvent("PigeonService.heartbeat", "ON", new Date()+"");
+                initHeartBeat(configManager.getLocalIp() + ":" + providerConfig.getServerConfig().getActualPort());
             }
 
         } catch (Throwable t) {
@@ -76,9 +73,6 @@ public class HeartBeatListener extends Thread {
 
             if(serviceHeartBeatCache.size() == 0) {
                 stopHeartBeat();
-                registryManager.deleteHeartBeat(serviceAddress);
-                registryManager.unregisterAppHostList(serviceAddress, configManager.getAppName());
-                monitor.logEvent("PigeonService.heartbeat", "OFF", new Date()+"");
             }
 
         } catch (Throwable t) {
@@ -86,15 +80,20 @@ public class HeartBeatListener extends Thread {
         }
     }
 
-    private static synchronized void initHeartBeat() {
-        heartBeatListener = new HeartBeatListener("Pigeon-Provider-HeartBeat",new HeartBeatReboot(), true);
+    private static synchronized void initHeartBeat(String serviceAddress) {
+        heartBeatListener = new HeartBeatListener("Pigeon-Provider-HeartBeat",new HeartBeatReboot(), true, serviceAddress);
+        registryManager.registerAppHostList(serviceAddress, configManager.getAppName(), ProviderBootStrap.getHttpServer().getPort());
         heartBeatListener.isSendHeartBeat = true;
         heartBeatListener.start();
+        monitor.logEvent("PigeonService.heartbeat", "ON", new Date()+"");
     }
 
     private static synchronized void stopHeartBeat() {
+        registryManager.deleteHeartBeat(heartBeatListener.serviceAddress);
+        registryManager.unregisterAppHostList(heartBeatListener.serviceAddress, configManager.getAppName());
         heartBeatListener.isSendHeartBeat = false;
         heartBeatListener = null;
+        monitor.logEvent("PigeonService.heartbeat", "OFF", new Date()+"");
     }
 
     @Override
@@ -130,7 +129,7 @@ public class HeartBeatListener extends Thread {
         } catch (InterruptedException ie) {
             ie.printStackTrace();
         }
-        initHeartBeat();
+        initHeartBeat(heartBeatListener.serviceAddress);
     }
 
     private static class HeartBeatReboot implements Thread.UncaughtExceptionHandler {
