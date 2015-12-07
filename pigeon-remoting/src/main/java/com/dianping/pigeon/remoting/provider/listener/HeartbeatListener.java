@@ -108,7 +108,7 @@ public class HeartBeatListener extends Thread {
     @Override
     public void run() {
         try {
-            while(isSendHeartBeat) {
+            while(this.equals(heartBeatListener) && isSendHeartBeat) {
                 Long heartbeat = System.currentTimeMillis();
                 // 写心跳
                 if(serviceHeartBeatCache.size() > 0) {
