@@ -30,8 +30,10 @@ public class CatMonitorTransaction implements MonitorTransaction {
 	private CatMonitor monitor = null;
 	private Transaction transaction = null;
 	private InvocationContext invocationContext = null;
+	private static boolean resetStarttime = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.monitor.cat.transaction.starttime.reset", true);
 	private static boolean resetDuration = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.monitor.cat.duration.reset", true);
+			"pigeon.monitor.cat.transaction.duration.reset", true);
 
 	public CatMonitorTransaction(CatMonitor monitor, Transaction transaction, InvocationContext invocationContext) {
 		this.monitor = monitor;
@@ -78,7 +80,7 @@ public class CatMonitorTransaction implements MonitorTransaction {
 				start = timeline.get(0).getTime();
 			}
 			duration = now - start;
-			if (resetDuration && this.transaction instanceof DefaultTransaction) {
+			if (resetStarttime && this.transaction instanceof DefaultTransaction) {
 				((DefaultTransaction) this.transaction).setDurationStart(start * 1000 * 1000);
 			}
 			this.transaction.addData("Timeline", s.toString());
