@@ -13,6 +13,7 @@ import com.dianping.cat.message.Transaction;
 import com.dianping.cat.message.internal.DefaultTransaction;
 import com.dianping.cat.message.spi.MessageManager;
 import com.dianping.cat.message.spi.MessageTree;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
@@ -29,6 +30,10 @@ public class CatMonitorTransaction implements MonitorTransaction {
 	private CatMonitor monitor = null;
 	private Transaction transaction = null;
 	private InvocationContext invocationContext = null;
+	private static boolean resetStarttime = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.monitor.cat.transaction.starttime.reset", true);
+	private static boolean resetDuration = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.monitor.cat.transaction.duration.reset", true);
 
 	public CatMonitorTransaction(CatMonitor monitor, Transaction transaction, InvocationContext invocationContext) {
 		this.monitor = monitor;
@@ -75,12 +80,12 @@ public class CatMonitorTransaction implements MonitorTransaction {
 				start = timeline.get(0).getTime();
 			}
 			duration = now - start;
-			if (this.transaction instanceof DefaultTransaction) {
+			if (resetStarttime && this.transaction instanceof DefaultTransaction) {
 				((DefaultTransaction) this.transaction).setDurationStart(start * 1000 * 1000);
 			}
 			this.transaction.addData("Timeline", s.toString());
 			this.transaction.complete();
-			if (this.transaction instanceof DefaultTransaction) {
+			if (resetDuration && this.transaction instanceof DefaultTransaction) {
 				((DefaultTransaction) this.transaction).setDurationInMillis(duration);
 			}
 		}

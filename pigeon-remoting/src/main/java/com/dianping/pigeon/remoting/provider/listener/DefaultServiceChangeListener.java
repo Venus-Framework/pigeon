@@ -132,6 +132,9 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		if (response != null && response.startsWith("0")) {
 			isSuccess = true;
 		}
+		if(notifyException == null) {
+			isSuccess = true;
+		}
 		if (!isSuccess) {
 			logger.warn("failed to notify service change to url:" + url + ", response:" + response + ", reason:"
 					+ notifyException.getMessage());
