@@ -66,15 +66,14 @@ public class HeartBeatListener extends Thread {
 
     public static void registerHeartBeat(ProviderConfig<?> providerConfig) {
         try {
-            isSendHeartBeat = true;
             String serviceName = providerConfig.getUrl();
             serviceHeartBeatCache.add(serviceName);
 
             if(heartBeatListener == null) {
-                serviceAddress = configManager.getLocalIp() + ":" + providerConfig.getServerConfig().getActualPort();
+                isSendHeartBeat = true;
                 initHeartBeat();
-                Server httpServer = ProviderBootStrap.getHttpServer();
-                registryManager.registerAppHostList(serviceAddress, configManager.getAppName(), httpServer.getPort());
+                serviceAddress = configManager.getLocalIp() + ":" + providerConfig.getServerConfig().getActualPort();
+                registryManager.registerAppHostList(serviceAddress, configManager.getAppName(), ProviderBootStrap.getHttpServer().getPort());
                 monitor.logEvent("PigeonService.heartbeat", "ON", new Date()+"");
             }
 
