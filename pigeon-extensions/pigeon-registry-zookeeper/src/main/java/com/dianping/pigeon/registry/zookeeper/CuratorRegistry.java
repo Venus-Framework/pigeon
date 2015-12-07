@@ -368,10 +368,10 @@ public class CuratorRegistry implements Registry {
 	}
 
 	@Override
-	public void registerAppHostList(String serviceAddress, String appName) {
+	public void registerAppHostList(String serviceAddress, String appName, Integer consolePort) {
 		try {
 			String appHostPath = Utils.getAppHostPath(serviceAddress, appName);
-			client.set(appHostPath, "");
+			client.set(appHostPath, consolePort);
 		} catch (Throwable e) {
 			logger.fatal("failed to register service heartbeat of " + serviceAddress, e);
 		}
@@ -391,20 +391,20 @@ public class CuratorRegistry implements Registry {
 	}
 
 	@Override
-	public void updateHeartbeat(String serviceAddress, Long heartbeatTimeMillis) {
+	public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
 		try {
-			String heartbeatPath = Utils.getHeartbeatPath(serviceAddress);
-			client.set(heartbeatPath, heartbeatTimeMillis);
+			String heartBeatPath = Utils.getHeartBeatPath(serviceAddress);
+			client.set(heartBeatPath, heartBeatTimeMillis);
 		} catch (Throwable e) {
 			logger.fatal("failed to delete heartbeat", e);
 		}
 	}
 
 	@Override
-	public void deleteHeartbeat(String serviceAddress) {
+	public void deleteHeartBeat(String serviceAddress) {
 		try {
-			String heartbeatPath = Utils.getHeartbeatPath(serviceAddress);
-			client.delete(heartbeatPath);
+			String heartBeatPath = Utils.getHeartBeatPath(serviceAddress);
+			client.delete(heartBeatPath);
 		} catch (Throwable e) {
 			logger.fatal("failed to delete heartbeat", e);
 		}

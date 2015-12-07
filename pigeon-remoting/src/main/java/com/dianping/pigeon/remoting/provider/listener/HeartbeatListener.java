@@ -8,6 +8,8 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
+import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import org.apache.logging.log4j.Logger;
 
@@ -19,9 +21,9 @@ import java.util.Set;
 /**
  * Created by chenchongze on 15/12/4.
  */
-public class HeartbeatListener extends Thread {
+public class HeartBeatListener extends Thread {
 
-    private static final Logger logger = LoggerLoader.getLogger(HeartbeatListener.class);
+    private static final Logger logger = LoggerLoader.getLogger(HeartBeatListener.class);
 
     private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
@@ -29,14 +31,14 @@ public class HeartbeatListener extends Thread {
 
     private static Monitor monitor = MonitorLoader.getMonitor();
 
-    private static Set<String> serviceHeartbeatCache = Collections.synchronizedSet(new HashSet<String>());
+    private static Set<String> serviceHeartBeatCache = Collections.synchronizedSet(new HashSet<String>());
 
     private static volatile int REFRESH_INTERVAL = configManager.getIntValue(Constants.KEY_PROVIDER_HEARTBEAT_INTERNAL,
             Constants.DEFAULT_PROVIDER_HEARTBEAT_INTERNAL);
 
-    private static volatile boolean isSendHeartbeat = false;
+    private static volatile boolean isSendHeartBeat = false;
 
-    private static HeartbeatListener heartbeatListener = null;
+    private static HeartBeatListener heartBeatListener = null;
 
     private static String serviceAddress;
 
@@ -48,7 +50,7 @@ public class HeartbeatListener extends Thread {
     private Thread.UncaughtExceptionHandler uncaughtExceptionHandler;
     private boolean isDaemon;
 
-    private HeartbeatListener(String threadName, Thread.UncaughtExceptionHandler uncaughtExceptionHandler, boolean isDaemon){
+    private HeartBeatListener(String threadName, Thread.UncaughtExceptionHandler uncaughtExceptionHandler, boolean isDaemon){
         this.threadName = threadName;
         this.uncaughtExceptionHandler = uncaughtExceptionHandler;
         this.isDaemon = isDaemon;
@@ -62,16 +64,17 @@ public class HeartbeatListener extends Thread {
         return t;
     }
 
-    public static void registerHeartbeat(ProviderConfig<?> providerConfig) {
+    public static void registerHeartBeat(ProviderConfig<?> providerConfig) {
         try {
-            isSendHeartbeat = true;
+            isSendHeartBeat = true;
             String serviceName = providerConfig.getUrl();
-            serviceHeartbeatCache.add(serviceName);
+            serviceHeartBeatCache.add(serviceName);
 
-            if(heartbeatListener == null) {
+            if(heartBeatListener == null) {
                 serviceAddress = configManager.getLocalIp() + ":" + providerConfig.getServerConfig().getActualPort();
-                initHeartbeat();
-                registryManager.registerAppHostList(serviceAddress, configManager.getAppName());
+                initHeartBeat();
+                Server httpServer = ProviderBootStrap.getHttpServer();
+                registryManager.registerAppHostList(serviceAddress, configManager.getAppName(), httpServer.getPort());
                 monitor.logEvent("PigeonService.heartbeat", "ON", new Date()+"");
             }
 
@@ -80,14 +83,14 @@ public class HeartbeatListener extends Thread {
         }
     }
 
-    public static void unregisterHeartbeat(ProviderConfig<?> providerConfig) {
+    public static void unregisterHeartBeat(ProviderConfig<?> providerConfig) {
         try {
             String serviceName = providerConfig.getUrl();
-            serviceHeartbeatCache.remove(serviceName);
+            serviceHeartBeatCache.remove(serviceName);
 
-            if(serviceHeartbeatCache.size() == 0) {
-                isSendHeartbeat = false;
-                registryManager.deleteHeartbeat(serviceAddress);
+            if(serviceHeartBeatCache.size() == 0) {
+                isSendHeartBeat = false;
+                registryManager.deleteHeartBeat(serviceAddress);
                 registryManager.unregisterAppHostList(serviceAddress, configManager.getAppName());
                 monitor.logEvent("PigeonService.heartbeat", "OFF", new Date()+"");
             }
@@ -97,19 +100,19 @@ public class HeartbeatListener extends Thread {
         }
     }
 
-    private static synchronized void initHeartbeat() {
-        heartbeatListener = new HeartbeatListener("Pigeon-Heartbeat-Thread",new HeartbeatReboot(), true);
-        heartbeatListener.createThead().start();
+    private static synchronized void initHeartBeat() {
+        heartBeatListener = new HeartBeatListener("Pigeon-Provider-HeartBeat",new HeartBeatReboot(), true);
+        heartBeatListener.createThead().start();
     }
 
     @Override
     public void run() {
         try {
-            while(isSendHeartbeat) {
+            while(isSendHeartBeat) {
                 Long heartbeat = System.currentTimeMillis();
                 // 写心跳
-                if(serviceHeartbeatCache.size() > 0) {
-                    registryManager.updateHeartbeat(serviceAddress, heartbeat);
+                if(serviceHeartBeatCache.size() > 0) {
+                    registryManager.updateHeartBeat(serviceAddress, heartbeat);
                 }
 
                 Long internal = REFRESH_INTERVAL - System.currentTimeMillis() + heartbeat;
@@ -117,7 +120,7 @@ public class HeartbeatListener extends Thread {
                     Thread.sleep(internal);
                 }
             }
-            heartbeatListener = null;
+            heartBeatListener = null;
         } catch (Throwable e) {
             tryRestartThread(this, e);
         } finally {
@@ -136,10 +139,10 @@ public class HeartbeatListener extends Thread {
         } catch (InterruptedException ie) {
             ie.printStackTrace();
         }
-        initHeartbeat();
+        initHeartBeat();
     }
 
-    private static class HeartbeatReboot implements Thread.UncaughtExceptionHandler {
+    private static class HeartBeatReboot implements Thread.UncaughtExceptionHandler {
 
         @Override
         public void uncaughtException(Thread t, Throwable e) {

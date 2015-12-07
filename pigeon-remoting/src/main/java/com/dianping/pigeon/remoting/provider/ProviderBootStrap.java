@@ -152,4 +152,9 @@ public final class ProviderBootStrap {
 	public static Map<String, Server> getServersMap() {
 		return serversMap;
 	}
+
+	public static Server getHttpServer() {
+		return httpServer;
+	}
+
 }

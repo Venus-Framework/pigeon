@@ -51,7 +51,7 @@ public class Utils {
 	}
 
 
-	public static String getHeartbeatPath(String serviceAddress) {
+	public static String getHeartBeatPath(String serviceAddress) {
 		String path = Constants.HEARTBEAT_PATH + Constants.PATH_SEPARATOR + serviceAddress;
 		return path;
 	}

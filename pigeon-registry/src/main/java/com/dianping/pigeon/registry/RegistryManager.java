@@ -420,9 +420,9 @@ public class RegistryManager {
 		}
 	}
 
-	public void registerAppHostList(String serviceAddress, String appName) {
+	public void registerAppHostList(String serviceAddress, String appName, Integer consolePort) {
 		if (registry != null) {
-			registry.registerAppHostList(serviceAddress, appName);
+			registry.registerAppHostList(serviceAddress, appName, consolePort);
 		}
 	}
 
@@ -432,15 +432,15 @@ public class RegistryManager {
 		}
 	}
 
-	public void updateHeartbeat(String serviceAddress, Long heartbeatTimeMillis) {
+	public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
 		if (registry != null) {
-			registry.updateHeartbeat(serviceAddress, heartbeatTimeMillis);
+			registry.updateHeartBeat(serviceAddress, heartBeatTimeMillis);
 		}
 	}
 
-	public void deleteHeartbeat(String serviceAddress) {
+	public void deleteHeartBeat(String serviceAddress) {
 		if (registry != null) {
-			registry.deleteHeartbeat(serviceAddress);
+			registry.deleteHeartBeat(serviceAddress);
 		}
 	}
 }
