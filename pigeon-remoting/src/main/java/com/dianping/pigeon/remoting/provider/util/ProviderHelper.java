@@ -42,7 +42,7 @@ public final class ProviderHelper {
 	}
 
 	public static void writeSuccessResponse(ProviderContext context, Object returnObj) {
-		if (Constants.REPLY_MANUAL && context != null) {
+		if (Constants.REPLY_MANUAL && context != null && !context.isCompleted()) {
 			context.getTimeline().add(new TimePoint(TimePhase.B, System.currentTimeMillis()));
 			InvocationRequest request = context.getRequest();
 			InvocationResponse response = ProviderUtils.createSuccessResponse(request, returnObj);
@@ -57,6 +57,7 @@ public final class ProviderHelper {
 						if (transaction != null) {
 							transaction.setStatusOk();
 							monitor.logEvent("PigeonService.app", request.getApp(), "");
+							transaction.addData("CallType", request.getCallType());
 							String reqSize = SizeMonitor.getInstance().getLogSize(request.getSize());
 							if (reqSize != null) {
 								monitor.logEvent("PigeonService.requestSize", reqSize, "" + request.getSize());
@@ -80,6 +81,7 @@ public final class ProviderHelper {
 							if (transaction != null) {
 								try {
 									transaction.complete();
+									context.complete();
 								} catch (Throwable e) {
 									monitor.logMonitorError(e);
 								}
