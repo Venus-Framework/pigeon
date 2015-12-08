@@ -68,7 +68,7 @@ public class ZkListenerFactory {
 		
 	}
 	
-	public static void init(){
+	public void init(){
 		
 		if (!isInitialized) {
 			

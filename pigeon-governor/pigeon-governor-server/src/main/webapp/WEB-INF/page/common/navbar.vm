@@ -57,6 +57,15 @@
 		</ul>
 	</div>
 
+    <div class="pull-right" style="margin:10px;color: white;">
+        <a target="_blank" href="http://beta.pigeon.dp" style="margin:10px;color: white;">
+            <i class="fa fa-bolt">切换beta</i></a>
+        <a target="_blank" href="http://ppe.pigeon.dp" style="margin:10px;color: white;">
+            <i class="fa fa-bolt">切换ppe</i></a>
+        <a target="_blank" href="http://pigeon.dp" style="margin:10px;color: white;">
+            <i class="fa fa-bolt">切换线上</i></a>
+    </div>
+
 	<!-- /section:basics/navbar.dropdown -->
 </div>
 <!-- /.navbar-container -->
