@@ -71,7 +71,7 @@
             <ul class="breadcrumb">
                 <li><i class="ace-icon fa fa-home home-icon"></i> <a href="/">主页</a>
                 </li>
-                <li>搜索应用</li>
+                <li>快速查询</li>
             </ul>
             <!-- /.breadcrumb -->
         </div>
@@ -83,10 +83,10 @@
             <div class="page-content-area">
                 <div class="page-header">
                     <h1>
-                        搜索应用
+                        搜索
                         <small>
                             <i class="ace-icon fa fa-angle-double-right"></i>
-                            search for project
+                            search for ...
                         </small>
                     </h1>
                 </div><!-- /.page-header -->
@@ -99,6 +99,17 @@
                     </div>
                     <div class="col-xs-6">
                         <button class="btn btn-primary" onclick="gotoProject()">Go!</button>
+                    </div>
+
+                </div><!-- /.row -->
+                <div class="row">
+
+                    <div class="col-xs-6">
+                        <input id="serviceSearch" type="text" placeholder="Search for services..."
+                               data-provide="typeahead" style="min-width: 100%" oldautocomplete="off">
+                    </div>
+                    <div class="col-xs-6">
+                        <button class="btn btn-primary" onclick="gotoService()">Go!</button>
                     </div>
 
                 </div><!-- /.row -->
@@ -151,17 +162,29 @@
 <script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
 
 <script>
+    var projects = ${projects};
+    var services = ${services};
+
     $(function(){
         $('li[id="project_search"]').addClass("active");
 
         $('#projectSearch').typeahead({
-            source: ${projects}
+            source: projects
+        });
+
+        $('#serviceSearch').typeahead({
+            source: services
         });
 
     });
 
     function gotoProject() {
         window.location = "/services/" + $('#projectSearch').val();
+    }
+
+    function gotoService() {
+        //TODO
+        //window.location = "/services/" + $('#projectSearch').val();
     }
 </script>
 
