@@ -18,7 +18,6 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 	private Thread thread;
 	private ServiceMethod serviceMethod;
 	private String methodUri;
-	private boolean isCompleted = false;
 
 	public DefaultProviderContext(InvocationRequest request, ProviderChannel channel) {
 		super(request);
@@ -77,16 +76,6 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 	@Override
 	public void setMethodUri(String uri) {
 		this.methodUri = uri;
-	}
-
-	@Override
-	public void complete() {
-		isCompleted = true;
-	}
-
-	@Override
-	public boolean isCompleted() {
-		return isCompleted;
 	}
 
 }
