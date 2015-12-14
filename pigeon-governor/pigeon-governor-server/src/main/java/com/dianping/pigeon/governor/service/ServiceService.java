@@ -50,5 +50,9 @@ public interface ServiceService {
 	public int create(Service service, String updatezk) throws Exception;
 
 	public int updateById(Service service, String updatezk) throws Exception;
+
+	public List<Service> retrieveAllIdNamesByCache();
+
+	public List<Service> retrieveAllIdNames();
 	
 }

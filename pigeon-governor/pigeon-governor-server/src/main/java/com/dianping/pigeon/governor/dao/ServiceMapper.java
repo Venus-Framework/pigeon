@@ -97,4 +97,6 @@ public interface ServiceMapper {
     List<Service> selectByPageAndRows(@Param("offset") Integer offset, @Param("rows") Integer rows);
     
     List<Service> selectByPageRowsProjectId(@Param("offset") Integer offset, @Param("rows") Integer rows, @Param("projectId") Integer projectId);
+
+    List<Service> selectAllServiceIdNames();
 }

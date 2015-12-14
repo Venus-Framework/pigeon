@@ -300,5 +300,9 @@
     where projectId = #{projectId}
     limit #{offset},#{rows}
   </select>
+
+  <select id="selectAllServiceIdNames" resultMap="BaseResultMap">
+    select id,name,projectId from service a
+  </select>
   
 </mapper>

@@ -9,7 +9,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.dianping.pigeon.governor.dao.ProjectMapper;
 import com.dianping.pigeon.governor.model.Project;
+import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.model.User;
+import com.dianping.pigeon.governor.service.ServiceService;
 import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -52,6 +54,8 @@ public class ProjectController extends BaseController {
 	private UserService userService;
 	@Autowired
 	private ProjectOwnerService projectOwnerService;
+	@Autowired
+	private ServiceService serviceService;
 
 	/**
 	 * 首页：查询缓存中的所有应用，跳转到应用服务配置页
@@ -67,9 +71,11 @@ public class ProjectController extends BaseController {
 		commonnav(modelMap, request);
 		//List<String> projectNames = projectService.retrieveAllNameByCache();
 		List<Project> projects = projectService.retrieveAllIdNamesByCache();
+		List<Service> services = serviceService.retrieveAllIdNamesByCache();
 
 		//modelMap.addAttribute("projectNames",gson.toJson(projectNames));
-		modelMap.addAttribute("projects",gson.toJson(projects));
+		modelMap.addAttribute("projects", gson.toJson(projects));
+		modelMap.addAttribute("services", gson.toJson(services));
 
 		return "/index";
 	}

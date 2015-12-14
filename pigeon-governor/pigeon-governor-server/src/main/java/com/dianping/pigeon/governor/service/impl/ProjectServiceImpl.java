@@ -38,7 +38,7 @@ public class ProjectServiceImpl implements ProjectService {
 	private List<String> projectNamesCache;
 	private long projectNamesCacheLastUpdateTime = 0;
 	private long projectsCacheLastUpdateTime = 0;
-	private long checkCacheInternal = 30000;
+	private long checkCacheInternal = 20000;
 	
 	@Override
 	public int create(ProjectBean projectBean) {

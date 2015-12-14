@@ -93,23 +93,26 @@
 
                 <div class="row">
 
-                    <div class="col-xs-6">
-                        <input id="projectSearch" type="text" placeholder="Search for projects..."
-                               data-provide="typeahead" style="min-width: 100%" oldautocomplete="off">
-                    </div>
-                    <div class="col-xs-6">
-                        <button class="btn btn-primary" onclick="gotoProject()">Go!</button>
+                    <div class="col-xs-12" style="margin-top: 10px">
+                        <label class="col-xs-1 control-label no-padding-right" for="projectSearch">项目搜索</label>
+                        <div class="col-xs-8">
+                            <input id="projectSearch" type="text" placeholder="Search for projects..."
+                                   data-provide="typeahead" style="min-width: 100%" oldautocomplete="off">
+                        </div>
+                        <div class="col-xs-3">
+                            <button class="btn btn-primary" style="height: 34px" onclick="gotoProject()">Go!</button>
+                        </div>
                     </div>
 
-                </div><!-- /.row -->
-                <div class="row">
-
-                    <div class="col-xs-6">
-                        <input id="serviceSearch" type="text" placeholder="Search for services..."
-                               data-provide="typeahead" style="min-width: 100%" oldautocomplete="off">
-                    </div>
-                    <div class="col-xs-6">
-                        <button class="btn btn-primary" onclick="gotoService()">Go!</button>
+                    <div class="col-xs-12" style="margin-top: 10px">
+                        <label class="col-xs-1 control-label no-padding-right" for="serviceSearch">服务搜索</label>
+                        <div class="col-xs-8">
+                            <input id="serviceSearch" type="text" placeholder="Search for services..."
+                                   data-provide="typeahead" style="min-width: 100%" oldautocomplete="off">
+                        </div>
+                        <div class="col-xs-3">
+                            <button class="btn btn-primary" style="height: 34px" onclick="gotoService()">Go!</button>
+                        </div>
                     </div>
 
                 </div><!-- /.row -->
@@ -183,7 +186,7 @@
     }
 
     function gotoService() {
-        //TODO
+        //TODO 参考http://www.cnblogs.com/haogj/p/3378508.html
         //window.location = "/services/" + $('#projectSearch').val();
     }
 </script>
