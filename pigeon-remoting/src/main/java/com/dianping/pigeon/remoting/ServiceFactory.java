@@ -147,6 +147,11 @@ public class ServiceFactory {
 			} catch (Throwable t) {
 				throw new RpcException("error while trying to get service:" + invokerConfig, t);
 			}
+
+			if(SerializerFactory.SERIALIZE_MTTHRIFT == invokerConfig.getSerialize()) {
+				return (T) service;
+			}
+
 			try {
 				ClientManager.getInstance().registerClients(invokerConfig.getUrl(), invokerConfig.getGroup(),
 						invokerConfig.getVip());

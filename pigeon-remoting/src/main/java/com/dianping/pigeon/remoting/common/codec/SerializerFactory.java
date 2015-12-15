@@ -34,6 +34,7 @@ public final class SerializerFactory {
 	public static final byte SERIALIZE_HESSIAN1 = 6;
 	public static final byte SERIALIZE_JSON = 7;
 	public static final byte SERIALIZE_FST = 8;
+	public static final byte SERIALIZE_MTTHRIFT = 9;
 
 	public static final String HESSIAN = "hessian";
 	public static final String JAVA = "java";
@@ -41,6 +42,7 @@ public final class SerializerFactory {
 	public static final String JSON = "json";
 	public static final String PROTO = "proto";
 	public static final String FST = "fst";
+	public static final String MTTHRIFT = "mtthrift";
 
 	private static volatile boolean isInitialized = false;
 
@@ -57,6 +59,13 @@ public final class SerializerFactory {
 			registerSerializer(SERIALIZE_HESSIAN1, new Hessian1Serializer());
 			registerSerializer(SERIALIZE_PROTO, new ProtostuffSerializer());
 			registerSerializer(SERIALIZE_FST, new FstSerializer());
+
+			try {
+				Class MtThriftSerializerClazz = Class.forName("com.dianping.pigeon.remoting.common.codec.mtthrift.MtThriftSerializer");
+				registerSerializer(SERIALIZE_MTTHRIFT, (Serializer) MtThriftSerializerClazz.newInstance());
+			} catch (Exception e) {
+				logger.warn("failed to initialize mtthrift serializer: " + e.getMessage());
+			}
 
 			boolean supportJackson = true;
 			try {
@@ -88,6 +97,8 @@ public final class SerializerFactory {
 			return SerializerFactory.SERIALIZE_PROTO;
 		} else if (FST.equalsIgnoreCase(serialize)) {
 			return SerializerFactory.SERIALIZE_FST;
+		} else if (MTTHRIFT.equalsIgnoreCase(serialize)) {
+			return SerializerFactory.SERIALIZE_MTTHRIFT;
 		} else {
 			throw new InvalidParameterException("Only hessian/java/proto/fst serialize type supported");
 		}
