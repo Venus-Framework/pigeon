@@ -128,12 +128,9 @@ public class InvokerConfig<T> {
 	}
 
 	public void setServiceInterface(Class<T> serviceInterface) {
-		if (serviceInterface == null ) {
-			throw new IllegalArgumentException("'serviceInterface' is null, please check!");
-		}
-		/*if (serviceInterface != null && !serviceInterface.isInterface()) {
+		if (serviceInterface != null && !serviceInterface.isInterface()) {
 			throw new IllegalArgumentException("'serviceInterface' must be an interface");
-		}*/
+		}
 		this.serviceInterface = serviceInterface;
 	}
 
