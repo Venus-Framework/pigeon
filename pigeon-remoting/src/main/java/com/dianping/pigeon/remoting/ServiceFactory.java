@@ -4,30 +4,24 @@
  */
 package com.dianping.pigeon.remoting;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
-
 import com.dianping.dpsf.async.ServiceCallback;
-import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
-import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
-import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
+import com.dianping.pigeon.remoting.invoker.proxy.ServiceProxy;
+import com.dianping.pigeon.remoting.invoker.proxy.ServiceProxyLoader;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.listener.ServiceWarmupListener;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author xiangwu
@@ -37,8 +31,7 @@ import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
 public class ServiceFactory {
 
 	static Logger logger = LoggerLoader.getLogger(ServiceFactory.class);
-	static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
-	static Map<InvokerConfig<?>, Object> services = new ConcurrentHashMap<InvokerConfig<?>, Object>();
+	static ServiceProxy serviceProxy = ServiceProxyLoader.getServiceProxy();
 
 	static {
 		try {
@@ -51,7 +44,7 @@ public class ServiceFactory {
 	}
 
 	public static Map<InvokerConfig<?>, Object> getAllServiceInvokers() {
-		return services;
+		return serviceProxy.getAllServiceInvokers();
 	}
 
 	public static Map<String, ProviderConfig<?>> getAllServiceProviders() {
@@ -121,52 +114,7 @@ public class ServiceFactory {
 	}
 
 	public static <T> T getService(InvokerConfig<T> invokerConfig) throws RpcException {
-		if (invokerConfig.getServiceInterface() == null) {
-			throw new IllegalArgumentException("service interface is required");
-		}
-		if (StringUtils.isBlank(invokerConfig.getUrl())) {
-			invokerConfig.setUrl(getServiceUrl(invokerConfig));
-		}
-		if (!StringUtils.isBlank(invokerConfig.getProtocol())
-				&& !invokerConfig.getProtocol().equalsIgnoreCase(Constants.PROTOCOL_DEFAULT)) {
-			String protocolPrefix = "@" + invokerConfig.getProtocol().toUpperCase() + "@";
-			if (!invokerConfig.getUrl().startsWith(protocolPrefix)) {
-				invokerConfig.setUrl(protocolPrefix + invokerConfig.getUrl());
-			}
-		}
-		Object service = null;
-		service = services.get(invokerConfig);
-		if (service == null) {
-			try {
-				InvokerBootStrap.startup();
-				service = SerializerFactory.getSerializer(invokerConfig.getSerialize()).proxyRequest(invokerConfig);
-				if (StringUtils.isNotBlank(invokerConfig.getLoadbalance())) {
-					LoadBalanceManager.register(invokerConfig.getUrl(), invokerConfig.getGroup(),
-							invokerConfig.getLoadbalance());
-				}
-			} catch (Throwable t) {
-				throw new RpcException("error while trying to get service:" + invokerConfig, t);
-			}
-
-			if(SerializerFactory.SERIALIZE_MTTHRIFT == invokerConfig.getSerialize()) {
-				return (T) service;
-			}
-
-			try {
-				ClientManager.getInstance().registerClients(invokerConfig.getUrl(), invokerConfig.getGroup(),
-						invokerConfig.getVip());
-			} catch (Throwable t) {
-//				try {
-//					ClientManager.getInstance().registerClients(invokerConfig.getUrl(),
-//							invokerConfig.getGroup(), invokerConfig.getVip());
-//				} catch (Throwable t2) {
-//					logger.warn("error while trying to setup service client:" + invokerConfig, t2);
-//				}
-				logger.warn("error while trying to setup service client:" + invokerConfig, t);
-			}
-			services.put(invokerConfig, service);
-		}
-		return (T) service;
+		return serviceProxy.getProxy(invokerConfig);
 	}
 
 	public static void startupServer(ServerConfig serverConfig) throws RpcException {
