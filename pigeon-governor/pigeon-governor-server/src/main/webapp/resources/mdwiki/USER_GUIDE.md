@@ -3,6 +3,10 @@ ______
 
 Pigeon是一个分布式服务通信框架（RPC），在大众点评内部广泛使用，是大众点评最基础的底层框架之一。
 
+### 扩展包(可选)
+
+[pigeon-octo 美团RPC客户端扩展包(仅限服务调用)](http://code.dianpingoa.com/arch/pigeon-octo/blob/master/README.md)
+
 ### 主要特色
 
 除了支持spring schema等配置方式，也支持代码annotation方式发布服务、引用远程服务，并提供原生api接口的用法。
