@@ -79,7 +79,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 	protected void generateView(HttpServletRequest request, HttpServletResponse response) throws IOException,
 			ServletException {
 		if (!enableInvoke) {
-			response.getWriter().write("pigeon console invocation is disabled!");
+			response.getWriter().write("{\"msg\":\"pigeon console invocation is disabled!\"}");
 			return;
 		}
 		boolean needValidate = needValidate(request);
@@ -159,7 +159,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 			response.setContentType(getContentType());
 			response.getWriter().write(json);
 		} else {
-			response.getWriter().write("invalid verification code!");
+			response.getWriter().write("{\"msg\":\"invalid verification code!\"}");
 		}
 	}
 
