@@ -37,12 +37,12 @@ public class Constants {
 			"pigeon-governor-server.address.alpha", "192.168.7.41:2182");
 	private static final String qaAddress = ConfigManagerLoader.getConfigManager().getStringValue(
 			"pigeon-governor-server.address.qa",
-			"192.168.213.144:2181,192.168.211.251:2181,192.168.213.167:2181,192.168.217.77:2181,192.168.224.203:2181");
+			"10.66.15.109:2181,10.66.15.65:2181,10.66.15.110:2181");
 	private static final String preleaseAddress = ConfigManagerLoader.getConfigManager().getStringValue(
 			"pigeon-governor-server.address.prelease", "10.2.8.143:2181");
 	private static final String productAddress = ConfigManagerLoader.getConfigManager().getStringValue(
 			"pigeon-governor-server.address.productnh",
-			"10.1.2.32:2181,10.1.2.37:2181,10.1.2.62:2181,10.1.2.67:2181,10.1.2.58:2181");
+			"10.1.132.57:2181,10.1.131.64:2181,10.1.132.11:2181,10.1.131.11:2181,10.1.131.109:2181");
 	private static final String performanceAddress = ConfigManagerLoader.getConfigManager().getStringValue(
 			"pigeon-governor-server.address.performance", "192.168.219.211:2181");
 	private static final String producthmAddress = ConfigManagerLoader.getConfigManager().getStringValue(

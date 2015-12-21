@@ -71,7 +71,7 @@
             <ul class="breadcrumb">
                 <li><i class="ace-icon fa fa-home home-icon"></i> <a href="/">主页</a>
                 </li>
-                <li>搜索应用</li>
+                <li>快速查询</li>
             </ul>
             <!-- /.breadcrumb -->
         </div>
@@ -83,22 +83,36 @@
             <div class="page-content-area">
                 <div class="page-header">
                     <h1>
-                        搜索应用
+                        搜索
                         <small>
                             <i class="ace-icon fa fa-angle-double-right"></i>
-                            search for project
+                            search for ...
                         </small>
                     </h1>
                 </div><!-- /.page-header -->
 
                 <div class="row">
 
-                    <div class="col-xs-6">
-                        <input id="projectSearch" type="text" placeholder="Search for projects..."
-                               data-provide="typeahead" style="min-width: 100%" oldautocomplete="off">
+                    <div class="col-xs-12" style="margin-top: 10px">
+                        <label class="col-xs-1 control-label no-padding-right" for="projectSearch">项目搜索</label>
+                        <div class="col-xs-8">
+                            <input id="projectSearch" type="text" placeholder="Search for projects..."
+                                   data-provide="typeahead" style="min-width: 100%" oldautocomplete="off">
+                        </div>
+                        <div class="col-xs-3">
+                            <button class="btn btn-primary" style="height: 34px" onclick="gotoProject()">Go!</button>
+                        </div>
                     </div>
-                    <div class="col-xs-6">
-                        <button class="btn btn-primary" onclick="gotoProject()">Go!</button>
+
+                    <div class="col-xs-12" style="margin-top: 10px">
+                        <label class="col-xs-1 control-label no-padding-right" for="serviceSearch">服务搜索</label>
+                        <div class="col-xs-8">
+                            <input id="serviceSearch" type="text" placeholder="Search for services..."
+                                   data-provide="typeahead" style="min-width: 100%" oldautocomplete="off">
+                        </div>
+                        <div class="col-xs-3">
+                            <button class="btn btn-primary" style="height: 34px" onclick="gotoService()">Go!</button>
+                        </div>
                     </div>
 
                 </div><!-- /.row -->
@@ -151,17 +165,29 @@
 <script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
 
 <script>
+    var projects = ${projects};
+    var services = ${services};
+
     $(function(){
         $('li[id="project_search"]').addClass("active");
 
         $('#projectSearch').typeahead({
-            source: ${projects}
+            source: projects
+        });
+
+        $('#serviceSearch').typeahead({
+            source: services
         });
 
     });
 
     function gotoProject() {
         window.location = "/services/" + $('#projectSearch').val();
+    }
+
+    function gotoService() {
+        //TODO 参考http://www.cnblogs.com/haogj/p/3378508.html
+        //window.location = "/services/" + $('#projectSearch').val();
     }
 </script>
 

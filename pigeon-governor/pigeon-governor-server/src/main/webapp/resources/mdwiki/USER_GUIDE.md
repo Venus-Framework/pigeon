@@ -3,6 +3,10 @@ ______
 
 Pigeon是一个分布式服务通信框架（RPC），在大众点评内部广泛使用，是大众点评最基础的底层框架之一。
 
+### 扩展包(可选)
+
+[pigeon-octo 美团RPC客户端扩展包(仅限服务调用)](http://code.dianpingoa.com/arch/pigeon-octo/blob/master/README.md)
+
 ### 依赖
 
 pigeon依赖JDK1.6+
@@ -12,7 +16,7 @@ pom依赖定义：
 		<dependency>
 		<groupId>com.dianping.dpsf</groupId>
 		<artifactId>dpsf-net</artifactId>
-		<version>2.7.0</version>
+		<version>2.7.1</version>
 		</dependency>
 
 pigeon在运行时会依赖以下jar包，但不是强依赖某个版本，需要应用自行加上以下jar(版本建议高于或等于以下基础版本)：
@@ -20,12 +24,12 @@ pigeon在运行时会依赖以下jar包，但不是强依赖某个版本，需�
 		<dependency>
 		<groupId>com.dianping.lion</groupId>
 		<artifactId>lion-client</artifactId>
-		<version>0.5.3</version>
+		<version>0.5.4</version>
 		</dependency>
 		<dependency>
 		<groupId>com.dianping.cat</groupId>
 		<artifactId>cat-core</artifactId>
-		<version>1.3.4</version>
+		<version>1.3.8</version>
 		</dependency>
 		<dependency>
 		<groupId>com.dianping</groupId>

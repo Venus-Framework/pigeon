@@ -4,8 +4,10 @@
  */
 package com.dianping.pigeon.remoting.common.codec;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dianping.pigeon.extension.ExtensionLoader;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -44,7 +46,10 @@ public final class SerializerFactory {
 
 	private static volatile boolean isInitialized = false;
 
+	private final static ConcurrentHashMap<String, Byte> serializerTypes = new ConcurrentHashMap<String, Byte>();
 	private final static ConcurrentHashMap<Byte, Serializer> serializers = new ConcurrentHashMap<Byte, Serializer>();
+
+	private SerializerFactory() {}
 
 	static {
 		init();
@@ -52,52 +57,64 @@ public final class SerializerFactory {
 
 	public static void init() {
 		if (!isInitialized) {
-			registerSerializer(SERIALIZE_JAVA, new JavaSerializer());
-			registerSerializer(SERIALIZE_HESSIAN, new HessianSerializer());
-			registerSerializer(SERIALIZE_HESSIAN1, new Hessian1Serializer());
-			registerSerializer(SERIALIZE_PROTO, new ProtostuffSerializer());
-			registerSerializer(SERIALIZE_FST, new FstSerializer());
+			synchronized (SerializerFactory.class) {
+				if (!isInitialized) {
+					registerSerializer(JAVA, SERIALIZE_JAVA, new JavaSerializer());
+					registerSerializer(HESSIAN, SERIALIZE_HESSIAN, new HessianSerializer());
+					registerSerializer(HESSIAN1, SERIALIZE_HESSIAN1, new Hessian1Serializer());
+					registerSerializer(PROTO, SERIALIZE_PROTO, new ProtostuffSerializer());
+					registerSerializer(FST, SERIALIZE_FST, new FstSerializer());
 
-			boolean supportJackson = true;
-			try {
-				ClassUtils.getClass("com.fasterxml.jackson.databind.ObjectMapper");
-			} catch (ClassNotFoundException e) {
-				supportJackson = false;
-			}
-			if (supportJackson) {
-				try {
-					registerSerializer(SERIALIZE_JSON, new JacksonSerializer());
-				} catch (Throwable t) {
-					logger.warn("failed to initialize jackson serializer:" + t.getMessage());
+					boolean supportJackson = true;
+					try {
+						ClassUtils.getClass("com.fasterxml.jackson.databind.ObjectMapper");
+					} catch (ClassNotFoundException e) {
+						supportJackson = false;
+					}
+					if (supportJackson) {
+						try {
+							registerSerializer(JSON, SERIALIZE_JSON, new JacksonSerializer());
+						} catch (Throwable t) {
+							logger.warn("failed to initialize jackson serializer:" + t.getMessage());
+						}
+					}
+
+					List<SerializerRegister> serializerRegisters = ExtensionLoader.getExtensionList(SerializerRegister.class);
+					for(SerializerRegister serializerRegister : serializerRegisters) {
+						if(!serializerRegister.isRegistered()) {
+							serializerRegister.registerSerializer();
+						}
+					}
+
+					isInitialized = true;
 				}
 			}
-			isInitialized = true;
 		}
 	}
 
 	public static byte getSerialize(String serialize) {
-		if (JAVA.equalsIgnoreCase(serialize)) {
-			return SerializerFactory.SERIALIZE_JAVA;
-		} else if (HESSIAN.equalsIgnoreCase(serialize)) {
-			return SerializerFactory.SERIALIZE_HESSIAN;
-		} else if (HESSIAN1.equalsIgnoreCase(serialize)) {
-			return SerializerFactory.SERIALIZE_HESSIAN1;
-		} else if (JSON.equalsIgnoreCase(serialize)) {
-			return SerializerFactory.SERIALIZE_JSON;
-		} else if (PROTO.equalsIgnoreCase(serialize)) {
-			return SerializerFactory.SERIALIZE_PROTO;
-		} else if (FST.equalsIgnoreCase(serialize)) {
-			return SerializerFactory.SERIALIZE_FST;
+		Byte result = serializerTypes.get(serialize);
+
+		if(result != null) {
+			return result;
 		} else {
-			throw new InvalidParameterException("Only hessian/java/proto/fst serialize type supported");
+			throw new InvalidParameterException("Only registered serialize type supported");
 		}
 	}
 
-	public static void registerSerializer(byte serializerType, Serializer serializer) {
+	public static void registerSerializer(String serializeName, byte serializerType, Serializer serializer) {
 		if (serializer == null) {
 			throw new InvalidParameterException("the serializer is null");
 		}
-		serializers.putIfAbsent(serializerType, serializer);
+
+		try {
+			serializerTypes.putIfAbsent(serializeName, serializerType);
+			serializers.putIfAbsent(serializerType, serializer);
+		} catch (Exception e) {
+			logger.error("register serializer failed!", e);
+			serializers.remove(serializerType, serializer);
+			serializerTypes.remove(serializeName, serializerType);
+		}
 	}
 
 	public static Serializer getSerializer(byte serializerType) {

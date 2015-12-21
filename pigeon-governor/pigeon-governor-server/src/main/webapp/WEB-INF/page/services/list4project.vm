@@ -143,7 +143,7 @@
 		</p>
 	</div><!-- #dialog-message -->
 
-	<div id="onClickAdd-modal" class="modal" tabindex="-1">
+	<div id="oneClickAdd-modal" class="modal" tabindex="-1">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -168,7 +168,7 @@
 							<div class="space-4"></div>
 
 							<div class="form-group">
-								<label for="form-field-provider-port">服务提供方Port(默认为4080)</label>
+								<label for="form-field-provider-port">单机测试控制台端口(默认为4080)</label>
 
 								<div>
 									<input class="input-medium" type="text" id="form-field-provider-port"
@@ -203,7 +203,67 @@
 		</div>
 	</div>
 
-    <div id="onClickOff-modal" class="modal" tabindex="-1">
+    <div id="oneClickOn-modal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="blue bigger">填写服务器信息</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+
+                        <div class="col-xs-12">
+
+                            <div class="form-group">
+                                <label for="form-field-provider-off-host">服务所在的ip:port</label>
+
+                                <div>
+                                    <input class="input-large" type="text" id="form-field-provider-on-host"
+                                           placeholder="ip:port, e.g. 10.1.77.131:5060" value="" />
+                                    &nbsp;&nbsp;
+                                    <a title="通常用于服务非正常发布的补救措施" data-rel="tooltip" href="#">
+                                        <i class="fa fa-question-circle dark"></i></a>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label for="form-field-provider-off-group">泳道(group)</label>
+
+                                <div>
+                                    <input class="input-medium" type="text" id="form-field-provider-on-group"
+                                           placeholder="default" value="" />
+                                    &nbsp;&nbsp;
+                                    <a title="一键添加指定泳道的指定ip:port，默认为无泳道" data-rel="tooltip" href="#">
+                                        <i class="fa fa-question-circle dark"></i></a>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-sm" data-dismiss="modal">
+                        <i class="ace-icon fa fa-times"></i>
+                        取消
+                    </button>
+
+                    <button id="submit-oneClick-on" class="btn btn-sm btn-primary">
+                        <i class="ace-icon fa fa-check"></i>
+                        提交
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="oneClickOff-modal" class="modal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -327,13 +387,40 @@ $('#submit-oneClick-add').on('click',function(){
                 window.location.reload();
 			} else {
 				//console.log(response);
-                $('#onClickAdd-modal').modal('hide');
+                $('#oneClickAdd-modal').modal('hide');
                 $.gritter.add({
                     title: response.status,
                     text: response.message,
                     class_name: 'gritter-error gritter-center gritter-light'
                 });
 			}
+
+        }
+    });
+
+});
+
+$('#submit-oneClick-on').on('click',function(){
+    var data = {"host": $('#form-field-provider-on-host').val(), "group": $('#form-field-provider-on-group').val(), "projectId": projectId};
+    $.ajax({
+        url: '/services/oneClickOn',
+        type: 'POST',
+        data: data,
+        error: function(){
+            console.log("server error!");
+        },
+        success: function(response, textStatus) {
+            if(response.status == "success") {
+                window.location.reload();
+            } else {
+                //console.log(response);
+                $('#oneClickOn-modal').modal('hide');
+                $.gritter.add({
+                    title: response.status,
+                    text: response.message,
+                    class_name: 'gritter-error gritter-center gritter-light'
+                });
+            }
 
         }
     });
@@ -354,7 +441,7 @@ $('#submit-oneClick-off').on('click',function(){
                 window.location.reload();
             } else {
                 //console.log(response);
-                $('#onClickOff-modal').modal('hide');
+                $('#oneClickOff-modal').modal('hide');
                 $.gritter.add({
                     title: response.status,
                     text: response.message,
@@ -773,23 +860,33 @@ jQuery(function($) {
 	#if($isProjectOwner)
 	jQuery(grid_selector).navButtonAdd(pager_selector,{
 		caption: "",
-		title:"一键注册",
-		buttonicon:'ace-icon fa fa-plus-square red',
+		title:"在线服务一键发布",
+		buttonicon:'ace-icon fa fa-plus-square green',
 		onClickButton: function(){
-			$('#onClickAdd-modal').modal();
+			$('#oneClickAdd-modal').modal();
 		},
 		position:"last",
-		id: "oneClickReg"
+		id: "oneClickPublish"
 	});
 	jQuery(grid_selector).navButtonAdd(pager_selector,{
 		caption: "",
-		title:"一键下线",
-		buttonicon:'ace-icon fa fa-minus-square red',
+		title:"一键添加",
+		buttonicon:'ace-icon fa fa-plus-square red',
 		onClickButton: function(){
-            $('#onClickOff-modal').modal();
+			$('#oneClickOn-modal').modal();
 		},
 		position:"last",
-		id: "oneClickUnReg"
+		id: "oneClickOn"
+	});
+	jQuery(grid_selector).navButtonAdd(pager_selector,{
+		caption: "",
+		title:"一键删除",
+		buttonicon:'ace-icon fa fa-minus-square red',
+		onClickButton: function(){
+            $('#oneClickOff-modal').modal();
+		},
+		position:"last",
+		id: "oneClickOff"
 	});
 	/* jQuery(grid_selector).navButtonAdd(pager_selector,{
 		caption: "",

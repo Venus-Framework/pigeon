@@ -45,6 +45,10 @@ public class ServiceServiceImpl implements ServiceService {
 	private RegistryService registryService;
 	@Autowired
 	private ProjectOwnerService projectOwnerService;
+
+	private List<Service> servicesCache;
+	private long servicesCacheLastUpdateTime = 0;
+	private long checkCacheInternal = 20000;
 	
 	@Override
 	public int create(ServiceBean serviceBean, String updatezk) throws Exception {
@@ -454,6 +458,28 @@ public class ServiceServiceImpl implements ServiceService {
 		}
 
 		return count;
+	}
+
+	@Override
+	public List<Service> retrieveAllIdNamesByCache() {
+		long currentTime = System.currentTimeMillis();
+		if(currentTime - servicesCacheLastUpdateTime > checkCacheInternal){
+			servicesCache = retrieveAllIdNames();
+			servicesCacheLastUpdateTime = currentTime;
+		}
+
+		return servicesCache;
+	}
+
+	@Override
+	public List<Service> retrieveAllIdNames() {
+		List<Service> services = null;
+		try {
+			services = serviceMapper.selectAllServiceIdNames();
+		} catch (DataAccessException e) {
+			logger.error("DB error",e);
+		}
+		return services;
 	}
 
 }

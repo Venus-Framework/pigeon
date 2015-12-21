@@ -257,6 +257,32 @@ public class ServiceController extends BaseController {
 		return result;
 	}
 
+	@RequestMapping(value = {"/services/oneClickOn"}, method = {RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public Result oneClickOn(@RequestParam(value="host") final String host,
+							  @RequestParam(value="group") final String group,
+							  @RequestParam(value="projectId") final int projectId,
+							  HttpServletRequest request, HttpServletResponse response) {
+		List<Service> services = serviceService.getServiceList(projectId, group);
+
+		for(Service service : services) {
+			HashSet<String> set = new HashSet<String>(Arrays.asList(service.getHosts().split(",")));
+			set.add(host);
+			service.setHosts(StringUtils.join(set, ","));
+			try {
+				serviceService.updateById(service, "true");
+			} catch (Exception e) {
+				logger.error("update service error!", e);
+			}
+		}
+
+		String content = String.format("Oneclick On host=%s&grp=%s",
+				host, group);
+		workThreadPool.submit(new LogOpRun(request, OpType.UPDATE_PIGEON_SERVICE, content, projectId));
+
+		return Result.createSuccessResult("");
+	}
+
 	@RequestMapping(value = {"/services/oneClickOff"}, method = {RequestMethod.GET, RequestMethod.POST})
 	@ResponseBody
 	public Result oneClickOff(@RequestParam(value="host") final String host,
@@ -276,9 +302,9 @@ public class ServiceController extends BaseController {
 			}
 		}
 
-		String content = String.format("Onclick Off host=%s&grp=%s",
+		String content = String.format("Oneclick Off host=%s&grp=%s",
 				host, group);
-		workThreadPool.submit(new LogOpRun(request, OpType.DELETE_PIGEON_SERVICE, content, projectId));
+		workThreadPool.submit(new LogOpRun(request, OpType.UPDATE_PIGEON_SERVICE, content, projectId));
 
 		return Result.createSuccessResult("");
 	}
