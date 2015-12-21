@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.dianping.pigeon.demo.DealGroupBaseDTO;
 import com.dianping.pigeon.demo.EchoService;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 import com.google.common.collect.Lists;
@@ -55,5 +56,10 @@ public class EchoServiceAnnotationImpl implements EchoService {
 	@Override
 	public Map<String, String> testMap(Map<String, String> values) {
 		return values;
+	}
+
+	@Override
+	public DealGroupBaseDTO test(DealGroupBaseDTO dto) {
+		return dto;
 	}
 }

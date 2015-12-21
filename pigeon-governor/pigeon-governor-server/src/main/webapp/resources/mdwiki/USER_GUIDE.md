@@ -3,22 +3,6 @@ ______
 
 Pigeon是一个分布式服务通信框架（RPC），在大众点评内部广泛使用，是大众点评最基础的底层框架之一。
 
-### 主要特色
-
-除了支持spring schema等配置方式，也支持代码annotation方式发布服务、引用远程服务，并提供原生api接口的用法。
-
-支持http协议，方便非java应用调用pigeon的服务。
-
-序列化方式除了hessian，还支持fst、protostuff。
-
-提供了服务器单机控制台pigeon-console，包含单机服务测试工具。
-
-创新的客户端路由策略，提供服务预热功能，解决线上流量大的service重启时大量超时的问题。
-
-记录每个请求的对象大小、返回对象大小等监控信息。
-
-服务端可对方法设置单独的线程池进行服务隔离，可配置客户端应用的最大并发数进行限流。
-
 ### 依赖
 
 pigeon依赖JDK1.6+
@@ -48,19 +32,6 @@ pigeon在运行时会依赖以下jar包，但不是强依赖某个版本，需�
 		<artifactId>avatar-tracker</artifactId>
 		<version>2.1.9</version>
 		</dependency>
-		<dependency>
-		<groupId>org.unidal.framework</groupId>
-		<artifactId>foundation-service</artifactId>
-		<version>2.1.1</version>
-		</dependency>
-		<dependency>
-		<groupId>com.google.guava</groupId>
-		<artifactId>guava</artifactId>
-		<version>15.0</version>
-		</dependency>
-		<!-- 因为guava与google-collections可能jar包冲突，而google-collections只是guava的子集，所以需要去掉应用自己依赖的google-collections包 -->
-		<!-- <groupId>com.google.collections</groupId> -->
-		<!-- <artifactId>google-collections</artifactId> -->
 		
 		<!-- 加入spring，版本根据自身需要设置 -->
 		<dependency>
@@ -114,6 +85,9 @@ app.name=xxx
 
 代表此应用名称为xxx，定义应用名称是基于规范应用的考虑
 
+e、日志目录：
+
+pigeon默认会将日志写入/data/applogs/pigeon/pigeon.*.log，需要确保jvm进程拥有可以写该目录文件的权限
 
 ### 快速入门
 
@@ -150,7 +124,7 @@ Spring配置声明暴露服务：
 
 provider.xml
 
-		<bean class="com.dianping.dpsf.spring.ServiceRegistry"
+		<bean class="com.dianping.pigeon.remoting.provider.config.spring.ServiceBean"
 		init-method="init">
 		<property name="services">
 		<map>
@@ -181,16 +155,15 @@ Provider.java
 
 invoker.xml
 
-		<bean id="echoService" class="com.dianping.dpsf.spring.ProxyBeanFactory" init-method="init">
-		<property name="serviceName" value="http://service.dianping.com/demoService/echoService_1.0.0" /><!-- 服务全局唯一的标识url -->
-		<property name="iface" value="com.dianping.pigeon.demo.EchoService" /><!-- 接口名称 -->
-		<property name="serialize" value="hessian" /><!-- 序列化，hessian/fst/protostuff，默认hessian-->
-		<property name="protocol" value="default" /><!-- 协议，default/http -->
-		<property name="callMethod" value="sync" /><!-- 调用方式，sync/future/callback/oneway，默认sync -->
-		<property name="timeout" value="2000" /><!-- 超时时间，毫秒 -->
-		<property name="cluster" value="failfast" /><!-- 失败策略，快速失败failfast/失败转移failover/失败忽略failsafe/并发取最快返回forking，默认failfast -->
-		<property name="timeoutRetry" value="false" /><!-- 是否超时重试，默认false -->
-		<property name="retries" value="1" /><!-- 重试次数，默认1 -->
+		<bean id="echoService" class="com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean" init-method="init">
+		<property name="url" value="http://service.dianping.com/demoService/echoService_1.0.0" /><!-- 服务全局唯一的标识url，必须设置 -->
+		<property name="interfaceName" value="com.dianping.pigeon.demo.EchoService" /><!-- 接口名称，必须设置 -->
+		<property name="timeout" value="2000" /><!-- 超时时间，毫秒，建议自己设置 -->
+		<property name="serialize" value="hessian" /><!-- 序列化，hessian/fst/protostuff，默认hessian，可不设置 -->
+		<property name="callType" value="sync" /><!-- 调用方式，sync/future/callback/oneway，默认sync，可不设置 -->
+		<property name="cluster" value="failfast" /><!-- 失败策略，快速失败failfast/失败转移failover/失败忽略failsafe/并发取最快返回forking，默认failfast，可不设置 -->
+		<property name="timeoutRetry" value="false" /><!-- 是否超时重试，默认false，可不设置 -->
+		<property name="retries" value="1" /><!-- 重试次数，默认1，可不设置 -->
 		</bean>
 		
 加载Spring配置，并调用远程服务：
@@ -202,7 +175,7 @@ Invoker.java
 		public class Invoker {
 			public static void main(String[] args) throws Exception {
 				ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[] {“invoker.xml"});
-			context.start();
+				context.start();
 				EchoService echoService = (EchoService)context.getBean(“echoService"); // 获取远程服务代理
 				String hello = echoService.echo("world");
 				System.out.println( hello );
@@ -224,7 +197,7 @@ EchoService是一个远程服务的接口：
 
 		@Service
 		public class EchoServiceAnnotationImpl implements EchoService {
-		@Override
+		
 		public String echo(String input) {
 			return "annotation service echo:" + input;
 		}
@@ -260,8 +233,10 @@ EchoService是一个远程服务的接口：
 假设在客户端有一个AnnotationTestService，需要引用远程的EchoService服务，只需要在field或method上加上@Reference：
 
 		public class AnnotationTestService {
+		
 		@Reference(timeout = 1000)
 		private EchoService echoService;
+		
 		public String testEcho(String input) {
 			return echoService.echo(input);
 		}
@@ -613,13 +588,15 @@ http://localhost:4080/invoke.json?url=http://service.dianping.com/com.dianping.p
 pigeon提供了服务测试的工具，测试工具基于pigeon的http协议(默认在4080端口)，可以访问每一台服务器的url：
 
 http://ip:4080/services
-会列出该服务器上所有pigeon服务列表，对于每一个服务方法，可以在右侧输入json格式的参数，进行invoke调用，获取json格式的服务结果，如下图
-QQ图片20140226095502.jpg
+会列出该服务器上所有pigeon服务列表，对于每一个服务方法，可以在右侧输入json格式的参数，进行invoke调用，获取json格式的服务结果
+
 如果不清楚一个对象对应的json字符串，可以参考前面一节，pigeon提供接口可以得到对象转换后的json字符串。
-在线上环境进行测试时，需要输入验证码，验证码可以从该ip的pigeon日志文件中获取，请务必谨慎使用该测试工具，以免人为失误影响线上数据。
+在线上环境进行测试时，需要输入验证码，验证码可以从该ip的pigeon日志文件中获取（tail -f /data/applogs/pigeon/pigeon.*.log，如果是tomcat也可以看控制台日志：tail -f catalina.out），请务必谨慎使用该测试工具，以免人为失误影响线上数据。
 如果服务方法参数类型是Collection泛型，如List<User>，需要在参数值指定@class类型，比如getUserDetail(java.util.List,boolean)这个方法，第一个参数需要填的参数值为[{"@class":"com.dianping.pigeon.demo.UserService$User","username":"wux","email":"scott@dianping.com"}]
 如果服务方法参数类型是Map泛型，如Map<User, Double>，需要符合这种格式：{"{\"@class\":\"com.dianping.pigeon.demo.UserService$User\",\"username\":\"w\",\"email\":null,\"password\":null}":4.5,"{\"username\":\"x\",\"email\":null,\"password\":null}":3.5}
+
 访问http://ip:4080/services.json可以返回该服务器所有服务列表的json内容。
+
 访问http://ip:4080/invoke.json可以通过get方式测试服务，例如：
 http://localhost:4080/invoke.json?url=http://service.dianping.com/com.dianping.pigeon.demo.EchoService&method=echo&parameterTypes=java.lang.String&parameters=abc
 url参数是服务地址
@@ -640,16 +617,13 @@ http://ip:4080/services.status可以测试服务健康状况
 
 配置客户端的loadBalance属性，目前可以是random/roundRobin/weightedAutoware这几种类型，默认是weightedAutoware策略，一般场景不建议修改。
 	
-		<bean id="echoService" class="com.dianping.dpsf.spring.ProxyBeanFactory"
+		<bean id="echoService" class="com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean"
 		init-method="init">
-		<property name="serviceName"
+		<property name="url"
 		value="http://service.dianping.com/com.dianping.pigeon.demo.EchoService" />
-		<property name="iface" value="com.dianping.pigeon.demo.EchoService" />
-		<property name="serialize" value="hessian" />
-		<property name="callMethod" value="sync" />
+		<property name="interfaceName" value="com.dianping.pigeon.demo.EchoService" />
+		<property name="callType" value="sync" />
 		<property name="timeout" value="1000" />
-		<property name="cluster" value="failfast" />
-		<property name="timeoutRetry" value="false" />
 		<property name="loadBalance"
 		value="weightedAutoware" />
 		</bean>
@@ -678,6 +652,8 @@ pigeon支持客户端调用某个服务接口时，对整个服务的超时时�
 
 ### 服务隔离与限流
 
+pigeon在服务端会对慢请求进行自动隔离，慢请求不影响其他正常请求的调用。
+如果需要做更详细的定制，可以有以下方式配置：
 1、配置服务方法级别的最大并发数
 pigeon支持服务端对某个服务接口的方法的最大并发数进行配置，这样可以隔离每个服务方法的访问，防止某些方法执行太慢导致服务端线程池全部卡住的问题。
 只需要设置useSharedPool为false，pigeon就会为每个方法设置独立的线程池执行请求。
@@ -721,20 +697,14 @@ pigeon.provider.applimit=tuangou-web:100,xxx:50,yyy:100
 目前只能限制客户端应用总的最大并发数，不能精确到某个应用的某个方法，后续版本会支持。
 以上配置第一次配置了之后，均可以通过lion动态在线设置实时生效
 
-
-### 服务预热
-
-pigeon提供了客户端服务预热功能，当某个服务端机器重启后，客户端会接收到该事件，客户端的请求将会把更多的请求发送到该服务的其他机器，只会发送少量请求到重启的服务端机器，然后逐渐会将发送给该机器的请求增加，经过几十秒的预热过程后，直到与其他机器请求数差不多。
-
 ### 配置客户端调用模式
 
-在pigeon内部，客户端调用远程服务有4种模式（sync/future/callback/oneway），例如spring编程方式下只需要配置callMethod属性：
+在pigeon内部，客户端调用远程服务有4种模式（sync/future/callback/oneway），例如spring编程方式下只需要配置callType属性：
 		
-		<bean id="echoService" class="com.dianping.dpsf.spring.ProxyBeanFactory" init-method="init">
-			<property name="serviceName" value="http://service.dianping.com/com.dianping.pigeon.demo.EchoService" />
-			<property name="iface" value="com.dianping.pigeon.demo.EchoService" />
-			<property name="serialize" value="hessian" />
-			<property name="callMethod" value="sync" />
+		<bean id="echoService" class="com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean" init-method="init">
+			<property name="url" value="http://service.dianping.com/com.dianping.pigeon.demo.EchoService" />
+			<property name="interfaceName" value="com.dianping.pigeon.demo.EchoService" />
+			<property name="callType" value="sync" />
 			<property name="timeout" value="1000" />
 		</bean>
 
@@ -771,13 +741,12 @@ d、callback
 回调方式，客户端将请求提交给pigeon后立即返回，也不等待返回结果，它与future方式的区别是，callback必须提供一个实现了pigeon提供的ServiceCallback接口的回调对象给pigeon，pigeon负责接收返回结果并传递回给这个回调对象，代码示例：
 spring配置文件：
 
-		<bean id="echoServiceWithCallback" class="com.dianping.dpsf.spring.ProxyBeanFactory"
+		<bean id="echoServiceWithCallback" class="com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean"
 		init-method="init">
-		<property name="serviceName"
+		<property name="url"
 		value="http://service.dianping.com/com.dianping.pigeon.demo.EchoService" />
-		<property name="iface" value="com.dianping.pigeon.demo.EchoService" />
-		<property name="serialize" value="hessian" />
-		<property name="callMethod" value="callback" />
+		<property name="interfaceName" value="com.dianping.pigeon.demo.EchoService" />
+		<property name="callType" value="callback" />
 		<property name="timeout" value="1000" />
 		<property name="callback" ref="echoServiceCallback" />
 		</bean>
@@ -785,8 +754,6 @@ spring配置文件：
 		
 调用代码：
 
-		import org.springframework.context.support.ClassPathXmlApplicationContext;
-		import com.dianping.pigeon.demo.EchoService;
 		public class Invoker {
 			public static void main(String[] args) throws Exception {
 				ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[] {“invoker.xml"});
@@ -799,12 +766,8 @@ spring配置文件：
 		
 Callback类：
 
-		import org.apache.log4j.Logger;
-		import com.dianping.dpsf.async.ServiceCallback;
-		import com.dianping.dpsf.exception.DPSFException;
-		import com.dianping.pigeon.log.LoggerLoader;
 		public class EchoServiceCallback implements ServiceCallback {
-			private static final Logger logger = LoggerLoader.getLogger(EchoServiceCallback.class);
+		
 			@Override
 			public void callback(Object result) {
 				System.out.println("callback:" + result);
@@ -827,13 +790,12 @@ InvokerHelper.setCallback(new ServiceCallback(){...});
 
 客户端配置cluster属性：
 
-		<bean id="echoService" class="com.dianping.dpsf.spring.ProxyBeanFactory"
+		<bean id="echoService" class="com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean"
 		init-method="init">
-		<property name="serviceName"
+		<property name="url"
 		value="http://service.dianping.com/com.dianping.pigeon.demo.EchoService" />
-		<property name="iface" value="com.dianping.pigeon.demo.EchoService" />
-		<property name="serialize" value="hessian" />
-		<property name="callMethod" value="sync" />
+		<property name="interfaceName" value="com.dianping.pigeon.demo.EchoService" />
+		<property name="callType" value="sync" />
 		<property name="timeout" value="1000" />
 		<property name="cluster" value="failfast" /><!-- 失败策略，快速失败failfast/失败转移failover/失败忽略failsafe/并发取最快返回forking，默认failfast -->
 		<property name="timeoutRetry" value="false" /><!-- 是否超时重试，默认false -->
@@ -873,8 +835,7 @@ ContextUtils.getResponseContext("key1");
 
 ### 如何指定固定ip:port访问pigeon服务
 
-客户端可以配置只连某台服务器进行pigeon服务调试，比如alpha环境可以在你的classpath下配置config/pigeon_alpha.properties文件（如果是beta环境设置pigeon_qa.properties，如果是dev环境设置pigeon_dev.properties），实现只访问192.168.0.1:4040提供的pigeon服务：http://service.dianping.com/com.dianping.pigeon.demo.EchoService=192.168.0.1:4040
-在pigeon1.x中支持的config/applicationContext.properties文件类似上述配置，但applicationContext.properties只在dev和alpha环境生效，其他环境还是从zookeeper中获取服务地址。
+客户端可以配置只连某台服务器进行pigeon服务调试，比如测试环境可以在你的classpath下配置config/pigeon_qa.properties文件，实现只访问192.168.0.1:4040提供的pigeon服务：http://service.dianping.com/com.dianping.pigeon.demo.EchoService=192.168.0.1:4040
 如果要在代码层面设置，需要在调用服务前指定以下代码：
       线程级别每次请求前设置：InvokerHelper.setAddress("192.168.0.1:4040");该方式请在非线上环境使用，一般用于UT测试。
       另外一种方式是：
@@ -928,9 +889,10 @@ pigeon在客户端调用和服务端调用都提供了拦截器机制，方便�
 ### 如何关闭自动注册
 
 强烈建议不要关闭自动注册，如果特殊场合比如某些服务端需要自己做预热处理后再注册服务，可能需要关闭自动注册功能：
-1、在应用的classpath下放config/pigeon.properties文件（该文件的配置是所有环境都生效，包括关闭线上自动注册，请谨慎使用，如果是只设置某个环境，也可以是pigeon_dev.properties/pigeon_alpha.properties/pigeon_qa.properties/pigeon_prelease.properties/pigeon_product.properties），内容如下:
+1、在应用的classpath下放config/pigeon.properties文件（该文件的配置是所有环境都生效，包括关闭线上自动注册，请谨慎使用，如果是只设置某个环境，也可以是pigeon_qa.properties/pigeon_prelease.properties/pigeon_product.properties），内容如下:
 pigeon.autoregister.enable=false
-这个配置也可以放在绝对路径/data/webapps/config/pigeon/pigeon.properties文件里
+
+这个配置也可以放在绝对路径/data/webapps/config/pigeon.properties文件里
 如果是关闭整个应用所有机器的自动注册，可以在lion对应项目配置里加上以下配置，如shop-server这个应用：
 shop-server.pigeon.autoregister.enable配置为false
 
@@ -951,16 +913,13 @@ ServiceFactory.online();
 
 一般情况下使用pigeon提供的random/roundRobin/weightedAutoaware这几种策略就足够了，如果需要自己实现负载均衡策略，可以在客户端的配置里添加loadBalanceClass属性，这个class必须实现com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance接口，一般可以继承pigeon提供的AbstractLoadBalance抽象类或pigeon目前已有的loadbalance类。
 	
-		<bean id="echoService" class="com.dianping.dpsf.spring.ProxyBeanFactory"
+		<bean id="echoService" class="com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean"
 		init-method="init">
-			<property name="serviceName"
+			<property name="url"
 			value="http://service.dianping.com/com.dianping.pigeon.demo.EchoService" />
-			<property name="iface" value="com.dianping.pigeon.demo.EchoService" />
-			<property name="serialize" value="hessian" />
-			<property name="callMethod" value="sync" />
+			<property name="interfaceName" value="com.dianping.pigeon.demo.EchoService" />
+			<property name="callType" value="sync" />
 			<property name="timeout" value="1000" />
-			<property name="cluster" value="failfast" />
-			<property name="timeoutRetry" value="false" />
 			<property name="loadBalanceClass"
 			value="com.dianping.pigeon.demo.loadbalance.MyLoadbalance" />
 		</bean>
@@ -995,6 +954,9 @@ xxx.pigeon.invoker.log.timeout.period.apps配置为shop-server:0,data-server:100
 配置内容里，可以配置多个目标服务app的日志打印间隔，以逗号分隔，目标app也必须是点评统一标准应用名，如果某个目标服务app未配置则这个app的超时异常都会记录
 每个app后边的数字，默认为0代表每个超时异常都会记录，如果配置为10000则任何超时异常都不会记录到cat，如果为1代表记录一半，如果为100代表每100个超时异常记录一次，数字越大记录的异常越少
 
+### 日志
+pigeon默认会将ERROR日志写入SYSTEM_ERR，WARN日志会写入SYSTEM_OUT，另外，pigeon内部还会将INFO和WARN级别的日志写入/data/applogs/pigeon/pigeon.*.log，但这个日志不会写入ERROR级别日志
+
 ### 记录服务端每个请求的详细信息
 
 pigeon可以设在服务端记录客户端发过来的每个请求的详细信息，需要在lion相应项目里配置：
@@ -1008,8 +970,8 @@ xxx.pigeon.log.parameters设置为true
 
 ### 记录服务端业务异常详细日志
 
-pigeon在服务端默认不会记录业务方法抛出的异常详细信息，如果需要记录这类业务异常，需要在lion相应项目里配置：
-xxx.pigeon.provider.logserviceexception为true
+pigeon在服务端会记录业务方法抛出的异常详细信息，如果不需要记录这类业务异常，需要在lion相应项目里配置：
+xxx.pigeon.provider.logserviceexception为false
 xxx是应用的app.name，需要与lion项目名称保持一致
 
 
@@ -1115,8 +1077,8 @@ appRequestsSent下会显示requests-lastsecond代表发出的请求最近一秒�
 
 2、QPS信息输出到监控系统
 在cat的event里可以查看：
-客户端发送的QPS：pigeonCall.QPS
-服务端接收的QPS：pigeonService.QPS
+客户端发送的QPS：PigeonCall.QPS
+服务端接收的QPS：PigeonService.QPS
 在cat上可以看到从0-59秒在每一分钟的QPS值
 
 
@@ -1219,7 +1181,7 @@ http端口通常固定为4080端口
 
 ### tcp协议格式
 
-tcp+hessian序列化是pigeon默认的通信方式，如果有业务场景需要实现其他语言作为客户端来调用pigeon服务，需要了解pigeon发送消息和接收消息的协议格式，使用场景：
+tcp+hessian序列化是pigeon默认的通信方式，如果有业务场景需要实现其他非java语言作为客户端来调用pigeon服务，需要了解pigeon发送消息和接收消息的协议格式，使用场景：
 a）一般的服务调用需要发出请求和接收响应
 b）为了维持正常的tcp连接，还需要定期发送心跳消息和接收心跳响应消息，建议3秒发送一次，并接收响应，如果心跳未正常返回，需要客户端本地摘除这个服务端节点，在后续路由选择时不再选择不正常的节点
 

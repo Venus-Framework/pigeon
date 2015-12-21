@@ -6,6 +6,7 @@ package com.dianping.pigeon.demo;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public interface EchoService {
 
 	String echo(String msg);
-	
+
 	String asyncEcho(String msg);
 
 	long now();
@@ -22,10 +23,12 @@ public interface EchoService {
 	void addUser(User<?> user);
 
 	List<User<?>> findUsers(int count);
-	
+
 	Map<String, String> testMap(Map<String, String> values);
 
 	String test(Map<User, String> values);
+	
+	DealGroupBaseDTO test(DealGroupBaseDTO dto);
 
 	enum Grade {
 		low, high
@@ -39,6 +42,9 @@ public interface EchoService {
 		String address;
 		int age;
 		BigDecimal amount;
+		BigDecimal price;
+		Date birthday;
+		Date createTime;
 		T[] userProfile;
 
 		// int count;
@@ -53,6 +59,14 @@ public interface EchoService {
 
 		public Gender getGender() {
 			return gender;
+		}
+
+		public Date getBirthday() {
+			return birthday;
+		}
+
+		public void setBirthday(Date birthday) {
+			this.birthday = birthday;
 		}
 
 		public void setGender(Gender gender) {
@@ -73,6 +87,14 @@ public interface EchoService {
 
 		public void setAmount(BigDecimal amount) {
 			this.amount = amount;
+		}
+
+		public BigDecimal getPrice() {
+			return price;
+		}
+
+		public void setPrice(BigDecimal price) {
+			this.price = price;
 		}
 
 		public User() {
@@ -124,6 +146,14 @@ public interface EchoService {
 
 		public void setAge(int age) {
 			this.age = age;
+		}
+
+		public Date getCreateTime() {
+			return createTime;
+		}
+
+		public void setCreateTime(Date createTime) {
+			this.createTime = createTime;
 		}
 
 		public String toString() {

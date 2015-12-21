@@ -18,6 +18,7 @@ import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.util.ProviderHelper;
 import com.dianping.pigeon.util.ContextUtils;
+import com.google.common.collect.Lists;
 
 public class EchoServiceDefaultImpl implements EchoService {
 
@@ -64,8 +65,8 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public List<User<?>> findUsers(int count) {
-		// return Lists.newArrayList(users.subList(0, count));
-		return users.subList(0, count);
+		return Lists.newArrayList(users.subList(0, count));
+		//return users.subList(0, count);
 	}
 
 	@Override
@@ -119,6 +120,11 @@ public class EchoServiceDefaultImpl implements EchoService {
 	public Map<String, String> testMap(Map<String, String> values) {
 		System.out.println(values);
 		return values;
+	}
+
+	@Override
+	public DealGroupBaseDTO test(DealGroupBaseDTO dto) {
+		return dto;
 	}
 
 }

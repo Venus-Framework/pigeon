@@ -14,7 +14,7 @@ public class LocalConfigLoader {
 
 	private static final String PROPERTIES_PATH = "config/pigeon.properties";
 
-	private static final String GLOBAL_PROPERTIES_PATH = "/data/webapps/config/pigeon/pigeon.properties";
+	private static final String GLOBAL_PROPERTIES_PATH = "/data/webapps/config/pigeon.properties";
 
 	public static void loadProperties(Map<String, Object> results, Properties properties) {
 		for (Iterator ir = properties.keySet().iterator(); ir.hasNext();) {

@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.unidal.helper.Splitters;
-import org.unidal.helper.Stringizers;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -27,11 +25,11 @@ public class InvocationUtils {
 			Constants.DEFAULT_STRING_MAXITEMS);
 
 	public static String toJsonString(Object obj) {
-		return Stringizers.forJson().from(obj, defaultStrMaxLength, defaultStrMaxItems);
+		return StringizerUtils.forJson().from(obj, defaultStrMaxLength, defaultStrMaxItems);
 	}
 
 	public static String toJsonString(Object obj, int strMaxLength, int strMaxItems) {
-		return Stringizers.forJson().from(obj, strMaxLength, strMaxItems);
+		return StringizerUtils.forJson().from(obj, strMaxLength, strMaxItems);
 	}
 
 	public static String getRemoteCallFullName(String methodName, Object[] parameters) {
@@ -71,7 +69,7 @@ public class InvocationUtils {
 				.append(StringUtils.join(parameterTypes, "#")).toString();
 		String name = remoteCallNameCache.get(cacheKey);
 		if (name == null) {
-			List<String> serviceFrags = Splitters.by("/").noEmptyItem().split(serviceName);
+			List<String> serviceFrags = SplitterUtils.by("/").noEmptyItem().split(serviceName);
 			int fragLenght = serviceFrags.size();
 			name = "Unknown";
 			StringBuilder sb = new StringBuilder(128);

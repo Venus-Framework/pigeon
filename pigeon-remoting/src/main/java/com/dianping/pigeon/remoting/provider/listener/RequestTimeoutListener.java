@@ -127,6 +127,10 @@ public class RequestTimeoutListener implements Runnable {
 	}
 
 	public void run() {
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e1) {
+		}
 		Map<String, Server> servers = ProviderBootStrap.getServersMap();
 		RequestProcessor processor = null;
 		for (Server server : servers.values()) {
