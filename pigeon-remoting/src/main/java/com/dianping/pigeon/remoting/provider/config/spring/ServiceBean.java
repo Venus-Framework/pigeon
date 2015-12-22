@@ -96,7 +96,9 @@ public final class ServiceBean extends ServiceInitializeListener {
 	}
 
 	public void setPort(int port) {
-		this.port = port;
+		if (port != 4040) {
+			this.port = port;
+		}
 	}
 
 	public void init() throws Exception {

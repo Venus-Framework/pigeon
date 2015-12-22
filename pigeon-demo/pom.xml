@@ -23,7 +23,6 @@
 		<dependency>
 			<groupId>com.dianping.dpsf</groupId>
 			<artifactId>dpsf-net</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>

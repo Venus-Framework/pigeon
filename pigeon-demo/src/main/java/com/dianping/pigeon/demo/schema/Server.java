@@ -18,7 +18,7 @@ public class Server {
 	 */
 	public static void main(String[] args) throws Exception {
 		SERVER_CONTAINER.start();
-
+		
 		System.in.read();
 	}
 

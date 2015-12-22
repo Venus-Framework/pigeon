@@ -48,7 +48,9 @@ public class ServerBean {
 	}
 
 	public void setPort(int port) {
-		this.port = port;
+		if (port != 4040) {
+			this.port = port;
+		}
 	}
 
 	public int getCorePoolSize() {
