@@ -28,6 +28,9 @@ public class HealthCheckBean {
 //		}
 		new HealthCheckManager().start();
 		logger.info("HealthCheckManager started");
+
+		// Check zookeeper heartbeat path
+
 	}
 
 	public static void main(String[] args) throws Exception {

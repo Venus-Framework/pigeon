@@ -52,7 +52,7 @@ public class HeartBeatListener extends Thread {
         this.serviceAddress = serviceAddress;
     }
 
-    public synchronized static void registerHeartBeat(ProviderConfig<?> providerConfig) {
+    public static void registerHeartBeat(ProviderConfig<?> providerConfig) {
         try {
             String serviceName = providerConfig.getUrl();
             serviceHeartBeatCache.add(serviceName);
@@ -66,7 +66,7 @@ public class HeartBeatListener extends Thread {
         }
     }
 
-    public synchronized static void unregisterHeartBeat(ProviderConfig<?> providerConfig) {
+    public static void unregisterHeartBeat(ProviderConfig<?> providerConfig) {
         try {
             String serviceName = providerConfig.getUrl();
             serviceHeartBeatCache.remove(serviceName);
@@ -81,19 +81,23 @@ public class HeartBeatListener extends Thread {
     }
 
     private static synchronized void initHeartBeat(String serviceAddress) {
-        heartBeatListener = new HeartBeatListener("Pigeon-Provider-HeartBeat",new HeartBeatReboot(), true, serviceAddress);
-        heartBeatListener.isSendHeartBeat = true;
-        heartBeatListener.start();
-        registryManager.registerAppHostList(serviceAddress, configManager.getAppName(), ProviderBootStrap.getHttpServer().getPort());
-        monitor.logEvent("PigeonService.heartbeat", "ON", new Date()+"");
+        if(heartBeatListener == null) {
+            heartBeatListener = new HeartBeatListener("Pigeon-Provider-HeartBeat",new HeartBeatReboot(), true, serviceAddress);
+            heartBeatListener.isSendHeartBeat = true;
+            heartBeatListener.start();
+            registryManager.registerAppHostList(serviceAddress, configManager.getAppName(), ProviderBootStrap.getHttpServer().getPort());
+            monitor.logEvent("PigeonService.heartbeat", "ON", new Date()+"");
+        }
     }
 
     private static synchronized void stopHeartBeat(String serviceAddress) {
-        heartBeatListener.isSendHeartBeat = false;
-        heartBeatListener = null;
-        registryManager.deleteHeartBeat(serviceAddress);
-        registryManager.unregisterAppHostList(serviceAddress, configManager.getAppName());
-        monitor.logEvent("PigeonService.heartbeat", "OFF", new Date()+"");
+        if(serviceHeartBeatCache.size() == 0 && heartBeatListener != null) {
+            heartBeatListener.isSendHeartBeat = false;
+            heartBeatListener = null;
+            registryManager.deleteHeartBeat(serviceAddress);
+            registryManager.unregisterAppHostList(serviceAddress, configManager.getAppName());
+            monitor.logEvent("PigeonService.heartbeat", "OFF", new Date()+"");
+        }
     }
 
     @Override
