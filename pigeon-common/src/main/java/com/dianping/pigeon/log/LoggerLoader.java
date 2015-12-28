@@ -50,7 +50,7 @@ public class LoggerLoader {
 		Filter fileInfoFilter = ThresholdFilter.createFilter(Level.ERROR, Result.DENY, Result.ACCEPT);
 		Appender fileInfoAppender = RollingFileAppender.createAppender(LOG_ROOT + "/pigeon." + appName + ".log",
 				LOG_ROOT + "/pigeon." + appName + ".log.%d{yyyy-MM-dd}.gz", "true", "FileInfo", "true", "4000",
-				"false", TimeBasedTriggeringPolicy.createPolicy("1", "true"),
+				"true", TimeBasedTriggeringPolicy.createPolicy("1", "true"),
 				DefaultRolloverStrategy.createStrategy("30", "1", null, Deflater.DEFAULT_COMPRESSION + "", config),
 				layout, fileInfoFilter, "false", null, null, config);
 		fileInfoAppender.start();
