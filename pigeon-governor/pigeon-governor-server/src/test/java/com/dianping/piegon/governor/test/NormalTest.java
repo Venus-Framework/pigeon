@@ -25,6 +25,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class NormalTest {
 
 	@Test
+	public void testPause() {
+		Long refreshInternal = 60000L;
+		Long pause = refreshInternal / 10;
+		System.out.println(pause);
+	}
+
+	@Test
 	public void testSleep(){
 		try {
 			Thread.sleep(-1);
