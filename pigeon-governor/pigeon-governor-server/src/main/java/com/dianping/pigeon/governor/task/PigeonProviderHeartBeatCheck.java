@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.util.List;
+
 /**
  * Created by chenchongze on 15/12/22.
  */
@@ -36,14 +38,16 @@ public class PigeonProviderHeartBeatCheck implements Runnable {
 
         try {
             while("true".equals(isCheckEnable)) {
-                Long heartbeat = System.currentTimeMillis();
+                Long startTime = System.currentTimeMillis();
                 Long refreshInternal = Long.parseLong(ConfigHolder.get(LionKeys.PROVIDER_HEARTBEAT_INTERNAL));
-                Long pause = refreshInternal + refreshInternal / 10;
-
+                Long checkInternal = refreshInternal + refreshInternal / 10;
 
                 //检查心跳
+                List<String> heartBeats = client.getChildren("/DP/HEARTBEAT", false);
 
-                Long internal = refreshInternal - System.currentTimeMillis() + heartbeat;
+
+
+                Long internal = refreshInternal - System.currentTimeMillis() + startTime;
                 if(internal > 0) {
                     Thread.sleep(internal);
                 }
