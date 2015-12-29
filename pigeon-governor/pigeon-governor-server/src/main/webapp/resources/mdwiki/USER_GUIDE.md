@@ -587,6 +587,8 @@ http://localhost:4080/invoke.json?url=http://service.dianping.com/com.dianping.p
 			System.out.println(str);
 		}
 
+结合slb可以实现更强大的http协议支持，参见：[pigeon http协议支持 + slb负载均衡](http://code.dianpingoa.com/arch/pigeon2/blob/master/pigeon-governor/pigeon-governor-server/src/main/webapp/resources/mdwiki/HTTP_CALL_GUIDE.md)
+
 ### 服务测试工具
 
 pigeon提供了服务测试的工具，测试工具基于pigeon的http协议(默认在4080端口)，可以访问每一台服务器的url：
