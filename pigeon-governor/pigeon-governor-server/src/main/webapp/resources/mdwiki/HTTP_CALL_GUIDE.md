@@ -8,7 +8,7 @@
 
 [2、GET method](#toc_3)
 
-[详细使用说明](#toc_4)
+[运维规范](#toc_4)
 
 ## pigeon http协议支持 + slb负载均衡
 _______
@@ -114,5 +114,6 @@ IpService服务提供方要联系运维，接入slb。运维负责人许奎、�
         "sourceCityName": "hertford",
         "isAgent": null
     }
+
 
 ### 运维规范
