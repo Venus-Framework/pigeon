@@ -12,6 +12,8 @@
 
 [2、GET method](#toc_4)
 
+[复杂参数说明](#toc_5)
+
 ## pigeon http协议支持 + slb负载均衡
 _______
 
@@ -133,3 +135,45 @@ beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:408
 
 
 ### 复杂参数说明
+
+调用`IpService`的`reportInfo`方法，参数为`String`和`HashMap`，返回值为`void`。
+
+#### 1、POST method
+
+请求地址：
+
+`http://pigeon.51ping.com/iphub-service/service?serialize=7`
+
+json请求：
+
+    {
+    	"url":"com.dianping.iphub.service.IpService",
+    	"methodName":"reportInfo",
+    	"parameters":[
+          ["java.lang.String", "wux"],
+          ["java.util.HashMap", {"today":"no","tomorrow":"yes"}]
+        ],
+    	"callType":1,
+    	"messageType":2,
+    	"serialize":7,
+    	"timeout":1000,
+    	"seq":-985
+    }
+
+返回：
+
+    {
+        "seq": -985,
+        "messageType": 2,
+        "context": null,
+        "responseValues": null,
+        "exception": null,
+        "response": null
+    }
+
+
+#### 2、GET method
+
+请求地址：
+
+`http://pigeon.51ping.com/iphub-service/invoke.json?url=com.dianping.iphub.service.IpService&method=reportInfo&parameterTypes=java.lang.String&parameters=wux&parameterTypes=java.util.HashMap&parameters={"today":"no","tomorrow":"yes"}`
