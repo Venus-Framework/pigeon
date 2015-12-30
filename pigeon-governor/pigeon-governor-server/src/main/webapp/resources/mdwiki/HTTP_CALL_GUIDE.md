@@ -19,7 +19,7 @@ pigeon提供的http协议支持 + slb软负载，可以实现http服务的横向
 
 ### 运维规范
 
-首先从workflow发起流程`开通给美团访问http域名`，填写pigeon service所在的`应用名`。
+首先服务提供方要从workflow发起流程`开通给美团访问http域名`，填写pigeon service所在的`应用名`。
 
 运维同学会根据流程，绑定应用下所有机器的ip的4080端口走slb软负载。域名规范如下：
 
