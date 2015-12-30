@@ -1,3 +1,69 @@
+目录
+
+[Pigeon开发指南](#toc_0)
+
+[扩展包(可选)](#toc_1)
+
+[依赖](#toc_2)
+
+[准备工作](#toc_3)
+
+[快速入门](#toc_4)
+
+[annotation编程方式](#toc_5)
+
+[spring schema配置方式](#toc_6)
+
+[api编程方式](#toc_7)
+
+[序列化支持](#toc_8)
+
+[http协议支持](#toc_9)
+
+[服务测试工具](#toc_10)
+
+[配置负载均衡策略](#toc_11)
+
+[客户端配置某个方法的超时时间](#toc_12)
+
+[服务隔离与限流](#toc_13)
+
+[配置客户端调用模式](#toc_14)
+
+[配置客户端集群策略模式](#toc_15)
+
+[如何传递自定义参数](#toc_0)
+
+[如何指定固定ip:port访问pigeon服务](#toc_16)
+
+[如何定义自己的拦截器](#toc_17)
+
+[如何关闭自动注册](#toc_18)
+
+[服务端如何获取客户端信息](#toc_19)
+
+[如何自定义loadbalance](#toc_20)
+
+[如何控制cat上客户端超时异常的次数](#toc_21)
+
+[日志](#toc_22)
+
+[记录服务端每个请求的详细信息](#toc_23)
+
+[记录服务端业务异常详细日志](#toc_24)
+
+[获取服务注册信息](#toc_25)
+
+[泳道](#toc_26)
+
+[QPS监控信息](#toc_27)
+
+[异步编程](#toc_28)
+
+[zookeeper协议格式](#toc_29)
+
+[tcp协议格式](#toc_30)
+
 ## Pigeon开发指南
 ______
 
@@ -1156,7 +1222,7 @@ pigeon服务里如果有任何IO操作，需要该IO操作支持callback编程�
 ### zookeeper协议格式
 每台机器的/data/webapps/config/appenv里会写上所处环境和zk地址，例如：
 deployenv=qa
-zkserver=192.168.1.12:2181,192.168.1.13:2181,192.168.1.14:2181
+zkserver=10.66.13.144:2181,10.66.11.251:2181,10.66.13.167:2181,10.66.32.77:2181,10.66.33.203:2181
 
 1、服务地址配置
 每个服务都有一个全局唯一的url代表服务名称，比如我们有一个服务：
@@ -1192,59 +1258,69 @@ a）一般的服务调用需要发出请求和接收响应
 b）为了维持正常的tcp连接，还需要定期发送心跳消息和接收心跳响应消息，建议3秒发送一次，并接收响应，如果心跳未正常返回，需要客户端本地摘除这个服务端节点，在后续路由选择时不再选择不正常的节点
 
 1、发送请求消息的字节序列：
+
+```
 #消息头，固定7个字节
+```
+
 第1-3个字节固定为：57，58，2；
 第4-7个字节：消息体长度，int，占4个字节，值为消息体长度（hessian序列化字节长度）+消息尾长度11
 
+```
 #消息体，从第8个字节开始：hessian序列化字节，对象类型为com.dianping.dpsf.protocol.DefaultRequest
+```
 
-public class DefaultRequest implements InvocationRequest {
+	public class DefaultRequest implements InvocationRequest {
 
-	private byte serialize;//必填，序列化类型，hessian为2
+		private byte serialize;//必填，序列化类型，hessian为2
 
-	private long seq;//必填，消息sequence，long型，值请从0开始递增，每个消息的sequence都不同
+		private long seq;//必填，消息sequence，long型，值请从0开始递增，每个消息的sequence都不同
 
-	private int callType = 1;//必填，如果调用需要返回结果，固定为1
+		private int callType = 1;//必填，如果调用需要返回结果，固定为1
 
-	private int timeout = 0;//必填，超时时间，单位毫秒
+		private int timeout = 0;//必填，超时时间，单位毫秒
 
-	private String serviceName;//必填，服务名称url，服务唯一的标识
+		private String serviceName;//必填，服务名称url，服务唯一的标识
 
-	private String methodName;//必填，服务方法名称
+		private String methodName;//必填，服务方法名称
 
-	private Object[] parameters;//必填，服务方法的参数值
+		private Object[] parameters;//必填，服务方法的参数值
 
-	private int messageType = 2;//必填，消息类型，服务调用固定为2，心跳为1
+		private int messageType = 2;//必填，消息类型，服务调用固定为2，心跳为1
 
-	private Object context;//老的avatar-tracker上下文传递内容，如果要传递对象，需设置
+		private Object context;//老的avatar-tracker上下文传递内容，如果要传递对象，需设置
 
-	private String app = "";//必填，调用者所属应用名称，在META-INF/app.properties里的app.name值
+		private String app = "";//必填，调用者所属应用名称，在META-INF/app.properties里的app.name值
 
-	private Map<String, Serializable> globalValues = null;//用于新的全局上下文传递，可不填
+		private Map<String, Serializable> globalValues = null;//用于新的全局上下文传递，可不填
 
-	private Map<String, Serializable> requestValues = null;//用于新的上下文传递，可不填
-	
-}
+		private Map<String, Serializable> requestValues = null;//用于新的上下文传递，可不填
 
+	}
+
+```
 #消息尾：固定11个字节
+```
+
 前8个字节为消息sequence，long型，值请从0开始递增，每个消息的sequence都不同；
 后3个字节固定为：29，30，31
 
 2、接收响应消息的字节序列：
 与发送消息的字节序列相同，不过消息体的内容不同，对象类型为com.dianping.dpsf.protocol.DefaultResponse
 只需要拿到消息体进行hessian反序列化即可
-public class DefaultResponse implements InvocationResponse {
 
-	private long seq;//返回的消息sequence，对应发送的消息sequence，long型
+	public class DefaultResponse implements InvocationResponse {
 
-	private int messageType;//消息类型，服务调用为2，服务调用业务异常为4，服务框架异常为3，心跳为1
+		private long seq;//返回的消息sequence，对应发送的消息sequence，long型
 
-	private Object returnVal;//返回服务调用结果，如果是异常，返回类型为
+		private int messageType;//消息类型，服务调用为2，服务调用业务异常为4，服务框架异常为3，心跳为1
 
-	private Object context;//老的avatar-tracker上下文传递内容
-	
-	private Map<String, Serializable> responseValues = null;//用于新的上下文传递返回的结果
+		private Object returnVal;//返回服务调用结果，如果是异常，返回类型为
 
-}
+		private Object context;//老的avatar-tracker上下文传递内容
+
+		private Map<String, Serializable> responseValues = null;//用于新的上下文传递返回的结果
+
+	}
 
 
