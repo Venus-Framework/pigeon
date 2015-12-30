@@ -916,8 +916,11 @@ ConfigManagerLoader.getConfigManager().setLocalStringValue("http://service.dianp
 ### 如何定义自己的拦截器
 
 pigeon在客户端调用和服务端调用都提供了拦截器机制，方便用户可以获取到调用参数和返回结果。
+
 注意：请不要在拦截器当中写消耗性能的代码，因为拦截器中的代码都是同步调用，如果执行太慢会影响服务调用的执行时间，用户如果想在拦截器中实现复杂逻辑，请自行进行异步处理。
+
 在客户端可以实现自己的拦截器：
+
 
 		import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 		import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -933,11 +936,15 @@ pigeon在客户端调用和服务端调用都提供了拦截器机制，方便�
 		}
 		}
 		
+
 在系统初始化时注册到pigeon中：
+
 
 		InvokerProcessInterceptorFactory.registerInterceptor(new MyInvokerProcessInterceptor());
 
+
 同样的，在服务端也可以定义类似的拦截器：
+
 
 		import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 		import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -952,8 +959,10 @@ pigeon在客户端调用和服务端调用都提供了拦截器机制，方便�
 		System.out.println("postInvoke:" + invocationResponse);
 		}
 		}
-		
+
+
 在系统初始化时注册到pigeon中：
+
 
 		ProviderProcessInterceptorFactory.registerInterceptor(new MyProviderProcessInterceptor());
 
@@ -984,7 +993,8 @@ ServiceFactory.online();
 ### 如何自定义loadbalance
 
 一般情况下使用pigeon提供的random/roundRobin/weightedAutoaware这几种策略就足够了，如果需要自己实现负载均衡策略，可以在客户端的配置里添加loadBalanceClass属性，这个class必须实现com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance接口，一般可以继承pigeon提供的AbstractLoadBalance抽象类或pigeon目前已有的loadbalance类。
-	
+
+
 		<bean id="echoService" class="com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean"
 		init-method="init">
 			<property name="url"
@@ -996,7 +1006,9 @@ ServiceFactory.online();
 			value="com.dianping.pigeon.demo.loadbalance.MyLoadbalance" />
 		</bean>
 
+
 MyLoadbalance.java
+
 
 		public class MyLoadbalance extends RoundRobinLoadBalance {
 		@Override
@@ -1013,6 +1025,7 @@ MyLoadbalance.java
 		return super.doSelect(clients, request, weights);
 		}
 		}
+
 
 上述代码可以参考pigeon-demo项目：
 git@code.dianpingoa.com:arch/pigeon-demo.git
