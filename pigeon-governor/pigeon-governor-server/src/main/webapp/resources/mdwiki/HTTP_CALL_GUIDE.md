@@ -42,9 +42,9 @@ beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:408
 
 这里作为公用测试示例，运维同学已经在slb上配置了IpService在beta和线上环境的转发规则：
 
-`http://pigeon.51ping.com/iphub-service`  ——》 `http://ip:4080/`     #beta环境
+`http://pigeon.51ping.com/iphub-service`  ——》 `http://ip:4080`     #beta环境
 
-`http://pigeon.dper.com/iphub-service`  ——》 `http://ip:4080/`     #线上环境
+`http://pigeon.dper.com/iphub-service`  ——》 `http://ip:4080`     #线上环境
 
 调用`IpService`的`getIpInfo`方法，参数为`String`类的ip地址，返回值为`IpInfo`类。
 
