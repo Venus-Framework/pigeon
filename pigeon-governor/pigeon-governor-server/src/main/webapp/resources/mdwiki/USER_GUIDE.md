@@ -1027,6 +1027,7 @@ xxx.pigeon.invoker.log.timeout.period.apps配置为shop-server:0,data-server:100
 每个app后边的数字，默认为0代表每个超时异常都会记录，如果配置为10000则任何超时异常都不会记录到cat，如果为1代表记录一半，如果为100代表每100个超时异常记录一次，数字越大记录的异常越少
 
 ### 日志
+
 pigeon默认会将ERROR日志写入SYSTEM_ERR，WARN日志会写入SYSTEM_OUT，另外，pigeon内部还会将INFO和WARN级别的日志写入/data/applogs/pigeon/pigeon.*.log，但这个日志不会写入ERROR级别日志
 
 ### 记录服务端每个请求的详细信息
