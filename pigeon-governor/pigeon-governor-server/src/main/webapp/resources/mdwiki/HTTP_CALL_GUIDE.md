@@ -12,7 +12,11 @@
 
 [2、GET method](#toc_4)
 
-[复杂参数说明](#toc_5)
+[更多方法示例](#toc_5)
+
+[1、POST method](#toc_6)
+
+[2、GET method](#toc_7)
 
 ## pigeon http协议支持 + slb负载均衡
 _______
