@@ -2,13 +2,13 @@
 
 [pigeon http协议支持 + slb负载均衡](#toc_0)
 
-[快速入门](#toc_1)
+[运维规范](#toc_1)
 
-[1、POST method](#toc_2)
+[快速入门](#toc_2)
 
-[2、GET method](#toc_3)
+[1、POST method](#toc_3)
 
-[运维规范](#toc_4)
+[2、GET method](#toc_4)
 
 ## pigeon http协议支持 + slb负载均衡
 _______
@@ -16,6 +16,18 @@ _______
 pigeon提供的http协议支持 + slb软负载，可以实现http服务的横向扩展、负载均衡和心跳检测。
 
 调用方只需要关心服务对外提供的url接口和调用方式即可。
+
+### 运维规范
+
+首先从workflow发起流程`开通给美团访问http域名`，填写pigeon service所在的`应用名`。
+
+运维同学会根据流程，绑定应用下所有机器的ip的4080端口走slb软负载。域名规范如下：
+
+beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:4080/`
+
+线上环境：`http://pigeon.dper.com/应用名`    ——》    `http://ip:4080/`
+
+如仍有疑问可联系运维负责人许奎、沈玉龙、南海洋。
 
 ### 快速入门
 
@@ -28,17 +40,15 @@ pigeon提供的http协议支持 + slb软负载，可以实现http服务的横向
        <property name="callType" value="sync" /><!-- 调用方式，sync/future/callback/oneway，默认sync，可不设置 -->
     </bean>
 
-IpService服务提供方要联系运维，接入slb。运维负责人许奎、沈玉龙、南海洋。
+这里作为公用测试示例，运维同学已经在slb上配置了IpService在beta环境下的转发规则：
 
-这里作为示例，运维同学已经在slb上配置了IpService在beta环境下的转发规则：
-
-`http://service.51ping.com/`  ——》 `http://ip:4080/`     #其中ip即为提供pigeon service的机器ip。
+`http://pigeon.51ping.com/iphub-service`  ——》 `http://ip:4080/`     #其中ip即为提供pigeon service的机器ip。
 
 调用`IpService`的`getIpInfo`方法，参数为`String`类的ip地址，返回值为`IpInfo`类。
 
 #### 1、POST method
 
-首先拼写调用url：`http://service.51ping.com/service?serialize=7`
+首先拼写调用url：`http://pigeon.51ping.com/iphub-service/service?serialize=7`
 
 其中serialize为序列化方式参数，7为json序列化，2为hessian序列化。
 
@@ -87,7 +97,7 @@ IpService服务提供方要联系运维，接入slb。运维负责人许奎、�
 
 目前get方法仅支持使用json序列化。
 
-首先拼写调用url：`http://service.51ping.com/invoke.json`
+首先拼写调用url：`http://pigeon.51ping.com/iphub-service/invoke.json`
 
 拼写调用数据，查询ip为`80.2.1.23`的相关信息：
 
@@ -95,7 +105,7 @@ IpService服务提供方要联系运维，接入slb。运维负责人许奎、�
 
 用问号拼在一起得到完整url：
 
-`http://service.51ping.com/invoke.json?url=com.dianping.iphub.service.IpService&method=getIpInfo&parameterTypes=java.lang.String&parameters=80.2.1.23`
+`http://pigeon.51ping.com/iphub-service/invoke.json?url=com.dianping.iphub.service.IpService&method=getIpInfo&parameterTypes=java.lang.String&parameters=80.2.1.23`
 
 调用成功将获得返回值：
 
@@ -118,4 +128,4 @@ IpService服务提供方要联系运维，接入slb。运维负责人许奎、�
     }
 
 
-### 运维规范
+
