@@ -1,3 +1,5 @@
+[TOC]
+
 ## pigeon http协议支持 + slb负载均衡
 _______
 
@@ -24,9 +26,13 @@ IpService服务提供方要联系运维，接入slb。运维负责人许奎、�
 
 调用`IpService`的`getIpInfo`方法，参数为`String`类的ip地址，返回值为`IpInfo`类。
 
+#### 1、POST method
+
 首先拼写调用url：`http://service.51ping.com/service?serialize=7`
 
-若为post方法，拼写调用数据，查询ip为`80.2.1.23`的相关信息：
+其中serialize为序列化方式参数，7为json序列化，2为hessian序列化。
+
+拼写调用数据，查询ip为`80.2.1.23`的相关信息：
 
     {
     	"url":"com.dianping.iphub.service.IpService",
@@ -66,5 +72,9 @@ IpService服务提供方要联系运维，接入slb。运维负责人许奎、�
             "isAgent": null
         }
     }
+
+#### 1、GET method
+
+s
 
 ### 详细使用说明
