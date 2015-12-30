@@ -708,9 +708,7 @@ parameters是参数值，多个参数值就写多个parameters（特别提醒：
 url示例：
 http://localhost:4080/invoke.json?url=http://service.dianping.com/com.dianping.pigeon.demo.EchoService&method=echo2&parameterTypes=java.lang.String&parameters=wux&parameterTypes=int&parameters=2
 如果服务方法参数类型是Collection泛型，如List<User>，需要在参数值指定@class类型，比如getUserDetail(java.util.List,boolean)这个方法：
-```
 [{"@class":"com.dianping.pigeon.demo.UserService$User","username":"user_73"},{"@class":"com.dianping.pigeon.demo.UserService$User","username":"user_74"}]
-```
 
 以上json格式需符合jackson的json规范，如果不清楚一个对象对应的json字符串，pigeon提供接口可以得到对象转换后的json字符串。
 
