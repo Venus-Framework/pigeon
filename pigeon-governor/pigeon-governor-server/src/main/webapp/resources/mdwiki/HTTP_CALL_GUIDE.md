@@ -23,9 +23,9 @@ pigeon提供的http协议支持 + slb软负载，可以实现http服务的横向
 
 运维同学会根据流程，绑定应用下所有机器的ip的4080端口走slb软负载。域名规范如下：
 
-beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:4080/`
+beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:4080`
 
-线上环境：`http://pigeon.dper.com/应用名`    ——》    `http://ip:4080/`
+线上环境：`http://pigeon.dper.com/应用名`    ——》    `http://ip:4080`
 
 如仍有疑问可联系运维负责人许奎、沈玉龙、南海洋。
 
