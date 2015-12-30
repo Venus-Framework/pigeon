@@ -52,7 +52,7 @@ beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:408
 
 调用`IpService`的`getIpInfo`方法，参数为`String`类的ip地址，返回值为`IpInfo`类。
 
-### 1、POST method
+#### 1、POST method
 
 首先拼写调用url：`http://pigeon.51ping.com/iphub-service/service?serialize=7`
 
@@ -99,7 +99,7 @@ beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:408
         }
     }
 
-### 2、GET method
+#### 2、GET method
 
 目前get方法仅支持使用json序列化。
 
@@ -133,6 +133,7 @@ beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:408
         "isAgent": null
     }
 
+其他方法示例请看下节。
 
 ### 更多方法示例
 
