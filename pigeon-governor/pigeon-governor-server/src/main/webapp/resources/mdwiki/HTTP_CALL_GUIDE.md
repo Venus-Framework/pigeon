@@ -1,10 +1,8 @@
-<h2><a href="#toc_0">pigeon http协议支持 + slb负载均衡</a></h2>
+[pigeon http协议支持 + slb负载均衡](#toc_0)
 
-<h3><a href="#toc_1">快速入门</a></h3>
+[快速入门](#toc_1)
 
-<h4><a href="#toc_2">1、POST method</a></h4>
-
-<h4><a href="#toc_3">2、GET method</a></h4>
+[1、POST method](#toc_2)
 
 [2、GET method](#toc_3)
 
