@@ -133,7 +133,6 @@ beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:408
         "isAgent": null
     }
 
-
 ### 复杂参数说明
 
 调用`IpService`的`reportInfo`方法，参数为`String`和`HashMap`，返回值为`void`。
@@ -176,4 +175,4 @@ json请求：
 
 请求地址：
 
-`http://pigeon.51ping.com/iphub-service/invoke.json?url=com.dianping.iphub.service.IpService&method=reportInfo&parameterTypes=java.lang.String&parameters=wux&parameterTypes=java.util.HashMap&parameters={"today":"no","tomorrow":"yes"}`
+http://pigeon.51ping.com/iphub-service/invoke.json?url=com.dianping.iphub.service.IpService&method=reportInfo&parameterTypes=java.lang.String&parameters=wux&parameterTypes=java.util.HashMap&parameters={"today":"no","tomorrow":"yes"}
