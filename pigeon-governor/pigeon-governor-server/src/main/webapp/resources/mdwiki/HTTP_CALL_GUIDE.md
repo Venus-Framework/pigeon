@@ -1,4 +1,7 @@
-[TOC]
+<h2><a href="#toc_0">pigeon http协议支持 + slb负载均衡</a></h4>
+<h3><a href="#toc_1">快速入门</a></h4>
+<h4><a href="#toc_2">1、POST method</a></h4>
+<h4><a href="#toc_3">2、GET method</a></h4>
 
 ## pigeon http协议支持 + slb负载均衡
 _______
@@ -73,7 +76,7 @@ IpService服务提供方要联系运维，接入slb。运维负责人许奎、�
         }
     }
 
-#### 1、GET method
+#### 2、GET method
 
 s
 
