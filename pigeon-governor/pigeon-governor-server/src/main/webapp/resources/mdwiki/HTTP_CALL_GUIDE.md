@@ -48,10 +48,10 @@ IpService服务提供方要联系运维，接入slb。运维负责人许奎、�
     	"url":"com.dianping.iphub.service.IpService",
     	"methodName":"getIpInfo",
     	"parameters":["80.2.1.23"],
+    	"timeout":1000,
+    	"serialize":7,
     	"callType":1,
     	"messageType":2,
-    	"serialize":7,
-    	"timeout":1000,
     	"seq":-985
     }
 
