@@ -1,6 +1,6 @@
 目录
 
-[Pigeon开发指南传送门](http://code.dianpingoa.com/arch/pigeon2/blob/master/pigeon-governor/pigeon-governor-server/src/main/webapp/resources/mdwiki/USER_GUIDE.md)
+[pigeon http协议支持传送门](http://code.dianpingoa.com/arch/pigeon2/blob/master/pigeon-governor/pigeon-governor-server/src/main/webapp/resources/mdwiki/USER_GUIDE.md)
 
 [pigeon http协议支持 + slb负载均衡](#toc_0)
 
