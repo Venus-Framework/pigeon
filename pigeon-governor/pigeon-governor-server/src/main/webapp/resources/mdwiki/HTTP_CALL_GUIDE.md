@@ -8,6 +8,8 @@
 
 [2、GET method](#toc_3)
 
+[详细使用说明](#toc_4)
+
 ## pigeon http协议支持 + slb负载均衡
 _______
 
@@ -83,6 +85,34 @@ IpService服务提供方要联系运维，接入slb。运维负责人许奎、�
 
 #### 2、GET method
 
-s
+目前get方法仅支持使用json序列化。
 
-### 详细使用说明
+首先拼写调用url：`http://service.51ping.com/invoke.json`
+
+拼写调用数据，查询ip为`80.2.1.23`的相关信息：：`url=com.dianping.iphub.service.IpService&method=getIpInfo&parameterTypes=java.lang.String&parameters=80.2.1.23`
+
+用问号拼在一起得到完整url：
+
+`http://service.51ping.com/invoke.json?url=com.dianping.iphub.service.IpService&method=getIpInfo&parameterTypes=java.lang.String&parameters=80.2.1.23`
+
+调用成功将获得返回值：
+
+    {
+        "ip": "80.2.1.23",
+        "apn": "unknown",
+        "countryName": "英国",
+        "provinceId": 137,
+        "provinceName": "英国",
+        "cityId": 0,
+        "cityName": "hertford",
+        "carrierName": "as5089 - virgin media limited--virgin media - baguley",
+        "sourceCityId": -329344574,
+        "sourceProvinceId": 826059,
+        "sourceCarrierId": 75653,
+        "sourceCountryId": 826,
+        "sourceProvinceName": "hertford",
+        "sourceCityName": "hertford",
+        "isAgent": null
+    }
+
+### 运维规范
