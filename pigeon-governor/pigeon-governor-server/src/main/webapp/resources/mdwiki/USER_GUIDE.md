@@ -617,16 +617,86 @@ a) 可以将请求内容post到http://ip:4080/service，并且在header里设置
 b) 如果是json序列化可以post到http://ip:4080/service?serialize=7，如果是hessian序列化请post到http://ip:4080/service?serialize=2。
 
 POST方式：
-post地址：http://ip:4080/service?serialize=7
+
+post地址：`http://ip:4080/service?serialize=7`
+
 json请求：
-{"seq":-985,"serialize":7,"callType":1,"timeout":1000,"methodName":"echo","parameters":["echoService_492"],"messageType":2,"url":"com.dianping.pigeon.demo.EchoService"}
+
+	{
+		"seq": -985,
+		"serialize": 7,
+		"callType": 1,
+		"timeout": 1000,
+		"methodName": "echo",
+		"parameters": [
+			"echoService_492"
+		],
+		"messageType": 2,
+		"url": "com.dianping.pigeon.demo.EchoService"
+	}
+
 返回：
-{"seq":-985,"messageType":2,"context":null,"exception":null,"response":"echo:echoService_492"}
+
+	{
+		"seq": -985,
+		"messageType": 2,
+		"context": null,
+		"exception": null,
+		"response": "echo:echoService_492"
+	}
+
 如果参数List<T>类型：
 json请求：
-{"seq":-146,"serialize":7,"callType":1,"timeout":2000,"methodName":"getUserDetail","parameters":[["java.util.List",[{"@class":"com.dianping.pigeon.demo.UserService$User","username":"user_73"},{"@class":"com.dianping.pigeon.demo.UserService$User","username":"user_74"}]],false],"messageType":2,"url":"com.dianping.pigeon.demo.UserService"}
+
+	{
+		"seq": -146,
+		"serialize": 7,
+		"callType": 1,
+		"timeout": 2000,
+		"methodName": "getUserDetail",
+		"parameters": [
+			[
+				"java.util.List",
+				[
+					{
+						"@class": "com.dianping.pigeon.demo.UserService$User",
+						"username": "user_73"
+					},
+					{
+						"@class": "com.dianping.pigeon.demo.UserService$User",
+						"username": "user_74"
+					}
+				]
+			],
+			false
+		],
+		"messageType": 2,
+		"url": "com.dianping.pigeon.demo.UserService"
+	}
+
 返回：
-{"seq":-146,"messageType":2,"context":null,"exception":null,"response":["[Lcom.dianping.pigeon.demo.UserService$User;",[{"username":"user_73","email":null,"password":null},{"username":"user_74","email":null,"password":null}]]}
+
+	{
+		"seq": -146,
+		"messageType": 2,
+		"context": null,
+		"exception": null,
+		"response": [
+			"[Lcom.dianping.pigeon.demo.UserService$User;",
+			[
+				{
+					"username": "user_73",
+					"email": null,
+					"password": null
+				},
+				{
+					"username": "user_74",
+					"email": null,
+					"password": null
+				}
+			]
+		]
+	}
 
 GET方式：
 http://ip:4080/invoke.json?url=http://service.dianping.com/com.dianping.pigeon.demo.EchoService&method=echo&parameterTypes=java.lang.String&parameters=abc
@@ -638,7 +708,17 @@ parameters是参数值，多个参数值就写多个parameters（特别提醒：
 url示例：
 http://localhost:4080/invoke.json?url=http://service.dianping.com/com.dianping.pigeon.demo.EchoService&method=echo2&parameterTypes=java.lang.String&parameters=wux&parameterTypes=int&parameters=2
 如果服务方法参数类型是Collection泛型，如List<User>，需要在参数值指定@class类型，比如getUserDetail(java.util.List,boolean)这个方法：
-[{"@class":"com.dianping.pigeon.demo.UserService$User","username":"user_73"},{"@class":"com.dianping.pigeon.demo.UserService$User","username":"user_74"}]
+
+	[
+        {
+            "@class": "com.dianping.pigeon.demo.UserService$User",
+            "username": "user_73"
+        },
+        {
+            "@class": "com.dianping.pigeon.demo.UserService$User",
+            "username": "user_74"
+        }
+    ]
 
 
 以上json格式需符合jackson的json规范，如果不清楚一个对象对应的json字符串，pigeon提供接口可以得到对象转换后的json字符串。
