@@ -1,5 +1,7 @@
 目录
 
+[Pigeon开发指南传送门](http://code.dianpingoa.com/arch/pigeon2/blob/master/pigeon-governor/pigeon-governor-server/src/main/webapp/resources/mdwiki/USER_GUIDE.md)
+
 [pigeon http协议支持 + slb负载均衡](#toc_0)
 
 [运维规范](#toc_1)
@@ -130,4 +132,4 @@ beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:408
     }
 
 
-
+### 复杂参数说明
