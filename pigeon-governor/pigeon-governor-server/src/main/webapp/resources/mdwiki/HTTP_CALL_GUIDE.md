@@ -40,9 +40,11 @@ beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:408
        <property name="callType" value="sync" /><!-- 调用方式，sync/future/callback/oneway，默认sync，可不设置 -->
     </bean>
 
-这里作为公用测试示例，运维同学已经在slb上配置了IpService在beta环境下的转发规则：
+这里作为公用测试示例，运维同学已经在slb上配置了IpService在beta和线上环境的转发规则：
 
-`http://pigeon.51ping.com/iphub-service`  ——》 `http://ip:4080/`     #其中ip即为提供pigeon service的机器ip。
+`http://pigeon.51ping.com/iphub-service`  ——》 `http://ip:4080/`     #beta环境
+
+`http://pigeon.dper.com/iphub-service`  ——》 `http://ip:4080/`     #线上环境
 
 调用`IpService`的`getIpInfo`方法，参数为`String`类的ip地址，返回值为`IpInfo`类。
 
