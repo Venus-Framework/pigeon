@@ -89,7 +89,9 @@ IpService服务提供方要联系运维，接入slb。运维负责人许奎、�
 
 首先拼写调用url：`http://service.51ping.com/invoke.json`
 
-拼写调用数据，查询ip为`80.2.1.23`的相关信息：：`url=com.dianping.iphub.service.IpService&method=getIpInfo&parameterTypes=java.lang.String&parameters=80.2.1.23`
+拼写调用数据，查询ip为`80.2.1.23`的相关信息：
+
+`url=com.dianping.iphub.service.IpService&method=getIpInfo&parameterTypes=java.lang.String&parameters=80.2.1.23`
 
 用问号拼在一起得到完整url：
 
