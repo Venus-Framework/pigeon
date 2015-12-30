@@ -130,12 +130,18 @@ public class ServiceApiController extends BaseController {
         }
     	
     	String appname = StringUtils.isBlank(project) ? app : project;
+        if(StringUtils.isBlank(appname)) {
+            writer.write(ERROR_CODE + String.format("Service %s for group [%s]'s appname is blank!", service, group));
+            return;
+        }
 
     	String hosts = null;
 		try {
 			hosts = serviceService.publishService(appname, service, group, ip, port, 
 										ConfigHolder.get(LionKeys.IS_ZK_DOUBLE_WRITE, "false"));
-            Host host = hostService.retrieveByIpPort(ip,port);
+
+
+            /*Host host = hostService.retrieveByIpPort(ip,port);
 
             if(host != null && host.getRegistry() == Constants.HOST_REGISTRY_LION) {
                 host.setRegistry(Constants.HOST_REGISTRY_PIGEON);
@@ -148,7 +154,7 @@ public class ServiceApiController extends BaseController {
                 host.setAppname(appname);
                 host.setRegistry(Constants.HOST_REGISTRY_PIGEON);
                 hostService.create(host);
-            }
+            }*/
 
             if(StringUtils.isNotBlank(op))
 				logger.info("publish op is: " + op);
