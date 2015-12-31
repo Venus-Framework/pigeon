@@ -2,7 +2,7 @@
 
 [Pigeon开发指南](#toc_0)
 
-[扩展包(可选)](#toc_1)
+[北京上海互通](#toc_1)
 
 [依赖](#toc_2)
 
@@ -69,9 +69,11 @@ ______
 
 Pigeon是一个分布式服务通信框架（RPC），在大众点评内部广泛使用，是大众点评最基础的底层框架之一。
 
-### 扩展包(可选)
+### 北京上海互通
 
 [pigeon-octo 美团RPC客户端扩展包(仅限服务调用)](http://code.dianpingoa.com/arch/pigeon-octo/blob/master/README.md)
+
+[pigeon + slb, 开通给美团访问http域名](http://code.dianpingoa.com/arch/pigeon2/blob/master/pigeon-governor/pigeon-governor-server/src/main/webapp/resources/mdwiki/HTTP_CALL_GUIDE.md)
 
 ### 依赖
 
