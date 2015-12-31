@@ -67,12 +67,27 @@ beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:408
     {
     	"url":"com.dianping.iphub.service.IpService",
     	"methodName":"getIpInfo",
-    	"parameters":["80.2.1.23"],
+    	"parameters":[
+            ["java.lang.String","80.2.1.23"]
+        ],
     	"timeout":1000,
     	"serialize":7,
     	"callType":1,
     	"messageType":2,
     	"seq":-985
+    }
+
+或可以将参数简写为：
+
+    {
+        "url":"com.dianping.iphub.service.IpService",
+        "methodName":"getIpInfo",
+        "parameters":["80.2.1.23"],
+        "timeout":1000,
+        "serialize":7,
+        "callType":1,
+        "messageType":2,
+        "seq":-985
     }
 
 调用成功将获得返回值：
@@ -182,3 +197,4 @@ json请求：
 请求地址：
 
 http://pigeon.51ping.com/iphub-service/invoke.json?url=com.dianping.iphub.service.IpService&method=reportInfo&parameterTypes=java.lang.String&parameters=wux&parameterTypes=java.util.HashMap&parameters={"today":"no","tomorrow":"yes"}
+
