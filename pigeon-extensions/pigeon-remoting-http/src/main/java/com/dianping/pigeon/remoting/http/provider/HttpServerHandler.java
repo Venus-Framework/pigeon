@@ -9,6 +9,8 @@ import java.util.concurrent.Future;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.remoting.http.adapter.HttpAdapter;
 import org.apache.commons.lang.StringUtils;
 
 import com.dianping.pigeon.log.LoggerLoader;
@@ -39,53 +41,65 @@ public class HttpServerHandler implements HttpHandler {
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		long createTime = System.currentTimeMillis();
-		String uri = request.getRequestURI();
-		String path = uri.substring(uri.lastIndexOf("/") + 1);
-		String serialize = (String) request.getParameter("serialize");
-		if (serialize == null) {
-			serialize = (String) request.getHeader("serialize");
-		}
-		if (StringUtils.isBlank(serialize)) {
-			response.setStatus(200);
-			return;
-		}
-		if (!request.getMethod().equalsIgnoreCase("POST")) {
-			if (serialize != null && SerializerFactory.SERIALIZE_JSON == Byte.parseByte(serialize)) {
-				response.setStatus(200);
+		Object obj;
+		if("true".equalsIgnoreCase(request.getParameter("customize"))) {
+			HttpAdapter httpAdapter = ExtensionLoader.getExtension(HttpAdapter.class);
+			if(httpAdapter != null) {
+				obj = httpAdapter.convert(request);
 			} else {
-				response.setStatus(500);
+				throw new IllegalArgumentException("Customize httpAdapter not found!");
 			}
 		} else {
-			Serializer serializer = SerializerFactory.getSerializer(Byte.parseByte(serialize));
-			InvocationRequest invocationRequest = null;
-			Object obj = serializer.deserializeRequest(request.getInputStream());
-			if (!(obj instanceof InvocationRequest)) {
-				throw new IllegalArgumentException("invalid request type:" + obj.getClass());
-			} else {
-				invocationRequest = (InvocationRequest) obj;
+			String serialize = request.getParameter("serialize");
+			if (serialize == null) {
+				serialize = request.getHeader("serialize");
 			}
-			invocationRequest.getParameters();
-			invocationRequest.setServiceName(HttpUtils.getDefaultServiceUrl(invocationRequest.getServiceName()));
-			invocationRequest.setCreateMillisTime(createTime);
-			ProviderContext invocationContext = new DefaultProviderContext(invocationRequest, new HttpChannel(request,
-					response));
-			Future<InvocationResponse> invocationResponse = null;
-			try {
-				invocationResponse = server.processRequest(invocationRequest, invocationContext);
-				if (invocationResponse != null) {
-					invocationResponse.get();
+			if (StringUtils.isBlank(serialize)) {
+				response.setStatus(200);
+				return;
+			}
+
+			if (!request.getMethod().equalsIgnoreCase("POST")) {
+				if (SerializerFactory.SERIALIZE_JSON == Byte.parseByte(serialize)) {
+					response.setStatus(200);
+				} else {
+					response.setStatus(500);
 				}
-			} catch (Throwable e) {
-				if (invocationResponse != null && !invocationResponse.isCancelled()) {
-					invocationResponse.cancel(true);
-				}
-				String msg = "process http request[" + request.getRemoteAddr() + "] failed:" + invocationRequest;
-				// 心跳消息只返回正常的, 异常不返回
-				if (invocationRequest.getCallType() == Constants.CALLTYPE_REPLY
-						&& invocationRequest.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
-					invocationContext.getChannel().write(ProviderUtils.createFailResponse(invocationRequest, e));
-					logger.error(msg, e);
-				}
+				return;
+
+			} else {
+				Serializer serializer = SerializerFactory.getSerializer(Byte.parseByte(serialize));
+				obj = serializer.deserializeRequest(request.getInputStream());
+			}
+		}
+
+		InvocationRequest invocationRequest;
+		if (!(obj instanceof InvocationRequest)) {
+			throw new IllegalArgumentException("invalid request type:" + obj.getClass());
+		} else {
+			invocationRequest = (InvocationRequest) obj;
+		}
+		invocationRequest.getParameters();
+		invocationRequest.setServiceName(HttpUtils.getDefaultServiceUrl(invocationRequest.getServiceName()));
+		invocationRequest.setCreateMillisTime(createTime);
+		ProviderContext invocationContext = new DefaultProviderContext(invocationRequest, new HttpChannel(request,
+				response));
+		Future<InvocationResponse> invocationResponse = null;
+		try {
+			invocationResponse = server.processRequest(invocationRequest, invocationContext);
+			if (invocationResponse != null) {
+				invocationResponse.get();
+			}
+		} catch (Throwable e) {
+			if (invocationResponse != null && !invocationResponse.isCancelled()) {
+				invocationResponse.cancel(true);
+			}
+			String msg = "process http request[" + request.getRemoteAddr() + "] failed:" + invocationRequest;
+			// 心跳消息只返回正常的, 异常不返回
+			if (invocationRequest.getCallType() == Constants.CALLTYPE_REPLY
+					&& invocationRequest.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
+				invocationContext.getChannel().write(ProviderUtils.createFailResponse(invocationRequest, e));
+				logger.error(msg, e);
 			}
 		}
 	}
