@@ -285,4 +285,8 @@ public class DefaultRequest implements InvocationRequest {
 		this.requestValues = requestValues;
 	}
 
+	public void setParameters(Object[] parameters) {
+		this.parameters = parameters;
+	}
+
 }
