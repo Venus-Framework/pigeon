@@ -18,6 +18,10 @@
 
 [2、GET method](#toc_7)
 
+[自定义请求数据](#toc_8)
+
+[HttpAdapter集成方法总结](#toc_9)
+
 ## pigeon http协议支持 + slb负载均衡
 _______
 
@@ -347,3 +351,9 @@ CustomizeHttpAdapter.java文件代码示例：
 参见Demo文件链接：[CustomizeHttpAdapter.java](http://code.dianpingoa.com/chongze.chen/basicweb/blob/develop/zkmonitor/src/main/java/com/dianping/pigeon/remoting/http/adapter/CustomizeHttpAdapter.java)
 
 也就是说通过将一些参数在`CustomizeHttpAdapter`中构造出Pigeon http服务接受的`DefaultRequest`，实现自定义请求数据的需求。
+
+#### HttpAdapter集成方法总结
+
+a) 编写java实现类`com.dianping.pigeon.remoting.http.adapter.XXXHttpAdapter`。
+
+b) 在项目的资源文件`src/main/resources/META-INF/services/com.dianping.pigeon.remoting.http.adapter.HttpAdapter`注入实现类。
