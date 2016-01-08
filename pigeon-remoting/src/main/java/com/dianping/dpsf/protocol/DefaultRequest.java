@@ -76,6 +76,18 @@ public class DefaultRequest implements InvocationRequest {
 	private Map<String, Serializable> requestValues = null;
 
 	public DefaultRequest(String serviceName, String methodName, Object[] parameters, byte serialize, int messageType,
+						  int timeout, int callType, long seq) {
+		this.serviceName = serviceName;
+		this.methodName = methodName;
+		this.parameters = parameters;
+		this.serialize = serialize;
+		this.messageType = messageType;
+		this.timeout = timeout;
+		this.callType = callType;
+		this.seq = seq;
+	}
+
+	public DefaultRequest(String serviceName, String methodName, Object[] parameters, byte serialize, int messageType,
 			int timeout, Class<?>[] parameterClasses) {
 		this.serviceName = serviceName;
 		this.methodName = methodName;
@@ -283,10 +295,6 @@ public class DefaultRequest implements InvocationRequest {
 
 	public void setRequestValues(Map<String, Serializable> requestValues) {
 		this.requestValues = requestValues;
-	}
-
-	public void setParameters(Object[] parameters) {
-		this.parameters = parameters;
 	}
 
 }
