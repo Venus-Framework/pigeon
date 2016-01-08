@@ -45,7 +45,7 @@ public class HttpServerHandler implements HttpHandler {
 		if("true".equalsIgnoreCase(request.getParameter("customize"))) {
 			HttpAdapter httpAdapter = ExtensionLoader.getExtension(HttpAdapter.class);
 			if(httpAdapter != null) {
-				obj = httpAdapter.convert(request);
+				obj = HttpUtils.createDefaultRequest(httpAdapter.convert(request));
 			} else {
 				throw new IllegalArgumentException("Customize httpAdapter not found!");
 			}
