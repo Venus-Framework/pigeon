@@ -205,7 +205,141 @@ Http接口的默认格式必须遵循前面几节介绍的规则，从Pigeon `2.
 
 1、准备工作
 
-要自定义请求数据，需要实现一个`com.dianping.pigeon.remoting.http.adapter.HttpAdapter`接口，
+要自定义请求数据，需要实现一个`com.dianping.pigeon.remoting.http.adapter.HttpAdapter`接口，采用jdk的ServiceLoader方式加载。
 
 将自定义的`javax.servlet.http.HttpServletRequest`对象数据转化为Pigeon支持的`com.dianping.dpsf.protocol.DefaultRequest`对象数据。
 
+2、Demo演示
+
+Demo以`http://192.168.225.173:4080/services`中的`http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0`服务为例。
+
+提供的两个方法接口如下：
+
+    public interface ZkMonitorService {
+
+        public HashMap<String, String> getMap(ArrayList<String> ipList);
+
+        public ArrayList<String> getList(HashMap<String, String> ipMap);
+
+    }
+
+
+以getList方法为例，接受一个HashMap参数，按照Pigeon的传统方法，
+
+必须将数据Post到限定的url地址：http://192.168.225.173:4080/service?serialize=7，请求的数据格式也被限定为：
+
+    {
+        "url":"http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0",
+        "methodName":"getList",
+        "parameters":[
+          ["java.util.HashMap", {"usr":"ccz","sys":"mac","idle":"test"}]
+        ],
+        "callType":1,
+        "messageType":2,
+        "serialize":7,
+        "timeout":1000,
+        "seq":-985
+    }
+
+
+现在我们尝试用HttpAdapter的方式来自定义请求数据：
+
+请求的url地址为`http://192.168.225.173:4080/service?customize=true`的固定格式，
+
+将服务名和方法名参数放在请求url中，如`&url=http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0&method=getList`
+
+拼写完整的url请求地址为：
+
+http://192.168.225.173:4080/service?customize=true&url=http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0&method=getList
+
+将请求的json数据简化为方法参数，如下：
+
+    {
+        "usr": "ccz",
+        "sys": "mac",
+        "idle": "test"
+    }
+
+
+getMap方法也按这样的方式来设计，这里不再赘述。
+
+根据设计思路，在项目的resources资源文件`META-INF/services/`下，新建`com.dianping.pigeon.remoting.http.adapter.HttpAdapter`文件。
+
+注意是`src/main/resources/META-INF/services/`文件夹，而不是webapps下的那个META-INF。
+
+在`com.dianping.pigeon.remoting.http.adapter.HttpAdapter`写入实现类，Demo中为：
+
+    com.dianping.pigeon.remoting.http.adapter.CustomizeHttpAdapter
+
+
+CustomizeHttpAdapter.java文件代码示例：
+
+    public class CustomizeHttpAdapter implements HttpAdapter {
+
+        private static ObjectMapper mapper = new ObjectMapper();
+
+        @Override
+        public DefaultRequest convert(HttpServletRequest request) throws Exception {
+            String url = request.getParameter("url");
+            String method = request.getParameter("method");
+
+            InputStream in = request.getInputStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            StringBuilder sb = new StringBuilder();
+            String str;
+            while ((str = br.readLine()) != null) {
+                sb.append(str);
+            }
+            String info = sb.toString();
+
+            if("http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0".equals(url)) {
+                if("getList".equals(method)) {
+
+                    DefaultRequest defaultRequest = new DefaultRequest();
+                    defaultRequest.setSequence(-985L);
+                    defaultRequest.setServiceName(url);
+                    defaultRequest.setMethodName(method);
+                    defaultRequest.setCallType(1);
+                    defaultRequest.setMessageType(2);
+                    defaultRequest.setSerialize(SerializerFactory.SERIALIZE_JSON);
+                    defaultRequest.setTimeout(1000);
+
+                    //构造参数体
+                    List<Object> parameters = new ArrayList<Object>();
+                    HashMap cpuRatio = mapper.readValue(info, HashMap.class);
+                    parameters.add(cpuRatio);
+                    defaultRequest.setParameters(parameters.toArray());
+
+                    return defaultRequest;
+
+                } else if("getMap".equals(method)) {
+
+                    DefaultRequest defaultRequest = new DefaultRequest();
+                    defaultRequest.setSequence(-985L);
+                    defaultRequest.setServiceName(url);
+                    defaultRequest.setMethodName(method);
+                    defaultRequest.setCallType(1);
+                    defaultRequest.setMessageType(2);
+                    defaultRequest.setSerialize(SerializerFactory.SERIALIZE_JSON);
+                    defaultRequest.setTimeout(1000);
+
+                    //构造参数体
+                    List<Object> parameters = new ArrayList<Object>();
+                    ArrayList usrList = mapper.readValue(info, ArrayList.class);
+                    parameters.add(usrList);
+                    defaultRequest.setParameters(parameters.toArray());
+
+                    return defaultRequest;
+
+                } else {
+                    throw new Exception("method not found: " + method);
+                }
+            } else {
+                throw new Exception("service not found: " + url);
+            }
+
+        }
+    }
+
+
+也就是说通过将一些参数在`CustomizeHttpAdapter`中构造出Pigeon http服务接受的`DefaultRequest`，实现自定义请求数据的需求。
