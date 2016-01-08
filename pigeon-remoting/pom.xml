@@ -71,6 +71,7 @@
 			<artifactId>protostuff-core</artifactId>
 			<groupId>io.protostuff</groupId>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.objenesis</groupId>
 			<artifactId>objenesis</artifactId>

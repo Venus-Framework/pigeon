@@ -7,9 +7,11 @@ package com.dianping.pigeon.demo.annotation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.dianping.pigeon.demo.DealGroupBaseDTO;
 import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.demo.EchoService.Gender;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 import com.google.common.collect.Lists;
 
@@ -61,5 +63,13 @@ public class EchoServiceAnnotationImpl implements EchoService {
 	@Override
 	public DealGroupBaseDTO test(DealGroupBaseDTO dto) {
 		return dto;
+	}
+
+	@Override
+	public String echo(Set<Gender> genders) {
+		for(Gender g : genders) {
+			System.out.println(g);
+		}
+		return genders.toString();
 	}
 }

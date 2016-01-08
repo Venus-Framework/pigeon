@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.exception.DPSFException;
@@ -125,6 +126,14 @@ public class EchoServiceDefaultImpl implements EchoService {
 	@Override
 	public DealGroupBaseDTO test(DealGroupBaseDTO dto) {
 		return dto;
+	}
+
+	@Override
+	public String echo(Set<Gender> genders) {
+		for(Gender g : genders) {
+			System.out.println(g);
+		}
+		return genders.toString();
 	}
 
 }

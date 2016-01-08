@@ -115,7 +115,6 @@ public class InvokeJsonServlet extends ServiceServlet {
 			}
 
 			Object result = null;
-			String currentMessageId = null;
 			if (direct) {
 				try {
 					result = directInvoke(serviceName, methodName, types, values);
@@ -134,7 +133,6 @@ public class InvokeJsonServlet extends ServiceServlet {
 				ContextUtils.putRequestContext("RequestIp", fromIp);
 				try {
 					result = proxyInvoke(serviceName, methodName, types, values, timeout);
-					currentMessageId = (String) ContextUtils.getLocalContext("CurrentMessageId");
 				} catch (InvocationTargetException e) {
 					logger.error("console invoke error", e);
 					if (e.getTargetException() != null) {
@@ -146,16 +144,17 @@ public class InvokeJsonServlet extends ServiceServlet {
 					result = e.toString();
 				}
 			}
-			if (result == null) {
-				return;
-			}
-			String json = jacksonSerializer.serializeObject(result);
+			String currentMessageId = (String) ContextUtils.getLocalContext("CurrentMessageId");
 			if (currentMessageId != null) {
 				Map localContext = ContextUtils.getLocalContext();
 				if (localContext != null && localContext.containsKey("CurrentMessageId")) {
 					response.addHeader("CurrentMessageId", (String) localContext.remove("CurrentMessageId"));
 				}
 			}
+			if (result == null) {
+				return;
+			}
+			String json = jacksonSerializer.serializeObject(result);
 			response.setContentType(getContentType());
 			response.getWriter().write(json);
 		} else {

@@ -7,16 +7,17 @@ package com.dianping.pigeon.remoting.common.codec;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.extension.ExtensionLoader;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.logging.log4j.Logger;
 
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.fst.FstSerializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.Hessian1Serializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
 import com.dianping.pigeon.remoting.common.codec.java.JavaSerializer;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
+import com.dianping.pigeon.remoting.common.codec.protobuf.ProtobufSerializer;
 import com.dianping.pigeon.remoting.common.codec.protostuff.ProtostuffSerializer;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 
@@ -36,6 +37,7 @@ public final class SerializerFactory {
 	public static final byte SERIALIZE_HESSIAN1 = 6;
 	public static final byte SERIALIZE_JSON = 7;
 	public static final byte SERIALIZE_FST = 8;
+	public static final byte SERIALIZE_PROTOBUF = 9;
 
 	public static final String HESSIAN = "hessian";
 	public static final String JAVA = "java";
@@ -43,6 +45,7 @@ public final class SerializerFactory {
 	public static final String JSON = "json";
 	public static final String PROTO = "proto";
 	public static final String FST = "fst";
+	public static final String PROTOBUF = "protobuf";
 
 	private static volatile boolean isInitialized = false;
 
@@ -64,7 +67,8 @@ public final class SerializerFactory {
 					registerSerializer(HESSIAN1, SERIALIZE_HESSIAN1, new Hessian1Serializer());
 					registerSerializer(PROTO, SERIALIZE_PROTO, new ProtostuffSerializer());
 					registerSerializer(FST, SERIALIZE_FST, new FstSerializer());
-
+					registerSerializer(PROTOBUF, SERIALIZE_PROTOBUF, new ProtobufSerializer());
+					
 					boolean supportJackson = true;
 					try {
 						ClassUtils.getClass("com.fasterxml.jackson.databind.ObjectMapper");

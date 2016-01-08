@@ -9,12 +9,15 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public interface EchoService {
 
 	String echo(String msg);
+	
+	String echo(Set<Gender> genders);
 
 	String asyncEcho(String msg);
 
