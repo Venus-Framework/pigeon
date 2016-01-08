@@ -211,7 +211,7 @@ Http接口的默认格式必须遵循前面几节介绍的规则，从Pigeon `2.
 
 要自定义请求数据，需要实现一个`com.dianping.pigeon.remoting.http.adapter.HttpAdapter`接口，采用jdk的ServiceLoader方式加载。
 
-将自定义的`javax.servlet.http.HttpServletRequest`对象数据转化为Pigeon支持的`com.dianping.dpsf.protocol.DefaultRequest`对象数据。
+将自定义的`javax.servlet.http.HttpServletRequest`对象数据转化为`com.dianping.pigeon.remoting.http.adapter.HttpAdapterRequest`对象数据。
 
 2、Demo演示
 
@@ -285,7 +285,7 @@ CustomizeHttpAdapter.java文件代码示例：
         private static ObjectMapper mapper = new ObjectMapper();
 
         @Override
-        public DefaultRequest convert(HttpServletRequest request) throws Exception {
+        public HttpAdapterRequest convert(HttpServletRequest request) throws Exception {
             String url = request.getParameter("url");
             String method = request.getParameter("method");
 
@@ -301,41 +301,37 @@ CustomizeHttpAdapter.java文件代码示例：
             if("http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0".equals(url)) {
                 if("getList".equals(method)) {
 
-                    DefaultRequest defaultRequest = new DefaultRequest();
-                    defaultRequest.setSequence(-985L);
-                    defaultRequest.setServiceName(url);
-                    defaultRequest.setMethodName(method);
-                    defaultRequest.setCallType(1);
-                    defaultRequest.setMessageType(2);
-                    defaultRequest.setSerialize(SerializerFactory.SERIALIZE_JSON);
-                    defaultRequest.setTimeout(1000);
-
                     //构造参数体
                     List<Object> parameters = new ArrayList<Object>();
                     HashMap cpuRatio = mapper.readValue(info, HashMap.class);
                     parameters.add(cpuRatio);
-                    defaultRequest.setParameters(parameters.toArray());
 
-                    return defaultRequest;
+                    return new HttpAdapterRequest(
+                            url,
+                            method,
+                            parameters.toArray(),
+                            1000,
+                            SerializerFactory.SERIALIZE_JSON,
+                            -985L
+                    );
 
                 } else if("getMap".equals(method)) {
-
-                    DefaultRequest defaultRequest = new DefaultRequest();
-                    defaultRequest.setSequence(-985L);
-                    defaultRequest.setServiceName(url);
-                    defaultRequest.setMethodName(method);
-                    defaultRequest.setCallType(1);
-                    defaultRequest.setMessageType(2);
-                    defaultRequest.setSerialize(SerializerFactory.SERIALIZE_JSON);
-                    defaultRequest.setTimeout(1000);
 
                     //构造参数体
                     List<Object> parameters = new ArrayList<Object>();
                     ArrayList usrList = mapper.readValue(info, ArrayList.class);
                     parameters.add(usrList);
-                    defaultRequest.setParameters(parameters.toArray());
 
-                    return defaultRequest;
+                    return new HttpAdapterRequest(
+                            url,
+                            method,
+                            parameters.toArray(),
+                            1000,
+                            SerializerFactory.SERIALIZE_JSON,
+                            -985L,
+                            1,
+                            2
+                    );
 
                 } else {
                     throw new Exception("method not found: " + method);
@@ -350,7 +346,7 @@ CustomizeHttpAdapter.java文件代码示例：
 
 参见Demo文件链接：[CustomizeHttpAdapter.java](http://code.dianpingoa.com/chongze.chen/basicweb/blob/develop/zkmonitor/src/main/java/com/dianping/pigeon/remoting/http/adapter/CustomizeHttpAdapter.java)
 
-也就是说通过将一些参数在`CustomizeHttpAdapter`中构造出Pigeon http服务接受的`DefaultRequest`，实现自定义请求数据的需求。
+也就是说通过将一些参数在`CustomizeHttpAdapter`中构造出`com.dianping.pigeon.remoting.http.adapter.HttpAdapterRequest`，实现自定义请求数据的需求。
 
 #### HttpAdapter集成方法总结
 
