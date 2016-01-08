@@ -24,9 +24,9 @@
 		<jaxb-api.version>2.2.11</jaxb-api.version>
 		<mybatis.version>3.2.4</mybatis.version>
 		<dp.zebra.version>2.7.8</dp.zebra.version>
-		<dp.cat.version>1.3.4</dp.cat.version>
+		<dp.cat.version>1.3.8</dp.cat.version>
 		<dp.cache.version>2.8.0</dp.cache.version>
-		<dp.lion.version>0.5.3</dp.lion.version>
+		<dp.lion.version>0.5.5</dp.lion.version>
 		<webXmlPath>src/main/webapp/WEB-INF/web.xml</webXmlPath>
 		<env>dev</env>
 	</properties>
@@ -209,7 +209,6 @@
 		  <artifactId>xmlsec</artifactId>
 		  <version>1.4.0</version>
 		</dependency>
-		
 	 	<dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
@@ -218,11 +217,19 @@
 		<!-- 公司依赖 -->
 		<dependency>
 			<groupId>com.dianping.cat</groupId>
-			<artifactId>cat-core</artifactId>
+			<artifactId>cat-client</artifactId>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.dianping.lion</groupId>
 			<artifactId>lion-client</artifactId>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.dianping.cat</groupId>
+					<artifactId>cat-client</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
             <groupId>com.dianping</groupId>
@@ -243,6 +250,16 @@
 			<groupId>com.dianping.zebra</groupId>
 			<artifactId>zebra-dao</artifactId>
 			<version>0.1.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.dianping.cat</groupId>
+					<artifactId>cat-client</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.dianping.lion</groupId>
+					<artifactId>lion-client</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.dianping.ba</groupId>
@@ -263,6 +280,10 @@
                 	<groupId>com.dianping.lion</groupId>
                     <artifactId>lion-client</artifactId>
                 </exclusion>
+				<exclusion>
+					<groupId>com.dianping</groupId>
+					<artifactId>avatar-cache</artifactId>
+				</exclusion>
                 <exclusion>
                 	<artifactId>httpcore</artifactId>
                 	<groupId>org.apache.httpcomponents</groupId>
