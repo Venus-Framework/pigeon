@@ -198,3 +198,14 @@ json请求：
 
 http://pigeon.51ping.com/iphub-service/invoke.json?url=com.dianping.iphub.service.IpService&method=reportInfo&parameterTypes=java.lang.String&parameters=wux&parameterTypes=java.util.HashMap&parameters={"today":"no","tomorrow":"yes"}
 
+
+### 自定义请求数据
+
+Http接口的默认格式必须遵循前面几节介绍的规则，从Pigeon `2.7.2-SNAPSHOT`开始，开始支持用户自定义请求数据。
+
+1、准备工作
+
+要自定义请求数据，需要实现一个`com.dianping.pigeon.remoting.http.adapter.HttpAdapter`接口，
+
+将自定义的`javax.servlet.http.HttpServletRequest`对象数据转化为Pigeon支持的`com.dianping.dpsf.protocol.DefaultRequest`对象数据。
+

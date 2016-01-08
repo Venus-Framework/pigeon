@@ -19,6 +19,7 @@
 	</properties>
 	<modules>
 		<module>pigeon-common</module>
+		<module>pigeon-console</module>
 		<module>pigeon-config</module>
 		<module>pigeon-registry</module>
 		<module>pigeon-remoting</module>
@@ -26,7 +27,6 @@
 		<module>pigeon-extensions</module>
 		<module>pigeon-governor</module>
 		<module>pigeon-demo</module>
-		<module>pigeon-console</module>
 		<module>pigeon</module>
 	</modules>
 	<description>pigeon-parent</description>
