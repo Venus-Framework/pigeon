@@ -272,6 +272,8 @@ getMap方法也按这样的方式来设计，这里不再赘述。
     com.dianping.pigeon.remoting.http.adapter.CustomizeHttpAdapter
 
 
+参见Demo文件链接：[com.dianping.pigeon.remoting.http.adapter.HttpAdapter](http://code.dianpingoa.com/chongze.chen/basicweb/blob/develop/zkmonitor/src/main/resources/META-INF/services/com.dianping.pigeon.remoting.http.adapter.HttpAdapter)
+
 CustomizeHttpAdapter.java文件代码示例：
 
     public class CustomizeHttpAdapter implements HttpAdapter {
@@ -341,5 +343,7 @@ CustomizeHttpAdapter.java文件代码示例：
         }
     }
 
+
+参见Demo文件链接：[CustomizeHttpAdapter.java](http://code.dianpingoa.com/chongze.chen/basicweb/blob/develop/zkmonitor/src/main/java/com/dianping/pigeon/remoting/http/adapter/CustomizeHttpAdapter.java)
 
 也就是说通过将一些参数在`CustomizeHttpAdapter`中构造出Pigeon http服务接受的`DefaultRequest`，实现自定义请求数据的需求。
