@@ -17,7 +17,6 @@ import com.dianping.pigeon.remoting.common.codec.hessian.Hessian1Serializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
 import com.dianping.pigeon.remoting.common.codec.java.JavaSerializer;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
-import com.dianping.pigeon.remoting.common.codec.protobuf.ProtobufSerializer;
 import com.dianping.pigeon.remoting.common.codec.protostuff.ProtostuffSerializer;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 
@@ -67,8 +66,7 @@ public final class SerializerFactory {
 					registerSerializer(HESSIAN1, SERIALIZE_HESSIAN1, new Hessian1Serializer());
 					registerSerializer(PROTO, SERIALIZE_PROTO, new ProtostuffSerializer());
 					registerSerializer(FST, SERIALIZE_FST, new FstSerializer());
-					registerSerializer(PROTOBUF, SERIALIZE_PROTOBUF, new ProtobufSerializer());
-					
+
 					boolean supportJackson = true;
 					try {
 						ClassUtils.getClass("com.fasterxml.jackson.databind.ObjectMapper");

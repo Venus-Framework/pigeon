@@ -37,12 +37,6 @@
 			<version>2.6</version>
 		</dependency>
 		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<scope>compile</scope>
-			<!--<optional>true</optional>-->
-		</dependency>
-		<dependency>
 			<groupId>org.mortbay.jetty</groupId>
 			<artifactId>jetty</artifactId>
 			<version>${jetty_version}</version>
