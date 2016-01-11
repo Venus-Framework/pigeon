@@ -144,9 +144,9 @@ public class ProviderAvailableListener implements Runnable {
 				sleepTime = interval - (System.currentTimeMillis() - now);
 				
 				// close register thread pool
-				if (++checkCount > 0) {
+				/*if (++checkCount > 0) {
 					ClientManager.getInstance().closeRegisterThreadPool();
-				}
+				}*/
 			} catch (Throwable e) {
 				logger.info("[provider-available] task failed:", e);
 			} finally {
