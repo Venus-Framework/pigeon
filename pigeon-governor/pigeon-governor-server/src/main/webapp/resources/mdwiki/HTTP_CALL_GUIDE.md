@@ -205,7 +205,7 @@ http://pigeon.51ping.com/iphub-service/invoke.json?url=com.dianping.iphub.servic
 
 ### 自定义请求数据
 
-Http接口的默认格式必须遵循前面几节介绍的规则，从Pigeon `2.7.2`及以上版本开始，开始支持用户自定义请求数据。
+Http接口的默认格式必须遵循前面几节介绍的规则，从Pigeon `2.7.2-SNAPSHOT`开始，开始支持用户自定义请求数据。
 
 1、准备工作
 
