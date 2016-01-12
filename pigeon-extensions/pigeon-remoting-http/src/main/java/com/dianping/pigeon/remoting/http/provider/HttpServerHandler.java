@@ -5,6 +5,7 @@
 package com.dianping.pigeon.remoting.http.provider;
 
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -88,7 +89,11 @@ public class HttpServerHandler implements HttpHandler {
 		try {
 			invocationResponse = server.processRequest(invocationRequest, invocationContext);
 			if (invocationResponse != null) {
-				invocationResponse.get();
+				if(Constants.REPLY_MANUAL) {
+					invocationResponse.get(invocationRequest.getTimeout(), TimeUnit.MILLISECONDS);
+				} else {
+					invocationResponse.get();
+				}
 			}
 		} catch (Throwable e) {
 			if (invocationResponse != null && !invocationResponse.isCancelled()) {

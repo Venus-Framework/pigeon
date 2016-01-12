@@ -11,7 +11,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by chenchongze on 15/12/22.
@@ -33,6 +34,10 @@ public class PigeonProviderHeartBeatCheck implements Runnable {
         client =  registry.getCuratorClient();
     }
 
+    private Map<String, Long> heartBeatsMap = new ConcurrentHashMap<String, Long>();
+
+    private Map<String, Vector<String>> serviceList = new ConcurrentHashMap<String, Vector<String>>();
+
     @Override
     public void run() {
 
@@ -43,7 +48,7 @@ public class PigeonProviderHeartBeatCheck implements Runnable {
                 Long checkInternal = refreshInternal + refreshInternal / 10;
 
                 //检查心跳
-                List<String> heartBeats = client.getChildren("/DP/HEARTBEAT", false);
+
 
 
 
@@ -56,6 +61,17 @@ public class PigeonProviderHeartBeatCheck implements Runnable {
             logger.error("check provider heart task error!", t);
         } finally {
 
+        }
+    }
+
+    private void loadHeartBeats() {
+        try {
+            List<String> heartBeats = client.getChildren("/DP/HEARTBEAT", false);
+            //heartBeatsMap.put(heartBeats)
+
+
+        } catch (Throwable t) {
+            logger.error("refresh heartbeats info error", t);
         }
     }
 

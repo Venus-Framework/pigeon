@@ -1,10 +1,7 @@
 package com.dianping.piegon.governor.test;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import com.dianping.pigeon.governor.bean.ServiceBean;
@@ -23,6 +20,38 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class NormalTest {
+
+	@Test
+	public void testHeartBeat() {
+
+		String test = "1.1.1.1:4040,2.2.2.2:4040,fjdslfjsk,:1:4080,";
+		String validHosts = IPUtils.getValidHosts(test);
+
+		HashMap<String, ArrayList<String>> map = new HashMap<String, ArrayList<String>>();
+		map.put("10.1.1.1",new ArrayList<String>());
+		map.put("10.2.2.2",new ArrayList<String>());
+
+		if(map.containsKey("10.1.1.1")) {
+			//加入service
+			ArrayList<String> list = map.get("10.1.1.1");
+			list.add("service");
+			System.out.println(true);
+		} else {
+			System.out.println(false);
+		}
+
+		HashMap<String, Long> ips = new HashMap<String, Long>();
+		ips.put("10.1.1.1", 0L);
+
+		for(String key : map.keySet()){
+			if(ips.containsKey(key)) {
+				// runnable check hb
+			} else {
+				// nothing
+			}
+		}
+
+	}
 
 	@Test
 	public void testPause() {
