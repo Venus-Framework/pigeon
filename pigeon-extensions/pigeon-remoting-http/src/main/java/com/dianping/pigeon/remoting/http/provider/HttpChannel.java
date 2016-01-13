@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.dianping.pigeon.remoting.common.util.Constants;
 import org.apache.commons.lang.SerializationException;
 
 import com.dianping.pigeon.log.LoggerLoader;
@@ -52,6 +53,12 @@ public class HttpChannel implements ProviderChannel {
 		try {
 			serializer.serializeResponse(response.getOutputStream(), invocationResponse);
 			response.flushBuffer();
+			if (Constants.REPLY_MANUAL) {
+				HttpCallbackFuture httpCallbackFuture = HttpServerHandler.callbacks.get(invocationResponse.getSequence());
+				if(httpCallbackFuture != null) {
+					httpCallbackFuture.run();
+				}
+			}
 		} catch (IOException e) {
 			throw new SerializationException(e);
 		}

@@ -4,8 +4,9 @@
  */
 package com.dianping.pigeon.remoting.http.provider;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +35,8 @@ public class HttpServerHandler implements HttpHandler {
 	protected final Logger logger = LoggerLoader.getLogger(this.getClass());
 
 	private Server server;
+
+	protected static Map<Long, HttpCallbackFuture> callbacks = new ConcurrentHashMap<Long, HttpCallbackFuture>();
 
 	public HttpServerHandler(Server server) {
 		this.server = server;
@@ -87,13 +90,14 @@ public class HttpServerHandler implements HttpHandler {
 				response));
 		Future<InvocationResponse> invocationResponse = null;
 		try {
+			callbacks.put(invocationRequest.getSequence(), new HttpCallbackFuture(invocationRequest));
+
 			invocationResponse = server.processRequest(invocationRequest, invocationContext);
 			if (invocationResponse != null) {
 				if(Constants.REPLY_MANUAL) {
-					invocationResponse.get(invocationRequest.getTimeout(), TimeUnit.MILLISECONDS);
-				} else {
-					invocationResponse.get();
+					callbacks.get(invocationRequest.getSequence()).get(invocationRequest.getTimeout());
 				}
+				invocationResponse.get();
 			}
 		} catch (Throwable e) {
 			if (invocationResponse != null && !invocationResponse.isCancelled()) {
@@ -106,6 +110,8 @@ public class HttpServerHandler implements HttpHandler {
 				invocationContext.getChannel().write(ProviderUtils.createFailResponse(invocationRequest, e));
 				logger.error(msg, e);
 			}
+		} finally {
+			callbacks.remove(invocationRequest.getSequence());
 		}
 	}
 
