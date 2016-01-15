@@ -22,6 +22,42 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class NormalTest {
 
 	@Test
+	public void test(){
+		long internal = 60000L;
+		long start = System.currentTimeMillis();
+		Date date = new Date(1452828953454L);
+		System.out.println(date);
+		long zhong = start - 1452828953454L;
+		System.out.println(zhong);
+		if(zhong > 3* 60000) {
+			System.out.println("delete");
+		}
+	}
+
+	class DealHeartBeat {
+
+		private final String host;
+
+		public DealHeartBeat(String host) {
+			this.host = host;
+		}
+	}
+
+	@Test
+	public void testSplit3() {
+		new DealHeartBeat(null);
+		String aaa = "sss";
+		for(String a : aaa.split(",")) {
+			System.out.println(a);
+		}
+	}
+
+	@Test
+	public void testIp() {
+		System.out.println(IPUtils.getFirstNoLoopbackIP4Address());
+	}
+
+	@Test
 	public void testHeartBeat() {
 
 		String test = "1.1.1.1:4040,2.2.2.2:4040,fjdslfjsk,:1:4080,";
