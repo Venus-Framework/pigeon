@@ -188,6 +188,8 @@ public class PigeonProviderHeartBeatCheck extends Thread {
             try {
                 Vector<String> serviceVec = serviceList.get(host);
                 if(serviceVec != null) {
+                    boolean deleteHeartBeatNode = false;
+
                     for(String service_zk : serviceVec) {
                         String[] hostArr = serverCache.get(service_zk).split(",");
                         HashSet<String> set = new HashSet<String>();
@@ -207,13 +209,8 @@ public class PigeonProviderHeartBeatCheck extends Thread {
                                 } else {
                                     //TODO 创建数据项
                                 }
-                                //TODO 移到外围
-                                //update delete heartBeat nodes
-                                client.deleteIfExists("/DP/HEARTBEAT/" + hosts);
-                                String appname = client.get("/DP/APP/" + hosts, false);
-                                if(StringUtils.isNotBlank(appname)) {
-                                    client.deleteIfExists("/DP/APPNAME/" + appname + "/" + hosts);
-                                }
+
+                                deleteHeartBeatNode = true;
                                 logger.warn("delete " + host + " from " + service_zk);
                                 //TODO 告警服务摘除
                             } else {
@@ -224,6 +221,18 @@ public class PigeonProviderHeartBeatCheck extends Thread {
                             logger.warn(host + " is the only host of " + service_zk);
                         }
                     }
+
+                    if(deleteHeartBeatNode) {
+                        // delete heartBeat nodes
+                        client.deleteIfExists("/DP/HEARTBEAT/" + host);
+                        String appname = client.get("/DP/APP/" + host, false);
+                        if(StringUtils.isNotBlank(appname)) {
+                            client.deleteIfExists("/DP/APPNAME/" + appname + "/" + host);
+                        }
+                    }
+                } else {
+                    // delete heartBeat nodes
+                    client.deleteIfExists("/DP/HEARTBEAT/" + host);
                 }
 
             } catch (Throwable t) {

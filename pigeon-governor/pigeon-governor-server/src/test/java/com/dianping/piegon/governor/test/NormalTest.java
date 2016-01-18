@@ -25,9 +25,9 @@ public class NormalTest {
 	public void test(){
 		long internal = 60000L;
 		long start = System.currentTimeMillis();
-		Date date = new Date(1452828953454L);
+		Date date = new Date(1453104784377L);
 		System.out.println(date);
-		long zhong = start - 1452828953454L;
+		long zhong = start - 1453104784377L;
 		System.out.println(zhong);
 		if(zhong > 3* 60000) {
 			System.out.println("delete");
