@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PigeonProviderHeartBeatCheck extends Thread {
 
-    private Logger logger = LogManager.getLogger();
+    private Logger logger = LogManager.getLogger(PigeonProviderHeartBeatCheck.class);
 
     @Autowired
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;

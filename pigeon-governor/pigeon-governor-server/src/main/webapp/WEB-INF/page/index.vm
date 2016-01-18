@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/datepicker.css" />
     <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ui.jqgrid.css" />
 
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery.gritter.css" />
+
     <!-- text fonts -->
     <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-fonts.css" />
 
@@ -160,6 +162,8 @@
 <script src="${rc.contextPath}/resources/assets/js/jqGrid/i18n/grid.locale-cn.js"></script>
 <script src="${rc.contextPath}/resources/js/bootstrap-typeahead.js"></script>
 
+<script src="${rc.contextPath}/resources/assets/js/jquery.gritter.min.js"></script>
+
 <!-- ace scripts -->
 <script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
 <script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
@@ -167,6 +171,9 @@
 <script>
     var projects = ${projects};
     var services = ${services};
+    /*var serviceId;
+    var serviceName;
+    var projectId;*/
 
     $(function(){
         $('li[id="project_search"]').addClass("active");
@@ -176,7 +183,13 @@
         });
 
         $('#serviceSearch').typeahead({
-            source: services
+            source: services,
+            display: "name",     // 默认的对象属性名称为 name 属性
+            val: "id",           // 默认的标识属性名称为 id 属性
+            itemSelected: function (item, val, text) {      // 当选中一个项目的时候，回调函数
+                /*serviceId = val;
+                serviceName = text;*/
+            }
         });
 
     });
@@ -187,7 +200,32 @@
 
     function gotoService() {
         //TODO 参考http://www.cnblogs.com/haogj/p/3378508.html
-        //window.location = "/services/" + $('#projectSearch').val();
+        //怎么拿到object对象里的另外一个参数
+        //window.location = "/services?service=" + $('#serviceSearch').val();
+
+        var data = { "service" : $('#serviceSearch').val() };
+        $.ajax({
+            url: '/projects.search',
+            type: 'POST',
+            data: data,
+            error: function(){
+                console.log("server error!");
+            },
+            success: function(response, textStatus) {
+                if(response.status == "success") {
+                    window.location = "/services/" + response.result.name;
+                } else {
+                    //console.log(response);
+                    $('#oneClickAdd-modal').modal('hide');
+                    $.gritter.add({
+                        title: response.status,
+                        text: response.message,
+                        class_name: 'gritter-error gritter-center gritter-light'
+                    });
+                }
+
+            }
+        });
     }
 </script>
 
