@@ -22,6 +22,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class NormalTest {
 
 	@Test
+	public void testDef() {
+		TestDef testDef = new TestDef();
+		if(testDef == null || testDef.getBbb() == 0) {
+			System.out.println("null");
+		}
+	}
+
+	class TestDef {
+		public boolean aaa;
+		public int bbb;
+
+		public int getBbb(){
+			return bbb;
+		}
+	}
+
+	@Test
 	public void test(){
 		long internal = 60000L;
 		long start = System.currentTimeMillis();

@@ -200,6 +200,8 @@ public class PigeonProviderHeartBeatCheck extends Thread {
                             if(!isPortAvailable(host)) {
                                 String hosts = StringUtils.join(set, ",");
                                 client.set("/DP/SERVER/" + service_zk, hosts);
+                                //TODO @HTTP@的节点摘不摘？
+
                                 //update database
                                 String serviceName = Utils.unescapeServiceName(service_zk);
                                 Service service = serviceService.getService(serviceName, "");
