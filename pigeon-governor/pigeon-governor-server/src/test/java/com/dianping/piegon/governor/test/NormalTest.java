@@ -22,6 +22,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class NormalTest {
 
 	@Test
+	public void printClass() {
+		Map<String, String> map = new HashMap<String, String>();
+		System.out.println(map.getClass().getCanonicalName());
+	}
+
+	@Test
 	public void testDef() {
 		TestDef testDef = new TestDef();
 		if(testDef == null || testDef.getBbb() == 0) {

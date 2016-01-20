@@ -26,7 +26,7 @@ public class HttpAdapterFactory {
             logger.warn("service " + serviceName + " not exists or not published!");
         }
         httpAdapters.put(serviceName, httpAdapter);
-        logger.info("register httpAdapter: " + httpAdapter.getClass() + " for service: " + serviceName);
+        logger.info("register httpAdapter: " + httpAdapter.getClass().getCanonicalName() + " for service: " + serviceName);
     }
 
     public static void unregisterHttpAdapter(String serviceName) {
