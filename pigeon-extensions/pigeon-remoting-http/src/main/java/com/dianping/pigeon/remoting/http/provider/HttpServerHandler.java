@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.http.adapter.HttpAdapter;
+import com.dianping.pigeon.remoting.http.adapter.HttpAdapterFactory;
 import org.apache.commons.lang.StringUtils;
 
 import com.dianping.pigeon.log.LoggerLoader;
@@ -46,12 +47,25 @@ public class HttpServerHandler implements HttpHandler {
 	public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		long createTime = System.currentTimeMillis();
 		Object obj;
-		if("true".equalsIgnoreCase(request.getParameter("customize"))) {
+		String customize = request.getParameter("customize");
+		if("true".equalsIgnoreCase(customize)) {
 			HttpAdapter httpAdapter = ExtensionLoader.getExtension(HttpAdapter.class);
 			if(httpAdapter != null) {
 				obj = HttpUtils.createDefaultRequest(httpAdapter.convert(request));
 			} else {
-				throw new IllegalArgumentException("Customize httpAdapter not found!");
+				throw new IllegalArgumentException("ServiceLoader httpAdapter not found!");
+			}
+		} else if("service".equalsIgnoreCase(customize)) {
+			String serviceName = request.getParameter("url");
+			if(StringUtils.isNotBlank(serviceName)) {
+				HttpAdapter httpAdapter = HttpAdapterFactory.getHttpAdapters().get(serviceName);
+				if(httpAdapter != null) {
+					obj = HttpUtils.createDefaultRequest(httpAdapter.convert(request));
+				} else {
+					throw new IllegalArgumentException("HttpAdapter not found!");
+				}
+			} else {
+				throw new IllegalArgumentException("serviceName can't be blank!");
 			}
 		} else {
 			String serialize = request.getParameter("serialize");
