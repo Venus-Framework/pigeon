@@ -214,6 +214,7 @@ public class PigeonProviderHeartBeatCheck extends Thread {
 
                                 deleteHeartBeatNode = true;
                                 logger.warn("delete " + host + " from " + service_zk);
+                                //TODO 操作日志
                                 //TODO 告警服务摘除
                             } else {
                                 logger.warn(host + " of " + service_zk + " is still alive");
