@@ -66,18 +66,22 @@ public class HeartBeatCheckTask extends Thread {
             enable = true;
         }
         if(enable) {
-            try {
-                checkAndSyncServiceDB.loadFromDb();
-            } catch (DbException e1) {
-                logger.warn("load from db failed!try again!",e1);
-                try {
-                    checkAndSyncServiceDB.loadFromDb();
-                } catch (DbException e2) {
-                    logger.error("load from db failed!!",e2);
-                }
-            }
+            refreshDb();
             this.start();
             logger.info("PigeonProviderHeartBeatCheck started");
+        }
+    }
+
+    private void refreshDb() {
+        try {
+            checkAndSyncServiceDB.loadFromDb();
+        } catch (DbException e1) {
+            logger.warn("load from db failed!try again!",e1);
+            try {
+                checkAndSyncServiceDB.loadFromDb();
+            } catch (DbException e2) {
+                logger.error("load from db failed!!",e2);
+            }
         }
     }
 
@@ -150,8 +154,9 @@ public class HeartBeatCheckTask extends Thread {
 
         Transaction transaction = Cat.newTransaction("PigeonServiceList", "");
         try {
+            //刷新数据库
+            refreshDb();
             Map<String, Vector<ServiceWithGroup>> tmp_hostIndex = new ConcurrentHashMap<String, Vector<ServiceWithGroup>>();
-
             for (ServiceWithGroup serviceWithGroup : serviceGroupDbIndex.keySet()) {
                 Service serviceDb = serviceGroupDbIndex.get(serviceWithGroup);
                 String hosts = serviceDb.getHosts();
