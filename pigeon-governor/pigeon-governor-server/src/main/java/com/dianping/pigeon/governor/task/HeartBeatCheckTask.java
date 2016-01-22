@@ -66,7 +66,6 @@ public class HeartBeatCheckTask extends Thread {
             enable = true;
         }
         if(enable) {
-            refreshDb();
             this.start();
             logger.info("PigeonProviderHeartBeatCheck started");
         }
