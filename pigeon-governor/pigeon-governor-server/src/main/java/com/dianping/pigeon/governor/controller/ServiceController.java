@@ -247,11 +247,11 @@ public class ServiceController extends BaseController {
 			if(onlineResult != null && onlineResult.startsWith("ok")) {
 				result = Result.createSuccessResult("");
 			} else {
-				result = Result.createErrorResult("服务权重注册失败，建议重试");
+				result = Result.createErrorResult("服务权重注册失败或超时，建议通过" +urlBase+".json检查online项查看结果");
 			}
 
 		} else {
-			result = Result.createErrorResult("http call error or no services found: " + urlBase);
+			result = Result.createErrorResult("发布超时或其他错误，建议刷新页面或通过" + urlBase + ".json检查published项查看结果");
 		}
 
 		return result;

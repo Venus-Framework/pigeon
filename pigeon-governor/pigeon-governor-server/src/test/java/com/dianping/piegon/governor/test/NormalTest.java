@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import com.dianping.pigeon.governor.bean.ServiceBean;
+import com.dianping.pigeon.governor.bean.ServiceWithGroup;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.util.IPUtils;
@@ -20,6 +21,43 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class NormalTest {
+
+	@Test
+	public void testList() {
+		String[] aaa = "".split(",");
+		System.out.println(aaa.length);
+		System.out.println(aaa[0]);
+	}
+
+	@Test
+	public void testOverride() {
+		ServiceWithGroup sg1 = new ServiceWithGroup("service",null);
+		ServiceWithGroup sg2 = new ServiceWithGroup("service","ccz");
+		System.out.println(sg1.equals(sg2));
+		System.out.println(sg1.hashCode());
+		System.out.println(sg2.hashCode());
+		System.out.println(sg1);
+		System.out.println(sg2);
+
+		Set<ServiceWithGroup> serviceWithGroupSet = new HashSet<ServiceWithGroup>();
+		serviceWithGroupSet.add(sg1);
+		serviceWithGroupSet.add(sg2);
+		System.out.println(serviceWithGroupSet);
+
+	}
+
+	@Test
+	public void testHashSet() {
+		String t1 = "1.1.1.1,2.2.2.2,1.1.1.1,";
+		String t2 = "";
+		Set<String> set1 = new HashSet<String>(Arrays.asList(t1.split(",")));
+		Set<String> set2 = new HashSet<String>(Arrays.asList(t2.split(",")));
+		String r1 = StringUtils.join(set1,",");
+		String r2 = StringUtils.join(set2,",");
+		System.out.println(r1);
+		System.out.println(r2);
+		System.out.println(r1.equals(r2));
+	}
 
 	@Test
 	public void printClass() {
@@ -69,10 +107,16 @@ public class NormalTest {
 	@Test
 	public void testSplit3() {
 		new DealHeartBeat(null);
-		String aaa = "sss";
-		for(String a : aaa.split(",")) {
+		String aaa = "423:22:332:4040";
+		String[] tmp = aaa.split(":");
+		System.out.println(tmp.length);
+		int idx = aaa.lastIndexOf(":");
+		System.out.println(idx);
+		System.out.println(aaa.substring(0, idx));
+		System.out.println(aaa.substring(idx + 1));
+		/*for(String a : aaa.split(",")) {
 			System.out.println(a);
-		}
+		}*/
 	}
 
 	@Test

@@ -136,8 +136,8 @@ public class PigeonProviderHeartBeatCheck extends Thread {
 
         Transaction transaction = Cat.newTransaction("PigeonServiceList", "");
         try {
-            Map<String, Vector<String>> tmp_serviceList = new HashMap<String, Vector<String>>();
-            Map<String, String> tmp_serverCache = new HashMap<String, String>();
+            Map<String, Vector<String>> tmp_serviceList = new ConcurrentHashMap<String, Vector<String>>();
+            Map<String, String> tmp_serverCache = new ConcurrentHashMap<String, String>();
 
             List<String> services = client.getChildren("/DP/SERVER", false);
             for (String service_zk : services) {
@@ -248,19 +248,19 @@ public class PigeonProviderHeartBeatCheck extends Thread {
     }
 
     private boolean isPortAvailable(String host) {
-        String[] tmp = host.split(":");
-        if(tmp.length != 2) {
+        int idx = host.lastIndexOf(":");
+        if(idx == -1) {
             return false;
         }
 
         int port;
         try {
-            port = Integer.parseInt(tmp[1]);
+            port = Integer.parseInt(host.substring(idx + 1));
         } catch (NumberFormatException e) {
             logger.warn("port error: " + host, e);
             return false;
         }
-        String ip = tmp[0];
+        String ip = host.substring(0, idx);
 
         Socket socket = null;
         try {
@@ -270,6 +270,7 @@ public class PigeonProviderHeartBeatCheck extends Thread {
             socket.connect(sa, 2000);
             return socket.isConnected();
         } catch (IOException e) {
+            logger.warn(host + " socket read failed!", e);
             return false;
         } finally {
             if (socket != null) {
