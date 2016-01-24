@@ -2,6 +2,7 @@ package com.dianping.piegon.governor.test;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import com.dianping.pigeon.governor.bean.ServiceBean;
@@ -21,6 +22,22 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class NormalTest {
+
+	@Test
+	public void testHash() {
+		Map<String, Vector<ServiceWithGroup>> hostIndex = new ConcurrentHashMap<String, Vector<ServiceWithGroup>>();
+		Map<ServiceWithGroup, Service> serviceGroupDbIndex = new ConcurrentHashMap<ServiceWithGroup, Service>();
+		Map<ServiceWithGroup, Service> serviceGroupZkIndex = new ConcurrentHashMap<ServiceWithGroup, Service>();
+
+		serviceGroupDbIndex.put(new ServiceWithGroup("service1","ccz1"), new Service());
+		serviceGroupZkIndex.put(new ServiceWithGroup("service1","ccz1"), new Service());
+
+		for(ServiceWithGroup serviceWithGroup : serviceGroupZkIndex.keySet()) {
+			if(serviceGroupDbIndex.containsKey(serviceWithGroup)){
+				System.out.println(serviceWithGroup);
+			}
+		}
+	}
 
 	@Test
 	public void testList() {

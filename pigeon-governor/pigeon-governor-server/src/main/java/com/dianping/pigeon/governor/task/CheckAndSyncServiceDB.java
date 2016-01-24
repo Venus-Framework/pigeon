@@ -38,15 +38,15 @@ public class CheckAndSyncServiceDB {
 
     private CuratorClient client;
 
-    private static Map<ServiceWithGroup, Service> serviceGroupDbIndex = new ConcurrentHashMap<ServiceWithGroup, Service>();
-    private static Map<ServiceWithGroup, Service> serviceGroupZkIndex = new ConcurrentHashMap<ServiceWithGroup, Service>();
+    private Map<ServiceWithGroup, Service> serviceGroupDbIndex = new ConcurrentHashMap<ServiceWithGroup, Service>();
+    private Map<ServiceWithGroup, Service> serviceGroupZkIndex = new ConcurrentHashMap<ServiceWithGroup, Service>();
 
     public CheckAndSyncServiceDB() {
         CuratorRegistry registry = (CuratorRegistry) RegistryManager.getInstance().getRegistry();
         client =  registry.getCuratorClient();
     }
 
-    public static Map<ServiceWithGroup, Service> getServiceGroupDbIndex() {
+    public Map<ServiceWithGroup, Service> getServiceGroupDbIndex() {
         return serviceGroupDbIndex;
     }
 

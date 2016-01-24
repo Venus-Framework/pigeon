@@ -46,7 +46,7 @@ public class HeartBeatCheckTask extends Thread {
     private volatile static String isCheckEnable = Lion.get("pigeon.heartbeat.enable", "false");
 
     private Map<String, Long> heartBeatsMap = new ConcurrentHashMap<String, Long>();
-    private Map<ServiceWithGroup, Service> serviceGroupDbIndex = CheckAndSyncServiceDB.getServiceGroupDbIndex();
+    private Map<ServiceWithGroup, Service> serviceGroupDbIndex = checkAndSyncServiceDB.getServiceGroupDbIndex();
     private Map<String, Vector<ServiceWithGroup>> hostIndex = new ConcurrentHashMap<String, Vector<ServiceWithGroup>>();
 
     public HeartBeatCheckTask() {
@@ -82,6 +82,8 @@ public class HeartBeatCheckTask extends Thread {
                 logger.error("load from db failed!!",e2);
             }
         }
+
+        serviceGroupDbIndex = checkAndSyncServiceDB.getServiceGroupDbIndex();
     }
 
     @Override
@@ -156,7 +158,7 @@ public class HeartBeatCheckTask extends Thread {
             //刷新数据库
             refreshDb();
             Map<String, Vector<ServiceWithGroup>> tmp_hostIndex = new ConcurrentHashMap<String, Vector<ServiceWithGroup>>();
-            for (ServiceWithGroup serviceWithGroup : serviceGroupDbIndex.keySet()) {
+            for (ServiceWithGroup serviceWithGroup : serviceGroupDbIndex.keySet()) {// TODO 怀疑这里根本没有拿到serviceGroupDbIndex
                 Service serviceDb = serviceGroupDbIndex.get(serviceWithGroup);
                 String hosts = serviceDb.getHosts();
                 if(StringUtils.isNotBlank(hosts)) {
@@ -198,7 +200,7 @@ public class HeartBeatCheckTask extends Thread {
         public void run() {
             try {
                 Vector<ServiceWithGroup> serviceWithGroupVec = hostIndex.get(host);
-                if(serviceWithGroupVec != null) {
+                if(serviceWithGroupVec != null) { //TODO bugs 这里会出现null
                     boolean deleteHeartBeatNode = false;
 
                     for(ServiceWithGroup serviceWithGroup : serviceWithGroupVec) {
@@ -242,7 +244,9 @@ public class HeartBeatCheckTask extends Thread {
                     }
                 } else {
                     // delete heartBeat nodes
-                    client.deleteIfExists("/DP/HEARTBEAT/" + host);
+                    // TODO logs 存在一种情况，数据库中漏了，如果删了，心跳服务检测不到了，要么别删了，留着
+                    logger.warn("lonely heartbeat node: " + host + ", but maybe is a mistake!");
+                    //client.deleteIfExists("/DP/HEARTBEAT/" + host);
                 }
 
             } catch (Throwable t) {
