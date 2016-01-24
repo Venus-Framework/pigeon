@@ -107,7 +107,7 @@
 		lazy-init="false" init-method="init">
 	</bean>
 
-	<bean id="pigeonProviderHeartBeatCheck"
+	<bean id="heartBeatCheckTask"
 		  class="com.dianping.pigeon.governor.task.HeartBeatCheckTask"
 		  init-method="init" />
 

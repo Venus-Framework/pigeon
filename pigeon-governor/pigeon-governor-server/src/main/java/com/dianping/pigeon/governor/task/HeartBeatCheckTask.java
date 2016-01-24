@@ -46,7 +46,7 @@ public class HeartBeatCheckTask extends Thread {
     private volatile static String isCheckEnable = Lion.get("pigeon.heartbeat.enable", "false");
 
     private Map<String, Long> heartBeatsMap = new ConcurrentHashMap<String, Long>();
-    private Map<ServiceWithGroup, Service> serviceGroupDbIndex = checkAndSyncServiceDB.getServiceGroupDbIndex();
+    private Map<ServiceWithGroup, Service> serviceGroupDbIndex = CheckAndSyncServiceDB.getServiceGroupDbIndex();
     private Map<String, Vector<ServiceWithGroup>> hostIndex = new ConcurrentHashMap<String, Vector<ServiceWithGroup>>();
 
     public HeartBeatCheckTask() {
@@ -83,7 +83,7 @@ public class HeartBeatCheckTask extends Thread {
             }
         }
 
-        serviceGroupDbIndex = checkAndSyncServiceDB.getServiceGroupDbIndex();
+        serviceGroupDbIndex = CheckAndSyncServiceDB.getServiceGroupDbIndex();
     }
 
     @Override
