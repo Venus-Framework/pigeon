@@ -102,6 +102,7 @@ public class CheckAndSyncServiceDB {
                     if(!hostsZk.equalsIgnoreCase(serviceDb.getHosts())) {
                         serviceDb.setHosts(hostsZk);
                         serviceService.updateById(serviceDb);
+                        logger.info("update exists db serviceCache: " + serviceWithGroup + " with hosts: " + hostsZk);
                     }
                 } else {
                     Service serviceDb = serviceService.getService(serviceWithGroup.getService(), serviceWithGroup.getGroup());
@@ -109,6 +110,7 @@ public class CheckAndSyncServiceDB {
                         if(!hostsZk.equalsIgnoreCase(serviceDb.getHosts())) {
                             serviceDb.setHosts(hostsZk);
                             serviceService.updateById(serviceDb);
+                            logger.info("update exists db service: " + serviceWithGroup + " with hosts: " + hostsZk);
                         }
                         serviceGroupDbIndex.put(serviceWithGroup, serviceDb);
                     } else { // 数据库查不到，创建新service
@@ -135,6 +137,7 @@ public class CheckAndSyncServiceDB {
                         }
                         serviceZk.setProjectid(project.getId());
                         serviceService.create(serviceZk);
+                        logger.info("create db service: " + serviceWithGroup + " with hosts: " + hostsZk + " with project: " + app);
                     }
                 }
             } catch (Throwable t) {

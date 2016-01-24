@@ -14,4 +14,8 @@ public class CommonUtils {
     public static String normalizeHosts(String hosts) {
         return StringUtils.join(new HashSet<String>(Arrays.asList(hosts.split(","))), ",");
     }
+
+    public static void main(String[] args) {
+        System.out.println(normalizeHosts("1.1.1.1,2.2.2.2,1.1.1.1,"));
+    }
 }
