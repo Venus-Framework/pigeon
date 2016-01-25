@@ -221,6 +221,25 @@ Http接口的默认格式必须遵循前面几节介绍的规则，从Pigeon `2.
 
 其中key值为服务名字，不可以填错，否则会找不到自定义的HttpAdapter。
 
+http请求的url参数规则如下：
+
+请求的url路由地址为`http://192.168.225.173:4080/service?customize=service&url=http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0`
+
+除了以上的url必填参数外，还可以在url中继续追加参数，如：`&method=getList`
+
+拼写完整的url请求地址为：
+
+http://192.168.225.173:4080/service?customize=service&url=http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0&method=getList
+
+将请求的json数据简化为方法参数，如下：
+
+    {
+        "usr": "ccz",
+        "sys": "mac",
+        "idle": "test"
+    }
+
+
 CustomizeServiceHttpAdapter.java文件代码示例：
 
     public class CustomizeServiceHttpAdapter implements HttpAdapter {
@@ -281,26 +300,7 @@ CustomizeServiceHttpAdapter.java文件代码示例：
         }
     }
 
-http请求的url参数规则如下：
-
-请求的url路由地址为`http://192.168.225.173:4080/service?customize=service&url=http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0`
-
-除了以上的url必填参数外，还可以在url中继续追加参数，如：`&method=getList`
-
-拼写完整的url请求地址为：
-
-http://192.168.225.173:4080/service?customize=service&url=http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0&method=getList
-
-将请求的json数据简化为方法参数，如下：
-
-    {
-        "usr": "ccz",
-        "sys": "mac",
-        "idle": "test"
-    }
-
-
-最后拿到返回结果。
+推荐使用以上方法，进行服务级别的http接口定制。
 
 ### 自定义请求数据(全局级别，不推荐)
 
