@@ -10,6 +10,7 @@ import com.dianping.pigeon.governor.bean.ServiceWithGroup;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.util.IPUtils;
+import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
@@ -22,6 +23,19 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class NormalTest {
+
+	@Test
+	public void testJson() {
+		Map<Integer, List<Integer>> map = new HashMap<Integer, List<Integer>>();
+		List<Integer> list = new ArrayList<Integer>();
+		list.add(200023756);
+		list.add(200023715);
+		list.add(200023711);
+		map.put(10655809, list);
+		JacksonSerializer serializer = new JacksonSerializer();
+		String str = serializer.serializeObject(map);
+		System.out.println(str);
+	}
 
 	@Test
 	public void testHash() {

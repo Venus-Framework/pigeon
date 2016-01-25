@@ -18,9 +18,9 @@
 
 [2、GET method](#toc_7)
 
-[自定义请求数据](#toc_8)
+[自定义请求数据(服务级别，推荐)](#toc_8)
 
-[HttpAdapter集成方法总结](#toc_9)
+[自定义请求数据(全局级别，不推荐)](#toc_9)
 
 ## pigeon http协议支持 + slb负载均衡
 _______
@@ -202,8 +202,108 @@ json请求：
 
 http://pigeon.51ping.com/iphub-service/invoke.json?url=com.dianping.iphub.service.IpService&method=reportInfo&parameterTypes=java.lang.String&parameters=wux&parameterTypes=java.util.HashMap&parameters={"today":"no","tomorrow":"yes"}
 
+### 自定义请求数据(支持到服务级别，推荐)
 
-### 自定义请求数据
+Http接口的默认格式必须遵循前面几节介绍的规则，从Pigeon `2.7.4`及以上版本开始，开始支持用户自定义请求数据(服务级别)。
+
+1、使用示例
+
+以`http://192.168.225.173:4080/services`中的`http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0`服务为例。
+
+要自定义请求数据，需要实现一个`com.dianping.pigeon.remoting.http.adapter.HttpAdapter`接口。
+
+将自定义的`javax.servlet.http.HttpServletRequest`对象数据转化为`com.dianping.pigeon.remoting.http.adapter.HttpAdapterRequest`对象数据。
+
+然后在http服务被调用之前注册到pigeon中，例如：
+
+    HttpAdapterFactory.registerHttpAdapter("http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0", new CustomizeServiceHttpAdapter());
+
+
+其中key值为服务名字，不可以填错，否则会找不到自定义的HttpAdapter。
+
+CustomizeServiceHttpAdapter.java文件代码示例：
+
+    public class CustomizeServiceHttpAdapter implements HttpAdapter {
+
+        private static ObjectMapper mapper = new ObjectMapper();
+
+        @Override
+        public HttpAdapterRequest convert(HttpServletRequest request) throws Exception {
+            String url = request.getParameter("url");
+            String method = request.getParameter("method");
+
+            InputStream in = request.getInputStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            StringBuilder sb = new StringBuilder();
+            String str;
+            while ((str = br.readLine()) != null) {
+                sb.append(str);
+            }
+            String info = sb.toString();
+
+            if("getList".equals(method)) {
+
+                //构造参数体
+                List<Object> parameters = new ArrayList<Object>();
+                HashMap cpuRatio = mapper.readValue(info, HashMap.class);
+                parameters.add(cpuRatio);
+
+                return new HttpAdapterRequest(
+                        url,
+                        method,
+                        parameters.toArray(),
+                        1000,
+                        SerializerFactory.SERIALIZE_JSON,
+                        -985L
+                );
+
+            } else if("getMap".equals(method)) {
+
+                //构造参数体
+                List<Object> parameters = new ArrayList<Object>();
+                ArrayList usrList = mapper.readValue(info, ArrayList.class);
+                parameters.add(usrList);
+
+                return new HttpAdapterRequest(
+                        url,
+                        method,
+                        parameters.toArray(),
+                        1000,
+                        SerializerFactory.SERIALIZE_JSON,
+                        -985L,
+                        1,
+                        2
+                );
+
+            } else {
+                throw new Exception("method not found: " + method);
+            }
+
+        }
+    }
+
+http请求的url参数规则如下：
+
+请求的url路由地址为`http://192.168.225.173:4080/service?customize=service&url=http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0`
+
+除了以上的url必填参数外，还可以在url中继续追加参数，如：`&method=getList`
+
+拼写完整的url请求地址为：
+
+http://192.168.225.173:4080/service?customize=service&url=http://service.dianping.com/arch/zkmonitor/service/GetMapOrListService_1.0.0&method=getList
+
+将请求的json数据简化为方法参数，如下：
+
+    {
+        "usr": "ccz",
+        "sys": "mac",
+        "idle": "test"
+    }
+
+
+最后拿到返回结果。
+
+### 自定义请求数据(全局级别，不推荐)
 
 Http接口的默认格式必须遵循前面几节介绍的规则，从Pigeon `2.7.2`及以上版本开始，开始支持用户自定义请求数据。
 
@@ -347,9 +447,3 @@ CustomizeHttpAdapter.java文件代码示例：
 参见Demo文件链接：[CustomizeHttpAdapter.java](http://code.dianpingoa.com/chongze.chen/basicweb/blob/develop/zkmonitor/src/main/java/com/dianping/pigeon/remoting/http/adapter/CustomizeHttpAdapter.java)
 
 也就是说通过将一些参数在`CustomizeHttpAdapter`中构造出`com.dianping.pigeon.remoting.http.adapter.HttpAdapterRequest`，实现自定义请求数据的需求。
-
-#### HttpAdapter集成方法总结
-
-a) 编写java实现类`com.dianping.pigeon.remoting.http.adapter.XXXHttpAdapter`。
-
-b) 在项目的资源文件`src/main/resources/META-INF/services/com.dianping.pigeon.remoting.http.adapter.HttpAdapter`注入实现类。
