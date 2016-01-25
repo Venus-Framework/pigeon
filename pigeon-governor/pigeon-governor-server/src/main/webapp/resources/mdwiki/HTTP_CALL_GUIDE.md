@@ -229,7 +229,6 @@ CustomizeServiceHttpAdapter.java文件代码示例：
 
         @Override
         public HttpAdapterRequest convert(HttpServletRequest request) throws Exception {
-            String url = request.getParameter("url");
             String method = request.getParameter("method");
 
             InputStream in = request.getInputStream();
