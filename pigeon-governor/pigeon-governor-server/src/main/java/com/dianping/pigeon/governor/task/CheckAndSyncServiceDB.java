@@ -67,7 +67,7 @@ public class CheckAndSyncServiceDB {
         }
     }
 
-    private void checkAndSyncDB() {
+    public void checkAndSyncDB() {
         Transaction transaction = Cat.newTransaction("checkAndSyncDB", "");
         try {
             // load from db, db异常就用之前的db缓存
@@ -129,7 +129,7 @@ public class CheckAndSyncServiceDB {
                         }
                         if(StringUtils.isBlank(app)) {
                             logger.warn("No exists appname for service: " + serviceZk.getName() + " in group: " + serviceZk.getGroup());
-                            break;
+                            continue;
                         }
                         Project project = projectService.findProject(app);
                         if(project == null) {
