@@ -115,13 +115,13 @@ public class NormalTest {
 
 	@Test
 	public void test(){
-		long internal = 60000L;
 		long start = System.currentTimeMillis();
-		Date date = new Date(1453104784377L);
+		long time = 1453860622893L;
+		Date date = new Date(time);
 		System.out.println(date);
-		long zhong = start - 1453104784377L;
-		System.out.println(zhong);
-		if(zhong > 3* 60000) {
+		long internal = start - time;
+		System.out.println(internal + "ms");
+		if(internal > 3* 60000) {
 			System.out.println("delete");
 		}
 	}

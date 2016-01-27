@@ -112,7 +112,7 @@
 		  init-method="init" />
 
 	<task:scheduled-tasks>
-		<task:scheduled ref="checkAndSyncServiceDB" method="schedule" cron="0 0 0/4 * * ?"/>
+		<task:scheduled ref="checkAndSyncServiceDB" method="schedule" cron="0 0 0/8 * * ?"/>
 	</task:scheduled-tasks>
 	<bean id="checkAndSyncServiceDB"
 		  class="com.dianping.pigeon.governor.task.CheckAndSyncServiceDB" />

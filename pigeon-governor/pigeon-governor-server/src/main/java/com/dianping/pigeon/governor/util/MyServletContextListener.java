@@ -33,8 +33,8 @@ public class MyServletContextListener implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent sce) {
 		logger.info("----------- 启动环境 ------------");
 
-		customTaskInit(sce.getServletContext());
 		//临时
+		//customTaskInit(sce.getServletContext());
 		//initWeight(sce.getServletContext());
 
 	}
@@ -49,7 +49,7 @@ public class MyServletContextListener implements ServletContextListener {
 			return;
 		}
 
-		if (NetUtils.getFirstLocalIp().equals(server)) {
+		if (IPUtils.getFirstNoLoopbackIP4Address().equals(server)) {
 			enable = true;
 		}
 

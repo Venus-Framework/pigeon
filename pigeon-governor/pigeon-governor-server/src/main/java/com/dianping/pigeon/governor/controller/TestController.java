@@ -3,6 +3,9 @@ package com.dianping.pigeon.governor.controller;
 import com.dianping.pigeon.governor.bean.Result;
 import com.dianping.pigeon.governor.task.CheckAndSyncServiceDB;
 import com.dianping.pigeon.governor.util.IPUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
@@ -21,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/test")
 public class TestController {
 
+    private Logger logger = LogManager.getLogger();
     @Autowired
     private CheckAndSyncServiceDB checkAndSyncServiceDB;
     @Autowired
@@ -28,7 +32,7 @@ public class TestController {
 
     @RequestMapping(value = {"/syncdb"}, method = {RequestMethod.POST})
     @ResponseBody
-    public Result oneClickAdd(@RequestParam(value="validate") final String validate,
+    public Result syncdb(@RequestParam(value="validate") final String validate,
                               HttpServletRequest request, HttpServletResponse response) {
         if(IPUtils.getFirstNoLoopbackIP4Address().equalsIgnoreCase(validate)) {
             threadPoolTaskExecutor.execute(new Runnable() {
@@ -42,5 +46,18 @@ public class TestController {
             return Result.createErrorResult("failed to validate...");
         }
 
+    }
+
+    @RequestMapping(value = {"/loglevel"}, method = {RequestMethod.GET})
+    @ResponseBody
+    public Result loglevel(HttpServletRequest request, HttpServletResponse response) {
+        logger.trace("trace");
+        logger.debug("debug");
+        logger.info("info");
+        logger.warn("warn");
+        logger.error("error");
+        logger.fatal("fatal");
+
+        return Result.createSuccessResult("success!");
     }
 }
