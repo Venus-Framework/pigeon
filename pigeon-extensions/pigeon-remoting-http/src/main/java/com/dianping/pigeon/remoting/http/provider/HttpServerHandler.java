@@ -104,7 +104,7 @@ public class HttpServerHandler implements HttpHandler {
 				response));
 		Future<InvocationResponse> invocationResponse = null;
 		try {
-			callbacks.put(invocationRequest.getSequence(), new HttpCallbackFuture(invocationRequest));
+			callbacks.put(invocationRequest.getSequence(), new HttpCallbackFuture(invocationRequest, invocationContext));
 
 			invocationResponse = server.processRequest(invocationRequest, invocationContext);
 			if (invocationResponse != null) {

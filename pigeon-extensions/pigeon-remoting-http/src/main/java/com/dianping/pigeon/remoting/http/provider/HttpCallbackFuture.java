@@ -1,11 +1,15 @@
 package com.dianping.pigeon.remoting.http.provider;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.callback.CallFuture;
 import com.dianping.pigeon.remoting.invoker.callback.Callback;
+import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.TimeUnit;
 
@@ -14,12 +18,16 @@ import java.util.concurrent.TimeUnit;
  */
 public class HttpCallbackFuture implements Callback, CallFuture {
 
+    protected final Logger logger = LoggerLoader.getLogger(this.getClass());
+
     protected InvocationRequest request;
+    protected ProviderContext invocationContext;
     protected InvocationResponse response;
     private boolean done = false;
 
-    public HttpCallbackFuture(InvocationRequest request) {
+    public HttpCallbackFuture(InvocationRequest request, ProviderContext invocationContext) {
         this.request = request;
+        this.invocationContext = invocationContext;
     }
 
     @Override
@@ -41,7 +49,8 @@ public class HttpCallbackFuture implements Callback, CallFuture {
                     sb.append("request timeout, current time:").append(System.currentTimeMillis())
                             .append("\r\nrequest:").append(request);
                     NetTimeoutException e = new NetTimeoutException("invoke timeout");
-                    throw e;
+                    invocationContext.getChannel().write(ProviderUtils.createFailResponse(request, e));
+                    logger.warn(sb.toString(), e);
                 } else {
                     this.wait(timeoutMillis_);
                 }
