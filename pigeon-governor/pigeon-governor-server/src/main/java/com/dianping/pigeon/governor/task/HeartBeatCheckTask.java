@@ -204,19 +204,28 @@ public class HeartBeatCheckTask extends Thread {
                     boolean deleteHeartBeatNode = false;
 
                     for(ServiceWithGroup serviceWithGroup : serviceWithGroupVec) {
+                        String serviceName = serviceWithGroup.getService();
+                        String service_zk = Utils.escapeServiceName(serviceName);
                         Service service = serviceGroupDbIndex.get(serviceWithGroup);
-                        String[] hostArr = service.getHosts().split(",");
-                        HashSet<String> set = new HashSet<String>();
-                        set.addAll(Arrays.asList(hostArr));
-                        set.remove(host);
-                        // 服务只剩一个host不摘除
-                        if (set.size() > 0) {
-                            if(!isPortAvailable(host)) {
-                                String hosts = StringUtils.join(set, ",");
-                                String serviceName = serviceWithGroup.getService();
-                                String service_zk = Utils.escapeServiceName(serviceName);
-                                client.set("/DP/SERVER/" + service_zk, hosts);
 
+                        // 服务只剩一个host不摘除
+                        if(!isPortAvailable(host)) {
+                            /* 这里拉数据库的话可能导致缓存的数据和zk不一致，
+                            直接更新zk导致有的host没写上去，所以注释掉，直接拉zk */
+                            /*String[] hostArr = service.getHosts().split(",");*/
+                            String hosts_zk = client.get("/DP/SERVER/" + service_zk, false);
+                            if(hosts_zk == null) {
+                                logger.warn("no node exists in zk: " + service_zk);
+                                return;
+                            }
+                            String[] hostArr = hosts_zk.split(",");
+                            HashSet<String> set = new HashSet<String>();
+                            set.addAll(Arrays.asList(hostArr));
+                            set.remove(host);
+
+                            if (set.size() > 0) {
+                                String hosts = StringUtils.join(set, ",");
+                                client.set("/DP/SERVER/" + service_zk, hosts);
                                 //update database
                                 service.setHosts(hosts);
                                 serviceService.updateById(service);
@@ -226,11 +235,11 @@ public class HeartBeatCheckTask extends Thread {
                                 //TODO 操作日志
                                 //TODO 告警服务摘除
                             } else {
-                                logger.warn(host + " of " + serviceWithGroup + " is still alive");
-                                //TODO 告警心跳异常（即端口可通，心跳很久未更新）
+                                logger.warn(host + " is the only host of " + serviceWithGroup);
                             }
                         } else {
-                            logger.warn(host + " is the only host of " + serviceWithGroup);
+                            logger.warn(host + " of " + serviceWithGroup + " is still alive");
+                            //TODO 告警心跳异常（即端口可通，心跳很久未更新）
                         }
                     }
 
