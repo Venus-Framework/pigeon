@@ -15,7 +15,7 @@
 		</RollingFile>
 		<RollingFile name="TaskFile"
 					 fileName="/data/applogs/pigeon-governor-server/task.log"
-					 filePattern="/data/applogs/pigeon-governor-server/debug.log.%d{yyyy-MM-dd}.gz">
+					 filePattern="/data/applogs/pigeon-governor-server/task.log.%d{yyyy-MM-dd}.gz">
 			<PatternLayout
 					pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %class{36} %L %M - %msg%xEx%n" />
 			<TimeBasedTriggeringPolicy interval="1"
@@ -23,7 +23,7 @@
 		</RollingFile>
 		<RollingFile name="ErrorFile"
 					 fileName="/data/applogs/pigeon-governor-server/error.log"
-					 filePattern="/data/applogs/pigeon-governor-server/debug.log.%d{yyyy-MM-dd}.gz">
+					 filePattern="/data/applogs/pigeon-governor-server/error.log.%d{yyyy-MM-dd}.gz">
 			<PatternLayout
 					pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %class{36} %L %M - %msg%xEx%n" />
 			<TimeBasedTriggeringPolicy interval="1"
