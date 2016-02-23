@@ -17,6 +17,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 
+import com.dianping.pigeon.remoting.invoker.region.RegionManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -50,6 +51,8 @@ import com.dianping.pigeon.util.ThreadPoolUtils;
 public class ClientManager {
 
 	private static final Logger logger = LoggerLoader.getLogger(ClientManager.class);
+
+	private RegionManager regionManager = RegionManager.getInstance();
 
 	private ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
@@ -103,10 +106,6 @@ public class ClientManager {
 		return instance;
 	}
 
-	/**
-	 * 
-	 * @param invocationRepository
-	 */
 	private ClientManager() {
 		this.heartBeatTask = new HeartBeatListener();
 		this.reconnectTask = new ReconnectListener();
@@ -200,6 +199,10 @@ public class ClientManager {
 			localHost = configManager.getLocalIp() + vip.substring(vip.indexOf(":"));
 		}
 		String serviceAddress = getServiceAddress(serviceName, group, vip);
+		//TODO getCurrentHosts
+		if(configManager.getBooleanValue("pigeon.regions.enable", false)) {
+			serviceAddress = regionManager.getLocalRegionHosts(serviceAddress);
+		}
 		String[] addressArray = serviceAddress.split(",");
 		Set<HostInfo> addresses = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo, Boolean>());
 		for (int i = 0; i < addressArray.length; i++) {

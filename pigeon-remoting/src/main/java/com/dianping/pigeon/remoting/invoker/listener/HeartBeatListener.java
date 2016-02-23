@@ -261,6 +261,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			HeartBeatStat heartStat = heartBeatStats.get(client.getAddress());
 			if (heartStat.succeedCounter.longValue() >= heartBeatHealthCount) {
 				if (!client.isActive()) {
+					//TODO  给RegionManager的hostCache标记active为true
 					client.setActive(true);
 					inactiveAddresses.remove(client.getAddress());
 					logger.info("@service-activate:" + client + ", service:" + getServiceName(client)
@@ -268,6 +269,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 				}
 				heartStat.resetCounter();
 			} else if (heartStat.failedCounter.longValue() >= heartBeatDeadCount) {
+				//TODO  给RegionManager的hostCache标记active为false
 				if (client.isActive()) {
 					if (isHeartBeatAutoPickOff && canPickOff(client)) {
 						client.setActive(false);
