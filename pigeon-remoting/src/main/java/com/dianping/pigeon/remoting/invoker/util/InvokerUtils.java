@@ -8,8 +8,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.async.ServiceFuture;
 import com.dianping.dpsf.exception.DPSFException;
+import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.ApplicationException;
@@ -30,8 +30,6 @@ public class InvokerUtils {
 	private static ServiceInvocationRepository invocationRepository = ServiceInvocationRepository.getInstance();
 
 	private static InvokerExceptionTranslator invokerExceptionTranslator = new InvokerExceptionTranslator();
-
-	private static AtomicLong requestSequenceMaker = new AtomicLong();
 
 	private static final Logger logger = LoggerLoader.getLogger(InvokerUtils.class);
 
@@ -59,14 +57,13 @@ public class InvokerUtils {
 		return response;
 	}
 
-	public static InvocationRequest createRemoteCallRequest(InvokerContext invocationContext,
+	public static InvocationRequest createRemoteCallRequest(InvokerContext invokerContext,
 			InvokerConfig<?> invokerConfig) {
-		InvocationRequest request = invocationContext.getRequest();
+		InvocationRequest request = invokerContext.getRequest();
 		if (request == null) {
-			request = SerializerFactory.getSerializer(invokerConfig.getSerialize()).newRequest(invocationContext);
-			invocationContext.setRequest(request);
+			request = new DefaultRequest(invokerContext);
+			invokerContext.setRequest(request);
 		}
-		request.setSequence(requestSequenceMaker.incrementAndGet() * -1);
 		return request;
 	}
 
@@ -260,7 +257,7 @@ public class InvokerUtils {
 
 		@Override
 		public void setResponseValues(Map<String, Serializable> responseValues) {
-			
+
 		}
 
 		@Override
@@ -270,7 +267,7 @@ public class InvokerUtils {
 
 		@Override
 		public void setCreateMillisTime(long createMillisTime) {
-			
+
 		}
 	}
 
@@ -402,7 +399,7 @@ public class InvokerUtils {
 
 		@Override
 		public void setResponseValues(Map<String, Serializable> responseValues) {
-			
+
 		}
 
 		@Override
@@ -412,7 +409,7 @@ public class InvokerUtils {
 
 		@Override
 		public void setCreateMillisTime(long createMillisTime) {
-			
+
 		}
 	}
 }

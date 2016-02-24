@@ -104,8 +104,12 @@ public class InvokeJsonServlet extends ServiceServlet {
 			if (values == null) { // for jquery ajax
 				values = request.getParameterValues("parameters[]");
 			}
-			if (values != null && "".equals(values[0])) {
-				values = null;
+			if (values != null) {
+				for (int i = 0; i < values.length; i++) {
+					if (values[i] != null && values[i].equals("null")) {
+						values[i] = null;
+					}
+				}
 			}
 
 			String fromIp = Utils.getIpAddr(request);
@@ -236,8 +240,11 @@ public class InvokeJsonServlet extends ServiceServlet {
 	}
 
 	private Object toObject(Class<?> type, String value) throws SerializationException, ClassNotFoundException {
+		if (value == null) {
+			return null;
+		}
 		String value_;
-		if (value == null || value.length() == 0) {
+		if (value.length() == 0) {
 			value_ = "0";
 		} else {
 			value_ = value;

@@ -11,16 +11,17 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-
-import com.dianping.pigeon.log.LoggerLoader;
-
 import org.apache.logging.log4j.Logger;
 
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.domain.CompactRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.ServiceId;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
 import com.dianping.pigeon.remoting.provider.process.filter.ContextTransferProcessFilter;
 import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.util.LangUtils;
 
 public final class ServiceMethodFactory {
 
@@ -81,6 +82,13 @@ public final class ServiceMethodFactory {
 					if (!ingoreMethods.contains(method.getName())) {
 						method.setAccessible(true);
 						serviceMethodCache.addMethod(method.getName(), new ServiceMethod(service, method));
+						int id = LangUtils.hash(url + "#" + method.getName(), 0, Integer.MAX_VALUE);
+						ServiceId serviceId = new ServiceId(url, method.getName());
+						ServiceId lastId = CompactRequest.PROVIDER_ID_MAP.putIfAbsent(id, serviceId);
+						if (lastId != null && !serviceId.equals(lastId)) {
+							throw new IllegalArgumentException("same id for service:" + url + ", method:"
+									+ method.getName());
+						}
 					}
 				}
 				methods.put(url, serviceMethodCache);

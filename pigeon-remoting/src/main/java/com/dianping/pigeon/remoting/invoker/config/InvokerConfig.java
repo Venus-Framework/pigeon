@@ -52,9 +52,6 @@ public class InvokerConfig<T> {
 
 	private String group = configManager.getGroup();
 
-	private boolean writeBufferLimit = configManager.getBooleanValue(Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT,
-			Constants.DEFAULT_WRITE_BUFF_LIMIT);
-
 	private String loadbalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
 
 	private boolean timeoutRetry = false;
@@ -134,10 +131,6 @@ public class InvokerConfig<T> {
 		this.serviceInterface = serviceInterface;
 	}
 
-	public void setWriteBufferLimit(boolean writeBufferLimit) {
-		this.writeBufferLimit = writeBufferLimit;
-	}
-
 	public boolean isTimeoutRetry() {
 		return timeoutRetry;
 	}
@@ -183,7 +176,6 @@ public class InvokerConfig<T> {
 		this.setCallType(callMethod);
 		this.setCallback(callback);
 		this.setGroup(group);
-		this.setWriteBufferLimit(writeBufferLimit);
 		this.setCluster(cluster);
 		this.setLoadbalance(loadbalance);
 		this.setRetries(retries);
@@ -311,10 +303,6 @@ public class InvokerConfig<T> {
 		if (!StringUtils.isBlank(group)) {
 			this.group = group.trim();
 		}
-	}
-
-	public boolean isWriteBufferLimit() {
-		return writeBufferLimit;
 	}
 
 	public boolean equals(Object obj) {

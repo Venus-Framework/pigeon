@@ -1226,6 +1226,8 @@ swimlane=tg
 
 swimlane代表tg这个泳道，对于pigeon来说，如果一个service的机器定义了swimlane为tg，那么这个机器只能是客户端同样为tg泳道的机器能够调用
 对于客户端来说，假设配置了泳道为tg，那么这个客户端机器调用远程服务时，会优先选择服务端泳道配置同样为tg的机器，如果tg泳道的机器不可用或不存在，才会调用其他未配置泳道的机器
+如果客户端想强制路由到泳道相同的机器，这种情况下，即使tg泳道的机器不可用或不存在，也不会路由到其他机器，需要加上配置pigeon.registry.group.fallback参数为false，如xxx-web配置：
+xxx-web.pigeon.registry.group.fallback配置为false
 
 ### QPS监控信息
 1、可以通过ip:4080/stats.json查看QPS信息
