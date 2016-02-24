@@ -4,6 +4,8 @@
  */
 package com.dianping.pigeon.remoting.http.provider;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.remoting.http.adapter.HttpAdapter;
+import com.dianping.pigeon.remoting.http.adapter.HttpAdapterFactory;
 import org.apache.commons.lang.StringUtils;
 
 import com.dianping.pigeon.log.LoggerLoader;
@@ -34,6 +37,8 @@ public class HttpServerHandler implements HttpHandler {
 
 	private Server server;
 
+	protected static Map<Long, HttpCallbackFuture> callbacks = new ConcurrentHashMap<Long, HttpCallbackFuture>();
+
 	public HttpServerHandler(Server server) {
 		this.server = server;
 	}
@@ -42,12 +47,25 @@ public class HttpServerHandler implements HttpHandler {
 	public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		long createTime = System.currentTimeMillis();
 		Object obj;
-		if("true".equalsIgnoreCase(request.getParameter("customize"))) {
+		String customize = request.getParameter("customize");
+		if("true".equalsIgnoreCase(customize)) {
 			HttpAdapter httpAdapter = ExtensionLoader.getExtension(HttpAdapter.class);
 			if(httpAdapter != null) {
 				obj = HttpUtils.createDefaultRequest(httpAdapter.convert(request));
 			} else {
-				throw new IllegalArgumentException("Customize httpAdapter not found!");
+				throw new IllegalArgumentException("ServiceLoader httpAdapter not found!");
+			}
+		} else if("service".equalsIgnoreCase(customize)) {
+			String serviceName = request.getParameter("url");
+			if(StringUtils.isNotBlank(serviceName)) {
+				HttpAdapter httpAdapter = HttpAdapterFactory.getHttpAdapters().get(serviceName);
+				if(httpAdapter != null) {
+					obj = HttpUtils.createDefaultRequest(httpAdapter.convert(request));
+				} else {
+					throw new IllegalArgumentException("HttpAdapter not found!");
+				}
+			} else {
+				throw new IllegalArgumentException("serviceName can't be blank!");
 			}
 		} else {
 			String serialize = request.getParameter("serialize");
@@ -86,8 +104,13 @@ public class HttpServerHandler implements HttpHandler {
 				response));
 		Future<InvocationResponse> invocationResponse = null;
 		try {
+			callbacks.put(invocationRequest.getSequence(), new HttpCallbackFuture(invocationRequest, invocationContext));
+
 			invocationResponse = server.processRequest(invocationRequest, invocationContext);
 			if (invocationResponse != null) {
+				if(Constants.REPLY_MANUAL) {
+					callbacks.get(invocationRequest.getSequence()).get(invocationRequest.getTimeout());
+				}
 				invocationResponse.get();
 			}
 		} catch (Throwable e) {
@@ -101,6 +124,8 @@ public class HttpServerHandler implements HttpHandler {
 				invocationContext.getChannel().write(ProviderUtils.createFailResponse(invocationRequest, e));
 				logger.error(msg, e);
 			}
+		} finally {
+			callbacks.remove(invocationRequest.getSequence());
 		}
 	}
 

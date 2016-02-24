@@ -13,17 +13,48 @@
 			<TimeBasedTriggeringPolicy interval="1"
 				modulate="true" />
 		</RollingFile>
+		<RollingFile name="TaskFile"
+					 fileName="/data/applogs/pigeon-governor-server/task.log"
+					 filePattern="/data/applogs/pigeon-governor-server/task.log.%d{yyyy-MM-dd}.gz">
+			<PatternLayout
+					pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %class{36} %L %M - %msg%xEx%n" />
+			<TimeBasedTriggeringPolicy interval="1"
+									   modulate="true" />
+		</RollingFile>
+		<RollingFile name="ErrorFile"
+					 fileName="/data/applogs/pigeon-governor-server/error.log"
+					 filePattern="/data/applogs/pigeon-governor-server/error.log.%d{yyyy-MM-dd}.gz">
+			<PatternLayout
+					pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %class{36} %L %M - %msg%xEx%n" />
+			<TimeBasedTriggeringPolicy interval="1"
+									   modulate="true" />
+		</RollingFile>
 	</Appenders>
 
-
 	<Loggers>
-		<Logger name="com.dianping.pigeon.governor" level="INFO"
-			additivity="true">
-			<AppenderRef ref="File" level="INFO" />
-			<AppenderRef ref="Console" level="INFO" />
-		</Logger>
 		<root level="INFO">
 			<AppenderRef ref="Console" level="ERROR"/>
 		</root>
+		<Logger name="com.dianping.pigeon.governor" level="INFO" additivity="false">
+			<AppenderRef ref="ErrorFile" level="ERROR"/>
+		</Logger>
+		<Logger name="com.dianping.pigeon.governor.filter" level="INFO" additivity="true">
+			<AppenderRef ref="Console" level="INFO"/>
+		</Logger>
+		<Logger name="com.dianping.pigeon.governor.controller" level="INFO" additivity="true">
+			<AppenderRef ref="Console" level="INFO"/>
+		</Logger>
+		<Logger name="com.dianping.pigeon.governor.service" level="INFO" additivity="true">
+			<AppenderRef ref="File" level="INFO" />
+		</Logger>
+		<Logger name="com.dianping.pigeon.governor.lion" level="INFO" additivity="true">
+			<AppenderRef ref="File" level="INFO" />
+		</Logger>
+		<Logger name="com.dianping.pigeon.governor.util" level="INFO" additivity="true">
+			<AppenderRef ref="File" level="INFO" />
+		</Logger>
+		<Logger name="com.dianping.pigeon.governor.task" level="INFO" additivity="true">
+			<AppenderRef ref="TaskFile" level="INFO" />
+		</Logger>
 	</Loggers>
 </Configuration>

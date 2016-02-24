@@ -140,9 +140,13 @@ public class ProjectOwnerServiceImpl implements ProjectOwnerService {
 			try {
 				projectOwnerMapper.insertSelective(projectOwner);
 			} catch (DataAccessException e) {
-				logger.error("insert projectOwner error! userId: %s,projectId: %s", userId, projectId);
+				logger.error(String.format("insert projectOwner error! userId: %s, projectId: %s", userId, projectId));
 			}
 		}
+	}
+
+	public static void main(String[] args) {
+		System.out.println(String.format("insert projectOwner error! userId: %s,projectId: %s", "ddd", "kkk"));
 	}
 
 

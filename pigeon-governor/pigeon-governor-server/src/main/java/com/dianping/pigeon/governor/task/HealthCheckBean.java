@@ -1,36 +1,33 @@
 package com.dianping.pigeon.governor.task;
 
-import java.io.IOException;
-
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.governor.util.IPUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.ConfigurationSource;
-import org.apache.logging.log4j.core.config.Configurator;
-
-import com.dianping.pigeon.log.LoggerLoader;
 
 public class HealthCheckBean {
 
-	private static Logger logger = LogManager.getLogger(HealthCheckBean.class);
+	private Logger logger = LogManager.getLogger(HealthCheckBean.class);
+	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	public HealthCheckBean() {
 	}
 
 	public void init() {
-//		ConfigurationSource source;
-//		try {
-//			source = new ConfigurationSource(HealthCheckManager.class.getResourceAsStream("/log4j2.xml"));
-//			Configurator.shutdown(LoggerLoader.getLoggerContext());
-//			Configurator.initialize(null, source, LoggerLoader.getLoggerContext());
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//			System.exit(1);
-//		}
-		new HealthCheckManager().start();
-		logger.info("HealthCheckManager started");
+		boolean enable = true;
+		String ip = configManager.getStringValue("pigeon-governor-server.enable.ip", "");
 
-		// Check zookeeper heartbeat path
+		if (!IPUtils.getFirstNoLoopbackIP4Address().equals(ip)) {
+			enable = false;
+		}
 
+		if (enable) {
+			new HealthCheckManager().start();
+			logger.info("HealthCheckManager started...");
+		} else {
+			logger.info("HealthCheckManager not start...");
+		}
 	}
 
 	public static void main(String[] args) throws Exception {

@@ -7,6 +7,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.dianping.pigeon.governor.bean.*;
 import com.dianping.pigeon.governor.dao.ProjectMapper;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.Service;
@@ -24,10 +25,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.dianping.pigeon.governor.bean.JqGridReqBean;
-import com.dianping.pigeon.governor.bean.JqGridReqFilters;
-import com.dianping.pigeon.governor.bean.JqGridRespBean;
-import com.dianping.pigeon.governor.bean.ProjectBean;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.UserService;
@@ -220,5 +217,23 @@ public class ProjectController extends BaseController {
 		
 		return jqGridTableBean;
 		
+	}
+
+	@RequestMapping(value = {"/projects.search"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Result allinonejson(@RequestParam(value="service", required = true) String serviceName,
+							   HttpServletRequest request,
+							   HttpServletResponse response) {
+		Service service = serviceService.getService(serviceName, "");
+		if(service != null) {
+			Project project = projectService.retrieveProjectById(service.getProjectid());
+			if(project != null) {
+				return Result.createSuccessResult(project);
+			} else {
+				return Result.createErrorResult("project not found of " + serviceName);
+			}
+		} else {
+			return Result.createErrorResult("service not found: " + serviceName);
+		}
 	}
 }

@@ -107,6 +107,16 @@
 		lazy-init="false" init-method="init">
 	</bean>
 
+	<bean id="heartBeatCheckTask"
+		  class="com.dianping.pigeon.governor.task.HeartBeatCheckTask"
+		  init-method="init" />
+
+	<task:scheduled-tasks>
+		<task:scheduled ref="checkAndSyncServiceDB" method="schedule" cron="0 0 0/8 * * ?"/>
+	</task:scheduled-tasks>
+	<bean id="checkAndSyncServiceDB"
+		  class="com.dianping.pigeon.governor.task.CheckAndSyncServiceDB" />
+
 	<pigeon:annotation />
 
 	<pigeon:reference id="masterDataEmployeeService"  timeout="5000"
@@ -120,8 +130,8 @@
 
 	<!-- core bean -->
 	<bean id="taskExecutor"  class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name ="corePoolSize" value ="25" />
-		<property name ="maxPoolSize" value ="50" />
+		<property name ="corePoolSize" value ="400" />
+		<property name ="maxPoolSize" value ="800" />
 		<property name ="keepAliveSeconds" value ="300" />
 		<!--<property name ="queueCapacity" value ="10000" />-->
 		<property name= "rejectedExecutionHandler" >

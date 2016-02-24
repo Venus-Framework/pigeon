@@ -298,14 +298,14 @@ public class ProxyBeanFactory implements FactoryBean {
 		invokerConfig.setClassLoader(classLoader);
 
 		this.obj = ServiceFactory.getService(invokerConfig);
-		configLoadBalance();
+		configLoadBalance(invokerConfig);
 	}
 
-	private void configLoadBalance() {
+	private void configLoadBalance(InvokerConfig invokerConfig) {
 		Object loadBalanceToSet = loadBalanceObj != null ? loadBalanceObj
 				: (loadBalanceClass != null ? loadBalanceClass : (loadBalance != null ? loadBalance : null));
 		if (loadBalanceToSet != null) {
-			LoadBalanceManager.register(serviceName, group, loadBalanceToSet);
+			LoadBalanceManager.register(invokerConfig.getUrl(), group, loadBalanceToSet);
 		}
 	}
 

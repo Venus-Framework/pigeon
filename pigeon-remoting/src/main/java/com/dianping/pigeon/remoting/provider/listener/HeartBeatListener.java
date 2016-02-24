@@ -85,7 +85,7 @@ public class HeartBeatListener extends Thread {
             heartBeatListener = new HeartBeatListener("Pigeon-Provider-HeartBeat",new HeartBeatReboot(), true, serviceAddress);
             heartBeatListener.isSendHeartBeat = true;
             heartBeatListener.start();
-            registryManager.registerAppHostList(serviceAddress, configManager.getAppName(), ProviderBootStrap.getHttpServer().getPort());
+            //registryManager.registerAppHostList(serviceAddress, configManager.getAppName(), ProviderBootStrap.getHttpServer().getPort());
             monitor.logEvent("PigeonService.heartbeat", "ON", new Date()+"");
         }
     }
@@ -95,7 +95,7 @@ public class HeartBeatListener extends Thread {
             heartBeatListener.isSendHeartBeat = false;
             heartBeatListener = null;
             registryManager.deleteHeartBeat(serviceAddress);
-            registryManager.unregisterAppHostList(serviceAddress, configManager.getAppName());
+            //registryManager.unregisterAppHostList(serviceAddress, configManager.getAppName());
             monitor.logEvent("PigeonService.heartbeat", "OFF", new Date()+"");
         }
     }

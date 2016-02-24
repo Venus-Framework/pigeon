@@ -263,6 +263,14 @@ public class CuratorClient {
 		}
 	}
 
+	public void deleteIfExists(String path) throws Exception {
+		if (exists(path, false)) {
+			delete(path);
+		} else {
+			logger.warn("node " + path + " not exists!");
+		}
+	}
+
 	public void delete(String path) throws Exception {
 		client.delete().forPath(path);
 		if (logger.isInfoEnabled()) {
