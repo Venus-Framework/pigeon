@@ -55,6 +55,9 @@
 							data: pdata,
 							success: function(m){
 								result.text(JSON.stringify(m)).show();
+							},
+							error: function(m){
+								result.text(JSON.stringify(m)).show();
 							}
 						});
 						<#else>
@@ -62,6 +65,9 @@
 							url:"/invoke.json?validate=true&direct=true&token=" + $("#token").val(),
 							data: pdata,
 							success: function(m){
+								result.text(JSON.stringify(m)).show();
+							},
+							error: function(m){
 								result.text(JSON.stringify(m)).show();
 							}
 						});
