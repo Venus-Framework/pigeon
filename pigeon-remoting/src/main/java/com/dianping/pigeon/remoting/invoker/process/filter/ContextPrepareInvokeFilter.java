@@ -120,7 +120,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 			} else if (compactVersionMap.containsKey(version)) {
 				isCompact = compactVersionMap.get(version);
 			} else {
-				isCompact = VersionUtils.compareVersion(version, "2.7.2") >= 0;
+				isCompact = VersionUtils.compareVersion(version, "2.7.5") >= 0;
 				compactVersionMap.putIfAbsent(version, isCompact);
 			}
 		}
