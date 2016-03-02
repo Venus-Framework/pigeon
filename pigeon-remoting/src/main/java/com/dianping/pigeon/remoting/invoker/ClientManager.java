@@ -17,7 +17,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 
-import com.dianping.pigeon.remoting.invoker.region.RegionManager;
+import com.dianping.pigeon.registry.RegionManager;
+import com.dianping.pigeon.remoting.invoker.region.RegionChangeListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -64,6 +65,8 @@ public class ClientManager {
 
 	private ProviderAvailableListener providerAvailableListener;
 
+	private RegionChangeListener regionChangeListener;
+
 	private RouteManager routerManager = new DefaultRouteManager();
 
 	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
@@ -78,6 +81,9 @@ public class ClientManager {
 
 	private static ExecutorService providerAvailableThreadPool = Executors.newFixedThreadPool(1,
 			new DefaultThreadFactory("Pigeon-Client-ProviderAvailable-ThreadPool"));
+
+	private static ExecutorService regionChangeThreadPool = Executors.newFixedThreadPool(1,
+			new DefaultThreadFactory("Pigeon-Client-RegionChange-ThreadPool"));
 
 	private static int registerPoolCoreSize = ConfigManagerLoader.getConfigManager().getIntValue(
 			"pigeon.invoker.registerpool.coresize", 10);
@@ -119,6 +125,11 @@ public class ClientManager {
 		providerAvailableThreadPool.execute(this.providerAvailableListener);
 		RegistryEventListener.addListener(providerChangeListener);
 		RegistryEventListener.addListener(registryConnectionListener);
+
+		if(RegionManager.getInstance().isEnableRegionAutoSwitch()) {
+			this.regionChangeListener = RegionChangeListener.getInstance();
+			regionChangeThreadPool.execute(this.regionChangeListener);
+		}
 	}
 
 	public void registerClient(String serviceName, String host, int port, int weight) {
@@ -152,6 +163,7 @@ public class ClientManager {
 		ThreadPoolUtils.shutdown(providerAvailableThreadPool);
 		ThreadPoolUtils.shutdown(heartBeatThreadPool);
 		ThreadPoolUtils.shutdown(reconnectThreadPool);
+		ThreadPoolUtils.shutdown(regionChangeThreadPool);
 		this.clusterListener.destroy();
 	}
 
@@ -199,10 +211,8 @@ public class ClientManager {
 			localHost = configManager.getLocalIp() + vip.substring(vip.indexOf(":"));
 		}
 		String serviceAddress = getServiceAddress(serviceName, group, vip);
-		//TODO getCurrentHosts
-		if(configManager.getBooleanValue("pigeon.regions.enable", false)) {
-			serviceAddress = regionManager.getLocalRegionHosts(serviceAddress);
-		}
+		//TODO getCurrentHosts & add logs
+		//serviceAddress = regionManager.getFilterHosts(serviceAddress);
 		String[] addressArray = serviceAddress.split(",");
 		Set<HostInfo> addresses = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo, Boolean>());
 		for (int i = 0; i < addressArray.length; i++) {
@@ -248,6 +258,9 @@ public class ClientManager {
 					@Override
 					public void run() {
 						try {
+							if(regionManager.isEnableRegionAutoSwitch() && !regionManager.isInCurrentRegion(url, hostInfo)) {
+								return;
+							}
 							RegistryEventListener.providerAdded(url, hostInfo.getHost(), hostInfo.getPort(),
 									hostInfo.getWeight());
 						} finally {
@@ -265,6 +278,9 @@ public class ClientManager {
 			}
 		} else {
 			for (final HostInfo hostInfo : addresses) {
+				if(regionManager.isEnableRegionAutoSwitch() && !regionManager.isInCurrentRegion(url, hostInfo)) {
+					continue;
+				}
 				RegistryEventListener.providerAdded(url, hostInfo.getHost(), hostInfo.getPort(), hostInfo.getWeight());
 			}
 		}

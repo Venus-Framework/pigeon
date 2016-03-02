@@ -1,6 +1,7 @@
 package com.dianping.pigeon.remoting.invoker.proxy;
 
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.RegionManager;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
@@ -22,6 +23,9 @@ public abstract class AbstractServiceProxy implements ServiceProxy {
 
     protected static Map<InvokerConfig<?>, Object> services = new ConcurrentHashMap<InvokerConfig<?>, Object>();
     protected Logger logger = LoggerLoader.getLogger(this.getClass());
+
+    private RegionManager regionManager = RegionManager.getInstance();
+
 
     @Override
     public void init() {
@@ -55,6 +59,13 @@ public abstract class AbstractServiceProxy implements ServiceProxy {
                 }
             } catch (Throwable t) {
                 throw new RpcException("error while trying to get service:" + invokerConfig, t);
+            }
+
+            //TODO 考虑这里开始添加动态监控region的任务
+            try {
+                regionManager.register(invokerConfig.getUrl());
+            } catch (Throwable t) {
+                logger.warn("error while setup region manager: " + invokerConfig, t);
             }
 
             try {
