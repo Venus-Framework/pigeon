@@ -27,6 +27,9 @@ public class RegionManager {
     // 自动切换region的开关
     private boolean enableRegionAutoSwitch = configManager.getBooleanValue("pigeon.regions.enable", false);
 
+    // example: 10.66.xx.yy --> true
+    private ConcurrentHashMap<String, Boolean> regionHostHeartBeatStats = new ConcurrentHashMap<String, Boolean>();
+
     private String localRegion;
 
     private String notLocalRegion;
@@ -180,5 +183,9 @@ public class RegionManager {
 
     public String getNotLocalRegion() {
         return notLocalRegion;
+    }
+
+    public ConcurrentHashMap<String, Boolean> getRegionHostHeartBeatStats() {
+        return regionHostHeartBeatStats;
     }
 }

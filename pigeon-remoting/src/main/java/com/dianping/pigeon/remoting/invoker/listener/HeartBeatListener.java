@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.dianping.pigeon.registry.RegionManager;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
@@ -46,6 +47,8 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	public static final String HEART_TASK_SERVICE = "HeartbeatService/";
 
 	public static final String HEART_TASK_METHOD = "heartbeat";
+
+	private static final RegionManager regionManager = RegionManager.getInstance();
 
 	private Map<String, List<Client>> workingClients;
 
@@ -262,6 +265,9 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 			if (heartStat.succeedCounter.longValue() >= heartBeatHealthCount) {
 				if (!client.isActive()) {
 					//TODO  给RegionManager的hostCache标记active为true,notify
+					if(regionManager.isEnableRegionAutoSwitch()) {
+						regionManager.getRegionHostHeartBeatStats().put(client.getAddress(), true);
+					}
 					client.setActive(true);
 					inactiveAddresses.remove(client.getAddress());
 					logger.info("@service-activate:" + client + ", service:" + getServiceName(client)
@@ -270,6 +276,9 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 				heartStat.resetCounter();
 			} else if (heartStat.failedCounter.longValue() >= heartBeatDeadCount) {
 				//TODO  给RegionManager的hostCache标记active为false,notify
+				if(regionManager.isEnableRegionAutoSwitch()) {
+					regionManager.getRegionHostHeartBeatStats().put(client.getAddress(), false);
+				}
 				if (client.isActive()) {
 					if (isHeartBeatAutoPickOff && canPickOff(client)) {
 						client.setActive(false);

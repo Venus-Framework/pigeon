@@ -19,8 +19,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by chenchongze on 16/2/19.
@@ -29,36 +27,16 @@ public class RegionChangeListener implements Runnable, ClusterListener {
 
     private final Logger logger = LoggerLoader.getLogger(RegionChangeListener.class);
 
-    private static RegionManager regionManager = RegionManager.getInstance();
+    private final static RegionManager regionManager = RegionManager.getInstance();
 
     private static volatile RegionChangeListener instance;
-
-    private Map<String, List<Client>> workingClients;
-
-    // servicename --> localregion client
-    private static ConcurrentMap<String, List<Client>> localRegionClients = new ConcurrentHashMap<String, List<Client>>();
 
     private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
     private static long interval = configManager.getLongValue(Constants.KEY_HEARTBEAT_INTERVAL,
             Constants.DEFAULT_HEARTBEAT_INTERVAL);
 
-    // example: 10.66.xx.yy --> true
-    private ConcurrentHashMap<String, Boolean> regionHostHeartBeatStats = new ConcurrentHashMap<String, Boolean>();
-
     private static float regionSwitchRatio = configManager.getFloatValue("pigeon.regions.switchratio", 0.5f);
-
-    /*private String localRegion;
-    private String remoteRegion;
-    private String currentRegion;
-
-    private ConcurrentHashMap<String, String> regionPatternMappings = new ConcurrentHashMap<String, String>();
-
-    // example: servicename_1.0.0 --> currentRegion1
-    private static ConcurrentHashMap<String, String> serviceRegionMappings = new ConcurrentHashMap<String, String>();
-
-    // example: 10.66 --> region1
-    private ConcurrentHashMap<String, String> patternRegionMappings = new ConcurrentHashMap<String, String>();*/
 
     private RegionChangeListener() {
     }
@@ -147,7 +125,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
 
                 sleepTime = interval - (System.currentTimeMillis() - now);
             } catch (Throwable e) {
-                logger.info("[region_change] task failed:", e);
+                logger.warn("[region_change] task failed:", e);
             } finally {
                 if (sleepTime < 1000) {
                     sleepTime = 1000;
@@ -224,7 +202,8 @@ public class RegionChangeListener implements Runnable, ClusterListener {
             for (Client client : clientList) {
                 String address = client.getAddress();
                 int w = RegistryManager.getInstance().getServiceWeight(address);
-                boolean isAlive = regionHostHeartBeatStats.containsKey(address) ? regionHostHeartBeatStats.get(address) : true;
+                boolean isAlive = regionManager.getRegionHostHeartBeatStats().containsKey(address)
+                        ? regionManager.getRegionHostHeartBeatStats().get(address) : true;
                 if (w > 0 && client.isConnected() && client.isActive()
                         && isAlive && regionManager.isInLocalRegion(address)) {
                     available += w;
@@ -244,6 +223,5 @@ public class RegionChangeListener implements Runnable, ClusterListener {
         }
 
     }
-
 
 }
