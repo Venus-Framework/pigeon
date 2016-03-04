@@ -7,7 +7,9 @@ import com.dianping.pigeon.log.LoggerLoader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,22 +27,34 @@ public class RegionManager {
     // 自动切换region的开关
     private boolean enableRegionAutoSwitch = configManager.getBooleanValue("pigeon.regions.enable", false);
 
+    private String localRegion;
+
+    private String notLocalRegion;
     // service --> region mapping
     private ConcurrentHashMap<String, String> serviceCurrentRegionMappings = new ConcurrentHashMap<String, String>();
 
     // example: 10.66 --> region1
     private ConcurrentHashMap<String, String> patternRegionMappings = new ConcurrentHashMap<String, String>();
 
-    private String localRegion;
+    // region1 --> 10.66 192.168
+    private ConcurrentHashMap<String, List<String>> regionPatternMappings = new ConcurrentHashMap<String, List<String>>();
 
-    private RegionManager() {}
+    private RegionManager() {
+        init();
+        try {
+            localRegion = getRegion(configManager.getLocalIp());
+            notLocalRegion = "NOT_" + localRegion;
+        } catch (Exception e) {
+            logger.error("error, set enableRegionAutoSwitch to false", e);
+            enableRegionAutoSwitch = false;
+        }
+    }
 
     public static RegionManager getInstance() {
         if (instance == null) {
             synchronized (RegionManager.class) {
                 if (instance == null) {
                     instance = new RegionManager();
-                    instance.init();
                 }
             }
         }
@@ -56,25 +70,43 @@ public class RegionManager {
             String region = regionPatternMapping[0];
             String[] patterns = regionPatternMapping[1].split(",");
 
+            List<String> patternList = new ArrayList<String>();
             for(String pattern : patterns) {
                 patternRegionMappings.putIfAbsent(pattern, region);
+                patternList.add(pattern);
             }
+            regionPatternMappings.putIfAbsent(region, patternList);
 
         }
 
-        try {
-            localRegion = getRegion(configManager.getLocalIp());
-        } catch (Exception e) {
-            logger.warn(e);
+    }
+
+
+    public String getRegion(String host) throws Exception {
+        String pattern = host.substring(0, host.indexOf(".", 2));
+        if(patternRegionMappings.containsKey(pattern)) {
+            String _region = patternRegionMappings.get(pattern);
+            //TODO 之后还要做完善，现在暂时分为本地非本地
+            if(localRegion.equalsIgnoreCase(_region)) {
+                return localRegion;
+            } else {
+                return notLocalRegion;
+            }
+        } else {
+            throw new Exception("can't find ip pattern in region mapping: " + host);
         }
     }
 
-    private String getRegion(String host) throws Exception {
-        String pattern = host.substring(0, host.indexOf(".", 2));
-        if(patternRegionMappings.containsKey(pattern)) {
-            return patternRegionMappings.get(pattern);
-        } else {
-            throw new Exception("can't find ip pattern in region mapping: " + host);
+    public boolean isInLocalRegion(String host) {
+        try {
+            if(getRegion(host).equalsIgnoreCase(localRegion)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            logger.warn(e);
+            return false;
         }
     }
 
@@ -140,5 +172,13 @@ public class RegionManager {
 
     public ConcurrentHashMap<String, String> getServiceCurrentRegionMappings() {
         return serviceCurrentRegionMappings;
+    }
+
+    public String getLocalRegion() {
+        return localRegion;
+    }
+
+    public String getNotLocalRegion() {
+        return notLocalRegion;
     }
 }

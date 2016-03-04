@@ -128,6 +128,7 @@ public class ClientManager {
 
 		if(RegionManager.getInstance().isEnableRegionAutoSwitch()) {
 			this.regionChangeListener = RegionChangeListener.getInstance();
+			this.clusterListenerManager.addListener(this.regionChangeListener);
 			regionChangeThreadPool.execute(this.regionChangeListener);
 		}
 	}

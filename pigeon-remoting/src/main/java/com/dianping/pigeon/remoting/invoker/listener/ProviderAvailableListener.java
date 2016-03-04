@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.dianping.pigeon.registry.RegionManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
@@ -32,6 +33,8 @@ public class ProviderAvailableListener implements Runnable {
 	private Map<String, List<Client>> workingClients;
 
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+
+	private RegionManager regionManager = RegionManager.getInstance();
 
 	private static long interval = configManager.getLongValue("pigeon.providerlistener.interval", 3000);
 
@@ -118,7 +121,10 @@ public class ProviderAvailableListener implements Runnable {
 						logger.info("check provider available for service:" + url);
 						String error = null;
 						try {
-							ClientManager.getInstance().registerClients(url, group, vip);
+							//TODO 加开关
+							if(!regionManager.isEnableRegionAutoSwitch()) {
+								ClientManager.getInstance().registerClients(url, group, vip);
+							}
 						} catch (Throwable e) {
 							error = e.getMessage();
 						}

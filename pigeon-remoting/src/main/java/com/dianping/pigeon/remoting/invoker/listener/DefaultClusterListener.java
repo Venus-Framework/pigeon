@@ -58,6 +58,10 @@ public class DefaultClusterListener implements ClusterListener {
 		allClients = new ConcurrentHashMap<String, Client>();
 	}
 
+	public ConcurrentHashMap<String, List<Client>> getServiceClients() {
+		return serviceClients;
+	}
+
 	public List<Client> getClientList(InvokerConfig<?> invokerConfig) {
 		List<Client> clientList = this.serviceClients.get(invokerConfig.getUrl());
 		if (CollectionUtils.isEmpty(clientList)) {
@@ -68,6 +72,7 @@ public class DefaultClusterListener implements ClusterListener {
 		return clientList;
 	}
 
+	@Override
 	public void addConnect(ConnectInfo connectInfo) {
 		if (logger.isInfoEnabled()) {
 			logger.info("[cluster-listener] add service provider:" + connectInfo);
@@ -138,6 +143,7 @@ public class DefaultClusterListener implements ClusterListener {
 		return false;
 	}
 
+	@Override
 	public void removeConnect(Client client) {
 		if (logger.isInfoEnabled()) {
 			logger.info("[cluster-listener] remove service provider:" + client);
