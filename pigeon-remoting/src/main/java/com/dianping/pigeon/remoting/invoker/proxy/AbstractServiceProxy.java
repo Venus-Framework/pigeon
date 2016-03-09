@@ -63,7 +63,9 @@ public abstract class AbstractServiceProxy implements ServiceProxy {
 
             //TODO 考虑这里开始添加动态监控region的任务
             try {
-                regionManager.register(invokerConfig.getUrl());
+                if(regionManager.isEnableRegionAutoSwitch()) {
+                    regionManager.register(invokerConfig.getUrl());
+                }
             } catch (Throwable t) {
                 logger.warn("error while setup region manager: " + invokerConfig, t);
             }

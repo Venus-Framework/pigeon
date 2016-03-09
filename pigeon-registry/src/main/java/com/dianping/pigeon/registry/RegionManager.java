@@ -44,13 +44,6 @@ public class RegionManager {
 
     private RegionManager() {
         init();
-        try {
-            localRegion = getRegion(configManager.getLocalIp());
-            notLocalRegion = "NOT_" + localRegion;
-        } catch (Exception e) {
-            logger.error("error, set enableRegionAutoSwitch to false", e);
-            enableRegionAutoSwitch = false;
-        }
     }
 
     public static RegionManager getInstance() {
@@ -82,11 +75,23 @@ public class RegionManager {
 
         }
 
+        //初始化local region
+        String pattern = getPattern(configManager.getLocalIp());
+        if(patternRegionMappings.containsKey(pattern)) {
+            localRegion = patternRegionMappings.get(pattern);
+        } else {
+            logger.error("Error! Set [enableRegionAutoSwitch] to false! Can't init local region: " + configManager.getLocalIp());
+            enableRegionAutoSwitch = false;
+        }
+
     }
 
+    private String getPattern(String host) {
+        return host.substring(0, host.indexOf(".", 2));
+    }
 
-    public String getRegion(String host) throws Exception {
-        String pattern = host.substring(0, host.indexOf(".", 2));
+    private String getRegion(String host) throws Exception {
+        String pattern = getPattern(host);
         if(patternRegionMappings.containsKey(pattern)) {
             String _region = patternRegionMappings.get(pattern);
             //TODO 之后还要做完善，现在暂时分为本地非本地
