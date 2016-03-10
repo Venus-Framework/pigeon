@@ -212,8 +212,6 @@ public class ClientManager {
 			localHost = configManager.getLocalIp() + vip.substring(vip.indexOf(":"));
 		}
 		String serviceAddress = getServiceAddress(serviceName, group, vip);
-		//TODO getCurrentHosts & add logs
-		//serviceAddress = regionManager.getFilterHosts(serviceAddress);
 		String[] addressArray = serviceAddress.split(",");
 		Set<HostInfo> addresses = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo, Boolean>());
 		for (int i = 0; i < addressArray.length; i++) {
