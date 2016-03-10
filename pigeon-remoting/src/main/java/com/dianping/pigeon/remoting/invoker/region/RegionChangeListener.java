@@ -96,6 +96,8 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                             //TODO 切换为remote region，连接remote service，保留local service的连接
                             switchRegion(url, regionManager.getNotLocalRegion());
 
+                            logger.info("[region-switch] auto switch region to " + regionManager.getNotLocalRegion());
+
                             String error = null;
                             try {
                                 ClientManager.getInstance().registerClients(url, group, vip);
@@ -113,6 +115,8 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                         if (available >= regionSwitchRatio * total) {
                             //TODO 切换为local region，关闭remote service的连接
                             switchRegion(url, regionManager.getLocalRegion());
+
+                            logger.info("[region-switch] auto switch region to " + regionManager.getLocalRegion());
 
                             for(HostInfo hostInfo : getRemoteHostInfos(url)) {
                                 RegistryEventListener.providerRemoved(url, hostInfo.getHost(), hostInfo.getPort());

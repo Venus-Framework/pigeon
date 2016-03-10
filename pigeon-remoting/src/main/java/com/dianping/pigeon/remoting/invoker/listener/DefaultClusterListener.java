@@ -14,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.dianping.pigeon.registry.RegionManager;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -30,6 +31,8 @@ import com.dianping.pigeon.util.ThreadPoolUtils;
 public class DefaultClusterListener implements ClusterListener {
 
 	private static final Logger logger = LoggerLoader.getLogger(DefaultClusterListener.class);
+
+	private final static RegionManager regionManager = RegionManager.getInstance();
 
 	private ConcurrentHashMap<String, List<Client>> serviceClients = new ConcurrentHashMap<String, List<Client>>();
 
@@ -106,6 +109,11 @@ public class DefaultClusterListener implements ClusterListener {
 				logger.info("client already connected:" + client);
 			}
 			if (client.isConnected()) {
+				//TODO 初始化client region心跳信息
+				if(regionManager.isEnableRegionAutoSwitch()) {
+					regionManager.getRegionHostHeartBeatStats().putIfAbsent(client.getAddress(), true);
+				}
+
 				for (Entry<String, Integer> sw : connectInfo.getServiceNames().entrySet()) {
 					String serviceName = sw.getKey();
 					List<Client> clientList = this.serviceClients.get(serviceName);

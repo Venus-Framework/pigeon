@@ -4,6 +4,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.exception.RegionException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -31,8 +32,8 @@ public class RegionManager {
     private ConcurrentHashMap<String, Boolean> regionHostHeartBeatStats = new ConcurrentHashMap<String, Boolean>();
 
     private String localRegion;
-
     private String notLocalRegion;
+
     // service --> region mapping
     private ConcurrentHashMap<String, String> serviceCurrentRegionMappings = new ConcurrentHashMap<String, String>();
 
@@ -79,6 +80,7 @@ public class RegionManager {
         String pattern = getPattern(configManager.getLocalIp());
         if(patternRegionMappings.containsKey(pattern)) {
             localRegion = patternRegionMappings.get(pattern);
+            notLocalRegion = "NOT_" + localRegion;
         } else {
             logger.error("Error! Set [enableRegionAutoSwitch] to false! Can't init local region: " + configManager.getLocalIp());
             enableRegionAutoSwitch = false;
@@ -87,10 +89,10 @@ public class RegionManager {
     }
 
     private String getPattern(String host) {
-        return host.substring(0, host.indexOf(".", 2));
+        return host.substring(0, host.indexOf(".", host.indexOf(".") + 1 ));
     }
 
-    private String getRegion(String host) throws Exception {
+    private String getRegion(String host) throws RegionException {
         String pattern = getPattern(host);
         if(patternRegionMappings.containsKey(pattern)) {
             String _region = patternRegionMappings.get(pattern);
@@ -101,7 +103,7 @@ public class RegionManager {
                 return notLocalRegion;
             }
         } else {
-            throw new Exception("can't find ip pattern in region mapping: " + host);
+            throw new RegionException("can't find ip pattern in region mapping: " + host);
         }
     }
 
@@ -112,8 +114,11 @@ public class RegionManager {
             } else {
                 return false;
             }
-        } catch (Exception e) {
+        } catch (RegionException e) {
             logger.warn(e);
+            return false;
+        } catch (Throwable t) {
+            logger.error(t);
             return false;
         }
     }
@@ -127,8 +132,11 @@ public class RegionManager {
             } else {
                 return false;
             }
-        } catch (Exception e) {
+        } catch (RegionException e) {
             logger.warn(e);
+            return false;
+        } catch (Throwable t) {
+            logger.error(t);
             return false;
         }
     }
