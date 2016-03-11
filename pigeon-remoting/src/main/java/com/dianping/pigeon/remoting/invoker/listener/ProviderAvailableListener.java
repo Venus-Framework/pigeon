@@ -98,6 +98,11 @@ public class ProviderAvailableListener implements Runnable {
 					logger.info("check referenced services failed:", e);
 				}
 
+				// region自动切换时跳过
+				if(!regionManager.isEnableRegionAutoSwitch()) {
+					continue;
+				}
+
 				Set<InvokerConfig<?>> services = ServiceFactory.getAllServiceInvokers().keySet();
 				Map<String, String> serviceGroupMap = new HashMap<String, String>();
 				for (InvokerConfig<?> invokerConfig : services) {
@@ -121,10 +126,7 @@ public class ProviderAvailableListener implements Runnable {
 						logger.info("check provider available for service:" + url);
 						String error = null;
 						try {
-							//TODO 加开关
-							if(!regionManager.isEnableRegionAutoSwitch()) {
-								ClientManager.getInstance().registerClients(url, group, vip);
-							}
+							ClientManager.getInstance().registerClients(url, group, vip);
 						} catch (Throwable e) {
 							error = e.getMessage();
 						}
