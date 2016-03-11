@@ -98,8 +98,8 @@ public class ProviderAvailableListener implements Runnable {
 					logger.info("check referenced services failed:", e);
 				}
 
-				// region自动切换时跳过
-				if(!regionManager.isEnableRegionAutoSwitch()) {
+				// region自动切换时跳过后面的检查
+				if(regionManager.isEnableRegionAutoSwitch()) {
 					continue;
 				}
 
