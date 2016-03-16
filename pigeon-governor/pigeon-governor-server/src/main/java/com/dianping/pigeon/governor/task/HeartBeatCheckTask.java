@@ -234,7 +234,7 @@ public class HeartBeatCheckTask extends Thread {
 
                             int minProviderHeartbeat = Integer.parseInt(ConfigHolder.get(LionKeys.MIN_PROVIDER_HEARTBEAT, "2"));
                             if (set.size() < minProviderHeartbeat) { // 小于摘除阈值，保留
-                                logger.warn(host + " is the only host of " + serviceWithGroup);
+                                logger.warn(host + " num of " + serviceWithGroup + " is less than min: " + minProviderHeartbeat);
                             } else { // 摘除心跳
                                 String hosts = StringUtils.join(set, ",");
                                 client.set("/DP/SERVER/" + service_zk, hosts);
