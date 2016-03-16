@@ -7,7 +7,8 @@ public enum OpType {
 
     CREATE_PIGEON_SERVICE(1),
     UPDATE_PIGEON_SERVICE(2),
-    DELETE_PIGEON_SERVICE(3);
+    DELETE_PIGEON_SERVICE(3),
+    PICK_OFF_PROVIDER_HEARTBEAT(4);
 
     private Short value;
 
