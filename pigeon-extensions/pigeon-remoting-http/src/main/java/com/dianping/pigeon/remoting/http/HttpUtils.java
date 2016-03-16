@@ -12,6 +12,9 @@ public class HttpUtils {
 	public static final String URL_PREFIX = "@HTTP@";
 
 	public static String getDefaultServiceUrl(String serviceUrl) {
+		if (serviceUrl == null) {
+			return serviceUrl;
+		}
 		int idx = serviceUrl.indexOf(URL_PREFIX);
 		if (idx != -1) {
 			return serviceUrl.substring(idx + URL_PREFIX.length());
@@ -20,6 +23,9 @@ public class HttpUtils {
 	}
 
 	public static String getHttpServiceUrl(String serviceUrl) {
+		if (serviceUrl == null) {
+			return serviceUrl;
+		}
 		int idx = serviceUrl.indexOf(URL_PREFIX);
 		if (idx == -1) {
 			return URL_PREFIX + serviceUrl;
@@ -28,15 +34,9 @@ public class HttpUtils {
 	}
 
 	public static DefaultRequest createDefaultRequest(HttpAdapterRequest httpAdapterRequest) {
-		return new DefaultRequest(
-				httpAdapterRequest.getUrl(),
-				httpAdapterRequest.getMethod(),
-				httpAdapterRequest.getParameters(),
-				httpAdapterRequest.getSerialize(),
-				httpAdapterRequest.getMessageType(),
-				httpAdapterRequest.getTimeout(),
-				httpAdapterRequest.getCallType(),
-				httpAdapterRequest.getSeq()
-		);
+		return new DefaultRequest(httpAdapterRequest.getUrl(), httpAdapterRequest.getMethod(),
+				httpAdapterRequest.getParameters(), httpAdapterRequest.getSerialize(),
+				httpAdapterRequest.getMessageType(), httpAdapterRequest.getTimeout(), httpAdapterRequest.getCallType(),
+				httpAdapterRequest.getSeq());
 	}
 }

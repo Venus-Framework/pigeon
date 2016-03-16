@@ -22,11 +22,8 @@ public class JsonNativeHttpClient {
 		String url = "http://localhost:4080/invoke.json?url=com.dianping.pigeon.demo.EchoService&method=echo&parameterTypes=java.lang.String&parameters=hi";
 		System.out.println(get(url));
 
-//		String request1 = "{\"seq\":-201,\"serialize\":7,\"callType\":1,\"timeout\":5000,\"methodName\":\"echo\",\"parameters\":[\"echoService_101\"],\"messageType\":2,\"context\":null,\"url\":\"com.dianping.pigeon.demo.EchoService\"}";
-//		System.out.println(post(request1));
-//
-//		String request2 = "{\"seq\":-146,\"serialize\":7,\"callType\":1,\"timeout\":2000,\"methodName\":\"getUserDetail\",\"parameters\":[{\"@class\":\"com.dianping.pigeon.demo.UserService$User\",\"username\":\"user_73\",\"email\":null,\"password\":null},false],\"messageType\":2,\"url\":\"com.dianping.pigeon.demo.UserService\"}";
-//		System.out.println(post(request2));
+		String request2 = "{\"seq\":-146,\"serialize\":7,\"callType\":1,\"timeout\":2000,\"methodName\":\"getUserDetail\",\"parameters\":[{\"@class\":\"com.dianping.pigeon.demo.UserService$User\",\"username\":\"user_73\",\"email\":null,\"password\":null},false],\"messageType\":2,\"url\":\"com.dianping.pigeon.demo.UserService\"}";
+		System.out.println(post(request2));
 	}
 
 	private static HttpClient getHttpClient() {

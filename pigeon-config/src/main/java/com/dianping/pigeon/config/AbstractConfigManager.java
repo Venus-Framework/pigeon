@@ -411,6 +411,9 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		for (ConfigChangeListener listener : listeners) {
 			listener.onKeyUpdated(key, value);
 		}
+		if (localCache.containsKey(key)) {
+			localCache.put(key, value);
+		}
 	}
 
 	public void onConfigAdded(String key, String value) {

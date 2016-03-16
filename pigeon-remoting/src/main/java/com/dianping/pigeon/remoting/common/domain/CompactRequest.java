@@ -2,123 +2,90 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.dpsf.protocol;
+package com.dianping.pigeon.remoting.common.domain;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.dianping.pigeon.util.LangUtils;
 
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "seq", scope = DefaultRequest.class)
-public class DefaultRequest implements InvocationRequest {
+public class CompactRequest implements InvocationRequest {
 
-	/**
-	 * 不能随意修改！
-	 */
-	private static final long serialVersionUID = 652592942114047764L;
+	private static final long serialVersionUID = 0;
 
 	private byte serialize;
 
-	@JsonProperty("seq")
 	private long seq;
 
 	private int callType = Constants.CALLTYPE_REPLY;
 
 	private int timeout = 0;
 
-	@JsonIgnore
 	private transient long createMillisTime;
 
-	@JsonProperty("url")
-	private String serviceName;
+	private int id;
 
-	private String methodName;
+	private transient String serviceName;
 
-	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+	private transient String methodName;
+
 	private Object[] parameters;
 
 	private int messageType = Constants.MESSAGE_TYPE_SERVICE;
 
-	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 	private Object context;
-
-	private String version;
 
 	private String app = ConfigManagerLoader.getConfigManager().getAppName();
 
-	@JsonIgnore
 	private transient int size;
 
 	private Map<String, Serializable> globalValues = null;
 
 	private Map<String, Serializable> requestValues = null;
 
-	public DefaultRequest(String serviceName, String methodName, Object[] parameters, byte serialize, int messageType,
-						  int timeout, int callType, long seq) {
-		this.serviceName = serviceName;
-		this.methodName = methodName;
-		this.parameters = parameters;
-		this.serialize = serialize;
-		this.messageType = messageType;
-		this.timeout = timeout;
-		this.callType = callType;
-		this.seq = seq;
+	public static transient ConcurrentHashMap<Integer, ServiceId> PROVIDER_ID_MAP = new ConcurrentHashMap<Integer, ServiceId>();
+
+	public static transient ConcurrentHashMap<String, Integer> METHOD_ID_MAP = new ConcurrentHashMap<String, Integer>();
+
+	public CompactRequest() {
 	}
 
-	public DefaultRequest(String serviceName, String methodName, Object[] parameters, byte serialize, int messageType,
-			int timeout, Class<?>[] parameterClasses) {
-		this.serviceName = serviceName;
-		this.methodName = methodName;
-		this.parameters = parameters;
-		this.serialize = serialize;
-		this.messageType = messageType;
-		this.timeout = timeout;
-	}
-
-	public DefaultRequest() {
-	}
-
-	public DefaultRequest(InvokerContext invokerContext) {
+	public CompactRequest(InvokerContext invokerContext) {
 		if (invokerContext != null) {
 			InvokerConfig<?> invokerConfig = invokerContext.getInvokerConfig();
 			if (invokerConfig != null) {
-				this.serviceName = invokerConfig.getUrl();
 				this.serialize = invokerConfig.getSerialize();
 				this.timeout = invokerConfig.getTimeout();
-				this.setVersion(invokerConfig.getVersion());
+				// this.setVersion(invokerConfig.getVersion());
 				if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallType())) {
 					this.setCallType(Constants.CALLTYPE_NOREPLY);
 				} else {
 					this.setCallType(Constants.CALLTYPE_REPLY);
 				}
+				this.serviceName = invokerConfig.getUrl();
+				this.methodName = invokerContext.getMethodName();
+				this.id = LangUtils.hash(serviceName + "#" + methodName, 0, Integer.MAX_VALUE);
 			}
-			this.methodName = invokerContext.getMethodName();
 			this.parameters = invokerContext.getArguments();
 			this.messageType = Constants.MESSAGE_TYPE_SERVICE;
 		}
 	}
 
-	public String getVersion() {
-		return version;
+	public int getId() {
+		return id;
 	}
 
-	public void setVersion(String version) {
-		this.version = version;
+	public String getVersion() {
+		return null;
 	}
 
 	public byte getSerialize() {
@@ -154,11 +121,25 @@ public class DefaultRequest implements InvocationRequest {
 	}
 
 	public String getServiceName() {
-		return this.serviceName;
+		if (serviceName != null) {
+			return serviceName;
+		}
+		ServiceId serviceId = PROVIDER_ID_MAP.get(this.id);
+		if (serviceId != null) {
+			serviceName = serviceId.getUrl();
+		}
+		return serviceName;
 	}
 
 	public String getMethodName() {
-		return this.methodName;
+		if (methodName != null) {
+			return methodName;
+		}
+		ServiceId serviceId = PROVIDER_ID_MAP.get(this.id);
+		if (serviceId != null) {
+			methodName = serviceId.getMethod();
+		}
+		return methodName;
 	}
 
 	public String[] getParamClassName() {
@@ -210,8 +191,8 @@ public class DefaultRequest implements InvocationRequest {
 	public String toString() {
 		ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
 				.append("serialize", serialize).append("seq", seq).append("msgType", messageType)
-				.append("callType", callType).append("timeout", timeout).append("url", serviceName)
-				.append("method", methodName).append("created", createMillisTime);
+				.append("callType", callType).append("timeout", timeout).append("url", this.getServiceName())
+				.append("method", this.getMethodName()).append("created", createMillisTime);
 		if (Constants.LOG_PARAMETERS) {
 			builder.append("parameters", InvocationUtils.toJsonString(parameters));
 		}

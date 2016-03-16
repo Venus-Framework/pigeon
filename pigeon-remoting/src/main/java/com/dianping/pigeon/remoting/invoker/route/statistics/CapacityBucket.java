@@ -49,19 +49,16 @@ public class CapacityBucket implements Serializable {
 		}
 		incrementTotalRequestInSecond(now.get(Calendar.SECOND));
 		if (request.getCallType() == Constants.CALLTYPE_REPLY) {
-			Float flow = (Float) request.getAttachment(Constants.REQ_ATTACH_FLOW);
-			if (flow != null) {
-				refreshCapacity(flow);
-			}
+			refreshCapacity(1f);
 			this.requestSeqs.add(request.getSequence());
 			this.requestSeqDetails.put(request.getSequence(),
-					new Object[] { now.getTimeInMillis(), request.getTimeout(), flow });
+					new Object[] { now.getTimeInMillis(), request.getTimeout(), 1f });
 		}
 	}
 
 	public void flowOut(InvocationRequest request) {
 		if (request.getCallType() == Constants.CALLTYPE_REPLY) {
-			flowOut(request.getSequence(), (Float) request.getAttachment(Constants.REQ_ATTACH_FLOW));
+			flowOut(request.getSequence(), 1f);
 		}
 	}
 

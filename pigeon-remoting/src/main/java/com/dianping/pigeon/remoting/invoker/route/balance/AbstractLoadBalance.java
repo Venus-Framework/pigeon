@@ -14,9 +14,7 @@ import org.apache.logging.log4j.Logger;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
-import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
@@ -65,10 +63,6 @@ public abstract class AbstractLoadBalance implements LoadBalance {
 						+ ", use random instead.", e);
 				selectedClient = clients.get(random.nextInt(clients.size()));
 			}
-		}
-		if (selectedClient != null) {
-			int weight = RegistryManager.getInstance().getServiceWeightFromCache(selectedClient.getAddress());
-			request.setAttachment(Constants.REQ_ATTACH_FLOW, 1.0f / (weight > 0 ? weight : 1));
 		}
 		if (logger.isDebugEnabled()) {
 			if (ServiceStatisticsHolder.checkRequestNeedStat(request)) {

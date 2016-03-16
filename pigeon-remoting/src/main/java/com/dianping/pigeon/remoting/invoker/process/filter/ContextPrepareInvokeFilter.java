@@ -7,6 +7,7 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +19,7 @@ import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
+import com.dianping.pigeon.remoting.common.domain.CompactRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
@@ -32,7 +34,9 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
 	private static final Logger logger = LoggerLoader.getLogger(ContextPrepareInvokeFilter.class);
 	private Monitor monitor = MonitorLoader.getMonitor();
-	private ConcurrentHashMap<String, Boolean> versionSupportedMap = new ConcurrentHashMap<String, Boolean>();
+	private ConcurrentHashMap<String, Boolean> serializeVersionMap = new ConcurrentHashMap<String, Boolean>();
+	private ConcurrentHashMap<String, Boolean> compactVersionMap = new ConcurrentHashMap<String, Boolean>();
+	private static AtomicLong requestSequenceMaker = new AtomicLong();
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
@@ -51,11 +55,14 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
 	// 初始化Request的createTime和timeout，以便统一这两个值
 	private void initRequest(InvokerContext invokerContext) {
+		compactRequest(invokerContext);
+
 		InvocationRequest request = invokerContext.getRequest();
+		request.setSequence(requestSequenceMaker.incrementAndGet() * -1);
 		request.setCreateMillisTime(System.currentTimeMillis());
 		request.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
 
-		checkSerializeSupported(invokerContext);
+		checkSerialize(invokerContext);
 
 		InvokerConfig<?> invokerConfig = invokerContext.getInvokerConfig();
 		if (invokerConfig != null) {
@@ -73,7 +80,6 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 			if (transaction != null) {
 				transaction.addData("CurrentTimeout", request.getTimeout());
 			}
-			request.setAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT, invokerConfig.isWriteBufferLimit());
 			if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallType())) {
 				request.setCallType(Constants.CALLTYPE_NOREPLY);
 			} else {
@@ -82,7 +88,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 		}
 	}
 
-	private void checkSerializeSupported(InvokerContext invokerContext) {
+	private void checkSerialize(InvokerContext invokerContext) {
 		InvocationRequest request = invokerContext.getRequest();
 		if (request.getSerialize() == SerializerFactory.SERIALIZE_PROTO
 				|| request.getSerialize() == SerializerFactory.SERIALIZE_FST) {
@@ -91,16 +97,35 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 			boolean supported = true;
 			if (StringUtils.isBlank(version)) {
 				supported = false;
-			} else if (versionSupportedMap.containsKey(version)) {
-				supported = versionSupportedMap.get(version);
+			} else if (serializeVersionMap.containsKey(version)) {
+				supported = serializeVersionMap.get(version);
 			} else {
 				supported = VersionUtils.compareVersion(version, "2.4.3") >= 0;
-				versionSupportedMap.putIfAbsent(version, supported);
+				serializeVersionMap.putIfAbsent(version, supported);
 			}
 			if (!supported) {
 				request.setSerialize(SerializerFactory.SERIALIZE_HESSIAN);
 				invokerContext.getInvokerConfig().setSerialize(SerializerFactory.HESSIAN);
 			}
+		}
+	}
+
+	private void compactRequest(InvokerContext invokerContext) {
+		boolean isCompact = false;
+		if (ConfigManagerLoader.getConfigManager().getBooleanValue("pigeon.invoker.request.compact", true)) {
+			Client client = invokerContext.getClient();
+			String version = RegistryManager.getInstance().getReferencedVersion(client.getAddress());
+			if (StringUtils.isBlank(version)) {
+				isCompact = false;
+			} else if (compactVersionMap.containsKey(version)) {
+				isCompact = compactVersionMap.get(version);
+			} else {
+				isCompact = VersionUtils.compareVersion(version, "2.7.5") >= 0;
+				compactVersionMap.putIfAbsent(version, isCompact);
+			}
+		}
+		if (isCompact) {
+			invokerContext.setRequest(new CompactRequest(invokerContext));
 		}
 	}
 

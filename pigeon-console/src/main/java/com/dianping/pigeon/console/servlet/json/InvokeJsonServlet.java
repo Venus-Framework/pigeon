@@ -17,12 +17,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 
 import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.console.Utils;
+import com.dianping.pigeon.console.domain.ResponseError;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
@@ -104,8 +104,12 @@ public class InvokeJsonServlet extends ServiceServlet {
 			if (values == null) { // for jquery ajax
 				values = request.getParameterValues("parameters[]");
 			}
-			if (values != null && "".equals(values[0])) {
-				values = null;
+			if (values != null) {
+				for (int i = 0; i < values.length; i++) {
+					if (values[i] != null && values[i].equals("null")) {
+						values[i] = null;
+					}
+				}
 			}
 
 			String fromIp = Utils.getIpAddr(request);
@@ -121,13 +125,13 @@ public class InvokeJsonServlet extends ServiceServlet {
 				} catch (InvocationTargetException e) {
 					logger.error("console invoke error", e);
 					if (e.getTargetException() != null) {
-						result = ExceptionUtils.getFullStackTrace(e.getTargetException());
+						result = new ResponseError("Error with service invocation", e.getTargetException(), 500);
 					} else {
-						result = e.toString();
+						result = new ResponseError(e.toString(), null, 400);
 					}
 				} catch (Throwable e) {
 					logger.error("console invoke error", e);
-					result = e.toString();
+					result = new ResponseError(e.toString(), null, 400);
 				}
 			} else {
 				ContextUtils.putRequestContext("RequestIp", fromIp);
@@ -136,12 +140,12 @@ public class InvokeJsonServlet extends ServiceServlet {
 				} catch (InvocationTargetException e) {
 					logger.error("console invoke error", e);
 					if (e.getTargetException() != null) {
-						result = ExceptionUtils.getFullStackTrace(e.getTargetException());
+						result = new ResponseError("Error with service invocation", e.getTargetException(), 500);
 					} else {
-						result = e.toString();
+						result = new ResponseError(e.toString(), null, 400);
 					}
 				} catch (Throwable e) {
-					result = e.toString();
+					result = new ResponseError(e.toString(), null, 400);
 				}
 			}
 			String currentMessageId = (String) ContextUtils.getLocalContext("CurrentMessageId");
@@ -156,6 +160,9 @@ public class InvokeJsonServlet extends ServiceServlet {
 			}
 			String json = jacksonSerializer.serializeObject(result);
 			response.setContentType(getContentType());
+			if (result instanceof ResponseError) {
+				response.setStatus(((ResponseError) result).getStatus());
+			}
 			response.getWriter().write(json);
 		} else {
 			response.getWriter().write("{\"msg\":\"invalid verification code!\"}");
@@ -236,8 +243,11 @@ public class InvokeJsonServlet extends ServiceServlet {
 	}
 
 	private Object toObject(Class<?> type, String value) throws SerializationException, ClassNotFoundException {
+		if (value == null) {
+			return null;
+		}
 		String value_;
-		if (value == null || value.length() == 0) {
+		if (value.length() == 0) {
 			value_ = "0";
 		} else {
 			value_ = value;

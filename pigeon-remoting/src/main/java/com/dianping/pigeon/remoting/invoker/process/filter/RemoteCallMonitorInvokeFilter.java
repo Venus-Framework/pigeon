@@ -147,6 +147,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		boolean error = false;
 		try {
 			InvocationResponse response = handler.handle(invocationContext);
+			request = invocationContext.getRequest();
 			String reqSize = SizeMonitor.getInstance().getLogSize(request.getSize());
 			if (reqSize != null) {
 				monitor.logEvent("PigeonCall.requestSize", reqSize, "" + request.getSize());

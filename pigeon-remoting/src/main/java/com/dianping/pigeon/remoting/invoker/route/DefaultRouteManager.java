@@ -42,6 +42,9 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	private static boolean enablePreferAddresses = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.route.preferaddresses.enable", false);
 
+	private static boolean isWriteBufferLimit = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT, Constants.DEFAULT_WRITE_BUFF_LIMIT);
+
 	public DefaultRouteManager() {
 		RegistryEventListener.addListener(providerChangeListener);
 		if (enablePreferAddresses) {
@@ -98,16 +101,14 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	 */
 	public List<Client> getAvailableClients(List<Client> clientList, InvokerConfig<?> invokerConfig,
 			InvocationRequest request) {
-		Boolean isWriteBufferLimit = (Boolean) request.getAttachment(Constants.REQ_ATTACH_WRITE_BUFF_LIMIT);
-		isWriteBufferLimit = (isWriteBufferLimit != null ? isWriteBufferLimit : false)
-				&& request.getCallType() == Constants.CALLTYPE_NOREPLY;
+		boolean isWriteLimit = isWriteBufferLimit && request.getCallType() == Constants.CALLTYPE_NOREPLY;
 		List<Client> filteredClients = new ArrayList<Client>(clientList.size());
 		boolean existClientBuffToLimit = false;
 		for (Client client : clientList) {
 			if (client != null) {
 				String address = client.getAddress();
 				if (client.isActive() && RegistryManager.getInstance().getServiceWeightFromCache(address) > 0) {
-					if (!isWriteBufferLimit || client.isWritable()) {
+					if (!isWriteLimit || client.isWritable()) {
 						filteredClients.add(client);
 					} else {
 						existClientBuffToLimit = true;

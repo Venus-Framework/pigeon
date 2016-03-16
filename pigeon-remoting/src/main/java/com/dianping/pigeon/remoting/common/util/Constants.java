@@ -61,7 +61,6 @@ public final class Constants {
 
 	public static final String TRANSFER_NULL = "NULL";
 
-	public static final String REQ_ATTACH_FLOW = "FLOW";
 	public static final String REQ_ATTACH_WRITE_BUFF_LIMIT = "WRITE_BUFF_LIMIT";
 
 	public static final int VERSION_150 = 150;
