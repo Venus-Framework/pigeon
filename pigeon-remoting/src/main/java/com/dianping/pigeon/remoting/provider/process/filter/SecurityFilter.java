@@ -39,6 +39,7 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 	private static final String KEY_APP_SECRETS = "pigeon.provider.token.app.secrets";
 	private static final String KEY_TOKEN_ENABLE = "pigeon.provider.token.enable";
 	private static final String KEY_ACCESS_IP_ENABLE = "pigeon.provider.access.ip.enable";
+	private static final String KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE = "pigeon.provider.token.protocol.default.enable";
 
 	private static final String KEY_TOKEN_TIMESTAMP_DIFF = "pigeon.provider.token.timestamp.diff";
 	private static ConcurrentHashMap<String, String> appSecrets = new ConcurrentHashMap<String, String>();
@@ -54,6 +55,7 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 
 	public SecurityFilter() {
 		configManager.getBooleanValue(KEY_TOKEN_ENABLE, false);
+		configManager.getBooleanValue(KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE, true);
 		configManager.getIntValue(KEY_TOKEN_TIMESTAMP_DIFF, 120);
 		configManager.getBooleanValue(KEY_ACCESS_DEFAULT, true);
 		configManager.getBooleanValue(KEY_ACCESS_IP_ENABLE, false);
@@ -205,8 +207,16 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 			throws Throwable {
 		InvocationRequest request = invocationContext.getRequest();
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+			boolean isAuth = false;
 			String from = (String) ContextUtils.getLocalContext("RequestIp");
 			if (from == null) {
+				isAuth = true;
+			}
+			if (!configManager.getBooleanValue(KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE, true)
+					&& Constants.PROTOCOL_DEFAULT.equals(invocationContext.getChannel().getProtocol())) {
+				isAuth = false;
+			}
+			if (isAuth) {
 				String remoteAddress = invocationContext.getChannel().getRemoteAddress();
 				Map<String, Serializable> requestValues = request.getRequestValues();
 				String token = null;

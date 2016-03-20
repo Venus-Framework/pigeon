@@ -1431,6 +1431,8 @@ c、如果服务提供方希望客户端在http header里设置token，可以在
 d、客户端需要带上timestamp到服务端，在服务端会对timestamp进行校验，默认只接受时差2分钟以内的请求，如果要调整可以设置：
 xxx-service.pigeon.provider.token.timestamp.diff，默认为120（单位秒）
 
+e、如果服务提供方只希望http客户端进行认证，而不希望默认的tcp客户端做认证（老业务），需要配置xxx-service.pigeon.provider.token.protocol.default.enable为false
+
 对于客户端：
 
 a、对于使用pigeon java客户端的应用，只需要配置所依赖的服务的密钥，在配置中心lion里配置key，如xxx-web这个应用：配置xxx-web.pigeon.invoker.token.app.secrets，内容如：
