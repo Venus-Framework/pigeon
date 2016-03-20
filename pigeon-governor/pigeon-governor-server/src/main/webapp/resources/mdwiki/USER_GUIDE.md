@@ -1451,13 +1451,46 @@ url里也必须带上app=xxx-web，以便在服务端进行认证
 
 c、如果服务提供方必须要求客户端将token等放在header里，以上url简化为：
 http://pigeon.dper.com/xxx-service/invoke.json?url=http://service.dianping.com/com.dianping.pigeon.demo.EchoService&method=echo&parameterTypes=java.lang.String&parameters=scott
-
 在header里必须有两个key：
 Timestamp,内容为上述类似的System.currentTimeMillis()/1000值，例如：1458447031
 Authorization，内容格式例如：pigeon=xxx-service:v5cg4EUS4c8wIjOC70VwvvgxZzg
 pigeon=为必须填的字符串，xxx-service代表app，冒号:后边的字符串为token值
 
+d、SecurityUtils.encrypt方法可以参考下面代码，内部采用HmacSHA1算法，通过密钥对某个字符串进行签名，然后转换为base64编码：
 
+		import javax.crypto.Mac;
+		import javax.crypto.spec.SecretKeySpec;
+		import org.apache.commons.codec.binary.Base64;
+		
+		public class SecurityUtils {
+		
+			private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+			
+			public static String encrypt(String data, String secret) throws SecurityException {
+				String result;
+				try {
+					// get an hmac_sha1 key from the raw key bytes
+					SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
+		
+					// get an hmac_sha1 Mac instance and initialize with the signing key
+					Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+					mac.init(signingKey);
+		
+					// compute the hmac on input data bytes
+					byte[] rawHmac = mac.doFinal(data.getBytes());
+		
+					// base64-encode the hmac
+					result = Base64.encodeBase64URLSafeString(rawHmac);
+				} catch (Exception e) {
+					throw new SecurityException("Failed to generate HMAC : " + e.getMessage());
+				}
+				return result;
+			}
+		
+		}
+		
+e、如果是其他语言客户端，请参考以上逻辑自行加入认证token等信息	
+		
 以上涉及lion的所有配置都是可以随时修改、动态生效
 
 2、基于ip的认证
