@@ -7,9 +7,14 @@ import com.dianping.pigeon.governor.bean.ServiceWithGroup;
 import com.dianping.pigeon.governor.exception.DbException;
 import com.dianping.pigeon.governor.lion.ConfigHolder;
 import com.dianping.pigeon.governor.lion.LionKeys;
+import com.dianping.pigeon.governor.model.OpLog;
+import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.Service;
+import com.dianping.pigeon.governor.service.OpLogService;
+import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.util.IPUtils;
+import com.dianping.pigeon.governor.util.OpType;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.zookeeper.CuratorClient;
 import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
@@ -40,10 +45,12 @@ public class HeartBeatCheckTask extends Thread {
     private ServiceService serviceService;
     @Autowired
     private CheckAndSyncServiceDB checkAndSyncServiceDB;
+    @Autowired
+    private OpLogService opLogService;
+    @Autowired
+    private ProjectService projectService;
 
     private CuratorClient client;
-
-    private volatile static String isCheckEnable = Lion.get("pigeon.heartbeat.enable", "false");
 
     private Map<String, Long> heartBeatsMap = new ConcurrentHashMap<String, Long>();
     private Map<ServiceWithGroup, Service> serviceGroupDbIndex = CheckAndSyncServiceDB.getServiceGroupDbIndex();
@@ -88,12 +95,14 @@ public class HeartBeatCheckTask extends Thread {
 
     @Override
     public void run() {
-        while("true".equals(isCheckEnable)) {
-            Long startTime = System.currentTimeMillis();
-            Long refreshInternal = Long.parseLong(ConfigHolder.get(LionKeys.PROVIDER_HEARTBEAT_INTERNAL));
-            Long checkInternal = refreshInternal + refreshInternal / 10;
+        while("true".equals(ConfigHolder.get(LionKeys.HEARTBEAT_ENABLE))) {
 
+            long internal = 0;
             try {
+                Long startTime = System.currentTimeMillis();
+                Long refreshInternal = Long.parseLong(ConfigHolder.get(LionKeys.PROVIDER_HEARTBEAT_INTERNAL));
+                Long checkInternal = refreshInternal + refreshInternal / 10;
+
                 //载入心跳
                 loadHeartBeats();
                 //获取ip对应服务列表
@@ -107,17 +116,17 @@ public class HeartBeatCheckTask extends Thread {
                         threadPoolTaskExecutor.submit(new DealHeartBeat(heartBeatKey));
                     }
                 }
-
+                internal = refreshInternal - System.currentTimeMillis() + startTime;
             } catch (Throwable t) {
                 logger.error("check provider heart task error!", t);
             } finally {
-                Long internal = refreshInternal - System.currentTimeMillis() + startTime;
-                if(internal > 0) {
-                    try {
-                        Thread.sleep(internal);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                if(internal < 1000) {
+                    internal = 1000;
+                }
+                try {
+                    Thread.sleep(internal);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -223,7 +232,10 @@ public class HeartBeatCheckTask extends Thread {
                             set.addAll(Arrays.asList(hostArr));
                             set.remove(host);
 
-                            if (set.size() > 0) {
+                            int minProviderHeartbeat = Integer.parseInt(ConfigHolder.get(LionKeys.MIN_PROVIDER_HEARTBEAT, "2"));
+                            if (set.size() < minProviderHeartbeat) { // 小于摘除阈值，保留
+                                logger.warn(host + " is the only host of " + serviceWithGroup);
+                            } else { // 摘除心跳
                                 String hosts = StringUtils.join(set, ",");
                                 client.set("/DP/SERVER/" + service_zk, hosts);
                                 //update database
@@ -232,10 +244,6 @@ public class HeartBeatCheckTask extends Thread {
 
                                 deleteHeartBeatNode = true;
                                 logger.warn("delete " + host + " from " + serviceWithGroup);
-                                //TODO 操作日志
-                                //TODO 告警服务摘除
-                            } else {
-                                logger.warn(host + " is the only host of " + serviceWithGroup);
                             }
                         } else {
                             logger.warn(host + " of " + serviceWithGroup + " is still alive");
@@ -250,6 +258,10 @@ public class HeartBeatCheckTask extends Thread {
                         if(StringUtils.isNotBlank(appname)) {
                             client.deleteIfExists("/DP/APPNAME/" + appname + "/" + host);
                         }
+                        // 记录摘除日志
+                        threadPoolTaskExecutor.submit(
+                                new LogOpRun(OpType.PICK_OFF_PROVIDER_HEARTBEAT, "delete " + host + " from related services", appname));
+                        //TODO 告警服务摘除
                     }
                 } else {
                     // delete heartBeat nodes
@@ -301,5 +313,41 @@ public class HeartBeatCheckTask extends Thread {
                 }
             }
         }
+    }
+
+    private class LogOpRun implements Runnable {
+
+
+        private final OpType opType;
+        private final String content;
+        private final String appname;
+
+        private LogOpRun(OpType opType,
+                         String content,
+                         String appname) {
+            this.opType = opType;
+            this.content = content;
+            this.appname = appname;
+        }
+
+        @Override
+        public void run() {
+            String reqIp = IPUtils.getFirstNoLoopbackIP4Address();
+            OpLog opLog = new OpLog();
+            opLog.setDpaccount(reqIp);
+
+            Project project = projectService.findProject(appname);
+            if(project == null) {
+                project = projectService.createProject(appname, false);
+            }
+
+            opLog.setProjectid(project.getId());
+            opLog.setReqip(reqIp);
+            opLog.setOptime(new Date());
+            opLog.setContent(content);
+            opLog.setOptype(opType.getValue());
+            opLogService.create(opLog);
+        }
+
     }
 }

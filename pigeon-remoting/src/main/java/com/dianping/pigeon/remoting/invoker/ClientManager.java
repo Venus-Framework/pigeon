@@ -17,6 +17,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 
+import com.dianping.pigeon.registry.RegionManager;
+import com.dianping.pigeon.remoting.invoker.region.RegionChangeListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -51,6 +53,8 @@ public class ClientManager {
 
 	private static final Logger logger = LoggerLoader.getLogger(ClientManager.class);
 
+	private RegionManager regionManager = RegionManager.getInstance();
+
 	private ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
 	private DefaultClusterListener clusterListener;
@@ -60,6 +64,8 @@ public class ClientManager {
 	private ReconnectListener reconnectTask;
 
 	private ProviderAvailableListener providerAvailableListener;
+
+	private RegionChangeListener regionChangeListener;
 
 	private RouteManager routerManager = new DefaultRouteManager();
 
@@ -75,6 +81,9 @@ public class ClientManager {
 
 	private static ExecutorService providerAvailableThreadPool = Executors.newFixedThreadPool(1,
 			new DefaultThreadFactory("Pigeon-Client-ProviderAvailable-ThreadPool"));
+
+	private static ExecutorService regionChangeThreadPool = Executors.newFixedThreadPool(1,
+			new DefaultThreadFactory("Pigeon-Client-RegionChange-ThreadPool"));
 
 	private static int registerPoolCoreSize = ConfigManagerLoader.getConfigManager().getIntValue(
 			"pigeon.invoker.registerpool.coresize", 10);
@@ -103,10 +112,6 @@ public class ClientManager {
 		return instance;
 	}
 
-	/**
-	 * 
-	 * @param invocationRepository
-	 */
 	private ClientManager() {
 		this.heartBeatTask = new HeartBeatListener();
 		this.reconnectTask = new ReconnectListener();
@@ -120,6 +125,12 @@ public class ClientManager {
 		providerAvailableThreadPool.execute(this.providerAvailableListener);
 		RegistryEventListener.addListener(providerChangeListener);
 		RegistryEventListener.addListener(registryConnectionListener);
+
+		if(RegionManager.getInstance().isEnableRegionAutoSwitch()) {
+			this.regionChangeListener = RegionChangeListener.getInstance();
+			this.clusterListenerManager.addListener(this.regionChangeListener);
+			regionChangeThreadPool.execute(this.regionChangeListener);
+		}
 	}
 
 	public void registerClient(String serviceName, String host, int port, int weight) {
@@ -153,6 +164,7 @@ public class ClientManager {
 		ThreadPoolUtils.shutdown(providerAvailableThreadPool);
 		ThreadPoolUtils.shutdown(heartBeatThreadPool);
 		ThreadPoolUtils.shutdown(reconnectThreadPool);
+		ThreadPoolUtils.shutdown(regionChangeThreadPool);
 		this.clusterListener.destroy();
 	}
 
@@ -245,6 +257,9 @@ public class ClientManager {
 					@Override
 					public void run() {
 						try {
+							if(regionManager.isEnableRegionAutoSwitch() && !regionManager.isInCurrentRegion(url, hostInfo)) {
+								return;
+							}
 							RegistryEventListener.providerAdded(url, hostInfo.getHost(), hostInfo.getPort(),
 									hostInfo.getWeight());
 							RegistryEventListener.serverInfoChanged(url, hostInfo.getConnect());
@@ -263,6 +278,9 @@ public class ClientManager {
 			}
 		} else {
 			for (final HostInfo hostInfo : addresses) {
+				if(regionManager.isEnableRegionAutoSwitch() && !regionManager.isInCurrentRegion(url, hostInfo)) {
+					continue;
+				}
 				RegistryEventListener.providerAdded(url, hostInfo.getHost(), hostInfo.getPort(), hostInfo.getWeight());
 				RegistryEventListener.serverInfoChanged(url, hostInfo.getConnect());
 			}

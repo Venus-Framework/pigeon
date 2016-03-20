@@ -88,17 +88,20 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 	}
 
 	public static boolean canAccess(String ip) {
-		for (String addr : ipWhiteSet) {
-			if (ip.startsWith(addr)) {
-				return true;
+		if (configManager.getBooleanValue(KEY_ACCESS_IP_ENABLE, false)) {
+			for (String addr : ipWhiteSet) {
+				if (ip.startsWith(addr)) {
+					return true;
+				}
 			}
-		}
-		for (String addr : ipBlackSet) {
-			if (ip.startsWith(addr)) {
-				return false;
+			for (String addr : ipBlackSet) {
+				if (ip.startsWith(addr)) {
+					return false;
+				}
 			}
+			return configManager.getBooleanValue(KEY_ACCESS_DEFAULT, true);
 		}
-		return configManager.getBooleanValue(KEY_ACCESS_DEFAULT, true);
+		return true;
 	}
 
 	private static void parseAppSecrets(String config) {

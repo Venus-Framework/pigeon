@@ -64,6 +64,8 @@
 
 [tcp协议格式](#toc_31)
 
+[安全性](#toc_32)
+
 ## Pigeon开发指南
 ______
 
@@ -84,7 +86,7 @@ pom依赖定义：
 		<dependency>
 		<groupId>com.dianping.dpsf</groupId>
 		<artifactId>dpsf-net</artifactId>
-		<version>2.7.5</version>
+		<version>2.7.6-SNAPSHOT</version>
 		</dependency>
 
 pigeon在运行时会依赖以下jar包，但不是强依赖某个版本，需要应用自行加上以下jar(版本建议高于或等于以下基础版本)：
@@ -1410,4 +1412,58 @@ b）为了维持正常的tcp连接，还需要定期发送心跳消息和接收�
 
 	}
 
+### 安全性
+
+1、基于token的认证
+pigeon支持基于token的认证方式，token认证在pigeon的http和tcp协议层面都同时支持，如果开启token认证，客户端请求中必须设置pigeon规范的token，否则请求将被拒绝
+
+对于服务端：
+
+a、打开token认证开关
+token认证开关默认是关闭的，需要服务提供方自行打开，在lion里配置key，如xxx-service这个应用：配置xxx-service.pigeon.provider.token.enable，内容为true
+
+b、需要定义每个客户端的密钥，在配置中心lion里配置key：xxx-service.pigeon.provider.token.app.secrets，内容如：
+xxx-web:r3wzPd4azsHEhgDI69jubmV,yyy-service:45etwFsfFsHEdrg9ju3
+分别代表xxx-web和yyy-service的密钥，针对每个应用配置不同的密钥，密钥需要严格管理，不能泄露，目前限定密钥长度必须不少于16个字符
+
+c、如果服务提供方希望客户端在http header里设置token，可以在lion里配置xxx-service.pigeon.console.token.header为true，否则默认可以是url里带上token
+
+d、客户端需要带上timestamp到服务端，在服务端会对timestamp进行校验，默认只接受时差2分钟以内的请求，如果要调整可以设置：
+xxx-service.pigeon.provider.token.timestamp.diff，默认为120（单位秒）
+
+对于客户端：
+
+a、对于使用pigeon java客户端的应用，只需要配置所依赖的服务的密钥，在配置中心lion里配置key，如xxx-web这个应用：配置xxx-web.pigeon.invoker.token.app.secrets，内容如：
+xxx-service:r3wzPd4azsHEhgDI69jubmV,yyy-service:45etwFsfFsHEdrg9ju3
+分别代表访问xxx-service和yyy-service的密钥，针对每个服务端配置不同的密钥，密钥需要严格管理，不能泄露，这个配置不要跟服务端配置共享，应严格独立管理
+
+b、对于未使用pigeon java客户端的应用，如果通过HTTP GET方式请求，需要根据服务提供方提供的密钥，生成token，具体规则如下：
+如果服务提供方允许url带token传递，可以按以下url格式来发出请求
+http://pigeon.dper.com/xxx-service/invoke.json?app=xxx-web&token=v5cg4EUS4c8wIjOC70VwvvgxZzg&timestamp=1458447031&url=http://service.dianping.com/com.dianping.pigeon.demo.EchoService&method=echo&parameterTypes=java.lang.String&parameters=scott
+其中token生成规则是：
+String token = SecurityUtils.encrypt(data, secret)
+data字符串组成：服务名url + "#" + 服务方法名 + "#" + timestamp（目前为简单起见未加入请求参数等），例如调用http://service.dianping.com/com.dianping.pigeon.demo.EchoService这个服务的echo方法：
+http://service.dianping.com/com.dianping.pigeon.demo.EchoService#echo#1458442458
+timestamp是System.currentTimeMillis()/1000，也就是到秒
+secret就是这个服务提供方给的密钥，例如上面的r3wzPd4azsHEhgDI69jubmV
+url里必须再带上timestamp，timestamp=1458447031
+url里也必须带上app=xxx-web，以便在服务端进行认证
+
+c、如果服务提供方必须要求客户端将token等放在header里，以上url简化为：
+http://pigeon.dper.com/xxx-service/invoke.json?url=http://service.dianping.com/com.dianping.pigeon.demo.EchoService&method=echo&parameterTypes=java.lang.String&parameters=scott
+
+在header里必须有两个key：
+Timestamp,内容为上述类似的System.currentTimeMillis()/1000值，例如：1458447031
+Authorization，内容格式例如：pigeon=xxx-service:v5cg4EUS4c8wIjOC70VwvvgxZzg
+pigeon=为必须填的字符串，xxx-service代表app，冒号:后边的字符串为token值
+
+
+以上涉及lion的所有配置都是可以随时修改、动态生效
+
+2、基于ip的认证
+a、默认是关闭的，需要打开，对于xxx-service这个应用来说，可以在lion配置xxx-service.pigeon.provider.access.ip.enable为true
+b、分为3个配置：
+判断逻辑是先判断白名单(xxx-service.pigeon.provider.access.ip.whitelist配置，ip网段逗号分隔)是否匹配来源ip前缀，如果匹配，直接返回true允许访问
+如果不匹配，去黑名单（xxx-service.pigeon.provider.access.ip.blacklist配置，ip网段逗号分隔）找是否匹配来源ip前缀，黑名单里匹配到了，直接返回false不允许访问
+如果都没找到，返回xxx-service.pigeon.provider.access.ip.default值，默认是true，代表默认是允许访问
 

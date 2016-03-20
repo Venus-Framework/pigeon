@@ -2,6 +2,10 @@ package com.dianping.pigeon.governor.lion;
 
 public enum LionKeys {
 
+	MIN_PROVIDER_HEARTBEAT("pigeon-governor-server.min.provider.heartbeat"),
+
+	HEARTBEAT_ENABLE("pigeon.heartbeat.enable"),
+
 	PROVIDER_HEARTBEAT_INTERNAL("pigeon.provider.heartbeat.internal"),
 
 	IS_ZK_DOUBLE_WRITE("pigeon-governor-server.zookeeper.isdoublewrite"),

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.dianping.pigeon.registry.RegionManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
@@ -34,6 +35,8 @@ public class ProviderAvailableListener implements Runnable {
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static final String KEY_INTERVAL = "pigeon.providerlistener.interval";
+	
+	private RegionManager regionManager = RegionManager.getInstance();
 
 	private static final String KEY_AVAILABLE_LEAST = "pigeon.providerlistener.availableleast";
 
@@ -67,6 +70,11 @@ public class ProviderAvailableListener implements Runnable {
 					checkReferencedServices();
 				} catch (Throwable e) {
 					logger.info("check referenced services failed:", e);
+				}
+
+				// region自动切换时跳过后面的检查
+				if(regionManager.isEnableRegionAutoSwitch()) {
+					continue;
 				}
 
 				Set<InvokerConfig<?>> services = ServiceFactory.getAllServiceInvokers().keySet();
