@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.MonitorLoader;
+import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
@@ -35,7 +37,6 @@ import com.dianping.pigeon.util.CollectionUtils;
 public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 
 	private static final Logger logger = LoggerLoader.getLogger(RemoteCallInvokeFilter.class);
-
 	private static final InvocationResponse NO_RETURN_RESPONSE = InvokerUtils.createNoReturnResponse();
 
 	@Override
@@ -49,6 +50,10 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		String callType = invokerConfig.getCallType();
 		beforeInvoke(request, client);
+		boolean isCancel = InvokerHelper.getCancel();
+		if (isCancel) {
+			return InvokerUtils.createDefaultResponse(InvokerHelper.getDefaultResult());
+		}
 		InvocationResponse response = null;
 		int timeout = request.getTimeout();
 		Map<String, InvokerMethodConfig> methods = invokerConfig.getMethods();
@@ -61,6 +66,10 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 		Integer timeoutThreadLocal = InvokerHelper.getTimeout();
 		if (timeoutThreadLocal != null) {
 			timeout = timeoutThreadLocal;
+		}
+		MonitorTransaction transaction = MonitorLoader.getMonitor().getCurrentCallTransaction();
+		if (transaction != null) {
+			transaction.addData("CurrentTimeout", timeout);
 		}
 		if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
 			CallbackFuture future = new CallbackFuture();

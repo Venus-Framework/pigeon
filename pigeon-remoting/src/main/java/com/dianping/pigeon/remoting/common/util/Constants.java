@@ -84,6 +84,10 @@ public final class Constants {
 	// Deafult value for the above keys
 	public static final String DEFAULT_GROUP = "";
 
+	public static final String REQUEST_KEY_TOKEN = "@s";
+	public static final String REQUEST_KEY_TIMESTAMP = "@t";
+	public static final String REQUEST_KEY_VERSION = "@v";
+
 	public static final String KEY_LOADBALANCE = "pigeon.loadbalance.defaulttype";
 	public static final String KEY_RECONNECT_INTERVAL = "pigeon.reconnect.interval";
 	public static final String KEY_HEARTBEAT_INTERVAL = "pigeon.heartbeat.interval";
@@ -108,8 +112,6 @@ public final class Constants {
 	public static final String KEY_HEARTBEAT_ENABLE = "pigeon.heartbeat.enable";
 	public static final String KEY_TEST_ENABLE = "pigeon.test.enable";
 	public static final String KEY_CONNECT_TIMEOUT = "pigeon.netty.connecttimeout";
-	public static final String KEY_WEIGHT_WARMUPPERIOD = "pigeon.weight.warmupperiod";
-	public static final String KEY_WEIGHT_STARTDELAY = "pigeon.weight.startdelay";
 	public static final String KEY_PROVIDER_HEARTBEAT_INTERNAL = "pigeon.provider.heartbeat.internal";
 
 	public static final int DEFAULT_INVOKER_TIMEOUT = 5000;
@@ -133,7 +135,6 @@ public final class Constants {
 	public static final boolean DEFAULT_NOTIFY_ENABLE = true;
 	public static final boolean DEFAULT_TEST_ENABLE = true;
 	public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
-	public static final int DEFAULT_WEIGHT_WAMUPPERIOD = 1000;
 	public static final int DEFAULT_WEIGHT_STARTDELAY = 30000;
 	public static final int DEFAULT_PROVIDER_HEARTBEAT_INTERNAL = 60000;
 
@@ -144,7 +145,6 @@ public final class Constants {
 	public static final String KEY_ONLINE_WHILE_INITIALIZED = "pigeon.online.whileinitialized";
 	public static final boolean DEFAULT_ONLINE_WHILE_INITIALIZED = false;
 	public static final boolean DEFAULT_TIMEOUT_CANCEL = false;
-	public static final String KEY_TIMEOUT_CANCEL = "pigeon.timeout.cancel";
 	public static final int DEFAULT_STRING_MAXLENGTH = 1000;
 	public static final String KEY_STRING_MAXLENGTH = "pigeon.string.maxlength";
 	public static final int DEFAULT_STRING_MAXITEMS = 500;
@@ -155,7 +155,6 @@ public final class Constants {
 	public static final int DEFAULT_WEIGHT_INITIAL = 0;
 	public static final String KEY_WEIGHT_DEFAULT = "pigeon.weight.default";
 	public static final int DEFAULT_WEIGHT_DEFAULT = 1;
-	public static final String KEY_SERVICEWARMUP_ENABLE = "pigeon.servicewarmup.enable";
 	public static final String KEY_AUTOREGISTER_ENABLE = "pigeon.autoregister.enable";
 	public static final String KEY_AUTOPUBLISH_ENABLE = "pigeon.autopublish.enable";
 	public static final String KEY_AUTOUNPUBLISH_ENABLE = "pigeon.autounpublish.enable";
@@ -204,7 +203,7 @@ public final class Constants {
 
 	public static boolean PROVIDER_CALLBACK_MONITOR_ENABLE = MONITOR_ENABLE
 			&& ConfigManagerLoader.getConfigManager().getBooleanValue("pigeon.provider.callback.monitor.enabled", true);
-	
+
 	public static final int PROVIDER_POOL_CORE_SIZE = ConfigManagerLoader.getConfigManager().getIntValue(
 			Constants.KEY_PROVIDER_COREPOOLSIZE, Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
 
@@ -213,6 +212,9 @@ public final class Constants {
 
 	public static final int PROVIDER_POOL_QUEUE_SIZE = ConfigManagerLoader.getConfigManager().getIntValue(
 			Constants.KEY_PROVIDER_WORKQUEUESIZE, Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
+
+	public static final boolean TOKEN_ENABLE = ConfigManagerLoader.getConfigManager().getBooleanValue(
+			"pigeon.provider.token.enable", false);
 
 	public static final String KEY_SERVICE_SHARED = "pigeon.provider.service.shared";
 	public static final boolean DEFAULT_SERVICE_SHARED = true;

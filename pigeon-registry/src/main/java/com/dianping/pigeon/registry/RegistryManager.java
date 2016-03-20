@@ -314,18 +314,23 @@ public class RegistryManager {
 		return referencedServiceAddresses;
 	}
 
-	public String getReferencedApp(String serverAddress) {
+	public String getReferencedAppFromCache(String serverAddress) {
 		HostInfo hostInfo = referencedAddresses.get(serverAddress);
 		String app = null;
 		if (hostInfo != null) {
 			app = hostInfo.getApp();
-			// if (app == null && registry != null) {
-			// app = registry.getServerApp(serverAddress);
-			// hostInfo.setApp(app);
-			// }
 			return app;
 		}
 		return "";
+	}
+
+	public String getReferencedApp(String serverAddress) {
+		String app = null;
+		if (registry != null) {
+			app = registry.getServerApp(serverAddress);
+			setReferencedApp(serverAddress, app);
+		}
+		return app;
 	}
 
 	public void setReferencedApp(String serverAddress, String app) {
@@ -347,20 +352,7 @@ public class RegistryManager {
 		}
 	}
 
-	public void setReferencedVersion(String serverAddress, String version) {
-		HostInfo hostInfo = referencedAddresses.get(serverAddress);
-		if (hostInfo != null) {
-			hostInfo.setVersion(version);
-		}
-	}
-
-	public void setServerVersion(String serverAddress, String version) {
-		if (registry != null) {
-			registry.setServerVersion(serverAddress, version);
-		}
-	}
-
-	public String getReferencedVersion(String serverAddress) {
+	public String getReferencedVersionFromCache(String serverAddress) {
 		HostInfo hostInfo = referencedAddresses.get(serverAddress);
 		String version = null;
 		if (hostInfo != null) {
@@ -372,6 +364,28 @@ public class RegistryManager {
 			return version;
 		}
 		return null;
+	}
+
+	public String getReferencedVersion(String serverAddress) {
+		String version = null;
+		if (registry != null) {
+			version = registry.getServerVersion(serverAddress);
+			setReferencedVersion(serverAddress, version);
+		}
+		return version;
+	}
+
+	public void setReferencedVersion(String serverAddress, String version) {
+		HostInfo hostInfo = referencedAddresses.get(serverAddress);
+		if (hostInfo != null) {
+			hostInfo.setVersion(version);
+		}
+	}
+
+	public void setServerVersion(String serverAddress, String version) {
+		if (registry != null) {
+			registry.setServerVersion(serverAddress, version);
+		}
 	}
 
 	public void unregisterServerVersion(String serverAddress) {
@@ -397,6 +411,7 @@ public class RegistryManager {
 				hostInfo.setVersion(version);
 			}
 		}
+
 	}
 
 	/**

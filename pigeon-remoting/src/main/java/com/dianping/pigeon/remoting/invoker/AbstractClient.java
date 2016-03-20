@@ -1,14 +1,21 @@
 package com.dianping.pigeon.remoting.invoker;
 
+import java.util.Map;
+
+import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.invoker.callback.Callback;
+import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;
 import com.dianping.pigeon.remoting.invoker.process.ResponseProcessor;
 import com.dianping.pigeon.remoting.invoker.process.ResponseProcessorFactory;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 
 public abstract class AbstractClient implements Client {
+
+	private volatile boolean active = true;
 
 	ResponseProcessor responseProcessor = ResponseProcessorFactory.selectProcessor();
 
@@ -39,4 +46,18 @@ public abstract class AbstractClient implements Client {
 
 	public abstract InvocationResponse doWrite(InvocationRequest request, Callback callback) throws NetworkException;
 
+	public boolean isActive() {
+		return active && HeartBeatListener.isActiveAddress(getAddress());
+	}
+
+	public void setActive(boolean active) {
+		if (active) {
+			ConnectInfo connectInfo = getConnectInfo();
+			Map<String, Integer> services = connectInfo.getServiceNames();
+			for (String url : services.keySet()) {
+				RegistryEventListener.serverInfoChanged(url, connectInfo.getConnect());
+			}
+		}
+		this.active = active;
+	}
 }

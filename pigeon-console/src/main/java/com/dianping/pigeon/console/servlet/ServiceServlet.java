@@ -37,7 +37,7 @@ import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
-import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.RandomUtils;
 
 import freemarker.cache.ClassTemplateLoader;
@@ -106,7 +106,7 @@ public class ServiceServlet extends HttpServlet {
 		return ServiceFactory.getAllServiceProviders();
 	}
 
-	protected void initServicePage(HttpServletRequest request) {
+	protected boolean initServicePage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ServicePage page = new ServicePage();
 		Collection<Server> servers = ProviderBootStrap.getServersMap().values();
 		StringBuilder ports = new StringBuilder();
@@ -149,6 +149,9 @@ public class ServiceServlet extends HttpServlet {
 				Method method = methodEntry.getValue();
 				s.addMethod(new ServiceMethod(method.getName(), method.getParameterTypes(), method.getReturnType()));
 			}
+			if (configManager.getBooleanValue("pigeon.provider.token.enable", false)) {
+				s.setToken("true");
+			}
 			page.addService(s);
 		}
 		page.setOnline("" + GlobalStatusChecker.isOnline());
@@ -160,12 +163,13 @@ public class ServiceServlet extends HttpServlet {
 		page.setDirect(direct);
 		page.setEnvironment(configManager.getEnv());
 		page.setGroup(configManager.getGroup());
-		page.setServiceWeights(ServiceProviderFactory.getServerWeight());
+		page.setServiceWeights(ServicePublisher.getServerWeight());
 		page.setRegistry(RegistryManager.getInstance().getRegistry().getStatistics());
 		page.setAppName(configManager.getAppName());
 		page.setStartTime(ProviderBootStrap.getStartTime() + "");
 		page.setValidate("" + isValidate);
 		this.model = page;
+		return true;
 	}
 
 	private void setStatus(ServicePage page, boolean isClientSide) {
@@ -179,7 +183,7 @@ public class ServiceServlet extends HttpServlet {
 		} else {// server-side
 			int publishedCount = 0;
 			int unpublishedCount = 0;
-			Map<String, ProviderConfig<?>> services = ServiceProviderFactory.getAllServiceProviders();
+			Map<String, ProviderConfig<?>> services = ServicePublisher.getAllServiceProviders();
 			for (Entry<String, ProviderConfig<?>> entry : services.entrySet()) {
 				ProviderConfig<?> providerConfig = entry.getValue();
 				if (providerConfig.isPublished()) {
@@ -223,20 +227,18 @@ public class ServiceServlet extends HttpServlet {
 	protected void generateView(HttpServletRequest request, HttpServletResponse response) throws IOException,
 			ServletException {
 		Template temp = cfg.getTemplate(getView());
-		initServicePage(request);
-		/*
-		 * if (this.model == null) { synchronized (this) { if (this.model ==
-		 * null) { initServicePage(); } } }
-		 */
-		try {
-			temp.process(this.model, response.getWriter());
-		} catch (TemplateException e) {
-			throw new ServletException(e);
-		}
-		if (isValidate) {
-			String token = RandomUtils.newRandomString(6);
-			setToken(token);
-			logger.warn("current verification code:" + token + ", from " + Utils.getIpAddr(request));
+		boolean result = initServicePage(request, response);
+		if (result) {
+			try {
+				temp.process(this.model, response.getWriter());
+			} catch (TemplateException e) {
+				throw new ServletException(e);
+			}
+			if (isValidate) {
+				String token = RandomUtils.newRandomString(6);
+				setToken(token);
+				logger.warn("current verification code:" + token + ", from " + Utils.getIpAddr(request));
+			}
 		}
 	}
 

@@ -30,4 +30,6 @@ public @interface Service {
 	boolean useSharedPool() default true;
 	
 	int actives() default 0;
+	
+	String token() default "";
 }

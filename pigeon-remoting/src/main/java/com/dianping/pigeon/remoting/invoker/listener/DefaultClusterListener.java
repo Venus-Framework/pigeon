@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientSelector;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
@@ -103,6 +104,7 @@ public class DefaultClusterListener implements ClusterListener {
 			if (client.isConnected()) {
 				for (Entry<String, Integer> sw : connectInfo.getServiceNames().entrySet()) {
 					String serviceName = sw.getKey();
+					RegistryEventListener.serverInfoChanged(serviceName, connectInfo.getConnect());
 					List<Client> clientList = this.serviceClients.get(serviceName);
 					if (clientList == null) {
 						clientList = new CopyOnWriteArrayList<Client>();

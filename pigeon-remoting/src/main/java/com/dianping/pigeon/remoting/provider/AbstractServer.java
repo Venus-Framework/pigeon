@@ -9,8 +9,6 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
-import com.dianping.pigeon.config.ConfigChangeListener;
-import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -36,28 +34,10 @@ public abstract class AbstractServer implements Server {
 
 	public abstract <T> void doRemoveService(ProviderConfig<T> providerConfig);
 
-	private class InnerConfigChangeListener implements ConfigChangeListener {
-
-		@Override
-		public void onKeyUpdated(String key, String value) {
-			if (key.endsWith("pigeon.provider.processtype")) {
-			}
-		}
-
-		@Override
-		public void onKeyAdded(String key, String value) {
-		}
-
-		@Override
-		public void onKeyRemoved(String key) {
-		}
-	}
-
 	public void start(ServerConfig serverConfig) {
 		if (logger.isInfoEnabled()) {
 			logger.info("server config:" + serverConfig);
 		}
-		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
 		requestProcessor = RequestProcessorFactory.selectProcessor(serverConfig);
 		doStart(serverConfig);
 		if (requestProcessor != null) {

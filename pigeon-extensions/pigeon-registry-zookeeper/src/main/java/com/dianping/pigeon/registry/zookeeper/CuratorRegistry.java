@@ -340,7 +340,7 @@ public class CuratorRegistry implements Registry {
 	@Override
 	public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
 		String servicePath = Utils.getServicePath(serviceName, group);
-		
+
 		try {
 			client.set(servicePath, hosts);
 		} catch (Throwable e) {
@@ -352,10 +352,10 @@ public class CuratorRegistry implements Registry {
 	@Override
 	public void delServerService(String serviceName, String group) throws RegistryException {
 		String servicePath = Utils.getServicePath(serviceName, group);
-		
+
 		try {
 			List<String> children = client.getChildren(servicePath);
-			
+
 			if (children != null && children.size() > 0) {
 				client.set(servicePath, "");
 			} else {
@@ -375,7 +375,6 @@ public class CuratorRegistry implements Registry {
 		} catch (Throwable e) {
 			logger.fatal("failed to register service heartbeat of " + serviceAddress, e);
 		}
-
 
 	}
 

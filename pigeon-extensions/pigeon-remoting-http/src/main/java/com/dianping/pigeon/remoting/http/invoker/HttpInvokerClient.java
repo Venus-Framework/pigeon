@@ -31,7 +31,6 @@ public class HttpInvokerClient extends AbstractClient {
 	private HttpInvokerExecutor httpInvokerExecutor;
 	private String serviceUrlPrefix = null;
 	private String defaultServiceUrl = null;
-	private boolean isActive = true;
 	private boolean isConnected = false;
 	public static final String CONTENT_TYPE_SERIALIZED_OBJECT = "application/x-java-serialized-object";
 
@@ -104,16 +103,6 @@ public class HttpInvokerClient extends AbstractClient {
 	@Override
 	public boolean isConnected() {
 		return isConnected;
-	}
-
-	@Override
-	public boolean isActive() {
-		return isActive && HeartBeatListener.isActiveAddress(getAddress());
-	}
-
-	@Override
-	public void setActive(boolean isActive) {
-		this.isActive = isActive;
 	}
 
 	@Override

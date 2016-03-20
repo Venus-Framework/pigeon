@@ -14,9 +14,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLoader;
-import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.CompactRequest;
@@ -33,10 +30,14 @@ import com.dianping.pigeon.util.VersionUtils;
 public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
 	private static final Logger logger = LoggerLoader.getLogger(ContextPrepareInvokeFilter.class);
-	private Monitor monitor = MonitorLoader.getMonitor();
 	private ConcurrentHashMap<String, Boolean> serializeVersionMap = new ConcurrentHashMap<String, Boolean>();
 	private ConcurrentHashMap<String, Boolean> compactVersionMap = new ConcurrentHashMap<String, Boolean>();
 	private static AtomicLong requestSequenceMaker = new AtomicLong();
+	private static final String KEY_COMPACT = "pigeon.invoker.request.compact";
+
+	public ContextPrepareInvokeFilter() {
+		ConfigManagerLoader.getConfigManager().getBooleanValue(KEY_COMPACT, true);
+	}
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
@@ -76,10 +77,6 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 					}
 				}
 			}
-			MonitorTransaction transaction = monitor.getCurrentCallTransaction();
-			if (transaction != null) {
-				transaction.addData("CurrentTimeout", request.getTimeout());
-			}
 			if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallType())) {
 				request.setCallType(Constants.CALLTYPE_NOREPLY);
 			} else {
@@ -93,7 +90,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 		if (request.getSerialize() == SerializerFactory.SERIALIZE_PROTO
 				|| request.getSerialize() == SerializerFactory.SERIALIZE_FST) {
 			Client client = invokerContext.getClient();
-			String version = RegistryManager.getInstance().getReferencedVersion(client.getAddress());
+			String version = RegistryManager.getInstance().getReferencedVersionFromCache(client.getAddress());
 			boolean supported = true;
 			if (StringUtils.isBlank(version)) {
 				supported = false;
@@ -112,9 +109,9 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
 	private void compactRequest(InvokerContext invokerContext) {
 		boolean isCompact = false;
-		if (ConfigManagerLoader.getConfigManager().getBooleanValue("pigeon.invoker.request.compact", true)) {
+		if (ConfigManagerLoader.getConfigManager().getBooleanValue(KEY_COMPACT, true)) {
 			Client client = invokerContext.getClient();
-			String version = RegistryManager.getInstance().getReferencedVersion(client.getAddress());
+			String version = RegistryManager.getInstance().getReferencedVersionFromCache(client.getAddress());
 			if (StringUtils.isBlank(version)) {
 				isCompact = false;
 			} else if (compactVersionMap.containsKey(version)) {

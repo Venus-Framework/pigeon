@@ -17,10 +17,6 @@ import com.dianping.pigeon.remoting.invoker.process.InvokerProcessInterceptorFac
 
 public abstract class InvocationInvokeFilter implements ServiceInvocationFilter<InvokerContext> {
 
-	public static enum InvokePhase {
-		Call, Before_Call, Cluster, Before_Cluster, Error_Handle, Finalize;
-	}
-
 	public void beforeInvoke(InvocationRequest request, Client client) {
 		// TIMELINE_start
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {

@@ -66,7 +66,7 @@ public class HttpChannel implements ProviderChannel {
 
 	@Override
 	public String getRemoteAddress() {
-		return this.request.getRemoteAddr() + ":" + this.request.getRemotePort();
+		return this.request.getRemoteAddr();
 	}
 
 	@Override

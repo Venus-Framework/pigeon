@@ -20,7 +20,7 @@ import com.dianping.pigeon.remoting.common.domain.ServiceId;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
 import com.dianping.pigeon.remoting.provider.process.filter.ContextTransferProcessFilter;
-import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.LangUtils;
 
 public final class ServiceMethodFactory {
@@ -51,7 +51,7 @@ public final class ServiceMethodFactory {
 		}
 		String[] paramClassNames = request.getParamClassName();
 		String version = request.getVersion();
-		String newUrl = ServiceProviderFactory.getServiceUrlWithVersion(serviceName, version);
+		String newUrl = ServicePublisher.getServiceUrlWithVersion(serviceName, version);
 		if (logger.isDebugEnabled()) {
 			logger.debug("get method for service url:" + request);
 		}
@@ -72,7 +72,7 @@ public final class ServiceMethodFactory {
 	public static ServiceMethodCache getServiceMethodCache(String url) {
 		ServiceMethodCache serviceMethodCache = methods.get(url);
 		if (serviceMethodCache == null) {
-			Map<String, ProviderConfig<?>> services = ServiceProviderFactory.getAllServiceProviders();
+			Map<String, ProviderConfig<?>> services = ServicePublisher.getAllServiceProviders();
 			ProviderConfig<?> providerConfig = services.get(url);
 			if (providerConfig != null) {
 				Object service = providerConfig.getService();

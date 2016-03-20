@@ -72,6 +72,7 @@
 					<xsd:attribute name="group" type="xsd:string" />
 					<xsd:attribute name="vip" type="xsd:string" />
 					<xsd:attribute name="version" type="xsd:string" />
+					<xsd:attribute name="secret" type="xsd:string" default="" />	
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>

@@ -50,10 +50,6 @@ public class NettyClient extends AbstractClient {
 
 	private volatile boolean connected = false;
 
-	private volatile boolean closed = false;
-
-	private volatile boolean active = true;
-
 	private ConnectInfo connectInfo;
 
 	public static final int CLIENT_CONNECTIONS = Runtime.getRuntime().availableProcessors();
@@ -197,14 +193,6 @@ public class NettyClient extends AbstractClient {
 		return connected;
 	}
 
-	public boolean isActive() {
-		return active && HeartBeatListener.isActiveAddress(address);
-	}
-
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-
 	@Override
 	public boolean isWritable() {
 		return this.channel.isWritable();
@@ -246,7 +234,6 @@ public class NettyClient extends AbstractClient {
 	@Override
 	public void close() {
 		logger.info("close client:" + this.host + ":" + this.port);
-		closed = true;
 		channel.close();
 	}
 

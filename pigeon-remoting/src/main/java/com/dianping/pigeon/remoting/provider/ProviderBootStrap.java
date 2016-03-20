@@ -26,13 +26,13 @@ import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.listener.ShutdownHookListener;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessHandlerFactory;
-import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.ClassUtils;
 import com.dianping.pigeon.util.VersionUtils;
 
 public final class ProviderBootStrap {
 
-	private static Logger logger = LoggerLoader.getLogger(ServiceProviderFactory.class);
+	private static Logger logger = LoggerLoader.getLogger(ServicePublisher.class);
 	static Server httpServer = null;
 	static volatile Map<String, Server> serversMap = new HashMap<String, Server>();
 	static volatile boolean isInitialized = false;

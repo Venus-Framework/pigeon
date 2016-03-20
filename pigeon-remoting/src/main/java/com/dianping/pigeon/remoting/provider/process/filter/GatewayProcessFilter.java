@@ -35,15 +35,16 @@ import com.dianping.pigeon.util.ThreadPoolUtils;
 public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderContext>, Disposable {
 
 	private static final Logger logger = LoggerLoader.getLogger(GatewayProcessFilter.class);
-	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
-	private static boolean isAppLimitEnabled = configManager.getBooleanValue("pigeon.provider.applimit.enable", false);
-	private static boolean isAppLimitQps = configManager.getBooleanValue("pigeon.provider.applimit.qps", true);
+	private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+	private static final String KEY_APPLIMIT_ENABLE = "pigeon.provider.applimit.enable";
+	private static final String KEY_APPLIMIT = "pigeon.provider.applimit";
 	private static Map<String, Long> appLimitMap = new ConcurrentHashMap<String, Long>();
 	private static ThreadPool statisticsCheckerPool = new DefaultThreadPool("Pigeon-Server-Statistics-Checker");
 
 	static {
-		String appLimitConfig = configManager.getStringValue("pigeon.provider.applimit");
+		String appLimitConfig = configManager.getStringValue(KEY_APPLIMIT);
 		parseAppLimitConfig(appLimitConfig);
+		configManager.getBooleanValue(KEY_APPLIMIT_ENABLE, false);
 		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
 		ProviderStatisticsChecker appStatisticsChecker = new ProviderStatisticsChecker();
 		statisticsCheckerPool.execute(appStatisticsChecker);
@@ -55,16 +56,19 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 
 	private static void parseAppLimitConfig(String appLimitConfig) {
 		if (StringUtils.isNotBlank(appLimitConfig)) {
+			ConcurrentHashMap<String, Long> map = new ConcurrentHashMap<String, Long>();
 			try {
 				String[] appLimitConfigPair = appLimitConfig.split(",");
 				for (String str : appLimitConfigPair) {
 					if (StringUtils.isNotBlank(str)) {
 						String[] pair = str.split(":");
 						if (pair != null && pair.length == 2) {
-							appLimitMap.put(pair[0], Long.valueOf(pair[1]));
+							map.put(pair[0], Long.valueOf(pair[1]));
 						}
 					}
 				}
+				appLimitMap.clear();
+				appLimitMap = map;
 			} catch (RuntimeException e) {
 				logger.error("error while parsing app limit configuration:" + appLimitConfig, e);
 			}
@@ -82,13 +86,11 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 		InvocationResponse response = null;
 		try {
 			ProviderStatisticsHolder.flowIn(request);
-			if (isAppLimitEnabled && StringUtils.isNotBlank(fromApp) && appLimitMap.containsKey(fromApp)) {
+			if (configManager.getBooleanValue(KEY_APPLIMIT_ENABLE, false) && StringUtils.isNotBlank(fromApp)
+					&& appLimitMap.containsKey(fromApp)) {
 				Long limit = appLimitMap.get(fromApp);
 				if (limit >= 0) {
 					long requests = ProviderStatisticsHolder.getCapacityBucket(request).getRequestsInCurrentSecond();
-					if (!isAppLimitQps) {
-						requests = ProviderStatisticsHolder.getCapacityBucket(request).getCurrentRequests();
-					}
 					if (requests + 1 > limit) {
 						throw new RejectedException("request from app:" + fromApp
 								+ " refused, max requests limit reached:" + limit);
@@ -108,18 +110,8 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 
 		@Override
 		public void onKeyUpdated(String key, String value) {
-			if (key.endsWith("pigeon.provider.applimit")) {
+			if (key.endsWith(KEY_APPLIMIT)) {
 				parseAppLimitConfig(value);
-			} else if (key.endsWith("pigeon.provider.applimit.enable")) {
-				try {
-					isAppLimitEnabled = Boolean.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			} else if (key.endsWith("pigeon.provider.applimit.qps")) {
-				try {
-					isAppLimitQps = Boolean.valueOf(value);
-				} catch (RuntimeException e) {
-				}
 			}
 		}
 

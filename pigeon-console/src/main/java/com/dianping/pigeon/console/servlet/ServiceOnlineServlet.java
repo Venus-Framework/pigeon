@@ -18,7 +18,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
-import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 
 public class ServiceOnlineServlet extends HttpServlet {
 
@@ -36,7 +36,7 @@ public class ServiceOnlineServlet extends HttpServlet {
 		String ip = Utils.getIpAddr(request);
 		logger.info("online all services, from " + ip);
 		if (Utils.isGranted(request)) {
-			boolean isOnline = ServiceProviderFactory.isAutoPublish();
+			boolean isOnline = ServicePublisher.isAutoPublish();
 			String force = request.getParameter("force");
 			if ("true".equalsIgnoreCase(force)) {
 				isOnline = true;

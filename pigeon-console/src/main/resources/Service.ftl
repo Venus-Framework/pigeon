@@ -28,8 +28,10 @@
 						content.hide();
 						return;
 					}
-					if('${validate}'=='true'){
-						content.append("<p>verification code(from /data/applogs/pigeon/pigeon.*.log):<input type='text' id='token' value=''/></p>");
+					if(treeNode.token=='true'){
+						content.append("<p>authentication token:<p><input type='text' id='token' value=''/></p>");
+					} else if('${validate}'=='true'){
+						content.append("<p>verification code(from /data/applogs/pigeon/pigeon.*.log):<p><input type='text' id='token' value=''/></p>");
 					}
 					if(treeNode.parameters>0){
 						content.append("<p>parameter values:</p>");
@@ -92,6 +94,7 @@
 			{ id:${x_index + 1}${m_index + 1}, pId:${x_index + 1}, 
 				data_url:"${x.name}",title:"${m.name}(<#list m.parameterTypes as p>${p.canonicalName}<#if p_has_next>,</#if></#list>)",
 				data_method:"${m.name}",
+				token:"${x.token}",
 				data_parameterTypes: "<#list m.parameterTypes as p>${p.name}<#if p_has_next>,</#if></#list>",
 				name:"${m.name}(<#list m.parameterTypes as p>${p.canonicalName}<#if p_has_next>,</#if></#list>)", 
 				parameters:"${m.parameterTypes?size}"}<#if m_has_next>,<#elseif x_has_next>,</#if>

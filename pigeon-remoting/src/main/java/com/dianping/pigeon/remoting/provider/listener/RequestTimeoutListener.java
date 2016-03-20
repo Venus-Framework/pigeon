@@ -16,7 +16,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
-import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -38,77 +37,37 @@ public class RequestTimeoutListener implements Runnable {
 	private static final Monitor monitor = MonitorLoader.getMonitor();
 	private Map<InvocationRequest, ProviderContext> requestContextMap;
 	private RequestProcessor requestProcessor;
-	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+	private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 	private static long timeoutInterval = configManager.getLongValue(Constants.KEY_TIMEOUT_INTERVAL,
 			Constants.DEFAULT_TIMEOUT_INTERVAL);
-	private static boolean defaultCancelTimeout = configManager.getBooleanValue(Constants.KEY_TIMEOUT_CANCEL,
-			Constants.DEFAULT_TIMEOUT_CANCEL);
-	private static boolean interruptBusy = configManager.getBooleanValue("pigeon.timeout.interruptbusy", true);
 	private static int requestQueueSize = configManager.getIntValue("pigeon.timeout.requestqueue.size", 10);
 	private Queue<Map<String, Integer>> timeoutRequestQueue = new ArrayBlockingQueue<Map<String, Integer>>(
 			requestQueueSize);
 	private volatile Map<String, Integer> timeoutRequestCountMap = null;
-	private static int timeoutRequestThreshold = configManager.getIntValue("pigeon.timeout.request.thredhold", 3);
-	private static boolean isolatedByApp = configManager.getBooleanValue("pigeon.timeout.isolation.app", true);
-	private static boolean isolatedByParameters = configManager.getBooleanValue("pigeon.timeout.isolation.parameters",
-			false);
-
-	private class InnerConfigChangeListener implements ConfigChangeListener {
-
-		@Override
-		public void onKeyUpdated(String key, String value) {
-			if (key.endsWith("pigeon.timeout.interruptbusy")) {
-				try {
-					interruptBusy = Boolean.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			} else if (key.endsWith("pigeon.timeout.cancel")) {
-				try {
-					defaultCancelTimeout = Boolean.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			} else if (key.endsWith("pigeon.timeout.request.thredhold")) {
-				try {
-					timeoutRequestThreshold = Integer.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			} else if (key.endsWith("pigeon.timeout.isolation.app")) {
-				try {
-					isolatedByApp = Boolean.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			} else if (key.endsWith("pigeon.timeout.isolation.parameters")) {
-				try {
-					isolatedByParameters = Boolean.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			}
-		}
-
-		@Override
-		public void onKeyAdded(String key, String value) {
-		}
-
-		@Override
-		public void onKeyRemoved(String key) {
-		}
-
-	}
+	private static final String KEY_TIMEOUT_THRESHOLD = "pigeon.timeout.request.threshold";
+	private static final String KEY_TIMEOUT_ISOLATION_APP = "pigeon.timeout.isolation.app";
+	private static final String KEY_TIMEOUT_ISOLATION_PARAMETERS = "pigeon.timeout.isolation.parameters";
+	private static final String KEY_TIMEOUT_CANCEL = "pigeon.timeout.cancel";
+	private static final String KEY_TIMEOUT_INTERRUPT = "pigeon.timeout.interruptbusy";
 
 	public RequestTimeoutListener(RequestProcessor requestProcessor,
 			Map<InvocationRequest, ProviderContext> requestContextMap) {
 		this.requestProcessor = requestProcessor;
 		this.requestContextMap = requestContextMap;
-		configManager.registerConfigChangeListener(new InnerConfigChangeListener());
+		configManager.getIntValue(KEY_TIMEOUT_THRESHOLD, 3);
+		configManager.getBooleanValue(KEY_TIMEOUT_ISOLATION_APP, true);
+		configManager.getBooleanValue(KEY_TIMEOUT_ISOLATION_PARAMETERS, false);
+		configManager.getBooleanValue(KEY_TIMEOUT_CANCEL, Constants.DEFAULT_TIMEOUT_CANCEL);
+		configManager.getBooleanValue(KEY_TIMEOUT_INTERRUPT, true);
 	}
 
 	private String getRequestUrl(InvocationRequest request) {
 		StringBuilder url = new StringBuilder();
 		url.append(request.getServiceName()).append("#").append(request.getMethodName());
-		if (isolatedByParameters) {
+		if (configManager.getBooleanValue(KEY_TIMEOUT_ISOLATION_PARAMETERS, false)) {
 			url.append("#").append(StringUtils.join(request.getParamClassName(), ","));
 		}
-		if (isolatedByApp) {
+		if (configManager.getBooleanValue(KEY_TIMEOUT_ISOLATION_APP, true)) {
 			url.append("#").append(request.getApp());
 		}
 		return url.toString();
@@ -118,7 +77,7 @@ public class RequestTimeoutListener implements Runnable {
 		if (!CollectionUtils.isEmpty(timeoutRequestCountMap)) {
 			String requestUrl = getRequestUrl(request);
 			Integer total = timeoutRequestCountMap.get(requestUrl);
-			if (total != null && total > timeoutRequestThreshold) {
+			if (total != null && total > configManager.getIntValue(KEY_TIMEOUT_THRESHOLD, 3)) {
 				return true;
 			}
 		}
@@ -159,8 +118,9 @@ public class RequestTimeoutListener implements Runnable {
 						try {
 							ProviderContext rc = requestContextMap.get(request);
 							if (rc != null) {
-								boolean cancelTimeout = defaultCancelTimeout;
-								if (interruptBusy && processor != null) {
+								boolean cancelTimeout = configManager.getBooleanValue(KEY_TIMEOUT_CANCEL,
+										Constants.DEFAULT_TIMEOUT_CANCEL);
+								if (configManager.getBooleanValue(KEY_TIMEOUT_INTERRUPT, true) && processor != null) {
 									cancelTimeout = processor.needCancelRequest(request);
 								}
 								if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
