@@ -30,7 +30,7 @@ public class LoggerLoader {
 
 	private static LoggerContext context = null;
 
-	public static String LOG_ROOT = System.getProperty("pigeon.log.path", "/data/applogs/pigeon");
+	public static String LOG_ROOT = System.getProperty("pigeon.log.dir", "/data/applogs/pigeon");
 
 	static {
 		init();
