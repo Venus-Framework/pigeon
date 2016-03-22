@@ -1,4 +1,4 @@
-package com.dianping.pigeon.registry;
+package com.dianping.pigeon.registry.region;
 
 /**
  * Created by chenchongze on 16/3/9.

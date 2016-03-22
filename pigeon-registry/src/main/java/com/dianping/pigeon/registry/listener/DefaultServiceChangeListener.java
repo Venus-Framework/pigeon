@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.registry.RegionManager;
+import com.dianping.pigeon.registry.region.RegionManager;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.domain.HostInfo;

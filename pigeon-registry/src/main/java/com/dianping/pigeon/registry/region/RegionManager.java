@@ -1,4 +1,4 @@
-package com.dianping.pigeon.registry;
+package com.dianping.pigeon.registry.region;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -8,10 +8,7 @@ import com.dianping.pigeon.registry.exception.RegionException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -25,23 +22,26 @@ public class RegionManager {
 
     private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
+    private PriorityQueue<Region> waitingRegionQueue;
+
     // 自动切换region的开关
     private boolean enableRegionAutoSwitch = configManager.getBooleanValue("pigeon.regions.enable", false);
 
     // example: 10.66.xx.yy --> true
     private ConcurrentHashMap<String, Boolean> regionHostHeartBeatStats = new ConcurrentHashMap<String, Boolean>();
 
-    private String localRegion;
-    private String notLocalRegion;
+    private Region localRegion;
+
+    private Region notLocalRegion;
 
     // service --> region mapping
-    private ConcurrentHashMap<String, String> serviceCurrentRegionMappings = new ConcurrentHashMap<String, String>();
+    private ConcurrentHashMap<String, Region> serviceCurrentRegionMappings = new ConcurrentHashMap<String, Region>();
 
     // example: 10.66 --> region1
-    private ConcurrentHashMap<String, String> patternRegionMappings = new ConcurrentHashMap<String, String>();
+    private ConcurrentHashMap<String, Region> patternRegionMappings = new ConcurrentHashMap<String, Region>();
 
     // region1 --> 10.66 192.168
-    private ConcurrentHashMap<String, List<String>> regionPatternMappings = new ConcurrentHashMap<String, List<String>>();
+    //private ConcurrentHashMap<String, List<String>> regionPatternMappings = new ConcurrentHashMap<String, List<String>>();
 
     private RegionManager() {
         init();
@@ -62,7 +62,28 @@ public class RegionManager {
         String pigeonRegionsConfig = configManager.getStringValue("pigeon.regions", "region1:10.1,10.3;region2:10.6;region3:10.8,10.9");
         String[] regionConfigs = pigeonRegionsConfig.split(";");
 
-        for(String regionConfig : regionConfigs) {
+        if(regionConfigs.length <= 0) {
+            logger.error("Error! Set [enableRegionAutoSwitch] to false! Please check regions config!");
+            enableRegionAutoSwitch = false;
+            return ;
+        }
+
+        waitingRegionQueue = new PriorityQueue<Region>(regionConfigs.length, new RegionComparator());
+
+        for(int i = 0; i < regionConfigs.length; ++i) {
+            String[] regionPatternMapping = regionConfigs[i].split(":");
+            String regionName = regionPatternMapping[0];
+            String[] patterns = regionPatternMapping[1].split(",");
+
+            Region region = new Region(regionName, i);
+            waitingRegionQueue.offer(region);
+
+            for(String pattern : patterns) {
+                patternRegionMappings.putIfAbsent(pattern, region);
+            }
+        }
+
+        /*for(String regionConfig : regionConfigs) {
             String[] regionPatternMapping = regionConfig.split(":");
             String region = regionPatternMapping[0];
             String[] patterns = regionPatternMapping[1].split(",");
@@ -74,13 +95,12 @@ public class RegionManager {
             }
             regionPatternMappings.putIfAbsent(region, patternList);
 
-        }
+        }*/
 
         //初始化local region
         String pattern = getPattern(configManager.getLocalIp());
         if(patternRegionMappings.containsKey(pattern)) {
             localRegion = patternRegionMappings.get(pattern);
-            notLocalRegion = "NOT_" + localRegion;
         } else {
             logger.error("Error! Set [enableRegionAutoSwitch] to false! Can't init local region: " + configManager.getLocalIp());
             enableRegionAutoSwitch = false;
@@ -92,16 +112,10 @@ public class RegionManager {
         return host.substring(0, host.indexOf(".", host.indexOf(".") + 1 ));
     }
 
-    private String getRegion(String host) throws RegionException {
+    private Region getRegion(String host) throws RegionException {
         String pattern = getPattern(host);
         if(patternRegionMappings.containsKey(pattern)) {
-            String _region = patternRegionMappings.get(pattern);
-            //TODO 之后还要做完善，现在暂时分为本地非本地
-            if(localRegion.equalsIgnoreCase(_region)) {
-                return localRegion;
-            } else {
-                return notLocalRegion;
-            }
+            return patternRegionMappings.get(pattern);
         } else {
             throw new RegionException("can't find ip pattern in region mapping: " + host);
         }
@@ -109,7 +123,7 @@ public class RegionManager {
 
     public boolean isInLocalRegion(String host) {
         try {
-            if(getRegion(host).equalsIgnoreCase(localRegion)) {
+            if (getRegion(host).equals(localRegion)) {
                 return true;
             } else {
                 return false;
@@ -125,9 +139,9 @@ public class RegionManager {
 
     public boolean isInCurrentRegion(String serviceName, HostInfo hostInfo) {
         //TODO 判断并加入缓存(主要缓存本region的，重点观察对象)
-        String currentRegion = serviceCurrentRegionMappings.get(serviceName);
+        Region currentRegion = serviceCurrentRegionMappings.get(serviceName);
         try {
-            if(getRegion(hostInfo.getHost()).equalsIgnoreCase(currentRegion)) {
+            if(getRegion(hostInfo.getHost()).equals(currentRegion)) {
                 return true;
             } else {
                 return false;
@@ -153,7 +167,7 @@ public class RegionManager {
             if(StringUtils.isNotBlank(host)) {
                 // 注意：ip 和 host 语义不同
                 try {
-                    if(localRegion.equalsIgnoreCase(getRegion(host))) {
+                    if(localRegion.equals(getRegion(host))) {
                         resultSet.add(host);
                     }
                 } catch (Exception e) {
@@ -186,19 +200,30 @@ public class RegionManager {
         serviceCurrentRegionMappings.putIfAbsent(serviceName, localRegion);
     }
 
-    public ConcurrentHashMap<String, String> getServiceCurrentRegionMappings() {
+    public ConcurrentHashMap<String, Region> getServiceCurrentRegionMappings() {
         return serviceCurrentRegionMappings;
     }
 
-    public String getLocalRegion() {
+    public Region getLocalRegion() {
         return localRegion;
     }
 
-    public String getNotLocalRegion() {
+    public Region getNotLocalRegion() {
         return notLocalRegion;
     }
 
     public ConcurrentHashMap<String, Boolean> getRegionHostHeartBeatStats() {
         return regionHostHeartBeatStats;
+    }
+
+    private class RegionComparator implements Comparator<Region> {
+
+        @Override
+        public int compare(Region o1, Region o2) {
+            Integer priority1 = o1.getPriority();
+            Integer priority2 = o2.getPriority();
+
+            return priority1.compareTo(priority2);
+        }
     }
 }

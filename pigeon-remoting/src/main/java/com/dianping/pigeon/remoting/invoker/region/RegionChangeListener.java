@@ -4,7 +4,8 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.registry.RegionManager;
+import com.dianping.pigeon.registry.region.Region;
+import com.dianping.pigeon.registry.region.RegionManager;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.remoting.ServiceFactory;
@@ -52,7 +53,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
         return instance;
     }
     
-    private void switchRegion(String serviceName, String region) {
+    private void switchRegion(String serviceName, Region region) {
         regionManager.getServiceCurrentRegionMappings().put(serviceName, region);
     }
 
@@ -89,7 +90,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                     }
 
                     //TODO ①local时
-                    if (regionManager.getLocalRegion().equalsIgnoreCase(regionManager.getServiceCurrentRegionMappings().get(url))) {
+                    if (regionManager.getLocalRegion().equals(regionManager.getServiceCurrentRegionMappings().get(url))) {
                         int available = getAvailableLocalClients(this.getWorkingClients().get(url));
                         int total = getTotalLocalRegionClients(url);
                         if (available < regionSwitchRatio * total) {
@@ -109,7 +110,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                             }
 
                         }
-                    } else if(regionManager.getNotLocalRegion().equalsIgnoreCase(regionManager.getServiceCurrentRegionMappings().get(url))) { //TODO ②非local时
+                    } else if(regionManager.getNotLocalRegion().equals(regionManager.getServiceCurrentRegionMappings().get(url))) { //TODO ②非local时
                         int available = getAvailableLocalClients(this.getWorkingClients().get(url));
                         int total = getTotalLocalRegionClients(url);
                         if (available >= regionSwitchRatio * total) {
