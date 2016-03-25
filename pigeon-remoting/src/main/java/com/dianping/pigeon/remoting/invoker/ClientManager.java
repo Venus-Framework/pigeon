@@ -53,7 +53,7 @@ public class ClientManager {
 
 	private static final Logger logger = LoggerLoader.getLogger(ClientManager.class);
 
-	private RegionManager regionManager = RegionManager.getInstance();
+	private RegionManager regionManager = RegionManager.INSTANCE;
 
 	private ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
@@ -126,8 +126,8 @@ public class ClientManager {
 		RegistryEventListener.addListener(providerChangeListener);
 		RegistryEventListener.addListener(registryConnectionListener);
 
-		if(RegionManager.getInstance().isEnableRegionAutoSwitch()) {
-			this.regionChangeListener = RegionChangeListener.getInstance();
+		if(regionManager.isEnableRegionAutoSwitch()) {
+			this.regionChangeListener = RegionChangeListener.INSTANCE;
 			this.clusterListenerManager.addListener(this.regionChangeListener);
 			regionChangeThreadPool.execute(this.regionChangeListener);
 		}

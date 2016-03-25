@@ -17,7 +17,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 
 	private static final Logger logger = LoggerLoader.getLogger(DefaultServiceChangeListener.class);
 
-	private RegionManager regionManager = RegionManager.getInstance();
+	private RegionManager regionManager = RegionManager.INSTANCE;
 
 	public DefaultServiceChangeListener() {
 	}
@@ -90,7 +90,7 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			int weight = RegistryManager.getInstance().getServiceWeight(host);
 			//TODO 判断region
 			if(regionManager.isEnableRegionAutoSwitch() && !regionManager.isInCurrentRegion(serviceName, hostInfo)) {
-				logger.warn("host: " + host + " is not in current region: " + regionManager.getServiceCurrentRegionMappings().get(serviceName));
+				logger.warn("host: " + host + " is not in current region: " + regionManager.getCurrentRegion(serviceName));
 				return;
 			}
 			RegistryEventListener.providerAdded(serviceName, hostInfo.getHost(), hostInfo.getPort(), weight);

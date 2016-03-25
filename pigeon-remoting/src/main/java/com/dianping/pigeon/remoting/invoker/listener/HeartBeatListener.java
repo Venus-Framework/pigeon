@@ -48,7 +48,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 	public static final String HEART_TASK_METHOD = "heartbeat";
 
-	private static final RegionManager regionManager = RegionManager.getInstance();
+	private static final RegionManager regionManager = RegionManager.INSTANCE;
 
 	private Map<String, List<Client>> workingClients;
 
@@ -280,6 +280,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 					regionManager.getRegionHostHeartBeatStats().put(client.getAddress(), false);
 				}
 				if (client.isActive()) {
+					//TODO 考虑启动自动切换region的时候，去掉canPickOff的选项
 					if (isHeartBeatAutoPickOff && canPickOff(client)) {
 						client.setActive(false);
 						inactiveAddresses.add(client.getAddress());
@@ -313,6 +314,10 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	}
 
 	private boolean canPickOff(Client client) {
+		//TODO 测试 开启autoswitch的时候，直接返回true
+		if(regionManager.isEnableRegionAutoSwitch())
+			return regionManager.isEnableRegionAutoSwitch();
+
 		Map<String, Set<HostInfo>> serviceHostInfos = ClientManager.getInstance().getServiceHosts();
 		if (serviceHostInfos.isEmpty()) {
 			// never be here, otherwise no take off

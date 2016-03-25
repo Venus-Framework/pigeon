@@ -24,8 +24,7 @@ public abstract class AbstractServiceProxy implements ServiceProxy {
     protected static Map<InvokerConfig<?>, Object> services = new ConcurrentHashMap<InvokerConfig<?>, Object>();
     protected Logger logger = LoggerLoader.getLogger(this.getClass());
 
-    private RegionManager regionManager = RegionManager.getInstance();
-
+    private RegionManager regionManager = RegionManager.INSTANCE;
 
     @Override
     public void init() {

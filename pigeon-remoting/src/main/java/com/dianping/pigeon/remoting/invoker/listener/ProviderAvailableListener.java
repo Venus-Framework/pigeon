@@ -34,7 +34,7 @@ public class ProviderAvailableListener implements Runnable {
 
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
-	private RegionManager regionManager = RegionManager.getInstance();
+	private RegionManager regionManager = RegionManager.INSTANCE;
 
 	private static long interval = configManager.getLongValue("pigeon.providerlistener.interval", 3000);
 

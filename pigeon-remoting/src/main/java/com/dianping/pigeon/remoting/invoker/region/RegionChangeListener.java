@@ -4,6 +4,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.exception.RegionException;
 import com.dianping.pigeon.registry.region.Region;
 import com.dianping.pigeon.registry.region.RegionManager;
 import com.dianping.pigeon.registry.RegistryManager;
@@ -26,9 +27,11 @@ import java.util.*;
  */
 public class RegionChangeListener implements Runnable, ClusterListener {
 
+    public final static RegionChangeListener INSTANCE = new RegionChangeListener();
+
     private final Logger logger = LoggerLoader.getLogger(RegionChangeListener.class);
 
-    private final static RegionManager regionManager = RegionManager.getInstance();
+    private final static RegionManager regionManager = RegionManager.INSTANCE;
 
     private static volatile RegionChangeListener instance;
 
@@ -39,27 +42,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
 
     private static float regionSwitchRatio = configManager.getFloatValue("pigeon.regions.switchratio", 0.5f);
 
-    private RegionChangeListener() {
-    }
-
-    public static RegionChangeListener getInstance() {
-        if (instance == null) {
-            synchronized (RegionChangeListener.class) {
-                if (instance == null) {
-                    instance = new RegionChangeListener();
-                }
-            }
-        }
-        return instance;
-    }
-    
-    private void switchRegion(String serviceName, Region region) {
-        regionManager.getServiceCurrentRegionMappings().put(serviceName, region);
-    }
-
-    public Map<String, List<Client>> getWorkingClients() {
-        return ClientManager.getInstance().getClusterListener().getServiceClients();
-    }
+    private RegionChangeListener() {}
 
     @Override
     public void run() {
@@ -89,40 +72,46 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                         continue;
                     }
 
-                    //TODO ①local时
-                    if (regionManager.getLocalRegion().equals(regionManager.getServiceCurrentRegionMappings().get(url))) {
-                        int available = getAvailableLocalClients(this.getWorkingClients().get(url));
-                        int total = getTotalLocalRegionClients(url);
-                        if (available < regionSwitchRatio * total) {
-                            //TODO 切换为remote region，连接remote service，保留local service的连接
-                            switchRegion(url, regionManager.getNotLocalRegion());
+                    final int priority = regionManager.getCurrentRegion(url).getPriority();
+                    final Region[] regionArray = regionManager.getRegionArray();
+                    // 检查当前region的前置region
+                    for(int i = 0; i < priority; ++i) {
+                        int available = getRegionAvailableClients(url, regionArray[i]);
+                        int total = getRegionTotalClients(url, regionArray[i]);
+                        if(available >= regionSwitchRatio * total) { //有恢复，切换，关闭后置连接，break
+                            //切换
+                            regionManager.switchRegion(url, regionArray[i]);
+                            logger.info("[region-switch] auto switch region to " + regionArray[i]);
+                            //TODO 关闭后置连接
+                            HashSet<Region> toRemoveRegions = new HashSet<Region>();
+                            Collections.addAll(toRemoveRegions, regionArray[i + 1], regionArray[priority]);
 
-                            logger.info("[region-switch] auto switch region to " + regionManager.getNotLocalRegion());
-
-                            String error = null;
-                            try {
-                                ClientManager.getInstance().registerClients(url, group, vip);
-                            } catch (Throwable e) {
-                                error = e.getMessage();
-                            }
-                            if (error != null) {
-                                logger.warn("[provider-available] failed to get providers, caused by:" + error);
-                            }
-
-                        }
-                    } else if(regionManager.getNotLocalRegion().equals(regionManager.getServiceCurrentRegionMappings().get(url))) { //TODO ②非local时
-                        int available = getAvailableLocalClients(this.getWorkingClients().get(url));
-                        int total = getTotalLocalRegionClients(url);
-                        if (available >= regionSwitchRatio * total) {
-                            //TODO 切换为local region，关闭remote service的连接
-                            switchRegion(url, regionManager.getLocalRegion());
-
-                            logger.info("[region-switch] auto switch region to " + regionManager.getLocalRegion());
-
-                            for(HostInfo hostInfo : getRemoteHostInfos(url)) {
+                            for(HostInfo hostInfo : getToRemoveHostInfos(url, toRemoveRegions)) {
                                 RegistryEventListener.providerRemoved(url, hostInfo.getHost(), hostInfo.getPort());
                             }
+                            break;
+                        }
+                    }
 
+                    if(priority == regionManager.getCurrentRegion(url).getPriority()) {// 没有切换或切换失败，判断是否切换后置region
+                        int available = getRegionAvailableClients(url, regionArray[priority]);
+                        int total = getRegionTotalClients(url, regionArray[priority]);
+                        if(available < regionSwitchRatio * total) {
+                            final int candidate = priority + 1;
+                            if(candidate < regionArray.length) {
+                                regionManager.switchRegion(url, regionArray[candidate]);
+                                logger.info("[region-switch] auto switch region to " + regionArray[candidate]);
+
+                                String error = null;
+                                try {
+                                    ClientManager.getInstance().registerClients(url, group, vip);
+                                } catch (Throwable e) {
+                                    error = e.getMessage();
+                                }
+                                if (error != null) {
+                                    logger.warn("[provider-available] failed to get providers, caused by:" + error);
+                                }
+                            }
                         }
                     }
 
@@ -139,6 +128,91 @@ public class RegionChangeListener implements Runnable, ClusterListener {
         }
     }
 
+    public Map<String, List<Client>> getWorkingClients() {
+        return ClientManager.getInstance().getClusterListener().getServiceClients();
+    }
+
+    // TODO 统计某服务指定region下当前可用的provider
+    private int getRegionAvailableClients(String url, Region region) {
+
+        List<Client> clientList = this.getWorkingClients().get(url);
+        int available = 0;
+
+        if (!CollectionUtils.isEmpty(clientList)) {
+            for (Client client : clientList) {
+                String address = client.getAddress();
+                try {
+                    if(regionManager.getRegion(address).equals(region)) {
+                        int w = RegistryManager.getInstance().getServiceWeight(address);
+                        boolean isAlive = regionManager.getRegionHostHeartBeatStats().containsKey(address)
+                                ? regionManager.getRegionHostHeartBeatStats().get(address) : true;
+                        if (w > 0 && client.isConnected() && client.isActive() && isAlive ) {
+                            available += w;
+                        }
+                    }
+                } catch (RegionException e) {
+                    logger.error(e);
+                }
+            }
+        }
+
+        return available;
+    }
+
+    private int getRegionTotalClients(String url, Region region) {
+        int total = 0;
+        Map<String, Set<HostInfo>> serviceHostInfos = ClientManager.getInstance().getServiceHosts();
+
+        if (serviceHostInfos.isEmpty()) {
+            // never be here
+            return total;
+        }
+
+        if(serviceHostInfos.containsKey(url)) {
+            Set<HostInfo> hostInfoSet = serviceHostInfos.get(url);
+            for(HostInfo hostInfo : hostInfoSet) {
+                try {
+                    if(regionManager.getRegion(hostInfo.getHost()).equals(region)) {
+                        ++total;
+                    }
+                } catch (RegionException e) {
+                    logger.error(e);
+                }
+            }
+        }
+
+        return total;
+    }
+
+    // 拿权重低的后置region的client切断
+    private Set<HostInfo> getToRemoveHostInfos(String url, HashSet<Region> toRemoveRegions) {
+        Set<HostInfo> result = new HashSet<HostInfo>();
+        Map<String, Set<HostInfo>> serviceHostInfos = ClientManager.getInstance().getServiceHosts();
+
+        if (serviceHostInfos.isEmpty()) {
+            // never be here
+            return null;
+        }
+
+        if(serviceHostInfos.containsKey(url)) {
+            Set<HostInfo> hostInfoSet = serviceHostInfos.get(url);
+            for(HostInfo hostInfo : hostInfoSet) {
+                //TODO 拿后置区域的host
+                try {
+                    Region region = regionManager.getRegion(hostInfo.getHost());
+                    if(toRemoveRegions.contains(region)) {
+                        result.add(hostInfo);
+                    }
+                } catch (RegionException e) {
+                    logger.error(e);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @Deprecated
     private Set<HostInfo> getRemoteHostInfos(String url) {
         Set<HostInfo> result = new HashSet<HostInfo>();
         Map<String, Set<HostInfo>> serviceHostInfos = ClientManager.getInstance().getServiceHosts();
@@ -159,6 +233,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
         return result;
     }
 
+    @Deprecated
     private int getTotalLocalRegionClients(String url) {
         int total = 0;
         Map<String, Set<HostInfo>> serviceHostInfos = ClientManager.getInstance().getServiceHosts();
@@ -180,25 +255,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
         return total;
     }
 
-    @Override
-    public void addConnect(ConnectInfo connectInfo) {
-        //废弃
-        //TODO 趁机缓存localRegion的host
-    }
-
-    @Override
-    public void removeConnect(Client client) {
-        //废弃
-        //TODO 如果是localRegion的host，添加到恢复检测线程的clientCache列表
-    }
-
-    @Override
-    public void doNotUse(String serviceName, String host, int port) {
-        //废弃
-        //TODO 删除缓存的localRegion的host
-    }
-
-    // TODO 统计local region下当前可用的provider
+    @Deprecated
     private int getAvailableLocalClients(List<Client> clientList) {
         int available = 0;
         if (CollectionUtils.isEmpty(clientList)) {
@@ -218,15 +275,21 @@ public class RegionChangeListener implements Runnable, ClusterListener {
         return available;
     }
 
-    class RegionHeartBeatCache {
+    @Override
+    public void addConnect(ConnectInfo connectInfo) {
+        //TODO 建立心跳
+        regionManager.getRegionHostHeartBeatStats().put(connectInfo.getConnect(), true);
+    }
 
-        private String address;
-        private boolean isAlive = true;
+    @Override
+    public void removeConnect(Client client) {
+        //TODO 删除心跳
+        //regionManager.getRegionHostHeartBeatStats().put(client.getAddress(), false);
+    }
 
-        public RegionHeartBeatCache(String address) {
-            this.address = address;
-        }
-
+    @Override
+    public void doNotUse(String serviceName, String host, int port) {
+        //TODO 删除心跳
     }
 
 }
