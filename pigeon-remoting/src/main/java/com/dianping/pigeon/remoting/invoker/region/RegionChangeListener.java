@@ -33,8 +33,6 @@ public class RegionChangeListener implements Runnable, ClusterListener {
 
     private final static RegionManager regionManager = RegionManager.INSTANCE;
 
-    private static volatile RegionChangeListener instance;
-
     private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
     private static long interval = configManager.getLongValue(Constants.KEY_HEARTBEAT_INTERVAL,
