@@ -76,13 +76,13 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                     final Region[] regionArray = regionManager.getRegionArray();
                     // 检查当前region的前置region
                     for(int i = 0; i < priority; ++i) {
-                        int available = getRegionAvailableClients(url, regionArray[i]);
                         int total = getRegionTotalClients(url, regionArray[i]);
-                        if(available >= regionSwitchRatio * total) {//TODO 边界条件，total==0的时候要做下修正
+                        int available = getRegionAvailableClients(url, regionArray[i]);
+                        if(total > 0 && available >= regionSwitchRatio * total) {
                             //有恢复，切换，关闭后置连接，break
                             regionManager.switchRegion(url, regionArray[i]);
                             logger.info("[region-switch] auto switch region to " + regionArray[i]);
-                            //TODO 关闭后置连接
+                            // 关闭后置连接
                             HashSet<Region> toRemoveRegions = new HashSet<Region>();
                             Collections.addAll(toRemoveRegions, regionArray[i + 1], regionArray[priority]);
 
@@ -94,9 +94,9 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                     }
 
                     if(priority == regionManager.getCurrentRegion(url).getPriority()) {// 没有切换或切换失败，判断是否切换后置region
-                        int available = getRegionAvailableClients(url, regionArray[priority]);
                         int total = getRegionTotalClients(url, regionArray[priority]);
-                        if(available < regionSwitchRatio * total) {//TODO 边界条件，total==0的时候要做下修正
+                        int available = getRegionAvailableClients(url, regionArray[priority]);
+                        if(total == 0 || available < regionSwitchRatio * total) {
                             final int candidate = priority + 1;
                             if(candidate < regionArray.length) {
                                 regionManager.switchRegion(url, regionArray[candidate]);
@@ -132,7 +132,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
         return ClientManager.getInstance().getClusterListener().getServiceClients();
     }
 
-    // TODO 统计某服务指定region下当前可用的provider
+    // 统计某服务指定region下当前可用的provider
     private int getRegionAvailableClients(String url, Region region) {
 
         List<Client> clientList = this.getWorkingClients().get(url);
@@ -197,7 +197,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
         if(serviceHostInfos.containsKey(url)) {
             Set<HostInfo> hostInfoSet = serviceHostInfos.get(url);
             for(HostInfo hostInfo : hostInfoSet) {
-                //TODO 拿后置区域的host
+                // 拿后置区域的host
                 try {
                     Region region = regionManager.getRegion(hostInfo.getHost());
                     if(toRemoveRegions.contains(region)) {
@@ -214,19 +214,19 @@ public class RegionChangeListener implements Runnable, ClusterListener {
 
     @Override
     public void addConnect(ConnectInfo connectInfo) {
-        //TODO 建立心跳
+        // 建立region心跳缓存
         regionManager.getRegionHostHeartBeatStats().put(connectInfo.getConnect(), true);
     }
 
     @Override
     public void removeConnect(Client client) {
-        //TODO 删除心跳
+        //TODO 是否有必要删除region心跳缓存
         //regionManager.getRegionHostHeartBeatStats().put(client.getAddress(), false);
     }
 
     @Override
     public void doNotUse(String serviceName, String host, int port) {
-        //TODO 删除心跳
+        //TODO 删除region心跳缓存
     }
 
 }
