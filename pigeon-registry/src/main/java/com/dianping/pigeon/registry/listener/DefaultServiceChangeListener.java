@@ -44,8 +44,8 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 				logger.info("service hosts changed, to removed hosts:" + toRemoveHpSet);
 			}
 			for (HostInfo hostPort : toAddHpSet) {
-				//TODO 判断是不是属于localRegion
-				if(regionManager.isEnableRegionAutoSwitch() && !regionManager.isInCurrentRegion(serviceName, hostPort)) {
+				// 判断是否属于优先级不低于当前region的host
+				if(regionManager.isEnableRegionAutoSwitch() && !regionManager.isInMonitorRegion(serviceName, hostPort)) {
 					continue;
 				}
 				RegistryEventListener.providerAdded(serviceName, hostPort.getHost(), hostPort.getPort(),
@@ -88,8 +88,8 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		HostInfo hostInfo = Utils.parseHost(host, 1);
 		if (hostInfo != null) {
 			int weight = RegistryManager.getInstance().getServiceWeight(host);
-			//TODO 判断region
-			if(regionManager.isEnableRegionAutoSwitch() && !regionManager.isInCurrentRegion(serviceName, hostInfo)) {
+			// 判断是否属于优先级不低于当前region的host
+			if(regionManager.isEnableRegionAutoSwitch() && !regionManager.isInMonitorRegion(serviceName, hostInfo)) {
 				logger.warn("host: " + host + " is not in current region: " + regionManager.getCurrentRegion(serviceName));
 				return;
 			}

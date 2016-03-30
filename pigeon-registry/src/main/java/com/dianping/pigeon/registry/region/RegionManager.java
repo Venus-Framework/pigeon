@@ -44,6 +44,8 @@ public enum RegionManager {
     private RegionManager() {
         if(enableRegionAutoSwitch) {
             initRegionsPriority();
+        } else {
+            logger.warn("Region auto switch off!");
         }
     }
 
@@ -95,7 +97,7 @@ public enum RegionManager {
                     }
                 }
                 regionArray = regions;
-                logger.info("Region auto switch on! Local region is: " + localRegion);
+                logger.warn("Region auto switch on! Local region is: " + localRegion);
             } else {
                 logger.error("Error! Set [enableRegionAutoSwitch] to false! regions prefer counts not match regions config!");
                 enableRegionAutoSwitch = false;
@@ -155,6 +157,18 @@ public enum RegionManager {
         } catch (RegionException e) {
             logger.warn(e);
             return false;
+        } catch (Throwable t) {
+            logger.error(t);
+            return false;
+        }
+    }
+
+    // 监听到前置region的host增加
+    public boolean isInMonitorRegion(String serviceName, HostInfo hostInfo) {
+        try {
+            Region currentRegion = getCurrentRegion(serviceName);
+            Region region = getRegion(hostInfo.getHost());
+            return region.compareTo(currentRegion) <= 0;
         } catch (Throwable t) {
             logger.error(t);
             return false;

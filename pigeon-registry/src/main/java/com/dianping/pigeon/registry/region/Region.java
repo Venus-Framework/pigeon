@@ -3,7 +3,7 @@ package com.dianping.pigeon.registry.region;
 /**
  * Created by chenchongze on 16/2/22.
  */
-public class Region {
+public class Region implements Comparable<Region> {
 
     private final String name;
 
@@ -49,5 +49,16 @@ public class Region {
         int result = name.hashCode();
         result = 31 * result + priority;
         return result;
+    }
+
+    @Override
+    public int compareTo(Region anotherRegion) {
+        if(anotherRegion != null) {
+            Integer thisVal = this.getPriority();
+            Integer anotherVal = anotherRegion.getPriority();
+            return thisVal.compareTo(anotherVal);
+        } else {
+            throw new NullPointerException("Region parameter cannot be null!");
+        }
     }
 }

@@ -78,8 +78,8 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                     for(int i = 0; i < priority; ++i) {
                         int available = getRegionAvailableClients(url, regionArray[i]);
                         int total = getRegionTotalClients(url, regionArray[i]);
-                        if(available >= regionSwitchRatio * total) { //有恢复，切换，关闭后置连接，break
-                            //切换
+                        if(available >= regionSwitchRatio * total) {//TODO 边界条件，total==0的时候要做下修正
+                            //有恢复，切换，关闭后置连接，break
                             regionManager.switchRegion(url, regionArray[i]);
                             logger.info("[region-switch] auto switch region to " + regionArray[i]);
                             //TODO 关闭后置连接
@@ -96,7 +96,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                     if(priority == regionManager.getCurrentRegion(url).getPriority()) {// 没有切换或切换失败，判断是否切换后置region
                         int available = getRegionAvailableClients(url, regionArray[priority]);
                         int total = getRegionTotalClients(url, regionArray[priority]);
-                        if(available < regionSwitchRatio * total) {
+                        if(available < regionSwitchRatio * total) {//TODO 边界条件，total==0的时候要做下修正
                             final int candidate = priority + 1;
                             if(candidate < regionArray.length) {
                                 regionManager.switchRegion(url, regionArray[candidate]);
@@ -210,69 +210,6 @@ public class RegionChangeListener implements Runnable, ClusterListener {
         }
 
         return result;
-    }
-
-    @Deprecated
-    private Set<HostInfo> getRemoteHostInfos(String url) {
-        Set<HostInfo> result = new HashSet<HostInfo>();
-        Map<String, Set<HostInfo>> serviceHostInfos = ClientManager.getInstance().getServiceHosts();
-
-        if (serviceHostInfos.isEmpty()) {
-            // never be here
-            return null;
-        }
-
-        if(serviceHostInfos.containsKey(url)) {
-            Set<HostInfo> hostInfoSet = serviceHostInfos.get(url);
-            for(HostInfo hostInfo : hostInfoSet) {
-                if(!regionManager.isInLocalRegion(hostInfo.getHost())) {
-                    result.add(hostInfo);
-                }
-            }
-        }
-        return result;
-    }
-
-    @Deprecated
-    private int getTotalLocalRegionClients(String url) {
-        int total = 0;
-        Map<String, Set<HostInfo>> serviceHostInfos = ClientManager.getInstance().getServiceHosts();
-
-        if (serviceHostInfos.isEmpty()) {
-            // never be here
-            return total;
-        }
-
-        if(serviceHostInfos.containsKey(url)) {
-            Set<HostInfo> hostInfoSet = serviceHostInfos.get(url);
-            for(HostInfo hostInfo : hostInfoSet) {
-                if(regionManager.isInLocalRegion(hostInfo.getHost())) {
-                    ++total;
-                }
-            }
-        }
-
-        return total;
-    }
-
-    @Deprecated
-    private int getAvailableLocalClients(List<Client> clientList) {
-        int available = 0;
-        if (CollectionUtils.isEmpty(clientList)) {
-            available = 0;
-        } else {
-            for (Client client : clientList) {
-                String address = client.getAddress();
-                int w = RegistryManager.getInstance().getServiceWeight(address);
-                boolean isAlive = regionManager.getRegionHostHeartBeatStats().containsKey(address)
-                        ? regionManager.getRegionHostHeartBeatStats().get(address) : true;
-                if (w > 0 && client.isConnected() && client.isActive()
-                        && isAlive && regionManager.isInLocalRegion(address)) {
-                    available += w;
-                }
-            }
-        }
-        return available;
     }
 
     @Override

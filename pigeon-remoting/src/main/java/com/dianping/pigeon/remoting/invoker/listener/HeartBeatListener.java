@@ -316,7 +316,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	private boolean canPickOff(Client client) {
 		//TODO 测试 开启autoswitch的时候，直接返回true
 		if(regionManager.isEnableRegionAutoSwitch())
-			return regionManager.isEnableRegionAutoSwitch();
+			return true;
 
 		Map<String, Set<HostInfo>> serviceHostInfos = ClientManager.getInstance().getServiceHosts();
 		if (serviceHostInfos.isEmpty()) {
