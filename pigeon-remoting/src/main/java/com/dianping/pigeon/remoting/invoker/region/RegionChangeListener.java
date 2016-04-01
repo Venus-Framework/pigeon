@@ -84,6 +84,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                             HashSet<Region> toRemoveRegions = new HashSet<Region>();
                             Collections.addAll(toRemoveRegions, regionArray[i + 1], regionArray[priority]);
 
+                            //TODO 灰度慢关闭
                             for(HostInfo hostInfo : getToRemoveHostInfos(url, toRemoveRegions)) {
                                 RegistryEventListener.providerRemoved(url, hostInfo.getHost(), hostInfo.getPort());
                             }
