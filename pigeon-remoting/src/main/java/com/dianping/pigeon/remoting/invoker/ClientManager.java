@@ -289,13 +289,13 @@ public class ClientManager {
 		return addresses;
 	}
 
-	public void closeRegisterThreadPool() {
+	/*public void closeRegisterThreadPool() {
 		if (enableRegisterConcurrently) {
 			enableRegisterConcurrently = false;
 			ThreadPoolUtils.shutdown(registerThreadPool.getExecutor());
 			logger.info("closed register thread pool");
 		}
-	}
+	}*/
 
 	public Map<String, Set<HostInfo>> getServiceHosts() {
 		return RegistryManager.getInstance().getAllReferencedServiceAddresses();
@@ -374,4 +374,7 @@ public class ClientManager {
 		clusterListener.clear();
 	}
 
+	public static ThreadPool getRegisterThreadPool() {
+		return registerThreadPool;
+	}
 }

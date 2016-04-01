@@ -16,11 +16,16 @@ import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListener;
+import com.dianping.pigeon.threadpool.DefaultThreadFactory;
+import com.dianping.pigeon.threadpool.ThreadPool;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by chenchongze on 16/2/19.
@@ -33,18 +38,21 @@ public class RegionChangeListener implements Runnable, ClusterListener {
 
     private final static RegionManager regionManager = RegionManager.INSTANCE;
 
-    private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+    private final static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
     private static long interval = configManager.getLongValue(Constants.KEY_HEARTBEAT_INTERVAL,
             Constants.DEFAULT_HEARTBEAT_INTERVAL);
 
     private static float regionSwitchRatio = configManager.getFloatValue("pigeon.regions.switchratio", 0.5f);
 
+    private final static ThreadPool toRemoveHostsThreadPool = ClientManager.getRegisterThreadPool();
+
+    private final static long CLOSE_PAUSE = 1000;
+
     private RegionChangeListener() {}
 
     @Override
     public void run() {
-        //TODO 恢复检测线程
         long sleepTime = interval;
         while (!Thread.currentThread().isInterrupted()) {
             try {
@@ -62,7 +70,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
 
                 long now = System.currentTimeMillis();
 
-                for (String url : serviceGroupMap.keySet()) {
+                for (final String url : serviceGroupMap.keySet()) {
                     String groupValue = serviceGroupMap.get(url);
                     String group = groupValue.substring(0, groupValue.lastIndexOf("#"));
                     String vip = groupValue.substring(groupValue.lastIndexOf("#") + 1);
@@ -84,10 +92,26 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                             HashSet<Region> toRemoveRegions = new HashSet<Region>();
                             Collections.addAll(toRemoveRegions, regionArray[i + 1], regionArray[priority]);
 
-                            //TODO 灰度慢关闭
-                            for(HostInfo hostInfo : getToRemoveHostInfos(url, toRemoveRegions)) {
-                                RegistryEventListener.providerRemoved(url, hostInfo.getHost(), hostInfo.getPort());
-                            }
+                            // 灰度慢关闭
+                            final Set<HostInfo> hostInfos = getToRemoveHostInfos(url, toRemoveRegions);
+                            Runnable r = new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    if(hostInfos != null) {
+                                        for (final HostInfo hostInfo : hostInfos) {
+                                            try {
+                                                Thread.sleep(CLOSE_PAUSE);
+                                                RegistryEventListener.providerRemoved(url, hostInfo.getHost(), hostInfo.getPort());
+                                            } catch (Throwable t) {
+                                                logger.error("remove " + hostInfo.getConnect() + " for " + url +"error!", t);
+                                            }
+                                        }
+                                    }
+                                }
+
+                            };
+                            toRemoveHostsThreadPool.submit(r);
                             break;
                         }
                     }
