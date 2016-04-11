@@ -51,7 +51,7 @@ public class ServiceController extends BaseController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = {"/services/{projectName}"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/services/{projectName:.+}"}, method = RequestMethod.GET)
 	public String projectInfo(ModelMap modelMap,
 								@PathVariable final String projectName,
 								HttpServletRequest request) {

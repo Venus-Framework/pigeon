@@ -39,7 +39,7 @@ public enum RegionManager {
     private ConcurrentHashMap<String, Region> patternRegionMappings = new ConcurrentHashMap<String, Region>();
 
     // region1 --> 10.66 192.168 貌似用hashset就够了
-    private ConcurrentHashMap<Region, List<String>> regionPatternMappings = new ConcurrentHashMap<Region, List<String>>();
+    //private ConcurrentHashMap<Region, List<String>> regionPatternMappings = new ConcurrentHashMap<Region, List<String>>();
 
     private RegionManager() {
         if(enableRegionAutoSwitch) {
@@ -62,23 +62,31 @@ public enum RegionManager {
         }
 
         Set<Region> regionSet = new HashSet<Region>();
+        Region[] regions = getRegionsWithPriority();
 
         for(int i = 0; i < regionCount; ++i) {
             String[] regionPatternMapping = regionConfigs[i].split(":");
             String regionName = regionPatternMapping[0];
             String[] patterns = regionPatternMapping[1].split(",");
 
-            Region region = new Region(regionName, i);
+            // 检查region的名字是否匹配
+            if(!regionName.equalsIgnoreCase(regions[i].getName())) {
+                logger.error("Error! Set [enableRegionAutoSwitch] to false! regions prefer not match regions config: " + regionName);
+                enableRegionAutoSwitch = false;
+                return;
+            }
+
+            Region region = regions[i];
             regionSet.add(region);
 
-            List<String> patternList = new ArrayList<String>();
+            //List<String> patternList = new ArrayList<String>();
 
             for(String pattern : patterns) {
                 patternRegionMappings.put(pattern, region);
-                patternList.add(pattern);
+                //patternList.add(pattern);
             }
 
-            regionPatternMappings.put(region, patternList);
+            //regionPatternMappings.put(region, patternList);
         }
 
         //初始化local region
@@ -87,7 +95,7 @@ public enum RegionManager {
             localRegion = patternRegionMappings.get(pattern);
 
             //TODO 权重处理
-            Region[] regions = getRegionsWithPriority();
+
             if(regionSet.size() == regions.length) {
                 for(Region region : regions) {
                     if(!regionSet.contains(region)) {
