@@ -28,18 +28,16 @@ public enum RegionManager {
     // example: 10.66.xx.yy --> true
     private ConcurrentHashMap<String, Boolean> regionHostHeartBeatStats = new ConcurrentHashMap<String, Boolean>();
 
-    private Region localRegion;
-
     // service --> current region mapping
     private ConcurrentHashMap<String, Region> serviceCurrentRegionMappings = new ConcurrentHashMap<String, Region>();
 
     private Region[] regionArray;
 
     // example: 10.66 --> region1
-    private ConcurrentHashMap<String, Region> patternRegionMappings = new ConcurrentHashMap<String, Region>();
+    private Map<String, Region> patternRegionMappings = new HashMap<String, Region>();
 
-    // region1 --> 10.66 192.168 貌似用hashset就够了
-    //private ConcurrentHashMap<Region, List<String>> regionPatternMappings = new ConcurrentHashMap<Region, List<String>>();
+    //TODO 添加动态开关多region路由功能
+
 
     private RegionManager() {
         if(enableRegionAutoSwitch) {
@@ -50,74 +48,67 @@ public enum RegionManager {
     }
 
     private void initRegionsPriority() {
-        String pigeonRegionsConfig = configManager.getStringValue("pigeon.regions", "region1:10.1,10.3;region2:10.6;region3:10.8,10.9");
-        String[] regionConfigs = pigeonRegionsConfig.split(";");
+        try {
+            // 处理pigeon.regions配置
+            String pigeonRegionsConfig = configManager.getStringValue("pigeon.regions");
+            String[] regionConfigs = pigeonRegionsConfig.split(";");
 
-        int regionCount = regionConfigs.length;
+            int regionCount = regionConfigs.length;
 
-        if(regionCount <= 0) {
-            logger.error("Error! Set [enableRegionAutoSwitch] to false! Please check regions config!");
-            enableRegionAutoSwitch = false;
-            return ;
-        }
-
-        Set<Region> regionSet = new HashSet<Region>();
-        Region[] regions = getRegionsWithPriority();
-
-        for(int i = 0; i < regionCount; ++i) {
-            String[] regionPatternMapping = regionConfigs[i].split(":");
-            String regionName = regionPatternMapping[0];
-            String[] patterns = regionPatternMapping[1].split(",");
-
-            // 检查region的名字是否匹配
-            if(!regionName.equalsIgnoreCase(regions[i].getName())) {
-                logger.error("Error! Set [enableRegionAutoSwitch] to false! regions prefer not match regions config: " + regionName);
+            if(regionCount <= 0) {
+                logger.error("Error! Set [enableRegionAutoSwitch] to false! Please check regions config!");
                 enableRegionAutoSwitch = false;
-                return;
+                return ;
             }
 
-            Region region = regions[i];
-            regionSet.add(region);
+            Set<String> regionSet = new HashSet<String>();
+            Map<String, String> patternRegionNameMappings = new HashMap<String, String>();
+            for(int i = 0; i < regionCount; ++i) {
+                String[] regionPatternMapping = regionConfigs[i].split(":");
+                String regionName = regionPatternMapping[0];
+                String[] patterns = regionPatternMapping[1].split(",");
 
-            //List<String> patternList = new ArrayList<String>();
+                regionSet.add(regionName);
 
-            for(String pattern : patterns) {
-                patternRegionMappings.put(pattern, region);
-                //patternList.add(pattern);
-            }
-
-            //regionPatternMappings.put(region, patternList);
-        }
-
-        //初始化local region
-        String pattern = getPattern(configManager.getLocalIp());
-        if(patternRegionMappings.containsKey(pattern)) {
-            localRegion = patternRegionMappings.get(pattern);
-
-            //TODO 权重处理
-
-            if(regionSet.size() == regions.length) {
-                for(Region region : regions) {
-                    if(!regionSet.contains(region)) {
-                        logger.error("Error! Set [enableRegionAutoSwitch] to false! regions prefer not match regions config: " + region.getName());
-                        enableRegionAutoSwitch = false;
-                        return;
-                    }
+                for(String pattern : patterns) {
+                    patternRegionNameMappings.put(pattern, regionName);
                 }
-                regionArray = regions;
-                logger.warn("Region auto switch on! Local region is: " + localRegion);
+            }
+
+            //初始化local region
+            String localRegionPattern = getPattern(configManager.getLocalIp());
+            if(patternRegionNameMappings.containsKey(localRegionPattern)) {
+                String localRegionName = patternRegionNameMappings.get(localRegionPattern);
+                // 权重处理
+                Region[] regions = initRegionsWithPriority(localRegionName);
+                if(regionSet.size() == regions.length) {
+                    for(Region region : regions) {
+                        if(!regionSet.contains(region.getName())) {
+                            logger.error("Error! Set [enableRegionAutoSwitch] to false! regions prefer not match regions config: " + region.getName());
+                            enableRegionAutoSwitch = false;
+                            return;
+                        }
+                    }
+                    regionArray = regions;
+                    // 初始化pattern region映射
+                    initPatterRegionMappings(patternRegionNameMappings);
+                    logger.warn("Region auto switch on! Local region is: " + regionArray[0]);
+                } else {
+                    logger.error("Error! Set [enableRegionAutoSwitch] to false! regions prefer counts not match regions config!");
+                    enableRegionAutoSwitch = false;
+                }
             } else {
-                logger.error("Error! Set [enableRegionAutoSwitch] to false! regions prefer counts not match regions config!");
+                logger.error("Error! Set [enableRegionAutoSwitch] to false! Can't init local region: " + configManager.getLocalIp());
                 enableRegionAutoSwitch = false;
             }
-        } else {
-            logger.error("Error! Set [enableRegionAutoSwitch] to false! Can't init local region: " + configManager.getLocalIp());
+        } catch (Throwable t) {
+            logger.error("Error! Set [enableRegionAutoSwitch] to false!", t);
             enableRegionAutoSwitch = false;
         }
     }
 
-    private Region[] getRegionsWithPriority() {
-        String regionsPrefer = configManager.getStringValue("pigeon.regions.prefer." + localRegion.getName());
+    private Region[] initRegionsWithPriority(String localRegionName) {
+        String regionsPrefer = configManager.getStringValue("pigeon.regions.prefer." + localRegionName);
         if(StringUtils.isNotBlank(regionsPrefer)) {
             String[] regionNames = regionsPrefer.split(",");
             Region[] regions = new Region[regionNames.length];
@@ -128,6 +119,22 @@ public enum RegionManager {
             return regions;
         }
         return new Region[0];
+    }
+
+    private void initPatterRegionMappings(Map<String, String> patternRegionNameMappings) {
+        patternRegionMappings.clear();
+        for(Map.Entry<String, String> entry : patternRegionNameMappings.entrySet()) {
+            patternRegionMappings.put(entry.getKey(), getRegionByName(entry.getValue()));
+        }
+    }
+
+    private Region getRegionByName(String regionName) {
+        for (Region region : regionArray) {
+            if (region.getName().equalsIgnoreCase(regionName)) {
+                return region;
+            }
+        }
+        return null;
     }
 
     private String getPattern(String host) {
@@ -143,7 +150,7 @@ public enum RegionManager {
         }
     }
 
-    public boolean isInLocalRegion(String host) {
+    /*public boolean isInLocalRegion(String host) {
         try {
             if (getRegion(host).equals(localRegion)) {
                 return true;
@@ -157,7 +164,7 @@ public enum RegionManager {
             logger.error(t);
             return false;
         }
-    }
+    }*/
 
     public boolean isInCurrentRegion(String serviceName, HostInfo hostInfo) {
         try {
@@ -184,7 +191,7 @@ public enum RegionManager {
     }
 
     // 判断并重新将属于本region的ip组成待连接的串
-    public String getLocalRegionHosts(String hosts) {
+    /*public String getLocalRegionHosts(String hosts) {
         Set<String> resultSet = new HashSet<String>();
 
         if(localRegion == null) {
@@ -205,14 +212,14 @@ public enum RegionManager {
         }
 
         return StringUtils.join(resultSet, ",");
-    }
+    }*/
 
     public boolean isEnableRegionAutoSwitch() {
         return enableRegionAutoSwitch;
     }
 
     public void register(String serviceName) {
-        serviceCurrentRegionMappings.put(serviceName, localRegion);
+        serviceCurrentRegionMappings.put(serviceName, regionArray[0]);
     }
 
     public void unregister(String serviceName) {
