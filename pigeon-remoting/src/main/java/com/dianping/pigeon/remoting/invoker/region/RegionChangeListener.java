@@ -99,25 +99,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                             Collections.addAll(toRemoveRegions, regionArray[i + 1], regionArray[priority]);
 
                             // 灰度慢关闭
-                            final Set<HostInfo> hostInfos = getToRemoveHostInfos(url, toRemoveRegions);
-                            Runnable r = new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    if(hostInfos != null) {
-                                        for (final HostInfo hostInfo : hostInfos) {
-                                            try {
-                                                Thread.sleep(CLOSE_PAUSE);
-                                                RegistryEventListener.providerRemoved(url, hostInfo.getHost(), hostInfo.getPort());
-                                            } catch (Throwable t) {
-                                                logger.error("remove " + hostInfo.getConnect() + " for " + url +"error!", t);
-                                            }
-                                        }
-                                    }
-                                }
-
-                            };
-                            toRemoveHostsThreadPool.submit(r);
+                            toRemoveHostsThreadPool.submit(new InnerCloseClientsTask(url, toRemoveRegions));
 
                             break;
                         }
@@ -156,25 +138,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                         }
 
                         // 灰度慢关闭
-                        final Set<HostInfo> hostInfos = getToRemoveHostInfos(url, toRemoveRegions);
-                        Runnable r = new Runnable() {
-
-                            @Override
-                            public void run() {
-                                if(hostInfos != null) {
-                                    for (final HostInfo hostInfo : hostInfos) {
-                                        try {
-                                            Thread.sleep(CLOSE_PAUSE);
-                                            RegistryEventListener.providerRemoved(url, hostInfo.getHost(), hostInfo.getPort());
-                                        } catch (Throwable t) {
-                                            logger.error("remove " + hostInfo.getConnect() + " for " + url +"error!", t);
-                                        }
-                                    }
-                                }
-                            }
-
-                        };
-                        toRemoveHostsThreadPool.submit(r);
+                        toRemoveHostsThreadPool.submit(new InnerCloseClientsTask(url, toRemoveRegions));
                     }
 
                 }
@@ -185,6 +149,32 @@ public class RegionChangeListener implements Runnable, ClusterListener {
             } finally {
                 if (sleepTime < 1000) {
                     sleepTime = 1000;
+                }
+            }
+        }
+    }
+
+    private class InnerCloseClientsTask implements Runnable {
+
+        private final String url;
+        private final HashSet<Region> toRemoveRegions;
+
+        public InnerCloseClientsTask(String url, HashSet<Region> toRemoveRegions) {
+            this.url = url;
+            this.toRemoveRegions = toRemoveRegions;
+        }
+
+        @Override
+        public void run() {
+            final Set<HostInfo> hostInfos = getToRemoveHostInfos(url, toRemoveRegions);
+            if(hostInfos != null) {
+                for (final HostInfo hostInfo : hostInfos) {
+                    try {
+                        Thread.sleep(CLOSE_PAUSE);
+                        RegistryEventListener.providerRemoved(url, hostInfo.getHost(), hostInfo.getPort());
+                    } catch (Throwable t) {
+                        logger.error("remove " + hostInfo.getConnect() + " for " + url +"error!", t);
+                    }
                 }
             }
         }
