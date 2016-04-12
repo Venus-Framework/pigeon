@@ -126,11 +126,10 @@ public class ClientManager {
 		RegistryEventListener.addListener(providerChangeListener);
 		RegistryEventListener.addListener(registryConnectionListener);
 
-		if(regionManager.isEnableRegionAutoSwitch()) {
-			this.regionChangeListener = RegionChangeListener.INSTANCE;
-			this.clusterListenerManager.addListener(this.regionChangeListener);
-			regionChangeThreadPool.execute(this.regionChangeListener);
-		}
+		// region auto switch
+		this.regionChangeListener = RegionChangeListener.INSTANCE;
+		this.clusterListenerManager.addListener(this.regionChangeListener);
+		regionChangeThreadPool.execute(this.regionChangeListener);
 	}
 
 	public void registerClient(String serviceName, String host, int port, int weight) {

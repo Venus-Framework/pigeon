@@ -57,6 +57,8 @@ public class RegionChangeListener implements Runnable, ClusterListener {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 Thread.sleep(sleepTime);
+                //检查region路由开关
+                if(!regionManager.isEnableRegionAutoSwitch()) { continue; }
 
                 Set<InvokerConfig<?>> services = ServiceFactory.getAllServiceInvokers().keySet();
                 Map<String, String> serviceGroupMap = new HashMap<String, String>();
@@ -79,14 +81,18 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                     }
 
                     final int priority = regionManager.getCurrentRegion(url).getPriority();
+                    int toRemoveStartIndex = priority + 1;
                     final Region[] regionArray = regionManager.getRegionArray();
+
                     // 检查当前region的前置region
                     for(int i = 0; i < priority; ++i) {
                         int total = getRegionTotalClients(url, regionArray[i]);
                         int available = getRegionAvailableClients(url, regionArray[i]);
+
                         if(total > 0 && available >= regionSwitchRatio * total) {
                             //有恢复，切换，关闭后置连接，break
                             regionManager.switchRegion(url, regionArray[i]);
+                            toRemoveStartIndex = i + 1;
                             logger.info("[region-switch] auto switch region to " + regionArray[i]);
                             // 关闭后置连接
                             HashSet<Region> toRemoveRegions = new HashSet<Region>();
@@ -112,6 +118,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
 
                             };
                             toRemoveHostsThreadPool.submit(r);
+
                             break;
                         }
                     }
@@ -123,6 +130,7 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                             final int candidate = priority + 1;
                             if(candidate < regionArray.length) {
                                 regionManager.switchRegion(url, regionArray[candidate]);
+                                toRemoveStartIndex = candidate + 1;
                                 logger.info("[region-switch] auto switch region to " + regionArray[candidate]);
 
                                 String error = null;
@@ -136,6 +144,37 @@ public class RegionChangeListener implements Runnable, ClusterListener {
                                 }
                             }
                         }
+                    }
+
+                    // 慢关闭后置的可能连接
+                    if(toRemoveStartIndex < regionArray.length) {
+                        HashSet<Region> toRemoveRegions = new HashSet<Region>();
+                        for(int i=toRemoveStartIndex; i<regionArray.length; ++i) {
+                            if( getRegionTotalClients(url, regionArray[i]) > 0 ) {
+                                toRemoveRegions.add(regionArray[i]);
+                            }
+                        }
+
+                        // 灰度慢关闭
+                        final Set<HostInfo> hostInfos = getToRemoveHostInfos(url, toRemoveRegions);
+                        Runnable r = new Runnable() {
+
+                            @Override
+                            public void run() {
+                                if(hostInfos != null) {
+                                    for (final HostInfo hostInfo : hostInfos) {
+                                        try {
+                                            Thread.sleep(CLOSE_PAUSE);
+                                            RegistryEventListener.providerRemoved(url, hostInfo.getHost(), hostInfo.getPort());
+                                        } catch (Throwable t) {
+                                            logger.error("remove " + hostInfo.getConnect() + " for " + url +"error!", t);
+                                        }
+                                    }
+                                }
+                            }
+
+                        };
+                        toRemoveHostsThreadPool.submit(r);
                     }
 
                 }

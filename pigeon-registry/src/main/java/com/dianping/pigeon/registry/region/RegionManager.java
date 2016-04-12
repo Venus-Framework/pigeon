@@ -1,10 +1,12 @@
 package com.dianping.pigeon.registry.region;
 
+import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.exception.RegionException;
+import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -23,7 +25,9 @@ public enum RegionManager {
     private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
     // 自动切换region的开关
-    private boolean enableRegionAutoSwitch = configManager.getBooleanValue("pigeon.regions.enable", false);
+    private volatile boolean enableRegionAutoSwitch = configManager.getBooleanValue("pigeon.regions.enable", false);
+
+    private volatile boolean isInit = false;
 
     // example: 10.66.xx.yy --> true
     private ConcurrentHashMap<String, Boolean> regionHostHeartBeatStats = new ConcurrentHashMap<String, Boolean>();
@@ -36,10 +40,8 @@ public enum RegionManager {
     // example: 10.66 --> region1
     private Map<String, Region> patternRegionMappings = new HashMap<String, Region>();
 
-    //TODO 添加动态开关多region路由功能
-
-
     private RegionManager() {
+        configManager.registerConfigChangeListener(new InnerConfigChangeListener());
         if(enableRegionAutoSwitch) {
             initRegionsPriority();
         } else {
@@ -47,7 +49,8 @@ public enum RegionManager {
         }
     }
 
-    private void initRegionsPriority() {
+    private synchronized void initRegionsPriority() {
+        if(isInit) {return;}
         try {
             // 处理pigeon.regions配置
             String pigeonRegionsConfig = configManager.getStringValue("pigeon.regions");
@@ -92,6 +95,7 @@ public enum RegionManager {
                     regionArray = regions;
                     // 初始化pattern region映射
                     initPatterRegionMappings(patternRegionNameMappings);
+                    isInit = true;
                     logger.warn("Region auto switch on! Local region is: " + regionArray[0]);
                 } else {
                     logger.error("Error! Set [enableRegionAutoSwitch] to false! regions prefer counts not match regions config!");
@@ -150,22 +154,6 @@ public enum RegionManager {
         }
     }
 
-    /*public boolean isInLocalRegion(String host) {
-        try {
-            if (getRegion(host).equals(localRegion)) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (RegionException e) {
-            logger.warn(e);
-            return false;
-        } catch (Throwable t) {
-            logger.error(t);
-            return false;
-        }
-    }*/
-
     public boolean isInCurrentRegion(String serviceName, HostInfo hostInfo) {
         try {
             return getRegion(hostInfo.getHost()).equals(getCurrentRegion(serviceName));
@@ -190,32 +178,8 @@ public enum RegionManager {
         }
     }
 
-    // 判断并重新将属于本region的ip组成待连接的串
-    /*public String getLocalRegionHosts(String hosts) {
-        Set<String> resultSet = new HashSet<String>();
-
-        if(localRegion == null) {
-            return hosts;
-        }
-
-        for(String host : hosts.split(",")) {
-            if(StringUtils.isNotBlank(host)) {
-                // 注意：ip 和 host 语义不同
-                try {
-                    if(localRegion.equals(getRegion(host))) {
-                        resultSet.add(host);
-                    }
-                } catch (Exception e) {
-                    logger.error(e);
-                }
-            }
-        }
-
-        return StringUtils.join(resultSet, ",");
-    }*/
-
     public boolean isEnableRegionAutoSwitch() {
-        return enableRegionAutoSwitch;
+        return enableRegionAutoSwitch && isInit;
     }
 
     public void register(String serviceName) {
@@ -245,5 +209,36 @@ public enum RegionManager {
 
     public Region[] getRegionArray() {
         return regionArray;
+    }
+
+    private class InnerConfigChangeListener implements ConfigChangeListener {
+
+        @Override
+        public void onKeyUpdated(String key, String value) {
+            if (key.endsWith("pigeon.regions.enable")) {
+                boolean _enableRegionAutoSwitch = Boolean.valueOf(value);
+
+                if(enableRegionAutoSwitch != _enableRegionAutoSwitch) { // region路由开关改变
+                    enableRegionAutoSwitch = _enableRegionAutoSwitch;
+                    if(enableRegionAutoSwitch) { // region路由开
+                        initRegionsPriority();
+                    } else { // region路由关，尝试连接所有hosts，思考：是否重置currentRegion缓存
+                        isInit = false;
+                        RegistryEventListener.connectionReconnected();
+                        logger.warn("Region auto switch off!");
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onKeyAdded(String key, String value) {
+
+        }
+
+        @Override
+        public void onKeyRemoved(String key) {
+
+        }
     }
 }
