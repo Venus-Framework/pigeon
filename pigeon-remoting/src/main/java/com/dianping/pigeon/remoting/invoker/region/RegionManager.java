@@ -1,11 +1,11 @@
-package com.dianping.pigeon.registry.region;
+package com.dianping.pigeon.remoting.invoker.region;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.registry.exception.RegionException;
+import com.dianping.pigeon.remoting.invoker.exception.RegionException;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;

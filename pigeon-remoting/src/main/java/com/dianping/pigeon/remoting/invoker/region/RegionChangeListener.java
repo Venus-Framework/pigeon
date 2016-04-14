@@ -4,9 +4,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.registry.exception.RegionException;
-import com.dianping.pigeon.registry.region.Region;
-import com.dianping.pigeon.registry.region.RegionManager;
+import com.dianping.pigeon.remoting.invoker.exception.RegionException;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.remoting.ServiceFactory;
@@ -16,16 +14,12 @@ import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListener;
-import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 import com.dianping.pigeon.threadpool.ThreadPool;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by chenchongze on 16/2/19.

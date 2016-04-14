@@ -1,4 +1,4 @@
-package com.dianping.pigeon.registry.exception;
+package com.dianping.pigeon.remoting.invoker.exception;
 
 /**
  * Created by chenchongze on 16/3/10.

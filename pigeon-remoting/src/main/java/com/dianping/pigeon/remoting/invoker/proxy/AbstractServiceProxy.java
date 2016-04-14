@@ -1,7 +1,7 @@
 package com.dianping.pigeon.remoting.invoker.proxy;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.registry.region.RegionManager;
+import com.dianping.pigeon.remoting.invoker.region.RegionManager;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;

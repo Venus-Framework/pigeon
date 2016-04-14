@@ -17,7 +17,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 
-import com.dianping.pigeon.registry.region.RegionManager;
+import com.dianping.pigeon.remoting.invoker.region.RegionManager;
 import com.dianping.pigeon.remoting.invoker.region.RegionChangeListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
