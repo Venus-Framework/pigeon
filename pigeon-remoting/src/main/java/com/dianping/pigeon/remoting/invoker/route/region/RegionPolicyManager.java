@@ -269,4 +269,13 @@ public enum RegionPolicyManager {
         return null;
     }
 
+    public Region getRegion(String host) throws RegionException {
+        String pattern = getPattern(host);
+        if(patternRegionMappings.containsKey(pattern)) {
+            return patternRegionMappings.get(pattern);
+        } else {
+            throw new RegionException("can't find ip pattern in region mapping: " + host);
+        }
+    }
+
 }

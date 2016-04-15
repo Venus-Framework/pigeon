@@ -18,6 +18,7 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
 
     @Override
     public List<Client> getPreferRegionClients(List<Client> clientList, InvokerConfig<?> invokerConfig) {
+
         return clientList;
     }
 }
