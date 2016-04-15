@@ -18,6 +18,6 @@ public class WeightBasedRegionPolicy implements RegionPolicy {
 
     @Override
     public List<Client> getPreferRegionClients(List<Client> clientList, InvokerConfig<?> invokerConfig) {
-        return null;
+        return clientList;
     }
 }

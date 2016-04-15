@@ -43,12 +43,12 @@ public enum RegionManager {
     private Map<String, Region> patternRegionMappings = new HashMap<String, Region>();
 
     private RegionManager() {
-        configManager.registerConfigChangeListener(new InnerConfigChangeListener());
+        /*configManager.registerConfigChangeListener(new InnerConfigChangeListener());
         if(enableRegionAutoSwitch) {
             initRegionsPriority();
         } else {
             logger.warn("Region auto switch off!");
-        }
+        }*/
     }
 
     private synchronized void initRegionsPriority() {
