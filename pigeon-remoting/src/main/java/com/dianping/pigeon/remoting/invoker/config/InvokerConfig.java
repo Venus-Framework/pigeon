@@ -55,7 +55,7 @@ public class InvokerConfig<T> {
 
 	private String loadbalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
 
-	private String regionPolicy = RegionPolicyManager.DEFAULT_REGIONPOLICY;
+	private String regionPolicy = RegionPolicyManager.INSTANCE.DEFAULT_REGIONPOLICY;
 
 	private boolean timeoutRetry = false;
 
