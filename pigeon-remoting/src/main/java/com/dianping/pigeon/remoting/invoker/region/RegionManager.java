@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by chenchongze on 16/2/29.
  */
+@Deprecated
 public enum RegionManager {
 
     INSTANCE;

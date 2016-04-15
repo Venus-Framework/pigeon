@@ -25,6 +25,7 @@ import java.util.*;
 /**
  * Created by chenchongze on 16/2/19.
  */
+@Deprecated
 public class RegionChangeListener implements Runnable, ClusterListener {
 
     public final static RegionChangeListener INSTANCE = new RegionChangeListener();
