@@ -263,18 +263,16 @@ public class RegionChangeListener implements Runnable, ClusterListener {
     @Override
     public void addConnect(ConnectInfo connectInfo) {
         // 建立region心跳缓存
-        regionManager.getRegionHostHeartBeatStats().put(connectInfo.getConnect(), true);
+        //regionManager.getRegionHostHeartBeatStats().put(connectInfo.getConnect(), true);
     }
 
     @Override
     public void removeConnect(Client client) {
-        //TODO 是否有必要删除region心跳缓存
         //regionManager.getRegionHostHeartBeatStats().put(client.getAddress(), false);
     }
 
     @Override
     public void doNotUse(String serviceName, String host, int port) {
-        //TODO 删除region心跳缓存
     }
 
 }

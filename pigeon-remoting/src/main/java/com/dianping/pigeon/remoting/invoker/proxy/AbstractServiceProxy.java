@@ -1,8 +1,6 @@
 package com.dianping.pigeon.remoting.invoker.proxy;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.invoker.exception.RegionException;
-import com.dianping.pigeon.remoting.invoker.region.RegionManager;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
@@ -10,6 +8,7 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.exception.RegionException;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import org.apache.commons.lang.StringUtils;
