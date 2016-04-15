@@ -183,7 +183,7 @@ public enum RegionPolicyManager {
             int regionCount = regionConfigs.length;
 
             if(regionCount <= 0) {
-                logger.error("Error! Set [enableRegionAutoSwitch] to false! Please check regions config!");
+                logger.error("Error! Set [enableRegionPolicy] to false! Please check regions config!");
                 enableRegionPolicy = false;
                 return ;
             }
@@ -211,7 +211,7 @@ public enum RegionPolicyManager {
                 if(regionSet.size() == regions.length) {
                     for(Region region : regions) {
                         if(!regionSet.contains(region.getName())) {
-                            logger.error("Error! Set [enableRegionAutoSwitch] to false! regions prefer not match regions config: " + region.getName());
+                            logger.error("Error! Set [enableRegionPolicy] to false! regions prefer not match regions config: " + region.getName());
                             enableRegionPolicy = false;
                             return;
                         }
@@ -220,17 +220,17 @@ public enum RegionPolicyManager {
                     // 初始化pattern region映射
                     initPatterRegionMappings(patternRegionNameMappings);
                     isInit = true;
-                    logger.warn("Region auto switch on! Local region is: " + regionArray[0]);
+                    logger.warn("Region route policy switch on! Local region is: " + regionArray[0]);
                 } else {
-                    logger.error("Error! Set [enableRegionAutoSwitch] to false! regions prefer counts not match regions config!");
+                    logger.error("Error! Set [enableRegionPolicy] to false! regions prefer counts not match regions config!");
                     enableRegionPolicy = false;
                 }
             } else {
-                logger.error("Error! Set [enableRegionAutoSwitch] to false! Can't init local region: " + configManager.getLocalIp());
+                logger.error("Error! Set [enableRegionPolicy] to false! Can't init local region: " + configManager.getLocalIp());
                 enableRegionPolicy = false;
             }
         } catch (Throwable t) {
-            logger.error("Error! Set [enableRegionAutoSwitch] to false!", t);
+            logger.error("Error! Set [enableRegionPolicy] to false!", t);
             enableRegionPolicy = false;
         }
     }
