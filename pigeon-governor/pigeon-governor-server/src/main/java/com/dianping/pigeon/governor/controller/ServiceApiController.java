@@ -137,8 +137,7 @@ public class ServiceApiController extends BaseController {
 
     	String hosts = null;
 		try {
-			hosts = serviceService.publishService(appname, service, group, ip, port, 
-										ConfigHolder.get(LionKeys.IS_ZK_DOUBLE_WRITE, "false"));
+			hosts = serviceService.publishService(appname, service, group, ip, port, updatezk);
 
 
             /*Host host = hostService.retrieveByIpPort(ip,port);
@@ -197,8 +196,7 @@ public class ServiceApiController extends BaseController {
 
     	String hosts = null;
 		try {
-			hosts = serviceService.unpublishService(service, group, ip, port, 
-									ConfigHolder.get(LionKeys.IS_ZK_DOUBLE_WRITE, "false"));
+			hosts = serviceService.unpublishService(service, group, ip, port, updatezk);
 			
 			if(StringUtils.isNotBlank(op))
 				logger.info("unpublish op is: " + op);
@@ -227,7 +225,7 @@ public class ServiceApiController extends BaseController {
      * @return
      */
     @Deprecated
-    @RequestMapping(value = "/service2/set", method = RequestMethod.PUT)
+    @RequestMapping(value = "/service2/set", method = RequestMethod.POST)
     @ResponseBody
     public Result set(HttpServletRequest request,
                       @RequestParam(value="id") int id,
