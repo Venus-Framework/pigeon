@@ -1,6 +1,6 @@
 package com.dianping.piegon.governor.test;
 
-import com.dianping.pigeon.threadpool.HeartbeatThreadFactory;
+//import com.dianping.pigeon.threadpool.HeartbeatThreadFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,7 +12,7 @@ import java.util.logging.Logger;
  */
 public class TheadReboot {
 
-    private static ExecutorService heartbeartThread = Executors.newSingleThreadExecutor(new HeartbeatThreadFactory("Pigeon-Heartbeat-Thread"));
+    //private static ExecutorService heartbeartThread = Executors.newSingleThreadExecutor(new HeartbeatThreadFactory("Pigeon-Heartbeat-Thread"));
 
     public static void main(String[] args) {
         Thread t = new Thread(new Run());
