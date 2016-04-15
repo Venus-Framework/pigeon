@@ -149,6 +149,8 @@ public class ClientManager {
 
 	public List<Client> getAvailableClients(InvokerConfig<?> invokerConfig, InvocationRequest request) {
 		List<Client> clientList = clusterListener.getClientList(invokerConfig);
+		//TODO
+		clientList = regionManager.getPreferRegionClients(clientList, invokerConfig);
 		return routerManager.getAvailableClients(clientList, invokerConfig, request);
 	}
 

@@ -52,7 +52,6 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 						hostPort.getWeight());
 			}
 			for (HostInfo hostPort : toRemoveHpSet) {
-				//TODO 这里需要动吗？暂时先不动
 				RegistryEventListener.providerRemoved(serviceName, hostPort.getHost(), hostPort.getPort());
 			}
 		} catch (Throwable e) {
