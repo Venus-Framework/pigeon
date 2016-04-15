@@ -1,4 +1,4 @@
-package com.dianping.pigeon.remoting.invoker.region;
+package com.dianping.pigeon.remoting.invoker.route.region;
 
 /**
  * Created by chenchongze on 16/2/22.

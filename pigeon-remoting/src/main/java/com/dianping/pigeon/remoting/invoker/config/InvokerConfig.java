@@ -152,6 +152,16 @@ public class InvokerConfig<T> {
 		}
 	}
 
+	public String getRegionPolicy() {
+		return regionPolicy;
+	}
+
+	public void setRegionPolicy(String regionPolicy) {
+		if(StringUtils.isNotBlank(regionPolicy)) {
+			this.regionPolicy = regionPolicy;
+		}
+	}
+
 	public String getCluster() {
 		return cluster;
 	}

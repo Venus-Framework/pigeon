@@ -14,6 +14,7 @@ import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.listener.ClusterListener;
+import com.dianping.pigeon.remoting.invoker.route.region.Region;
 import com.dianping.pigeon.threadpool.ThreadPool;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;

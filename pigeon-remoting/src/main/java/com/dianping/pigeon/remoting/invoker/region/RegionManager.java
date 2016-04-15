@@ -7,6 +7,7 @@ import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.exception.RegionException;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
+import com.dianping.pigeon.remoting.invoker.route.region.Region;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 

@@ -19,6 +19,7 @@ import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 
 import com.dianping.pigeon.remoting.invoker.region.RegionManager;
 import com.dianping.pigeon.remoting.invoker.region.RegionChangeListener;
+import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -150,7 +151,7 @@ public class ClientManager {
 	public List<Client> getAvailableClients(InvokerConfig<?> invokerConfig, InvocationRequest request) {
 		List<Client> clientList = clusterListener.getClientList(invokerConfig);
 		//TODO
-		clientList = regionManager.getPreferRegionClients(clientList, invokerConfig);
+		clientList = RegionPolicyManager.INSTANCE.getPreferRegionClients(clientList, invokerConfig);
 		return routerManager.getAvailableClients(clientList, invokerConfig, request);
 	}
 
