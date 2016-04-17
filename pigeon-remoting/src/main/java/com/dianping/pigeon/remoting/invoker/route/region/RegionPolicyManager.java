@@ -231,7 +231,7 @@ public enum RegionPolicyManager {
                             return;
                         }
                     }
-                    regionArray = regions;
+                    regionArray = Collections.unmodifiableList(regions);
                     // 初始化pattern region映射
                     initPatterRegionMappings(patternRegionNameMappings);
                     isInit = true;
@@ -296,7 +296,7 @@ public enum RegionPolicyManager {
     }
 
     public List<Region> getRegionArray() {
-        return Collections.synchronizedList(regionArray);
+        return regionArray;
     }
 
 }
