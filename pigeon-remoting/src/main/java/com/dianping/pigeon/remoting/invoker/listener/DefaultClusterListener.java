@@ -228,4 +228,8 @@ public class DefaultClusterListener implements ClusterListener {
 	public void destroy() throws Exception {
 		ThreadPoolUtils.shutdown(closeExecutor);
 	}
+
+	public ConcurrentHashMap<String, Client> getAllClients() {
+		return allClients;
+	}
 }

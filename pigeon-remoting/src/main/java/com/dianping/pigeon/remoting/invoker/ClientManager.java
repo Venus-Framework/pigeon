@@ -62,9 +62,6 @@ public class ClientManager {
 	private static ExecutorService providerAvailableThreadPool = Executors.newFixedThreadPool(1,
 			new DefaultThreadFactory("Pigeon-Client-ProviderAvailable-ThreadPool"));
 
-	private static ExecutorService regionChangeThreadPool = Executors.newFixedThreadPool(1,
-			new DefaultThreadFactory("Pigeon-Client-RegionChange-ThreadPool"));
-
 	private static int registerPoolCoreSize = ConfigManagerLoader.getConfigManager().getIntValue(
 			"pigeon.invoker.registerpool.coresize", 10);
 

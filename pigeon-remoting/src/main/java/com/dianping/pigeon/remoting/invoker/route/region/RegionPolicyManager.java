@@ -7,6 +7,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.exception.RegionException;
 import com.dianping.pigeon.util.ClassUtils;
@@ -77,7 +78,7 @@ public enum RegionPolicyManager {
         return clientList;
     }
 
-    private RegionPolicy getRegionPolicy(InvokerConfig<?> invokerConfig) {
+    public RegionPolicy getRegionPolicy(InvokerConfig<?> invokerConfig) {
         String serviceId = ServiceUtils.getServiceId(invokerConfig.getUrl(), invokerConfig.getGroup());
         RegionPolicy regionPolicy = regionPolicyMap.get(serviceId);
         if (regionPolicy != null) {
@@ -149,6 +150,8 @@ public enum RegionPolicyManager {
                 if(enableRegionPolicy != _enableRegionPolicy) { // region路由开关改变
                     enableRegionPolicy = _enableRegionPolicy;
                     if(enableRegionPolicy) { // region路由开,重新读取配置
+                        // 清空allClient region信息
+                        clearRegion();
                         initRegionsConfig();
                     } else { // region路由关
                         isInit = false;
@@ -166,6 +169,16 @@ public enum RegionPolicyManager {
         @Override
         public void onKeyRemoved(String key) {
 
+        }
+    }
+
+    private void clearRegion() {
+        ConcurrentHashMap<String, Client> allClients = ClientManager.getInstance().getClusterListener().getAllClients();
+        if(!allClients.isEmpty()) {
+            for(String address : allClients.keySet()) {
+                Client client = allClients.get(address);
+                client.clearRegion();
+            }
         }
     }
 
@@ -269,13 +282,18 @@ public enum RegionPolicyManager {
         return null;
     }
 
-    public Region getRegion(String host) throws RegionException {
+    public Region getRegion(String host) {
         String pattern = getPattern(host);
         if(patternRegionMappings.containsKey(pattern)) {
             return patternRegionMappings.get(pattern);
         } else {
-            throw new RegionException("can't find ip pattern in region mapping: " + host);
+            logger.error("can't find ip pattern in region mapping: " + host);
+            return null;
         }
+    }
+
+    public Region[] getRegionArray() {
+        return regionArray;
     }
 
 }
