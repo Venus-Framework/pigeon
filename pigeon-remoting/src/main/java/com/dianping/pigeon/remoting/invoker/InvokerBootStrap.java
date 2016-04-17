@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.remoting.invoker;
 
+import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
@@ -36,6 +37,7 @@ public final class InvokerBootStrap {
 					InvokerProcessHandlerFactory.init();
 					SerializerFactory.init();
 					LoadBalanceManager.init();
+					RegionPolicyManager.INSTANCE.init();
 					Monitor monitor = MonitorLoader.getMonitor();
 					if (monitor != null) {
 						monitor.init();

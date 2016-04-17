@@ -31,8 +31,6 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
 
     private Map<String, Set<HostInfo>> serviceHostInfos = clientManager.getServiceHosts();
     private Map<String, Client> allClients = clientManager.getClusterListener().getAllClients();
-    private Region[] regionArray = regionPolicyManager.getRegionArray();
-
     private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
     //TODO 加入动态变化
     private float regionSwitchRatio = configManager.getFloatValue("pigeon.regions.switchratio", 0.5f);
@@ -46,29 +44,29 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
     }
 
     private List<Client> getRegionActiveClients(List<Client> clientList) {
-        Map<Region, InnerRegionstat> regionstats = new HashMap<Region, InnerRegionstat>();
-        for(Region region : regionArray) {
-            regionstats.put(region, new InnerRegionstat());
+        Map<Region, InnerRegionStat> regionStats = new HashMap<Region, InnerRegionStat>();
+        for(Region region : regionPolicyManager.getRegionArray()) {
+            regionStats.put(region, new InnerRegionStat());
         }
 
         for(Client client : clientList) {
             try {
-                InnerRegionstat regionstat = regionstats.get(client.getRegion());
-                regionstat.addClient(client);
-                regionstat.addTotal();
+                InnerRegionStat regionStat = regionStats.get(client.getRegion());
+                regionStat.addClient(client);
+                regionStat.addTotal();
                 if(client.isActive() && registryManager.getServiceWeightFromCache(client.getAddress()) > 0) {
-                    regionstat.addActive();
+                    regionStat.addActive();
                 }
             } catch (Throwable t) {
                 logger.error(t);
             }
         }
 
-        for (Region aRegionArray : regionArray) {// 优先级大小按数组大小排列
+        for (Region region : regionPolicyManager.getRegionArray()) {// 优先级大小按数组大小排列
             try {
-                InnerRegionstat regionstat = regionstats.get(aRegionArray);
-                if (regionstat.getTotal() > 0 && regionstat.getActive() >= regionSwitchRatio * regionstat.getTotal()) {
-                    return regionstat.getClientList();
+                InnerRegionStat regionStat = regionStats.get(region);
+                if (regionStat.getTotal() > 0 && regionStat.getActive() >= regionSwitchRatio * regionStat.getTotal()) {
+                    return regionStat.getClientList();
                 }
             } catch (Throwable t) {
                 logger.error(t);
@@ -100,7 +98,7 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
         return total > 0 && active >= regionSwitchRatio * total;
     }
 
-    private class InnerRegionstat {
+    private class InnerRegionStat {
         private int active = 0;
         private int total = 0;
         private List<Client> clientList = new ArrayList<Client>();

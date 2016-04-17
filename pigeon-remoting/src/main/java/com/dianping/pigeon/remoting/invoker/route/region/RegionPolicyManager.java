@@ -25,7 +25,9 @@ public enum RegionPolicyManager {
 
     INSTANCE;
 
-    private RegionPolicyManager () {
+    private RegionPolicyManager () {}
+
+    public void init() {
         register(AutoSwitchRegionPolicy.NAME, null, AutoSwitchRegionPolicy.INSTANCE);
         register(WeightBasedRegionPolicy.NAME, null, WeightBasedRegionPolicy.INSTANCE);
         configManager.registerConfigChangeListener(new InnerConfigChangeListener());
@@ -47,7 +49,7 @@ public enum RegionPolicyManager {
     // example: 10.66 --> region1
     private Map<String, Region> patternRegionMappings = new HashMap<String, Region>();
 
-    private Region[] regionArray;
+    private List<Region> regionArray;
 
     public final String DEFAULT_REGIONPOLICY = configManager.getStringValue(
             Constants.KEY_REGIONPOLICY, AutoSwitchRegionPolicy.NAME);
@@ -203,14 +205,14 @@ public enum RegionPolicyManager {
 
             Set<String> regionSet = new HashSet<String>();
             Map<String, String> patternRegionNameMappings = new HashMap<String, String>();
-            for(int i = 0; i < regionCount; ++i) {
-                String[] regionPatternMapping = regionConfigs[i].split(":");
+            for (String regionConfig : regionConfigs) {
+                String[] regionPatternMapping = regionConfig.split(":");
                 String regionName = regionPatternMapping[0];
                 String[] patterns = regionPatternMapping[1].split(",");
 
                 regionSet.add(regionName);
 
-                for(String pattern : patterns) {
+                for (String pattern : patterns) {
                     patternRegionNameMappings.put(pattern, regionName);
                 }
             }
@@ -220,8 +222,8 @@ public enum RegionPolicyManager {
             if(patternRegionNameMappings.containsKey(localRegionPattern)) {
                 String localRegionName = patternRegionNameMappings.get(localRegionPattern);
                 // 权重处理
-                Region[] regions = initRegionsWithPriority(localRegionName);
-                if(regionSet.size() == regions.length) {
+                List<Region> regions = initRegionsWithPriority(localRegionName);
+                if(regionSet.size() == regions.size()) {
                     for(Region region : regions) {
                         if(!regionSet.contains(region.getName())) {
                             logger.error("Error! Set [enableRegionPolicy] to false! regions prefer not match regions config: " + region.getName());
@@ -233,7 +235,7 @@ public enum RegionPolicyManager {
                     // 初始化pattern region映射
                     initPatterRegionMappings(patternRegionNameMappings);
                     isInit = true;
-                    logger.warn("Region route policy switch on! Local region is: " + regionArray[0]);
+                    logger.warn("Region route policy switch on! Local region is: " + regionArray.get(0));
                 } else {
                     logger.error("Error! Set [enableRegionPolicy] to false! regions prefer counts not match regions config!");
                     enableRegionPolicy = false;
@@ -259,18 +261,19 @@ public enum RegionPolicyManager {
         }
     }
 
-    private Region[] initRegionsWithPriority(String localRegionName) {
+    private List<Region> initRegionsWithPriority(String localRegionName) {
         String regionsPrefer = configManager.getStringValue("pigeon.regions.prefer." + localRegionName);
         if(StringUtils.isNotBlank(regionsPrefer)) {
             String[] regionNames = regionsPrefer.split(",");
-            Region[] regions = new Region[regionNames.length];
+            List<Region> regions = new ArrayList<Region>(regionNames.length);
+            //Region[] regions = new Region[regionNames.length];
             for(int i = 0; i < regionNames.length; ++i) {
-                regions[i] = new Region(regionNames[i], i);
+                regions.add(new Region(regionNames[i], i));
             }
 
             return regions;
         }
-        return new Region[0];
+        return new ArrayList<Region>();
     }
 
     private Region getRegionByName(String regionName) {
@@ -292,8 +295,8 @@ public enum RegionPolicyManager {
         }
     }
 
-    public Region[] getRegionArray() {
-        return regionArray;
+    public List<Region> getRegionArray() {
+        return Collections.synchronizedList(regionArray);
     }
 
 }
