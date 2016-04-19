@@ -29,10 +29,10 @@ import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 public class SecurityFilter extends InvocationInvokeFilter {
 
 	private static final Logger logger = LoggerLoader.getLogger(SecurityFilter.class);
-	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+	private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 	private static final String KEY_APP_SECRETS = "pigeon.invoker.token.app.secrets";
 	private static final String KEY_TOKEN_ENABLE = "pigeon.invoker.token.enable";
-	private static ConcurrentHashMap<String, String> appSecrets = new ConcurrentHashMap<String, String>();
+	private static volatile ConcurrentHashMap<String, String> appSecrets = new ConcurrentHashMap<String, String>();
 
 	public SecurityFilter() {
 		configManager.getBooleanValue(KEY_TOKEN_ENABLE, true);

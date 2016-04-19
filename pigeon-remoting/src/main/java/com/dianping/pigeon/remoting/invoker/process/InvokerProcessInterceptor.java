@@ -7,6 +7,10 @@ package com.dianping.pigeon.remoting.invoker.process;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 
+/**
+ * @deprecated
+ * @see InvokerInterceptor
+ */
 public interface InvokerProcessInterceptor {
 
 	public void preInvoke(InvocationRequest invocationRequest);

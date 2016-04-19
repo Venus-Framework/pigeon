@@ -16,6 +16,8 @@ import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.process.ProviderInterceptor;
+import com.dianping.pigeon.remoting.provider.process.ProviderInterceptorFactory;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
 
@@ -40,6 +42,10 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 				List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
 				for (ProviderProcessInterceptor interceptor : interceptors) {
 					interceptor.postInvoke(request, response);
+				}
+				List<ProviderInterceptor> contextInterceptors = ProviderInterceptorFactory.getInterceptors();
+				for (ProviderInterceptor interceptor : contextInterceptors) {
+					interceptor.postInvoke(invocationContext);
 				}
 			}
 			return response;

@@ -189,12 +189,6 @@ public final class Constants {
 	public static final boolean INVOKER_STAT_ENABLE = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.invoker.stat.enable", true);
 
-	public static final int LOG_THRESHOLD = ConfigManagerLoader.getConfigManager().getIntValue("pigeon.log.threshold",
-			10);
-
-	public static final int LOG_INTERVAL = ConfigManagerLoader.getConfigManager()
-			.getIntValue("pigeon.log.interval", 10);
-
 	public static boolean MONITOR_ENABLE = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.monitor.enabled", true);
 

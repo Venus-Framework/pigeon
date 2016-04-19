@@ -7,6 +7,10 @@ package com.dianping.pigeon.remoting.provider.process;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated
+ * @see ProviderInterceptorFactory
+ */
 public class ProviderProcessInterceptorFactory {
 
 	private static List<ProviderProcessInterceptor> interceptors = new ArrayList<ProviderProcessInterceptor>();

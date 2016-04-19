@@ -35,18 +35,18 @@ import com.dianping.pigeon.util.ContextUtils;
 public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> {
 
 	private static final Logger logger = LoggerLoader.getLogger(SecurityFilter.class);
-	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+	private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 	private static final String KEY_APP_SECRETS = "pigeon.provider.token.app.secrets";
 	private static final String KEY_TOKEN_ENABLE = "pigeon.provider.token.enable";
 	private static final String KEY_ACCESS_IP_ENABLE = "pigeon.provider.access.ip.enable";
 	private static final String KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE = "pigeon.provider.token.protocol.default.enable";
 
 	private static final String KEY_TOKEN_TIMESTAMP_DIFF = "pigeon.provider.token.timestamp.diff";
-	private static ConcurrentHashMap<String, String> appSecrets = new ConcurrentHashMap<String, String>();
+	private static volatile ConcurrentHashMap<String, String> appSecrets = new ConcurrentHashMap<String, String>();
 
-	private static Set<String> ipBlackSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+	private static volatile Set<String> ipBlackSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
-	private static Set<String> ipWhiteSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+	private static volatile Set<String> ipWhiteSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
 	private static final String KEY_BLACKLIST = "pigeon.provider.access.ip.blacklist";
 	private static final String KEY_WHITELIST = "pigeon.provider.access.ip.whitelist";

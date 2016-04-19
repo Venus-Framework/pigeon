@@ -24,6 +24,7 @@ import com.dianping.pigeon.remoting.invoker.callback.ServiceCallbackWrapper;
 import com.dianping.pigeon.remoting.invoker.callback.ServiceFutureImpl;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.config.InvokerMethodConfig;
+import com.dianping.pigeon.remoting.invoker.domain.DefaultInvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
@@ -49,7 +50,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 		InvocationRequest request = invocationContext.getRequest();
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		String callType = invokerConfig.getCallType();
-		beforeInvoke(request, client);
+		beforeInvoke(invocationContext);
 		boolean isCancel = InvokerHelper.getCancel();
 		if (isCancel) {
 			return InvokerUtils.createDefaultResponse(InvokerHelper.getDefaultResult());
@@ -71,34 +72,40 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 		if (transaction != null) {
 			transaction.addData("CurrentTimeout", timeout);
 		}
-		if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
-			CallbackFuture future = new CallbackFuture();
-			response = InvokerUtils.sendRequest(client, invocationContext.getRequest(), future);
-			if (response == null) {
-				response = future.get(timeout);
+		try {
+			if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
+				CallbackFuture future = new CallbackFuture();
+				response = InvokerUtils.sendRequest(client, invocationContext.getRequest(), future);
+				if (response == null) {
+					response = future.get(timeout);
+				}
+			} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
+				ServiceCallback callback = invokerConfig.getCallback();
+				ServiceCallback tlCallback = InvokerHelper.getCallback();
+				if (tlCallback != null) {
+					callback = tlCallback;
+					InvokerHelper.clearCallback();
+				}
+				InvokerUtils.sendRequest(client, invocationContext.getRequest(), new ServiceCallbackWrapper(
+						invocationContext, callback));
+				response = NO_RETURN_RESPONSE;
+			} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
+				ServiceFutureImpl future = new ServiceFutureImpl(invocationContext, timeout);
+				InvokerUtils.sendRequest(client, invocationContext.getRequest(), future);
+				ServiceFutureFactory.setFuture(future);
+				response = InvokerUtils.createFutureResponse(future);
+			} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callType)) {
+				InvokerUtils.sendRequest(client, invocationContext.getRequest(), null);
+				response = NO_RETURN_RESPONSE;
+			} else {
+				throw new InvalidParameterException("Call type[" + callType + "] is not supported!");
 			}
-		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
-			ServiceCallback callback = invokerConfig.getCallback();
-			ServiceCallback tlCallback = InvokerHelper.getCallback();
-			if (tlCallback != null) {
-				callback = tlCallback;
-				InvokerHelper.clearCallback();
-			}
-			InvokerUtils.sendRequest(client, invocationContext.getRequest(), new ServiceCallbackWrapper(
-					invocationContext, callback));
-			response = NO_RETURN_RESPONSE;
-		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
-			ServiceFutureImpl future = new ServiceFutureImpl(invocationContext, timeout);
-			InvokerUtils.sendRequest(client, invocationContext.getRequest(), future);
-			ServiceFutureFactory.setFuture(future);
-			response = InvokerUtils.createFutureResponse(future);
-		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callType)) {
-			InvokerUtils.sendRequest(client, invocationContext.getRequest(), null);
-			response = NO_RETURN_RESPONSE;
-		} else {
-			throw new InvalidParameterException("Call type[" + callType + "] is not supported!");
+			((DefaultInvokerContext) invocationContext).setResponse(response);
+			afterInvoke(invocationContext);
+		} catch (Throwable t) {
+			afterThrowing(invocationContext, t);
+			throw t;
 		}
-		afterInvoke(request, response, client);
 		return response;
 	}
 

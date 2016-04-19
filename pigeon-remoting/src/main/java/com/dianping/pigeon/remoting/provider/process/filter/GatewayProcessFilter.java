@@ -38,7 +38,7 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 	private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 	private static final String KEY_APPLIMIT_ENABLE = "pigeon.provider.applimit.enable";
 	private static final String KEY_APPLIMIT = "pigeon.provider.applimit";
-	private static Map<String, Long> appLimitMap = new ConcurrentHashMap<String, Long>();
+	private static volatile Map<String, Long> appLimitMap = new ConcurrentHashMap<String, Long>();
 	private static ThreadPool statisticsCheckerPool = new DefaultThreadPool("Pigeon-Server-Statistics-Checker");
 
 	static {

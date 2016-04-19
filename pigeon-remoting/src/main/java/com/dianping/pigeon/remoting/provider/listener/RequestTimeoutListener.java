@@ -159,8 +159,11 @@ public class RequestTimeoutListener implements Runnable {
 									}
 									ContextUtils.setContext(request.getContext());
 									boolean isLog = true;
-									if (timeoutCountInLastSecond > Constants.LOG_THRESHOLD
-											&& timeoutCountInCurrentSecond % Constants.LOG_INTERVAL == 1) {
+									if (timeoutCountInLastSecond > ConfigManagerLoader.getConfigManager().getIntValue(
+											"pigeon.log.threshold", 10)
+											&& timeoutCountInCurrentSecond
+													% ConfigManagerLoader.getConfigManager().getIntValue(
+															"pigeon.log.interval", 10) != 1) {
 										isLog = false;
 									}
 									if (isLog) {

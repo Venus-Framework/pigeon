@@ -33,12 +33,12 @@ public final class InvokerProcessHandlerFactory {
 
 	public static void init() {
 		if (!isInitialized) {
-			registerBizProcessFilter(new ClusterInvokeFilter());
-			registerBizProcessFilter(new GatewayInvokeFilter());
 			if (Constants.MONITOR_ENABLE) {
 				registerBizProcessFilter(new RemoteCallMonitorInvokeFilter());
 			}
 			registerBizProcessFilter(new DegradationFilter());
+			registerBizProcessFilter(new ClusterInvokeFilter());
+			registerBizProcessFilter(new GatewayInvokeFilter());
 			registerBizProcessFilter(new ContextPrepareInvokeFilter());
 			registerBizProcessFilter(new SecurityFilter());
 			registerBizProcessFilter(new RemoteCallInvokeFilter());

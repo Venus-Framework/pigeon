@@ -19,6 +19,8 @@ import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.exception.RequestAbortedException;
+import com.dianping.pigeon.remoting.provider.process.ProviderInterceptor;
+import com.dianping.pigeon.remoting.provider.process.ProviderInterceptorFactory;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethod;
@@ -50,6 +52,10 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
 			for (ProviderProcessInterceptor interceptor : interceptors) {
 				interceptor.preInvoke(request);
+			}
+			List<ProviderInterceptor> contextInterceptors = ProviderInterceptorFactory.getInterceptors();
+			for (ProviderInterceptor interceptor : contextInterceptors) {
+				interceptor.preInvoke(invocationContext);
 			}
 			InvocationResponse response = null;
 			ServiceMethod method = invocationContext.getServiceMethod();

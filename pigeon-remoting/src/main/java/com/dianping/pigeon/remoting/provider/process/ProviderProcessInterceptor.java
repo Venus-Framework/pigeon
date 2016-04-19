@@ -7,6 +7,10 @@ package com.dianping.pigeon.remoting.provider.process;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 
+/**
+ * @deprecated
+ * @see ProviderInterceptor
+ */
 public interface ProviderProcessInterceptor {
 
 	public void preInvoke(InvocationRequest invocationRequest);

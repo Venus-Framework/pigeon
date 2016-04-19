@@ -38,18 +38,18 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 
 	private static final Logger logger = LoggerLoader.getLogger(RemoteCallMonitorInvokeFilter.class);
 
-	private Monitor monitor = MonitorLoader.getMonitor();
+	private final Monitor monitor = MonitorLoader.getMonitor();
 
-	private static Map<String, Integer> appLogTimeoutPeriodMap = new ConcurrentHashMap<String, Integer>();
+	private static volatile Map<String, Integer> appLogTimeoutPeriodMap = new ConcurrentHashMap<String, Integer>();
 
 	private static final int logTimeoutPeriodLimit = ConfigManagerLoader.getConfigManager().getIntValue(
 			"pigeon.invoker.log.timeout.period.limit", 9999);
 
-	private static Map<String, AtomicInteger> appTimeouts = new ConcurrentHashMap<String, AtomicInteger>();
+	private static volatile Map<String, AtomicInteger> appTimeouts = new ConcurrentHashMap<String, AtomicInteger>();
 
 	private static final String KEY_LOG_TIMEOUT_PERIOD = "pigeon.invoker.log.timeout.period.apps";
 
-	private static Random random = new Random();
+	private static final Random random = new Random();
 
 	private static class InnerConfigChangeListener implements ConfigChangeListener {
 
@@ -110,10 +110,11 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		MonitorTransaction transaction = null;
 		InvocationRequest request = invocationContext.getRequest();
 		String targetApp = null;
+		String callInterface = null;
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		if (monitor != null) {
 			try {
-				String callInterface = InvocationUtils.getRemoteCallFullName(invokerConfig.getUrl(),
+				callInterface = InvocationUtils.getRemoteCallFullName(invokerConfig.getUrl(),
 						invocationContext.getMethodName(), invocationContext.getParameterTypes());
 				transaction = monitor.createTransaction("PigeonCall", callInterface, invocationContext);
 				if (transaction != null) {
@@ -123,21 +124,12 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 					transaction.addData("Timeout", invokerConfig.getTimeout());
 					transaction.addData("Serialize", invokerConfig.getSerialize());
 
-					Client client = invocationContext.getClient();
-					targetApp = RegistryManager.getInstance().getReferencedAppFromCache(client.getAddress());
-					transaction.logEvent("PigeonCall.app", targetApp, "");
 					transaction.logEvent("PigeonCall.QPS", "S" + Calendar.getInstance().get(Calendar.SECOND), "");
 					boolean logTimeout = random.nextInt(Constants.INVOKER_LOG_TIMEOUT_PERCENT) < 1;
 					if (logTimeout) {
 						transaction
 								.logEvent("PigeonCall.timeout." + callInterface, invokerConfig.getTimeout() + "", "");
 					}
-					String parameters = "";
-					if (Constants.LOG_PARAMETERS) {
-						parameters = InvocationUtils.toJsonString(request.getParameters(), 1000, 50);
-					}
-					transaction.logEvent("PigeonCall.server", client.getAddress(), parameters);
-
 					transaction.readMonitorContext();
 				}
 			} catch (Throwable e) {
@@ -147,18 +139,35 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 		boolean error = false;
 		try {
 			InvocationResponse response = handler.handle(invocationContext);
-			request = invocationContext.getRequest();
-			String reqSize = SizeMonitor.getInstance().getLogSize(request.getSize());
-			if (reqSize != null) {
-				monitor.logEvent("PigeonCall.requestSize", reqSize, "" + request.getSize());
-			}
-			if (response != null && response.getSize() > 0) {
-				String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
-				if (respSize != null) {
-					monitor.logEvent("PigeonCall.responseSize", respSize, "" + response.getSize());
+			if (transaction != null) {
+				if (invocationContext.isDegraded()) {
+					transaction.logEvent("PigeonCall.degrade", callInterface, "");
 				}
-				invocationContext.getTimeline().add(new TimePoint(TimePhase.R, response.getCreateMillisTime()));
-				invocationContext.getTimeline().add(new TimePoint(TimePhase.R, response.getCreateMillisTime()));
+				Client client = invocationContext.getClient();
+				if (client != null) {
+					targetApp = RegistryManager.getInstance().getReferencedAppFromCache(client.getAddress());
+					transaction.logEvent("PigeonCall.app", targetApp, "");
+					String parameters = "";
+					if (Constants.LOG_PARAMETERS) {
+						parameters = InvocationUtils.toJsonString(request.getParameters(), 1000, 50);
+					}
+					transaction.logEvent("PigeonCall.server", client.getAddress(), parameters);
+				}
+				request = invocationContext.getRequest();
+				if (request != null) {
+					String reqSize = SizeMonitor.getInstance().getLogSize(request.getSize());
+					if (reqSize != null) {
+						monitor.logEvent("PigeonCall.requestSize", reqSize, "" + request.getSize());
+					}
+				}
+				if (response != null && response.getSize() > 0) {
+					String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
+					if (respSize != null) {
+						monitor.logEvent("PigeonCall.responseSize", respSize, "" + response.getSize());
+					}
+					invocationContext.getTimeline().add(new TimePoint(TimePhase.R, response.getCreateMillisTime()));
+					invocationContext.getTimeline().add(new TimePoint(TimePhase.R, response.getCreateMillisTime()));
+				}
 			}
 			return response;
 		} catch (NetTimeoutException e) {

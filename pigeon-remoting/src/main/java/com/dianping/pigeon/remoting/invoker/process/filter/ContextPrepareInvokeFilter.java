@@ -147,6 +147,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 					.getLocalIp());
 		}
 		request.setGlobalValues(ContextUtils.getGlobalContext());
+		ContextUtils.initRequestContext();
 		request.setRequestValues(ContextUtils.getRequestContext());
 	}
 

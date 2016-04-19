@@ -831,15 +831,14 @@ pigeon支持服务端对某个服务接口的方法的最大并发数进行配�
 		
 以上配置里actives、workQueueSize、corePoolSize、maxPoolSize，均可以通过lion动态在线设置实时生效
 
-2、限制某个客户端应用的最大并发数
-pigeon也支持在服务端配置某个客户端应用的最大并发数
+2、限制某个客户端应用请求的最大QPS
+pigeon也支持在服务端配置某个客户端应用的最大请求QPS
 a、首先需要在应用lion里配置开关打开，例如deal-service项目要配置以下lion配置：
 deal-service.pigeon.provider.applimit.enable=true
 b、配置客户端应用对应的最大并发数：
 pigeon.provider.applimit=tuangou-web:100,xxx:50,yyy:100
-上面的客户端应用名称是标准统一的项目名称，以CMDB里为准。
-并发数一般看是pigeon服务端线程池最大并发多少，比如500个最大并发，根据这个数字再看业务上平时一般客户端应用的比例来决定每个应用大概的最大并发数。
-目前只能限制客户端应用总的最大并发数，不能精确到某个应用的某个方法，后续版本会支持。
+上面的客户端应用名称是标准统一的项目名称，以CMDB里为准
+目前只能限制客户端应用总的最大QPS，不能精确到某个应用的某个方法
 以上配置第一次配置了之后，均可以通过lion动态在线设置实时生效
 
 ### 配置客户端调用模式
@@ -1433,6 +1432,8 @@ xxx-service.pigeon.provider.token.timestamp.diff，默认为120（单位秒）
 
 e、如果服务提供方只希望http客户端进行认证，而不希望默认的tcp客户端做认证（老业务），需要配置xxx-service.pigeon.provider.token.protocol.default.enable为false
 
+
+
 对于客户端：
 
 a、对于使用pigeon java客户端的应用，只需要配置所依赖的服务的密钥，在配置中心lion里配置key，如xxx-web这个应用：配置xxx-web.pigeon.invoker.token.app.secrets，内容如：
@@ -1455,8 +1456,8 @@ c、如果服务提供方必须要求客户端将token等放在header里，以�
 http://pigeon.dper.com/xxx-service/invoke.json?url=http://service.dianping.com/com.dianping.pigeon.demo.EchoService&method=echo&parameterTypes=java.lang.String&parameters=scott
 在header里必须有两个key：
 Timestamp,内容为上述类似的System.currentTimeMillis()/1000值，例如：1458447031
-Authorization，内容格式例如：pigeon=xxx-service:v5cg4EUS4c8wIjOC70VwvvgxZzg
-pigeon=为必须填的字符串，xxx-service代表app，冒号:后边的字符串为token值
+Authorization，内容格式例如：pigeon=xxx-web:v5cg4EUS4c8wIjOC70VwvvgxZzg
+pigeon=为必须填的字符串，xxx-service代表客户端app名称，冒号:后边的字符串为token值
 
 d、SecurityUtils.encrypt方法可以参考下面代码，内部采用HmacSHA1算法，通过密钥对某个字符串进行签名，然后转换为base64编码：
 

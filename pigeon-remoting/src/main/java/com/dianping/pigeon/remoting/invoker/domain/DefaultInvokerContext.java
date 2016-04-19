@@ -20,6 +20,7 @@ public class DefaultInvokerContext extends AbstractInvocationContext implements 
 	private Class<?>[] parameterTypes;
 	private Object[] arguments;
 	private Client client;
+	private boolean isDegraded = false;
 
 	public DefaultInvokerContext(InvokerConfig<?> invokerConfig, String methodName, Class<?>[] parameterTypes,
 			Object[] arguments) {
@@ -81,6 +82,16 @@ public class DefaultInvokerContext extends AbstractInvocationContext implements 
 
 	@Override
 	public void setMethodUri(String uri) {
+	}
+
+	@Override
+	public void setDegraded() {
+		isDegraded = true;
+	}
+
+	@Override
+	public boolean isDegraded() {
+		return isDegraded;
 	}
 
 }
