@@ -98,7 +98,9 @@ public class SecurityFilter extends InvocationInvokeFilter {
 			if (StringUtils.isBlank(secret) && configManager.getBooleanValue(KEY_TOKEN_ENABLE, true)) {
 				String targetApp = RegistryManager.getInstance().getReferencedAppFromCache(
 						invocationContext.getClient().getAddress());
-				secret = appSecrets.get(targetApp);
+				if (StringUtils.isNotEmpty(targetApp)) {
+					secret = appSecrets.get(targetApp);
+				}
 			}
 			if (StringUtils.isNotBlank(secret)) {
 				int timestamp = getCurrentTime();
