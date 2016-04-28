@@ -482,4 +482,23 @@ public class ServiceServiceImpl implements ServiceService {
 		return services;
 	}
 
+	@Override
+	public boolean deleteByGroup(int projectId, String group) {
+		ServiceExample example = new ServiceExample();
+		example.createCriteria().andProjectidEqualTo(projectId).andGroupEqualTo(group);
+		int resultCount;
+
+		try {
+			resultCount = serviceMapper.deleteByExample(example);
+			if(resultCount > 0) {
+				return true;
+			}
+		} catch (DataAccessException e) {
+			logger.error("Delete failed!", e);
+			return false;
+		}
+
+		return false;
+	}
+
 }

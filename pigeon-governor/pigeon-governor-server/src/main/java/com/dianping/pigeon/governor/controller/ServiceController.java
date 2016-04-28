@@ -309,6 +309,22 @@ public class ServiceController extends BaseController {
 		return Result.createSuccessResult("");
 	}
 
+	@RequestMapping(value = {"/services/oneClickOffGroup"}, method = {RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public Result oneClickOffGroup(@RequestParam(value="group") final String group,
+							  @RequestParam(value="projectId") final int projectId,
+							  HttpServletRequest request) {
+		boolean deleteResult = serviceService.deleteByGroup(projectId, group);
+
+		if( !deleteResult ) {
+			return Result.createErrorResult("Delete failed!");
+		}
+
+		String content = String.format("Oneclick Off Group grp=%s", group);
+		workThreadPool.submit(new LogOpRun(request, OpType.UPDATE_PIGEON_SERVICE, content, projectId));
+
+		return Result.createSuccessResult("");
+	}
 
 	@Deprecated
 	@RequestMapping(value = {"/services/oneClickAdd2"}, method = {RequestMethod.GET, RequestMethod.POST})
