@@ -116,6 +116,9 @@ public class CheckAndSyncServiceDB {
                     } else { // 数据库查不到，创建新service
                         String app = null;
                         for(String host : hostsZk.split(",")) {
+                            if(StringUtils.isBlank(host)) {
+                                continue;
+                            }
                             String tmp_app = null;
                             try {
                                 tmp_app = client.get("/DP/APP/" + host, false);

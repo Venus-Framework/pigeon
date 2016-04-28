@@ -1,9 +1,9 @@
-package com.dianping.pigeon.registry.exception;
+package com.dianping.pigeon.remoting.invoker.exception;
 
 /**
  * Created by chenchongze on 16/3/10.
  */
-public class RegionException extends Exception {
+public class RegionException extends RuntimeException {
 
     public RegionException(String msg) {
         super(msg);

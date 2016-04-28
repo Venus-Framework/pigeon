@@ -4,19 +4,6 @@
  */
 package com.dianping.pigeon.remoting.invoker.listener;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import com.dianping.pigeon.registry.RegionManager;
-import org.apache.logging.log4j.Logger;
-
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -27,12 +14,21 @@ import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableExceptio
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 import com.dianping.pigeon.util.CollectionUtils;
 import com.dianping.pigeon.util.ThreadPoolUtils;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class DefaultClusterListener implements ClusterListener {
 
 	private static final Logger logger = LoggerLoader.getLogger(DefaultClusterListener.class);
-
-	private final static RegionManager regionManager = RegionManager.getInstance();
 
 	private ConcurrentHashMap<String, List<Client>> serviceClients = new ConcurrentHashMap<String, List<Client>>();
 
@@ -109,10 +105,6 @@ public class DefaultClusterListener implements ClusterListener {
 				logger.info("client already connected:" + client);
 			}
 			if (client.isConnected()) {
-				//TODO 初始化client region心跳信息
-				if(regionManager.isEnableRegionAutoSwitch()) {
-					regionManager.getRegionHostHeartBeatStats().putIfAbsent(client.getAddress(), true);
-				}
 
 				for (Entry<String, Integer> sw : connectInfo.getServiceNames().entrySet()) {
 					String serviceName = sw.getKey();
@@ -235,5 +227,9 @@ public class DefaultClusterListener implements ClusterListener {
 
 	public void destroy() throws Exception {
 		ThreadPoolUtils.shutdown(closeExecutor);
+	}
+
+	public ConcurrentHashMap<String, Client> getAllClients() {
+		return allClients;
 	}
 }

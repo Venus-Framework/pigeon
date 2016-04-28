@@ -7,6 +7,7 @@ package com.dianping.pigeon.remoting.invoker.route;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
@@ -32,6 +33,8 @@ import com.dianping.pigeon.remoting.invoker.route.balance.WeightedAutoawareLoadB
 public class DefaultRouteManager implements RouteManager, Disposable {
 
 	private static final Logger logger = LoggerLoader.getLogger(DefaultRouteManager.class);
+
+	private final RegionPolicyManager regionPolicyManager = RegionPolicyManager.INSTANCE;
 
 	private static final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
@@ -91,16 +94,15 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	}
 
 	/**
-	 * 按照权重和分组过滤客户端选择
-	 * 
+	 * 按照权重、分组、region规则过滤客户端选择
 	 * @param clientList
-	 * @param serviceName
-	 * @param group
-	 * @param isWriteBufferLimit
+	 * @param invokerConfig
+	 * @param request
 	 * @return
 	 */
 	public List<Client> getAvailableClients(List<Client> clientList, InvokerConfig<?> invokerConfig,
 			InvocationRequest request) {
+		clientList = regionPolicyManager.getPreferRegionClients(clientList, invokerConfig);
 		boolean isWriteLimit = isWriteBufferLimit && request.getCallType() == Constants.CALLTYPE_NOREPLY;
 		List<Client> filteredClients = new ArrayList<Client>(clientList.size());
 		boolean existClientBuffToLimit = false;

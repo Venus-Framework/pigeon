@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -95,6 +96,8 @@ public class ReferenceBean implements FactoryBean {
 	private String group = configManager.getGroup();
 
 	private String loadBalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
+
+	private String regionPolicy = RegionPolicyManager.INSTANCE.DEFAULT_REGIONPOLICY;
 
 	private Class<? extends LoadBalance> loadBalanceClass;
 
@@ -221,6 +224,14 @@ public class ReferenceBean implements FactoryBean {
 		this.writeBufferLimit = writeBufferLimit;
 	}
 
+	public String getRegionPolicy() {
+		return regionPolicy;
+	}
+
+	public void setRegionPolicy(String regionPolicy) {
+		this.regionPolicy = regionPolicy;
+	}
+
 	public void init() throws Exception {
 		if (StringUtils.isBlank(interfaceName)) {
 			throw new IllegalArgumentException("invalid interface:" + interfaceName);
@@ -230,6 +241,7 @@ public class ReferenceBean implements FactoryBean {
 				this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadBalance, this.cluster,
 				this.retries, this.timeoutRetry, this.vip, this.version, this.protocol);
 		invokerConfig.setClassLoader(classLoader);
+		invokerConfig.setRegionPolicy(regionPolicy);
 
 		if (!CollectionUtils.isEmpty(methods)) {
 			Map<String, InvokerMethodConfig> methodMap = new HashMap<String, InvokerMethodConfig>();
