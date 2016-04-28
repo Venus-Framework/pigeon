@@ -231,7 +231,7 @@
                             <div class="space-4"></div>
 
                             <div class="form-group">
-                                <label for="form-field-provider-off-group">泳道(group)</label>
+                                <label for="form-field-provider-on-group">泳道(group)</label>
 
                                 <div>
                                     <input class="input-medium" type="text" id="form-field-provider-on-group"
@@ -337,10 +337,10 @@
                         <div class="col-xs-12">
 
                             <div class="form-group">
-                                <label for="form-field-provider-off-group">泳道(group)</label>
+                                <label for="form-field-provider-off-group-2">泳道(group)</label>
 
                                 <div>
-                                    <input class="input-medium" type="text" id="form-field-provider-off-group"
+                                    <input class="input-medium" type="text" id="form-field-provider-off-group-2"
                                            placeholder="default" value="" />
                                     &nbsp;&nbsp;
                                     <a title="一键删除该应用指定泳道的所有服务" data-rel="tooltip" href="#">
@@ -501,7 +501,7 @@ $('#submit-oneClick-off').on('click',function(){
 });
 
 $('#submit-oneClick-off-group').on('click',function(){
-    var data = {"group": $('#form-field-provider-off-group').val(), "projectId": projectId};
+    var data = {"group": $('#form-field-provider-off-group-2').val(), "projectId": projectId};
     $.ajax({
         url: '/services/oneClickOffGroup',
         type: 'POST',
