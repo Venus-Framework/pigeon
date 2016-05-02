@@ -44,7 +44,7 @@ pigeon.regions.prefer.region2=region2:10,region3:3,region1:1
 pigeon.regions.prefer.region3=region3:3,region1:1,region2:0
 `
 
-其中特定region的优先级规则由`pigeon.regions.prefer.regionX`配置项定义。
+其中特定region的优先级规则由`pigeon.regions.prefer.regionX`配置项定义(冒号后面为region权重，用于weight based policy)。
 
 路由规则：按照优先级选择region中的可用client连接，当region可用率低于设置的切换阈值时，依次选择下一个优先级的region。
 
@@ -58,6 +58,6 @@ pigeon.regions.prefer.region2=region2:10,region3:3,region1:1
 pigeon.regions.prefer.region3=region3:3,region1:1,region2:0
 `
 
-其中region的权重由`pigeon.regions.prefer.regionX`配置项定义。
+其中region的权重由`pigeon.regions.prefer.regionX`配置项定义(冒号后面为region权重)。
 
 路由规则：按照region权重，随机选择特定region中的可用client连接。
