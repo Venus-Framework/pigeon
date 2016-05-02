@@ -264,11 +264,13 @@ public enum RegionPolicyManager {
     private List<Region> initRegionsWithPriority(String localRegionName) {
         String regionsPrefer = configManager.getStringValue("pigeon.regions.prefer." + localRegionName);
         if(StringUtils.isNotBlank(regionsPrefer)) {
-            String[] regionNames = regionsPrefer.split(",");
-            List<Region> regions = new ArrayList<Region>(regionNames.length);
-            //Region[] regions = new Region[regionNames.length];
-            for(int i = 0; i < regionNames.length; ++i) {
-                regions.add(new Region(regionNames[i], i));
+            String[] regionNameAndWeights = regionsPrefer.split(",");
+            List<Region> regions = new ArrayList<Region>(regionNameAndWeights.length);
+            for(int i = 0; i < regionNameAndWeights.length; ++i) {
+                String[] _regionNameAndWeight = regionNameAndWeights[i].split(":");
+                String regionName = _regionNameAndWeight[0];
+                int regionWeight = Integer.parseInt(_regionNameAndWeight[1]);
+                regions.add(new Region(regionName, i, regionWeight));
             }
 
             return regions;

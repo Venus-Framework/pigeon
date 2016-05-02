@@ -39,9 +39,9 @@ pigeon提供两种region路由策略auto switch policy，weight based policy。�
 a) auto switch policy
 
 `
-pigeon.regions.prefer.region1=region1,region2,region3
-pigeon.regions.prefer.region2=region2,region1,region3
-pigeon.regions.prefer.region3=region3,region2,region1
+pigeon.regions.prefer.region1=region1:3,region2:1,region3:0
+pigeon.regions.prefer.region2=region2:10,region3:3,region1:1
+pigeon.regions.prefer.region3=region3:3,region1:1,region2:0
 `
 
 其中特定region的优先级规则由`pigeon.regions.prefer.regionX`配置项定义。
@@ -52,6 +52,12 @@ pigeon.regions.prefer.region3=region3,region2,region1
 
 b) weight based policy
 
-其中region的权重由`pigeon.regions.weight.regionX`配置项定义。
+`
+pigeon.regions.prefer.region1=region1:3,region2:1,region3:0
+pigeon.regions.prefer.region2=region2:10,region3:3,region1:1
+pigeon.regions.prefer.region3=region3:3,region1:1,region2:0
+`
+
+其中region的权重由`pigeon.regions.prefer.regionX`配置项定义。
 
 路由规则：按照region权重，随机选择特定region中的可用client连接。
