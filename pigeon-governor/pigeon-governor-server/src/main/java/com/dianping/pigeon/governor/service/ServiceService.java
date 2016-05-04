@@ -55,5 +55,5 @@ public interface ServiceService {
 
 	public List<Service> retrieveAllIdNames();
 
-	boolean deleteByGroup(int projectId, String group);
+	boolean deleteByGroup(int projectId, String group, boolean updateZk);
 }

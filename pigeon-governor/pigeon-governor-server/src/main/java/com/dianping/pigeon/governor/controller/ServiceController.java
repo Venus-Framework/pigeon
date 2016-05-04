@@ -314,7 +314,7 @@ public class ServiceController extends BaseController {
 	public Result oneClickOffGroup(@RequestParam(value="group") final String group,
 							  @RequestParam(value="projectId") final int projectId,
 							  HttpServletRequest request) {
-		boolean deleteResult = serviceService.deleteByGroup(projectId, group);
+		boolean deleteResult = serviceService.deleteByGroup(projectId, group, true);
 
 		if( !deleteResult ) {
 			return Result.createErrorResult("Delete failed!");
