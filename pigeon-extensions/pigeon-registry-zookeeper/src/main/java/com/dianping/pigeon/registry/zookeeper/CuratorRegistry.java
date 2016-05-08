@@ -7,6 +7,8 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.apache.zookeeper.KeeperException.NodeExistsException;
+import org.apache.zookeeper.KeeperException.BadVersionException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 
 import com.dianping.pigeon.config.ConfigManager;
@@ -17,6 +19,7 @@ import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.util.CollectionUtils;
+import org.apache.zookeeper.data.Stat;
 
 public class CuratorRegistry implements Registry {
 
@@ -125,7 +128,8 @@ public class CuratorRegistry implements Registry {
 				client.set(weightPath, "" + weight);
 			}
 			if (client.exists(servicePath, false)) {
-				String addressValue = client.get(servicePath, false);
+				Stat stat = new Stat();
+				String addressValue = client.get(servicePath, stat);
 				String[] addressArray = addressValue.split(",");
 				List<String> addressList = new ArrayList<String>();
 				for (String addr : addressArray) {
@@ -137,7 +141,7 @@ public class CuratorRegistry implements Registry {
 				if (!addressList.contains(serviceAddress)) {
 					addressList.add(serviceAddress);
 					Collections.sort(addressList);
-					client.set(servicePath, StringUtils.join(addressList.iterator(), ","));
+					client.set(servicePath, StringUtils.join(addressList.iterator(), ","), stat.getVersion());
 				}
 			} else {
 				client.create(servicePath, serviceAddress);
@@ -146,8 +150,18 @@ public class CuratorRegistry implements Registry {
 				logger.info("registered service to persistent node: " + servicePath);
 			}
 		} catch (Throwable e) {
-			logger.error("failed to register service to " + servicePath, e);
-			throw new RegistryException(e);
+			if(e instanceof BadVersionException || e instanceof NodeExistsException) {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException ie) {
+					//ignore
+				}
+				registerPersistentNode(serviceName, group, serviceAddress, weight);
+			} else {
+				logger.error("failed to register service to " + servicePath, e);
+				throw new RegistryException(e);
+			}
+
 		}
 	}
 
@@ -166,7 +180,8 @@ public class CuratorRegistry implements Registry {
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
 			if (client.exists(servicePath, false)) {
-				String addressValue = client.get(servicePath, false);
+				Stat stat = new Stat();
+				String addressValue = client.get(servicePath, stat);
 				String[] addressArray = addressValue.split(",");
 				List<String> addressList = new ArrayList<String>();
 				for (String addr : addressArray) {
@@ -179,7 +194,7 @@ public class CuratorRegistry implements Registry {
 					addressList.remove(serviceAddress);
 					if (!addressList.isEmpty()) {
 						Collections.sort(addressList);
-						client.set(servicePath, StringUtils.join(addressList.iterator(), ","));
+						client.set(servicePath, StringUtils.join(addressList.iterator(), ","), stat.getVersion());
 					} else {
 						List<String> children = client.getChildren(servicePath, false);
 						if (CollectionUtils.isEmpty(children)) {
@@ -190,11 +205,11 @@ public class CuratorRegistry implements Registry {
 									logger.warn("Already deleted path:" + servicePath + ":" + e.getMessage());
 								}
 							} else {
-								client.set(servicePath, "");
+								client.set(servicePath, "", stat.getVersion());
 							}
 						} else {
 							logger.warn("Existing children [" + children + "] under path:" + servicePath);
-							client.set(servicePath, "");
+							client.set(servicePath, "", stat.getVersion());
 						}
 					}
 				}
@@ -203,8 +218,17 @@ public class CuratorRegistry implements Registry {
 				}
 			}
 		} catch (Throwable e) {
-			logger.error("failed to unregister service from " + servicePath, e);
-			throw new RegistryException(e);
+			if(e instanceof BadVersionException) {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException ie) {
+					//ignore
+				}
+				unregisterPersistentNode(serviceName, group, serviceAddress);
+			} else {
+				logger.error("failed to unregister service from " + servicePath, e);
+				throw new RegistryException(e);
+			}
 		}
 	}
 
