@@ -835,11 +835,53 @@ pigeon支持服务端对某个服务接口的方法的最大并发数进行配�
 pigeon也支持在服务端配置某个客户端应用的最大请求QPS
 a、首先需要在应用lion里配置开关打开，例如deal-service项目要配置以下lion配置：
 deal-service.pigeon.provider.applimit.enable=true
-b、配置客户端应用对应的最大并发数：
+b、配置客户端应用对应的最大QPS：
 pigeon.provider.applimit=tuangou-web:100,xxx:50,yyy:100
+如果客户端请求QPS超过了设置的阀值，服务端会返回com.dianping.pigeon.remoting.common.exception.RejectedException给客户端，客户端会收到RejectedException
+
 上面的客户端应用名称是标准统一的项目名称，以CMDB里为准
 目前只能限制客户端应用总的最大QPS，不能精确到某个应用的某个方法
 以上配置第一次配置了之后，均可以通过lion动态在线设置实时生效
+
+### 服务降级
+
+pigeon在调用端提供了服务降级功能支持
+应用调用远端的服务接口如果在最近一段时间内出现连续的调用失败，失败率超过一定阀值，可以自动触发或手工触发降级，调用端直接返回默认对象或抛出异常，不会将调用请求发到服务提供方，如果服务提供方恢复可用，客户端可以自动或手工解除降级
+1、配置接口的降级策略
+例如xxx-service项目，有http://service.dianping.com/com.dianping.pigeon.demo.EchoService这个服务，包含3个方法：
+String echo(String input);
+User getUserDetail(String userName);
+User[] getUserDetailArray(String[] usernames);
+
+配置可降级的方法，要配置以下lion配置：
+a、增加lion配置：xxx-service.pigeon.invoker.degrade.methods配置为：
+http://service.dianping.com/com.dianping.pigeon.demo.EchoService#echo=a,http://service.dianping.com/com.dianping.pigeon.demo.EchoService#getUserDetail=b,http://service.dianping.com/com.dianping.pigeon.demo.EchoService#getUserDetailArray=c
+上述配置内容包含多个方法的降级策略a、b、c，如果降级策略没有配置默认会返回null对象
+
+b、增加lion配置：pigeon-test.pigeon.invoker.degrade.method.return.a对应echo方法的默认返回，配置为：
+{"returnClass":"java.lang.String","content":"echo,input"}
+
+如果不想返回默认值，而是抛出一个降级异常（pigeon默认会抛出com.dianping.pigeon.remoting.invoker.exception.ServiceDegradedException），配置为：
+{"throwException":"true"}
+
+c、增加lion配置：pigeon-test.pigeon.invoker.degrade.method.return.b对应getUserDetail方法的默认返回，配置为：
+{"returnClass":"com.dianping.pigeon.demo.User","content":"{\"username\":\"user-1\"}"}
+
+d、增加lion配置：pigeon-test.pigeon.invoker.degrade.method.return.c对应getUserDetailArray方法的默认返回，配置为：
+{"returnClass":"[Lcom.dianping.pigeon.demo.UserService$User;","content":"[{\"username\":\"array-1\"},{\"username\":\"array-2\"}]"}
+这里返回对象是数组，如果是返回集合，也类似，例如返回一个LinkedList：
+{"returnClass":"java.util.LinkedList","content":"[{\"@class\":\"com.dianping.pigeon.demo.UserService$User\",\"username\":\"list-1\"},{\"username\":\"list-2\"}]"}
+
+2、强制降级开关
+将至降级开关只是在远程服务大量超时或其他不可用情况时，紧急时候进行设置，开启后，调用端会根据上述降级策略直接返回默认值或抛出降级异常，当远程服务恢复后，建议关闭此开关
+提供了pigeon.invoker.degrade.force配置开关，例如xxx-service项目要配置以下lion配置：
+xxx-service.pigeon.invoker.degrade.force=true，默认为false
+
+3、自动降级开关
+自动降级开关是在调用端设置，开启自动降级后，调用端如果调用某个服务出现连续的超时或不可用，当一段时间内（10秒内）失败率超过一定阀值（默认1%）会触发自动降级，调用端会根据上述降级策略直接返回默认值或抛出降级异常
+当服务端恢复后，调用端会自动解除降级模式，再次发起请求到远程服务
+提供了pigeon.invoker.degrade.auto配置开关，例如xxx-service项目要配置以下lion配置：
+xxx-service.pigeon.invoker.degrade.auto=true，默认为false
 
 ### 配置客户端调用模式
 

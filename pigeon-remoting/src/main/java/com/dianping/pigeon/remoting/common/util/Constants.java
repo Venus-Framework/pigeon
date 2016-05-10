@@ -104,7 +104,6 @@ public final class Constants {
 	public static final String KEY_RESPONSE_MAXPOOLSIZE = "pigeon.response.pool.maxsize";
 	public static final String KEY_RESPONSE_WORKQUEUESIZE = "pigeon.response.pool.queuesize";
 	public static final String KEY_INVOKER_TIMEOUT = "pigeon.invoker.timeout";
-	public static final String KEY_TIMEOUT_INTERVAL = "pigeon.timeout.interval";
 	public static final String KEY_WRITE_BUFFER_HIGH_WATER = "pigeon.channel.writebuff.high";
 	public static final String KEY_WRITE_BUFFER_LOW_WATER = "pigeon.channel.writebuff.low";
 	public static final String KEY_DEFAULT_WRITE_BUFF_LIMIT = "pigeon.channel.writebuff.defaultlimit";
@@ -131,7 +130,6 @@ public final class Constants {
 	public static final int DEFAULT_WRITE_BUFFER_LOW_WATER = 25 * 1024 * 1024;
 	public static final boolean DEFAULT_WRITE_BUFF_LIMIT = false;
 	public static final String DEFAULT_PROCESS_TYPE = "threadpool";
-	public static final long DEFAULT_TIMEOUT_INTERVAL = 1000;
 	public static final boolean DEFAULT_NOTIFY_ENABLE = true;
 	public static final boolean DEFAULT_TEST_ENABLE = true;
 	public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
