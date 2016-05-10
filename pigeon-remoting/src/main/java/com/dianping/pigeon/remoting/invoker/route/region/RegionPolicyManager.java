@@ -4,6 +4,8 @@ import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -37,6 +39,8 @@ public enum RegionPolicyManager {
             logger.warn("Region route policy switch off!");
         }
     }
+
+    private final Monitor monitor = MonitorLoader.getMonitor();
 
     private final Logger logger = LoggerLoader.getLogger(this.getClass());
 
@@ -76,6 +80,7 @@ public enum RegionPolicyManager {
 
         clientList = regionPolicy.getPreferRegionClients(clientList, invokerConfig);
         checkClientsNotNull(clientList, invokerConfig);
+        monitor.logEvent("PigeonCall.region", clientList.get(0).getRegion().getName(), "");
 
         return clientList;
     }
