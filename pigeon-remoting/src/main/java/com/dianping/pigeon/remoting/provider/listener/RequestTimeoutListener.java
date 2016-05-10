@@ -38,7 +38,7 @@ public class RequestTimeoutListener implements Runnable {
 	private Map<InvocationRequest, ProviderContext> requestContextMap;
 	private RequestProcessor requestProcessor;
 	private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
-	private static int requestQueueSize = configManager.getIntValue("pigeon.provider.timeout.requestqueue.size", 10);
+	private static int requestQueueSize = configManager.getIntValue("pigeon.provider.timeout.requestqueue.size", 100);
 	private Queue<Map<String, Count>> timeoutRequestQueue = new ArrayBlockingQueue<Map<String, Count>>(requestQueueSize);
 	private volatile Map<String, Count> timeoutRequestCountMap = null;
 	private static final String KEY_TIMEOUT_SLOW_PCT_THRESHOLD = "pigeon.provider.timeout.slow.pct.threshold";
@@ -54,8 +54,8 @@ public class RequestTimeoutListener implements Runnable {
 		this.requestProcessor = requestProcessor;
 		this.requestContextMap = requestContextMap;
 		configManager.getIntValue(KEY_TIMEOUT_INTERVAL, 100);
-		configManager.getFloatValue(KEY_TIMEOUT_SLOW_PCT_THRESHOLD, 1);
-		configManager.getIntValue(KEY_TIMEOUT_SLOW_COUNT_THRESHOLD, 3);
+		configManager.getFloatValue(KEY_TIMEOUT_SLOW_PCT_THRESHOLD, 5);
+		configManager.getIntValue(KEY_TIMEOUT_SLOW_COUNT_THRESHOLD, 300);
 		configManager.getBooleanValue(KEY_TIMEOUT_ISOLATION_APP, true);
 		configManager.getBooleanValue(KEY_TIMEOUT_ISOLATION_PARAMETERS, false);
 		configManager.getBooleanValue(KEY_TIMEOUT_CANCEL, Constants.DEFAULT_TIMEOUT_CANCEL);
@@ -79,12 +79,11 @@ public class RequestTimeoutListener implements Runnable {
 			String requestUrl = getRequestUrl(request);
 			Count count = timeoutRequestCountMap.get(requestUrl);
 			if (count != null
-					&& (count.getTimeoutPercent() >= configManager.getFloatValue(KEY_TIMEOUT_SLOW_PCT_THRESHOLD, 1) || count
-							.getTimeout() >= configManager.getIntValue(KEY_TIMEOUT_SLOW_COUNT_THRESHOLD, 3))) {
+					&& (count.getTimeoutPercent() >= configManager.getFloatValue(KEY_TIMEOUT_SLOW_PCT_THRESHOLD, 5) || count
+							.getTimeout() >= configManager.getIntValue(KEY_TIMEOUT_SLOW_COUNT_THRESHOLD, 300))) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -109,6 +108,7 @@ public class RequestTimeoutListener implements Runnable {
 			int interval = configManager.getIntValue(KEY_TIMEOUT_INTERVAL, 100);
 			try {
 				Thread.sleep(interval);
+				i++;
 				if (timeoutRequestQueue.size() >= requestQueueSize) {
 					Map<String, Count> reqMap = timeoutRequestQueue.poll();
 					if (reqMap != null) {
@@ -124,7 +124,9 @@ public class RequestTimeoutListener implements Runnable {
 						timeoutCount = new Count();
 						timeoutRequests.put(requestUrl, timeoutCount);
 					}
-					timeoutCount.incTotal();
+					if (request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
+						timeoutCount.incTotal();
+					}
 					if (request.getTimeout() > 0 && request.getCreateMillisTime() > 0
 							&& (request.getCreateMillisTime() + request.getTimeout()) < currentTime) {
 						try {
@@ -143,7 +145,8 @@ public class RequestTimeoutListener implements Runnable {
 								} else {
 									timeoutCountInCurrentSecond++;
 									timeoutCount.incTimeout();
-									if (i++ % (1000 / interval) == 0) {
+									// if (i % (1000 / interval) == 0)
+									{
 										StringBuilder msg = new StringBuilder();
 										msg.append("timeout while processing request, from:")
 												.append(rc.getChannel() == null ? "" : rc.getChannel()
