@@ -145,8 +145,7 @@ public class RequestTimeoutListener implements Runnable {
 								} else {
 									timeoutCountInCurrentSecond++;
 									timeoutCount.incTimeout();
-									// if (i % (1000 / interval) == 0)
-									{
+									if (i % (1000 / interval) == 0) {
 										StringBuilder msg = new StringBuilder();
 										msg.append("timeout while processing request, from:")
 												.append(rc.getChannel() == null ? "" : rc.getChannel()
