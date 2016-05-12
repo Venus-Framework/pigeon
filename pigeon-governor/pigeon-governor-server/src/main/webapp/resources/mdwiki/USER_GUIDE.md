@@ -28,41 +28,45 @@
 
 [服务隔离与限流](#toc_13)
 
-[配置客户端调用模式](#toc_14)
+[服务降级](#toc_14)
 
-[配置客户端集群策略模式](#toc_15)
+[配置客户端调用模式](#toc_15)
 
-[如何传递自定义参数](#toc_16)
+[配置客户端集群策略模式](#toc_16)
 
-[如何指定固定ip:port访问pigeon服务](#toc_17)
+[如何传递自定义参数](#toc_17)
 
-[如何定义自己的拦截器](#toc_18)
+[如何指定固定ip:port访问pigeon服务](#toc_18)
 
-[如何关闭自动注册](#toc_19)
+[如何定义自己的拦截器](#toc_19)
 
-[服务端如何获取客户端信息](#toc_20)
+[如何关闭自动注册](#toc_20)
 
-[如何自定义loadbalance](#toc_21)
+[服务端如何获取客户端信息](#toc_21)
 
-[如何控制cat上客户端超时异常的次数](#toc_22)
+[如何自定义loadbalance](#toc_22)
 
-[pigeon框架日志](#toc_23)
+[如何控制cat上客户端超时异常的次数](#toc_23)
 
-[记录服务端每个请求的详细信息](#toc_24)
+[pigeon框架日志](#toc_24)
 
-[记录服务端业务异常详细日志](#toc_25)
+[记录服务端每个请求的详细信息](#toc_25)
 
-[获取服务注册信息](#toc_26)
+[记录服务端业务异常详细日志](#toc_26)
 
-[泳道](#toc_27)
+[获取服务注册信息](#toc_27)
 
-[QPS监控信息](#toc_28)
+[泳道](#toc_28)
 
-[异步编程](#toc_29)
+[QPS监控信息](#toc_29)
 
-[zookeeper协议格式](#toc_30)
+[异步编程](#toc_30)
 
-[tcp协议格式](#toc_31)
+[zookeeper协议格式](#toc_31)
+
+[tcp协议格式](#toc_32)
+
+[安全性](#toc_33)
 
 ## Pigeon开发指南
 ______
@@ -84,7 +88,7 @@ pom依赖定义：
 		<dependency>
 		<groupId>com.dianping.dpsf</groupId>
 		<artifactId>dpsf-net</artifactId>
-		<version>2.7.6-SNAPSHOT</version>
+		<version>2.7.6</version>
 		</dependency>
 
 pigeon在运行时会依赖以下jar包，但不是强依赖某个版本，需要应用自行加上以下jar(版本建议高于或等于以下基础版本)：
@@ -829,16 +833,57 @@ pigeon支持服务端对某个服务接口的方法的最大并发数进行配�
 		
 以上配置里actives、workQueueSize、corePoolSize、maxPoolSize，均可以通过lion动态在线设置实时生效
 
-2、限制某个客户端应用的最大并发数
-pigeon也支持在服务端配置某个客户端应用的最大并发数
+2、限制某个客户端应用请求的最大QPS
+pigeon也支持在服务端配置某个客户端应用的最大请求QPS
 a、首先需要在应用lion里配置开关打开，例如deal-service项目要配置以下lion配置：
 deal-service.pigeon.provider.applimit.enable=true
-b、配置客户端应用对应的最大并发数：
+b、配置客户端应用对应的最大QPS：
 pigeon.provider.applimit=tuangou-web:100,xxx:50,yyy:100
-上面的客户端应用名称是标准统一的项目名称，以CMDB里为准。
-并发数一般看是pigeon服务端线程池最大并发多少，比如500个最大并发，根据这个数字再看业务上平时一般客户端应用的比例来决定每个应用大概的最大并发数。
-目前只能限制客户端应用总的最大并发数，不能精确到某个应用的某个方法，后续版本会支持。
+如果客户端请求QPS超过了设置的阀值，服务端会返回com.dianping.pigeon.remoting.common.exception.RejectedException给客户端，客户端会收到RejectedException
+
+上面的客户端应用名称是标准统一的项目名称，以CMDB里为准
+目前只能限制客户端应用总的最大QPS，不能精确到某个应用的某个方法
 以上配置第一次配置了之后，均可以通过lion动态在线设置实时生效
+
+### 服务降级
+
+pigeon在调用端提供了服务降级功能支持
+应用调用远端的服务接口如果在最近一段时间内出现连续的调用失败，失败率超过一定阀值，可以自动触发或手工触发降级，调用端直接返回默认对象或抛出异常，不会将调用请求发到服务提供方，如果服务提供方恢复可用，客户端可以自动或手工解除降级
+1、配置接口的降级策略
+例如xxx-service项目，有http://service.dianping.com/com.dianping.pigeon.demo.EchoService这个服务，包含3个方法：
+String echo(String input);
+User getUserDetail(String userName);
+User[] getUserDetailArray(String[] usernames);
+
+配置可降级的方法，要配置以下lion配置：
+a、增加lion配置：xxx-service.pigeon.invoker.degrade.methods配置为：
+http://service.dianping.com/com.dianping.pigeon.demo.EchoService#echo=a,http://service.dianping.com/com.dianping.pigeon.demo.EchoService#getUserDetail=b,http://service.dianping.com/com.dianping.pigeon.demo.EchoService#getUserDetailArray=c
+上述配置内容包含多个方法的降级策略a、b、c，如果降级策略没有配置默认会返回null对象
+
+b、增加lion配置：pigeon-test.pigeon.invoker.degrade.method.return.a对应echo方法的默认返回，配置为：
+{"returnClass":"java.lang.String","content":"echo,input"}
+
+如果不想返回默认值，而是抛出一个降级异常（pigeon默认会抛出com.dianping.pigeon.remoting.invoker.exception.ServiceDegradedException），配置为：
+{"throwException":"true"}
+
+c、增加lion配置：pigeon-test.pigeon.invoker.degrade.method.return.b对应getUserDetail方法的默认返回，配置为：
+{"returnClass":"com.dianping.pigeon.demo.User","content":"{\"username\":\"user-1\"}"}
+
+d、增加lion配置：pigeon-test.pigeon.invoker.degrade.method.return.c对应getUserDetailArray方法的默认返回，配置为：
+{"returnClass":"[Lcom.dianping.pigeon.demo.UserService$User;","content":"[{\"username\":\"array-1\"},{\"username\":\"array-2\"}]"}
+这里返回对象是数组，如果是返回集合，也类似，例如返回一个LinkedList：
+{"returnClass":"java.util.LinkedList","content":"[{\"@class\":\"com.dianping.pigeon.demo.UserService$User\",\"username\":\"list-1\"},{\"username\":\"list-2\"}]"}
+
+2、强制降级开关
+将至降级开关只是在远程服务大量超时或其他不可用情况时，紧急时候进行设置，开启后，调用端会根据上述降级策略直接返回默认值或抛出降级异常，当远程服务恢复后，建议关闭此开关
+提供了pigeon.invoker.degrade.force配置开关，例如xxx-service项目要配置以下lion配置：
+xxx-service.pigeon.invoker.degrade.force=true，默认为false
+
+3、自动降级开关
+自动降级开关是在调用端设置，开启自动降级后，调用端如果调用某个服务出现连续的超时或不可用，当一段时间内（10秒内）失败率超过一定阀值（默认1%）会触发自动降级，调用端会根据上述降级策略直接返回默认值或抛出降级异常
+当服务端恢复后，调用端会自动解除降级模式，再次发起请求到远程服务
+提供了pigeon.invoker.degrade.auto配置开关，例如xxx-service项目要配置以下lion配置：
+xxx-service.pigeon.invoker.degrade.auto=true，默认为false
 
 ### 配置客户端调用模式
 
@@ -1410,4 +1455,95 @@ b）为了维持正常的tcp连接，还需要定期发送心跳消息和接收�
 
 	}
 
+### 安全性
+
+1、基于token的认证
+pigeon支持基于token的认证方式，token认证在pigeon的http和tcp协议层面都同时支持，如果开启token认证，客户端请求中必须设置pigeon规范的token，否则请求将被拒绝
+
+对于服务端：
+
+a、打开token认证开关
+token认证开关默认是关闭的，需要服务提供方自行打开，在lion里配置key，如xxx-service这个应用：配置xxx-service.pigeon.provider.token.enable，内容为true
+
+b、需要定义每个客户端的密钥，在配置中心lion里配置key：xxx-service.pigeon.provider.token.app.secrets，内容如：
+xxx-web:r3wzPd4azsHEhgDI69jubmV,yyy-service:45etwFsfFsHEdrg9ju3
+分别代表xxx-web和yyy-service的密钥，针对每个应用配置不同的密钥，密钥需要严格管理，不能泄露，目前限定密钥长度必须不少于16个字符
+
+c、如果服务提供方希望客户端在http header里设置token，可以在lion里配置xxx-service.pigeon.console.token.header为true，否则默认可以是url里带上token
+
+d、客户端需要带上timestamp到服务端，在服务端会对timestamp进行校验，默认只接受时差2分钟以内的请求，如果要调整可以设置：
+xxx-service.pigeon.provider.token.timestamp.diff，默认为120（单位秒）
+
+e、如果服务提供方只希望http客户端进行认证，而不希望默认的tcp客户端做认证（老业务），需要配置xxx-service.pigeon.provider.token.protocol.default.enable为false
+
+
+
+对于客户端：
+
+a、对于使用pigeon java客户端的应用，只需要配置所依赖的服务的密钥，在配置中心lion里配置key，如xxx-web这个应用：配置xxx-web.pigeon.invoker.token.app.secrets，内容如：
+xxx-service:r3wzPd4azsHEhgDI69jubmV,yyy-service:45etwFsfFsHEdrg9ju3
+分别代表访问xxx-service和yyy-service的密钥，针对每个服务端配置不同的密钥，密钥需要严格管理，不能泄露，这个配置不要跟服务端配置共享，应严格独立管理
+
+b、对于未使用pigeon java客户端的应用，如果通过HTTP GET方式请求，需要根据服务提供方提供的密钥，生成token，具体规则如下：
+如果服务提供方允许url带token传递，可以按以下url格式来发出请求
+http://pigeon.dper.com/xxx-service/invoke.json?app=xxx-web&token=v5cg4EUS4c8wIjOC70VwvvgxZzg&timestamp=1458447031&url=http://service.dianping.com/com.dianping.pigeon.demo.EchoService&method=echo&parameterTypes=java.lang.String&parameters=scott
+其中token生成规则是：
+String token = SecurityUtils.encrypt(data, secret)
+data字符串组成：服务名url + "#" + 服务方法名 + "#" + timestamp（目前为简单起见未加入请求参数等），例如调用http://service.dianping.com/com.dianping.pigeon.demo.EchoService这个服务的echo方法：
+http://service.dianping.com/com.dianping.pigeon.demo.EchoService#echo#1458442458
+timestamp是System.currentTimeMillis()/1000，也就是到秒
+secret就是这个服务提供方给的密钥，例如上面的r3wzPd4azsHEhgDI69jubmV
+url里必须再带上timestamp，timestamp=1458447031
+url里也必须带上app=xxx-web，以便在服务端进行认证
+
+c、如果服务提供方必须要求客户端将token等放在header里，以上url简化为：
+http://pigeon.dper.com/xxx-service/invoke.json?url=http://service.dianping.com/com.dianping.pigeon.demo.EchoService&method=echo&parameterTypes=java.lang.String&parameters=scott
+在header里必须有两个key：
+Timestamp,内容为上述类似的System.currentTimeMillis()/1000值，例如：1458447031
+Authorization，内容格式例如：pigeon=xxx-web:v5cg4EUS4c8wIjOC70VwvvgxZzg
+pigeon=为必须填的字符串，xxx-service代表客户端app名称，冒号:后边的字符串为token值
+
+d、SecurityUtils.encrypt方法可以参考下面代码，内部采用HmacSHA1算法，通过密钥对某个字符串进行签名，然后转换为base64编码：
+
+		import javax.crypto.Mac;
+		import javax.crypto.spec.SecretKeySpec;
+		import org.apache.commons.codec.binary.Base64;
+		
+		public class SecurityUtils {
+		
+			private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+			
+			public static String encrypt(String data, String secret) throws SecurityException {
+				String result;
+				try {
+					// get an hmac_sha1 key from the raw key bytes
+					SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
+		
+					// get an hmac_sha1 Mac instance and initialize with the signing key
+					Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+					mac.init(signingKey);
+		
+					// compute the hmac on input data bytes
+					byte[] rawHmac = mac.doFinal(data.getBytes());
+		
+					// base64-encode the hmac
+					result = Base64.encodeBase64URLSafeString(rawHmac);
+				} catch (Exception e) {
+					throw new SecurityException("Failed to generate HMAC : " + e.getMessage());
+				}
+				return result;
+			}
+		
+		}
+		
+e、如果是其他语言客户端，请参考以上逻辑自行加入认证token等信息	
+		
+以上涉及lion的所有配置都是可以随时修改、动态生效
+
+2、基于ip的认证
+a、默认是关闭的，需要打开，对于xxx-service这个应用来说，可以在lion配置xxx-service.pigeon.provider.access.ip.enable为true
+b、分为3个配置：
+判断逻辑是先判断白名单(xxx-service.pigeon.provider.access.ip.whitelist配置，ip网段逗号分隔)是否匹配来源ip前缀，如果匹配，直接返回true允许访问
+如果不匹配，去黑名单（xxx-service.pigeon.provider.access.ip.blacklist配置，ip网段逗号分隔）找是否匹配来源ip前缀，黑名单里匹配到了，直接返回false不允许访问
+如果都没找到，返回xxx-service.pigeon.provider.access.ip.default值，默认是true，代表默认是允许访问
 

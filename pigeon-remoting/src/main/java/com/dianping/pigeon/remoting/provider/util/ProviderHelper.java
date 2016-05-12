@@ -17,6 +17,8 @@ import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.process.ProviderInterceptor;
+import com.dianping.pigeon.remoting.provider.process.ProviderInterceptorFactory;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessInterceptorFactory;
 import com.dianping.pigeon.remoting.provider.process.statistics.ProviderStatisticsHolder;
@@ -97,6 +99,10 @@ public final class ProviderHelper {
 		for (ProviderProcessInterceptor interceptor : interceptors) {
 			interceptor.postInvoke(request, response);
 		}
+		List<ProviderInterceptor> contextInterceptors = ProviderInterceptorFactory.getInterceptors();
+		for (ProviderInterceptor interceptor : contextInterceptors) {
+			interceptor.postInvoke(context);
+		}
 	}
 
 	public static void writeFailureResponse(ProviderContext context, Throwable exeption) {
@@ -109,6 +115,10 @@ public final class ProviderHelper {
 			List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
 			for (ProviderProcessInterceptor interceptor : interceptors) {
 				interceptor.postInvoke(request, response);
+			}
+			List<ProviderInterceptor> contextInterceptors = ProviderInterceptorFactory.getInterceptors();
+			for (ProviderInterceptor interceptor : contextInterceptors) {
+				interceptor.postInvoke(context);
 			}
 		}
 	}

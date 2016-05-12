@@ -230,6 +230,7 @@ public class ClientManager {
 						try {
 							RegistryEventListener.providerAdded(url, hostInfo.getHost(), hostInfo.getPort(),
 									hostInfo.getWeight());
+							RegistryEventListener.serverInfoChanged(url, hostInfo.getConnect());
 						} finally {
 							latch.countDown();
 						}
@@ -246,6 +247,7 @@ public class ClientManager {
 		} else {
 			for (final HostInfo hostInfo : addresses) {
 				RegistryEventListener.providerAdded(url, hostInfo.getHost(), hostInfo.getPort(), hostInfo.getWeight());
+				RegistryEventListener.serverInfoChanged(url, hostInfo.getConnect());
 			}
 		}
 		long end = System.currentTimeMillis();

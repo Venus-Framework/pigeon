@@ -5,7 +5,8 @@
 package com.dianping.pigeon.remoting.provider.listener;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
+
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
@@ -27,7 +28,7 @@ public class ShutdownHookListener implements Runnable {
 		}
 
 		boolean isRocketShutdown = ConfigManagerLoader.getConfigManager().getBooleanValue("pigeon.invoker.rocketshutdown",false);
-		if(isRocketShutdown && ServiceProviderFactory.getAllServiceProviders().size() == 0){
+		if(isRocketShutdown && ServicePublisher.getAllServiceProviders().size() == 0){
 			// rocket shutdown
 		} else {
 			try {

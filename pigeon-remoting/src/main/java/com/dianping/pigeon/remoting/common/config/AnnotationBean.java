@@ -233,6 +233,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 					reference.callType(), reference.serialize(), callback, reference.group(), false,
 					reference.loadbalance(), reference.cluster(), reference.retries(), reference.timeoutRetry(),
 					reference.vip(), reference.version(), reference.protocol());
+			invokerConfig.setSecret(reference.serialize());
 			invokerConfigs.putIfAbsent(key, invokerConfig);
 			invokerConfig = invokerConfigs.get(key);
 		}

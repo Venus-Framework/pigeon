@@ -6,9 +6,7 @@ package com.dianping.pigeon.console.servlet.json;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -18,15 +16,17 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.StringUtils;
 
-import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.console.domain.ResponseError;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
+import com.dianping.pigeon.remoting.common.exception.SecurityException;
+import com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
+import com.dianping.pigeon.remoting.provider.process.filter.SecurityFilter;
 import com.dianping.pigeon.util.ContextUtils;
 
 /**
@@ -47,9 +47,13 @@ public class InvokeJsonServlet extends ServiceServlet {
 
 	private static Map<String, Class<?>> builtInMap = new HashMap<String, Class<?>>();
 
-	private static boolean enableInvoke = configManager.getBooleanValue("pigeon.console.invoke.enable", true);
+	private static final String KEY_TOKEN_ENABLE = "pigeon.provider.token.enable";
 
-	private static boolean logInvoke = configManager.getBooleanValue("pigeon.console.invoke.log", true);
+	private static final String KEY_CONSOLE_INVOKE_ENABLE = "pigeon.console.invoke.enable";
+
+	private static final String KEY_CONSOLE_INVOKE_LOG = "pigeon.console.invoke.log";
+
+	private static final String KEY_CONSOLE_TOKEN_HEADER = "pigeon.console.token.header";
 
 	static {
 		builtInMap.put("int", Integer.TYPE);
@@ -61,6 +65,9 @@ public class InvokeJsonServlet extends ServiceServlet {
 		builtInMap.put("byte", Byte.TYPE);
 		builtInMap.put("void", Void.TYPE);
 		builtInMap.put("short", Short.TYPE);
+		configManager.getBooleanValue(KEY_CONSOLE_INVOKE_LOG, true);
+		configManager.getBooleanValue(KEY_CONSOLE_INVOKE_ENABLE, true);
+		configManager.getBooleanValue(KEY_CONSOLE_TOKEN_HEADER, false);
 	}
 
 	public boolean needValidate(HttpServletRequest request) {
@@ -78,95 +85,129 @@ public class InvokeJsonServlet extends ServiceServlet {
 
 	protected void generateView(HttpServletRequest request, HttpServletResponse response) throws IOException,
 			ServletException {
-		if (!enableInvoke) {
+		if (!configManager.getBooleanValue(KEY_CONSOLE_INVOKE_ENABLE, true)) {
 			response.getWriter().write("{\"msg\":\"pigeon console invocation is disabled!\"}");
 			return;
 		}
+		boolean direct = directInvoke;
+		if (StringUtils.isNotBlank(request.getParameter("direct"))) {
+			direct = request.getParameter("direct").equals("true") ? true : false;
+		}
+		String timeoutKey = request.getParameter("timeout");
+		int timeout = timeoutKey == null ? 15 * 1000 : Integer.parseInt(timeoutKey);
+		String methodName = request.getParameter("method");
+		String[] types = request.getParameterValues("parameterTypes");
+		if (types == null) { // for jquery ajax
+			types = request.getParameterValues("parameterTypes[]");
+		}
+		if (types != null && "".equals(types[0])) {
+			types = null;
+		}
+		String[] values = request.getParameterValues("parameters");
+		if (values == null) { // for jquery ajax
+			values = request.getParameterValues("parameters[]");
+		}
+		if (values != null) {
+			for (int i = 0; i < values.length; i++) {
+				if (values[i] != null && values[i].equals("null")) {
+					values[i] = null;
+				}
+			}
+		}
 		boolean needValidate = needValidate(request);
 		String token = request.getParameter("token");
-		if (!needValidate || needValidate && token != null && token.equals(ServiceServlet.getToken())) {
-			boolean direct = directInvoke;
-			if (StringUtils.isNotBlank(request.getParameter("direct"))) {
-				direct = request.getParameter("direct").equals("true") ? true : false;
-			}
-			String timeoutKey = request.getParameter("timeout");
-			int timeout = timeoutKey == null ? 15 * 1000 : Integer.parseInt(timeoutKey);
-			String serviceName = request.getParameter("url");
-			String methodName = request.getParameter("method");
-			String[] types = request.getParameterValues("parameterTypes");
-			if (types == null) { // for jquery ajax
-				types = request.getParameterValues("parameterTypes[]");
-			}
-			if (types != null && "".equals(types[0])) {
-				types = null;
-			}
-			String[] values = request.getParameterValues("parameters");
-			if (values == null) { // for jquery ajax
-				values = request.getParameterValues("parameters[]");
-			}
-			if (values != null) {
-				for (int i = 0; i < values.length; i++) {
-					if (values[i] != null && values[i].equals("null")) {
-						values[i] = null;
-					}
-				}
-			}
-
-			String fromIp = Utils.getIpAddr(request);
-
-			if (logInvoke) {
-				logger.info("pigeon console: invoking '" + serviceName + "@" + methodName + "', from " + fromIp);
-			}
-
-			Object result = null;
-			if (direct) {
-				try {
-					result = directInvoke(serviceName, methodName, types, values);
-				} catch (InvocationTargetException e) {
-					logger.error("console invoke error", e);
-					if (e.getTargetException() != null) {
-						result = new ResponseError("Error with service invocation", e.getTargetException(), 500);
-					} else {
-						result = new ResponseError(e.toString(), null, 400);
-					}
-				} catch (Throwable e) {
-					logger.error("console invoke error", e);
-					result = new ResponseError(e.toString(), null, 400);
+		String serviceName = request.getParameter("url");
+		String expectToken = null;
+		String fromIp = Utils.getIpAddr(request);
+		if (configManager.getBooleanValue(KEY_TOKEN_ENABLE, false)) {
+			// expectToken = serviceToken;
+			needValidate = true;
+			String timestamp = null;
+			String app = null;
+			String authToken = null;
+			if (configManager.getBooleanValue(KEY_CONSOLE_TOKEN_HEADER, false)) {
+				timestamp = request.getHeader("Timestamp");
+				String auth = request.getHeader("Authorization");
+				if (StringUtils.isNotBlank(auth) && auth.startsWith("pigeon=")) {
+					int idx = auth.indexOf(":");
+					app = auth.substring(7, idx);
+					authToken = auth.substring(idx + 1);
 				}
 			} else {
-				ContextUtils.putRequestContext("RequestIp", fromIp);
-				try {
-					result = proxyInvoke(serviceName, methodName, types, values, timeout);
-				} catch (InvocationTargetException e) {
-					logger.error("console invoke error", e);
-					if (e.getTargetException() != null) {
-						result = new ResponseError("Error with service invocation", e.getTargetException(), 500);
-					} else {
-						result = new ResponseError(e.toString(), null, 400);
-					}
-				} catch (Throwable e) {
-					result = new ResponseError(e.toString(), null, 400);
-				}
+				timestamp = request.getParameter("timestamp");
+				app = request.getParameter("app");
+				ContextUtils.putRequestContext("RequestApp", app);
+				authToken = request.getParameter("token");
 			}
-			String currentMessageId = (String) ContextUtils.getLocalContext("CurrentMessageId");
-			if (currentMessageId != null) {
-				Map localContext = ContextUtils.getLocalContext();
-				if (localContext != null && localContext.containsKey("CurrentMessageId")) {
-					response.addHeader("CurrentMessageId", (String) localContext.remove("CurrentMessageId"));
-				}
-			}
-			if (result == null) {
+			try {
+				SecurityFilter.authenticateRequest(app, fromIp, timestamp, "", authToken, serviceName, methodName);
+			} catch (SecurityException e) {
+				writeResponse(response, new ResponseError(e.getMessage(), null, 403));
 				return;
 			}
-			String json = jacksonSerializer.serializeObject(result);
-			response.setContentType(getContentType());
-			if (result instanceof ResponseError) {
-				response.setStatus(((ResponseError) result).getStatus());
+		} else if (needValidate) {
+			expectToken = ServiceServlet.getToken();
+			if (token == null || !token.equals(expectToken)) {
+				writeResponse(response, new ResponseError("Invalid authentication code", null, 403));
+				return;
 			}
-			response.getWriter().write(json);
-		} else {
-			response.getWriter().write("{\"msg\":\"invalid verification code!\"}");
 		}
+
+		if (configManager.getBooleanValue(KEY_CONSOLE_INVOKE_LOG, true)) {
+			logger.info("pigeon console: invoking '" + serviceName + "@" + methodName + "', from " + fromIp);
+		}
+
+		Object result = null;
+
+		if (direct) {
+			try {
+				result = directInvoke(serviceName, methodName, types, values);
+			} catch (InvocationTargetException e) {
+				logger.error("console invoke error", e);
+				if (e.getTargetException() != null) {
+					result = new ResponseError("Error with service invocation", e.getTargetException(), 500);
+				} else {
+					result = new ResponseError(e.toString(), null, 400);
+				}
+			} catch (Throwable e) {
+				logger.error("console invoke error", e);
+				result = new ResponseError(e.toString(), null, 400);
+			}
+		} else {
+			ContextUtils.putRequestContext("RequestIp", fromIp);
+			try {
+				result = proxyInvoke(serviceName, methodName, types, values, timeout);
+			} catch (InvocationTargetException e) {
+				logger.error("console invoke error", e);
+				if (e.getTargetException() != null) {
+					result = new ResponseError("Error with service invocation", e.getTargetException(), 500);
+				} else {
+					result = new ResponseError(e.toString(), null, 400);
+				}
+			} catch (Throwable e) {
+				result = new ResponseError(e.toString(), null, 400);
+			}
+		}
+		String currentMessageId = (String) ContextUtils.getLocalContext("CurrentMessageId");
+		if (currentMessageId != null) {
+			Map localContext = ContextUtils.getLocalContext();
+			if (localContext != null && localContext.containsKey("CurrentMessageId")) {
+				response.addHeader("CurrentMessageId", (String) localContext.remove("CurrentMessageId"));
+			}
+		}
+		writeResponse(response, result);
+	}
+
+	private void writeResponse(HttpServletResponse response, Object result) throws IOException {
+		if (result == null) {
+			return;
+		}
+		String json = jacksonSerializer.serializeObject(result);
+		response.setContentType(getContentType());
+		if (result instanceof ResponseError) {
+			response.setStatus(((ResponseError) result).getStatus());
+		}
+		response.getWriter().write(json);
 	}
 
 	private Object proxyInvoke(String serviceName, String methodName, String[] types, String[] values, int timeout)
@@ -180,13 +221,13 @@ public class InvokeJsonServlet extends ServiceServlet {
 		// configManager.getGroup(),
 		// "console:" + serverConfig.getActualPort());
 		// }
-		ProxyBeanFactory beanFactory = new ProxyBeanFactory();
-		beanFactory.setServiceName(serviceName);
-		beanFactory.setIface(service.getServiceInterface().getName());
-		beanFactory.setVip("console:" + service.getServerConfig().getActualPort());
-		beanFactory.setTimeout(timeout);
-		beanFactory.init();
-		Object proxy = beanFactory.getObject();
+		ReferenceBean bean = new ReferenceBean();
+		bean.setUrl(serviceName);
+		bean.setInterfaceName(service.getServiceInterface().getName());
+		bean.setVip("console:" + service.getServerConfig().getActualPort());
+		bean.setTimeout(timeout);
+		bean.init();
+		Object proxy = bean.getObject();
 
 		return invoke(serviceName, methodName, types, values, proxy);
 	}
@@ -236,114 +277,10 @@ public class InvokeJsonServlet extends ServiceServlet {
 			valueObjs = new Object[0];
 		} else {
 			for (int i = 0; i < values.length; i++) {
-				valueObjs[i] = toObject(types[i], values[i]);
+				valueObjs[i] = jacksonSerializer.toObject(types[i], values[i]);
 			}
 		}
 		return valueObjs;
-	}
-
-	private Object toObject(Class<?> type, String value) throws SerializationException, ClassNotFoundException {
-		if (value == null) {
-			return null;
-		}
-		String value_;
-		if (value.length() == 0) {
-			value_ = "0";
-		} else {
-			value_ = value;
-		}
-		Object valueObj = value_;
-		if (type == int.class || type == Integer.class) {
-			valueObj = Integer.parseInt(value_);
-		} else if (type == short.class || type == Short.class) {
-			valueObj = Short.parseShort(value_);
-		} else if (type == byte.class || type == Byte.class) {
-			valueObj = Byte.parseByte(value_);
-		} else if (type == char.class) {
-			valueObj = value_;
-		} else if (type == long.class || type == Long.class) {
-			valueObj = Long.parseLong(value_);
-		} else if (type == float.class || type == Float.class) {
-			valueObj = Float.parseFloat(value_);
-		} else if (type == double.class || type == Double.class) {
-			valueObj = Double.parseDouble(value_);
-		} else if (type == String.class) {
-			valueObj = String.valueOf(value);
-		} else {
-			if (value == null || value.length() == 0) {
-				valueObj = null;
-			} else {
-				valueObj = jacksonSerializer.deserializeObject(type, value);
-				if (valueObj instanceof Collection) {
-					Collection valueObjList = (Collection) valueObj;
-					if (!valueObjList.isEmpty()) {
-						Object first = valueObjList.iterator().next();
-						if (first instanceof Map) {
-							Map valueMap = (Map) first;
-							String valueClass = (String) valueMap.get("@class");
-							if (valueClass != null) {
-								valueObj = jacksonSerializer.deserializeCollection(value, type,
-										Class.forName(valueClass));
-							}
-						}
-					}
-				} else if (valueObj instanceof Map) {
-					Map valueObjList = (Map) valueObj;
-					if (!valueObjList.isEmpty()) {
-						Map finalMap = new HashMap(valueObjList.size());
-						valueObj = finalMap;
-						String keyClass = null;
-						String valueClass = null;
-						try {
-							for (Iterator ir = valueObjList.keySet().iterator(); ir.hasNext();) {
-								Object k = ir.next();
-								Object v = valueObjList.get(k);
-								Object finalKey = k;
-								Object finalValue = v;
-								if (k instanceof String) {
-									try {
-										finalKey = jacksonSerializer.deserializeObject(Map.class, (String) k);
-									} catch (Throwable t) {
-										if (keyClass == null) {
-											Map firstValueMap = jacksonSerializer.deserializeObject(Map.class,
-													(String) k);
-											if (firstValueMap != null) {
-												keyClass = (String) firstValueMap.get("@class");
-											}
-										}
-										if (keyClass != null) {
-											finalKey = jacksonSerializer.deserializeObject(Class.forName(keyClass),
-													(String) k);
-										}
-									}
-								}
-								if (v instanceof String) {
-									try {
-										finalValue = jacksonSerializer.deserializeObject(Map.class, (String) v);
-									} catch (Throwable t) {
-										if (valueClass == null) {
-											Map firstValueMap = jacksonSerializer.deserializeObject(Map.class,
-													(String) v);
-											if (firstValueMap != null) {
-												valueClass = (String) firstValueMap.get("@class");
-											}
-										}
-										if (valueClass != null) {
-											finalValue = jacksonSerializer.deserializeObject(Class.forName(valueClass),
-													(String) v);
-										}
-									}
-								}
-								finalMap.put(finalKey, finalValue);
-							}
-						} catch (Throwable t) {
-							valueObj = valueObjList;
-						}
-					}
-				}
-			}
-		}
-		return valueObj;
 	}
 
 	public static Map<String, Class<?>> getBuiltInMap() {

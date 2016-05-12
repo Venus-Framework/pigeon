@@ -8,14 +8,14 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 
 public class ServiceInitializeListener implements ApplicationListener {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceInitializeListener.class);
 
 	public void onApplicationEvent(ApplicationEvent event) {
-		if (ServiceProviderFactory.isAutoPublish()) {
+		if (ServicePublisher.isAutoPublish()) {
 			if (event instanceof ContextRefreshedEvent) {
 				ContextRefreshedEvent refreshEvent = (ContextRefreshedEvent) event;
 				if (refreshEvent.getApplicationContext().getParent() == null) {

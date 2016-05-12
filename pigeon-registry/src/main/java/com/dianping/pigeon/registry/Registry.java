@@ -46,7 +46,7 @@ public interface Registry {
 	String getStatistics();
 
 	void setServerService(String serviceName, String group, String hosts) throws RegistryException;
-	
+
 	void delServerService(String serviceName, String group) throws RegistryException;
 
 	void registerAppHostList(String serviceAddress, String appName, Integer consolePort);

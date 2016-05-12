@@ -29,10 +29,10 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 			if (oldHpSet == null) {
 				toAddHpSet = newHpSet;
 			} else {
-				toRemoveHpSet = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo,Boolean>());
+				toRemoveHpSet = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo, Boolean>());
 				toRemoveHpSet.addAll(oldHpSet);
 				toRemoveHpSet.removeAll(newHpSet);
-				toAddHpSet = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo,Boolean>());
+				toAddHpSet = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo, Boolean>());
 				toAddHpSet.addAll(newHpSet);
 				toAddHpSet.removeAll(oldHpSet);
 			}
@@ -48,12 +48,12 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 				RegistryEventListener.providerRemoved(serviceName, hostPort.getHost(), hostPort.getPort());
 			}
 		} catch (Throwable e) {
-			logger.error("error change service host", e);
+			logger.error("error with service host change", e);
 		}
 	}
 
 	private Set<HostInfo> parseHostPortList(String serviceName, List<String[]> hostList) {
-		Set<HostInfo> hpSet = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo,Boolean>());
+		Set<HostInfo> hpSet = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo, Boolean>());
 		if (hostList != null) {
 			for (String[] parts : hostList) {
 				String host = parts[0];
@@ -72,29 +72,6 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		HostInfo hostInfo = Utils.parseHost(connect, weight);
 		if (hostInfo != null) {
 			RegistryEventListener.hostWeightChanged(hostInfo.getHost(), hostInfo.getPort(), weight);
-		}
-	}
-
-	@Override
-	public void onHostAdded(String serviceName, String host) {
-		HostInfo hostInfo = Utils.parseHost(host, 1);
-		if (hostInfo != null) {
-			int weight = RegistryManager.getInstance().getServiceWeight(host);
-			RegistryEventListener.providerAdded(serviceName, hostInfo.getHost(), hostInfo.getPort(), weight);
-			if (logger.isInfoEnabled()) {
-				logger.info("host " + host + " added to service " + serviceName);
-			}
-		}
-	}
-
-	@Override
-	public void onHostRemoved(String serviceName, String host) {
-		HostInfo hostInfo = Utils.parseHost(host, 1);
-		if (hostInfo != null) {
-			RegistryEventListener.providerRemoved(serviceName, hostInfo.getHost(), hostInfo.getPort());
-			if (logger.isInfoEnabled()) {
-				logger.info("host " + host + " removed from service " + serviceName);
-			}
 		}
 	}
 

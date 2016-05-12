@@ -16,9 +16,9 @@
 		</commentGenerator>
 	
 		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
-						connectionURL="jdbc:mysql://127.0.0.1:3306/PigeonGovernor" 
-						userId="root"
-						password="root">
+						connectionURL="jdbc:mysql://10.1.77.20:3306/PigeonGovernor"
+						userId="pigeon"
+						password="dp!@LEXYYfAnn">
 		</jdbcConnection>
 		
 		<!-- <jdbcConnection driverClass="com.mysql.jdbc.Driver"
@@ -54,7 +54,7 @@
 		
 		<table schema="" tableName="host" domainObjectName="Host" />
 		<table schema="" tableName="oplog" domainObjectName="OpLog" /> -->
-		<table schema="" tableName="process" domainObjectName="Process">
+		<!--<table schema="" tableName="process" domainObjectName="Process">
 			<columnOverride column="%" delimitedColumnName="true" />
 			<ignoreColumn column="modifyTime"/>
 			<ignoreColumn column="updateTime"/>
@@ -63,6 +63,9 @@
 			<columnOverride column="%" delimitedColumnName="true" />
 			<ignoreColumn column="modifyTime"/>
 			<ignoreColumn column="updateTime"/>
+		</table> -->
+		<table schema="" tableName="service_document" domainObjectName="ServiceDocument">
+			<columnOverride column="%" delimitedColumnName="true" />
 		</table>
 		
 	</context>

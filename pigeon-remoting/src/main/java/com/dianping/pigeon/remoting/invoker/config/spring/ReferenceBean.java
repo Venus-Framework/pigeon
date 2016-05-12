@@ -43,9 +43,6 @@ public class ReferenceBean implements FactoryBean {
 
 	private String cluster = Constants.CLUSTER_FAILFAST;
 
-	/**
-	 * 用于支持P2P调用的服务IP地址，也作为注册中心无法访问时的备用地址
-	 */
 	private String vip;
 
 	private int retries = 1;
@@ -67,6 +64,16 @@ public class ReferenceBean implements FactoryBean {
 	private List<InvokerMethodConfig> methods;
 
 	private ClassLoader classLoader;
+
+	private String secret;
+
+	public String getSecret() {
+		return secret;
+	}
+
+	public void setSecret(String secret) {
+		this.secret = secret;
+	}
 
 	public ClassLoader getClassLoader() {
 		return classLoader;
@@ -246,6 +253,7 @@ public class ReferenceBean implements FactoryBean {
 				this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadBalance, this.cluster,
 				this.retries, this.timeoutRetry, this.vip, this.version, this.protocol);
 		invokerConfig.setClassLoader(classLoader);
+		invokerConfig.setSecret(secret);
 		invokerConfig.setRegionPolicy(regionPolicy);
 
 		if (!CollectionUtils.isEmpty(methods)) {

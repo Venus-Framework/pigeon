@@ -1,9 +1,11 @@
 package com.dianping.pigeon.registry.zookeeper;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Properties;
+import java.util.concurrent.*;
 
+import com.dianping.pigeon.threadpool.DefaultThreadPool;
+import com.dianping.pigeon.threadpool.ThreadPool;
 import org.apache.commons.lang.StringUtils;
 import org.apache.curator.CuratorZookeeperClient;
 import org.apache.curator.framework.CuratorFramework;
@@ -180,6 +182,15 @@ public class CuratorClient {
 		return get(path, true);
 	}
 
+	public String get(String path, Stat stat) throws Exception {
+		byte[] bytes = client.getData().storingStatIn(stat).forPath(path);
+		String value = new String(bytes, CHARSET);
+		if (logger.isDebugEnabled()) {
+			logger.debug("get value of node " + path + ", value " + value);
+		}
+		return value;
+	}
+
 	public String get(String path, boolean watch) throws Exception {
 		if (exists(path, watch)) {
 			byte[] bytes = client.getData().forPath(path);
@@ -193,6 +204,21 @@ public class CuratorClient {
 				logger.debug("node " + path + " does not exist");
 			}
 			return null;
+		}
+	}
+
+	public void set(String path, Object value, int version) throws Exception {
+		byte[] bytes = (value == null ? new byte[0] : value.toString().getBytes(CHARSET));
+		if (exists(path, false)) {
+			client.setData().withVersion(version).forPath(path, bytes);
+			if (logger.isDebugEnabled()) {
+				logger.debug("set value of node " + path + " to " + value);
+			}
+		} else {
+			client.create().creatingParentsIfNeeded().forPath(path, bytes);
+			if (logger.isDebugEnabled()) {
+				logger.debug("create node " + path + " value " + value);
+			}
 		}
 	}
 
@@ -213,6 +239,14 @@ public class CuratorClient {
 
 	public void create(String path) throws Exception {
 		create(path, null);
+	}
+
+	public void create(String path, Object value, int version) throws Exception {
+		byte[] bytes = (value == null ? new byte[0] : value.toString().getBytes(CHARSET));
+		client.create().creatingParentsIfNeeded().withProtection().forPath(path, bytes);
+		if (logger.isInfoEnabled()) {
+			logger.info("create node " + path + " value " + value);
+		}
 	}
 
 	public void create(String path, Object value) throws Exception {
@@ -342,5 +376,51 @@ public class CuratorClient {
 		CuratorZookeeperClient client = getClient().getZookeeperClient();
 		return new StringBuilder().append("connected:").append(client.isConnected()).append(", retries:")
 				.append(((MyRetryPolicy) client.getRetryPolicy()).getRetryCount()).toString();
+	}
+
+	public static void main(String[] args) {
+		Properties properties = new Properties();
+		properties.setProperty("pigeon.registry.address", "127.0.0.1:2181");
+		final CuratorRegistry registry = new CuratorRegistry();
+		registry.init(properties);
+
+		ThreadPool threadPool = new DefaultThreadPool("Pigeon-Test-Pool",
+				10, 10, new LinkedBlockingQueue<Runnable>(20),
+				new ThreadPoolExecutor.CallerRunsPolicy());
+
+		final String url = "com.ccz.test.service";
+
+		String[] ips = new String[] {
+				"1.1.1.1", "2.2.2.2", "3.3.3.3", "4.4.4.4", "5.5.5.5",
+				"6.6.6.6", "7.7.7.7", "8.8.8.8", "9.9.9.9", "10.10.10.10"
+		};
+
+		final CountDownLatch latch = new CountDownLatch(ips.length);
+		final CountDownLatch end = new CountDownLatch(ips.length);
+
+		for(final String ip: ips) {
+			Runnable r = new Runnable() {
+				@Override
+				public void run() {
+					try {
+						latch.await();
+						registry.registerPersistentNode(url,null,ip,1);
+						//registry.unregisterPersistentNode(url,null,ip);
+						end.countDown();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+				}
+			};
+			threadPool.submit(r);
+			latch.countDown();
+		}
+
+		try {
+			end.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }

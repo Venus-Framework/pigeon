@@ -3,14 +3,14 @@ package com.dianping.pigeon.console.status.checker;
 import java.util.Map;
 
 import com.dianping.pigeon.registry.RegistryManager;
-import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.CollectionUtils;
 
 public class GlobalStatusChecker {
 
 	public static boolean isOnline() {
 		boolean isOnline = true;
-		Map<String, Integer> weights = ServiceProviderFactory.getServerWeight();
+		Map<String, Integer> weights = ServicePublisher.getServerWeight();
 		if (!CollectionUtils.isEmpty(weights)) {
 			for (Integer weight : weights.values()) {
 				if (weight <= 0) {

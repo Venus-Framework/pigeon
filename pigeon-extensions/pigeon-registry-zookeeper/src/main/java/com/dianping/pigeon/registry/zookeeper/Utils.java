@@ -38,18 +38,17 @@ public class Utils {
 		String path = Constants.APP_PATH + Constants.PATH_SEPARATOR + serviceAddress;
 		return path;
 	}
-	
+
 	public static String getVersionPath(String serviceAddress) {
 		String path = Constants.VERSION_PATH + Constants.PATH_SEPARATOR + serviceAddress;
 		return path;
 	}
 
 	public static String getAppHostPath(String serviceAddress, String appName) {
-		String path = Constants.APPNAME_PATH + Constants.PATH_SEPARATOR
-				+ appName + Constants.PATH_SEPARATOR + serviceAddress;
+		String path = Constants.APPNAME_PATH + Constants.PATH_SEPARATOR + appName + Constants.PATH_SEPARATOR
+				+ serviceAddress;
 		return path;
 	}
-
 
 	public static String getHeartBeatPath(String serviceAddress) {
 		String path = Constants.HEARTBEAT_PATH + Constants.PATH_SEPARATOR + serviceAddress;

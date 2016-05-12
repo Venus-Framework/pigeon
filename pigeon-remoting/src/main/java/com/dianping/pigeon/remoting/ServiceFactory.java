@@ -15,8 +15,9 @@ import com.dianping.pigeon.remoting.invoker.proxy.ServiceProxyLoader;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
-import com.dianping.pigeon.remoting.provider.listener.ServiceWarmupListener;
-import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
+import com.dianping.pigeon.remoting.provider.publish.ServiceOnlineTask;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -48,7 +49,7 @@ public class ServiceFactory {
 	}
 
 	public static Map<String, ProviderConfig<?>> getAllServiceProviders() {
-		return ServiceProviderFactory.getAllServiceProviders();
+		return ServicePublisher.getAllServiceProviders();
 	}
 
 	public static <T> String getServiceUrl(Class<T> serviceInterface) {
@@ -176,10 +177,10 @@ public class ServiceFactory {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
 		}
 		try {
-			ServiceProviderFactory.addService(providerConfig);
+			ServicePublisher.addService(providerConfig);
 			ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig);
 			providerConfig.setServerConfig(serverConfig);
-			ServiceProviderFactory.publishService(providerConfig, false);
+			ServicePublisher.publishService(providerConfig, false);
 		} catch (RegistryException t) {
 			throw new RpcException("error while adding service:" + providerConfig, t);
 		} catch (Throwable t) {
@@ -203,10 +204,10 @@ public class ServiceFactory {
 					if (StringUtils.isBlank(providerConfig.getUrl())) {
 						providerConfig.setUrl(getServiceUrl(providerConfig));
 					}
-					ServiceProviderFactory.addService(providerConfig);
+					ServicePublisher.addService(providerConfig);
 					ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig);
 					providerConfig.setServerConfig(serverConfig);
-					ServiceProviderFactory.publishService(providerConfig, false);
+					ServicePublisher.publishService(providerConfig, false);
 				}
 			} catch (RegistryException t) {
 				throw new RpcException("error while adding services:" + providerConfigList, t);
@@ -227,7 +228,7 @@ public class ServiceFactory {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
 		}
 		try {
-			ServiceProviderFactory.publishService(providerConfig, true);
+			ServicePublisher.publishService(providerConfig, true);
 		} catch (RegistryException t) {
 			throw new RpcException("error while publishing service:" + providerConfig, t);
 		}
@@ -241,7 +242,7 @@ public class ServiceFactory {
 	 */
 	public static <T> void publishService(String url) throws RpcException {
 		try {
-			ServiceProviderFactory.publishService(url);
+			ServicePublisher.publishService(url);
 		} catch (RegistryException t) {
 			throw new RpcException("error while publishing service:" + url, t);
 		}
@@ -255,7 +256,7 @@ public class ServiceFactory {
 	 */
 	public static <T> void unpublishService(ProviderConfig<T> providerConfig) throws RpcException {
 		try {
-			ServiceProviderFactory.unpublishService(providerConfig);
+			ServicePublisher.unpublishService(providerConfig);
 		} catch (RegistryException e) {
 			throw new RpcException("error while unpublishing service:" + providerConfig, e);
 		}
@@ -269,7 +270,7 @@ public class ServiceFactory {
 	 */
 	public static <T> void unpublishService(String url) throws RpcException {
 		try {
-			ServiceProviderFactory.unpublishService(url);
+			ServicePublisher.unpublishService(url);
 		} catch (RegistryException e) {
 			throw new RpcException("error while unpublishing service:" + url, e);
 		}
@@ -282,7 +283,7 @@ public class ServiceFactory {
 	 */
 	public static void unpublishAllServices() throws RpcException {
 		try {
-			ServiceProviderFactory.unpublishAllServices();
+			ServicePublisher.unpublishAllServices();
 		} catch (RegistryException e) {
 			throw new RpcException("error while unpublishing all services", e);
 		}
@@ -295,7 +296,7 @@ public class ServiceFactory {
 	 */
 	public static void publishAllServices() throws RpcException {
 		try {
-			ServiceProviderFactory.publishAllServices();
+			ServicePublisher.publishAllServices();
 		} catch (RegistryException e) {
 			throw new RpcException("error while publishing all services", e);
 		}
@@ -309,7 +310,7 @@ public class ServiceFactory {
 	 */
 	public static void removeAllServices() throws RpcException {
 		try {
-			ServiceProviderFactory.removeAllServices();
+			ServicePublisher.removeAllServices();
 		} catch (RegistryException e) {
 			throw new RpcException("error while removing all services", e);
 		}
@@ -324,7 +325,7 @@ public class ServiceFactory {
 	 */
 	public static void removeService(String url) throws RpcException {
 		try {
-			ServiceProviderFactory.removeService(url);
+			ServicePublisher.removeService(url);
 		} catch (RegistryException e) {
 			throw new RpcException("error while removing service:" + url, e);
 		}
@@ -342,12 +343,12 @@ public class ServiceFactory {
 	}
 
 	public static ProviderConfig<?> getServiceConfig(String url) {
-		return ServiceProviderFactory.getServiceConfig(url);
+		return ServicePublisher.getServiceConfig(url);
 	}
 
 	public static void setServerWeight(int weight) throws RegistryException {
 		logger.info("set weight:" + weight);
-		ServiceProviderFactory.setServerWeight(weight);
+		ServicePublisher.setServerWeight(weight);
 		
 		/*if(weight == 0) {
 			ServiceProviderFactory.notifyServiceOffline();
@@ -362,18 +363,18 @@ public class ServiceFactory {
 
 	public static void online() throws RegistryException {
 		logger.info("online");
-		ServiceProviderFactory.setServerWeight(Constants.WEIGHT_DEFAULT);
+		ServicePublisher.setServerWeight(Constants.WEIGHT_DEFAULT);
 		/*ServiceProviderFactory.notifyServiceOnline();*/
 	}
 
 	public static void offline() throws RegistryException {
 		logger.info("offline");
-		ServiceWarmupListener.stop();
-		ServiceProviderFactory.setServerWeight(0);
+		ServiceOnlineTask.stop();
+		ServicePublisher.setServerWeight(0);
 		/*ServiceProviderFactory.notifyServiceOffline();*/
 	}
 
 	public static boolean isAutoPublish() {
-		return ServiceProviderFactory.isAutoPublish();
+		return ServicePublisher.isAutoPublish();
 	}
 }

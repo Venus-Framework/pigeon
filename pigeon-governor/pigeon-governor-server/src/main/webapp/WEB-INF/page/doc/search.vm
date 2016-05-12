@@ -1,0 +1,417 @@
+#set($layout="layoutblank.vm")
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta charset="utf-8" />
+    <title>Pigeon</title>
+
+    <meta name="description" content="pigeon config"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/font-awesome.min.css" />
+
+    <!-- page specific plugin styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery-ui.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/datepicker.css" />
+
+    <!-- text fonts -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-fonts.css" />
+
+    <!-- ace styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace.min.css" id="main-ace-style" />
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-part2.min.css" />
+    <![endif]-->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-rtl.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/jqpagination.css"/>
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-ie.min.css" />
+    <![endif]-->
+
+    <!-- inline styles related to this page -->
+    <style type="text/css">
+        .force-word-break{
+            word-break:break-all;
+        }
+        .pagination-height{
+            height: 24px !important;
+        }
+        .bottom-margin{
+            margin-bottom: 20px;
+        }
+
+
+    </style>
+    <!-- ace settings handler -->
+    <script src="${rc.contextPath}/resources/assets/js/ace-extra.min.js"></script>
+
+</head>
+<body class="no-skin">
+
+<!-- #section:basics/navbar.layout -->
+<div id="navbar" class="navbar navbar-default">
+    #parse("common/navbar.vm")
+</div>
+
+<div class="main-container" id="main-container">
+
+    <script type="text/javascript">
+        try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+    </script>
+    <!-- #section:basics/sidebar -->
+    <div id="sidebar" class="sidebar   responsive">
+        #parse("common/sidebar.vm")
+    </div>
+    <div class="main-content">
+
+        <!-- #section:basics/content.breadcrumbs -->
+        <div class="breadcrumbs" id="breadcrumbs">
+            <script type="text/javascript">
+                try {
+                    ace.settings.check('breadcrumbs', 'fixed')
+                } catch (e) {
+                }
+            </script>
+
+            <ul class="breadcrumb">
+                <li>
+                    <i class="ace-icon fa fa-home home-icon"></i>
+                    <a href="#">主页</a>
+                </li>
+
+                <li>
+                    <a href="#">服务文档</a>
+                </li>
+            </ul><!-- /.breadcrumb -->
+
+            <!-- /.breadcrumb -->
+        </div>
+
+        <!-- /section:basics/content.breadcrumbs -->
+        <div class="page-content">
+
+            <!-- /section:settings.box -->
+            <div class="page-content-area">
+                <div class="page-header">
+                    <h1>
+                       文档中心
+                        <small>
+                            <i class="ace-icon fa fa-angle-double-right"></i>
+                            文档搜索
+                        </small>
+                        <i id='infoButton' href="#infoPage" data-toggle="modal" class="bigger-120 blue ace-icon fa fa-exclamation-circle pull-right"></i>
+                    </h1>
+                </div><!-- /.page-header -->
+                <div class="modal fade" id="infoPage" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+
+                            <div class="modal-body">
+                                <button type="button" class="bootbox-close-button close" data-dismiss="modal" aria-hidden="true" style="margin-top: -10px;">×</button>
+                                <div class="bootbox-body">
+                                    <h4 class="blue">服务文档中心简介</h4>
+                                    <p>服务文档中心归纳了所有在线Pigeon服务的接口信息.主要包含:</p>
+                                    <ul>
+                                        <li>接口名</li>
+                                        <li>接口描述</li>
+                                        <li>接口包含的方法列表</li>
+                                        <li>方法签名</li>
+                                        <li>方法描述</li>
+                                        <li>方法参数以及异常列表</li>
+                                    </ul>
+                                    <p>服务文档中心目前仅提供了简单的<span class="red">匹配查询功能</span>,查询粒度为接口和方法的元数据.</p>
+                                    <p>后续将支持ES语义级别全文索引.</p>
+                                    <p>服务文档的描述编辑功能由于版本迭代和同步问题暂未开放.<p>
+                                    <p>后续将全面支持文档的描述编辑以及索引.</p>
+                                    <p>如果您对文档中心有任何建议与疑问,欢迎联系DP架构组.</p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button data-bb-handler="success" type="button" class="btn btn-sm btn-success" data-dismiss="modal"><i class="ace-icon fa fa-check"></i>Confirm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12">
+                    <div class="col-xs-2">
+
+                    </div>
+                    <div class="input-group col-xs-8">
+                        <input id="searchInput" placeholder="输入服务,方法,描述搜索文档" type="text" class="form-control" name="message" />
+                        <span class="input-group-btn">
+                            <button  id = "search" class="btn btn-sm btn-info no-radius" type="button">
+                                <i class="ace-icon fa fa-search"></i>
+                                查询
+                            </button>
+                        </span>
+                    </div>
+                    <div class ="col-xs-2 pull-right" >
+                        <div class="col-xs-12">
+                        </div>
+                        <div class="col-xs-12" id = "timeConsume"></div>
+                    </div>
+                </div>
+                <!-- /.col -->
+                <div id = "spinWrapper" class = "row">
+
+                    <div id="spinHolder" class="col-xs-12"></div>
+
+                </div>
+
+                <div class="row" style="margin-top: 50px">
+                    <div class="col-xs-6">
+                        <div id = "serviceTitle" class="center"></div>
+                        <div id ="serviceMeta"></div>
+                        <div id ="paginationDiv" class="col-xs-12 center"></div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div id = "methodTitle" class="center"></div>
+                        <div id = "methodMeta"></div>
+                        <div id = "paginationDiv2" class="col-xs-12 center"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.page-content -->
+    </div><!-- /.main-content -->
+
+    <div class="footer">
+        #parse("common/sub-footer.vm")
+    </div>
+
+    <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+        <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+    </a>
+
+</div>
+
+
+
+
+
+<!-- basic scripts -->
+
+<!--[if !IE]> -->
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.min.js'>"+"<"+"/script>");
+</script>
+
+<!-- <![endif]-->
+
+<!--[if IE]>
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery1x.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+<script type="text/javascript">
+    if('ontouchstart' in document.documentElement)
+        document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap.min.js"></script>
+<script src="${rc.contextPath}/resources/js/jquery.jqpagination.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/spin.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/bootbox.min.js"></script>
+<script src="${rc.contextPath}/resources/js/bootstrap-modal.js"></script>
+<!-- page specific plugin scripts -->
+<script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
+<script type="text/javascript">
+    jQuery(function($) {
+        $.extend({
+            hightLightKeyWord:function(keyWord,orignalString){
+            re = new RegExp(keyWord, "gi");
+            var change = "<span class='red2'><strong>"+keyWord+"</strong></span>";
+            str  = orignalString.toString().replace(re, change);
+            return str;
+        }
+        });
+        var pageCount  = 4;
+        var opts = {
+            lines: 11, // The number of lines to draw
+            length: 30, // The length of each line
+            width: 12, // The line thickness
+            radius: 40, // The radius of the inner circle
+            corners: 0.8, // Corner roundness (0..1)
+            rotate: 31, // The rotation offset
+            color: '#000', // #rgb or #rrggbb
+            speed: 2.1, // Rounds per second
+            trail: 64, // Afterglow percentage
+            shadow: false, // Whether to render a shadow
+            hwaccel: false, // Whether to use hardware acceleration
+            className: 'spinner', // The CSS class to assign to the spinner
+            zIndex: 2e9, // The z-index (defaults to 2000000000)
+            top: 200, // Top position relative to parent in px
+            left: 'auto' // Left position relative to parent in px
+        };
+        var target = document.getElementById('spinHolder');
+        var spinner  =  new Spinner(opts).spin(target);
+        $('#spinWrapper').hide();
+
+        $('#search').click(function () {
+
+            $('#timeConsume').html("");
+            $('#serviceTitle').html("");
+            $('#serviceMeta').html("");
+            $('#paginationDiv').html("");
+            $('#methodTitle').html("");
+            $('#methodMeta').html("");
+            $('#paginationDiv2').html("");
+            if($('#searchInput').val().length>4){
+                var searchString = $('#searchInput').val();
+                $("#search").attr({"disabled":"disabled"});
+                $('#search').html('<i class="ace-icon fa fa-spinner fa-spin orange bigger-125"></i>搜索中');
+                $('#spinWrapper').show();
+                //添加进度框,以及搜索用时
+                $.ajax({
+                    type : "post",
+                    url :"/doc/search",
+                    data:{'keyword':searchString},
+                    dataType : "json",
+                    success : function (data) {
+                        $('#spinWrapper').hide();
+                        $('#timeConsume').html('本次查询耗时:<span class = "red2">'+data.consumeTime+'</span>ms');
+                        var serviceLength = data.serviceMetas.length;
+                        var keyWord = data.keyWord;
+                        var serviceMetaContent = '';
+                        var serviceTitleContent = '<div class="width-90 label label-info label-xlg arrowed-in arrowed-in-right bottom-margin">'
+                                +'<p class="white">相关服务<span class="badge badge-danger">'+serviceLength+'</span></p></div>';
+                        $('#serviceTitle').append(serviceTitleContent);
+                        if(serviceLength==0){
+                            serviceMetaContent += '<div class="well"><h3>没有相匹配服务接口信息</h3><div>';
+                            $('#serviceMeta').append(serviceMetaContent);
+                        }else{
+                            var pages =  Math.ceil(serviceLength/pageCount);
+                            $.each(data.serviceMetas,function(i,item){
+                                var tmp =  '<div class="well"><h5 class="header smaller blue force-word-break"><a target="_blank" href="/doc/'+item.serviceId+'">'+$.hightLightKeyWord(keyWord,item.serviceName)+'</a></h5>'+
+                                        "<p class='force-word-break'><span class='blue'>服务实现:</span>"+$.hightLightKeyWord(keyWord,item.serviceImpl)+"</p><p class='force-word-break'><span class='blue'>所属泳道:</span>"+item.group+"</p></div>";
+                                if((i+1)%pageCount==1){
+                                    serviceMetaContent+='<div id = "serviceMeta'+Math.ceil(i/pageCount)+'">';
+                                    serviceMetaContent+=tmp;
+                                }else{
+                                    if((i+1)%pageCount==0){
+                                        serviceMetaContent+=tmp;
+                                        serviceMetaContent+='</div>';
+                                    }else{
+                                        serviceMetaContent+=tmp;
+                                    }
+                                }
+                            });
+                            $('#serviceMeta').append(serviceMetaContent);
+                            var servicePagination = '<div id ="servicePagination" class="pagination">' +
+                                    '<a  href="#" class="first " data-action="first">'+
+                                    '<i class="ace-icon fa fa-angle-double-left"></i></a>'+
+                                    '<a href="#" class="previous " data-action="previous">'+
+                                    '<i class="ace-icon fa fa-angle-left"></i></a>'+
+                                    '<input type="text" readonly="readonly" style=" color:lightseagreen;"/>'+
+                                    '<a href="#" class="next " data-action="next"><i class="ace-icon fa fa-angle-right"></i></a>'+
+                                    '<a href="#" class="last" data-action="last"><i class="ace-icon fa fa-angle-double-right"></i></a></div>';
+                            $('#paginationDiv').append(servicePagination);
+
+
+                            $('#servicePagination').jqPagination({
+                                page_string: '{current_page}/{max_page}' ,
+                                max_page: pages,
+                                paged: function(page) {
+                                    $('#serviceMeta').children().each(function(i,n){
+                                        $(n).hide();
+                                    });
+                                    var nowPage = page-1;
+                                    var showServiceMetaId ='#'+'serviceMeta'+nowPage;
+                                    $(showServiceMetaId).show();
+                                }
+                            });
+                            $('#serviceMeta').children().each(function(i,n){
+                                if(i!=0)
+                                    $(n).hide();
+                            });
+                        }
+
+                        var methodLength = data.methodMetas.length;
+                        var methodMetaContent = "";
+                        var methodTitleContent ='<div class="width-90 label label-success label-xlg arrowed-in arrowed-in-right bottom-margin">'
+                                +'<p class="white">相关方法<span class="badge badge-danger">'+methodLength+'</span></p></div>';
+                        $('#methodTitle').append(methodTitleContent);
+                        if(methodLength==0){
+                            methodMetaContent += '<div class="well"><h3>没有相匹配方法信息</h3><div>';
+                            $('#methodMeta').append(methodMetaContent);
+
+                        }else{
+                            var methodPages = Math.ceil(methodLength/pageCount);
+                            $.each(data.methodMetas,function(i,item){
+                                var tmp =  '<div class="well"><h5 class="header smaller blue force-word-break"><a target="_blank" href="/doc/'+item.serviceId+'">'+$.hightLightKeyWord(keyWord,item.methodName)+'</a></h5>'+
+                                        "<p class='force-word-break'><span class='blue'>服务接口:</span>"+$.hightLightKeyWord(keyWord,item.serviceName)+"</p><p class='force-word-break'><span class='blue'>所属泳道:</span>"+item.group+"</p></div>";
+                                if((i+1)%pageCount==1){
+                                    methodMetaContent+='<div id = "methodMeta'+Math.ceil(i/pageCount)+'">';
+                                    methodMetaContent+=tmp;
+                                }else{
+                                    if((i+1)%pageCount==0){
+                                        methodMetaContent+=tmp;
+                                        methodMetaContent+='</div>';
+                                    }else{
+                                        methodMetaContent+=tmp;
+                                    }
+                                }
+                            });
+                            $('#methodMeta').append(methodMetaContent);
+                            var methodPagination = '<div id ="methodPagination" class="pagination">' +
+                                    '<a  href="#" class="first " data-action="first">'+
+                                    '<i class="ace-icon fa fa-angle-double-left"></i></a>'+
+                                    '<a href="#" class="previous " data-action="previous">'+
+                                    '<i class="ace-icon fa fa-angle-left"></i></a>'+
+                                    '<input type="text" readonly="readonly" style=" color:lightseagreen;"/>'+
+                                    '<a href="#" class="next " data-action="next"><i class="ace-icon fa fa-angle-right"></i></a>'+
+                                    '<a href="#" class="last" data-action="last"><i class="ace-icon fa fa-angle-double-right"></i></a></div>';
+                            //TODO 悬停分页不动,同时判断是否需要分页.
+                            $('#paginationDiv2').append(methodPagination);
+
+                            $('#methodPagination').jqPagination({
+                                page_string: '{current_page}/{max_page}' ,
+                                max_page: methodPages,
+                                paged: function(page) {
+                                    $('#methodMeta').children().each(function(i,n){
+                                        $(n).hide();
+                                    });
+                                    var nowPage = page-1;
+                                    var showServiceMetaId ='#'+'methodMeta'+nowPage;
+                                    $(showServiceMetaId).show();
+                                }
+                            });
+                            $('#methodMeta').children().each(function(i,n){
+                                if(i!=0)
+                                    $(n).hide();
+                            });
+                        }
+                        $('div.pagination a').addClass('pagination-height');
+                        $("#search").removeAttr("disabled");
+                        $("#search").html('<i class="ace-icon fa fa-search"></i>');
+                        $('.well').css("height","200px");
+                    }
+                });
+            }else{
+                bootbox.dialog({
+                    message: "请至少输入5个字符避免数据库过载",
+                    buttons: {
+                        "success": {
+                            "label": "<i class='ace-icon fa fa-check'></i>Confirm",
+                            "className": "btn-sm btn-success"
+                        }
+                    }
+                });
+            }
+
+
+        });
+    });
+</script>
+<!-- ace scripts -->
+<script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
+
+</body>
+</html>

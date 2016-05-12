@@ -11,12 +11,6 @@ import com.dianping.pigeon.remoting.invoker.callback.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.route.region.Region;
 
-/**
- * 
- * 
- * @author jianhuihuang
- * @version $Id: Client.java, v 0.1 2013-7-16 上午10:36:30 jianhuihuang Exp $
- */
 public interface Client {
 
 	ConnectInfo getConnectInfo();

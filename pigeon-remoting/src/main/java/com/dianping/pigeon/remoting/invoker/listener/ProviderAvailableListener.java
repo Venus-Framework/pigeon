@@ -32,39 +32,13 @@ public class ProviderAvailableListener implements Runnable {
 
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
-	private static long interval = configManager.getLongValue("pigeon.providerlistener.interval", 3000);
-
-	private static int providerAvailableLeast = configManager.getIntValue("pigeon.providerlistener.availableleast", 1);
+	private static final String KEY_INTERVAL = "pigeon.providerlistener.interval";
+	
+	private static final String KEY_AVAILABLE_LEAST = "pigeon.providerlistener.availableleast";
 
 	public ProviderAvailableListener() {
-		configManager.registerConfigChangeListener(new InnerConfigChangeListener());
-	}
-
-	private static class InnerConfigChangeListener implements ConfigChangeListener {
-
-		@Override
-		public void onKeyUpdated(String key, String value) {
-			if (key.endsWith("pigeon.providerlistener.availableleast")) {
-				try {
-					providerAvailableLeast = Integer.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			} else if (key.endsWith("pigeon.providerlistener.interval")) {
-				try {
-					interval = Long.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			}
-		}
-
-		@Override
-		public void onKeyAdded(String key, String value) {
-		}
-
-		@Override
-		public void onKeyRemoved(String key) {
-		}
-
+		configManager.getLongValue(KEY_INTERVAL, 3000);
+		configManager.getIntValue(KEY_AVAILABLE_LEAST, 1);
 	}
 
 	private int getAvailableClients(List<Client> clientList) {
@@ -83,7 +57,7 @@ public class ProviderAvailableListener implements Runnable {
 	}
 
 	public void run() {
-		long sleepTime = interval;
+		long sleepTime = configManager.getLongValue(KEY_INTERVAL, 3000);
 		int checkCount = 0;
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
@@ -113,7 +87,7 @@ public class ProviderAvailableListener implements Runnable {
 					}
 
 					int available = getAvailableClients(this.getWorkingClients().get(url));
-					if (available < providerAvailableLeast) {
+					if (available < configManager.getIntValue(KEY_AVAILABLE_LEAST, 1)) {
 						logger.info("check provider available for service:" + url);
 						String error = null;
 						try {
@@ -140,12 +114,13 @@ public class ProviderAvailableListener implements Runnable {
 						}
 					}
 				}
-				sleepTime = interval - (System.currentTimeMillis() - now);
-				
+				sleepTime = configManager.getLongValue(KEY_INTERVAL, 3000) - (System.currentTimeMillis() - now);
+
 				// close register thread pool
-				/*if (++checkCount > 0) {
-					ClientManager.getInstance().closeRegisterThreadPool();
-				}*/
+				/*
+				 * if (++checkCount > 0) {
+				 * ClientManager.getInstance().closeRegisterThreadPool(); }
+				 */
 			} catch (Throwable e) {
 				logger.info("[provider-available] task failed:", e);
 			} finally {

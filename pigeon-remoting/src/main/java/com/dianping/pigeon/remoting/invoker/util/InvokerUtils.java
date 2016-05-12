@@ -2,7 +2,6 @@ package com.dianping.pigeon.remoting.invoker.util;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.logging.log4j.Logger;
 
@@ -69,6 +68,10 @@ public class InvokerUtils {
 
 	public static InvocationResponse createNoReturnResponse() {
 		return new NoReturnResponse();
+	}
+
+	public static InvocationResponse createDefaultResponse(Object defaultResult) {
+		return new NoReturnResponse(defaultResult);
 	}
 
 	public static InvocationResponse createFutureResponse(ServiceFuture serviceFuture) {
@@ -154,6 +157,15 @@ public class InvokerUtils {
 
 		private long providerResponseTime;
 
+		private Object result;
+
+		public NoReturnResponse() {
+		}
+
+		public NoReturnResponse(Object defaultResult) {
+			this.result = defaultResult;
+		}
+
 		public long getInvokerRequestTime() {
 			return invokerRequestTime;
 		}
@@ -192,7 +204,7 @@ public class InvokerUtils {
 
 		@Override
 		public int getMessageType() {
-			return 0;
+			return Constants.MESSAGE_TYPE_SERVICE;
 		}
 
 		@Override
@@ -202,7 +214,7 @@ public class InvokerUtils {
 
 		@Override
 		public Object getReturn() {
-			return null;
+			return result;
 		}
 
 		@Override
@@ -334,7 +346,7 @@ public class InvokerUtils {
 
 		@Override
 		public int getMessageType() {
-			return 0;
+			return Constants.MESSAGE_TYPE_SERVICE;
 		}
 
 		@Override

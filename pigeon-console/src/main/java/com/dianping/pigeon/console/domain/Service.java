@@ -10,7 +10,17 @@ public class Service {
 
 	private String published;
 
+	private String token = "";
+
 	private List<ServiceMethod> methods = new ArrayList<ServiceMethod>();
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
 
 	public String getPublished() {
 		return published;

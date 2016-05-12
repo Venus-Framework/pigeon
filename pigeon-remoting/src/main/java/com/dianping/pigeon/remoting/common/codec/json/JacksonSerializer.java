@@ -8,6 +8,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
@@ -41,38 +45,41 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 		mapper.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
 		mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
-//		mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
-		
-//		SimpleModule module = new SimpleModule();
-//		module.addKeySerializer(Object.class, new JsonSerializer<Object>() {
-//
-//			@Override
-//			public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException,
-//					JsonProcessingException {
-//				jgen.writeFieldName(mapper.writeValueAsString(value));
-//			}
-//
-//		});
-//		module.addKeyDeserializer(Object.class, new KeyDeserializer() {
-//
-//			@Override
-//			public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException,
-//					JsonProcessingException {
-//				try {
-//					return JacksonObjectMapper.convertObject(key);
-//				} catch (SerializationException e) {
-//					throw new IOException("", e);
-//				} catch (ClassNotFoundException e) {
-//					throw new IOException("", e);
-//				} catch (InstantiationException e) {
-//					throw new IOException("", e);
-//				} catch (IllegalAccessException e) {
-//					throw new IOException("", e);
-//				}
-//			}
-//
-//		});
-//		mapper.registerModule(module);
+		// mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL,
+		// "@class");
+
+		// SimpleModule module = new SimpleModule();
+		// module.addKeySerializer(Object.class, new JsonSerializer<Object>() {
+		//
+		// @Override
+		// public void serialize(Object value, JsonGenerator jgen,
+		// SerializerProvider provider) throws IOException,
+		// JsonProcessingException {
+		// jgen.writeFieldName(mapper.writeValueAsString(value));
+		// }
+		//
+		// });
+		// module.addKeyDeserializer(Object.class, new KeyDeserializer() {
+		//
+		// @Override
+		// public Object deserializeKey(String key, DeserializationContext ctxt)
+		// throws IOException,
+		// JsonProcessingException {
+		// try {
+		// return JacksonObjectMapper.convertObject(key);
+		// } catch (SerializationException e) {
+		// throw new IOException("", e);
+		// } catch (ClassNotFoundException e) {
+		// throw new IOException("", e);
+		// } catch (InstantiationException e) {
+		// throw new IOException("", e);
+		// } catch (IllegalAccessException e) {
+		// throw new IOException("", e);
+		// }
+		// }
+		//
+		// });
+		// mapper.registerModule(module);
 
 		// initialize
 		JacksonSerializer serializer = new JacksonSerializer();
@@ -148,6 +155,25 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 		}
 	}
 
+	public <T> T deserializeArray(String content, Class<?> elementType) throws SerializationException {
+		try {
+			JavaType javaType = mapper.getTypeFactory().constructArrayType(elementType);
+			return (T) mapper.readValue(content, javaType);
+		} catch (Throwable e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public <T> T deserializeMap(String content, Class<?> mapClass, Class<?> keyClass, Class<?> valueClass)
+			throws SerializationException {
+		try {
+			JavaType javaType = mapper.getTypeFactory().constructMapLikeType(mapClass, keyClass, valueClass);
+			return (T) mapper.readValue(content, javaType);
+		} catch (Throwable e) {
+			throw new SerializationException(e);
+		}
+	}
+
 	@Override
 	public void serializeRequest(OutputStream os, Object obj) throws SerializationException {
 		try {
@@ -167,4 +193,102 @@ public class JacksonSerializer extends DefaultAbstractSerializer {
 		serializeRequest(os, obj);
 	}
 
+	public Object toObject(Class<?> type, String value) throws SerializationException, ClassNotFoundException {
+		if (value == null) {
+			return null;
+		}
+		String value_;
+		if (value.length() == 0) {
+			value_ = "0";
+		} else {
+			value_ = value;
+		}
+		Object valueObj = value_;
+		if (type == int.class || type == Integer.class) {
+			valueObj = Integer.parseInt(value_);
+		} else if (type == short.class || type == Short.class) {
+			valueObj = Short.parseShort(value_);
+		} else if (type == byte.class || type == Byte.class) {
+			valueObj = Byte.parseByte(value_);
+		} else if (type == char.class) {
+			valueObj = value_;
+		} else if (type == long.class || type == Long.class) {
+			valueObj = Long.parseLong(value_);
+		} else if (type == float.class || type == Float.class) {
+			valueObj = Float.parseFloat(value_);
+		} else if (type == double.class || type == Double.class) {
+			valueObj = Double.parseDouble(value_);
+		} else if (type == String.class) {
+			valueObj = String.valueOf(value);
+		} else {
+			if (value == null || value.length() == 0) {
+				valueObj = null;
+			} else {
+				valueObj = deserializeObject(type, value);
+				if (valueObj instanceof Collection) {
+					Collection valueObjList = (Collection) valueObj;
+					if (!valueObjList.isEmpty()) {
+						Object first = valueObjList.iterator().next();
+						if (first instanceof Map) {
+							Map valueMap = (Map) first;
+							String valueClass = (String) valueMap.get("@class");
+							if (valueClass != null) {
+								valueObj = deserializeCollection(value, type, Class.forName(valueClass));
+							}
+						}
+					}
+				} else if (valueObj instanceof Map) {
+					Map valueObjList = (Map) valueObj;
+					if (!valueObjList.isEmpty()) {
+						Map finalMap = new HashMap(valueObjList.size());
+						valueObj = finalMap;
+						String keyClass = null;
+						String valueClass = null;
+						try {
+							for (Iterator ir = valueObjList.keySet().iterator(); ir.hasNext();) {
+								Object k = ir.next();
+								Object v = valueObjList.get(k);
+								Object finalKey = k;
+								Object finalValue = v;
+								if (k instanceof String) {
+									try {
+										finalKey = deserializeObject(Map.class, (String) k);
+									} catch (Throwable t) {
+										if (keyClass == null) {
+											Map firstValueMap = deserializeObject(Map.class, (String) k);
+											if (firstValueMap != null) {
+												keyClass = (String) firstValueMap.get("@class");
+											}
+										}
+										if (keyClass != null) {
+											finalKey = deserializeObject(Class.forName(keyClass), (String) k);
+										}
+									}
+								}
+								if (v instanceof String) {
+									try {
+										finalValue = deserializeObject(Map.class, (String) v);
+									} catch (Throwable t) {
+										if (valueClass == null) {
+											Map firstValueMap = deserializeObject(Map.class, (String) v);
+											if (firstValueMap != null) {
+												valueClass = (String) firstValueMap.get("@class");
+											}
+										}
+										if (valueClass != null) {
+											finalValue = deserializeObject(Class.forName(valueClass), (String) v);
+										}
+									}
+								}
+								finalMap.put(finalKey, finalValue);
+							}
+						} catch (Throwable t) {
+							valueObj = valueObjList;
+						}
+					}
+				}
+			}
+		}
+		return valueObj;
+	}
 }

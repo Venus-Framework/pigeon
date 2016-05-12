@@ -298,6 +298,14 @@ public final class ContextUtils {
 		globalContext.remove();
 	}
 
+	public static void initRequestContext() {
+		Map<String, Serializable> context = requestContext.get();
+		if (context == null) {
+			context = new HashMap<String, Serializable>();
+			requestContext.set(context);
+		}
+	}
+
 	public static void putRequestContext(String key, Serializable value) {
 		Map<String, Serializable> context = requestContext.get();
 		if (context == null) {

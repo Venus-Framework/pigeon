@@ -22,4 +22,7 @@ public interface InvokerContext extends InvocationContext {
 
 	void setClient(Client client);
 
+	void setDegraded();
+	
+	boolean isDegraded();
 }

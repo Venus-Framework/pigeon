@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.RegistryManager;
 
 /**
  * 将lion推送的动态服务信息发送到感兴趣的listener
@@ -79,10 +80,15 @@ public class RegistryEventListener {
 			listener.onServerAppChange(serverAddress, app);
 		}
 	}
-	
+
 	public static void serverVersionChanged(String serverAddress, String version) {
 		for (ServerInfoListener listener : serverInfoListeners) {
 			listener.onServerVersionChange(serverAddress, version);
 		}
+	}
+
+	public static void serverInfoChanged(String serviceName, String serverAddress) {
+		RegistryManager.getInstance().getReferencedApp(serverAddress);
+		RegistryManager.getInstance().getReferencedVersion(serverAddress);
 	}
 }

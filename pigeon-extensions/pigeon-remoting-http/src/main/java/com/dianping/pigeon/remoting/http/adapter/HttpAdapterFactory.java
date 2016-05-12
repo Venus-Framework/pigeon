@@ -2,7 +2,8 @@ package com.dianping.pigeon.remoting.http.adapter;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
-import com.dianping.pigeon.remoting.provider.service.ServiceProviderFactory;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
+
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
@@ -21,7 +22,7 @@ public class HttpAdapterFactory {
     }
 
     public static void registerHttpAdapter(String serviceName, HttpAdapter httpAdapter) {
-        Map<String, ProviderConfig<?>> allServiceProviders = ServiceProviderFactory.getAllServiceProviders();
+        Map<String, ProviderConfig<?>> allServiceProviders = ServicePublisher.getAllServiceProviders();
         if(!allServiceProviders.containsKey(serviceName)) {
             logger.warn("service " + serviceName + " not exists or not published!");
         }

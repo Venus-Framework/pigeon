@@ -73,7 +73,7 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		if (element.hasAttribute("url")) {
 			properties.addPropertyValue("url", resolveReference(element, "url"));
-		} else if(element.hasAttribute("interface")) {
+		} else if (element.hasAttribute("interface")) {
 			properties.addPropertyValue("url", resolveReference(element, "interface"));
 		}
 		if (element.hasAttribute("serialize")) {
@@ -116,6 +116,9 @@ public class ReferenceBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		if (element.hasAttribute("vip")) {
 			properties.addPropertyValue("vip", resolveReference(element, "vip"));
+		}
+		if (element.hasAttribute("secret")) {
+			properties.addPropertyValue("secret", resolveReference(element, "secret"));
 		}
 		String callback = element.getAttribute("callback");
 		if (StringUtils.isNotEmpty(callback)) {

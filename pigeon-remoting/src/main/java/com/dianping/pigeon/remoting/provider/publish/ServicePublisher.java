@@ -2,14 +2,13 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.provider.service;
+package com.dianping.pigeon.remoting.provider.publish;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.remoting.provider.listener.HeartBeatListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -20,13 +19,12 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.common.util.SecurityUtils;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
-import com.dianping.pigeon.remoting.provider.listener.DefaultServiceChangeListener;
-import com.dianping.pigeon.remoting.provider.listener.ServiceChangeListener;
-import com.dianping.pigeon.remoting.provider.listener.ServiceWarmupListener;
+import com.dianping.pigeon.remoting.provider.listener.HeartBeatListener;
+import com.dianping.pigeon.remoting.provider.service.DisposableService;
+import com.dianping.pigeon.remoting.provider.service.InitializingService;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethodFactory;
 import com.dianping.pigeon.util.VersionUtils;
 
@@ -35,9 +33,9 @@ import com.dianping.pigeon.util.VersionUtils;
  * @Sep 30, 2013
  * 
  */
-public final class ServiceProviderFactory {
+public final class ServicePublisher {
 
-	private static Logger logger = LoggerLoader.getLogger(ServiceProviderFactory.class);
+	private static Logger logger = LoggerLoader.getLogger(ServicePublisher.class);
 
 	private static ConcurrentHashMap<String, ProviderConfig<?>> serviceCache = new ConcurrentHashMap<String, ProviderConfig<?>>();
 
@@ -60,6 +58,13 @@ public final class ServiceProviderFactory {
 
 	private static final boolean GROUP_FORBIDDEN = configManager.getBooleanValue("pigeon.publish.forbidden.group",
 			false);
+
+	private static final String registryBlackList = configManager.getStringValue("pigeon.registry.blacklist", "");
+
+	private static final String registryWhiteList = configManager.getStringValue("pigeon.registry.whitelist", "");
+
+	private static final boolean canRegisterDefault = configManager.getBooleanValue(
+			"pigeon.registry.canregister.default", true);
 
 	public static String getServiceUrlWithVersion(String url, String version) {
 		String newUrl = url;
@@ -129,14 +134,14 @@ public final class ServiceProviderFactory {
 				List<Server> servers = ProviderBootStrap.getServers(providerConfig);
 				int registerCount = 0;
 				for (Server server : servers) {
-					publishService(server.getRegistryUrl(url), server.getPort(), providerConfig.getServerConfig()
+					publishService(url, server.getRegistryUrl(url), server.getPort(), providerConfig.getServerConfig()
 							.getGroup());
 					registerCount++;
 				}
 				if (registerCount > 0) {
-					boolean isHeartbeatEnable = configManager
-							.getBooleanValue(Constants.KEY_HEARTBEAT_ENABLE, DEFAULT_HEARTBEAT_ENABLE);
-					if(isHeartbeatEnable) {
+					boolean isHeartbeatEnable = configManager.getBooleanValue(Constants.KEY_HEARTBEAT_ENABLE,
+							DEFAULT_HEARTBEAT_ENABLE);
+					if (isHeartbeatEnable) {
 						HeartBeatListener.registerHeartBeat(providerConfig);
 					}
 
@@ -149,7 +154,7 @@ public final class ServiceProviderFactory {
 					boolean autoRegisterEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
 							Constants.KEY_AUTOREGISTER_ENABLE, true);
 					if (autoRegisterEnable) {
-						ServiceWarmupListener.start();
+						ServiceOnlineTask.start();
 					} else {
 						logger.info("auto register is disabled");
 					}
@@ -185,9 +190,10 @@ public final class ServiceProviderFactory {
 		}
 	}
 
-	private synchronized static <T> void publishService(String url, int port, String group) throws RegistryException {
+	private synchronized static <T> void publishService(String url, String registryUrl, int port, String group)
+			throws RegistryException {
 		String ip = configManager.getLocalIp();
-		if (!SecurityUtils.canRegister(ip)) {
+		if (!canRegister(ip)) {
 			boolean canRegister = false;
 			if (StringUtils.isNotBlank(group) && !GROUP_FORBIDDEN) {
 				canRegister = true;
@@ -196,8 +202,8 @@ public final class ServiceProviderFactory {
 				if (THROW_EXCEPTION_IF_FORBIDDEN) {
 					throw new SecurityException("service registration of " + ip + " is not allowed!");
 				} else {
-					logger.warn("service registration of " + ip + " is not allowed, url:" + url + ", port:" + port
-							+ ", group:" + group);
+					logger.warn("service registration of " + ip + " is not allowed, url:" + registryUrl + ", port:"
+							+ port + ", group:" + group);
 					return;
 				}
 			}
@@ -209,19 +215,19 @@ public final class ServiceProviderFactory {
 		if (!autoRegisterEnable) {
 			weight = 0;
 		}
-		boolean warmupEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
-				Constants.KEY_SERVICEWARMUP_ENABLE, true);
-		if (!warmupEnable) {
+		boolean enableOnlineTask = ConfigManagerLoader.getConfigManager().getBooleanValue("pigeon.online.task.enable",
+				true);
+		if (!enableOnlineTask) {
 			weight = Constants.WEIGHT_DEFAULT;
 		}
 		if (serverWeightCache.containsKey(serverAddress)) {
 			weight = -1;
 		}
 		if (logger.isInfoEnabled()) {
-			logger.info("publish service to registry, url:" + url + ", port:" + port + ", group:" + group
+			logger.info("publish service to registry, url:" + registryUrl + ", port:" + port + ", group:" + group
 					+ ", address:" + serverAddress + ", weight:" + weight);
 		}
-		RegistryManager.getInstance().registerService(url, group, serverAddress, weight);
+		RegistryManager.getInstance().registerService(registryUrl, group, serverAddress, weight);
 		if (weight >= 0) {
 			if (!serverWeightCache.containsKey(serverAddress)) {
 				RegistryManager.getInstance().setServerApp(serverAddress, configManager.getAppName());
@@ -279,9 +285,9 @@ public final class ServiceProviderFactory {
 				}
 			}
 
-			boolean isHeartbeatEnable = configManager
-					.getBooleanValue(Constants.KEY_HEARTBEAT_ENABLE, DEFAULT_HEARTBEAT_ENABLE);
-			if(isHeartbeatEnable) {
+			boolean isHeartbeatEnable = configManager.getBooleanValue(Constants.KEY_HEARTBEAT_ENABLE,
+					DEFAULT_HEARTBEAT_ENABLE);
+			if (isHeartbeatEnable) {
 				HeartBeatListener.unregisterHeartBeat(providerConfig);
 			}
 
@@ -353,7 +359,7 @@ public final class ServiceProviderFactory {
 		if (logger.isInfoEnabled()) {
 			logger.info("unpublish all services");
 		}
-		ServiceWarmupListener.stop();
+		ServiceOnlineTask.stop();
 		setServerWeight(0);
 		try {
 			Thread.sleep(UNPUBLISH_WAITTIME);
@@ -386,29 +392,51 @@ public final class ServiceProviderFactory {
 	public static Map<String, ProviderConfig<?>> getAllServiceProviders() {
 		return serviceCache;
 	}
-	
+
 	public static void notifyServiceOnline() {
 		for (String url : serviceCache.keySet()) {
 			ProviderConfig<?> providerConfig = serviceCache.get(url);
 			if (providerConfig != null) {
-				//do notify
+				// do notify
 				if (serviceChangeListener != null) {
 					serviceChangeListener.notifyServiceOnline(providerConfig);
 				}
 			}
 		}
 	}
-	
+
 	public static void notifyServiceOffline() {
 		for (String url : serviceCache.keySet()) {
 			ProviderConfig<?> providerConfig = serviceCache.get(url);
 			if (providerConfig != null) {
-				//do notify
+				// do notify
 				if (serviceChangeListener != null) {
 					serviceChangeListener.notifyServiceOffline(providerConfig);
 				}
 			}
 		}
+	}
+
+	public static boolean canRegister(String ip) {
+		String[] whiteArray = registryWhiteList.split(",");
+		for (String addr : whiteArray) {
+			if (StringUtils.isBlank(addr)) {
+				continue;
+			}
+			if (ip.startsWith(addr)) {
+				return true;
+			}
+		}
+		String[] blackArray = registryBlackList.split(",");
+		for (String addr : blackArray) {
+			if (StringUtils.isBlank(addr)) {
+				continue;
+			}
+			if (ip.startsWith(addr)) {
+				return false;
+			}
+		}
+		return canRegisterDefault;
 	}
 
 }

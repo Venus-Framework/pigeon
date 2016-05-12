@@ -1,40 +1,42 @@
 package com.dianping.pigeon.remoting.common.util;
 
-import org.apache.commons.lang.StringUtils;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
-import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.config.ConfigManagerLoader;
+import org.apache.commons.codec.binary.Base64;
+
+import com.dianping.pigeon.remoting.common.exception.SecurityException;
 
 public class SecurityUtils {
 
-	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+	private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+	
+	/**
+	 * hmac_sha1加密
+	 * 
+	 * @param data
+	 * @param key
+	 * @return
+	 */
+	public static String encrypt(String data, String key) throws SecurityException {
+		String result;
+		try {
+			// get an hmac_sha1 key from the raw key bytes
+			SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
 
-	private static final String registryBlackList = configManager.getStringValue("pigeon.registry.blacklist", "");
+			// get an hmac_sha1 Mac instance and initialize with the signing key
+			Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+			mac.init(signingKey);
 
-	private static final String registryWhiteList = configManager.getStringValue("pigeon.registry.whitelist", "");
+			// compute the hmac on input data bytes
+			byte[] rawHmac = mac.doFinal(data.getBytes());
 
-	private static final boolean canRegisterDefault = configManager.getBooleanValue(
-			"pigeon.registry.canregister.default", true);
-
-	public static boolean canRegister(String ip) {
-		String[] whiteArray = registryWhiteList.split(",");
-		for (String addr : whiteArray) {
-			if (StringUtils.isBlank(addr)) {
-				continue;
-			}
-			if (ip.startsWith(addr)) {
-				return true;
-			}
+			// base64-encode the hmac
+			result = Base64.encodeBase64URLSafeString(rawHmac);
+		} catch (Exception e) {
+			throw new SecurityException("Failed to generate HMAC : " + e.getMessage());
 		}
-		String[] blackArray = registryBlackList.split(",");
-		for (String addr : blackArray) {
-			if (StringUtils.isBlank(addr)) {
-				continue;
-			}
-			if (ip.startsWith(addr)) {
-				return false;
-			}
-		}
-		return canRegisterDefault;
+		return result;
 	}
+
 }
