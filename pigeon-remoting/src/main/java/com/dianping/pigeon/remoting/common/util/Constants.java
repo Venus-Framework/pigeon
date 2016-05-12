@@ -112,6 +112,7 @@ public final class Constants {
 	public static final String KEY_TEST_ENABLE = "pigeon.test.enable";
 	public static final String KEY_CONNECT_TIMEOUT = "pigeon.netty.connecttimeout";
 	public static final String KEY_PROVIDER_HEARTBEAT_INTERNAL = "pigeon.provider.heartbeat.internal";
+	public static final String KEY_REGIONPOLICY = "pigeon.regionpolicy.defaulttype";
 
 	public static final int DEFAULT_INVOKER_TIMEOUT = 5000;
 	public static final int DEFAULT_PROVIDER_COREPOOLSIZE = 60;

@@ -231,7 +231,7 @@
                             <div class="space-4"></div>
 
                             <div class="form-group">
-                                <label for="form-field-provider-off-group">泳道(group)</label>
+                                <label for="form-field-provider-on-group">泳道(group)</label>
 
                                 <div>
                                     <input class="input-medium" type="text" id="form-field-provider-on-group"
@@ -315,6 +315,52 @@
                     </button>
 
                     <button id="submit-oneClick-off" class="btn btn-sm btn-primary">
+                        <i class="ace-icon fa fa-check"></i>
+                        提交
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="oneClickOffGroup-modal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="blue bigger">注意：危险操作！！！</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+
+                        <div class="col-xs-12">
+
+                            <div class="form-group">
+                                <label for="form-field-provider-off-group-2">泳道(group)</label>
+
+                                <div>
+                                    <input class="input-medium" type="text" id="form-field-provider-off-group-2"
+                                           placeholder="default" value="" />
+                                    &nbsp;&nbsp;
+                                    <a title="一键删除该应用指定泳道的所有服务" data-rel="tooltip" href="#">
+                                        <i class="fa fa-question-circle dark"></i></a>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-sm" data-dismiss="modal">
+                        <i class="ace-icon fa fa-times"></i>
+                        取消
+                    </button>
+
+                    <button id="submit-oneClick-off-group" class="btn btn-sm btn-primary">
                         <i class="ace-icon fa fa-check"></i>
                         提交
                     </button>
@@ -442,6 +488,33 @@ $('#submit-oneClick-off').on('click',function(){
             } else {
                 //console.log(response);
                 $('#oneClickOff-modal').modal('hide');
+                $.gritter.add({
+                    title: response.status,
+                    text: response.message,
+                    class_name: 'gritter-error gritter-center gritter-light'
+                });
+            }
+
+        }
+    });
+
+});
+
+$('#submit-oneClick-off-group').on('click',function(){
+    var data = {"group": $('#form-field-provider-off-group-2').val(), "projectId": projectId};
+    $.ajax({
+        url: '/services/oneClickOffGroup',
+        type: 'POST',
+        data: data,
+        error: function(){
+            console.log("server error!");
+        },
+        success: function(response, textStatus) {
+            if(response.status == "success") {
+                window.location.reload();
+            } else {
+                //console.log(response);
+                $('#oneClickOffGroup-modal').modal('hide');
                 $.gritter.add({
                     title: response.status,
                     text: response.message,
@@ -887,6 +960,16 @@ jQuery(function($) {
 		},
 		position:"last",
 		id: "oneClickOff"
+	});
+	jQuery(grid_selector).navButtonAdd(pager_selector,{
+		caption: "",
+		title:"一键删除指定泳道的所有服务",
+		buttonicon:'ace-icon fa fa-minus-square red',
+		onClickButton: function(){
+			$('#oneClickOffGroup-modal').modal();
+		},
+		position:"last",
+		id: "oneClickOffGroup"
 	});
 	/* jQuery(grid_selector).navButtonAdd(pager_selector,{
 		caption: "",

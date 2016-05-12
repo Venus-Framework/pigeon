@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dianping.pigeon.util.ServiceUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -78,7 +79,7 @@ public class LoadBalanceManager {
 	 * @return
 	 */
 	public static LoadBalance getLoadBalance(InvokerConfig<?> invokerConfig, int callType) {
-		String serviceId = getServiceId(invokerConfig.getUrl(), invokerConfig.getGroup());
+		String serviceId = ServiceUtils.getServiceId(invokerConfig.getUrl(), invokerConfig.getGroup());
 		LoadBalance loadBalance = loadBalanceMap.get(serviceId);
 		if (loadBalance != null) {
 			return loadBalance;
@@ -101,17 +102,9 @@ public class LoadBalanceManager {
 		return loadBalance;
 	}
 
-	public static String getServiceId(String serviceName, String group) {
-		String serviceId = serviceName;
-		if (StringUtils.isNotBlank(group)) {
-			serviceId = serviceId + ":" + group;
-		}
-		return serviceId;
-	}
-
 	@SuppressWarnings("unchecked")
 	public static void register(String serviceName, String group, Object loadBalance) {
-		String serviceId = getServiceId(serviceName, group);
+		String serviceId = ServiceUtils.getServiceId(serviceName, group);
 		LoadBalance loadBlanceObj = null;
 		if (loadBalance instanceof LoadBalance) {
 			loadBlanceObj = (LoadBalance) loadBalance;

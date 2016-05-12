@@ -11,6 +11,8 @@ import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;
 import com.dianping.pigeon.remoting.invoker.process.ResponseProcessor;
 import com.dianping.pigeon.remoting.invoker.process.ResponseProcessorFactory;
+import com.dianping.pigeon.remoting.invoker.route.region.Region;
+import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 
 public abstract class AbstractClient implements Client {
@@ -18,6 +20,8 @@ public abstract class AbstractClient implements Client {
 	private volatile boolean active = true;
 
 	ResponseProcessor responseProcessor = ResponseProcessorFactory.selectProcessor();
+
+	protected Region region;
 
 	@Override
 	public void connectionException(Object attachment, Throwable e) {
@@ -59,5 +63,17 @@ public abstract class AbstractClient implements Client {
 			}
 		}
 		this.active = active;
+	}
+	@Override
+	public Region getRegion() {
+		if(region == null) {
+			region = RegionPolicyManager.INSTANCE.getRegion(getHost());
+		}
+		return region;
+	}
+
+	@Override
+	public void clearRegion() {
+		region = null;
 	}
 }

@@ -4,20 +4,6 @@
  */
 package com.dianping.pigeon.remoting.invoker.listener;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
-
-import com.dianping.pigeon.registry.RegionManager;
-import org.apache.logging.log4j.Logger;
-
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
@@ -39,6 +25,13 @@ import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
+import org.apache.logging.log4j.Logger;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class HeartBeatListener implements Runnable, ClusterListener {
 
@@ -47,8 +40,6 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	public static final String HEART_TASK_SERVICE = "HeartbeatService/";
 
 	public static final String HEART_TASK_METHOD = "heartbeat";
-
-	private static final RegionManager regionManager = RegionManager.getInstance();
 
 	private Map<String, List<Client>> workingClients;
 
@@ -263,10 +254,6 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 		try {
 			HeartBeatStat heartStat = heartBeatStats.get(client.getAddress());
 			if (heartStat.succeedCounter.longValue() >= heartBeatHealthCount) {
-				//TODO  给RegionManager的hostCache标记active为true,notify
-				if(regionManager.isEnableRegionAutoSwitch()) {
-					regionManager.getRegionHostHeartBeatStats().put(client.getAddress(), true);
-				}
 				if (!client.isActive()) {
 					client.setActive(true);
 					inactiveAddresses.remove(client.getAddress());
@@ -275,12 +262,8 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 				}
 				heartStat.resetCounter();
 			} else if (heartStat.failedCounter.longValue() >= heartBeatDeadCount) {
-				//TODO  给RegionManager的hostCache标记active为false,notify
-				if(regionManager.isEnableRegionAutoSwitch()) {
-					regionManager.getRegionHostHeartBeatStats().put(client.getAddress(), false);
-				}
 				if (client.isActive()) {
-					if (isHeartBeatAutoPickOff && canPickOff(client)) {
+					if (isHeartBeatAutoPickOff /*&& canPickOff(client)*/) {
 						client.setActive(false);
 						inactiveAddresses.add(client.getAddress());
 						logger.info("@service-deactivate:" + client + ", inactive addresses:" + inactiveAddresses);
@@ -312,6 +295,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 		return "unknown";
 	}
 
+	@Deprecated
 	private boolean canPickOff(Client client) {
 		Map<String, Set<HostInfo>> serviceHostInfos = ClientManager.getInstance().getServiceHosts();
 		if (serviceHostInfos.isEmpty()) {

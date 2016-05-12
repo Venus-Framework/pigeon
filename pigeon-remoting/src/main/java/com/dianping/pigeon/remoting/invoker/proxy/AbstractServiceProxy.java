@@ -1,7 +1,6 @@
 package com.dianping.pigeon.remoting.invoker.proxy;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.registry.RegionManager;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
@@ -9,7 +8,9 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.InvokerBootStrap;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.exception.RegionException;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
+import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -24,8 +25,7 @@ public abstract class AbstractServiceProxy implements ServiceProxy {
     protected static Map<InvokerConfig<?>, Object> services = new ConcurrentHashMap<InvokerConfig<?>, Object>();
     protected Logger logger = LoggerLoader.getLogger(this.getClass());
 
-    private RegionManager regionManager = RegionManager.getInstance();
-
+    private final RegionPolicyManager regionPolicyManager = RegionPolicyManager.INSTANCE;
 
     @Override
     public void init() {
@@ -61,13 +61,12 @@ public abstract class AbstractServiceProxy implements ServiceProxy {
                 throw new RpcException("error while trying to get service:" + invokerConfig, t);
             }
 
-            //TODO 考虑这里开始添加动态监控region的任务
+            // setup region policy for service
             try {
-                if(regionManager.isEnableRegionAutoSwitch()) {
-                    regionManager.register(invokerConfig.getUrl());
-                }
+                regionPolicyManager.register(invokerConfig.getUrl(), invokerConfig.getGroup(),
+                        invokerConfig.getRegionPolicy());
             } catch (Throwable t) {
-                logger.warn("error while setup region manager: " + invokerConfig, t);
+                throw new RegionException("error while setup region route policy: " + invokerConfig, t);
             }
 
             try {

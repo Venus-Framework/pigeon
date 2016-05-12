@@ -9,6 +9,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.invoker.callback.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.route.region.Region;
 
 public interface Client {
 
@@ -45,5 +46,9 @@ public interface Client {
 	void dispose();
 	
 	String getProtocol();
+
+	Region getRegion();
+
+	void clearRegion();
 
 }
