@@ -29,6 +29,15 @@
 			<TimeBasedTriggeringPolicy interval="1"
 									   modulate="true" />
 		</RollingFile>
+		<!-- 暂时开启一个debug专用的文件appender-->
+		<RollingFile name ="ScanTaskFile"
+					 fileName="/data/applogs/pigeon-governor-server/scanTask.log"
+					 filePattern="/data/applogs/pigeon-governor-server/scanTask.log.%d{yyyy-MM-dd}.gz">
+			<PatternLayout
+				pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %class{36} %L %M - %msg%xEx%n" />
+			<TimeBasedTriggeringPolicy interval="1"
+									   modulate="true"/>
+		</RollingFile>
 	</Appenders>
 
 	<Loggers>
@@ -55,6 +64,10 @@
 		</Logger>
 		<Logger name="com.dianping.pigeon.governor.task" level="INFO" additivity="true">
 			<AppenderRef ref="TaskFile" level="INFO" />
+		</Logger>
+		<!--暂时将Bean中的部分包日志打印至控制台-->
+		<Logger name="com.dianping.pigeon.governor.bean.scanServiceDesc" level="INFO" additivity="true">
+			<AppenderRef ref = "ScanTaskFile" level="INFO" />
 		</Logger>
 	</Loggers>
 </Configuration>
