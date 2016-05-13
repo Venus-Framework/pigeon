@@ -311,9 +311,13 @@ public class ServiceController extends BaseController {
 
 	@RequestMapping(value = {"/services/oneClickOffGroup"}, method = {RequestMethod.GET, RequestMethod.POST})
 	@ResponseBody
-	public Result oneClickOffGroup(@RequestParam(value="group") final String group,
-							  @RequestParam(value="projectId") final int projectId,
+	public Result oneClickOffGroup(@RequestParam(value="group", required=true) final String group,
+							  @RequestParam(value="projectId", required=true) final int projectId,
 							  HttpServletRequest request) {
+		if(StringUtils.isBlank(group)) {
+			return Result.createErrorResult("危险操作！不允许一键删除默认泳道服务！");
+		}
+
 		boolean deleteResult = serviceService.deleteByGroup(projectId, group, true);
 
 		if( !deleteResult ) {
