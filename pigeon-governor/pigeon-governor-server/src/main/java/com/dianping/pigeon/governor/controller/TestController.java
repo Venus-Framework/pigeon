@@ -52,7 +52,7 @@ public class TestController {
         client =  registry.getCuratorClient();
     }
 
-    @RequestMapping(value = "dellocalip", method = {RequestMethod.POST})
+    @RequestMapping(value = "/betaonly/dellocalip", method = {RequestMethod.POST})
     @ResponseBody
     public Result dellocalip(@RequestParam(value="validate") final String validate) {
 
