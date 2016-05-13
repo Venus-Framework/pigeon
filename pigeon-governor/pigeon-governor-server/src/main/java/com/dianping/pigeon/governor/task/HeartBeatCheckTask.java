@@ -55,6 +55,7 @@ public class HeartBeatCheckTask extends Thread {
     private Map<String, Long> heartBeatsMap = new ConcurrentHashMap<String, Long>();
     private Map<ServiceWithGroup, Service> serviceGroupDbIndex = CheckAndSyncServiceDB.getServiceGroupDbIndex();
     private Map<String, Vector<ServiceWithGroup>> hostIndex = new ConcurrentHashMap<String, Vector<ServiceWithGroup>>();
+    private final static long pickOffHeartBeatNodeInternal = 28800000L;
 
     public HeartBeatCheckTask() {
         CuratorRegistry registry = (CuratorRegistry) RegistryManager.getInstance().getRegistry();
@@ -108,14 +109,8 @@ public class HeartBeatCheckTask extends Thread {
                 //获取ip对应服务列表
                 loadServiceList();
                 //检查心跳
-                for(String heartBeatKey : heartBeatsMap.keySet()) {
-                    if(startTime - heartBeatsMap.get(heartBeatKey) < checkInternal) {
-                        //heartbeat ok
-                    } else if (startTime - heartBeatsMap.get(heartBeatKey) > 3 * checkInternal) {
-                        //create a thread to take off service
-                        threadPoolTaskExecutor.submit(new DealHeartBeat(heartBeatKey));
-                    }
-                }
+                checkHeartBeats(startTime, checkInternal);
+
                 internal = refreshInternal - System.currentTimeMillis() + startTime;
             } catch (Throwable t) {
                 logger.error("check provider heart task error!", t);
@@ -167,7 +162,7 @@ public class HeartBeatCheckTask extends Thread {
             //刷新数据库
             refreshDb();
             Map<String, Vector<ServiceWithGroup>> tmp_hostIndex = new ConcurrentHashMap<String, Vector<ServiceWithGroup>>();
-            for (ServiceWithGroup serviceWithGroup : serviceGroupDbIndex.keySet()) {// TODO 怀疑这里根本没有拿到serviceGroupDbIndex
+            for (ServiceWithGroup serviceWithGroup : serviceGroupDbIndex.keySet()) {
                 Service serviceDb = serviceGroupDbIndex.get(serviceWithGroup);
                 String hosts = serviceDb.getHosts();
                 if(StringUtils.isNotBlank(hosts)) {
@@ -197,11 +192,24 @@ public class HeartBeatCheckTask extends Thread {
 
     }
 
+    private void checkHeartBeats(long startTime, long checkInternal) {
+        for(String heartBeatKey : heartBeatsMap.keySet()) {
+            if(startTime - heartBeatsMap.get(heartBeatKey) < checkInternal) {
+                //heartbeat ok
+            } else if (startTime - heartBeatsMap.get(heartBeatKey) > 3 * checkInternal) {
+                //create a thread to take off service
+                threadPoolTaskExecutor.submit(new DealHeartBeat(startTime, heartBeatKey));
+            }
+        }
+    }
+
     class DealHeartBeat implements Runnable {
 
+        private final long startTime;
         private final String host;
 
-        public DealHeartBeat(String host) {
+        public DealHeartBeat(long startTime, String host) {
+            this.startTime = startTime;
             this.host = host;
         }
 
@@ -209,7 +217,7 @@ public class HeartBeatCheckTask extends Thread {
         public void run() {
             try {
                 Vector<ServiceWithGroup> serviceWithGroupVec = hostIndex.get(host);
-                if(serviceWithGroupVec != null) { //TODO bugs 这里会出现null
+                if(serviceWithGroupVec != null) {
                     boolean deleteHeartBeatNode = false;
 
                     for(ServiceWithGroup serviceWithGroup : serviceWithGroupVec) {
@@ -256,7 +264,7 @@ public class HeartBeatCheckTask extends Thread {
                             }
                         } else {
                             logger.warn(host + " of " + serviceWithGroup + " is still alive");
-                            //TODO 告警心跳异常（即端口可通，心跳很久未更新）
+                            //TODO 告警心跳异常（即端口可通，心跳很久未更新，不正常）
                         }
                     }
                     // 确保host相关的所有service的ip都已经摘除干净，才能删除心跳节点，目前不好保证，先保留心跳节点吧
@@ -272,11 +280,17 @@ public class HeartBeatCheckTask extends Thread {
                         }
                     }*/
 
-                } else {
-                    // delete heartBeat nodes
-                    // TODO logs 存在一种情况，数据库中漏了，如果删了，心跳服务检测不到了，要么别删了，留着
-                    logger.warn("lonely heartbeat node: " + host + ", but maybe is a mistake!");
-                    //client.deleteIfExists("/DP/HEARTBEAT/" + host);
+                } else {// delete heartBeat nodes
+                    int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+                    if(startTime - heartBeatsMap.get(host) > pickOffHeartBeatNodeInternal
+                            && hour > 2 && hour < 6) { // 心跳失联时间超过8小时，且当前系统时间为凌晨3点到5点之间，摘除孤单心跳节点
+                        logger.warn("takeoff lonely heartbeat node: " + host);
+                        client.deleteIfExists("/DP/HEARTBEAT/" + host);
+                        String appname = client.get("/DP/APP/" + host, false);
+                        if(StringUtils.isNotBlank(appname)) {
+                            client.deleteIfExists("/DP/APPNAME/" + appname + "/" + host);
+                        }
+                    }
                 }
 
             } catch (Throwable t) {
@@ -348,5 +362,9 @@ public class HeartBeatCheckTask extends Thread {
             opLogService.create(opLog);
         }
 
+    }
+
+    public static void main(String[] args) {
+        System.out.println(Calendar.getInstance().get(Calendar.HOUR_OF_DAY));
     }
 }
