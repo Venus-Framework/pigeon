@@ -242,27 +242,28 @@ public class HeartBeatCheckTask extends Thread {
                                 service.setHosts(hosts);
                                 serviceService.updateById(service);
 
-                                deleteHeartBeatNode = true;
                                 logger.warn("delete " + host + " from " + serviceWithGroup);
+                                threadPoolTaskExecutor.submit(
+                                        new LogOpRun(OpType.PICK_OFF_PROVIDER_HEARTBEAT, "delete " + host + " from " + serviceWithGroup));
                             }
                         } else {
                             logger.warn(host + " of " + serviceWithGroup + " is still alive");
                             //TODO 告警心跳异常（即端口可通，心跳很久未更新）
                         }
                     }
+                    // 确保host相关的所有service的ip都已经摘除干净，才能删除心跳节点，目前不好保证，先保留心跳节点吧
+                    // TODO 或者定期清理三个月以前的心跳
+                    // deleteHeartBeatNode = true;
 
-                    if(deleteHeartBeatNode) {
+                    /*if(deleteHeartBeatNode) {
                         // delete heartBeat nodes
                         client.deleteIfExists("/DP/HEARTBEAT/" + host);
                         String appname = client.get("/DP/APP/" + host, false);
                         if(StringUtils.isNotBlank(appname)) {
                             client.deleteIfExists("/DP/APPNAME/" + appname + "/" + host);
                         }
-                        // 记录摘除日志
-                        threadPoolTaskExecutor.submit(
-                                new LogOpRun(OpType.PICK_OFF_PROVIDER_HEARTBEAT, "delete " + host + " from related services", appname));
-                        //TODO 告警服务摘除
-                    }
+                    }*/
+
                 } else {
                     // delete heartBeat nodes
                     // TODO logs 存在一种情况，数据库中漏了，如果删了，心跳服务检测不到了，要么别删了，留着
@@ -320,14 +321,11 @@ public class HeartBeatCheckTask extends Thread {
 
         private final OpType opType;
         private final String content;
-        private final String appname;
 
         private LogOpRun(OpType opType,
-                         String content,
-                         String appname) {
+                         String content) {
             this.opType = opType;
             this.content = content;
-            this.appname = appname;
         }
 
         @Override
@@ -335,13 +333,6 @@ public class HeartBeatCheckTask extends Thread {
             String reqIp = IPUtils.getFirstNoLoopbackIP4Address();
             OpLog opLog = new OpLog();
             opLog.setDpaccount(reqIp);
-
-            Project project = projectService.findProject(appname);
-            if(project == null) {
-                project = projectService.createProject(appname, false);
-            }
-
-            opLog.setProjectid(project.getId());
             opLog.setReqip(reqIp);
             opLog.setOptime(new Date());
             opLog.setContent(content);
