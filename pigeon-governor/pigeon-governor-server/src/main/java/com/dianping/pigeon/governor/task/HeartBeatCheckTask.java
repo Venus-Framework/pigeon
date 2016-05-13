@@ -214,19 +214,27 @@ public class HeartBeatCheckTask extends Thread {
 
                     for(ServiceWithGroup serviceWithGroup : serviceWithGroupVec) {
                         String serviceName = serviceWithGroup.getService();
+                        String group = serviceWithGroup.getGroup();
                         String service_zk = Utils.escapeServiceName(serviceName);
                         Service service = serviceGroupDbIndex.get(serviceWithGroup);
 
                         // 服务只剩一个host不摘除
                         if(!isPortAvailable(host)) {
                             /* 这里拉数据库的话可能导致缓存的数据和zk不一致，
-                            直接更新zk导致有的host没写上去，所以注释掉，直接拉zk */
-                            /*String[] hostArr = service.getHosts().split(",");*/
-                            String hosts_zk = client.get("/DP/SERVER/" + service_zk, false);
+                            直接更新zk导致有的host没写上去，所以直接拉zk */
+                            String serviceHostAddress = "/DP/SERVER/" + service_zk;
+
+                            if(StringUtils.isNotBlank(group)){
+                                serviceHostAddress = serviceHostAddress + "/" + group;
+                            }
+
+                            String hosts_zk = client.get(serviceHostAddress, false);
+
                             if(hosts_zk == null) {
-                                logger.warn("no node exists in zk: " + service_zk);
+                                logger.warn("no data exists in zk: " + serviceWithGroup);
                                 return;
                             }
+
                             String[] hostArr = hosts_zk.split(",");
                             HashSet<String> set = new HashSet<String>();
                             set.addAll(Arrays.asList(hostArr));
@@ -237,7 +245,7 @@ public class HeartBeatCheckTask extends Thread {
                                 logger.warn(host + " num of " + serviceWithGroup + " is less than min: " + minProviderHeartbeat);
                             } else { // 摘除心跳
                                 String hosts = StringUtils.join(set, ",");
-                                client.set("/DP/SERVER/" + service_zk, hosts);
+                                client.set(serviceHostAddress, hosts);
                                 //update database
                                 service.setHosts(hosts);
                                 serviceService.updateById(service);
