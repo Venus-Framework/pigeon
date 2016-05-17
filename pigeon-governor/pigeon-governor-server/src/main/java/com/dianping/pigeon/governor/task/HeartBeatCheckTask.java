@@ -248,10 +248,14 @@ public class HeartBeatCheckTask extends Thread {
                             set.addAll(Arrays.asList(hostArr));
                             set.remove(host);
 
-                            int minProviderHeartbeat = Integer.parseInt(ConfigHolder.get(LionKeys.MIN_PROVIDER_HEARTBEAT, "2"));
-                            if (set.size() < minProviderHeartbeat) { // 小于摘除阈值，保留
-                                logger.warn(host + " num of " + serviceWithGroup + " is less than min: " + minProviderHeartbeat);
-                            } else { // 摘除心跳
+
+                            int minProviderHeartbeat = Integer.parseInt(
+                                    ConfigHolder.get(LionKeys.MIN_PROVIDER_HEARTBEAT, "2"));
+                            int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+                            // 摘除心跳条件：不满足最小阈值条件时，判断心跳失联时间超过8小时，且当前系统时间为凌晨3点到5点之间，摘除
+                            if (set.size() >= minProviderHeartbeat
+                                    || (startTime - heartBeatsMap.get(host) > pickOffHeartBeatNodeInternal
+                                            && hour > 2 && hour < 6) ) { // 摘除心跳
                                 String hosts = StringUtils.join(set, ",");
                                 client.set(serviceHostAddress, hosts);
                                 //update database
@@ -259,26 +263,18 @@ public class HeartBeatCheckTask extends Thread {
                                 serviceService.updateById(service);
 
                                 logger.warn("delete " + host + " from " + serviceWithGroup);
-                                threadPoolTaskExecutor.submit(
-                                        new LogOpRun(OpType.PICK_OFF_PROVIDER_HEARTBEAT, "delete " + host + " from " + serviceWithGroup));
+                                threadPoolTaskExecutor.submit(new LogOpRun(OpType.PICK_OFF_PROVIDER_HEARTBEAT,
+                                        "delete " + host + " from " + serviceWithGroup));
+
+                            } else { // 保留
+                                logger.warn(host + " num of " + serviceWithGroup
+                                        + " is less than min: " + minProviderHeartbeat);
                             }
                         } else {
                             logger.warn(host + " of " + serviceWithGroup + " is still alive");
                             //TODO 告警心跳异常（即端口可通，心跳很久未更新，不正常）
                         }
                     }
-                    // 确保host相关的所有service的ip都已经摘除干净，才能删除心跳节点，目前不好保证，先保留心跳节点吧
-                    // TODO 或者定期清理三个月以前的心跳
-                    // deleteHeartBeatNode = true;
-
-                    /*if(deleteHeartBeatNode) {
-                        // delete heartBeat nodes
-                        client.deleteIfExists("/DP/HEARTBEAT/" + host);
-                        String appname = client.get("/DP/APP/" + host, false);
-                        if(StringUtils.isNotBlank(appname)) {
-                            client.deleteIfExists("/DP/APPNAME/" + appname + "/" + host);
-                        }
-                    }*/
 
                 } else {// delete heartBeat nodes
                     int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
