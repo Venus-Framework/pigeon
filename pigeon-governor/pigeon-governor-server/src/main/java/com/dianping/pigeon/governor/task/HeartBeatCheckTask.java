@@ -321,7 +321,7 @@ public class HeartBeatCheckTask extends Thread {
             socket.connect(sa, 2000);
             return socket.isConnected();
         } catch (IOException e) {
-            logger.warn(host + " socket read failed!", e);
+            logger.warn(host + " socket read failed!");
             return false;
         } finally {
             if (socket != null) {
