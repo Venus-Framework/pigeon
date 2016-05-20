@@ -3,6 +3,8 @@ package com.dianping.pigeon.governor.task;
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Transaction;
 import com.dianping.lion.client.Lion;
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.governor.bean.ServiceWithGroup;
 import com.dianping.pigeon.governor.exception.DbException;
 import com.dianping.pigeon.governor.lion.ConfigHolder;
@@ -51,6 +53,8 @@ public class HeartBeatCheckTask extends Thread {
     private ProjectService projectService;
 
     private CuratorClient client;
+
+    private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
     private Map<String, Long> heartBeatsMap = new ConcurrentHashMap<String, Long>();
     private Map<ServiceWithGroup, Service> serviceGroupDbIndex = CheckAndSyncServiceDB.getServiceGroupDbIndex();
@@ -253,7 +257,7 @@ public class HeartBeatCheckTask extends Thread {
                                     ConfigHolder.get(LionKeys.MIN_PROVIDER_HEARTBEAT, "2"));
                             int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
                             // 摘除心跳条件：不满足最小阈值条件时，判断心跳失联时间超过8小时，且当前系统时间为凌晨3点到5点之间，摘除
-                            if (set.size() >= minProviderHeartbeat
+                            if (set.size() >= minProviderHeartbeat || "qa".equals(configManager.getEnv())
                                     || (startTime - heartBeatsMap.get(host) > pickOffHeartBeatNodeInternal
                                             && hour > 2 && hour < 6) ) { // 摘除心跳
                                 String hosts = StringUtils.join(set, ",");
