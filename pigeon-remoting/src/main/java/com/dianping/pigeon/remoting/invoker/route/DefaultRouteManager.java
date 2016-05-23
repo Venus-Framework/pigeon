@@ -109,7 +109,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	public List<Client> getAvailableClients(List<Client> clientList, InvokerConfig<?> invokerConfig,
 			InvocationRequest request) {
 
-		if(!regionPolicyManager.isEnableRegionPolicy()) {
+		if(regionPolicyManager.isEnableRegionPolicy()) {
 			clientList = regionPolicyManager.getPreferRegionClients(clientList, invokerConfig);
 		} else {
 			clientList = requestQualityManager.getQualityPreferClients(clientList, request);
