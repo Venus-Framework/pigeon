@@ -7,6 +7,7 @@ package com.dianping.pigeon.remoting.invoker.route;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +35,11 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 
 	private static final Logger logger = LoggerLoader.getLogger(DefaultRouteManager.class);
 
+	public final static DefaultRouteManager INSTANCE = new DefaultRouteManager();
+
 	private final RegionPolicyManager regionPolicyManager = RegionPolicyManager.INSTANCE;
+
+	private final RequestQualityManager requestQualityManager = RequestQualityManager.INSTANCE;
 
 	private static final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
@@ -48,7 +53,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	private static boolean isWriteBufferLimit = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT, Constants.DEFAULT_WRITE_BUFF_LIMIT);
 
-	public DefaultRouteManager() {
+	private DefaultRouteManager() {
 		RegistryEventListener.addListener(providerChangeListener);
 		if (enablePreferAddresses) {
 			preferAddresses = new ArrayList<String>();
@@ -94,7 +99,8 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	}
 
 	/**
-	 * 按照权重、分组、region规则过滤客户端选择
+	 * 按照权重、分组、region规则、服务质量过滤客户端选择
+	 * 加入对oneway调用模式的优化判断
 	 * @param clientList
 	 * @param invokerConfig
 	 * @param request
@@ -102,7 +108,13 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	 */
 	public List<Client> getAvailableClients(List<Client> clientList, InvokerConfig<?> invokerConfig,
 			InvocationRequest request) {
-		clientList = regionPolicyManager.getPreferRegionClients(clientList, invokerConfig);
+
+		if(!regionPolicyManager.isEnableRegionPolicy()) {
+			clientList = regionPolicyManager.getPreferRegionClients(clientList, invokerConfig);
+		} else {
+			clientList = requestQualityManager.getQualityPreferClients(clientList, request);
+		}
+
 		boolean isWriteLimit = isWriteBufferLimit && request.getCallType() == Constants.CALLTYPE_NOREPLY;
 		List<Client> filteredClients = new ArrayList<Client>(clientList.size());
 		boolean existClientBuffToLimit = false;

@@ -32,12 +32,12 @@ public enum RegionPolicyManager {
     public void init() {
         register(AutoSwitchRegionPolicy.NAME, null, AutoSwitchRegionPolicy.INSTANCE);
         register(WeightBasedRegionPolicy.NAME, null, WeightBasedRegionPolicy.INSTANCE);
-        configManager.registerConfigChangeListener(new InnerConfigChangeListener());
-        if(enableRegionPolicy) {
+        if(configManager.getBooleanValue(KEY_ENABLEREGIONPOLICY, DEFAULT_ENABLEREGIONPOLICY)) {
             initRegionsConfig();
         } else {
-            logger.warn("Region route policy switch off!");
+            logger.warn("Region policy is disabled!");
         }
+        configManager.registerConfigChangeListener(new InnerConfigChangeListener());
     }
 
     private final Monitor monitor = MonitorLoader.getMonitor();
@@ -47,7 +47,8 @@ public enum RegionPolicyManager {
     private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
     // 自动切换region的开关
-    private volatile boolean enableRegionPolicy = configManager.getBooleanValue("pigeon.regions.enable", false);
+    private final String KEY_ENABLEREGIONPOLICY = "pigeon.regions.enable";
+    private final boolean DEFAULT_ENABLEREGIONPOLICY = false;
     private volatile boolean isInit = false;
 
     // example: 10.66 --> region1
@@ -68,10 +69,6 @@ public enum RegionPolicyManager {
     }
 
     public List<Client> getPreferRegionClients(List<Client> clientList, InvokerConfig<?> invokerConfig) {
-        if(!isEnableRegionPolicy()) {// region策略开关关闭时不处理
-            return clientList;
-        }
-
         RegionPolicy regionPolicy = getRegionPolicy(invokerConfig);
 
         if(regionPolicy == null) {
@@ -151,19 +148,15 @@ public enum RegionPolicyManager {
 
         @Override
         public void onKeyUpdated(String key, String value) {
-            if (key.endsWith("pigeon.regions.enable")) {
-                boolean _enableRegionPolicy = Boolean.valueOf(value);
+            if (key.endsWith(KEY_ENABLEREGIONPOLICY)) {
 
-                if(enableRegionPolicy != _enableRegionPolicy) { // region路由开关改变
-                    enableRegionPolicy = _enableRegionPolicy;
-                    if(enableRegionPolicy) { // region路由开,重新读取配置
-                        // 清空allClient region信息
-                        clearRegion();
-                        initRegionsConfig();
-                    } else { // region路由关
-                        isInit = false;
-                        logger.warn("Region auto switch off!");
-                    }
+                if(Boolean.valueOf(value)) { // region路由开,重新读取配置
+                    // 清空allClient region信息
+                    clearRegion();
+                    initRegionsConfig();
+                } else { // region路由关
+                    isInit = false;
+                    logger.warn("Region policy is disabled!");
                 }
             }
         }
@@ -190,7 +183,7 @@ public enum RegionPolicyManager {
     }
 
     public boolean isEnableRegionPolicy() {
-        return enableRegionPolicy && isInit;
+        return configManager.getBooleanValue(KEY_ENABLEREGIONPOLICY, DEFAULT_ENABLEREGIONPOLICY) && isInit;
     }
 
     private synchronized void initRegionsConfig() {
@@ -203,8 +196,7 @@ public enum RegionPolicyManager {
             int regionCount = regionConfigs.length;
 
             if(regionCount <= 0) {
-                logger.error("Error! Set [enableRegionPolicy] to false! Please check regions config!");
-                enableRegionPolicy = false;
+                logger.error("Error! Region policy is disabled! Please check regions config!");
                 return ;
             }
 
@@ -231,8 +223,7 @@ public enum RegionPolicyManager {
                 if(regionSet.size() == regions.size()) {
                     for(Region region : regions) {
                         if(!regionSet.contains(region.getName())) {
-                            logger.error("Error! Set [enableRegionPolicy] to false! regions prefer not match regions config: " + region.getName());
-                            enableRegionPolicy = false;
+                            logger.error("Error! Region policy is disabled! regions prefer not match regions config: " + region.getName());
                             return;
                         }
                     }
@@ -242,16 +233,13 @@ public enum RegionPolicyManager {
                     isInit = true;
                     logger.warn("Region route policy switch on! Local region is: " + regionArray.get(0));
                 } else {
-                    logger.error("Error! Set [enableRegionPolicy] to false! regions prefer counts not match regions config!");
-                    enableRegionPolicy = false;
+                    logger.error("Error! Region policy is disabled! regions prefer counts not match regions config!");
                 }
             } else {
-                logger.error("Error! Set [enableRegionPolicy] to false! Can't init local region: " + configManager.getLocalIp());
-                enableRegionPolicy = false;
+                logger.error("Error! Region policy is disabled! Can't init local region: " + configManager.getLocalIp());
             }
         } catch (Throwable t) {
-            logger.error("Error! Set [enableRegionPolicy] to false!", t);
-            enableRegionPolicy = false;
+            logger.error("Error! Region policy is disabled!", t);
         }
     }
 

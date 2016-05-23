@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
@@ -224,6 +225,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 			throw e;
 		} finally {
 			addRequest(context, failed, false);
+			RequestQualityManager.INSTANCE.addClientRequest(context, failed);
 		}
 	}
 
@@ -270,7 +272,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 			}
 			Count count = secondCount.get(currentSecond);
 			if (count == null) {
-				count = new Count(1, failed ? 1 : 0, degraded ? 1 : 0);
+				count = new Count(0, 0, 0);
 				Count last = secondCount.putIfAbsent(currentSecond, count);
 				if (last != null) {
 					count = last;
@@ -497,6 +499,21 @@ public class DegradationFilter extends InvocationInvokeFilter {
 				}
 			}
 			requestCountMap = countMap;
+
+			// 复用降级统计和清空的线程，用于服务质量统计和清空（窗口默认为10秒）
+			ConcurrentHashMap<String, ConcurrentHashMap<Integer, ConcurrentHashMap<String, RequestQualityManager.Quality>>>
+					addrSecondReqUrlQualities = RequestQualityManager.INSTANCE.getAddrSecondReqUrlQualities();
+			ConcurrentHashMap<String, ConcurrentHashMap<String, RequestQualityManager.Quality>>
+					addrReqUrlQualities = new ConcurrentHashMap<String, ConcurrentHashMap<String, RequestQualityManager.Quality>>();
+
+			for(String address : addrSecondReqUrlQualities.keySet()) {
+				ConcurrentHashMap<Integer, ConcurrentHashMap<String, RequestQualityManager.Quality>>
+						secondReqUrlQualities = addrSecondReqUrlQualities.get(address);
+
+			}
+
+
+			RequestQualityManager.INSTANCE.setAddrReqUrlQualities(addrReqUrlQualities);
 		}
 
 	}

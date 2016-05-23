@@ -12,6 +12,7 @@ import com.dianping.pigeon.remoting.invoker.ClientSelector;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
+import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 import com.dianping.pigeon.util.CollectionUtils;
 import com.dianping.pigeon.util.ThreadPoolUtils;
@@ -182,6 +183,7 @@ public class DefaultClusterListener implements ClusterListener {
 			if (!isClientInUse(clientFound)) {
 				removeClientFromReconnectTask(clientFound);
 				allClients.remove(clientFound.getAddress());
+				RequestQualityManager.INSTANCE.removeClientQualities(clientFound.getAddress());
 				closeClientInFuture(clientFound);
 			}
 		}
