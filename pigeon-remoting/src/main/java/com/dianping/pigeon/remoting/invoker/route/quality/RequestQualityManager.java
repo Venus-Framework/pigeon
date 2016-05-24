@@ -149,6 +149,10 @@ public enum RequestQualityManager {
         return clientList;
     }
 
+    public boolean isEnableRequestQualityRoute() {
+        return configManager.getBooleanValue(KEY_REQUEST_QUALITY_AUTO, false);
+    }
+
     public static class Quality {
 
         private RequrlQuality quality = RequrlQuality.REQURL_QUALITY_GOOD;
