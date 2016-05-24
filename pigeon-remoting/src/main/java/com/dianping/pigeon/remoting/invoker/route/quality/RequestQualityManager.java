@@ -5,9 +5,9 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,19 +25,15 @@ public enum RequestQualityManager {
 
     private static final String KEY_REQUEST_QUALITY_AUTO = "pigeon.invoker.request.quality.auto";
 
-    private static int REQURL_QUALITY_GOOD = 0;
-    private static int REQURL_QUALITY_NORNAL = 1;
-    private static int REQURL_QUALITY_BAD = 2;
-
-    // hosts --> second --> ( requestUrl:serviceName#method --> { total, failed } )
-    private ConcurrentHashMap<String, ConcurrentHashMap<Integer, ConcurrentHashMap<String, Quality>>>
-            addrSecondReqUrlQualities = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, ConcurrentHashMap<String, Quality>>>();
+    // hosts --> ( requestUrl:serviceName#method --> second --> { total, failed } )
+    private ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Integer, Quality>>>
+            addrReqUrlSecondQualities = new ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Integer, Quality>>>();
 
     // hosts --> ( requestUrl:serviceName#method --> { total, failed } )
     private volatile ConcurrentHashMap<String, ConcurrentHashMap<String, Quality>> addrReqUrlQualities = null;
 
-    public ConcurrentHashMap<String, ConcurrentHashMap<Integer, ConcurrentHashMap<String, Quality>>> getAddrSecondReqUrlQualities() {
-        return addrSecondReqUrlQualities;
+    public ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Integer, Quality>>> getAddrReqUrlSecondQualities() {
+        return addrReqUrlSecondQualities;
     }
 
     public ConcurrentHashMap<String, ConcurrentHashMap<String, Quality>> getAddrReqUrlQualities() {
@@ -52,32 +48,32 @@ public enum RequestQualityManager {
         if(configManager.getBooleanValue(KEY_REQUEST_QUALITY_AUTO, false)) {
 
             String address = context.getClient().getAddress();
-            ConcurrentHashMap<Integer, ConcurrentHashMap<String, Quality>>
-                    secondRequestQuality = addrSecondReqUrlQualities.get(address);
-            if (secondRequestQuality == null) {
-                secondRequestQuality = new ConcurrentHashMap<Integer, ConcurrentHashMap<String, Quality>>();
-                ConcurrentHashMap<Integer, ConcurrentHashMap<String, Quality>>
-                        last = addrSecondReqUrlQualities.putIfAbsent(address, secondRequestQuality);
+            ConcurrentHashMap<String, ConcurrentHashMap<Integer, Quality>>
+                    requestSecondQuality = addrReqUrlSecondQualities.get(address);
+            if (requestSecondQuality == null) {
+                requestSecondQuality = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, Quality>>();
+                ConcurrentHashMap<String, ConcurrentHashMap<Integer, Quality>>
+                        last = addrReqUrlSecondQualities.putIfAbsent(address, requestSecondQuality);
                 if (last != null) {
-                    secondRequestQuality = last;
-                }
-            }
-
-            int currentSecond = Calendar.getInstance().get(Calendar.SECOND);
-            ConcurrentHashMap<String, Quality> requestQuality = secondRequestQuality.get(currentSecond);
-            if (requestQuality == null) {
-                requestQuality = new ConcurrentHashMap<String, Quality>();
-                ConcurrentHashMap<String, Quality> last = secondRequestQuality.putIfAbsent(currentSecond, requestQuality);
-                if (last != null) {
-                    requestQuality = last;
+                    requestSecondQuality = last;
                 }
             }
 
             String requestUrl = getRequestUrl(context);
-            Quality quality = requestQuality.get(requestUrl);
+            ConcurrentHashMap<Integer, Quality> secondQuality = requestSecondQuality.get(requestUrl);
+            if (secondQuality == null) {
+                secondQuality = new ConcurrentHashMap<Integer, Quality>();
+                ConcurrentHashMap<Integer, Quality> last = requestSecondQuality.putIfAbsent(requestUrl, secondQuality);
+                if (last != null) {
+                    secondQuality = last;
+                }
+            }
+
+            int currentSecond = Calendar.getInstance().get(Calendar.SECOND);
+            Quality quality = secondQuality.get(currentSecond);
             if(quality == null) {
                 quality = new Quality(0, 0);
-                Quality last = requestQuality.putIfAbsent(requestUrl, quality);
+                Quality last = secondQuality.putIfAbsent(currentSecond, quality);
                 if(last != null) {
                     quality = last;
                 }
@@ -91,7 +87,7 @@ public enum RequestQualityManager {
     }
 
     public void removeClientQualities(String address) {
-        addrSecondReqUrlQualities.remove(address);
+        addrReqUrlSecondQualities.remove(address);
     }
 
     private String getRequestUrl(InvokerContext context) {
@@ -103,17 +99,59 @@ public enum RequestQualityManager {
     }
 
     public List<Client> getQualityPreferClients(List<Client> clientList, InvocationRequest request) {
-        String requestUrl = getRequestUrl(request);
+        // 筛选good，normal，bad clients
+        // 直接进行服务质量路由,先只保留服务质量good的，如果不够（比如少于1个），加入服务质量normal+bad的
+        if (!CollectionUtils.isEmpty(addrReqUrlQualities)) {
+            String requestUrl = getRequestUrl(request);
 
-        //TODO 筛选good，normal，bad clients
-        //TODO 直接进行服务质量路由,先只保留服务质量good的，如果不够（比如少于1个），加入服务质量normal+bad的
+            Map<RequrlQuality, List<Client>> filterQualityClientsMap = new HashMap<RequrlQuality, List<Client>>();
+            for(RequrlQuality reqQuality : RequrlQuality.values()) {
+                filterQualityClientsMap.put(reqQuality, new ArrayList<Client>());
+            }
+
+            for(Client client : clientList) {
+                if(addrReqUrlQualities.containsKey(client.getAddress())) {
+                    ConcurrentHashMap<String, Quality> reqUrlQualities = addrReqUrlQualities.get(client.getAddress());
+                    if(reqUrlQualities.containsKey(requestUrl)) {
+                        Quality quality = reqUrlQualities.get(requestUrl);
+
+                        switch (quality.getQuality()) {
+                            case REQURL_QUALITY_GOOD:
+                                filterQualityClientsMap.get(RequrlQuality.REQURL_QUALITY_GOOD).add(client);
+                                break;
+                            case REQURL_QUALITY_NORNAL:
+                                filterQualityClientsMap.get(RequrlQuality.REQURL_QUALITY_NORNAL).add(client);
+                                break;
+                            case REQURL_QUALITY_BAD:
+                                filterQualityClientsMap.get(RequrlQuality.REQURL_QUALITY_BAD).add(client);
+                                break;
+                            default:
+                                // never be here
+                                break;
+                        }
+                    }
+                }
+            }
+
+            //TODO 最小可用节点阈值动态获取
+            List<Client> filterQualityClients = new ArrayList<Client>();
+            filterQualityClients.addAll(filterQualityClientsMap.get(RequrlQuality.REQURL_QUALITY_GOOD));
+
+            if(filterQualityClients.size() < 0.5f * clientList.size()) {
+                filterQualityClients.addAll(filterQualityClientsMap.get(RequrlQuality.REQURL_QUALITY_NORNAL));
+            }
+
+            if(filterQualityClients.size() >= 0.5f * clientList.size()) {
+                return filterQualityClients;
+            }
+        }
 
         return clientList;
     }
 
     public static class Quality {
 
-        private int quality = REQURL_QUALITY_GOOD;
+        private RequrlQuality quality = RequrlQuality.REQURL_QUALITY_GOOD;
         private AtomicInteger failed = new AtomicInteger();
         private AtomicInteger total = new AtomicInteger();
 
@@ -159,27 +197,48 @@ public enum RequestQualityManager {
         public void clear() {
             total.set(0);
             failed.set(0);
-            quality = REQURL_QUALITY_GOOD;
+            quality = RequrlQuality.REQURL_QUALITY_GOOD;
         }
 
-        public int getQuality() {
+        public RequrlQuality getQuality() {
             float failedRate = getFailedPercent();
 
+            //TODO 筛选边界动态获取
             if(failedRate < 1) {
-                quality = REQURL_QUALITY_GOOD;
+                quality = RequrlQuality.REQURL_QUALITY_GOOD;
             } else if(failedRate >= 1 && failedRate < 5) {
-                quality = REQURL_QUALITY_NORNAL;
+                quality = RequrlQuality.REQURL_QUALITY_NORNAL;
             } else if(failedRate >=5 ) {
-                quality = REQURL_QUALITY_BAD;
+                quality = RequrlQuality.REQURL_QUALITY_BAD;
             }
 
             return quality;
+        }
+
+        public int getQualityValue() {
+            return getQuality().getValue();
+        }
+    }
+
+    private enum RequrlQuality {
+        REQURL_QUALITY_GOOD(0),
+        REQURL_QUALITY_NORNAL(1),
+        REQURL_QUALITY_BAD(2);
+
+        private int value;
+
+        private RequrlQuality(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
         }
     }
 
     public static void main(String[] args) {
         Quality quality = new Quality(105, 1);
-        System.out.println(quality.getQuality());
+        System.out.println(quality.getQualityValue());
         final ConcurrentHashMap<String, ConcurrentHashMap<String, Quality>> addrReqUrlQualities = new ConcurrentHashMap<String, ConcurrentHashMap<String, Quality>>();
         new Thread() {
             @Override
