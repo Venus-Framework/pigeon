@@ -98,7 +98,7 @@ public enum RequestQualityManager {
         return request.getServiceName() + "#" + request.getMethodName();
     }
 
-    public List<Client> getQualityPreferClients(List<Client> clientList, InvocationRequest request) {
+    public List<Client> getQualityPreferClients(List<Client> clientList, InvocationRequest request, float leastFilterRatio) {
         // 筛选good，normal，bad clients
         // 直接进行服务质量路由,先只保留服务质量good的，如果不够（比如少于1个），加入服务质量normal+bad的
         if (!CollectionUtils.isEmpty(addrReqUrlQualities)) {
@@ -133,15 +133,15 @@ public enum RequestQualityManager {
                 }
             }
 
-            //TODO 最小可用节点阈值动态获取
             List<Client> filterQualityClients = new ArrayList<Client>();
             filterQualityClients.addAll(filterQualityClientsMap.get(RequrlQuality.REQURL_QUALITY_GOOD));
 
-            if(filterQualityClients.size() < 0.5f * clientList.size()) {
+            float least = leastFilterRatio * clientList.size();
+            if(filterQualityClients.size() < least) {
                 filterQualityClients.addAll(filterQualityClientsMap.get(RequrlQuality.REQURL_QUALITY_NORNAL));
             }
 
-            if(filterQualityClients.size() >= 0.5f * clientList.size()) {
+            if(filterQualityClients.size() >= least) {
                 return filterQualityClients;
             }
         }

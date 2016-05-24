@@ -6,6 +6,7 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -68,14 +69,15 @@ public enum RegionPolicyManager {
         }
     }
 
-    public List<Client> getPreferRegionClients(List<Client> clientList, InvokerConfig<?> invokerConfig) {
+    public List<Client> getPreferRegionClients(List<Client> clientList, InvokerConfig<?> invokerConfig,
+                                               InvocationRequest request) {
         RegionPolicy regionPolicy = getRegionPolicy(invokerConfig);
 
         if(regionPolicy == null) {
             regionPolicy = AutoSwitchRegionPolicy.INSTANCE;
         }
 
-        clientList = regionPolicy.getPreferRegionClients(clientList, invokerConfig);
+        clientList = regionPolicy.getPreferRegionClients(clientList, request);
         checkClientsNotNull(clientList, invokerConfig);
         monitor.logEvent("PigeonCall.region", clientList.get(0).getRegion().getName(), "");
 

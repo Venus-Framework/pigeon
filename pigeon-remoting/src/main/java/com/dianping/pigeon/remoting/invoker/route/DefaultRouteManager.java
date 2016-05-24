@@ -7,6 +7,7 @@ package com.dianping.pigeon.remoting.invoker.route;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import org.apache.commons.lang.StringUtils;
@@ -40,6 +41,8 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	private final RegionPolicyManager regionPolicyManager = RegionPolicyManager.INSTANCE;
 
 	private final RequestQualityManager requestQualityManager = RequestQualityManager.INSTANCE;
+
+	private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
@@ -110,9 +113,10 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 			InvocationRequest request) {
 
 		if (regionPolicyManager.isEnableRegionPolicy()) {
-			clientList = regionPolicyManager.getPreferRegionClients(clientList, invokerConfig);
+			clientList = regionPolicyManager.getPreferRegionClients(clientList, invokerConfig, request);
 		} else if (requestQualityManager.isEnableRequestQualityRoute()) {
-			clientList = requestQualityManager.getQualityPreferClients(clientList, request);
+			float leastFilterRatio = configManager.getFloatValue("pigeon.invoker.quality.leastratio", 0.5f);
+			clientList = requestQualityManager.getQualityPreferClients(clientList, request, leastFilterRatio);
 		}
 
 		boolean isWriteLimit = isWriteBufferLimit && request.getCallType() == Constants.CALLTYPE_NOREPLY;

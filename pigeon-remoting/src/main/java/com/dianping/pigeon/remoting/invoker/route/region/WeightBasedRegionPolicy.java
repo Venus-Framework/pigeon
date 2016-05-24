@@ -1,7 +1,7 @@
 package com.dianping.pigeon.remoting.invoker.route.region;
 
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.exception.RegionException;
 
 import java.util.*;
@@ -22,7 +22,7 @@ public class WeightBasedRegionPolicy implements RegionPolicy {
     private Random random = new Random();
 
     @Override
-    public List<Client> getPreferRegionClients(List<Client> clientList, InvokerConfig<?> invokerConfig) {
+    public List<Client> getPreferRegionClients(List<Client> clientList, InvocationRequest request) {
         return getRegionActiveClients(clientList);
     }
 

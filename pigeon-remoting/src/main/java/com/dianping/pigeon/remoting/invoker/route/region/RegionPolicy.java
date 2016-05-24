@@ -1,7 +1,7 @@
 package com.dianping.pigeon.remoting.invoker.route.region;
 
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
 import java.util.List;
 
@@ -10,5 +10,5 @@ import java.util.List;
  */
 public interface RegionPolicy {
 
-    public List<Client> getPreferRegionClients(List<Client> clientList, InvokerConfig<?> invokerConfig);
+    public List<Client> getPreferRegionClients(List<Client> clientList, InvocationRequest request);
 }
