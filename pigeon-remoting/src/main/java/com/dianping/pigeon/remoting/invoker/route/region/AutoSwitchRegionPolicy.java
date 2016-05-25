@@ -65,22 +65,22 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
         for (Region region : regionPolicyManager.getRegionArray()) {// 优先级大小按数组大小排列
             try {
                 InnerRegionStat regionStat = regionStats.get(region);
-
-                float least = configManager.getFloatValue("pigeon.regions.switchratio", 0.5f) * regionStat.getTotal();
+                int total = regionStat.getTotal();
                 int active = regionStat.getActive();
-                if (regionStat.getTotal() > 0 && active > 0 && active >= least) {
+                List<Client> regionClientList = regionStat.getClientList();
+                float least = configManager.getFloatValue("pigeon.regions.switchratio", 0.5f) * total;
+
+                if (total > 0 && active > 0 && active >= least) {
                     if (requestQualityManager.isEnableRequestQualityRoute()) {
-                        float leastFilterRatio = least / active;
                         List<Client> filterClients = requestQualityManager.getQualityPreferClients(
-                                regionStat.getClientList(), request, leastFilterRatio);
+                                regionClientList, request, least);
                         if (filterClients.size() >= least) {
                             return filterClients;
                         }
                     } else {
-                        return regionStat.getClientList();
+                        return regionClientList;
                     }
                 }
-
 
             } catch (Throwable t) {
                 logger.error(t);

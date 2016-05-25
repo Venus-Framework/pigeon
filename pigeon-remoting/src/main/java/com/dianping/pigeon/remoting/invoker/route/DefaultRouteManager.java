@@ -113,10 +113,18 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 			InvocationRequest request) {
 
 		if (regionPolicyManager.isEnableRegionPolicy()) {
+
 			clientList = regionPolicyManager.getPreferRegionClients(clientList, invokerConfig, request);
+
 		} else if (requestQualityManager.isEnableRequestQualityRoute()) {
-			float leastFilterRatio = configManager.getFloatValue("pigeon.invoker.quality.leastratio", 0.5f);
-			clientList = requestQualityManager.getQualityPreferClients(clientList, request, leastFilterRatio);
+
+			float least = configManager.getFloatValue("pigeon.invoker.quality.leastratio", 0.5f) * clientList.size();
+			List<Client> qualityFilterClients = requestQualityManager.getQualityPreferClients(clientList, request, least);
+
+			if(qualityFilterClients.size() >= least) {
+				clientList = qualityFilterClients;
+			}
+
 		}
 
 		boolean isWriteLimit = isWriteBufferLimit && request.getCallType() == Constants.CALLTYPE_NOREPLY;

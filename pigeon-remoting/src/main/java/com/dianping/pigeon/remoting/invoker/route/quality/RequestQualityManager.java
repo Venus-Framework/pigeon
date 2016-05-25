@@ -21,9 +21,18 @@ public enum RequestQualityManager {
 
     }
 
-    private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
-
+    private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
     private static final String KEY_REQUEST_QUALITY_AUTO = "pigeon.invoker.request.quality.auto";
+    private static final String KEY_REQUEST_QUALITY_FAILED_PERCENT_GOOD = "pigeon.invoker.request.quality.failed.percent.good";
+    private static final String KEY_REQUEST_QUALITY_FAILED_PERCENT_NORMAL = "pigeon.invoker.request.quality.failed.percent.normal";
+    private static final String KEY_REQUEST_QUALITY_THRESHOLD_TOTAL = "pigeon.invoker.request.quality.threshold.total";
+
+    static {
+        configManager.getBooleanValue(KEY_REQUEST_QUALITY_AUTO, false);
+        configManager.getIntValue(KEY_REQUEST_QUALITY_THRESHOLD_TOTAL, 20);
+        configManager.getFloatValue(KEY_REQUEST_QUALITY_FAILED_PERCENT_GOOD, 1f);
+        configManager.getFloatValue(KEY_REQUEST_QUALITY_FAILED_PERCENT_NORMAL, 5f);
+    }
 
     // hosts --> ( requestUrl:serviceName#method --> second --> { total, failed } )
     private ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Integer, Quality>>>
@@ -98,9 +107,16 @@ public enum RequestQualityManager {
         return request.getServiceName() + "#" + request.getMethodName();
     }
 
-    public List<Client> getQualityPreferClients(List<Client> clientList, InvocationRequest request, float leastFilterRatio) {
+    /**
+     * 根据方法的服务质量过滤，优先保留服务质量good的clients，数量低于least时加入服务质量normal的clients
+     * @param clientList
+     * @param request
+     * @param least 最少保留个数
+     * @return
+     */
+    public List<Client> getQualityPreferClients(List<Client> clientList, InvocationRequest request, float least) {
         // 筛选good，normal，bad clients
-        // 直接进行服务质量路由,先只保留服务质量good的，如果不够（比如少于1个），加入服务质量normal+bad的
+        // 直接进行服务质量路由,先只保留服务质量good的，如果不够（比如少于1个），加入服务质量normal的
         if (!CollectionUtils.isEmpty(addrReqUrlQualities)) {
             String requestUrl = getRequestUrl(request);
 
@@ -136,14 +152,11 @@ public enum RequestQualityManager {
             List<Client> filterQualityClients = new ArrayList<Client>();
             filterQualityClients.addAll(filterQualityClientsMap.get(RequrlQuality.REQURL_QUALITY_GOOD));
 
-            float least = leastFilterRatio * clientList.size();
             if(filterQualityClients.size() < least) {
                 filterQualityClients.addAll(filterQualityClientsMap.get(RequrlQuality.REQURL_QUALITY_NORNAL));
             }
 
-            if(filterQualityClients.size() >= least) {
-                return filterQualityClients;
-            }
+            return filterQualityClients;
         }
 
         return clientList;
@@ -205,15 +218,18 @@ public enum RequestQualityManager {
         }
 
         public RequrlQuality getQuality() {
-            float failedRate = getFailedPercent();
 
-            //TODO 筛选边界动态获取
-            if(failedRate < 1) {
-                quality = RequrlQuality.REQURL_QUALITY_GOOD;
-            } else if(failedRate >= 1 && failedRate < 5) {
-                quality = RequrlQuality.REQURL_QUALITY_NORNAL;
-            } else if(failedRate >=5 ) {
-                quality = RequrlQuality.REQURL_QUALITY_BAD;
+            if(getTotalValue() > configManager.getIntValue(KEY_REQUEST_QUALITY_THRESHOLD_TOTAL, 20)) {
+                float failedRate = getFailedPercent();
+
+                if(failedRate < configManager.getFloatValue(KEY_REQUEST_QUALITY_FAILED_PERCENT_GOOD, 1f)) {
+                    quality = RequrlQuality.REQURL_QUALITY_GOOD;
+                } else if(failedRate >= configManager.getFloatValue(KEY_REQUEST_QUALITY_FAILED_PERCENT_GOOD, 1f)
+                        && failedRate < configManager.getFloatValue(KEY_REQUEST_QUALITY_FAILED_PERCENT_NORMAL, 5f)) {
+                    quality = RequrlQuality.REQURL_QUALITY_NORNAL;
+                } else if(failedRate >= configManager.getFloatValue(KEY_REQUEST_QUALITY_FAILED_PERCENT_NORMAL, 5f)) {
+                    quality = RequrlQuality.REQURL_QUALITY_BAD;
+                }
             }
 
             return quality;
