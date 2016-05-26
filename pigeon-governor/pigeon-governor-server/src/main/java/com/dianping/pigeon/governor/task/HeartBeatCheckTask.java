@@ -7,16 +7,15 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.governor.bean.ServiceWithGroup;
 import com.dianping.pigeon.governor.exception.DbException;
-import com.dianping.pigeon.governor.lion.ConfigHolder;
 import com.dianping.pigeon.governor.lion.LionKeys;
 import com.dianping.pigeon.governor.model.OpLog;
-import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.service.OpLogService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.util.IPUtils;
 import com.dianping.pigeon.governor.util.OpType;
+import com.dianping.pigeon.governor.util.ThreadPoolFactory;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.zookeeper.CuratorClient;
 import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
@@ -52,6 +51,7 @@ public class HeartBeatCheckTask extends Thread {
     @Autowired
     private ProjectService projectService;
 
+    private CuratorRegistry registry;
     private CuratorClient client;
 
     private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
@@ -62,7 +62,7 @@ public class HeartBeatCheckTask extends Thread {
     private final static long pickOffHeartBeatNodeInternal = 28800000L;
 
     public HeartBeatCheckTask() {
-        CuratorRegistry registry = (CuratorRegistry) RegistryManager.getInstance().getRegistry();
+        registry = (CuratorRegistry) RegistryManager.getInstance().getRegistry();
         client =  registry.getCuratorClient();
     }
 
@@ -100,12 +100,12 @@ public class HeartBeatCheckTask extends Thread {
 
     @Override
     public void run() {
-        while("true".equals(ConfigHolder.get(LionKeys.HEARTBEAT_ENABLE))) {
+        while("true".equals(Lion.get(LionKeys.HEARTBEAT_ENABLE.value()))) {
 
             long internal = 0;
             try {
                 Long startTime = System.currentTimeMillis();
-                Long refreshInternal = Long.parseLong(ConfigHolder.get(LionKeys.PROVIDER_HEARTBEAT_INTERNAL));
+                Long refreshInternal = Lion.getLongValue(LionKeys.PROVIDER_HEARTBEAT_INTERNAL.value());
                 Long checkInternal = refreshInternal + refreshInternal / 10;
 
                 //载入心跳
@@ -253,8 +253,7 @@ public class HeartBeatCheckTask extends Thread {
                             set.remove(host);
 
 
-                            int minProviderHeartbeat = Integer.parseInt(
-                                    ConfigHolder.get(LionKeys.MIN_PROVIDER_HEARTBEAT, "2"));
+                            int minProviderHeartbeat = Lion.getIntValue(LionKeys.MIN_PROVIDER_HEARTBEAT.value(), 2);
                             int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
                             // 摘除心跳条件：不满足最小阈值条件时，判断心跳失联时间超过8小时，且当前系统时间为凌晨3点到5点之间，摘除
                             if (set.size() >= minProviderHeartbeat || "qa".equals(configManager.getEnv())
@@ -286,10 +285,13 @@ public class HeartBeatCheckTask extends Thread {
                             && hour > 2 && hour < 6) { // 心跳失联时间超过8小时，且当前系统时间为凌晨3点到5点之间，摘除孤单心跳节点
                         logger.warn("takeoff lonely heartbeat node: " + host);
                         client.deleteIfExists("/DP/HEARTBEAT/" + host);
+                        client.deleteIfExists("/DP/WEIGHT/" + host);
                         String appname = client.get("/DP/APP/" + host, false);
                         if(StringUtils.isNotBlank(appname)) {
                             client.deleteIfExists("/DP/APPNAME/" + appname + "/" + host);
                         }
+                        client.deleteIfExists("/DP/APP/" + host);
+                        client.deleteIfExists("/DP/VERSION/" + host);
                     }
                 }
 
@@ -366,5 +368,88 @@ public class HeartBeatCheckTask extends Thread {
 
     public static void main(String[] args) {
         System.out.println(Calendar.getInstance().get(Calendar.HOUR_OF_DAY));
+        refreshVersionHeartbeat();
+    }
+
+    private static void refreshVersionHeartbeat() {
+        HeartBeatCheckTask heartBeatCheckTask = new HeartBeatCheckTask();
+        final CuratorRegistry curatorRegistry = heartBeatCheckTask.registry;
+        final CuratorClient client = heartBeatCheckTask.client;
+
+        List<String> hosts = null;
+        try {
+            hosts = client.getChildren("/DP/VERSION", false);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+
+        Set<String> hostSet = new HashSet<String>(hosts);
+
+        final long now = System.currentTimeMillis();
+        for(final String host : hostSet) {
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println(host);
+                    curatorRegistry.updateHeartBeat(host, now);
+                }
+            };
+            ThreadPoolFactory.getWorkThreadPool().submit(r);
+        }
+    }
+
+    private static void refreshFakeHeartbeat() {
+        HeartBeatCheckTask heartBeatCheckTask = new HeartBeatCheckTask();
+
+        final CuratorRegistry curatorRegistry = heartBeatCheckTask.registry;
+
+        final CuratorClient client = heartBeatCheckTask.client;
+
+        List<String> services = null;
+        try {
+            services = client.getChildren("/DP/SERVER", false);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        Set<String> hostSet = new HashSet<String>();
+
+        for (String service_zk : services) {
+
+            if(!service_zk.startsWith("@HTTP@")) {
+                String hosts = null;
+
+                try {
+                    hosts = client.get("/DP/SERVER/" + service_zk, false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    continue;
+                }
+
+                if(StringUtils.isNotBlank(hosts)) {
+                    try {
+                        hostSet.addAll(Arrays.asList(hosts.split(",")));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+
+        }
+
+
+        final long now = System.currentTimeMillis();
+        for(final String host : hostSet) {
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println(host);
+                    curatorRegistry.updateHeartBeat(host, now);
+                }
+            };
+            ThreadPoolFactory.getWorkThreadPool().submit(r);
+        }
     }
 }
