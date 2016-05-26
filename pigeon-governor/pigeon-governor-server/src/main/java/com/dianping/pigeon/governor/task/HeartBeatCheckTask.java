@@ -1,5 +1,6 @@
 package com.dianping.pigeon.governor.task;
 
+import com.ctc.wstx.util.StringUtil;
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Transaction;
 import com.dianping.lion.client.Lion;
@@ -20,6 +21,7 @@ import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.zookeeper.CuratorClient;
 import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
 import com.dianping.pigeon.registry.zookeeper.Utils;
+import com.dianping.pigeon.util.VersionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -392,7 +394,19 @@ public class HeartBeatCheckTask extends Thread {
                 @Override
                 public void run() {
                     System.out.println(host);
-                    curatorRegistry.updateHeartBeat(host, now);
+                    String version = null;
+                    try {
+                        version = client.get("/DP/VERSION/" + host, false);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    if(StringUtils.isNotBlank(version) && VersionUtils.compareVersion(version, "2.7.0") >= 0) {
+                        curatorRegistry.updateHeartBeat(host, now);
+                    } else {
+                        curatorRegistry.deleteHeartBeat(host);
+                    }
+
                 }
             };
             ThreadPoolFactory.getWorkThreadPool().submit(r);
