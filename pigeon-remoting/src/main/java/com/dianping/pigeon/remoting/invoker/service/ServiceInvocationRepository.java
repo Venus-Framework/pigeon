@@ -23,53 +23,58 @@ import com.dianping.pigeon.util.ThreadPoolUtils;
 
 public class ServiceInvocationRepository {
 
-	private static final Logger logger = LoggerLoader.getLogger(ServiceInvocationRepository.class);
-	private static Map<Long, RemoteInvocationBean> invocations = new ConcurrentHashMap<Long, RemoteInvocationBean>();
-	private static ServiceInvocationRepository instance = new ServiceInvocationRepository();
-	private static ThreadPool invocatinTimeCheckThreadPool = new DefaultThreadPool(
-			"Pigeon-Client-Invoke-Timeout-Check-ThreadPool");
+    private static final Logger logger = LoggerLoader.getLogger(ServiceInvocationRepository.class);
+    private static Map<Long, RemoteInvocationBean> invocations = new ConcurrentHashMap<Long, RemoteInvocationBean>();
+    private static ServiceInvocationRepository instance = new ServiceInvocationRepository();
+    private static ThreadPool invocatinTimeCheckThreadPool = new DefaultThreadPool(
+            "Pigeon-Client-Invoke-Timeout-Check-ThreadPool");
 
-	public static ServiceInvocationRepository getInstance() {
-		return instance;
-	}
+    public static ServiceInvocationRepository getInstance() {
+        return instance;
+    }
 
-	public void put(long sequence, RemoteInvocationBean invocation) {
-		invocations.put(sequence, invocation);
-	}
+    public void put(long sequence, RemoteInvocationBean invocation) {
+        invocations.put(sequence, invocation);
+    }
 
-	public void remove(long sequence) {
-		invocations.remove(sequence);
-	}
+    public InvocationRequest get(long sequence) {
+        RemoteInvocationBean bean = invocations.get(sequence);
+        return bean == null ? null : bean.request;
+    }
 
-	public void receiveResponse(InvocationResponse response) {
-		RemoteInvocationBean invocationBean = invocations.get(response.getSequence());
-		if (invocationBean != null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("received response:" + response);
-			}
-			InvocationRequest request = invocationBean.request;
-			try {
-				Callback callback = invocationBean.callback;
-				if (callback != null) {
-					Client client = callback.getClient();
-					if (client != null) {
-						ServiceStatisticsHolder.flowOut(request, client.getAddress());
-					}
-					callback.callback(response);
-					callback.run();
-				}
-			} finally {
-				invocations.remove(response.getSequence());
-			}
-		}
-	}
+    public void remove(long sequence) {
+        invocations.remove(sequence);
+    }
 
-	public void init() {
-		Runnable invocationTimeoutCheck = new InvocationTimeoutListener(invocations);
-		invocatinTimeCheckThreadPool.execute(invocationTimeoutCheck);
-	}
+    public void receiveResponse(InvocationResponse response) {
+        RemoteInvocationBean invocationBean = invocations.get(response.getSequence());
+        if (invocationBean != null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("received response:" + response);
+            }
+            InvocationRequest request = invocationBean.request;
+            try {
+                Callback callback = invocationBean.callback;
+                if (callback != null) {
+                    Client client = callback.getClient();
+                    if (client != null) {
+                        ServiceStatisticsHolder.flowOut(request, client.getAddress());
+                    }
+                    callback.callback(response);
+                    callback.run();
+                }
+            } finally {
+                invocations.remove(response.getSequence());
+            }
+        }
+    }
 
-	public void destroy() throws Exception {
-		ThreadPoolUtils.shutdown(invocatinTimeCheckThreadPool.getExecutor());
-	}
+    public void init() {
+        Runnable invocationTimeoutCheck = new InvocationTimeoutListener(invocations);
+        invocatinTimeCheckThreadPool.execute(invocationTimeoutCheck);
+    }
+
+    public void destroy() throws Exception {
+        ThreadPoolUtils.shutdown(invocatinTimeCheckThreadPool.getExecutor());
+    }
 }

@@ -5,14 +5,14 @@ import java.io.OutputStream;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.dpsf.protocol.DefaultResponse;
-import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
+import com.dianping.pigeon.remoting.common.codec.AbstractSerializer;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 
 import de.ruedigermoeller.serialization.FSTConfiguration;
 import de.ruedigermoeller.serialization.FSTObjectInput;
 import de.ruedigermoeller.serialization.FSTObjectOutput;
 
-public class FstSerializer extends DefaultAbstractSerializer {
+public class FstSerializer extends AbstractSerializer {
 
 	static FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
 

@@ -1,0 +1,14 @@
+package com.dianping.pigeon.remoting.common.domain.generic;
+
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+
+/**
+ * @author qi.yin
+ *         2016/05/24  下午5:25.
+ */
+public interface UnifiedResponse extends InvocationResponse, UnifiedInvocation {
+
+    Throwable getException();
+
+    void setException(Throwable exception);
+}

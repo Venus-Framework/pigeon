@@ -88,5 +88,17 @@
 			<groupId>commons-httpclient</groupId>
 			<artifactId>commons-httpclient</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.facebook.swift</groupId>
+			<artifactId>swift-annotations</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.facebook.swift</groupId>
+			<artifactId>swift-codec</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.facebook.swift</groupId>
+			<artifactId>swift-generator</artifactId>
+		</dependency>
 	</dependencies>
 </project>

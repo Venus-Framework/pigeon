@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
-import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
+import com.dianping.pigeon.remoting.common.codec.AbstractSerializer;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 
 /**
@@ -16,7 +16,7 @@ import com.dianping.pigeon.remoting.common.exception.SerializationException;
  * @Sep 5, 2013
  * 
  */
-public class JavaSerializer extends DefaultAbstractSerializer {
+public class JavaSerializer extends AbstractSerializer {
 
 	private static ClassLoader classLoader = JavaSerializer.class.getClassLoader();
 

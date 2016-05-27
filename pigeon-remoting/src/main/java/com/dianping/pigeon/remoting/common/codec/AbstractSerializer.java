@@ -22,7 +22,8 @@ import com.dianping.pigeon.util.ClassUtils;
  * @Sep 5, 2013
  * 
  */
-public abstract class DefaultAbstractSerializer implements Serializer {
+public abstract class AbstractSerializer implements Serializer {
+
 
 	@Override
 	public Object proxyRequest(InvokerConfig<?> invokerConfig) throws SerializationException {

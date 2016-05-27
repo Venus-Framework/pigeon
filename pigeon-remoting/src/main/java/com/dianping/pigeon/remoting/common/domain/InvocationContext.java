@@ -45,6 +45,7 @@ public interface InvocationContext {
 
 	List<TimePoint> getTimeline();
 
+
 	enum TimePhase {
 		S, R, M, F, B, E
 	}

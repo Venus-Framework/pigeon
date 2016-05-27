@@ -14,10 +14,10 @@ import org.objenesis.ObjenesisStd;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.dpsf.protocol.DefaultResponse;
-import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
+import com.dianping.pigeon.remoting.common.codec.AbstractSerializer;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 
-public class ProtostuffSerializer extends DefaultAbstractSerializer {
+public class ProtostuffSerializer extends AbstractSerializer {
 
 	private static ConcurrentHashMap<Class<?>, Schema<?>> cachedSchema = new ConcurrentHashMap<Class<?>, Schema<?>>();
 	private static Objenesis objenesis = new ObjenesisStd(true);

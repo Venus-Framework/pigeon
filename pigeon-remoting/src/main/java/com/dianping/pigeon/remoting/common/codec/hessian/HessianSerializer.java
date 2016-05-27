@@ -10,7 +10,7 @@ import java.io.OutputStream;
 
 import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
-import com.dianping.pigeon.remoting.common.codec.DefaultAbstractSerializer;
+import com.dianping.pigeon.remoting.common.codec.AbstractSerializer;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 
 /**
@@ -18,7 +18,7 @@ import com.dianping.pigeon.remoting.common.exception.SerializationException;
  * @Sep 5, 2013
  * 
  */
-public class HessianSerializer extends DefaultAbstractSerializer {
+public class HessianSerializer extends AbstractSerializer {
 
 	HessianSerializerFactory sessianSerializerFactory = new HessianSerializerFactory();
 	

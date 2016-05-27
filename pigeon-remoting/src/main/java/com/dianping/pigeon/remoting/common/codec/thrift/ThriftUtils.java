@@ -1,0 +1,86 @@
+package com.dianping.pigeon.remoting.common.codec.thrift;
+
+import com.dianping.pigeon.log.LoggerLoader;
+import com.facebook.swift.codec.metadata.ReflectionHelper;
+import com.facebook.swift.service.ThriftService;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Set;
+
+/**
+ * @author qi.yin
+ *         2016/05/16  下午3:12.
+ */
+public class ThriftUtils {
+
+    private static final Logger logger = LoggerLoader.getLogger(ThriftUtils.class);
+
+    public static boolean isAnnotation(Class<?> clazz) {
+        Set<ThriftService> serviceAnnotations = ReflectionHelper
+                .getEffectiveClassAnnotations(
+                        clazz, ThriftService.class);
+
+        if (serviceAnnotations.size() == 1) {
+            return true;
+        } else if (serviceAnnotations.size() > 1) {
+
+            logger.error("Service class" + clazz.getName() +
+                    "has multiple conflicting @ThriftService annotations:"
+                    + serviceAnnotations);
+
+        }
+        return false;
+    }
+
+
+    public static String generateSetMethodName( String fieldName ) {
+
+        return new StringBuilder( 16 )
+                .append( "set" )
+                .append( Character.toUpperCase( fieldName.charAt( 0 ) ) )
+                .append( fieldName.substring( 1 ) )
+                .toString();
+
+    }
+
+    public static String generateGetMethodName( String fieldName ) {
+        return new StringBuffer( 16 )
+                .append( "get" )
+                .append( Character.toUpperCase( fieldName.charAt( 0 ) ) )
+                .append( fieldName.substring( 1 ) )
+                .toString();
+    }
+
+    public static String generateMethodArgsClassName( String serviceName, String methodName ) {
+
+        int index = serviceName.indexOf( "$" );
+
+        if ( index > 0 ) {
+            return new StringBuilder( 32 )
+                    .append( serviceName.substring( 0, index + 1 ) )
+                    .append( methodName )
+                    .append( "_args" )
+                    .toString();
+        }
+
+        return null;
+
+    }
+
+    public static String generateMethodResultClassName( String serviceName, String methodName ) {
+
+        int index = serviceName.indexOf( "$" );
+
+        if ( index > 0 ) {
+            return new StringBuilder( 32 )
+                    .append( serviceName.substring( 0, index + 1 ) )
+                    .append( methodName )
+                    .append( "_result" )
+                    .toString();
+        }
+
+        return null;
+
+    }
+
+}

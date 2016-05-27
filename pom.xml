@@ -16,6 +16,8 @@
 		<pigeon.version>${project.version}</pigeon.version>
 		<spring_version>2.5.6</spring_version>
 		<jetty_version>6.1.26</jetty_version>
+		<swift.version>0.16.0-mt-SNAPSHOT</swift.version>
+		<thrift.version>0.9.3</thrift.version>
 	</properties>
 	<modules>
 		<module>pigeon-common</module>
@@ -289,6 +291,26 @@
 				<groupId>com.dianping.dpsf</groupId>
 				<artifactId>dpsf-net</artifactId>
 				<version>${pigeon.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.facebook.swift</groupId>
+				<artifactId>swift-annotations</artifactId>
+				<version>${swift.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.facebook.swift</groupId>
+				<artifactId>swift-codec</artifactId>
+				<version>${swift.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.facebook.swift</groupId>
+				<artifactId>swift-generator</artifactId>
+				<version>${swift.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.thrift</groupId>
+				<artifactId>libthrift</artifactId>
+				<version>${thrift.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
