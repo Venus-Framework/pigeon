@@ -4,16 +4,6 @@ WS  * Dianping.com Inc.
  */
 package com.dianping.pigeon.remoting.invoker.listener;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.dianping.pigeon.registry.RegionManager;
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
-import org.springframework.util.CollectionUtils;
-
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -25,6 +15,14 @@ import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.Logger;
+import org.springframework.util.CollectionUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ProviderAvailableListener implements Runnable {
 
@@ -36,8 +34,6 @@ public class ProviderAvailableListener implements Runnable {
 
 	private static final String KEY_INTERVAL = "pigeon.providerlistener.interval";
 	
-	private RegionManager regionManager = RegionManager.getInstance();
-
 	private static final String KEY_AVAILABLE_LEAST = "pigeon.providerlistener.availableleast";
 
 	public ProviderAvailableListener() {
@@ -70,11 +66,6 @@ public class ProviderAvailableListener implements Runnable {
 					checkReferencedServices();
 				} catch (Throwable e) {
 					logger.info("check referenced services failed:", e);
-				}
-
-				// region自动切换时跳过后面的检查
-				if(regionManager.isEnableRegionAutoSwitch()) {
-					continue;
 				}
 
 				Set<InvokerConfig<?>> services = ServiceFactory.getAllServiceInvokers().keySet();

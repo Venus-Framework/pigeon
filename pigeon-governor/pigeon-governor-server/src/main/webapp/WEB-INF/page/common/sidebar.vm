@@ -55,7 +55,14 @@
 			class="menu-icon fa fa-desktop"></i> <span class="menu-text">
 				服务地址查询 </span>
 	</a> <b class="arrow"></b></li>
-
+	<li id="service_doc">
+		<a href="${rc.contextPath}/doc/docCenter">
+			<i class="menu-icon fa fa-book"></i>
+			<span class="menu-text">服务文档中心</span>
+			<span class="badge badge-danger">New!</span>
+		</a>
+		<b class="arrow"></b>
+	</li>
 	<li id="projects_index" class="">
 		<a href="#" class="dropdown-toggle">
 			<i class="menu-icon fa fa-list"></i>

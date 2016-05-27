@@ -11,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
-import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.callback.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
@@ -20,8 +19,8 @@ public class InvocationTimeoutListener implements Runnable {
 
 	private static final Logger logger = LoggerLoader.getLogger(InvocationTimeoutListener.class);
 	private Map<Long, RemoteInvocationBean> invocations;
-	private long timeoutInterval = ConfigManagerLoader.getConfigManager().getLongValue(Constants.KEY_TIMEOUT_INTERVAL,
-			Constants.DEFAULT_TIMEOUT_INTERVAL);
+	private long timeoutInterval = ConfigManagerLoader.getConfigManager().getLongValue(
+			"pigeon.invoker.timeout.interval", 1000);
 
 	public InvocationTimeoutListener(Map<Long, RemoteInvocationBean> invocations) {
 		this.invocations = invocations;

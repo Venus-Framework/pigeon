@@ -1,0 +1,553 @@
+#set($layout="layoutblank.vm")
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <title>Pigeon</title>
+
+    <meta name="description" content="3 styles with inline editable feature" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/font-awesome.min.css" />
+
+    <!-- page specific plugin styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery-ui.custom.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery.gritter.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/select2.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/datepicker.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap-editable.css" />
+
+    <!-- text fonts -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-fonts.css" />
+
+    <!-- ace styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace.min.css" id="main-ace-style" />
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-part2.min.css" />
+    <![endif]-->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-rtl.min.css" />
+    <link href="${rc.contextPath}/resources/style/bootstrap-switch.min.css" rel="stylesheet">
+
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-ie.min.css" />
+    <![endif]-->
+
+    <!-- inline styles related to this page -->
+    <style type="text/css">
+        .save {}
+        .value-size {
+            word-break:break-all;
+        }
+        .no-margin{
+            margin:0;
+        }
+        .width-full{
+            width:100%;
+        }
+        .left-text{
+            text-align: left;
+        }
+        .wysiwyg-editor{
+            max-height: none;
+            width: 100%;
+        }
+
+        td {
+            vertical-align:middle !important;
+        }
+
+        .my-editable{
+            display: none;
+        }
+
+        .my-empty{
+            font-style: italic;
+            color: #DD1144;
+        }
+
+    </style>
+
+    <!-- ace settings handler -->
+    <script src="${rc.contextPath}/resources/assets/js/ace-extra.min.js"></script>
+
+    <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
+
+    <!--[if lte IE 8]>
+    <script src="${rc.contextPath}/resources/assets/js/html5shiv.min.js"></script>
+    <script src="${rc.contextPath}/resources/assets/js/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body class="no-skin">
+<!-- #section:basics/navbar.layout -->
+<div id="navbar" class="navbar navbar-default">
+    #parse("common/navbar.vm")
+</div>
+
+<!-- /section:basics/navbar.layout -->
+<div class="main-container" id="main-container">
+    <script type="text/javascript">
+        try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+    </script>
+
+    <!-- #section:basics/sidebar -->
+    <div id="sidebar" class="sidebar responsive">
+        #parse("common/sidebar.vm")
+    </div>
+
+    <!-- /section:basics/sidebar -->
+    <div class="main-content">
+        <!-- #section:basics/content.breadcrumbs -->
+        <div class="breadcrumbs" id="breadcrumbs">
+            <script type="text/javascript">
+                try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+            </script>
+
+            <ul class="breadcrumb">
+                <li>
+                    <i class="ace-icon fa fa-home home-icon"></i>
+                    <a href="#">主页</a>
+                </li>
+
+                <li>
+                    <a href="#">服务文档</a>
+                </li>
+            </ul><!-- /.breadcrumb -->
+
+            <!-- #section:basics/content.searchbox -->
+            <!--
+            <div class="nav-search" id="nav-search">
+                <form class="form-search">
+							<span class="input-icon">
+								<input type="text" placeholder="Search ${rc.contextPath}/resources." class="nav-search-input" id="nav-search-input" autocomplete="off" />
+								<i class="ace-icon fa fa-search nav-search-icon"></i>
+							</span>
+                </form>
+            </div>
+            -->
+            <!-- /.nav-search -->
+
+            <!-- /section:basics/content.searchbox -->
+        </div>
+
+        <!-- /section:basics/content.breadcrumbs -->
+        <div class="page-content">
+            <div class="page-content-area">
+                <div class="page-header">
+                    <h1>
+                        服务文档页
+                        <small>
+                            <i class="ace-icon fa fa-angle-double-right"></i>
+                            服务概要和文档
+                        </small>
+                    </h1>
+                </div><!-- /.page-header -->
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <!-- PAGE CONTENT BEGINS -->
+                        <div>
+                            <div class="col-xs-12 col-sm-3 pull-left">
+                                <div class="widget-box transparent">
+
+                                    <div class="widget-header widget-header-small">
+                                        <h4 class="widget-title blue smaller">
+                                            <i class="ace-icon fa fa-rss orange"></i>
+                                            服务基本信息
+                                        </h4>
+                                        <div class="widget-toolbar action-buttons">
+                                            <a href="#" data-action="reload">
+                                                <i class="ace-icon fa fa-refresh blue"></i>
+                                            </a>
+                                            <a data-action="collapse" href="#"><i class="ace-icon fa fa-chevron-up"></i></a>
+                                        </div>
+                                    </div>
+
+                                    <div class="widget-body">
+                                        <div class="widget-main no-padding">
+                                            <div class="profile-user-info no-margin width-full">
+                                                <div class="profile-info-row">
+                                                    <div class="profile-info-name left-text">服务泳道</div>
+
+                                                    <div class="profile-info-value">
+                                                        <span class="blue">$serviceGroup</span>
+                                                    </div>
+                                                </div>
+                                                <div class="profile-info-row">
+                                                    <div class="profile-info-name left-text value-size">服务地址</div>
+                                                    <div class="profile-info-value">
+                                                        #foreach($host in $serviceHosts)
+                                                        <p class="blue">$host</p>
+                                                        #end
+                                                    </div>
+                                                </div>
+                                                <div class="profile-info-row">
+                                                    <div class="profile-info-name left-text">所属BU</div>
+                                                    <div class="profile-info-value">
+                                                        <span class="blue">$projectBu</span>
+                                                    </div>
+                                                </div>
+                                                <div class="profile-info-row">
+                                                    <div class="profile-info-name left-text">所属项目</div>
+
+                                                    <div class="profile-info-value">
+                                                        <span class="blue">$projectName</span>
+                                                    </div>
+                                                </div>
+                                                <div class="profile-info-row">
+                                                    <div class="profile-info-name left-text">服务所有者</div>
+                                                    <div class="profile-info-value">
+                                                        <span class="blue">$projectOwner</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-12 col-sm-9 pull-right">
+                                <div class="javaDoc">
+                                    <div class="widget-box transparent">
+                                        <div class="widget-header widget-header-small">
+                                            <h4 class="widget-title blue smaller">
+                                                <i class=" glyphicon glyphicon-file orange"></i>
+                                                服务文档
+                                                #if($currentUser==$projectOwner)
+                                                    <div class="pull-right"><input type="checkbox" name="my-checkbox" checked "></div>
+                                                #end
+                                            </h4>
+                                        </div>
+                                        <div class="widget-body">
+                                            <div class="widget-main no-padding">
+                                                <div>
+                                                    <table class="table table-striped table-bordered table-hover">
+                                                        <tbody>
+                                                        <tr>
+                                                            <td class="blue">服务全名</td>
+                                                            <td class="blue">$serviceDescBean.serviceName</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="blue">服务实现</td>
+                                                            <td class="blue">$serviceDescBean.serviceImpl</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="blue">实现描述</td>
+                                                            <td class="my-editable editable" data-url="/myTest/desc/$serviceDescBean.getServiceId()">$serviceDescBean.serviceDesc</td>
+                                                            <td>
+                                                                #if($serviceDescBean.serviceDesc == "")
+                                                                    <span class="my-empty">描述暂空</span>
+                                                                #end
+                                                                $serviceDescBean.serviceDesc
+                                                            </td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="hr hr-18 blue"></div>
+                                                <div>
+                                                    <h4 class="blue">
+                                                        <i class="ace-icon fa fa-pencil-square-o orange"></i>
+                                                        方法摘要
+                                                    </h4>
+                                                    <table class="table table-striped table-bordered table-hover">
+                                                        <thead class="thin-border-bottom">
+                                                        <tr>
+                                                            <th class="blue">
+                                                                返回值
+                                                            </th>
+
+                                                            <th class="blue">
+                                                                方法签名
+                                                            </th>
+                                                        </tr>
+                                                        </thead>
+                                                        <!-- TODO link the summary to the method description-->
+                                                        <tbody>
+                                                        #foreach ($key in $serviceDescBean.getMethodDescBeanList())
+                                                        <tr>
+                                                            <td class="blue">
+                                                                $key.getMethodReturnType()
+                                                            </td>
+                                                            <td>
+                                                                <a href="#$key.getMethodId()">$key.getMethodName() (&nbsp;
+                                                                    #if($key.getParamDescBeanArrayList().size()==1)
+                                                                        $key.getParamDescBeanArrayList().get(0).getParamName()
+                                                                    #else
+                                                                        #foreach($param in $key.getParamDescBeanArrayList())
+                                                                            #if($velocityCount==$key.getParamDescBeanArrayList().size())
+                                                                                $param.getParamName()
+                                                                            #else
+                                                                                $param.getParamName()&nbsp;,&nbsp;
+                                                                            #end
+                                                                        #end
+                                                                    #end
+                                                                    &nbsp;)
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                        #end
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="hr hr-18 blue"></div>
+                                                <div>
+                                                    <h4 class="blue">
+                                                        <i class="glyphicon glyphicon-list orange"></i>
+                                                        方法详细信息
+                                                    </h4>
+                                                    #foreach($method in $serviceDescBean.getMethodDescBeanList())
+                                                        <table class="table table-striped table-bordered table-hover">
+                                                        <a name="$method.getMethodId()"></a>
+                                                            <tbody>
+                                                            <tr>
+                                                                <td class="blue"><h5>$method.getMethodFullname()</h5></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="my-editable editable" data-url="/myTest/method/desc/$method.getMethodId()">$method.getMethodDesc()</td>
+                                                                <td>
+                                                                    #if($method.getMethodDesc() == "")
+                                                                        <span class="my-empty">描述暂空</span>
+                                                                    #end
+                                                                    $method.getMethodDesc()
+                                                                </td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                        <table class="table table-striped table-bordered table-hover">
+                                                            <tbody>
+                                                            #if($method.getParamDescBeanArrayList().size()!=0)
+                                                            <tr>
+                                                                <td rowspan=$method.getParamDescBeanArrayList().size() class="blue ">参数信息</td>
+                                                                <td class="blue ">$method.getParamDescBeanArrayList().get(0).getParamName()</td>
+                                                                <td class="my-editable editable" data-url="/myTest/param/desc/$method.getParamDescBeanArrayList().get(0).getParamId()"
+                                                                >$method.getParamDescBeanArrayList().get(0).getParamDesc()</td>
+                                                                <td>#if($method.getParamDescBeanArrayList().get(0).getParamDesc()=="")
+                                                                        <span class="my-empty">描述暂空</span>
+                                                                    #end
+                                                                    $method.getParamDescBeanArrayList().get(0).getParamDesc()</td>
+                                                            </tr>
+                                                                #foreach($param in $method.getParamDescBeanArrayList())
+                                                                    #if($velocityCount!=1)
+                                                                        <tr>
+                                                                            <td class="blue ">$param.getParamName()</td>
+                                                                            <td class="my-editable editable" data-url="/myTest/param/desc/$param.getParamId()">$param.getParamDesc()</td>
+                                                                            <td>#if($param.getParamDesc()=="")
+                                                                                    <span class="my-empty">描述暂空</span>
+                                                                                #end
+                                                                                $param.getParamDesc()
+                                                                            </td>
+                                                                        </tr>
+                                                                    #end
+                                                                #end
+                                                            #end
+                                                            #if($method.getExceptionDescBeanArrayList().size()!=0)
+                                                                <tr>
+                                                                    <td class="blue " rowspan=$method.getExceptionDescBeanArrayList().size()>异常信息</td>
+                                                                    <td class="blue ">$method.getExceptionDescBeanArrayList().get(0).getExceptionName()</td>
+                                                                    <td class="my-editable editable" data-url="/myTest/exception/desc/$method.getExceptionDescBeanArrayList().get(0).getExceptionId()"
+                                                                    >$method.getExceptionDescBeanArrayList().get(0).getExceptionDesc()</td>
+                                                                    <td>
+                                                                        #if($method.getExceptionDescBeanArrayList().get(0).getExceptionDesc()=="")
+                                                                            <span class="my-empty">描述暂空</span>
+                                                                        #end
+                                                                        $method.getExceptionDescBeanArrayList().get(0).getExceptionDesc()
+                                                                    </td>
+                                                                </tr>
+                                                                #foreach($exception in $method.getExceptionDescBeanArrayList())
+                                                                    #if($velocityCount!=1)
+                                                                    <tr>
+                                                                        <td class="blue ">$exception.getExceptionName()</td>
+                                                                        <td class="my-editable editable" data-url="/myTest/exception/desc/$exception.getExceptionId()">$exception.getExceptionDesc()</td>
+                                                                        <td>
+                                                                            #if($exception.getExceptionDesc()=="")
+                                                                                <span class="my-empty">描述暂空</span>
+                                                                            #end
+                                                                            $exception.getExceptionDesc()
+                                                                        </td>
+                                                                    </tr>
+                                                                    #end
+                                                                #end
+                                                            #end
+                                                            </tbody>
+                                                        </table>
+                                                        <hr>
+                                                    #end
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.page-content-area -->
+        </div><!-- /.page-content -->
+    </div><!-- /.main-content -->
+    <div class="footer">
+        #parse("common/sub-footer.vm")
+    <div>
+
+
+    <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+        <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+    </a>
+</div><!-- /.main-container -->
+
+<!-- basic scripts -->
+
+<!--[if !IE]> -->
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.min.js'>"+"<"+"/script>");
+</script>
+
+<!-- <![endif]-->
+
+<!--[if IE]>
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery1x.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+<script type="text/javascript">
+    if('ontouchstart' in document.documentElement) document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap.min.js"></script>
+
+<!-- page specific plugin scripts -->
+
+<!--[if lte IE 8]>
+<script src="${rc.contextPath}/resources/assets/js/excanvas.min.js"></script>
+<![endif]-->
+<script src="${rc.contextPath}/resources/assets/js/jquery-ui.custom.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.ui.touch-punch.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.gritter.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/bootbox.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.easypiechart.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.hotkeys.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap-wysiwyg.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/select2.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/fuelux/fuelux.spinner.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/x-editable/bootstrap-editable.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/x-editable/ace-editable.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.maskedinput.min.js"></script>
+        <script src="${rc.contextPath}/resources/js/bootstrap-switch.min.js"></script>
+
+<!-- ace scripts -->
+<script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
+
+<!-- inline scripts related to this page -->
+<script type="text/javascript">
+    jQuery(function($) {
+        <!--配置bootstrapSwitch-->
+        $.fn.bootstrapSwitch.defaults.onText = '<i class="ace-icon fa fa-eye white"></i><span class="white">查看</span>';
+        $.fn.bootstrapSwitch.defaults.offText = '<i class="glyphicon glyphicon-pencil blue"></i><span class="blue">编辑</span>';
+        $.fn.bootstrapSwitch.defaults.size='mini';
+
+
+        <!--配置x-editable默认ajax方式为POST-->
+        $.fn.editable.defaults.ajaxOptions = {type: "POST"};
+
+
+
+        $("[name='my-checkbox']").bootstrapSwitch();
+        $('input[name="my-checkbox"]').on('switchChange.bootstrapSwitch', function(event, state) {
+            console.log(state);
+            if(state==false){
+                bootbox.dialog({
+                    message: "编辑功能暂未开启",
+                    buttons: {
+                        "warn": {
+                            "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                            "className": "btn-sm btn-success"
+                        }
+                    }
+                });
+            }
+            /*
+            var list = $('.my-editable');
+            if(state==true){
+                $.each(list,function(){
+                    var edit = $(this);
+                    if(edit.next().prop('tagName')=='SPAN'){
+                        edit.next().hide();
+                        edit.next().next().show();
+                    }else{
+                        edit.hide();
+                        edit.next().show();
+                    }
+                });
+            }
+            else{
+                $.each(list,function () {
+                    var edit = $(this);
+                    if(edit.next().prop('tagName')=='SPAN'){
+                        edit.next().show();
+                        edit.next().next().hide();
+                    }else{
+                        edit.show();
+                        edit.next().hide();
+                    }
+                });
+            }
+            */
+
+        });
+        $('td.editable').editable({
+            type: 'textarea',
+            mode: 'inline',
+            type: 'wysiwyg',
+            pk:1,
+            onblur:'ignore',
+            emptytext:'描述暂空,单击此处编辑文档',
+            wysiwyg : {
+                css : {'max-width':'100%','width':'100%'}
+            },
+            success: function(response, newValue) {
+                <!-- TODO 考虑是否添加response状态标记是否提交成功 -->
+                 var value = newValue;
+                 var viewElement = $(this).next().next();
+                    bootbox.dialog({
+                        message: "修改成功!",
+                        buttons: {
+                            "success": {
+                                "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                "className": "btn-sm btn-success"
+                            }
+                        }
+                    });
+                 if(value==""){
+                     viewElement.html('<span class="my-empty">描述暂空</span>');
+                 }else
+                    viewElement.html(value);
+            }
+        });
+    });
+</script>
+
+<!-- the following scripts are used in demo only for onpage help and you don't need them -->
+<link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace.onpage-help.css" />
+<link rel="stylesheet" href="${rc.contextPath}/resources/docs/assets/js/themes/sunburst.css" />
+
+<script type="text/javascript"> ace.vars['base'] ='${rc.contextPath}/resources'; </script>
+<script src="${rc.contextPath}/resources/assets/js/ace/elements.onpage-help.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/ace/ace.onpage-help.js"></script>
+<script src="${rc.contextPath}/resources/docs/assets/js/rainbow.js"></script>
+<script src="${rc.contextPath}/resources/docs/assets/js/language/generic.js"></script>
+<script src="${rc.contextPath}/resources/docs/assets/js/language/html.js"></script>
+<script src="${rc.contextPath}/resources/docs/assets/js/language/css.js"></script>
+<script src="${rc.contextPath}/resources/docs/assets/js/language/javascript.js"></script>
+</body>
+</html>
+
+
+
+

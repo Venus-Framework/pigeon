@@ -3,10 +3,12 @@
  */
 package com.dianping.pigeon.console.servlet.json;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.dianping.pigeon.console.domain.Statistics;
 import com.dianping.pigeon.console.listener.StatusListener;
@@ -41,7 +43,7 @@ public class StatisticsJsonServlet extends ServiceServlet {
 		return "application/json; charset=UTF-8";
 	}
 
-	protected void initServicePage(HttpServletRequest request) {
+	protected boolean initServicePage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Statistics stat = new Statistics();
 		Map<String, CapacityBucket> buckets = ServiceStatisticsHolder.getCapacityBuckets();
 		for (String addr : buckets.keySet()) {
@@ -78,5 +80,6 @@ public class StatisticsJsonServlet extends ServiceServlet {
 			stat.getOthers().put(info.getSource(), "" + info.getStatusInfo());
 		}
 		this.model = stat;
+		return true;
 	}
 }

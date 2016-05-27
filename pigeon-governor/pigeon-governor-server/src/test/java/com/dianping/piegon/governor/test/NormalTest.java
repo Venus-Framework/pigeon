@@ -10,6 +10,7 @@ import com.dianping.pigeon.governor.bean.ServiceWithGroup;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.util.IPUtils;
+import com.dianping.pigeon.registry.zookeeper.Utils;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
@@ -23,6 +24,20 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class NormalTest {
+
+	@Test
+	public void testIndex(){
+		String ss = "pigeon.group.invoker.http:^^www.dianping.com^service_1.0.0";
+		int length = "pigeon.group.invoker.".length();
+		System.out.println(ss.indexOf("pigeon.group.provider."));
+		System.out.println(ss.substring(ss.indexOf("pigeon.group.invoker.")+length));
+	}
+
+	@Test
+	public void escapeServiceName() {
+		String url = "http://service.dianping.com/arch/test/service/EchoService_1.0.0";
+		System.out.println(Utils.escapeServiceName(url));
+	}
 
 	@Test
 	public void testJson() {

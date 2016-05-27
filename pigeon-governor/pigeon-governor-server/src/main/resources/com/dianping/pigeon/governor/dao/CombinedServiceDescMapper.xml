@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+    Author: shihuashen
+    Date:   2016/04/22
+    This mapper is aimed to isolate the dependencies of the mybatis-generator. We do not need to modify
+    the mybatis auto generated mapper. Instead, we implements our logic sql all in this file.
+-->
+<mapper namespace="com.dianping.pigeon.governor.dao.CombinedServiceDescMapper">
+    <resultMap id="ServiceDescResultMap" type="com.dianping.pigeon.governor.model.ServiceDesc">
+        <id column="service_id" jdbcType="INTEGER" property="serviceId"/>
+        <result column="service_name" jdbcType="VARCHAR" property="serviceName"/>
+        <result column="service_impl" jdbcType="VARCHAR" property="serviceImpl"/>
+        <result column="service_desc" jdbcType="LONGVARCHAR" property="serviceDesc"/>
+        <result column="updateTime" jdbcType="TIMESTAMP" property="updatetime"/>
+    </resultMap>
+    <resultMap id="BaseMethodResultMap" type="com.dianping.pigeon.governor.model.MethodDesc">
+        <id column="method_id" jdbcType="INTEGER" property="methodId" />
+        <result column="service_id" jdbcType="INTEGER" property="serviceId" />
+        <result column="method_name" jdbcType="VARCHAR" property="methodName" />
+        <result column="method_fullname" jdbcType="VARCHAR" property="methodFullname" />
+        <result column="method_return_type" jdbcType="VARCHAR" property="methodReturnType" />
+        <result column="updateTime" jdbcType="TIMESTAMP" property="updatetime" />
+    </resultMap>
+    <resultMap extends="BaseMethodResultMap" id="MethodResultMapWithBLOBs" type="com.dianping.pigeon.governor.model.MethodDescWithBLOBs">
+        <result column="method_desc" jdbcType="LONGVARCHAR" property="methodDesc" />
+        <result column="method_return_desc" jdbcType="LONGVARCHAR" property="methodReturnDesc" />
+    </resultMap>
+
+    <resultMap id="BaseParamResultMap" type="com.dianping.pigeon.governor.model.ParamDesc">
+        <id column="param_id" jdbcType="INTEGER" property="paramId" />
+        <result column="method_id" jdbcType="INTEGER" property="methodId" />
+        <result column="param_name" jdbcType="VARCHAR" property="paramName" />
+        <result column="updateTime" jdbcType="TIMESTAMP" property="updatetime" />
+    </resultMap>
+    <resultMap extends="BaseParamResultMap" id="ParamResultMapWithBLOBs" type="com.dianping.pigeon.governor.model.ParamDesc">
+        <result column="param_desc" jdbcType="LONGVARCHAR" property="paramDesc" />
+    </resultMap>
+
+    <resultMap id="BaseExceptionResultMap" type="com.dianping.pigeon.governor.model.ExceptionDesc">
+        <id column="exception_id" jdbcType="INTEGER" property="exceptionId" />
+        <result column="method_id" jdbcType="INTEGER" property="methodId" />
+        <result column="exception_name" jdbcType="VARCHAR" property="exceptionName" />
+        <result column="updateTime" jdbcType="TIMESTAMP" property="updatetime" />
+    </resultMap>
+    <resultMap extends="BaseExceptionResultMap" id="ExceptionResultMapWithBLOBs" type="com.dianping.pigeon.governor.model.ExceptionDesc">
+        <result column="exception_desc" jdbcType="LONGVARCHAR" property="exceptionDesc" />
+    </resultMap>
+
+    <resultMap id="ServiceHostsResultMap" type="com.dianping.pigeon.governor.model.ServiceHosts">
+        <id column="id" jdbcType="INTEGER" property="serviceId"/>
+        <result column="name" jdbcType="VARCHAR" property="serviceName"/>
+        <result column="hosts" jdbcType="VARCHAR" property="hosts"/>
+        <result column="group" jdbcType="VARCHAR" property="group"/>
+    </resultMap>
+
+
+    <resultMap id="ServiceMetaResultMap" type="com.dianping.pigeon.governor.bean.serviceDesc.ServiceMeta">
+        <id column="service_id" jdbcType="INTEGER" property="serviceId"/>
+        <result column="service_name" jdbcType="VARCHAR" property="serviceName"/>
+        <result column="service_impl" jdbcType="VARCHAR" property="serviceImpl"/>
+        <result column="service_desc" jdbcType="LONGVARCHAR" property="serviceDesc"/>
+        <result column="group" jdbcType="INTEGER" property="group"/>
+    </resultMap>
+
+    <resultMap id="MethodMetaResultMap" type="com.dianping.pigeon.governor.bean.serviceDesc.MethodMeta">
+        <result column="method_fullname" jdbcType="VARCHAR" property="methodName"/>
+        <result column="name" jdbcType="VARCHAR" property="serviceName"/>
+        <result column="group" jdbcType="VARCHAR" property="group"/>
+        <result column="id" jdbcType="INTEGER" property="serviceId"/>
+        <result column="method_desc" jdbcType="LONGVARCHAR" property="methodDesc"/>
+    </resultMap>
+
+
+    <select id="selectServiceMetas" parameterType="java.lang.String" resultMap="ServiceMetaResultMap">
+        SELECT service_id,service_name,service_impl,service_desc,s.group
+        FROM  service_desc , service as s WHERE
+        (
+        service_name LIKE #{0} OR
+        service_impl LIKE #{0}
+        ) AND
+        service_id = s.id
+    </select>
+
+    <select id="selectMethodMetas" parameterType="java.lang.String" resultMap="MethodMetaResultMap">
+        SELECT method_fullname ,s.name ,s.group,s.id,method_desc
+        FROM method_desc,service as s WHERE
+        (
+        method_fullname LIKE #{0}
+        ) AND
+        service_id = s.id
+    </select>
+
+    <!--
+    <resultMap id="ServiceDescBeanResultMap" type="com.dianping.pigeon.governor.bean.serviceDesc.ServiceDescBean">
+        <id column="service_id" jdbcType="INTEGER" property="serviceId"/>
+        <result column="service_name" jdbcType="VARCHAR" property="serviceName"/>
+        <result column="service_impl" jdbcType="VARCHAR" property="serviceImpl"/>
+        <result column="service_desc" jdbcType="LONGVARCHAR" property="serviceDesc"/>
+        <result column="updateTime" jdbcType="TIMESTAMP" property="updatetime"/>
+        <collection property="methodDescBeanList" jdbcType="java.util.List" ofType="com.dianping.pigeon.governor.bean.serviceDesc.MethodDescBean">
+            <id column="method_id" jdbcType="INTEGER" property="methodId"/>
+            <result column="service_id" jdbcType="INTEGER" property="serviceId"/>
+            <result column="method_name" jdbcType="VARCHAR" property="methodName"/>
+            <result column="method_fullname" jdbcType="VARCHAR" property="methodFullname"/>
+            <result column="method_return_type" jdbcType="VARCHAR" property="methodReturnType"/>
+            <result column="method_desc" jdbcType="LONGVARCHAR" property="methodDesc"/>
+            <result column="method_return_desc" jdbcType="LONGVARCHAR" property="methodReturnDesc"/>
+            <result column="updatetime" jdbcType="TIMESTAMP" property="updatetime"/>
+            <collection property="paramDescBeanArrayList" jdbcType="java.util.List" ofType="com.dianping.pigeon.governor.bean.serviceDesc.paramDescBean">
+                <id column="param_id" jdbcType="INTEGER" property="paramId"/>
+                <result column="method_id" jdbcType="INTEGER" property="methodId"/>
+                <result column="param_name" jdbcType="VARCHAR" property="paramName"/>
+                <result column="param_desc" jdbcType="LONGVARCHAR" property="paramDesc"/>
+                <result column="updateTime" jdbcType="TIMESTAMP" property="udpatetime"/>
+            </collection>
+            <collection property="exceptionDescBeanArrayList" jdbcType="java.util.List" ofType="com.dianping.pigeon.governor.bean.serviceDesc.exceptionDescBean">
+                <id column="exception_id" jdbcType="INTEGER" property="exceptionId"/>
+                <result column="method_id" jdbcType="INTEGER" property="methodId"/>
+                <result column="exception_name" jdbcType="VARCHAR" property="exceptionName"/>
+                <result column="exception_desc" jdbcType="LONGVARCHAR" property="exceptionDesc"/>
+                <result column="updateTime" jdbcType="TIMESTAMP" property="udpatetime"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="selectServiceDescBeans" resultMap="ServiceDescBeanResultMap">
+        select service_desc.*,method_desc.*, tmp.* from
+service_desc left join method_desc on service_desc.service_id = method_desc.service_id
+left join  (select a.param_id as a_pid,a.method_id as a_mid,a.param_name as a_pn, a.param_desc as a_pd, a.updateTime as a_ut,
+b.exception_id as b_eid,b.method_id as b_mid,b.exception_name as b_en,b.exception_desc as b_ed,b.updateTime as b_ut
+from param_desc a
+left join exception_desc b
+on a.method_id=b.method_id
+union
+select a.param_id as a_pid,a.method_id as a_mid,a.param_name as a_pn, a.param_desc as a_pd, a.updateTime as a_ut,
+b.exception_id as b_eid,b.method_id as b_mid,b.exception_name as b_en,b.exception_desc as b_ed,b.updateTime as b_ut
+from param_desc a
+right join exception_desc b
+on a.method_id=b.method_id) as tmp ON method_desc.method_id = tmp.a_mid
+    </select>
+    -->
+
+
+
+    <select id="selectMethodsByServiceId" resultMap="MethodResultMapWithBLOBs" parameterType="Integer">
+        SELECT *
+        FROM method_desc WHERE service_id = #{service_id};
+    </select>
+
+    <select id="selectParamByMethodId" resultMap="ParamResultMapWithBLOBs" parameterType="Integer">
+        SELECT  *
+        from param_desc where method_id = #{method_id};
+    </select>
+
+    <select id="selectExceptionByMethodId" resultMap="ExceptionResultMapWithBLOBs" parameterType="Integer">
+        SELECT  *
+        from exception_desc where method_id = #{method_id};
+    </select>
+
+    <select id="selectProjectByServiceId" resultType="com.dianping.pigeon.governor.model.Project" parameterType="Integer">
+        SELECT *
+        from project where project.id=#{project_id}
+    </select>
+
+    <select id="selectServiceHosts" resultMap="ServiceHostsResultMap">
+        SELECT s.id,s.name,s.hosts,s.group FROM service as s;
+    </select>
+
+    <select id="selectMethodId" resultType="java.lang.Integer" parameterType="Integer">
+        SELECT  method_id FROM  method_desc where method_id=#{service_id}
+    </select>
+
+
+    <select id="selectAllServiceDesc" resultMap="ServiceDescResultMap">
+        SELECT * FROM service_desc
+    </select>
+
+    <select id="selectAllMethodDesc" resultMap="MethodResultMapWithBLOBs">
+        SELECT * FROM method_desc
+    </select>
+
+    <select id="selectAllParamDesc" resultMap="ParamResultMapWithBLOBs">
+        SELECT * FROM param_desc
+    </select>
+
+    <select id="selectAllExceptionDesc" resultMap="ExceptionResultMapWithBLOBs">
+        SELECT * FROM exception_desc
+    </select>
+
+
+    <update id="updateServiceDescById">
+        UPDATE service_desc SET service_desc.service_desc=#{1} WHERE service_desc.service_id=#{0}
+    </update>
+    <update id="updateMethodDescById">
+        UPDATE method_desc SET method_desc.method_desc=#{1} WHERE method_desc.method_id=#{0}
+    </update>
+    <update id="updateParamDescById">
+        UPDATE param_desc SET param_desc.param_desc=#{1} WHERE param_desc.param_id=#{0}
+    </update>
+    <update id="updateExceptionDescById">
+        UPDATE exception_desc SET exception_desc.exception_desc=#{1} WHERE exception_desc.exception_id=#{0}
+    </update>
+
+
+    <insert id="insertMethodDescSelective" parameterType="com.dianping.pigeon.governor.model.MethodDescWithBLOBs"
+            useGeneratedKeys="true" keyProperty="methodId">
+        insert into method_desc
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="methodId != null">
+                method_id,
+            </if>
+            <if test="serviceId != null">
+                service_id,
+            </if>
+            <if test="methodName != null">
+                method_name,
+            </if>
+            <if test="methodFullname != null">
+                method_fullname,
+            </if>
+            <if test="methodReturnType != null">
+                method_return_type,
+            </if>
+            <if test="updatetime != null">
+                updateTime,
+            </if>
+            <if test="methodDesc != null">
+                method_desc,
+            </if>
+            <if test="methodReturnDesc != null">
+                method_return_desc,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="methodId != null">
+                #{methodId,jdbcType=INTEGER},
+            </if>
+            <if test="serviceId != null">
+                #{serviceId,jdbcType=INTEGER},
+            </if>
+            <if test="methodName != null">
+                #{methodName,jdbcType=VARCHAR},
+            </if>
+            <if test="methodFullname != null">
+                #{methodFullname,jdbcType=VARCHAR},
+            </if>
+            <if test="methodReturnType != null">
+                #{methodReturnType,jdbcType=VARCHAR},
+            </if>
+            <if test="updatetime != null">
+                #{updatetime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="methodDesc != null">
+                #{methodDesc,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="methodReturnDesc != null">
+                #{methodReturnDesc,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+
+    <delete id="deleteParamDesc" parameterType="Integer">
+        DELETE from param_desc WHERE method_id =#{method_id}
+    </delete>
+
+    <delete id="deleteExceptionDesc" parameterType="Integer">
+        DELETE FROM exception_desc WHERE method_id = #{method_id}
+    </delete>
+
+
+</mapper>

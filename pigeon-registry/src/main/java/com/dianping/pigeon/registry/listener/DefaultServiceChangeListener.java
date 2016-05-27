@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.registry.RegionManager;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.domain.HostInfo;
@@ -16,8 +15,6 @@ import com.dianping.pigeon.registry.util.Utils;
 public class DefaultServiceChangeListener implements ServiceChangeListener {
 
 	private static final Logger logger = LoggerLoader.getLogger(DefaultServiceChangeListener.class);
-
-	private RegionManager regionManager = RegionManager.getInstance();
 
 	public DefaultServiceChangeListener() {
 	}
@@ -44,15 +41,10 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 				logger.info("service hosts changed, to removed hosts:" + toRemoveHpSet);
 			}
 			for (HostInfo hostPort : toAddHpSet) {
-				//TODO 判断是不是属于localRegion
-				if(regionManager.isEnableRegionAutoSwitch() && !regionManager.isInCurrentRegion(serviceName, hostPort)) {
-					continue;
-				}
 				RegistryEventListener.providerAdded(serviceName, hostPort.getHost(), hostPort.getPort(),
 						hostPort.getWeight());
 			}
 			for (HostInfo hostPort : toRemoveHpSet) {
-				//TODO 这里需要动吗？暂时先不动
 				RegistryEventListener.providerRemoved(serviceName, hostPort.getHost(), hostPort.getPort());
 			}
 		} catch (Throwable e) {

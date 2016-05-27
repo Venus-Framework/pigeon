@@ -6,6 +6,7 @@ package com.dianping.pigeon.remoting.invoker.config;
 
 import java.util.Map;
 
+import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -53,6 +54,8 @@ public class InvokerConfig<T> {
 	private String group = configManager.getGroup();
 
 	private String loadbalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
+
+	private String regionPolicy = RegionPolicyManager.INSTANCE.DEFAULT_REGIONPOLICY;
 
 	private boolean timeoutRetry = false;
 
@@ -156,6 +159,16 @@ public class InvokerConfig<T> {
 	public void setLoadbalance(String loadbalance) {
 		if (!StringUtils.isBlank(loadbalance)) {
 			this.loadbalance = loadbalance.trim();
+		}
+	}
+
+	public String getRegionPolicy() {
+		return regionPolicy;
+	}
+
+	public void setRegionPolicy(String regionPolicy) {
+		if(StringUtils.isNotBlank(regionPolicy)) {
+			this.regionPolicy = regionPolicy;
 		}
 	}
 

@@ -51,7 +51,7 @@ public class ServiceController extends BaseController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = {"/services/{projectName}"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/services/{projectName:.+}"}, method = RequestMethod.GET)
 	public String projectInfo(ModelMap modelMap,
 								@PathVariable final String projectName,
 								HttpServletRequest request) {
@@ -309,6 +309,26 @@ public class ServiceController extends BaseController {
 		return Result.createSuccessResult("");
 	}
 
+	@RequestMapping(value = {"/services/oneClickOffGroup"}, method = {RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public Result oneClickOffGroup(@RequestParam(value="group", required=true) final String group,
+							  @RequestParam(value="projectId", required=true) final int projectId,
+							  HttpServletRequest request) {
+		if(StringUtils.isBlank(group)) {
+			return Result.createErrorResult("危险操作！不允许一键删除默认泳道服务！");
+		}
+
+		boolean deleteResult = serviceService.deleteByGroup(projectId, group, true);
+
+		if( !deleteResult ) {
+			return Result.createErrorResult("Delete failed!");
+		}
+
+		String content = String.format("Oneclick Off Group grp=%s", group);
+		workThreadPool.submit(new LogOpRun(request, OpType.UPDATE_PIGEON_SERVICE, content, projectId));
+
+		return Result.createSuccessResult("");
+	}
 
 	@Deprecated
 	@RequestMapping(value = {"/services/oneClickAdd2"}, method = {RequestMethod.GET, RequestMethod.POST})

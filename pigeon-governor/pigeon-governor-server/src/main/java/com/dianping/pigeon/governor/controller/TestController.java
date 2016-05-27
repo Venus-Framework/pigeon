@@ -1,8 +1,18 @@
 package com.dianping.pigeon.governor.controller;
 
 import com.dianping.pigeon.governor.bean.Result;
+import com.dianping.pigeon.governor.bean.ServiceWithGroup;
+import com.dianping.pigeon.governor.exception.DbException;
+import com.dianping.pigeon.governor.model.Service;
+import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.task.CheckAndSyncServiceDB;
 import com.dianping.pigeon.governor.util.IPUtils;
+import com.dianping.pigeon.governor.util.OpType;
+import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.registry.zookeeper.CuratorClient;
+import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
+import com.dianping.pigeon.registry.zookeeper.Utils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 /**
  * Created by chenchongze on 16/1/26.
@@ -29,6 +40,90 @@ public class TestController {
     private CheckAndSyncServiceDB checkAndSyncServiceDB;
     @Autowired
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+    @Autowired
+    private ServiceService serviceService;
+
+    private Map<ServiceWithGroup, Service> serviceGroupDbIndex = CheckAndSyncServiceDB.getServiceGroupDbIndex();
+
+    private CuratorClient client;
+
+    public TestController() {
+        CuratorRegistry registry = (CuratorRegistry) RegistryManager.getInstance().getRegistry();
+        client =  registry.getCuratorClient();
+    }
+
+    @RequestMapping(value = "/betaonly/dellocalip", method = {RequestMethod.POST})
+    @ResponseBody
+    public Result dellocalip(@RequestParam(value="validate") final String validate) {
+
+        if(IPUtils.getFirstNoLoopbackIP4Address().equalsIgnoreCase(validate)) {
+
+            threadPoolTaskExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        checkAndSyncServiceDB.loadFromDb();
+                    } catch (DbException e1) {
+                        logger.warn("load from db failed!try again!",e1);
+                        try {
+                            checkAndSyncServiceDB.loadFromDb();
+                        } catch (DbException e2) {
+                            logger.error("load from db failed!!",e2);
+                        }
+                    }
+
+                    serviceGroupDbIndex = CheckAndSyncServiceDB.getServiceGroupDbIndex();
+
+                    for (ServiceWithGroup serviceWithGroup : serviceGroupDbIndex.keySet()) {
+                        final Service serviceDb = serviceGroupDbIndex.get(serviceWithGroup);
+                        String hosts = serviceDb.getHosts();
+                        if(StringUtils.isNotBlank(hosts) && StringUtils.isBlank(serviceDb.getGroup())) { // 默认泳道有机器
+
+                            Set<String> hostSet = new HashSet<String>();
+                            hostSet.addAll(Arrays.asList(hosts.split(",")));
+                            boolean needUpdate = false;
+
+                            for(String host : hosts.split(",")) {
+                                if(!host.startsWith("192.168") && !host.startsWith("10.66")) {
+                                    hostSet.remove(host);
+                                    needUpdate = true;
+                                }
+                            }
+
+                            // 更新数据库和zk
+                            if(needUpdate) {
+                                String newHostList = StringUtils.join(hostSet, ",");
+                                String service_zk = Utils.escapeServiceName(serviceWithGroup.getService());
+                                String serviceHostAddress = "/DP/SERVER/" + service_zk;
+
+                                try {
+                                    client.set(serviceHostAddress, newHostList);
+                                } catch (Exception e) {
+                                    logger.error("write zk error! return!", e);
+                                    return;
+                                }
+
+                                //update database
+                                serviceDb.setHosts(newHostList);
+                                serviceService.updateById(serviceDb);
+
+                                logger.warn("update: " + serviceWithGroup + " with: " + newHostList);
+                            }
+                        }
+                    }
+
+                }
+            });
+
+            return Result.createSuccessResult("start job...");
+
+        } else {
+
+            return Result.createErrorResult("failed to validate...");
+
+        }
+
+    }
 
     @RequestMapping(value = {"/syncdb"}, method = {RequestMethod.POST})
     @ResponseBody
@@ -60,4 +155,5 @@ public class TestController {
 
         return Result.createSuccessResult("success!");
     }
+
 }
