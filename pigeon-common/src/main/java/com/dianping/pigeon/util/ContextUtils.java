@@ -369,11 +369,13 @@ public final class ContextUtils {
     }
 
 
-    public static void convertContext(Map<String, String> dstCtx, Map<String, Serializable> srcCtx) {
-        if (srcCtx == null) {
+    public static void convertContext(Map<String, Serializable> srcCtx, Map<String, String> dstCtx) {
+        if (srcCtx != null) {
             for (Map.Entry<String, Serializable> entry : srcCtx.entrySet()) {
                 if (entry.getValue() instanceof String) {
                     dstCtx.put(entry.getKey(), (String) entry.getValue());
+                } else {
+                    throw new IllegalArgumentException("only support string type.");
                 }
             }
         }

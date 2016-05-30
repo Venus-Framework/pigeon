@@ -11,4 +11,12 @@ public interface UnifiedResponse extends InvocationResponse, UnifiedInvocation {
     Throwable getException();
 
     void setException(Throwable exception);
+
+    String getServiceName();
+
+    void setServiceName(String serviceName);
+
+    String getMethodName();
+
+    void setMethodName(String methodName);
 }

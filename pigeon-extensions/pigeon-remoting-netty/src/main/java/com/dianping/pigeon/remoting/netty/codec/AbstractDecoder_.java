@@ -86,7 +86,7 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
 
                     msg = deserialize(serialize, is);
                     //afterDecode
-                    afterDecode(msg, is, channel);
+                    afterDecode(msg, serialize, is, channel);
                 } catch (Throwable e) {
                     SerializationException se = new SerializationException(e);
 
@@ -148,7 +148,7 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
 
                 msg = deserialize(serialize, is);
                 //afterDecode
-                afterDecode(msg, is, channel);
+                afterDecode(msg, serialize, is, channel);
             } catch (Throwable e) {
 
                 logger.error("Deserialize failed. host:"
@@ -166,7 +166,7 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
         return frame;
     }
 
-    private Object afterDecode(Object msg, ChannelBufferInputStream is, Channel channel) throws IOException {
+    private Object afterDecode(Object msg, byte serialize, ChannelBufferInputStream is, Channel channel) throws IOException {
         int available = is.available();
 
         if (msg instanceof InvocationSerializable) {
@@ -177,6 +177,8 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
             if (msgType == Constants.MESSAGE_TYPE_SERVICE && available > 0) {
                 msg_.setSize(available + 3);
             }
+
+            msg_.setSerialize(serialize);
         }
 
         long receiveTime = System.currentTimeMillis();

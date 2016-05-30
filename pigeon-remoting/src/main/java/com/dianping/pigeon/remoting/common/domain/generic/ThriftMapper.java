@@ -1,6 +1,7 @@
 package com.dianping.pigeon.remoting.common.domain.generic;
 
 //import com.dianping.cat.CatConstants;
+
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.*;
 import com.dianping.pigeon.remoting.common.exception.*;
 import com.dianping.pigeon.remoting.common.exception.SecurityException;
@@ -110,6 +111,7 @@ public class ThriftMapper {
         ResponseInfo responseInfo = new ResponseInfo();
         //sequence
         responseInfo.setSequenceId(response.getSequence());
+        responseInfo.setStatus(StatusCode.Success);
         //exception
         Throwable exception = response.getException();
         if (exception != null) {

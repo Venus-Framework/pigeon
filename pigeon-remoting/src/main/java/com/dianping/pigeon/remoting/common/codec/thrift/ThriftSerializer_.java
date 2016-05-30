@@ -202,7 +202,7 @@ public class ThriftSerializer_ extends AbstractSerializer {
                 DynamicByteArrayOutputStream bos = new DynamicByteArrayOutputStream(1024);
                 GenericResponse response = (GenericResponse) obj;
 
-                TIOStreamTransport transport = new TIOStreamTransport(os);
+                TIOStreamTransport transport = new TIOStreamTransport(bos);
                 TBinaryProtocol protocol = new TBinaryProtocol(transport);
 
                 //headerlength
@@ -223,7 +223,7 @@ public class ThriftSerializer_ extends AbstractSerializer {
                 //body
                 if (header.getResponseInfo().getStatus() == StatusCode.Success) {
                     protocol.writeMessageBegin(new TMessage(response.getMethodName(), TMessageType.REPLY, nextSeqId()));
-                    methodProcessor.writeResponse(protocol, nextSeqId(), TMessageType.REPLY);
+                    methodProcessor.writeResponse(protocol, nextSeqId(), response.getReturn());
                 } else {
                     protocol.writeMessageBegin(new TMessage(response.getMethodName(), TMessageType.EXCEPTION, nextSeqId()));
                     TApplicationException exception = new TApplicationException(response.getException().getMessage());

@@ -5,9 +5,11 @@
 package com.dianping.pigeon.remoting.provider.process.filter;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedRequest;
+import com.dianping.pigeon.remoting.common.domain.generic.UnifiedResponse;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
@@ -80,11 +82,11 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
     }
 
     private void transferContextValueToProcessor0(final ProviderContext processContext, final UnifiedRequest request) {
-        ContextUtils.setGlobalContext(request.getGlobalValues());
+        ContextUtils.setGlobalContext((Map) request.getGlobalContext());
 
         ContextUtils.putLocalContext("CLIENT_IP", processContext.getChannel().getRemoteAddress());
         ContextUtils.putLocalContext("CLIENT_APP", request.getApp());
-        Map<String, Serializable> requestValues = request.getRequestValues();
+        Map<String, String> requestValues = request.getLocalContext();
         if (requestValues != null) {
             for (String key : requestValues.keySet()) {
                 ContextUtils.putLocalContext(key, requestValues.get(key));
@@ -92,8 +94,16 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
         }
     }
 
-
     private void transferContextValueToResponse(final ProviderContext processContext, final InvocationResponse response) {
+        if (response instanceof UnifiedResponse) {
+            UnifiedResponse _response = (UnifiedResponse) response;
+            transferContextValueToResponse0(processContext, _response);
+        } else {
+            transferContextValueToResponse0(processContext, response);
+        }
+    }
+
+    private void transferContextValueToResponse0(final ProviderContext processContext, final InvocationResponse response) {
         Object contextHolder = ContextUtils.getContext();
         Map<String, Serializable> contextValues = processContext.getContextValues();
         if (contextHolder != null) {
@@ -105,6 +115,18 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
             response.setContext(contextHolder);
         }
         response.setResponseValues(ContextUtils.getResponseContext());
+    }
+
+    private void transferContextValueToResponse0(final ProviderContext processContext, final UnifiedResponse response) {
+        Map<String, String> _localContext = response.getLocalContext();
+
+        if (_localContext == null) {
+            _localContext = new HashMap<String, String>();
+            response.setLocalContext(_localContext);
+        }
+
+        ContextUtils.convertContext(ContextUtils.getResponseContext(), _localContext);
+        response.setLocalContext(_localContext);
     }
 
 }

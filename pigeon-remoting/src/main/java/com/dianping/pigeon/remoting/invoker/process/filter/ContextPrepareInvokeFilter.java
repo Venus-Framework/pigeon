@@ -164,6 +164,14 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
 
     private void transferContextValueToRequest0(final UnifiedRequest request) {
+
+        if (ContextUtils.getGlobalContext(Constants.CONTEXT_KEY_SOURCE_APP) == null) {
+            ContextUtils.putGlobalContext(Constants.CONTEXT_KEY_SOURCE_APP, ConfigManagerLoader.getConfigManager()
+                    .getAppName());
+            ContextUtils.putGlobalContext(Constants.CONTEXT_KEY_SOURCE_IP, ConfigManagerLoader.getConfigManager()
+                    .getLocalIp());
+        }
+
         Map<String, String> _globalContext = request.getGlobalContext();
         if (_globalContext == null) {
             _globalContext = new HashMap<String, String>();
@@ -172,7 +180,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
         Map<String, Serializable> globalContext = ContextUtils.getGlobalContext();
 
-        ContextUtils.convertContext(_globalContext, globalContext);
+        ContextUtils.convertContext(globalContext, _globalContext);
         Map<String, String> _localContext = request.getLocalContext();
         if (_localContext == null) {
             _localContext = new HashMap<String, String>();
@@ -180,7 +188,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
         }
 
         Map<String, Serializable> localContext = ContextUtils.getRequestContext();
-        ContextUtils.convertContext(_localContext, localContext);
+        ContextUtils.convertContext(localContext, _localContext);
     }
 
 }
