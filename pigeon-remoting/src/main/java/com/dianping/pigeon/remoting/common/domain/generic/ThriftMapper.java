@@ -2,6 +2,7 @@ package com.dianping.pigeon.remoting.common.domain.generic;
 
 //import com.dianping.cat.CatConstants;
 
+import com.dianping.pigeon.remoting.common.codec.thrift.annotation.ThriftMethodProcessor;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.*;
 import com.dianping.pigeon.remoting.common.exception.*;
 import com.dianping.pigeon.remoting.common.exception.SecurityException;
@@ -83,11 +84,13 @@ public class ThriftMapper {
         return header;
     }
 
-    public static Header convertResponseToHeader(GenericResponse response) {
+    public static Header convertResponseToHeader(GenericResponse response, boolean isUserException) {
         Header header = new Header();
 
+        int messageType = response.getMessageType();
+
         //messageType
-        if (response.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
+        if (messageType == Constants.MESSAGE_TYPE_HEART) {
             header.setMessageType(MessageType.Heartbeat);
         } else {
             header.setMessageType(MessageType.Normal);
@@ -112,26 +115,42 @@ public class ThriftMapper {
         //sequence
         responseInfo.setSequenceId(response.getSequence());
         responseInfo.setStatus(StatusCode.Success);
+
         //exception
-        Throwable exception = response.getException();
-        if (exception != null) {
-            if (exception instanceof RpcException) {
-                responseInfo.setStatus(StatusCode.RpcException);
-            } else if (exception instanceof NetworkException) {
-                responseInfo.setStatus(StatusCode.TransportException);
-            } else if (exception instanceof SerializationException) {
-                responseInfo.setStatus(StatusCode.ProtocolException);
-            } else if (exception instanceof ServiceDegradedException) {
-                responseInfo.setStatus(StatusCode.DegradeException);
-            } else if (exception instanceof SecurityException) {
-                responseInfo.setStatus(StatusCode.SecurityException);
-            } else if (exception instanceof RemoteInvocationException) {
-                responseInfo.setStatus(StatusCode.RemoteException);
-            } else if (exception instanceof InvocationFailureException
-                    || exception instanceof RejectedException) {
-                responseInfo.setStatus(StatusCode.ServiceException);
+        if (messageType == Constants.MESSAGE_TYPE_EXCEPTION
+                || messageType == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
+
+            Throwable exception = (Throwable) response.getReturn();
+
+            if (exception != null) {
+                if (exception instanceof RpcException) {
+                    if (exception instanceof NetworkException) {
+                        responseInfo.setStatus(StatusCode.TransportException);
+                    } else if (exception instanceof SerializationException) {
+                        responseInfo.setStatus(StatusCode.ProtocolException);
+                    } else if (exception instanceof ServiceDegradedException) {
+                        responseInfo.setStatus(StatusCode.DegradeException);
+                    } else if (exception instanceof SecurityException) {
+                        responseInfo.setStatus(StatusCode.SecurityException);
+                    } else if (exception instanceof RemoteInvocationException) {
+                        responseInfo.setStatus(StatusCode.RemoteException);
+                    } else if (exception instanceof InvocationFailureException
+                            || exception instanceof RejectedException) {
+                        responseInfo.setStatus(StatusCode.ServiceException);
+                    } else {
+                        responseInfo.setStatus(StatusCode.RpcException);
+                    }
+
+                } else {
+
+                    if (isUserException) {
+                        responseInfo.setStatus(StatusCode.ApplicationException);
+                    } else {
+                        responseInfo.setStatus(StatusCode.RuntimeException);
+                    }
+                }
+                responseInfo.setMessage(exception.getMessage());
             }
-            responseInfo.setMessage(response.getException().getMessage());
         }
 
         header.setResponseInfo(responseInfo);
@@ -214,11 +233,18 @@ public class ThriftMapper {
     public static GenericResponse convertHeaderToResponse(Header header) {
         GenericResponse response = new GenericResponse();
 
+        StatusCode statusCode = header.getResponseInfo().getStatus();
         //messageType
         if (header.getMessageType() == MessageType.Heartbeat) {
             response.setMessageType(Constants.MESSAGE_TYPE_HEART);
         } else {
-            response.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
+            if (statusCode == StatusCode.Success) {
+                response.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
+            } else if (statusCode == StatusCode.RpcException) {
+                response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
+            } else {
+                response.setMessageType(Constants.MESSAGE_TYPE_SERVICE_EXCEPTION);
+            }
         }
 
         //compresstype
@@ -238,30 +264,6 @@ public class ThriftMapper {
         if (header.getResponseInfo() != null) {
             ResponseInfo responseInfo = header.getResponseInfo();
             response.setSequence(responseInfo.getSequenceId());
-
-            switch (responseInfo.getStatus()) {
-                case Success:
-                    break;
-                case ApplicationException:
-                    break;
-                case RuntimeException:
-                    break;
-                case RpcException:
-                    break;
-                case TransportException:
-                    break;
-                case ProtocolException:
-                    break;
-                case DegradeException:
-                    break;
-                case SecurityException:
-                    break;
-                case ServiceException:
-                    break;
-                case RemoteException:
-                    break;
-            }
-
         }
 
         //localContext
@@ -279,28 +281,28 @@ public class ThriftMapper {
                 case ApplicationException:
                     break;
                 case RuntimeException:
-                    response.setException(new RuntimeException(expMessage));
+                    response.setReturn(new RuntimeException(expMessage));
                     break;
                 case RpcException:
-                    response.setException(new RpcException(expMessage));
+                    response.setReturn(new RpcException(expMessage));
                     break;
                 case TransportException:
-                    response.setException(new NetworkException(expMessage));
+                    response.setReturn(new NetworkException(expMessage));
                     break;
                 case ProtocolException:
-                    response.setException(new SerializationException(expMessage));
+                    response.setReturn(new SerializationException(expMessage));
                     break;
                 case DegradeException:
-                    response.setException(new ServiceDegradedException(expMessage));
+                    response.setReturn(new ServiceDegradedException(expMessage));
                     break;
                 case SecurityException:
-                    response.setException(new SecurityException(expMessage));
+                    response.setReturn(new SecurityException(expMessage));
                     break;
                 case ServiceException:
-                    response.setException(new InvocationFailureException(expMessage));
+                    response.setReturn(new InvocationFailureException(expMessage));
                     break;
                 case RemoteException:
-                    response.setException(new RemoteInvocationException(expMessage));
+                    response.setReturn(new RemoteInvocationException(expMessage));
                     break;
             }
 

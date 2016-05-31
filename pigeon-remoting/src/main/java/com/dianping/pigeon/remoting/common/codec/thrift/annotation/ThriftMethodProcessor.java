@@ -148,6 +148,24 @@ public class ThriftMethodProcessor {
         writeResponse(out, "success", (short) 0, successCodec, result);
     }
 
+
+    public boolean isUserException(Object exception) {
+        ExceptionProcessor exceptionCodec = exceptionCodecs.get(exception.getClass());
+        if (exceptionCodec != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public <T> void writeExceptionResponse(TProtocol out,
+                                           int sequenceId,
+                                           T exception) throws Exception {
+        ExceptionProcessor exceptionCodec = exceptionCodecs.get(exception.getClass());
+        if (exceptionCodec != null) {
+            writeResponse(out, "exception", exceptionCodec.getId(), exceptionCodec.getCodec(), exception);
+        }
+    }
+
     public <T> void writeResponse(TProtocol out,
                                   String responseFieldName,
                                   short responseFieldId,

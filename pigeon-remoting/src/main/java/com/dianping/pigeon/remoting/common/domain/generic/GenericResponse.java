@@ -27,8 +27,6 @@ public class GenericResponse implements UnifiedResponse {
 
     private transient String methodName;
 
-    private transient Throwable exception;
-
     private Object returnVal;
 
     private int compressType;
@@ -121,14 +119,6 @@ public class GenericResponse implements UnifiedResponse {
     @Override
     public void setContext(Object context) {
         throw new UnsupportedOperationException("operation not supported.");
-    }
-
-    public Throwable getException() {
-        return exception;
-    }
-
-    public void setException(Throwable exception) {
-        this.exception = exception;
     }
 
     @Override

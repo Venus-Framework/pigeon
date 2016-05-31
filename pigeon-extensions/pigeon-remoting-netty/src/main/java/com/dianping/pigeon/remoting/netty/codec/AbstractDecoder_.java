@@ -25,6 +25,8 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
 
     private static final Logger logger = LoggerLoader.getLogger(AbstractDecoder_.class);
 
+    private byte[] headMsgs = new byte[2];
+
     @Override
     public Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer)
             throws IOException {
@@ -33,17 +35,16 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
 
         if (buffer.readableBytes() > 2) {
 
-            byte[] headMsgs = new byte[2];
             buffer.getBytes(buffer.readerIndex(), headMsgs);
 
             if ((CodecConstants.MAGIC_FIRST == headMsgs[0]
                     && CodecConstants.MAGIC_SECEND == headMsgs[1])) {
-
+                //old protocal
                 message = decode0(ctx, channel, buffer);
 
             } else if (CodecConstants._MAGIC_FIRST == headMsgs[0]
                     && CodecConstants._MAGIC_SECEND == headMsgs[1]) {
-
+                //new protocal
                 message = _decode0(ctx, channel, buffer);
 
             } else {

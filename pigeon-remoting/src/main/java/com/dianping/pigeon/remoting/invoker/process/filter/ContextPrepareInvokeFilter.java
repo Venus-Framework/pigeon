@@ -58,9 +58,12 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
     // 初始化Request的createTime和timeout，以便统一这两个值
     private void initRequest(InvokerContext invokerContext) {
-        compactRequest(invokerContext);
-
         InvocationRequest request = invokerContext.getRequest();
+
+        if (!(request instanceof UnifiedRequest)) {
+            compactRequest(invokerContext);
+        }
+
         request.setSequence(requestSequenceMaker.incrementAndGet() * -1);
         request.setCreateMillisTime(System.currentTimeMillis());
         request.setMessageType(Constants.MESSAGE_TYPE_SERVICE);

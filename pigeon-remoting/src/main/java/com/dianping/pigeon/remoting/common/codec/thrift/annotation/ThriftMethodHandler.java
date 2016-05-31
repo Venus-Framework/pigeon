@@ -86,7 +86,7 @@ public class ThriftMethodHandler {
         reader.readStructEnd();
 
         if (exception != null) {
-            throw exception;
+            results = exception;
         }
 
         if (successCodec.getType() == ThriftType.VOID) {

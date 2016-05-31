@@ -44,24 +44,93 @@ public final class ProviderUtils {
         return response;
     }
 
+
+    public static InvocationResponse createThrowableResponse(InvocationRequest request, byte serialization, Throwable e) {
+        if (request instanceof UnifiedRequest) {
+            return createThrowableResponse0((UnifiedRequest) request, e);
+        } else {
+            return createThrowableResponse0(request, e);
+        }
+    }
+
+
+    public static InvocationResponse createThrowableResponse0(InvocationRequest request, Throwable e) {
+        InvocationResponse response = null;
+        byte serialize = request.getSerialize();
+        response = SerializerFactory.getSerializer(serialize).newResponse();
+        response.setSequence(request.getSequence());
+        response.setSerialize(serialize);
+        response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
+        if (serialize == SerializerFactory.SERIALIZE_JSON) {
+            response.setReturn(LangUtils.getFullStackTrace(e));
+        } else {
+            response.setReturn(exceptionTranslator.translate(e));
+        }
+        return response;
+    }
+
+    public static InvocationResponse createThrowableResponse0(UnifiedRequest request, Throwable e) {
+        UnifiedResponse response = null;
+        byte serialize = request.getSerialize();
+        response = (UnifiedResponse) SerializerFactory.getSerializer(serialize).newResponse();
+        response.setSequence(request.getSequence());
+        response.setSerialize(serialize);
+        response.setServiceName(request.getServiceName());
+        response.setMethodName(request.getMethodName());
+        response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
+        if (serialize == SerializerFactory.SERIALIZE_JSON) {
+            response.setReturn(LangUtils.getFullStackTrace(e));
+        } else {
+            response.setReturn(exceptionTranslator.translate(e));
+        }
+        return response;
+    }
+
+
     public static InvocationResponse createFailResponse(InvocationRequest request, Throwable e) {
         InvocationResponse response = null;
         if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
             response = new DefaultResponse(request.getSerialize(), request.getSequence(), Constants.MESSAGE_TYPE_HEART,
                     exceptionTranslator.translate(e));
         } else {
-            response = createThrowableResponse(request.getSequence(), request.getSerialize(), e);
+            response = createThrowableResponse(request, request.getSerialize(), e);
         }
         return response;
     }
 
     public static InvocationResponse createServiceExceptionResponse(InvocationRequest request, Throwable e) {
+        if (request instanceof UnifiedRequest) {
+            return createServiceExceptionResponse0((UnifiedRequest) request, e);
+        } else {
+            return createServiceExceptionResponse0(request, e);
+        }
+    }
+
+    public static InvocationResponse createServiceExceptionResponse0(InvocationRequest request, Throwable e) {
         InvocationResponse response = null;
         byte serialize = request.getSerialize();
         response = SerializerFactory.getSerializer(serialize).newResponse();
         response.setSequence(request.getSequence());
         response.setSerialize(serialize);
         response.setMessageType(Constants.MESSAGE_TYPE_SERVICE_EXCEPTION);
+        if (serialize == SerializerFactory.SERIALIZE_JSON) {
+            response.setReturn(LangUtils.getFullStackTrace(e));
+        } else {
+            response.setReturn(e);
+        }
+
+        return response;
+    }
+
+    public static InvocationResponse createServiceExceptionResponse0(UnifiedRequest request, Throwable e) {
+        UnifiedResponse response = null;
+        byte serialize = request.getSerialize();
+        response = (UnifiedResponse) SerializerFactory.getSerializer(serialize).newResponse();
+        response.setSequence(request.getSequence());
+        response.setSerialize(serialize);
+        response.setMessageType(Constants.MESSAGE_TYPE_SERVICE_EXCEPTION);
+        response.setServiceName(request.getServiceName());
+        response.setMethodName(request.getMethodName());
         if (serialize == SerializerFactory.SERIALIZE_JSON) {
             response.setReturn(LangUtils.getFullStackTrace(e));
         } else {

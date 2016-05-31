@@ -301,7 +301,7 @@ public class ThriftSerializer extends AbstractSerializer {
                 //headerlength
                 protocol.writeI32(Integer.MAX_VALUE);
                 //header body
-                Header header = ThriftMapper.convertResponseToHeader(response);
+                Header header = ThriftMapper.convertResponseToHeader(response, false);
                 header.write(protocol);
                 int headerLength = bos.size() - HEADER_FIELD_LENGTH;
 

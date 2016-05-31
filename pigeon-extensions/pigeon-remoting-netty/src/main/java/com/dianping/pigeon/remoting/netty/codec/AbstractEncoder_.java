@@ -5,7 +5,6 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedInvocation;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
-import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import org.apache.logging.log4j.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -38,9 +37,10 @@ public abstract class AbstractEncoder_ extends OneToOneEncoder implements Encode
             try {
 
                 if (msg instanceof UnifiedInvocation) {
+                    //new protocal
                     return _encode0(ctx, channel, (UnifiedInvocation) _msg);
                 }
-
+                //old protocal
                 return encode0(ctx, channel, _msg);
             } catch (IOException e) {
                 SerializationException se = new SerializationException(e);

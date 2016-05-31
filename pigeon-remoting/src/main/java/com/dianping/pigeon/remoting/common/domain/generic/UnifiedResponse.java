@@ -8,10 +8,6 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
  */
 public interface UnifiedResponse extends InvocationResponse, UnifiedInvocation {
 
-    Throwable getException();
-
-    void setException(Throwable exception);
-
     String getServiceName();
 
     void setServiceName(String serviceName);
