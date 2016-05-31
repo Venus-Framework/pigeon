@@ -1,5 +1,7 @@
 package com.dianping.dpsf.exception;
 
+import com.dianping.pigeon.remoting.common.exception.RpcException;
+
 /**    
   * <p>    
   * Title: NetException.java   
@@ -11,7 +13,7 @@ package com.dianping.dpsf.exception;
   * @version 1.0    
   * @created 2010-8-3 上午10:47:46   
   */ 
-public class NetTimeoutException extends NetException{
+public class NetTimeoutException extends RpcException{
 	
 	/**
 	 * 
