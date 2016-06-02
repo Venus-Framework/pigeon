@@ -228,6 +228,10 @@ public final class ServicePublisher {
 					+ ", address:" + serverAddress + ", weight:" + weight);
 		}
 		RegistryManager.getInstance().registerService(registryUrl, group, serverAddress, weight);
+		//todo register protocol, include http server, 从琦总的接口拿
+		RegistryManager.getInstance().registerSupportNewProtocol(serverAddress, registryUrl,
+				/**从providerconfig拿，有可能要增加providerconfig参数，这个方法体加一个参数*/false);
+
 		if (weight >= 0) {
 			if (!serverWeightCache.containsKey(serverAddress)) {
 				RegistryManager.getInstance().setServerApp(serverAddress, configManager.getAppName());
@@ -276,8 +280,12 @@ public final class ServicePublisher {
 			List<Server> servers = ProviderBootStrap.getServers(providerConfig);
 			for (Server server : servers) {
 				String serverAddress = configManager.getLocalIp() + ":" + server.getPort();
-				RegistryManager.getInstance().unregisterService(server.getRegistryUrl(providerConfig.getUrl()),
+				String registryUrl = server.getRegistryUrl(providerConfig.getUrl());
+				RegistryManager.getInstance().unregisterService(registryUrl,
 						providerConfig.getServerConfig().getGroup(), serverAddress);
+				// unregister protocol, include http server
+				RegistryManager.getInstance().unregisterSupportNewProtocol(serverAddress, registryUrl);
+
 				Integer weight = serverWeightCache.remove(serverAddress);
 				if (weight != null) {
 					RegistryManager.getInstance().unregisterServerApp(serverAddress);

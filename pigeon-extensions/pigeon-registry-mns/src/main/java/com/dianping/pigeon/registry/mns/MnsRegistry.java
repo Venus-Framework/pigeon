@@ -1,8 +1,11 @@
 package com.dianping.pigeon.registry.mns;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.registry.util.Constants;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
@@ -15,34 +18,38 @@ public class MnsRegistry implements Registry {
 
     private Logger logger = LoggerLoader.getLogger(getClass());
 
+    private Properties properties;
+
+    private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+
     @Override
     public void init(Properties properties) {
-
+        this.properties = properties;
     }
 
     @Override
     public String getName() {
-        return null;
+        return Constants.REGISTRY_MNS_NAME;
     }
 
     @Override
     public String getValue(String key) {
-        return null;
+        return properties.getProperty(key);
     }
 
     @Override
     public String getServiceAddress(String serviceName) throws RegistryException {
-        return null;
+        return "";
     }
 
     @Override
     public String getServiceAddress(String serviceName, String group) throws RegistryException {
-        return null;
+        return "";
     }
 
     @Override
     public String getServiceAddress(String serviceName, String group, boolean fallbackDefaultGroup) throws RegistryException {
-        return null;
+        return "";
     }
 
     @Override
@@ -62,7 +69,12 @@ public class MnsRegistry implements Registry {
 
     @Override
     public int getServerWeight(String serverAddress) throws RegistryException {
-        return 0;
+        try {
+            return 1;
+        } catch (Throwable e) {
+            logger.error("failed to get weight for " + serverAddress);
+            throw new RegistryException(e);
+        }
     }
 
     @Override
@@ -76,8 +88,14 @@ public class MnsRegistry implements Registry {
     }
 
     @Override
-    public String getServerApp(String serverAddress) {
-        return null;
+    public String getServerApp(String serverAddress) throws RegistryException {
+        try {
+
+            return "";
+        } catch (Throwable e) {
+            logger.error("failed to get app for " + serverAddress);
+            throw new RegistryException(e);
+        }
     }
 
     @Override
@@ -96,8 +114,14 @@ public class MnsRegistry implements Registry {
     }
 
     @Override
-    public String getServerVersion(String serverAddress) {
-        return null;
+    public String getServerVersion(String serverAddress) throws RegistryException {
+        try {
+
+            return "";
+        } catch (Throwable e) {
+            logger.error("failed to get version for " + serverAddress);
+            throw new RegistryException(e);
+        }
     }
 
     @Override
@@ -121,22 +145,35 @@ public class MnsRegistry implements Registry {
     }
 
     @Override
-    public void registerAppHostList(String serviceAddress, String appName, Integer consolePort) {
-
-    }
-
-    @Override
-    public void unregisterAppHostList(String serviceAddress, String appName) {
-
-    }
-
-    @Override
     public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
 
     }
 
     @Override
     public void deleteHeartBeat(String serviceAddress) {
+
+    }
+
+    @Override
+    public boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
+        try {
+
+            return false;
+
+        } catch (Throwable e) {
+            logger.error("failed to get protocol:" + serviceName
+                    + "of host:" + serviceAddress + ", caused by:" + e.getMessage());
+            throw new RegistryException(e);
+        }
+    }
+
+    @Override
+    public void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException {
+
+    }
+
+    @Override
+    public void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
 
     }
 }
