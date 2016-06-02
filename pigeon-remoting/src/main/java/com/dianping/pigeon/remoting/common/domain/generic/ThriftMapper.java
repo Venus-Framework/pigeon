@@ -2,6 +2,7 @@ package com.dianping.pigeon.remoting.common.domain.generic;
 
 //import com.dianping.cat.CatConstants;
 
+import com.dianping.pigeon.monitor.MonitorConstants;
 import com.dianping.pigeon.remoting.common.codec.thrift.annotation.ThriftMethodProcessor;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.*;
 import com.dianping.pigeon.remoting.common.exception.*;
@@ -66,9 +67,9 @@ public class ThriftMapper {
         Map<String, String> localContext = request.getLocalContext();
 
         if (localContext != null) {
-//            traceInfo.setRootMessageId(localContext.get(CatConstants.PIGEON_ROOT_MESSAGE_ID));
-//            traceInfo.setServerMessageId(localContext.get(CatConstants.PIGEON_SERVER_MESSAGE_ID));
-//            traceInfo.setCurrentMessageId(localContext.get(CatConstants.PIGEON_CURRENT_MESSAGE_ID));
+            traceInfo.setRootMessageId(localContext.get(MonitorConstants.ROOT_MSG_ID));
+            traceInfo.setServerMessageId(localContext.get(MonitorConstants.SERVER_MSG_ID));
+            traceInfo.setCurrentMessageId(localContext.get(MonitorConstants.CURRENT_MSG_ID));
         }
 
         header.setTraceInfo(traceInfo);
@@ -223,9 +224,9 @@ public class ThriftMapper {
 
         if (request.getLocalContext() == null) {
             Map<String, String> localContext = new HashMap<String, String>();
-//            localContext.put(CatConstants.PIGEON_ROOT_MESSAGE_ID, traceInfo.getRootMessageId());
-//            localContext.put(CatConstants.PIGEON_CURRENT_MESSAGE_ID, traceInfo.getCurrentMessageId());
-//            localContext.put(CatConstants.PIGEON_SERVER_MESSAGE_ID, traceInfo.getServerMessageId());
+            localContext.put(MonitorConstants.ROOT_MSG_ID, traceInfo.getRootMessageId());
+            localContext.put(MonitorConstants.CURRENT_MSG_ID, traceInfo.getCurrentMessageId());
+            localContext.put(MonitorConstants.SERVER_MSG_ID, traceInfo.getServerMessageId());
         }
         return request;
     }
