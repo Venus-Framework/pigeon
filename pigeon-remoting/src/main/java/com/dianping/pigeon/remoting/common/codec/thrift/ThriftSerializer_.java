@@ -13,7 +13,6 @@ import com.dianping.pigeon.remoting.common.domain.generic.thrift.Header;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.StatusCode;
 import com.dianping.pigeon.remoting.common.domain.generic.ThriftMapper;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
-import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 import com.dianping.pigeon.util.ClassUtils;
@@ -232,7 +231,6 @@ public class ThriftSerializer_ extends AbstractSerializer {
                 header.write(protocol);
 
                 int headerLength = bos.size() - HEADER_FIELD_LENGTH;
-
 
                 //bodylength
                 protocol.writeI32(Integer.MAX_VALUE);

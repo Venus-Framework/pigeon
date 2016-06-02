@@ -63,12 +63,14 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
         if (!(request instanceof UnifiedRequest)) {
             compactRequest(invokerContext);
+        } else {
+            UnifiedRequest _request = (UnifiedRequest) request;
+            _request.setParameterTypes(invokerContext.getParameterTypes());
         }
 
         request.setSequence(requestSequenceMaker.incrementAndGet() * -1);
         request.setCreateMillisTime(System.currentTimeMillis());
         request.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
-
         checkSerialize(invokerContext);
 
         InvokerConfig<?> invokerConfig = invokerContext.getInvokerConfig();
@@ -142,7 +144,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
             } else if (compactVersionMap.containsKey(version)) {
                 isCompact = compactVersionMap.get(version);
             } else {
-                isCompact = VersionUtils.compareVersion(version, "2.7.5") >= 0;
+                isCompact = VersionUtils.isCompactSupported(version);
                 compactVersionMap.putIfAbsent(version, isCompact);
             }
         }
@@ -154,6 +156,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
     private void transferContextValueToRequest(final InvokerContext invocationContext, final InvocationRequest request) {
         if (request instanceof UnifiedRequest) {
             UnifiedRequest _request = (UnifiedRequest) request;
+            _request.setParameterTypes(invocationContext.getParameterTypes());
             transferContextValueToRequest0(_request);
         } else {
             transferContextValueToRequest0(invocationContext, request);

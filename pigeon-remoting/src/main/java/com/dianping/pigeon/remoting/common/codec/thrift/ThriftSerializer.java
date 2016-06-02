@@ -22,7 +22,6 @@ import org.apache.thrift.protocol.TMessage;
 import org.apache.thrift.protocol.TMessageType;
 import org.apache.thrift.transport.TIOStreamTransport;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
@@ -200,34 +199,37 @@ public class ThriftSerializer extends AbstractSerializer {
                     throw new SerializationException("Serialize class" + argsClassName + " new instance failed.", e);
                 }
 
-                for (int i = 0; i < request.getParameters().length; i++) {
+                if (request.getParameters() != null) {
 
-                    Object paramObj = request.getParameters()[i];
+                    for (int i = 0; i < request.getParameters().length; i++) {
 
-                    if (paramObj == null) {
-                        continue;
+                        Object paramObj = request.getParameters()[i];
+
+                        if (paramObj == null) {
+                            continue;
+                        }
+
+                        TFieldIdEnum field = args.fieldForId(i + 1);
+
+                        String setMethodName = ThriftUtils.generateSetMethodName(field.getFieldName());
+
+                        Method method;
+
+                        try {
+                            method = clazz.getMethod(setMethodName, request.getParameterTypes()[i]);
+                        } catch (NoSuchMethodException e) {
+                            throw new SerializationException("Serialize class" + setMethodName + " new instance failed.", e);
+                        }
+
+                        try {
+                            method.invoke(args, paramObj);
+                        } catch (IllegalAccessException e) {
+                            throw new SerializationException("Serialize set args failed.", e);
+                        } catch (InvocationTargetException e) {
+                            throw new SerializationException("Serialize set args failed.", e);
+                        }
+
                     }
-
-                    TFieldIdEnum field = args.fieldForId(i + 1);
-
-                    String setMethodName = ThriftUtils.generateSetMethodName(field.getFieldName());
-
-                    Method method;
-
-                    try {
-                        method = clazz.getMethod(setMethodName, request.getParameterTypes()[i]);
-                    } catch (NoSuchMethodException e) {
-                        throw new SerializationException("", e);
-                    }
-
-                    try {
-                        method.invoke(args, obj);
-                    } catch (IllegalAccessException e) {
-                        throw new SerializationException("Serialize set args failed.", e);
-                    } catch (InvocationTargetException e) {
-                        throw new SerializationException("Serialize set args failed.", e);
-                    }
-
                 }
                 //bodylength
                 protocol.writeI32(Integer.MAX_VALUE);
@@ -362,6 +364,8 @@ public class ThriftSerializer extends AbstractSerializer {
                     }
 
                 }
+
+                response.setReturn(realResult);
             } else if (message.type == TMessageType.EXCEPTION) {
                 TApplicationException exception = TApplicationException.read(protocol);
                 ThriftMapper.mapException(header, response, exception.getMessage());
@@ -385,7 +389,7 @@ public class ThriftSerializer extends AbstractSerializer {
 
                 GenericResponse response = (GenericResponse) obj;
 
-                TIOStreamTransport transport = new TIOStreamTransport(os);
+                TIOStreamTransport transport = new TIOStreamTransport(bos);
                 TBinaryProtocol protocol = new TBinaryProtocol(transport);
 
                 //headerlength
@@ -395,6 +399,9 @@ public class ThriftSerializer extends AbstractSerializer {
                 header.write(protocol);
 
                 int headerLength = bos.size() - HEADER_FIELD_LENGTH;
+
+                //bodylength
+                protocol.writeI32(Integer.MAX_VALUE);
 
                 String resultClassName = ThriftClassNameGenerator.generateResultClassName(
                         response.getServiceName(),

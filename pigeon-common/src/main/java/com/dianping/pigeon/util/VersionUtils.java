@@ -8,12 +8,18 @@ public class VersionUtils {
 
     public static final String PROTO_FST_VERSION = "2.4.3";
 
+    public static final String COMPACT_VERSION = "2.7.5";
+
     public static final boolean isThriftSupported(String version) {
         return compareVersion(version, THRIFT_VERSION) >= 0;
     }
 
     public static final boolean isProtoFstSupported(String version) {
         return compareVersion(version, PROTO_FST_VERSION) >= 0;
+    }
+
+    public static final boolean isCompactSupported(String version) {
+        return compareVersion(version, COMPACT_VERSION) >= 0;
     }
 
     public static int compareVersion(String version1, String version2) {
