@@ -54,5 +54,13 @@
 			<groupId>com.dianping</groupId>
 			<artifactId>avatar-tracker</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.facebook.swift</groupId>
+			<artifactId>swift-annotations</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.facebook.swift</groupId>
+			<artifactId>swift-codec</artifactId>
+		</dependency>
 	</dependencies>
 </project>

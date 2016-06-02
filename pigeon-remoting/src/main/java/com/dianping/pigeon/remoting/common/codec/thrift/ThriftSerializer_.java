@@ -72,13 +72,16 @@ public class ThriftSerializer_ extends AbstractSerializer {
             // body
             TMessage message = protocol.readMessageBegin();
 
-            if (header.getRequestInfo() == null || StringUtils.isEmpty(header.getRequestInfo().getServiceName())) {
+            if (header.getRequestInfo() == null ||
+                    StringUtils.isEmpty(header.getRequestInfo().getServiceName())) {
                 throw new SerializationException("Deserialize requestInfo is no legal. header " + header);
             }
 
             String serviceName = header.getRequestInfo().getServiceName();
 
-            ThriftMethodProcessor methodProcessor = getMethodProcessor(serviceName, message.name);
+            ThriftMethodProcessor methodProcessor = getMethodProcessor(
+                    serviceName,
+                    message.name);
 
             Object[] parameters = methodProcessor.readArguments(protocol);
 
@@ -89,7 +92,7 @@ public class ThriftSerializer_ extends AbstractSerializer {
             protocol.readMessageEnd();
 
         } catch (Exception e) {
-            throw new SerializationException("deserialize request failed.", e);
+            throw new SerializationException("Deserialize request failed.", e);
         }
         return request;
     }
@@ -115,13 +118,17 @@ public class ThriftSerializer_ extends AbstractSerializer {
 
                 int headerLength = bos.size() - HEADER_FIELD_LENGTH;
 
-                ThriftMethodHandler methodHandler = getMethodHandler(request.getServiceName(), request.getMethodName());
+                ThriftMethodHandler methodHandler = getMethodHandler(
+                        request.getServiceName(),
+                        request.getMethodName());
 
                 //bodylength
                 protocol.writeI32(Integer.MAX_VALUE);
 
                 //body
-                methodHandler.writeArguments(protocol, nextSeqId(), request.getParameters());
+                methodHandler.writeArguments(protocol,
+                        nextSeqId(),
+                        request.getParameters());
 
                 int messageLength = bos.size();
                 int bodyLength = messageLength - headerLength - FIELD_LENGTH;
@@ -168,19 +175,23 @@ public class ThriftSerializer_ extends AbstractSerializer {
                 throw new SerializationException("Deserialize response is no legal. header " + header);
             }
 
-            InvocationRequest request = repository.get(header.getResponseInfo().getSequenceId());
+            InvocationRequest request = repository.get(
+                    header.getResponseInfo().getSequenceId());
+
             if (request == null) {
                 throw new SerializationException("Deserialize cannot find related request. header " + header);
             }
 
             String serviceName = request.getServiceName();
-            ThriftMethodHandler methodHandler = getMethodHandler(serviceName, message.name);
+            ThriftMethodHandler methodHandler = getMethodHandler(
+                    serviceName,
+                    message.name);
 
             //body
             if (message.type == TMessageType.REPLY) {
                 Object result = methodHandler.readResponse(protocol);
                 response.setReturn(result);
-            } else {
+            } else if (message.type == TMessageType.EXCEPTION) {
                 TApplicationException exception = TApplicationException.read(protocol);
                 ThriftMapper.mapException(header, response, exception.getMessage());
             }
@@ -209,11 +220,11 @@ public class ThriftSerializer_ extends AbstractSerializer {
                 //headerlength
                 protocol.writeI32(Integer.MAX_VALUE);
 
-                ThriftMethodProcessor methodProcessor = getMethodProcessor(response.getServiceName(),
+                ThriftMethodProcessor methodProcessor = getMethodProcessor(
+                        response.getServiceName(),
                         response.getMethodName());
 
                 //header body
-
                 Header header = ThriftMapper.convertResponseToHeader(
                         response,
                         methodProcessor.isUserException(response.getReturn()));
@@ -228,15 +239,32 @@ public class ThriftSerializer_ extends AbstractSerializer {
 
                 //body
                 if (header.getResponseInfo().getStatus() == StatusCode.Success) {
-                    protocol.writeMessageBegin(new TMessage(response.getMethodName(), TMessageType.REPLY, nextSeqId()));
-                    methodProcessor.writeResponse(protocol, nextSeqId(), response.getReturn());
+                    protocol.writeMessageBegin(new TMessage(
+                            response.getMethodName(),
+                            TMessageType.REPLY,
+                            nextSeqId()));
+
+                    methodProcessor.writeResponse(protocol,
+                            nextSeqId(),
+                            response.getReturn());
 
                 } else if (header.getResponseInfo().getStatus() == StatusCode.ApplicationException) {
-                    protocol.writeMessageBegin(new TMessage(response.getMethodName(), TMessageType.REPLY, nextSeqId()));
-                    methodProcessor.writeExceptionResponse(protocol, nextSeqId(), response.getReturn());
+                    protocol.writeMessageBegin(new TMessage(
+                            response.getMethodName(),
+                            TMessageType.REPLY,
+                            nextSeqId()));
+
+                    methodProcessor.writeExceptionResponse(protocol,
+                            nextSeqId(),
+                            response.getReturn());
                 } else {
-                    protocol.writeMessageBegin(new TMessage(response.getMethodName(), TMessageType.EXCEPTION, nextSeqId()));
-                    TApplicationException e = new TApplicationException(((Throwable) response.getReturn()).getMessage());
+                    protocol.writeMessageBegin(new TMessage(
+                            response.getMethodName(),
+                            TMessageType.EXCEPTION,
+                            nextSeqId()));
+
+                    TApplicationException e = new TApplicationException(
+                            ((Throwable) response.getReturn()).getMessage());
                     e.write(protocol);
                 }
 
@@ -269,7 +297,8 @@ public class ThriftSerializer_ extends AbstractSerializer {
     }
 
     @Override
-    public InvocationRequest newRequest(InvokerContext invokerContext) throws SerializationException {
+    public InvocationRequest newRequest(InvokerContext invokerContext)
+            throws SerializationException {
         return new GenericRequest(invokerContext);
     }
 

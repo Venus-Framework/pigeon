@@ -190,4 +190,12 @@ public class GenericResponse implements UnifiedResponse {
     public void setLocalContext(Map<String, String> localContext) {
         this.localContext = localContext;
     }
+
+    public boolean hasException() {
+        if (messageType == Constants.MESSAGE_TYPE_EXCEPTION ||
+                messageType == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
+            return true;
+        }
+        return false;
+    }
 }

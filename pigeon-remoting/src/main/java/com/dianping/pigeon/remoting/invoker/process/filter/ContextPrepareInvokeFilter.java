@@ -32,7 +32,8 @@ import com.dianping.pigeon.util.VersionUtils;
 public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
     private static final Logger logger = LoggerLoader.getLogger(ContextPrepareInvokeFilter.class);
-    private ConcurrentHashMap<String, Boolean> serializeVersionMap = new ConcurrentHashMap<String, Boolean>();
+    private ConcurrentHashMap<String, Boolean> protoVersionMap = new ConcurrentHashMap<String, Boolean>();
+    private ConcurrentHashMap<String, Boolean> thriftVersionMap = new ConcurrentHashMap<String, Boolean>();
     private ConcurrentHashMap<String, Boolean> compactVersionMap = new ConcurrentHashMap<String, Boolean>();
     private static AtomicLong requestSequenceMaker = new AtomicLong();
     private static final String KEY_COMPACT = "pigeon.invoker.request.compact";
@@ -92,23 +93,42 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
     private void checkSerialize(InvokerContext invokerContext) {
         InvocationRequest request = invokerContext.getRequest();
+
         if (request.getSerialize() == SerializerFactory.SERIALIZE_PROTO
                 || request.getSerialize() == SerializerFactory.SERIALIZE_FST) {
-            Client client = invokerContext.getClient();
-            String version = RegistryManager.getInstance().getReferencedVersionFromCache(client.getAddress());
-            boolean supported = true;
-            if (StringUtils.isBlank(version)) {
-                supported = false;
-            } else if (serializeVersionMap.containsKey(version)) {
-                supported = serializeVersionMap.get(version);
+
+            checkSerialize0(invokerContext, protoVersionMap, false);
+
+        } else if (request.getSerialize() == SerializerFactory.SERIALIZE_THRIFT) {
+
+            checkSerialize0(invokerContext, thriftVersionMap, true);
+
+        }
+    }
+
+    private void checkSerialize0(InvokerContext invokerContext, ConcurrentHashMap<String, Boolean> versionMap, boolean isThrift) {
+        Client client = invokerContext.getClient();
+        InvocationRequest request = invokerContext.getRequest();
+
+        String version = RegistryManager.getInstance().getReferencedVersionFromCache(client.getAddress());
+
+        boolean supported = true;
+        if (StringUtils.isBlank(version)) {
+            supported = false;
+        } else if (versionMap.containsKey(version)) {
+            supported = versionMap.get(version);
+        } else {
+            if (isThrift) {
+                supported = VersionUtils.isThriftSupported(version);
             } else {
-                supported = VersionUtils.compareVersion(version, "2.4.3") >= 0;
-                serializeVersionMap.putIfAbsent(version, supported);
+                supported = VersionUtils.isProtoFstSupported(version);
             }
-            if (!supported) {
-                request.setSerialize(SerializerFactory.SERIALIZE_HESSIAN);
-                invokerContext.getInvokerConfig().setSerialize(SerializerFactory.HESSIAN);
-            }
+            versionMap.putIfAbsent(version, supported);
+        }
+
+        if (!supported) {
+            request.setSerialize(SerializerFactory.SERIALIZE_HESSIAN);
+            invokerContext.getInvokerConfig().setSerialize(SerializerFactory.HESSIAN);
         }
     }
 
