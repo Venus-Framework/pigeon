@@ -8,6 +8,7 @@ import com.dianping.pigeon.governor.lion.LionKeys;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.util.IPUtils;
+import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.zookeeper.CuratorClient;
 import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
@@ -42,8 +43,12 @@ public class PigeonProviderHeartBeatCheck extends Thread {
     private volatile static String isCheckEnable = Lion.get("pigeon.heartbeat.enable","false");
 
     public PigeonProviderHeartBeatCheck() {
-        CuratorRegistry registry = (CuratorRegistry) RegistryManager.getInstance().getRegistry();
-        client =  registry.getCuratorClient();
+        for (Registry registry : RegistryManager.getInstance().getRegistryList()) {
+            if(registry instanceof CuratorRegistry) {
+                client = ((CuratorRegistry) registry).getCuratorClient();
+                break;
+            }
+        }
     }
 
     public void init() {

@@ -8,6 +8,7 @@ import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.task.CheckAndSyncServiceDB;
 import com.dianping.pigeon.governor.util.IPUtils;
 import com.dianping.pigeon.governor.util.OpType;
+import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.zookeeper.CuratorClient;
 import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
@@ -48,8 +49,12 @@ public class TestController {
     private CuratorClient client;
 
     public TestController() {
-        CuratorRegistry registry = (CuratorRegistry) RegistryManager.getInstance().getRegistry();
-        client =  registry.getCuratorClient();
+        for (Registry registry : RegistryManager.getInstance().getRegistryList()) {
+            if(registry instanceof CuratorRegistry) {
+                client = ((CuratorRegistry) registry).getCuratorClient();
+                break;
+            }
+        }
     }
 
     @RequestMapping(value = "/betaonly/dellocalip", method = {RequestMethod.POST})

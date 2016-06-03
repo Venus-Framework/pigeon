@@ -140,13 +140,8 @@ public class RegistryManager {
 		registryList = orderedRegistryList;
 	}
 
-	public static List<Registry> getRegistryList() {
+	public List<Registry> getRegistryList() {
 		return registryList;
-	}
-
-	@Deprecated
-	public Registry getRegistry() {
-		return registryList.get(0);
 	}
 
 	public void setProperty(String key, String value) {

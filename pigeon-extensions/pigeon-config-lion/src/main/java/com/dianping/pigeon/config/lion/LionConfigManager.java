@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.dianping.lion.Environment;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -88,7 +89,7 @@ public class LionConfigManager extends AbstractConfigManager {
 
 	@Override
 	public String doGetGroup() throws Exception {
-		return getConfigCache().getAppenv("swimlane");
+		return Environment.getSwimlane();
 	}
 
 	@Override

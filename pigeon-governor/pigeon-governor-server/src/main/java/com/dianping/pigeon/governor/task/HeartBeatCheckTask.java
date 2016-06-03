@@ -1,6 +1,5 @@
 package com.dianping.pigeon.governor.task;
 
-import com.ctc.wstx.util.StringUtil;
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Transaction;
 import com.dianping.lion.client.Lion;
@@ -17,6 +16,7 @@ import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.util.IPUtils;
 import com.dianping.pigeon.governor.util.OpType;
 import com.dianping.pigeon.governor.util.ThreadPoolFactory;
+import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.zookeeper.CuratorClient;
 import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
@@ -64,8 +64,12 @@ public class HeartBeatCheckTask extends Thread {
     private final static long pickOffHeartBeatNodeInternal = 28800000L;
 
     public HeartBeatCheckTask() {
-        registry = (CuratorRegistry) RegistryManager.getInstance().getRegistry();
-        client =  registry.getCuratorClient();
+        for (Registry registry : RegistryManager.getInstance().getRegistryList()) {
+            if(registry instanceof CuratorRegistry) {
+                client = ((CuratorRegistry) registry).getCuratorClient();
+                break;
+            }
+        }
     }
 
     public void init() {
