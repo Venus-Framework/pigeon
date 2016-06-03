@@ -142,10 +142,12 @@ public class ThriftMethodProcessor {
     }
 
 
-    public <T> void writeResponse(TProtocol out,
-                                  int sequenceId,
-                                  T result) throws Exception {
-        writeResponse(out, "success", (short) 0, successCodec, result);
+    public <T> void writeResponse(TProtocol out, T result, boolean isException) throws Exception {
+        if (!isException) {
+            writeResponse(out, "success", (short) 0, successCodec, result);
+        } else {
+            writeExceptionResponse(out, result);
+        }
     }
 
 
@@ -157,9 +159,8 @@ public class ThriftMethodProcessor {
         return false;
     }
 
-    public <T> void writeExceptionResponse(TProtocol out,
-                                           int sequenceId,
-                                           T exception) throws Exception {
+    protected <T> void writeExceptionResponse(TProtocol out,
+                                              T exception) throws Exception {
         ExceptionProcessor exceptionCodec = exceptionCodecs.get(exception.getClass());
         if (exceptionCodec != null) {
             writeResponse(out, "exception", exceptionCodec.getId(), exceptionCodec.getCodec(), exception);

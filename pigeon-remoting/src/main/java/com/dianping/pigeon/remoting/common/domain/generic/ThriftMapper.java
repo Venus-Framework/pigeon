@@ -12,6 +12,7 @@ import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceDegradedException;
 import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
 
+import javax.net.ssl.SSLEngineResult;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,7 +86,7 @@ public class ThriftMapper {
         return header;
     }
 
-    public static Header convertResponseToHeader(GenericResponse response, boolean isUserException) {
+    public static Header convertResponseToHeader(GenericResponse response) {
         Header header = new Header();
 
         int messageType = response.getMessageType();
@@ -143,12 +144,7 @@ public class ThriftMapper {
                     }
 
                 } else {
-
-                    if (isUserException) {
-                        responseInfo.setStatus(StatusCode.ApplicationException);
-                    } else {
-                        responseInfo.setStatus(StatusCode.RuntimeException);
-                    }
+                    responseInfo.setStatus(StatusCode.RuntimeException);
                 }
                 responseInfo.setMessage(exception.getMessage());
             }
@@ -239,12 +235,23 @@ public class ThriftMapper {
         if (header.getMessageType() == MessageType.Heartbeat) {
             response.setMessageType(Constants.MESSAGE_TYPE_HEART);
         } else {
-            if (statusCode == StatusCode.Success) {
-                response.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
-            } else if (statusCode == StatusCode.RpcException) {
-                response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
-            } else {
-                response.setMessageType(Constants.MESSAGE_TYPE_SERVICE_EXCEPTION);
+            switch (statusCode){
+                case Success:
+                    response.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
+                    break;
+                case ApplicationException:
+                case RuntimeException:
+                    response.setMessageType(Constants.MESSAGE_TYPE_SERVICE_EXCEPTION);
+                    break;
+                case RpcException:
+                case TransportException:
+                case ProtocolException:
+                case DegradeException:
+                case SecurityException:
+                case ServiceException:
+                case RemoteException:
+                    response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
+                    break;
             }
         }
 
