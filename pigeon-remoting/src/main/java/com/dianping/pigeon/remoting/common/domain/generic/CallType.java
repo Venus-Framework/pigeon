@@ -1,4 +1,4 @@
-package com.dianping.pigeon.remoting.common.domain.generic.thrift;
+package com.dianping.pigeon.remoting.common.domain.generic;
 
 /**
  * @author qi.yin

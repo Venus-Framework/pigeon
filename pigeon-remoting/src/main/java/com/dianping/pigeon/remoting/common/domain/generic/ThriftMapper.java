@@ -3,7 +3,6 @@ package com.dianping.pigeon.remoting.common.domain.generic;
 //import com.dianping.cat.CatConstants;
 
 import com.dianping.pigeon.monitor.MonitorConstants;
-import com.dianping.pigeon.remoting.common.codec.thrift.annotation.ThriftMethodProcessor;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.*;
 import com.dianping.pigeon.remoting.common.exception.*;
 import com.dianping.pigeon.remoting.common.exception.SecurityException;
@@ -12,7 +11,6 @@ import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceDegradedException;
 import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
 
-import javax.net.ssl.SSLEngineResult;
 import java.util.HashMap;
 import java.util.Map;
 

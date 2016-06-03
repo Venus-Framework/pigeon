@@ -8,7 +8,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericResponse;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.Header;
-import com.dianping.pigeon.remoting.common.domain.generic.thrift.StatusCode;
+import com.dianping.pigeon.remoting.common.domain.generic.StatusCode;
 import com.dianping.pigeon.remoting.common.domain.generic.ThriftMapper;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.dianping.pigeon.util.ClassUtils;
