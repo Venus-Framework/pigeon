@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author qi.yin
  *         2016/05/16  下午3:10.
  */
-public class ThriftIdlSerializer extends AbstractThriftSerializer {
+public class IdlThriftSerializer extends AbstractThriftSerializer {
 
     private static ConcurrentHashMap<String, Class<?>> cachedClass = new ConcurrentHashMap<String, Class<?>>();
 
@@ -336,7 +336,7 @@ public class ThriftIdlSerializer extends AbstractThriftSerializer {
                 try {
                     getMethod = clazz.getMethod(getMethodName);
                     if (getMethod.getReturnType().equals(throwable.getClass())) {
-                        header.responseInfo.setStatus(StatusCode.ApplicationException);
+                        header.responseInfo.setStatus(StatusCode.ApplicationException.getCode());
                         found = true;
                         setMethod = clazz.getMethod(setMethodName, throwable.getClass());
                         setMethod.invoke(resultObj, throwable);

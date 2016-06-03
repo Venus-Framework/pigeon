@@ -135,8 +135,11 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
             try {
                 //head
                 buffer.skipBytes(2);
-                byte version = buffer.readByte();
+                //version
+                buffer.readByte();
                 byte serialize = buffer.readByte();
+                boolean needChecksum = (serialize & 0x80) == 1;
+                serialize = (byte) (serialize & 0x7F);
 
                 int frameLength = (int) (dataLength + CodecConstants._FRONT_LENGTH_);
                 //body

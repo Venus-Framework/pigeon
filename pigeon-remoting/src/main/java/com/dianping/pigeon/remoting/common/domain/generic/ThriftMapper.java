@@ -28,21 +28,21 @@ public class ThriftMapper {
 
         //messageType
         if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
-            header.setMessageType(MessageType.Heartbeat);
+            header.setMessageType(MessageType.Heartbeat.getCode());
         } else {
-            header.setMessageType(MessageType.Normal);
+            header.setMessageType(MessageType.Normal.getCode());
         }
 
         //compresstype
         switch (request.getCompressType()) {
             case Constants.COMPRESS_TYPE_NONE:
-                header.setCompressType(CompressType.None);
+                header.setCompressType(CompressType.None.getCode());
                 break;
             case Constants.COMPRESS_TYPE_SNAPPY:
-                header.setCompressType(CompressType.Snappy);
+                header.setCompressType(CompressType.Snappy.getCode());
                 break;
             case Constants.COMPRESS_TYPE_GZIP:
-                header.setCompressType(CompressType.Gzip);
+                header.setCompressType(CompressType.Gzip.getCode());
                 break;
         }
 
@@ -55,9 +55,9 @@ public class ThriftMapper {
         requestInfo.setServiceName(request.getServiceName());
         //calltype
         if (request.getCallType() == Constants.CALLTYPE_NOREPLY) {
-            requestInfo.setCallType(CallType.NoReply);
+            requestInfo.setCallType(CallType.NoReply.getCode());
         } else {
-            requestInfo.setCallType(CallType.Reply);
+            requestInfo.setCallType(CallType.Reply.getCode());
         }
 
         header.setRequestInfo(requestInfo);
@@ -81,8 +81,6 @@ public class ThriftMapper {
         //localContext
         header.setLocalContext(localContext);
 
-        //needChecksum
-        header.setNeedChecksum(false);
         return header;
     }
 
@@ -93,21 +91,21 @@ public class ThriftMapper {
 
         //messageType
         if (messageType == Constants.MESSAGE_TYPE_HEART) {
-            header.setMessageType(MessageType.Heartbeat);
+            header.setMessageType(MessageType.Heartbeat.getCode());
         } else {
-            header.setMessageType(MessageType.Normal);
+            header.setMessageType(MessageType.Normal.getCode());
         }
 
         //compresstype
         switch (response.getCompressType()) {
             case Constants.COMPRESS_TYPE_NONE:
-                header.setCompressType(CompressType.None);
+                header.setCompressType(CompressType.None.getCode());
                 break;
             case Constants.COMPRESS_TYPE_SNAPPY:
-                header.setCompressType(CompressType.Snappy);
+                header.setCompressType(CompressType.Snappy.getCode());
                 break;
             case Constants.COMPRESS_TYPE_GZIP:
-                header.setCompressType(CompressType.Gzip);
+                header.setCompressType(CompressType.Gzip.getCode());
                 break;
         }
 
@@ -116,7 +114,7 @@ public class ThriftMapper {
         ResponseInfo responseInfo = new ResponseInfo();
         //sequence
         responseInfo.setSequenceId(response.getSequence());
-        responseInfo.setStatus(StatusCode.Success);
+        responseInfo.setStatus(StatusCode.Success.getCode());
 
         //exception
         if (messageType == Constants.MESSAGE_TYPE_EXCEPTION
@@ -127,24 +125,24 @@ public class ThriftMapper {
             if (exception != null) {
                 if (exception instanceof RpcException) {
                     if (exception instanceof NetworkException) {
-                        responseInfo.setStatus(StatusCode.TransportException);
+                        responseInfo.setStatus(StatusCode.TransportException.getCode());
                     } else if (exception instanceof SerializationException) {
-                        responseInfo.setStatus(StatusCode.ProtocolException);
+                        responseInfo.setStatus(StatusCode.ProtocolException.getCode());
                     } else if (exception instanceof ServiceDegradedException) {
-                        responseInfo.setStatus(StatusCode.DegradeException);
+                        responseInfo.setStatus(StatusCode.DegradeException.getCode());
                     } else if (exception instanceof SecurityException) {
-                        responseInfo.setStatus(StatusCode.SecurityException);
+                        responseInfo.setStatus(StatusCode.SecurityException.getCode());
                     } else if (exception instanceof RemoteInvocationException) {
-                        responseInfo.setStatus(StatusCode.RemoteException);
+                        responseInfo.setStatus(StatusCode.RemoteException.getCode());
                     } else if (exception instanceof InvocationFailureException
                             || exception instanceof RejectedException) {
-                        responseInfo.setStatus(StatusCode.ServiceException);
+                        responseInfo.setStatus(StatusCode.ServiceException.getCode());
                     } else {
-                        responseInfo.setStatus(StatusCode.RpcException);
+                        responseInfo.setStatus(StatusCode.RpcException.getCode());
                     }
 
                 } else {
-                    responseInfo.setStatus(StatusCode.RuntimeException);
+                    responseInfo.setStatus(StatusCode.RuntimeException.getCode());
                 }
                 responseInfo.setMessage(exception.getMessage());
             }
@@ -154,8 +152,6 @@ public class ThriftMapper {
 
         //localContext
         header.setLocalContext(response.getLocalContext());
-        //needChecksum
-        header.setNeedChecksum(false);
         return header;
     }
 
@@ -163,14 +159,14 @@ public class ThriftMapper {
     public static GenericRequest convertHeaderToRequest(Header header) {
         GenericRequest request = new GenericRequest();
         //messageType
-        if (header.getMessageType() == MessageType.Heartbeat) {
+        if (header.getMessageType() == MessageType.Heartbeat.getCode()) {
             request.setMessageType(Constants.MESSAGE_TYPE_HEART);
         } else {
             request.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
         }
 
         //compresstype
-        switch (header.getCompressType()) {
+        switch (CompressType.getCompressType(header.getCompressType())) {
             case None:
                 request.setCompressType(Constants.COMPRESS_TYPE_NONE);
                 break;
@@ -187,7 +183,7 @@ public class ThriftMapper {
         if (header.getRequestInfo() != null) {
             RequestInfo requestInfo = header.getRequestInfo();
             request.setTimeout(requestInfo.getTimeout());
-            if (requestInfo.getCallType() == CallType.NoReply) {
+            if (requestInfo.getCallType() == CallType.NoReply.getCode()) {
                 request.setCallType(Constants.CALLTYPE_NOREPLY);
             } else {
                 request.setCallType(Constants.CALLTYPE_REPLY);
@@ -230,12 +226,12 @@ public class ThriftMapper {
     public static GenericResponse convertHeaderToResponse(Header header) {
         GenericResponse response = new GenericResponse();
 
-        StatusCode statusCode = header.getResponseInfo().getStatus();
+        StatusCode statusCode = StatusCode.getStatusCode(header.getResponseInfo().getStatus());
         //messageType
-        if (header.getMessageType() == MessageType.Heartbeat) {
+        if (header.getMessageType() == MessageType.Heartbeat.getCode()) {
             response.setMessageType(Constants.MESSAGE_TYPE_HEART);
         } else {
-            switch (statusCode){
+            switch (statusCode) {
                 case Success:
                     response.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
                     break;
@@ -256,7 +252,7 @@ public class ThriftMapper {
         }
 
         //compresstype
-        switch (header.getCompressType()) {
+        switch (CompressType.getCompressType(header.getCompressType())) {
             case None:
                 response.setCompressType(Constants.COMPRESS_TYPE_NONE);
                 break;
@@ -283,7 +279,7 @@ public class ThriftMapper {
         if (header.getResponseInfo() != null) {
             ResponseInfo responseInfo = header.getResponseInfo();
 
-            switch (responseInfo.getStatus()) {
+            switch (StatusCode.getStatusCode(responseInfo.getStatus())) {
                 case Success:
                     break;
                 case ApplicationException:

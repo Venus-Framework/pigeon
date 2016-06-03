@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author qi.yin
  *         2016/05/23  下午4:28.
  */
-public class ThriftAnnotationSerializer extends AbstractThriftSerializer {
+public class AnnotationThriftSerializer extends AbstractThriftSerializer {
 
     private ConcurrentHashMap<String, ThriftClientMetadata> clientMetadatas =
             new ConcurrentHashMap<String, ThriftClientMetadata>();
@@ -112,7 +112,7 @@ public class ThriftAnnotationSerializer extends AbstractThriftSerializer {
         if (response.hasException()) {
 
             if (methodProcessor.isUserException(response.getReturn())) {
-                header.responseInfo.setStatus(StatusCode.ApplicationException);
+                header.responseInfo.setStatus(StatusCode.ApplicationException.getCode());
                 isUserException = true;
             } else {
                 applicationException = new TApplicationException(((Throwable) response.getReturn()).getMessage());

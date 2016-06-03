@@ -22,7 +22,7 @@ public class GenericRequest implements UnifiedRequest {
 
     private transient byte serialize;
 
-    private byte protocalVersion;
+    private byte protocalVersion = 1;
 
     private long seq;
 
