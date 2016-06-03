@@ -108,6 +108,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
         }
     }
 
+    //缺服务是否支持判断
     private void checkSerialize0(InvokerContext invokerContext, ConcurrentHashMap<String, Boolean> versionMap, boolean isThrift) {
         Client client = invokerContext.getClient();
         InvocationRequest request = invokerContext.getRequest();

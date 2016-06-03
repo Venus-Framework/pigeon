@@ -1,6 +1,7 @@
 package com.dianping.pigeon.remoting.netty.codec;
 
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedInvocation;
@@ -99,7 +100,8 @@ public abstract class AbstractEncoder_ extends OneToOneEncoder implements Encode
         //version
         head.writeByte(msg.getProtocalVersion());
         //serialize
-        head.writeByte(msg.getSerialize());
+        byte serialize = SerializerFactory.convertToUnifiedSerialize(msg.getSerialize());
+        head.writeByte(serialize);
 
         //body
         ChannelBuffer body = ((ChannelBufferOutputStream) os).buffer();

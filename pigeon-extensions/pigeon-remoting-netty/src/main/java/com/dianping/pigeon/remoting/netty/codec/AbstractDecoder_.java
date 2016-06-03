@@ -1,6 +1,7 @@
 package com.dianping.pigeon.remoting.netty.codec;
 
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
@@ -138,8 +139,11 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
                 //version
                 buffer.readByte();
                 byte serialize = buffer.readByte();
+
                 boolean needChecksum = (serialize & 0x80) == 1;
+
                 serialize = (byte) (serialize & 0x7F);
+                serialize = SerializerFactory.convertToSerialize(serialize);
 
                 int frameLength = (int) (dataLength + CodecConstants._FRONT_LENGTH_);
                 //body
@@ -179,7 +183,7 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
             int msgType = msg_.getMessageType();
 
             if (msgType == Constants.MESSAGE_TYPE_SERVICE && available > 0) {
-                msg_.setSize(available + 3);
+                msg_.setSize(available + 3);//error
             }
 
             msg_.setSerialize(serialize);

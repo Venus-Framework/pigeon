@@ -29,9 +29,7 @@ public class InvokerEncoder_ extends AbstractEncoder_ {
 
     @Override
     public void doFailResponse(Channel channel, InvocationResponse response) {
-        List<InvocationResponse> respList = new ArrayList<InvocationResponse>();
-        respList.add(response);
-        Channels.fireMessageReceived(channel, respList);
+        Channels.fireMessageReceived(channel, response);
     }
 
     @Override

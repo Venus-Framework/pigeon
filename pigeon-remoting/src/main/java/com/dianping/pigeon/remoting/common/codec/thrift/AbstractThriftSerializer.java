@@ -17,6 +17,7 @@ import org.apache.thrift.transport.TIOStreamTransport;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author qi.yin

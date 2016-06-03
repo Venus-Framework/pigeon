@@ -40,6 +40,8 @@ public final class SerializerFactory {
 
     public static final byte SERIALIZE_THRIFT = 10;
 
+    private static final byte UNIFIED_SERIALIZE_THRIFT = 1;
+
     public static final String HESSIAN = "hessian";
     public static final String JAVA = "java";
     public static final String HESSIAN1 = "hessian1";
@@ -129,6 +131,22 @@ public final class SerializerFactory {
             throw new InvalidParameterException("no serializer found for type:" + serializerType);
         } else {
             return serializer;
+        }
+    }
+
+    public static byte convertToUnifiedSerialize(byte serializerType) {
+        if (serializerType == SERIALIZE_THRIFT) {
+            return UNIFIED_SERIALIZE_THRIFT;
+        } else {
+            throw new InvalidParameterException("Invalid serializerType :" + serializerType);
+        }
+    }
+
+    public static byte convertToSerialize(byte serializerType) {
+        if (serializerType == UNIFIED_SERIALIZE_THRIFT) {
+            return SERIALIZE_THRIFT;
+        } else {
+            throw new InvalidParameterException("Invalid serializerType :" + serializerType);
         }
     }
 
