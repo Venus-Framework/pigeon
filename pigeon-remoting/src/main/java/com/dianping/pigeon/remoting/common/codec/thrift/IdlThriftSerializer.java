@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author qi.yin
  *         2016/05/16  下午3:10.
  */
-public class IdlThriftSerializer extends AbstractThriftSerializer {
+public class IDLThriftSerializer extends AbstractThriftSerializer {
 
     private static ConcurrentHashMap<String, Class<?>> cachedClass = new ConcurrentHashMap<String, Class<?>>();
 

@@ -18,6 +18,7 @@
 		<jetty_version>6.1.26</jetty_version>
 		<swift.version>0.16.0-mt-SNAPSHOT</swift.version>
 		<thrift.version>0.9.3</thrift.version>
+		<snappy-java.version>1.1.1.6</snappy-java.version>
 	</properties>
 	<modules>
 		<module>pigeon-common</module>
@@ -311,6 +312,11 @@
 				<groupId>org.apache.thrift</groupId>
 				<artifactId>libthrift</artifactId>
 				<version>${thrift.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.xerial.snappy</groupId>
+				<artifactId>snappy-java</artifactId>
+				<version>${snappy-java.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

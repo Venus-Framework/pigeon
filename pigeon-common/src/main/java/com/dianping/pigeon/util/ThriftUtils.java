@@ -17,7 +17,7 @@ public class ThriftUtils {
     private static final Logger logger = LoggerLoader.getLogger(ThriftUtils.class);
 
     public static boolean isSupportedThrift(Class<?> clazz) {
-        return (isAnnotation(clazz) || isIdl(clazz));
+        return (isAnnotation(clazz) || isIDL(clazz));
     }
 
     public static boolean isAnnotation(Class<?> clazz) {
@@ -37,7 +37,7 @@ public class ThriftUtils {
         return false;
     }
 
-    public static boolean isIdl(Class<?> clazz) {
+    public static boolean isIDL(Class<?> clazz) {
         String name = clazz.getName();
         int index = name.indexOf("$");
         String clazzType;
