@@ -54,7 +54,7 @@ public enum RequestQualityManager {
     }
 
     public void addClientRequest(InvokerContext context, boolean failed) {
-        if(configManager.getBooleanValue(KEY_REQUEST_QUALITY_AUTO, false)) {
+        if(configManager.getBooleanValue(KEY_REQUEST_QUALITY_AUTO, false) && context.getClient() != null) {
 
             String address = context.getClient().getAddress();
             ConcurrentHashMap<String, ConcurrentHashMap<Integer, Quality>>

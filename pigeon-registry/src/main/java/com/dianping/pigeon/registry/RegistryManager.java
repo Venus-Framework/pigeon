@@ -103,7 +103,7 @@ public class RegistryManager {
 				try {
 					parseRegistryConfig(_registryList,
 							configManager.getStringValue(KEY_PIGEON_REGISTRY_PREFER, Constants.REGISTRY_CURATOR_NAME));
-					configManager.registerConfigChangeListener(new InnerConfigChangeListener());
+					//configManager.registerConfigChangeListener(new InnerConfigChangeListener());
 
 					for (Registry registry : registryList) {
 						registry.init(properties);
@@ -203,7 +203,7 @@ public class RegistryManager {
 					registry.getServiceAddress(serviceName, group, fallbackDefaultGroup));
 		}
 
-		return null;
+		return addr;
 	}
 
 	private String getServiceKey(String serviceName, String group) {

@@ -2,6 +2,7 @@ package com.dianping.pigeon.registry.zookeeper;
 
 import java.util.*;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.KeeperException.NodeExistsException;
@@ -450,7 +451,8 @@ public class CuratorRegistry implements Registry {
 				infoMap.put(serviceName, support);
 				client.set(protocolPath, Utils.getProtocolInfo(infoMap), stat.getVersion());
 			} else {
-				client.create(protocolPath, support);
+				Map<String, Boolean> infoMap = ImmutableMap.of(serviceName, support);
+				client.create(protocolPath, Utils.getProtocolInfo(infoMap));
 			}
 
 		} catch (Throwable e) {
@@ -482,10 +484,10 @@ public class CuratorRegistry implements Registry {
 				Map<String, Boolean> infoMap = Utils.getProtocolInfoMap(info);
 				infoMap.remove(serviceName);
 
-				if (infoMap.size() > 0) {
-					client.set(protocolPath, Utils.getProtocolInfo(infoMap), stat.getVersion());
-				} else if(delEmptyNode) {
+				if (infoMap.size() == 0 && delEmptyNode) {
 					client.delete(protocolPath);
+				} else {
+					client.set(protocolPath, Utils.getProtocolInfo(infoMap), stat.getVersion());
 				}
 
 			}

@@ -137,6 +137,7 @@
 									<include>com.dianping:pigeon-remoting</include>
 									<include>com.dianping:pigeon-monitor</include>
 									<include>com.dianping:pigeon-registry-zookeeper</include>
+									<include>com.dianping:pigeon-registry-mns</include>
 									<include>com.dianping:pigeon-remoting-netty</include>
 									<include>com.dianping:pigeon-remoting-http</include>
 									<include>com.dianping:pigeon-monitor-cat</include>
@@ -144,8 +145,19 @@
 									<include>com.dianping:pigeon-console</include>
 								</includes>
 							</artifactSet>
-							<!-- <transformers> <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> 
-								<resource></resource> </transformer> </transformers> -->
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.handlers</resource>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.schemas</resource>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.tooling</resource>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer"/>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+							</transformers>
 						</configuration>
 					</execution>
 				</executions>

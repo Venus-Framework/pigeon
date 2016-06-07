@@ -8,6 +8,7 @@
         <version>2.7.6</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <groupId>com.dianping</groupId>
     <name>pigeon-registry-mns</name>
     <version>2.7.6</version>
     <packaging>jar</packaging>
@@ -21,8 +22,13 @@
         </dependency>
         <dependency>
             <groupId>com.sankuai.octo</groupId>
+            <artifactId>idl-common</artifactId>
+            <version>1.1.0-pigeon-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sankuai.octo</groupId>
             <artifactId>mns-invoker</artifactId>
-            <version>1.0.6-SNAPSHOT</version>
+            <version>1.0.6-pigeon-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
