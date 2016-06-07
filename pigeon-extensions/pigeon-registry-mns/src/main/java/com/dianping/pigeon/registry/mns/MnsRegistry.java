@@ -102,6 +102,7 @@ public class MnsRegistry implements Registry {
     @Override
     public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
         SGService sgService = new SGService();
+        sgService.setAppkey(configManager.getAppName());
         sgService.setServiceName(serviceName);
 
         int index = serviceAddress.lastIndexOf(":");
