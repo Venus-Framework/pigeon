@@ -1,15 +1,15 @@
 package com.dianping.pigeon.governor.controller;
 
+import com.dianping.lion.client.Lion;
 import com.dianping.pigeon.governor.bean.scanServiceDesc.ScanServiceTask;
 import com.dianping.pigeon.governor.bean.scanServiceDesc.ScanStaticsBean;
-import com.dianping.pigeon.governor.bean.serviceDesc.SearchResultBean;
+import com.dianping.pigeon.governor.bean.serviceDesc.SearchResults;
 import com.dianping.pigeon.governor.bean.serviceDesc.ServiceDescBean;
-import com.dianping.pigeon.governor.bean.serviceDesc.ServiceDescCache;
-import com.dianping.pigeon.governor.service.DescSearchService;
+import com.dianping.pigeon.governor.service.EsService;
 import com.dianping.pigeon.governor.service.ServiceDescService;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHits;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -21,8 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by shihuashen on 16/4/21.
@@ -31,22 +29,19 @@ import java.util.List;
 public class ServiceDescController extends BaseController{
     @Autowired
     private ServiceDescService serviceDescService;
-    @Autowired
-    private DescSearchService descSearchService;
+
     @Autowired
     private ScanServiceTask task;
-    private Gson gson = new GsonBuilder().create();
-    private Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
-    private JsonParser jp = new JsonParser();
 
+    @Autowired
+    private EsService esService;
 
+    private String index = Lion.get("pigeon-governor-server.es.index","bean");
+    private String type = Lion.get("pigeon-governor-server.es.type","camel");
 
-    private String prettyPrint(Object object){
-        return gsonPretty.toJson(jp.parse(gson.toJson(object)));
-    }
 
     @RequestMapping(value = {"/doc/{serviceId}"},method = RequestMethod.GET)
-    public String testCombinedMapper(ModelMap modelMap,
+    public String CombinedMapper(ModelMap modelMap,
                                      HttpServletRequest request,
                                      @PathVariable final Integer serviceId,
                                      HttpServletResponse response){
@@ -109,31 +104,50 @@ public class ServiceDescController extends BaseController{
         return "/doc/scanResult";
     }
     @RequestMapping(value = {"/doc/search"},method = RequestMethod.POST)
-    public void testGetSearch(HttpServletRequest request,
+    public void search(HttpServletRequest request,
                               HttpServletResponse response,
                               ModelMap modelMap){
         commonnav(modelMap, request);
-        Gson gson = new Gson();
-        long startTime = System.currentTimeMillis();
-        String searchKey = request.getParameter("keyword");
+        String searchKey = request.getParameter("searchKey");
         System.out.println(searchKey);
-        SearchResultBean ans = descSearchService.searchForViewBean(searchKey);
-        ans.setConsumeTime(System.currentTimeMillis()-startTime);
-        ans.setKeyWord(searchKey);
-        try {
+        try{
+            SearchResponse countResponse  = esService.countTotalHits(index,type,searchKey);
+            SearchResponse searchResponse= esService.search(index,type,searchKey,0,10);
+            SearchHits searchHits = searchResponse.getHits();
+            SearchResults results = new SearchResults(searchHits);
+            results.setCount(countResponse.getHits().getTotalHits());
+            results.setTimeConsume(searchResponse.getTookInMillis());
             PrintWriter pw = response.getWriter();
-            pw.write(gson.toJson(ans));
-        } catch (IOException e) {
+            pw.write(new Gson().toJson(results));
+        }catch (IOException e){
             e.printStackTrace();
         }
-        return ;
+    }
+
+    @RequestMapping(value = {"/doc/paginationSearch"},method = RequestMethod.POST)
+    public void paginationSearch(HttpServletRequest request,
+                                 HttpServletResponse response,
+                                 ModelMap modelMap){
+        String searchKey  = request.getParameter("searchKey");
+        int start = Integer.parseInt(request.getParameter("start"));
+        int size = Integer.parseInt(request.getParameter("size"));
+        try{
+            SearchResponse searchResponse = esService.search(index,type,searchKey,start,size);
+            SearchHits searchHits = searchResponse.getHits();
+            SearchResults result = new SearchResults(searchHits);
+            result.setTimeConsume(searchResponse.getTookInMillis());
+            PrintWriter pw = response.getWriter();
+            pw.write(new Gson().toJson(result));
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     @RequestMapping(value = {"/doc/docCenter"},method = RequestMethod.GET)
-    public String testSearchCenter(HttpServletRequest request,
+    public String searchCenter(HttpServletRequest request,
                                   HttpServletResponse response,
                                    ModelMap modelMap){
         commonnav(modelMap, request);
-        return "/doc/search";
+        return "/doc/esSearch";
     }
 }

@@ -10,8 +10,8 @@ import com.dianping.pigeon.governor.dao.ServiceDescMapper;
 import com.dianping.pigeon.governor.dao.ServiceMapper;
 
 import com.dianping.pigeon.governor.service.DescSearchService;
-import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Iterator;

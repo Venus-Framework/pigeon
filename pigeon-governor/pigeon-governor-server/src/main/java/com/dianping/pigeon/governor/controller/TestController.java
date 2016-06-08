@@ -61,4 +61,10 @@ public class TestController {
         return Result.createSuccessResult("success!");
     }
 
+
+    @RequestMapping(value = {"/shs/test1"},method = {RequestMethod.GET})
+    public String testVelocity(HttpServletRequest request, HttpServletResponse response){
+        return "/config/GroupConfig";
+    }
+
 }

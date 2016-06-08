@@ -32,6 +32,16 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.6.3</version>
+		</dependency>
+		<dependency>
+			<artifactId>guava</artifactId>
+			<groupId>com.google.guava</groupId>
+			<version>18.0</version>
+		</dependency>
 		<!-- 模块依赖 -->
 		<dependency>
 			<groupId>com.dianping</groupId>
@@ -298,6 +308,12 @@
 			<groupId>commons-httpclient</groupId>
 			<artifactId>commons-httpclient</artifactId>
 			<version>3.1</version>
+		</dependency>
+		<!--ES client-->
+		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+			<version>2.3.3</version>
 		</dependency>
 	</dependencies>
 
