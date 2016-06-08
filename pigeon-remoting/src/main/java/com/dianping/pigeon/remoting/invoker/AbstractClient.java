@@ -21,7 +21,7 @@ public abstract class AbstractClient implements Client {
 
 	ResponseProcessor responseProcessor = ResponseProcessorFactory.selectProcessor();
 
-	protected Region region;
+	protected volatile Region region;
 
 	@Override
 	public void connectionException(Object attachment, Throwable e) {

@@ -1,8 +1,11 @@
 package com.dianping.pigeon.remoting.invoker.route.region;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.exception.RegionException;
+import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 
 import java.util.*;
 
@@ -18,17 +21,19 @@ public class WeightBasedRegionPolicy implements RegionPolicy {
     public static final String NAME = "weightBased";
 
     private final RegionPolicyManager regionPolicyManager = RegionPolicyManager.INSTANCE;
-
-    private Random random = new Random();
+    private final RequestQualityManager requestQualityManager = RequestQualityManager.INSTANCE;
+    private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+    private final Random random = new Random();
 
     @Override
     public List<Client> getPreferRegionClients(List<Client> clientList, InvocationRequest request) {
-        return getRegionActiveClients(clientList);
+        return getRegionActiveClients(clientList, request);
     }
 
-    private List<Client> getRegionActiveClients(List<Client> clientList) {
+    private List<Client> getRegionActiveClients(List<Client> clientList, InvocationRequest request) {
         // 分region存储clients
         Map<Region, List<Client>> regionClients = new HashMap<Region, List<Client>>();
+
         for(Region region : regionPolicyManager.getRegionArray()) {
             regionClients.put(region, new ArrayList<Client>());
         }
@@ -42,6 +47,7 @@ public class WeightBasedRegionPolicy implements RegionPolicy {
         // 初始化region中存在可用client的权重和
         Integer weightSum = 0;
         Set<Region> regionSet = new HashSet<Region>();
+
         for(Region region : regionClients.keySet()) {
             if(regionClients.get(region).size() > 0) {
                 weightSum += region.getWeight();
@@ -56,15 +62,34 @@ public class WeightBasedRegionPolicy implements RegionPolicy {
         // 权重随机算法
         Integer n = random.nextInt(weightSum); // n in [0, weightSum)
         Integer m = 0;
+
         for (Region region : regionSet) {
             int weight = region.getWeight();
+            List<Client> regionClientList = regionClients.get(region);
+
             if (m <= n && n < m + weight) {
-                return regionClients.get(region);
+
+                if (requestQualityManager.isEnableRequestQualityRoute()) {
+
+                    float least = configManager.getFloatValue("pigeon.regions.switchratio", 0.5f)
+                            * regionClientList.size();
+                    List<Client> filterClients = requestQualityManager.getQualityPreferClients(
+                            regionClientList, request, least);
+
+                    if (filterClients.size() >= least) {
+                        return filterClients;
+                    }
+
+                } else {
+                    return regionClientList;
+                }
+
             }
+
             m += weight;
         }
 
-        return null;
+        return clientList;
     }
 
 }

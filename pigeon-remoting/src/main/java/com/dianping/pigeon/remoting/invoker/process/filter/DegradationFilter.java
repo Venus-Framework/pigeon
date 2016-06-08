@@ -207,9 +207,13 @@ public class DegradationFilter extends InvocationInvokeFilter {
 				}
 			}
 		}
+
 		boolean failed = false;
+		InvocationResponse response;
+
 		try {
-			return handler.handle(context);
+			response = handler.handle(context);
+			return response;
 		} catch (ServiceUnavailableException e) {
 			failed = true;
 			throw e;
@@ -476,6 +480,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 			Map<String, Count> countMap = new ConcurrentHashMap<String, Count>();
 			final int recentSeconds = configManager.getIntValue(KEY_DEGRADE_CHECK_SECONDS, 10);
 			final int currentSecond = Calendar.getInstance().get(Calendar.SECOND);
+
 			for (String url : requestSecondCountMap.keySet()) {
 				Map<Integer, Count> secondCount = requestSecondCountMap.get(url);
 				int total = 0, failed = 0, degraded = 0;
@@ -500,6 +505,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 					}
 				}
 			}
+
 			requestCountMap = countMap;
 
 			// 复用降级统计和清空的线程，用于服务质量统计和清空（窗口默认为10秒）
@@ -544,7 +550,6 @@ public class DegradationFilter extends InvocationInvokeFilter {
 
 				addrReqUrlQualities.put(address, reqUrlQualities);
 			}
-
 
 			RequestQualityManager.INSTANCE.setAddrReqUrlQualities(addrReqUrlQualities);
 		}
