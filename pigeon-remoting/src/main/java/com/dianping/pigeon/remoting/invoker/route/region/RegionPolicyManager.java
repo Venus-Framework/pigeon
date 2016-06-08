@@ -160,7 +160,7 @@ public enum RegionPolicyManager {
                 if(Boolean.valueOf(value)) { // region路由开,重新读取配置
                     // 清空allClient region信息
                     initRegionsConfig();
-                    clearRegion();
+
                 } else { // region路由关
                     isInit = false;
                     logger.warn("Region policy is disabled!");
@@ -169,12 +169,10 @@ public enum RegionPolicyManager {
             } else if(isInit && key.endsWith(KEY_REGIONINFO)) {
 
                 initRegionsConfig(value);
-                clearRegion();
 
             } else if(isInit && localRegion != null && key.endsWith(KEY_REGION_PREFER_BASE + localRegion.getName())) {
 
                 initRegionsConfig(configManager.getStringValue(KEY_REGIONINFO), value);
-                clearRegion();
 
             }
 
@@ -259,6 +257,7 @@ public enum RegionPolicyManager {
                     regionArray = Collections.unmodifiableList(regions);// 下面的步骤都基于regionArray
                     initPatterRegionMappings(patternRegionNameMappings);// 初始化pattern region映射
                     localRegion = getRegionByName(localRegionName);
+                    clearRegion();
                     isInit = true;
                     logger.warn("Region route policy switch on! Local region is: " + regionArray.get(0));
 

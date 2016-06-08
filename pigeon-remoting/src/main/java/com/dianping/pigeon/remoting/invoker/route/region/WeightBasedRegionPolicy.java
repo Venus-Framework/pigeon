@@ -6,6 +6,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.exception.RegionException;
 import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
+import com.google.common.collect.Lists;
 
 import java.util.*;
 
@@ -33,8 +34,9 @@ public class WeightBasedRegionPolicy implements RegionPolicy {
     private List<Client> getRegionActiveClients(List<Client> clientList, InvocationRequest request) {
         // 分region存储clients
         Map<Region, List<Client>> regionClients = new HashMap<Region, List<Client>>();
+        List<Region> regionArrays = Lists.newArrayList(regionPolicyManager.getRegionArray());
 
-        for(Region region : regionPolicyManager.getRegionArray()) {
+        for(Region region : regionArrays) {
             regionClients.put(region, new ArrayList<Client>());
         }
 

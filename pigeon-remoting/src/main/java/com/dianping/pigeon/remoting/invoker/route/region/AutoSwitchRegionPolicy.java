@@ -9,6 +9,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
+import com.google.common.collect.Lists;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
@@ -45,7 +46,9 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
 
     private List<Client> getRegionActiveClients(List<Client> clientList, InvocationRequest request) {
         Map<Region, InnerRegionStat> regionStats = new HashMap<Region, InnerRegionStat>();
-        for(Region region : regionPolicyManager.getRegionArray()) {
+        List<Region> regionArrays = Lists.newArrayList(regionPolicyManager.getRegionArray());
+
+        for(Region region : regionArrays) {
             regionStats.put(region, new InnerRegionStat());
         }
 
@@ -62,7 +65,7 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
             }
         }
 
-        for (Region region : regionPolicyManager.getRegionArray()) {// 优先级大小按数组大小排列
+        for (Region region : regionArrays) {// 优先级大小按数组大小排列
             try {
                 InnerRegionStat regionStat = regionStats.get(region);
                 int total = regionStat.getTotal();
