@@ -419,7 +419,7 @@ public class CuratorRegistry implements Registry {
 			String heartBeatPath = Utils.getHeartBeatPath(serviceAddress);
 			client.set(heartBeatPath, heartBeatTimeMillis);
 		} catch (Throwable e) {
-			logger.fatal("failed to delete heartbeat", e);
+			logger.fatal("failed to update heartbeat", e);
 		}
 	}
 

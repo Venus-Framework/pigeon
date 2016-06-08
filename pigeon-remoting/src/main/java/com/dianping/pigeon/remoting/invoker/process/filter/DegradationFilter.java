@@ -6,6 +6,7 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,6 +14,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
+import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager.Quality;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
@@ -224,6 +227,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 			throw e;
 		} finally {
 			addRequest(context, failed, false);
+			RequestQualityManager.INSTANCE.addClientRequest(context, failed);
 		}
 	}
 
@@ -270,7 +274,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 			}
 			Count count = secondCount.get(currentSecond);
 			if (count == null) {
-				count = new Count(1, failed ? 1 : 0, degraded ? 1 : 0);
+				count = new Count(0, 0, 0);
 				Count last = secondCount.putIfAbsent(currentSecond, count);
 				if (last != null) {
 					count = last;
@@ -470,8 +474,8 @@ public class DegradationFilter extends InvocationInvokeFilter {
 
 		private void checkRequestSecondCount() {
 			Map<String, Count> countMap = new ConcurrentHashMap<String, Count>();
-			int recentSeconds = configManager.getIntValue(KEY_DEGRADE_CHECK_SECONDS, 10);
-			int currentSecond = Calendar.getInstance().get(Calendar.SECOND);
+			final int recentSeconds = configManager.getIntValue(KEY_DEGRADE_CHECK_SECONDS, 10);
+			final int currentSecond = Calendar.getInstance().get(Calendar.SECOND);
 			for (String url : requestSecondCountMap.keySet()) {
 				Map<Integer, Count> secondCount = requestSecondCountMap.get(url);
 				int total = 0, failed = 0, degraded = 0;
@@ -497,6 +501,52 @@ public class DegradationFilter extends InvocationInvokeFilter {
 				}
 			}
 			requestCountMap = countMap;
+
+			// 复用降级统计和清空的线程，用于服务质量统计和清空（窗口默认为10秒）
+			ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Integer, Quality>>>
+					addrReqUrlSecondQualities = RequestQualityManager.INSTANCE.getAddrReqUrlSecondQualities();
+			ConcurrentHashMap<String, ConcurrentHashMap<String, Quality>>
+					addrReqUrlQualities = new ConcurrentHashMap<String, ConcurrentHashMap<String, Quality>>();
+
+			for(String address : addrReqUrlSecondQualities.keySet()) {
+				ConcurrentHashMap<String, ConcurrentHashMap<Integer, Quality>>
+						reqUrlSecondQualities = addrReqUrlSecondQualities.get(address);
+
+				ConcurrentHashMap<String, Quality> reqUrlQualities = new ConcurrentHashMap<String, Quality>();
+				for(String requestUrl : reqUrlSecondQualities.keySet()) {
+					ConcurrentHashMap<Integer, Quality>
+							secondQualities = reqUrlSecondQualities.get(requestUrl);
+					int total = 0, failed = 0;
+					for (int i = 1; i <= recentSeconds; i++) {
+						int prevSec = currentSecond - i;
+						prevSec = prevSec >= 0 ? prevSec : prevSec + 60;
+						Quality quality = secondQualities.get(prevSec);
+
+						if(quality != null) {
+							total += quality.getTotalValue();
+							failed += quality.getFailedValue();
+						}
+					}
+
+					reqUrlQualities.put(requestUrl, new Quality(total, failed));
+
+					// clear previous seconds
+					for (int i = recentSeconds + 1; i <= recentSeconds + 20; i++) {
+						int prevSec = currentSecond - i;
+						prevSec = prevSec >= 0 ? prevSec : prevSec + 60;
+						Quality quality = secondQualities.get(prevSec);
+
+						if(quality != null) {
+							quality.clear();
+						}
+					}
+				}
+
+				addrReqUrlQualities.put(address, reqUrlQualities);
+			}
+
+
+			RequestQualityManager.INSTANCE.setAddrReqUrlQualities(addrReqUrlQualities);
 		}
 
 	}

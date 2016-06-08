@@ -283,8 +283,4 @@ public class PigeonProviderHeartBeatCheck extends Thread {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(new PigeonProviderHeartBeatCheck().isPortAvailable("192.168.227.43:2055"));
-    }
-
 }

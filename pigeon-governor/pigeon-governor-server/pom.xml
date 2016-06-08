@@ -53,6 +53,11 @@
 			<artifactId>dpsf-net</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>pigeon-registry-zookeeper</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<!-- 其他 -->
 		<!-- xml-apis -->
 		<dependency>

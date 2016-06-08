@@ -1,7 +1,7 @@
 package com.dianping.pigeon.remoting.invoker.route.region;
 
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.exception.RegionException;
 
 import java.util.*;
@@ -22,65 +22,49 @@ public class WeightBasedRegionPolicy implements RegionPolicy {
     private Random random = new Random();
 
     @Override
-    public List<Client> getPreferRegionClients(List<Client> clientList, InvokerConfig<?> invokerConfig) {
-
+    public List<Client> getPreferRegionClients(List<Client> clientList, InvocationRequest request) {
         return getRegionActiveClients(clientList);
     }
 
     private List<Client> getRegionActiveClients(List<Client> clientList) {
-        Region region = getActiveRegionByWeight();
-
-        if(region != null) {
-            List<Client> _clientList = new ArrayList<Client>();
-            for(Client client : clientList) {
-                if(client.getRegion().equals(region)){
-                    _clientList.add(client);
-                }
-            }
-            return _clientList;
-        }
-
-        return clientList;
-    }
-
-    private class InnerRegionWeight {
-        private int weight = 1;
-
-        public int getWeight() {
-            return weight;
-        }
-
-        public void setWeight(int weight) {
-            this.weight = weight;
-        }
-    }
-
-    private Region getActiveRegionByWeight() {
-        //TODO 从配置读取相应的权重，更新regionWeights，ps：权重为0时，即不选择该region
-        Map<Region, InnerRegionWeight> regionWeights = new HashMap<Region, InnerRegionWeight>();
+        // 分region存储clients
+        Map<Region, List<Client>> regionClients = new HashMap<Region, List<Client>>();
         for(Region region : regionPolicyManager.getRegionArray()) {
-            regionWeights.put(region, new InnerRegionWeight());
+            regionClients.put(region, new ArrayList<Client>());
         }
 
+        for(Client client : clientList) {
+            if(regionClients.containsKey(client.getRegion())) {
+                regionClients.get(client.getRegion()).add(client);
+            }
+        }
+
+        // 初始化region中存在可用client的权重和
         Integer weightSum = 0;
-        for (Region region : regionWeights.keySet()) {
-            weightSum += regionWeights.get(region).getWeight();
+        Set<Region> regionSet = new HashSet<Region>();
+        for(Region region : regionClients.keySet()) {
+            if(regionClients.get(region).size() > 0) {
+                weightSum += region.getWeight();
+                regionSet.add(region);
+            }
         }
 
         if (weightSum <= 0) {
             throw new RegionException("Error: weightSum=" + weightSum.toString());
         }
 
+        // 权重随机算法
         Integer n = random.nextInt(weightSum); // n in [0, weightSum)
         Integer m = 0;
-        for (Region region : regionWeights.keySet()) {
-            int weight = regionWeights.get(region).getWeight();
+        for (Region region : regionSet) {
+            int weight = region.getWeight();
             if (m <= n && n < m + weight) {
-                return region;
+                return regionClients.get(region);
             }
             m += weight;
         }
 
         return null;
     }
+
 }

@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.dianping.pigeon.remoting.invoker.route.RouteManager;
 import org.junit.Test;
 
 import com.dianping.pigeon.registry.listener.DefaultServiceChangeListener;
@@ -21,7 +22,7 @@ public class DefaultServiceChangeListenerTest {
 
 		ClientManager.getInstance();
 		ClusterListenerManager.getInstance();
-		DefaultRouteManager router = new DefaultRouteManager();
+		RouteManager router = DefaultRouteManager.INSTANCE;
 
 		listener.onServiceHostChange("com.dianping.pigeon.demo.EchoService0",
 				Utils.getServiceIpPortList("127.0.0.1:5008,127.0.0.1:5009,127.0.0.1:5010"));

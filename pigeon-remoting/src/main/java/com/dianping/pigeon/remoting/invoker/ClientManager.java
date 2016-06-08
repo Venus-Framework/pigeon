@@ -47,7 +47,7 @@ public class ClientManager {
 
 	private ProviderAvailableListener providerAvailableListener;
 
-	private RouteManager routerManager = new DefaultRouteManager();
+	private RouteManager routerManager = DefaultRouteManager.INSTANCE;
 
 	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
