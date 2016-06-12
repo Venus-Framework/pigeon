@@ -30,15 +30,26 @@ public enum RegionPolicyManager {
 
     private RegionPolicyManager () {}
 
+    private static volatile boolean isInitialized = false;
+
     public void init() {
-        register(AutoSwitchRegionPolicy.NAME, null, AutoSwitchRegionPolicy.INSTANCE);
-        register(WeightBasedRegionPolicy.NAME, null, WeightBasedRegionPolicy.INSTANCE);
-        if(configManager.getBooleanValue(KEY_ENABLEREGIONPOLICY, DEFAULT_ENABLEREGIONPOLICY)) {
-            initRegionsConfig();
-        } else {
-            logger.warn("Region policy is disabled!");
+        if (!isInitialized) {
+           synchronized (RegionPolicyManager.class) {
+               if (!isInitialized) {
+                   register(AutoSwitchRegionPolicy.NAME, null, AutoSwitchRegionPolicy.INSTANCE);
+                   register(WeightBasedRegionPolicy.NAME, null, WeightBasedRegionPolicy.INSTANCE);
+
+                   if(configManager.getBooleanValue(KEY_ENABLEREGIONPOLICY, DEFAULT_ENABLEREGIONPOLICY)) {
+                       initRegionsConfig();
+                   } else {
+                       logger.warn("Region policy is disabled!");
+                   }
+
+                   configManager.registerConfigChangeListener(new InnerConfigChangeListener());
+                   isInitialized = true;
+               }
+           }
         }
-        configManager.registerConfigChangeListener(new InnerConfigChangeListener());
     }
 
     private final Monitor monitor = MonitorLoader.getMonitor();
@@ -48,11 +59,11 @@ public enum RegionPolicyManager {
     private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
     // 自动切换region的开关
-    private final String KEY_ENABLEREGIONPOLICY = "pigeon.regions.enable";
-    private final boolean DEFAULT_ENABLEREGIONPOLICY = false;
-    private final String KEY_REGIONINFO = "pigeon.regions";
-    private final String KEY_REGION_PREFER_BASE = "pigeon.regions.prefer.";
-    private volatile boolean isInit = false;
+    public final String KEY_ENABLEREGIONPOLICY = "pigeon.regions.enable";
+    public final boolean DEFAULT_ENABLEREGIONPOLICY = false;
+    public final String KEY_REGIONINFO = "pigeon.regions";
+    public final String KEY_REGION_PREFER_BASE = "pigeon.regions.prefer.";
+    private volatile boolean isEnabled = false;
 
     // example: 10.66 --> region1
     private Map<String, Region> patternRegionMappings = new HashMap<String, Region>();
@@ -162,15 +173,15 @@ public enum RegionPolicyManager {
                     initRegionsConfig();
 
                 } else { // region路由关
-                    isInit = false;
+                    isEnabled = false;
                     logger.warn("Region policy is disabled!");
                 }
 
-            } else if(isInit && key.endsWith(KEY_REGIONINFO)) {
+            } else if(isEnabled && key.endsWith(KEY_REGIONINFO)) {
 
                 initRegionsConfig(value);
 
-            } else if(isInit && localRegion != null && key.endsWith(KEY_REGION_PREFER_BASE + localRegion.getName())) {
+            } else if(isEnabled && localRegion != null && key.endsWith(KEY_REGION_PREFER_BASE + localRegion.getName())) {
 
                 initRegionsConfig(configManager.getStringValue(KEY_REGIONINFO), value);
 
@@ -200,7 +211,7 @@ public enum RegionPolicyManager {
     }
 
     public boolean isEnableRegionPolicy() {
-        return configManager.getBooleanValue(KEY_ENABLEREGIONPOLICY, DEFAULT_ENABLEREGIONPOLICY) && isInit;
+        return configManager.getBooleanValue(KEY_ENABLEREGIONPOLICY, DEFAULT_ENABLEREGIONPOLICY) && isEnabled;
     }
 
     private void initRegionsConfig() {
@@ -258,7 +269,7 @@ public enum RegionPolicyManager {
                     initPatterRegionMappings(patternRegionNameMappings);// 初始化pattern region映射
                     localRegion = getRegionByName(localRegionName);
                     clearRegion();
-                    isInit = true;
+                    isEnabled = true;
                     logger.warn("Region route policy switch on! Local region is: " + regionArray.get(0));
 
                 } else {
@@ -322,4 +333,7 @@ public enum RegionPolicyManager {
         return regionArray;
     }
 
+    public Region getLocalRegion() {
+        return localRegion;
+    }
 }
