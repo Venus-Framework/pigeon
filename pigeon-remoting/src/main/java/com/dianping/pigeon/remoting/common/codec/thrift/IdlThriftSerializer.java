@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @author qi.yin
  *         2016/05/16  下午3:10.
@@ -176,8 +177,6 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
 
             }
         }
-        //bodylength
-        protocol.writeI32(Integer.MAX_VALUE);
         //body
         protocol.writeMessageBegin(message);
         args.write(protocol);
@@ -385,10 +384,7 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
         //header
         header.write(protocol);
 
-        int headerLength = bos.size() - HEADER_FIELD_LENGTH;
-
-        //bodylength
-        protocol.writeI32(Integer.MAX_VALUE);
+        short headerLength = (short) (bos.size() - HEADER_FIELD_LENGTH);
 
         protocol.writeMessageBegin(message);
         switch (message.type) {
@@ -403,13 +399,10 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
         protocol.getTransport().flush();
 
         int messageLength = bos.size();
-        int bodyLength = messageLength - headerLength - FIELD_LENGTH;
 
         try {
             bos.setWriteIndex(0);
-            protocol.writeI32(headerLength);
-            bos.setWriteIndex(headerLength + HEADER_FIELD_LENGTH);
-            protocol.writeI32(bodyLength);
+            protocol.writeI16(headerLength);
         } finally {
             bos.setWriteIndex(messageLength);
         }

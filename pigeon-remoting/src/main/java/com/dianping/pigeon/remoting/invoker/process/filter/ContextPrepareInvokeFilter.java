@@ -68,6 +68,8 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
             _request.setParameterTypes(invokerContext.getParameterTypes());
         }
 
+        request = invokerContext.getRequest();
+
         request.setSequence(requestSequenceMaker.incrementAndGet() * -1);
         request.setCreateMillisTime(System.currentTimeMillis());
         request.setMessageType(Constants.MESSAGE_TYPE_SERVICE);

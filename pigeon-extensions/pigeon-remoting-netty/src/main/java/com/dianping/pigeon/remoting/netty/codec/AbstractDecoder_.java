@@ -1,5 +1,8 @@
 package com.dianping.pigeon.remoting.netty.codec;
 
+import com.dianping.pigeon.compress.Compress;
+import com.dianping.pigeon.compress.GZipCompress;
+import com.dianping.pigeon.compress.SnappyCompress;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -17,16 +20,23 @@ import org.jboss.netty.handler.codec.frame.FrameDecoder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.util.zip.Adler32;
 
 /**
  * @author qi.yin
- *         2016/05/10  上午11:00.
+ *         2016/06/07  上午11:06.
  */
 public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ {
 
     private static final Logger logger = LoggerLoader.getLogger(AbstractDecoder_.class);
 
     private byte[] headMsgs = new byte[2];
+
+    private static Adler32 adler32 = new Adler32();
+
+    private static Compress gZipCompress = new GZipCompress();
+
+    private static Compress snappyCompress = new SnappyCompress();
 
     @Override
     public Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer)
@@ -87,8 +97,8 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
                     ChannelBufferInputStream is = new ChannelBufferInputStream(frame);
 
                     msg = deserialize(serialize, is);
-                    //afterDecode
-                    afterDecode(msg, serialize, is, channel);
+                    //after
+                    doAfter(msg, serialize, is, channel);
                 } catch (Throwable e) {
                     SerializationException se = new SerializationException(e);
 
@@ -111,58 +121,64 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
         return msg;
     }
 
-    protected Object _decode0(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) {
+    protected Object _decode0(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) throws IOException {
         Object msg = null;
         if (buffer.readableBytes() <= CodecConstants._FRONT_LENGTH) {
             return msg;
         }
 
-        int headerLength = (int) buffer.getUnsignedInt(
+        int totalLength = (int) (buffer.getUnsignedInt(
                 buffer.readerIndex() +
-                        CodecConstants._HEAD_LENGTH);
+                        CodecConstants._HEAD_LENGTH));
 
-        if (buffer.readableBytes() <= CodecConstants._FRONT_LENGTH_ + headerLength) {
-            return msg;
-        }
+        int frameLength = totalLength + CodecConstants._FRONT_LENGTH_;
 
-        long bodyLength = buffer.getUnsignedInt(
-                buffer.readerIndex() +
-                        headerLength +
-                        CodecConstants._FRONT_LENGTH);
-
-        long dataLength = headerLength + bodyLength;
-
-        if (buffer.readableBytes() >= dataLength + CodecConstants._FRAME_LENGTH) {
+        if (buffer.readableBytes() >= frameLength) {
             try {
-                //head
-                buffer.skipBytes(2);
-                //version
-                buffer.readByte();
-                byte serialize = buffer.readByte();
-
-                boolean needChecksum = (serialize & 0x80) == 1;
-
-                serialize = (byte) (serialize & 0x7F);
-                serialize = SerializerFactory.convertToSerialize(serialize);
-
-                int frameLength = (int) (dataLength + CodecConstants._FRONT_LENGTH_);
-                //body
                 ChannelBuffer frame = extractFrame(buffer, buffer.readerIndex(), frameLength);
                 buffer.readerIndex(buffer.readerIndex() + frameLength);
-                //tail
-                buffer.skipBytes(4);
-                //deserialize
-                ChannelBufferInputStream is = new ChannelBufferInputStream(frame);
+                //checksum
+                byte command = frame.getByte(frame.readerIndex() +
+                        CodecConstants._FRONT_COMMAND_LENGTH);
+                boolean checksum = false;
+                if ((command & 0x80) == 0x80) {
+                    if (!checksum(frame, totalLength)) {
+                        return msg;
+                    }
+                    checksum = true;
+                }
+                //magic
+                frame.skipBytes(CodecConstants._MEGIC_FIELD_LENGTH);
+                //version
+                frame.readByte();
+                //serialize
+                byte serialize = (byte) (frame.getByte(frame.readerIndex()) & 0x1f);
+                serialize = SerializerFactory.convertToSerialize(serialize);
+                //compact
+                short compress = (short) (frame.readByte() & 0x60);
 
+                //totalLength
+                frame.skipBytes(CodecConstants._TOTAL_FIELD_LENGTH);
+
+                //doBefore
+                int compressLength = totalLength - CodecConstants._HEAD_FIELD_LENGTH;
+                compressLength = checksum ? compressLength - CodecConstants._TAIL_LENGTH
+                        : compressLength;
+
+                ChannelBuffer frameBody = doBefore(channel, frame, compressLength, compress);
+
+                ChannelBufferInputStream is = new ChannelBufferInputStream(frameBody);
+                //deserialize
                 msg = deserialize(serialize, is);
-                //afterDecode
-                afterDecode(msg, serialize, is, channel);
+                //doAfter
+                doAfter(msg, serialize, is, channel);
             } catch (Throwable e) {
 
                 logger.error("Deserialize failed. host:"
                         + ((InetSocketAddress) channel.getRemoteAddress()).getAddress().getHostAddress()
                         + "\n" + e.getMessage(), e);
             }
+
         }
 
         return msg;
@@ -174,7 +190,55 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
         return frame;
     }
 
-    private Object afterDecode(Object msg, byte serialize, ChannelBufferInputStream is, Channel channel) throws IOException {
+    private boolean checksum(ChannelBuffer frame, int totalLength) {
+        int dataLength = totalLength + CodecConstants._HEAD_LENGTH;
+        adler32.reset();
+        adler32.update(frame.array(), 0, dataLength);
+
+        int checksum = (int) adler32.getValue();
+        int _checksum = frame.getInt(dataLength);
+
+        if (checksum != _checksum) {
+            return false;
+        }
+        return true;
+    }
+
+    private ChannelBuffer doCompress(Channel channel, ChannelBuffer frame, int length, int compress) throws IOException {
+        byte[] in;
+        byte[] out = null;
+        ChannelBuffer result;
+        switch (compress) {
+            case 0x00:
+                return frame;
+            case 0x20:
+                in = new byte[length];
+                frame.getBytes(frame.readerIndex() + CodecConstants._HEAD_FIELD_LENGTH, in);
+                out = snappyCompress.unCompress(in);
+                break;
+            case 0x40:
+                in = new byte[length];
+                frame.getBytes(frame.readerIndex() + CodecConstants._HEAD_FIELD_LENGTH, in);
+                out = gZipCompress.unCompress(in);
+                break;
+            case 0x60:
+                throw new IllegalArgumentException("Invalid compress value.");
+        }
+
+        byte[] lengthBuf = new byte[CodecConstants._HEAD_FIELD_LENGTH];
+        frame.getBytes(0, lengthBuf, 0, lengthBuf.length);
+        result = channel.getConfig().getBufferFactory().getBuffer(out.length + lengthBuf.length);
+        result.writeBytes(lengthBuf);
+        result.writeBytes(out);
+
+        return result;
+    }
+
+    protected ChannelBuffer doBefore(Channel channel, ChannelBuffer buffer, int length, short compact) throws IOException {
+        return doCompress(channel, buffer, length, compact);
+    }
+
+    private Object doAfter(Object msg, byte serialize, ChannelBufferInputStream is, Channel channel) throws IOException {
         int available = is.available();
 
         if (msg instanceof InvocationSerializable) {
@@ -194,9 +258,11 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
         return msg;
     }
 
+
     protected abstract Object deserialize(byte serializerType, InputStream is);
 
     protected abstract Object doInitMsg(Object message, Channel channel, long receiveTime);
 
     protected abstract void doFailResponse(Channel channel, InvocationResponse response);
+
 }

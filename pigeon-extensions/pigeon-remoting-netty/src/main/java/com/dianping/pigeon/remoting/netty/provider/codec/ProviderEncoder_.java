@@ -16,7 +16,7 @@ import java.io.OutputStream;
  */
 public class ProviderEncoder_ extends AbstractEncoder_ {
 
-    public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
+    public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws IOException {
         Object encoded = super.encode(ctx, channel, msg);
         return encoded;
     }

@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class InvokerEncoder_ extends AbstractEncoder_ {
 
-    public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
+    public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws IOException {
         NettyCodecUtils.setAttachment(ctx, Constants.ATTACHMENT_RETRY, msg);
         Object[] message = (Object[]) msg;
         Object encoded = super.encode(ctx, channel, message[0]);

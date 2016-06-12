@@ -64,6 +64,7 @@ public abstract class AbstractClient implements Client {
 		}
 		this.active = active;
 	}
+
 	@Override
 	public Region getRegion() {
 		if(region == null) {

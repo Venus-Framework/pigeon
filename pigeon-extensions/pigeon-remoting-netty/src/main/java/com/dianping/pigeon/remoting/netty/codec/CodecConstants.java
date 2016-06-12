@@ -13,14 +13,18 @@ public class CodecConstants {
     public static final int FRONT_LENGTH = HEAD_LENGTH + BODY_FIELD_LENGTH;
     public static final int FRAME_LENGTH = HEAD_LENGTH + BODY_FIELD_LENGTH + TAIL_LENGTH;
 
-    public static final int _BODY_FIELD_LENGTH = 4;
+    public static final int _MEGIC_FIELD_LENGTH = 2;
+    public static final int _VERSION_FIELD_LENGTH = 1;
+
     public static final int _HEAD_LENGTH = 4;
-    public static final int _HEAD_FIELD_LENGTH = 4;
+    public static final int _HEAD_FIELD_LENGTH = 2;
+    public static final int _TOTAL_FIELD_LENGTH = 4;
     public static final int _TAIL_LENGTH = 4;
 
-    public static final int _FRONT_LENGTH = _HEAD_LENGTH + _HEAD_FIELD_LENGTH;
-    public static final int _FRONT_LENGTH_ = _HEAD_FIELD_LENGTH + _BODY_FIELD_LENGTH;
-    public static final int _FRAME_LENGTH = _HEAD_LENGTH + _HEAD_FIELD_LENGTH + _BODY_FIELD_LENGTH + _TAIL_LENGTH;
+    public static final int _FRONT_COMMAND_LENGTH = _MEGIC_FIELD_LENGTH + _VERSION_FIELD_LENGTH;
+    public static final int _FRONT_LENGTH = _HEAD_LENGTH + _TOTAL_FIELD_LENGTH + _HEAD_FIELD_LENGTH;
+    public static final int _FRONT_LENGTH_ = _HEAD_LENGTH + _TOTAL_FIELD_LENGTH;
+
 
     public static final byte MAGIC_FIRST = 0x39;
     public static final byte MAGIC_SECEND = 0x3A;

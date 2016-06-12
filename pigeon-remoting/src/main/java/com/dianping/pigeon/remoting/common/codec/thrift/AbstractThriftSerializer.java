@@ -25,11 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class AbstractThriftSerializer extends AbstractSerializer {
 
-    protected static final int HEADER_FIELD_LENGTH = 4;
-
-    protected static final int BODY_FIELD_LENGTH = 4;
-
-    protected static final int FIELD_LENGTH = HEADER_FIELD_LENGTH + BODY_FIELD_LENGTH;
+    protected static final int HEADER_FIELD_LENGTH = 2;
 
     protected ServiceInvocationRepository repository = ServiceInvocationRepository.getInstance();
 
@@ -42,14 +38,11 @@ public abstract class AbstractThriftSerializer extends AbstractSerializer {
 
         try {
             //headerLength
-            protocol.readI32();
+            protocol.readI16();
 
             //header
             Header header = new Header();
             header.read(protocol);
-
-            //bodyLength
-            protocol.readI32();
 
             if (header.getRequestInfo() == null ||
                     StringUtils.isEmpty(header.getRequestInfo().getServiceName())) {
@@ -81,24 +74,21 @@ public abstract class AbstractThriftSerializer extends AbstractSerializer {
                 TBinaryProtocol protocol = new TBinaryProtocol(transport);
 
                 //headerlength
-                protocol.writeI32(Integer.MAX_VALUE);
+                protocol.writeI16(Short.MAX_VALUE);
 
                 //header
                 Header header = ThriftMapper.convertRequestToHeader(request);
                 header.write(protocol);
 
-                int headerLength = bos.size() - HEADER_FIELD_LENGTH;
+                short headerLength = (short)(bos.size() - HEADER_FIELD_LENGTH);
 
                 doSerializeRequest(request, protocol);
 
                 int messageLength = bos.size();
-                int bodyLength = messageLength - headerLength - FIELD_LENGTH;
 
                 try {
                     bos.setWriteIndex(0);
-                    protocol.writeI32(headerLength);
-                    bos.setWriteIndex(headerLength + HEADER_FIELD_LENGTH);
-                    protocol.writeI32(bodyLength);
+                    protocol.writeI16(headerLength);
                 } finally {
                     bos.setWriteIndex(messageLength);
                 }
@@ -122,15 +112,12 @@ public abstract class AbstractThriftSerializer extends AbstractSerializer {
 
         try {
             //headerLength
-            protocol.readI32();
+            protocol.readI16();
             //header
             Header header = new Header();
             header.read(protocol);
 
             response = ThriftMapper.convertHeaderToResponse(header);
-
-            //bodyLength
-            protocol.readI32();
 
             if (header.getResponseInfo() == null) {
                 throw new SerializationException("Deserialize response is no legal. header " + header);
@@ -161,7 +148,7 @@ public abstract class AbstractThriftSerializer extends AbstractSerializer {
                 TBinaryProtocol protocol = new TBinaryProtocol(transport);
 
                 //headerlength
-                protocol.writeI32(Integer.MAX_VALUE);
+                protocol.writeI16(Short.MAX_VALUE);
 
                 //header
                 Header header = ThriftMapper.convertResponseToHeader(response);
