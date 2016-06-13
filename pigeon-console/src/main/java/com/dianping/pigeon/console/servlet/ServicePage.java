@@ -48,6 +48,8 @@ public class ServicePage {
 
 	Map<String, Set<HostInfo>> serviceAddresses;
 
+	private String governorUrl = "";
+
 	public Map<String, Set<HostInfo>> getServiceAddresses() {
 		return serviceAddresses;
 	}
@@ -234,4 +236,11 @@ public class ServicePage {
 		this.port = port;
 	}
 
+	public String getGovernorUrl() {
+		return governorUrl;
+	}
+
+	public void setGovernorUrl(String governorUrl) {
+		this.governorUrl = governorUrl;
+	}
 }

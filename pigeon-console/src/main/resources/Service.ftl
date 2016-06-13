@@ -99,6 +99,12 @@
 </head>
 <body style="font-size:62.5%;padding-top:10px;padding-left:10px;">
 	<div class="row">
+		<div class="span12">
+            管理门户: <a href="${governorUrl}">${governorUrl}</a>
+		</div>
+	</div>
+
+	<div class="row">
 	  <div class="span8"  style="overflow:hidden">
 		<div>
 		<p>pigeon services registered at port ${port}</p>

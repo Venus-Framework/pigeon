@@ -177,6 +177,8 @@ public class ServiceServlet extends HttpServlet {
 		page.setAppName(configManager.getAppName());
 		page.setStartTime(ProviderBootStrap.getStartTime() + "");
 		page.setValidate("" + isValidate);
+		page.setGovernorUrl(configManager.getStringValue("pigeon.governor.address")
+				+ "/services/" + configManager.getAppName());
 		this.model = page;
 		return true;
 	}
