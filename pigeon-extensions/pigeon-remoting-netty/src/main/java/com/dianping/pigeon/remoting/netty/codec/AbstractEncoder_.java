@@ -185,9 +185,9 @@ public abstract class AbstractEncoder_ extends OneToOneEncoder implements Encode
         byte[] lengthBuf = new byte[CodecConstants._HEAD_FIELD_LENGTH];
         frame.getBytes(0, lengthBuf, 0, lengthBuf.length);
 
-        int length = out.length + lengthBuf.length;
-        length = isChecksum ? length + 4 : length;
-        result = dynamicBuffer(length, channel.getConfig().getBufferFactory());
+        int compressLength = out.length + lengthBuf.length;
+        compressLength = isChecksum ? compressLength + 4 : compressLength;
+        result = dynamicBuffer(compressLength, channel.getConfig().getBufferFactory());
         result.writeBytes(lengthBuf);
         result.writeBytes(out);
         return result;

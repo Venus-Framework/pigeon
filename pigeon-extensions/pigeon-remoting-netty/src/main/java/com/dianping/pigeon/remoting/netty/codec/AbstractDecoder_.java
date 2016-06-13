@@ -140,12 +140,12 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
                 //checksum
                 byte command = frame.getByte(frame.readerIndex() +
                         CodecConstants._FRONT_COMMAND_LENGTH);
-                boolean checksum = false;
+                boolean isChecksum = false;
                 if ((command & 0x80) == 0x80) {
                     if (!checksum(frame, totalLength)) {
                         return msg;
                     }
-                    checksum = true;
+                    isChecksum = true;
                 }
                 //magic
                 frame.skipBytes(CodecConstants._MEGIC_FIELD_LENGTH);
@@ -154,18 +154,9 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
                 //serialize
                 byte serialize = (byte) (frame.getByte(frame.readerIndex()) & 0x1f);
                 serialize = SerializerFactory.convertToSerialize(serialize);
-                //compact
-                short compress = (short) (frame.readByte() & 0x60);
-
-                //totalLength
-                frame.skipBytes(CodecConstants._TOTAL_FIELD_LENGTH);
 
                 //doBefore
-                int compressLength = totalLength - CodecConstants._HEAD_FIELD_LENGTH;
-                compressLength = checksum ? compressLength - CodecConstants._TAIL_LENGTH
-                        : compressLength;
-
-                ChannelBuffer frameBody = doBefore(channel, frame, compressLength, compress);
+                ChannelBuffer frameBody = doBefore(channel, frame, isChecksum);
 
                 ChannelBufferInputStream is = new ChannelBufferInputStream(frameBody);
                 //deserialize
@@ -204,20 +195,32 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
         return true;
     }
 
-    private ChannelBuffer doCompress(Channel channel, ChannelBuffer frame, int length, int compress) throws IOException {
+    private ChannelBuffer doCompress(Channel channel, ChannelBuffer frame, boolean isChecksum)
+            throws IOException {
+
+        //compact
+        short compress = (short) (frame.readByte() & 0x60);
+        //totalLength
+        int totalLength = frame.readInt();
+
+        int compressLength = totalLength - CodecConstants._HEAD_FIELD_LENGTH;
+        compressLength = isChecksum ? compressLength - CodecConstants._TAIL_LENGTH
+                : compressLength;
+
         byte[] in;
         byte[] out = null;
         ChannelBuffer result;
+
         switch (compress) {
             case 0x00:
                 return frame;
             case 0x20:
-                in = new byte[length];
+                in = new byte[compressLength];
                 frame.getBytes(frame.readerIndex() + CodecConstants._HEAD_FIELD_LENGTH, in);
                 out = snappyCompress.unCompress(in);
                 break;
             case 0x40:
-                in = new byte[length];
+                in = new byte[compressLength];
                 frame.getBytes(frame.readerIndex() + CodecConstants._HEAD_FIELD_LENGTH, in);
                 out = gZipCompress.unCompress(in);
                 break;
@@ -227,15 +230,17 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
 
         byte[] lengthBuf = new byte[CodecConstants._HEAD_FIELD_LENGTH];
         frame.getBytes(0, lengthBuf, 0, lengthBuf.length);
+
         result = channel.getConfig().getBufferFactory().getBuffer(out.length + lengthBuf.length);
+
         result.writeBytes(lengthBuf);
         result.writeBytes(out);
 
         return result;
     }
 
-    protected ChannelBuffer doBefore(Channel channel, ChannelBuffer buffer, int length, short compact) throws IOException {
-        return doCompress(channel, buffer, length, compact);
+    protected ChannelBuffer doBefore(Channel channel, ChannelBuffer buffer, boolean isChecksum) throws IOException {
+        return doCompress(channel, buffer, isChecksum);
     }
 
     private Object doAfter(Object msg, byte serialize, ChannelBufferInputStream is, Channel channel) throws IOException {
