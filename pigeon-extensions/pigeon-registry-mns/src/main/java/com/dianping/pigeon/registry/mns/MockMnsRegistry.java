@@ -5,11 +5,14 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.registry.mns.mock.MnsInvoker;
+import com.dianping.pigeon.registry.mns.mock.SGService;
+import com.dianping.pigeon.registry.mns.mock.ServiceListRequest;
 import com.dianping.pigeon.registry.util.Constants;
-import com.dianping.pigeon.util.VersionUtils;
-import com.sankuai.inf.octo.mns.MnsInvoker;
-import com.sankuai.sgagent.thrift.model.SGService;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.apache.thrift.TException;
 
 import java.util.List;
 import java.util.Properties;
@@ -17,7 +20,7 @@ import java.util.Properties;
 /**
  * Created by chenchongze on 16/5/25.
  */
-public class MnsRegistry implements Registry {
+public class MockMnsRegistry implements Registry {
 
     private Logger logger = LoggerLoader.getLogger(getClass());
 
@@ -42,16 +45,6 @@ public class MnsRegistry implements Registry {
 
     @Override
     public String getServiceAddress(String serviceName) throws RegistryException {
-        /*try {
-            sgServiceList = MnsInvoker.getSGServiceList();
-        } catch (Exception e) {
-            logger.warn("getServerList by Agent Exception", e);
-        }
-        if (null != sgServiceList && sgServiceList.size() > 0) {
-            updatSeverList();
-        }
-
-
         ServiceListRequest serviceListRequest = new ServiceListRequest();
         serviceListRequest.setAppkey(configManager.getAppName());
         serviceListRequest.setServiceName(serviceName);
@@ -63,8 +56,7 @@ public class MnsRegistry implements Registry {
             serviceHosts.add(service.getHostId());
         }
 
-        return StringUtils.join(serviceHosts, ",");*/
-        return "";
+        return StringUtils.join(serviceHosts, ",");
     }
 
     @Override
@@ -82,8 +74,6 @@ public class MnsRegistry implements Registry {
         SGService sgService = new SGService();
         sgService.setAppkey(configManager.getAppName());
         sgService.setServiceName(serviceName);
-        // 暂时忽略group
-        sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
         int index = serviceAddress.lastIndexOf(":");
         try {
@@ -95,26 +85,16 @@ public class MnsRegistry implements Registry {
             throw new RegistryException("error serviceAddress: " + serviceAddress, e);
         }
 
-        sgService.setLastUpdateTime((int) (System.currentTimeMillis() / 1000));
-        sgService.setVersion("pigeon-" + VersionUtils.VERSION);
-        sgService.setWeight(10);
-        sgService.setFweight(10.d);
-
-        //TODO 这里怎么填写？
-        sgService.setProtocolType(/**琦总的接口*/ "old" );
-
-        // 下面这两个有用吗？
-        sgService.setRole(0);
-        // 慢启动
-        /*String extend = clusterManager +
-                Consts.vbar + "slowStartSeconds" + Consts.colon + slowStartSeconds;
-        sgService.setExtend(extend);*/
+        //todo weight convert
+        if (weight <=0) {
+            sgService.setStatus(2);
+        } else {
+            sgService.setWeight(10);
+        }
 
         try {
             MnsInvoker.registerService(sgService);
-            logger.info("registerProviderOnMns: " + sgService.toString());
-        } catch (Throwable e) {
-            logger.error("Register by agent exception!", e);
+        } catch (TException e) {
             throw new RegistryException("error while register service: " + serviceName, e);
         }
     }
@@ -135,11 +115,11 @@ public class MnsRegistry implements Registry {
             throw new RegistryException("error serviceAddress: " + serviceAddress, e);
         }
 
-        /*try {
+        try {
             MnsInvoker.unRegisterService(sgService);
         } catch (TException e) {
             throw new RegistryException("error while unregister service: " + serviceName, e);
-        }*/
+        }
     }
 
     @Override

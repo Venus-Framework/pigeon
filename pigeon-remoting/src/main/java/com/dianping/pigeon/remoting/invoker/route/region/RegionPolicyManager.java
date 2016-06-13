@@ -59,7 +59,7 @@ public enum RegionPolicyManager {
     private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
     // 自动切换region的开关
-    public final String KEY_ENABLEREGIONPOLICY = "pigeon.regions.enable";
+    public final String KEY_ENABLEREGIONPOLICY = "pigeon.regions.route.enable";
     public final boolean DEFAULT_ENABLEREGIONPOLICY = false;
     public final String KEY_REGIONINFO = "pigeon.regions";
     public final String KEY_REGION_PREFER_BASE = "pigeon.regions.prefer.";

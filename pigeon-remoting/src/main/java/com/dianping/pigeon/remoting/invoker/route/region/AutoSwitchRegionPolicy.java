@@ -87,6 +87,8 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
 
             } catch (Throwable t) {
                 logger.error(t);
+            } finally {
+                //todo 如果用户强制要求留在第一个region，这里做判断
             }
         }
 
