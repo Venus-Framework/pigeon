@@ -19,6 +19,8 @@ import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
@@ -44,9 +46,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
-		if (logger.isDebugEnabled()) {
-			logger.debug("invoke the MonitorProcessFilter, invocationContext:" + invocationContext);
-		}
+		invocationContext.getTimeline().add(new TimePoint(TimePhase.O));
 		InvocationRequest request = invocationContext.getRequest();
 		ProviderChannel channel = invocationContext.getChannel();
 		MonitorTransaction transaction = null;
@@ -149,6 +149,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 				monitor.logError(invocationContext.getServiceError());
 			}
 			if (transaction != null) {
+				invocationContext.getTimeline().add(new TimePoint(TimePhase.E, System.currentTimeMillis()));
 				try {
 					transaction.complete();
 					if (isAccessLogEnabled) {

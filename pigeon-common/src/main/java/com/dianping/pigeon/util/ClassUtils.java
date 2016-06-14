@@ -153,9 +153,9 @@ public class ClassUtils {
 					Class.forName(packageName + '.' + className);
 					// classes.add(Thread.currentThread().getContextClassLoader().loadClass(packageName
 					// + '.' + className));
-				} catch (ClassNotFoundException e) {
+				} catch (Throwable e) {
 					// log.error("添加用户自定义视图类错误 找不到此类的.class文件");
-					e.printStackTrace();
+					// e.printStackTrace();
 				}
 			}
 		}

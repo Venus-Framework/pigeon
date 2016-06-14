@@ -24,6 +24,8 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.exception.RejectedException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
@@ -173,6 +175,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext context) throws Throwable {
+		context.getTimeline().add(new TimePoint(TimePhase.D));
 		boolean isDegrade = configManager.getBooleanValue(KEY_DEGRADE_AUTO, false) && needDegrade(context)
 				|| configManager.getBooleanValue(KEY_DEGRADE_FORCE, false);
 		if (isDegrade) {

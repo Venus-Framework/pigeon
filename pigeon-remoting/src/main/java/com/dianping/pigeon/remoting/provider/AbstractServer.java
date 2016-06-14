@@ -3,6 +3,7 @@ package com.dianping.pigeon.remoting.provider;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Future;
 
@@ -17,6 +18,8 @@ import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessorFactory;
+import com.dianping.pigeon.remoting.provider.publish.ServiceChangeListener;
+import com.dianping.pigeon.remoting.provider.publish.ServiceChangeListenerContainer;
 import com.dianping.pigeon.util.FileUtils;
 import com.dianping.pigeon.util.NetUtils;
 
@@ -57,12 +60,20 @@ public abstract class AbstractServer implements Server {
 	public <T> void addService(ProviderConfig<T> providerConfig) {
 		requestProcessor.addService(providerConfig);
 		doAddService(providerConfig);
+		List<ServiceChangeListener> listeners = ServiceChangeListenerContainer.getListeners();
+		for (ServiceChangeListener listener : listeners) {
+			listener.notifyServiceAdded(providerConfig);
+		}
 	}
 
 	@Override
 	public <T> void removeService(ProviderConfig<T> providerConfig) {
 		requestProcessor.removeService(providerConfig);
 		doRemoveService(providerConfig);
+		List<ServiceChangeListener> listeners = ServiceChangeListenerContainer.getListeners();
+		for (ServiceChangeListener listener : listeners) {
+			listener.notifyServiceRemoved(providerConfig);
+		}
 	}
 
 	public RequestProcessor getRequestProcessor() {

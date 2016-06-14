@@ -4,14 +4,13 @@
  */
 package com.dianping.pigeon.demo.annotation;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.dianping.pigeon.demo.DealGroupBaseDTO;
 import com.dianping.pigeon.demo.EchoService;
-import com.dianping.pigeon.demo.EchoService.Gender;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 import com.google.common.collect.Lists;
 
@@ -26,6 +25,16 @@ public class EchoServiceAnnotationImpl implements EchoService {
 	@Override
 	public String echo(String input) {
 		return "echo:" + input;
+	}
+	
+	@Override
+	public String echo2(Integer size) throws IOException {
+		//throw new RuntimeException("error with echo service");
+		try {
+			Thread.sleep(size);
+		} catch (InterruptedException e) {
+		}
+		return "echo:" + size;
 	}
 
 	@Override
@@ -66,7 +75,7 @@ public class EchoServiceAnnotationImpl implements EchoService {
 	}
 
 	@Override
-	public String echo(Set<Gender> genders) {
+	public String echo(List<Gender> genders) {
 		for(Gender g : genders) {
 			System.out.println(g);
 		}

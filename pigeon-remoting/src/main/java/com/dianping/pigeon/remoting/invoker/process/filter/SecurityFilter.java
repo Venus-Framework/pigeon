@@ -16,6 +16,8 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.SecurityUtils;
@@ -91,6 +93,7 @@ public class SecurityFilter extends InvocationInvokeFilter {
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
+		invocationContext.getTimeline().add(new TimePoint(TimePhase.A));
 		InvocationRequest request = invocationContext.getRequest();
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 			InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();

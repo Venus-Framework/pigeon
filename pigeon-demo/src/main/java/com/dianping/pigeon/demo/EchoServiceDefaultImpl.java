@@ -4,11 +4,11 @@
  */
 package com.dianping.pigeon.demo;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.exception.DPSFException;
@@ -18,7 +18,6 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.util.ProviderHelper;
-import com.dianping.pigeon.util.ContextUtils;
 import com.google.common.collect.Lists;
 
 public class EchoServiceDefaultImpl implements EchoService {
@@ -46,18 +45,29 @@ public class EchoServiceDefaultImpl implements EchoService {
 		// ContextUtils.getGlobalContext("SOURCE_APP"));
 		// System.out.println("SOURCE_IP:" +
 		// ContextUtils.getGlobalContext("SOURCE_IP"));
-		 try {
-		 Thread.sleep(10);
-		 } catch (InterruptedException e) {
-		 }
+//		 try {
+//		 Thread.sleep(10);
+//		 } catch (InterruptedException e) {
+//		 }
 		// System.out.println(msg);
-		ContextUtils.putResponseContext("key1", "repsonse1");
+//		ContextUtils.putResponseContext("key1", "repsonse1");
 		// ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(),
 		// "async echo:" + msg);
 
 		// return "echo:" + userService.echo(msg);
 		return "echo:" + msg;
 	}
+	
+	@Override
+	public String echo2(Integer size) throws IOException {
+		//throw new RuntimeException("error with echo service");
+		try {
+			Thread.sleep(size);
+		} catch (InterruptedException e) {
+		}
+		return "echo:" + size;
+	}
+
 
 	@Override
 	public long now() {
@@ -129,7 +139,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 	}
 
 	@Override
-	public String echo(Set<Gender> genders) {
+	public String echo(List<Gender> genders) {
 		for(Gender g : genders) {
 			System.out.println(g);
 		}

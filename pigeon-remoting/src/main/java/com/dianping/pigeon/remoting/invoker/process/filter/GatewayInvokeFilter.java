@@ -9,6 +9,8 @@ import org.apache.logging.log4j.Logger;
 import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
@@ -38,9 +40,7 @@ public class GatewayInvokeFilter extends InvocationInvokeFilter {
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
-		if (logger.isDebugEnabled()) {
-			logger.debug("invoke the GatewayInvokeFilter, invocationContext:" + invocationContext);
-		}
+		invocationContext.getTimeline().add(new TimePoint(TimePhase.G));
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		InvocationRequest request = invocationContext.getRequest();
 		Client client = invocationContext.getClient();

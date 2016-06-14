@@ -11,8 +11,6 @@ import java.util.concurrent.Future;
 import org.apache.logging.log4j.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -32,8 +30,6 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 
 	protected static final Logger logger = LoggerLoader.getLogger(RequestThreadPoolProcessor.class);
 
-	private static final Monitor monitor = MonitorLoader.getMonitor();
-	
 	protected RequestTimeoutListener requestTimeoutListener;
 
 	public AbstractRequestProcessor() {
@@ -51,7 +47,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 	}
 
 	public abstract void doStop();
-	
+
 	public void stop() {
 		ThreadPoolUtils.shutdown(timeCheckThreadPool.getExecutor());
 		doStop();
@@ -60,7 +56,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 	public Map<InvocationRequest, ProviderContext> getRequestContextMap() {
 		return requestContextMap;
 	}
-	
+
 	public Future<InvocationResponse> processRequest(final InvocationRequest request,
 			final ProviderContext providerContext) {
 		if (request.getCreateMillisTime() == 0) {
@@ -75,10 +71,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 					&& request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
 				providerContext.getChannel().write(ProviderUtils.createFailResponse(request, e));
 			}
-			logger.error(msg, e);
-			if(monitor != null) {
-				monitor.logError(msg, e);
-			}
+			// logger.error(msg, e);
 		}
 		providerContext.setFuture(invocationResponse);
 		return invocationResponse;

@@ -12,6 +12,8 @@ import org.apache.logging.log4j.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
@@ -24,9 +26,7 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
-		if (logger.isDebugEnabled()) {
-			logger.debug("invoke the ContextTransferProcessFilter, invocationContext:" + invocationContext);
-		}
+		invocationContext.getTimeline().add(new TimePoint(TimePhase.C));
 		InvocationRequest request = invocationContext.getRequest();
 		transferContextValueToProcessor(invocationContext, request);
 		InvocationResponse response = null;

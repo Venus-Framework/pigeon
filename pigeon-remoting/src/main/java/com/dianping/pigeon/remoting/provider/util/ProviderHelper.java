@@ -84,6 +84,7 @@ public final class ProviderHelper {
 							}
 						}
 						if (transaction != null) {
+							context.getTimeline().add(new TimePoint(TimePhase.E, System.currentTimeMillis()));
 							try {
 								transaction.complete();
 							} catch (Throwable e) {

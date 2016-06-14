@@ -411,6 +411,9 @@
 										<groupId>org.mybatis.generator</groupId>
 										<artifactId>mybatis-generator-maven-plugin</artifactId>
 										<versionRange>[1.3.2,)</versionRange>
+										<goals>
+											<goal></goal>
+										</goals>
 										<!--<goals>
 											<goal>generate</goal>
 										</goals>-->

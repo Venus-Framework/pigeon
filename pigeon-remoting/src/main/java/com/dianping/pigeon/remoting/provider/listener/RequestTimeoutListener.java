@@ -163,7 +163,6 @@ public class RequestTimeoutListener implements Runnable {
 											te = new RequestAbortedException(msg.toString());
 											te.setStackTrace(new StackTraceElement[] {});
 										} else {
-											msg.append("\r\nthread:").append(t.getName());
 											te = new ProcessTimeoutException(msg.toString());
 											te.setStackTrace(t.getStackTrace());
 										}
@@ -190,7 +189,7 @@ public class RequestTimeoutListener implements Runnable {
 									}
 								}
 							} else {
-								logger.error("provider context is null with request:" + request);
+								// logger.error("provider context is null with request:" + request);
 							}
 						} finally {
 							requestContextMap.remove(request);

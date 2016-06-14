@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.demo;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -17,7 +18,9 @@ public interface EchoService {
 
 	String echo(String msg);
 	
-	String echo(Set<Gender> genders);
+	String echo2(Integer size) throws IOException;
+	
+	String echo(List<Gender> genders);
 
 	String asyncEcho(String msg);
 
