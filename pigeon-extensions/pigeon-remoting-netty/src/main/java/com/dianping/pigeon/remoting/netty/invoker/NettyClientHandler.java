@@ -49,7 +49,11 @@ public class NettyClientHandler extends SimpleChannelUpstreamHandler {
     @SuppressWarnings("unchecked")
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
-        client.processResponse((InvocationResponse)e.getMessage());
+        List<InvocationResponse> messages = (List<InvocationResponse>) e.getMessage();
+
+        for (final InvocationResponse response : messages) {
+            client.processResponse(response);
+        }
     }
 
     @Override

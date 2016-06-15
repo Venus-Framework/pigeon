@@ -33,7 +33,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
     private static final Logger logger = LoggerLoader.getLogger(ContextPrepareInvokeFilter.class);
     private ConcurrentHashMap<String, Boolean> protoVersionMap = new ConcurrentHashMap<String, Boolean>();
-    private ConcurrentHashMap<String, Boolean> thriftVersionMap = new ConcurrentHashMap<String, Boolean>();
+    //private ConcurrentHashMap<String, Boolean> thriftVersionMap = new ConcurrentHashMap<String, Boolean>();
     private ConcurrentHashMap<String, Boolean> compactVersionMap = new ConcurrentHashMap<String, Boolean>();
     private static AtomicLong requestSequenceMaker = new AtomicLong();
     private static final String KEY_COMPACT = "pigeon.invoker.request.compact";
@@ -65,6 +65,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
             compactRequest(invokerContext);
         } else {
             UnifiedRequest _request = (UnifiedRequest) request;
+            _request.setServiceInterface(invokerContext.getInvokerConfig().getServiceInterface());
             _request.setParameterTypes(invokerContext.getParameterTypes());
         }
 
@@ -102,12 +103,13 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
                 || request.getSerialize() == SerializerFactory.SERIALIZE_FST) {
 
             checkSerialize0(invokerContext, protoVersionMap, false);
-
-        } else if (request.getSerialize() == SerializerFactory.SERIALIZE_THRIFT) {
-
-            checkSerialize0(invokerContext, thriftVersionMap, true);
-
         }
+
+//        } else if (request.getSerialize() == SerializerFactory.SERIALIZE_THRIFT) {
+//
+//            checkSerialize0(invokerContext, thriftVersionMap, true);
+//
+//        }
     }
 
     //缺服务是否支持判断
@@ -123,11 +125,11 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
         } else if (versionMap.containsKey(version)) {
             supported = versionMap.get(version);
         } else {
-            if (isThrift) {
-                supported = VersionUtils.isThriftSupported(version);
-            } else {
+//            if (isThrift) {
+//                supported = VersionUtils.isThriftSupported(version);
+//            } else {
                 supported = VersionUtils.isProtoFstSupported(version);
-            }
+//            }
             versionMap.putIfAbsent(version, supported);
         }
 

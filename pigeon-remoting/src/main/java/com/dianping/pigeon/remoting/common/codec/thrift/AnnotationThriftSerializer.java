@@ -11,6 +11,7 @@ import com.dianping.pigeon.remoting.common.domain.generic.thrift.Header;
 import com.dianping.pigeon.remoting.common.domain.generic.StatusCode;
 import com.dianping.pigeon.remoting.common.domain.generic.ThriftMapper;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.ClassUtils;
 import org.apache.thrift.TApplicationException;
 import org.apache.thrift.protocol.TMessage;
@@ -36,10 +37,15 @@ public class AnnotationThriftSerializer extends AbstractThriftSerializer {
             throws Exception {
         // body
         TMessage message = protocol.readMessageBegin();
-        String serviceName = request.getServiceName();
+
+        Class<?> iface = ServicePublisher.getInterface(request.getServiceName());
+
+        if (iface == null) {
+            throw new SerializationException("Deserialize thrift serviceName is invalid.");
+        }
 
         ThriftMethodProcessor methodProcessor = getMethodProcessor(
-                serviceName,
+                iface.getName(),
                 message.name);
 
         Object[] parameters = methodProcessor.readArguments(protocol);
@@ -53,8 +59,14 @@ public class AnnotationThriftSerializer extends AbstractThriftSerializer {
     protected void doSerializeRequest(GenericRequest request, TProtocol protocol)
             throws Exception {
 
+        Class<?> iface = request.getServiceInterface();
+
+        if (iface == null) {
+            throw new SerializationException("Serialize thrift interface is null.");
+        }
+
         ThriftMethodHandler methodHandler = getMethodHandler(
-                request.getServiceName(),
+                iface.getName(),
                 request.getMethodName());
         //body
         methodHandler.writeArguments(protocol,
@@ -68,16 +80,21 @@ public class AnnotationThriftSerializer extends AbstractThriftSerializer {
         // body
         TMessage message = protocol.readMessageBegin();
 
-        InvocationRequest request = repository.get(
+        GenericRequest request = (GenericRequest) repository.get(
                 header.getResponseInfo().getSequenceId());
 
         if (request == null) {
             throw new SerializationException("Deserialize cannot find related request. header " + header);
         }
 
-        String serviceName = request.getServiceName();
+        Class<?> iface = request.getServiceInterface();
+
+        if (iface == null) {
+            throw new SerializationException("Deserialize interface is null.");
+        }
+
         ThriftMethodHandler methodHandler = getMethodHandler(
-                serviceName,
+                iface.getName(),
                 message.name);
 
         //body
@@ -96,8 +113,14 @@ public class AnnotationThriftSerializer extends AbstractThriftSerializer {
                                        Header header, DynamicByteArrayOutputStream bos)
             throws Exception {
 
+        Class<?> iface = ServicePublisher.getInterface(response.getServiceName());
+
+        if (iface == null) {
+            throw new SerializationException("Serialize thrift serviceName is invalid.");
+        }
+
         ThriftMethodProcessor methodProcessor = getMethodProcessor(
-                response.getServiceName(),
+                iface.getName(),
                 response.getMethodName());
 
         TApplicationException applicationException = null;

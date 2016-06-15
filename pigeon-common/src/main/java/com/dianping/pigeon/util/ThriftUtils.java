@@ -62,7 +62,7 @@ public class ThriftUtils {
 
         if (classNames.contains("Iface") && classNames.contains("AsyncIface")
                 && classNames.contains("Client") && classNames.contains("AsyncClient")
-                && classNames.contains("Processor") && classNames.contains("AsyncProcessor")) {
+                && classNames.contains("Processor")) {
             return true;
         }
 
@@ -83,6 +83,14 @@ public class ThriftUtils {
     public static String generateGetMethodName(String fieldName) {
         return new StringBuffer(16)
                 .append("get")
+                .append(Character.toUpperCase(fieldName.charAt(0)))
+                .append(fieldName.substring(1))
+                .toString();
+    }
+
+    public static String generateBoolMethodName(String fieldName) {
+        return new StringBuffer(16)
+                .append("is")
                 .append(Character.toUpperCase(fieldName.charAt(0)))
                 .append(fieldName.substring(1))
                 .toString();

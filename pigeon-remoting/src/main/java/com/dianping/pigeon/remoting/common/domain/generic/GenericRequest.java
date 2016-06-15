@@ -38,6 +38,8 @@ public class GenericRequest implements UnifiedRequest {
 
     private String serviceName;
 
+    private transient Class<?> serviceInterface;
+
     private String methodName;
 
     private Object[] parameters;
@@ -150,6 +152,14 @@ public class GenericRequest implements UnifiedRequest {
 
     public String getServiceName() {
         return this.serviceName;
+    }
+
+    public Class<?> getServiceInterface() {
+        return serviceInterface;
+    }
+
+    public void setServiceInterface(Class<?> serviceInterface) {
+        this.serviceInterface = serviceInterface;
     }
 
     public String getMethodName() {

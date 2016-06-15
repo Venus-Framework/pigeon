@@ -1,7 +1,5 @@
 package com.dianping.pigeon.remoting.common.domain.generic;
 
-//import com.dianping.cat.CatConstants;
-
 import com.dianping.pigeon.monitor.MonitorConstants;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.*;
 import com.dianping.pigeon.remoting.common.exception.*;
@@ -199,7 +197,7 @@ public class ThriftMapper {
         request.setLocalContext(header.getLocalContext());
 
         //traceInfo
-        if (header.getTraceInfo() != null) {
+        if (header.getTraceInfo() == null) {
             return request;
         }
 

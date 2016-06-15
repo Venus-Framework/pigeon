@@ -13,4 +13,7 @@ public interface UnifiedRequest extends InvocationRequest, UnifiedInvocation {
 
     void setParameterTypes(Class<?>[] parameterTypes);
 
+    Class<?> getServiceInterface();
+
+    void setServiceInterface(Class<?> serviceInterface);
 }

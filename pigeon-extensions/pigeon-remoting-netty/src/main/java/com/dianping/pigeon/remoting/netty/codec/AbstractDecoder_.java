@@ -7,6 +7,7 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
+import com.dianping.pigeon.remoting.common.domain.generic.UnifiedInvocation;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
@@ -20,6 +21,8 @@ import org.jboss.netty.handler.codec.frame.FrameDecoder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.Adler32;
 
 /**
@@ -43,29 +46,45 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
             throws IOException {
 
         Object message = null;
+        List<Object> messages = null;
 
-        if (buffer.readableBytes() > 2) {
+        while (buffer.readable()) {
 
-            buffer.getBytes(buffer.readerIndex(), headMsgs);
-
-            if ((CodecConstants.MAGIC_FIRST == headMsgs[0]
-                    && CodecConstants.MAGIC_SECEND == headMsgs[1])) {
-                //old protocal
-                message = decode0(ctx, channel, buffer);
-
-            } else if (CodecConstants._MAGIC_FIRST == headMsgs[0]
-                    && CodecConstants._MAGIC_SECEND == headMsgs[1]) {
-                //new protocal
-                message = _decode0(ctx, channel, buffer);
-
+            if (buffer.readableBytes() <= 2) {
+                break;
             } else {
-                throw new IllegalArgumentException("decode invalid message head:" + headMsgs + ", message:"
-                        + buffer);
-            }
+                buffer.getBytes(buffer.readerIndex(), headMsgs);
 
+                if ((CodecConstants.MAGIC_FIRST == headMsgs[0]
+                        && CodecConstants.MAGIC_SECEND == headMsgs[1])) {
+                    //old protocal
+                    message = decode0(ctx, channel, buffer);
+
+                } else if (CodecConstants._MAGIC_FIRST == headMsgs[0]
+                        && CodecConstants._MAGIC_SECEND == headMsgs[1]) {
+                    //new protocal
+                    message = _decode0(ctx, channel, buffer);
+
+                } else {
+                    throw new IllegalArgumentException("decode invalid message head:" + headMsgs[0] + " " + headMsgs[1] + ", " +
+                            "message:" + buffer);
+                }
+
+                if (message != null) {
+
+                    if (messages == null) {
+                        messages = new ArrayList<Object>();
+                    }
+
+                    messages.add(message);
+                } else {
+                    break;
+                }
+
+            }
         }
 
-        return message;
+        return messages;
     }
 
     protected Object decode0(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer)
@@ -73,32 +92,34 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
         Object msg = null;
         if (buffer.readableBytes() > CodecConstants.FRONT_LENGTH) {
 
-            long frameLength = buffer.getUnsignedInt(
+            int totalLength = (int) buffer.getUnsignedInt(
                     buffer.readerIndex() +
                             CodecConstants.HEAD_LENGTH);
 
-            if (buffer.readableBytes() >= frameLength + CodecConstants.FRONT_LENGTH) {
+            int frameLength = totalLength + CodecConstants.FRONT_LENGTH;
+
+            if (buffer.readableBytes() >= frameLength) {
 
                 //head
-                buffer.skipBytes(2);
+                buffer.skipBytes(CodecConstants.MEGIC_FIELD_LENGTH);
                 byte serialize = buffer.readByte();
                 Long sequence = null;
                 try {
                     //body length
                     buffer.skipBytes(CodecConstants.BODY_FIELD_LENGTH);
                     //body
-                    int bodyLength = (int) (frameLength - CodecConstants.TAIL_LENGTH);
+                    int bodyLength = (totalLength - CodecConstants.TAIL_LENGTH);
                     ChannelBuffer frame = extractFrame(buffer, buffer.readerIndex(), bodyLength);
                     buffer.readerIndex(buffer.readerIndex() + bodyLength);
                     //tail
                     sequence = buffer.readLong();
-                    buffer.skipBytes(3);
+                    buffer.skipBytes(CodecConstants.EXPAND_FIELD_LENGTH);
                     //deserialize
                     ChannelBufferInputStream is = new ChannelBufferInputStream(frame);
 
                     msg = deserialize(serialize, is);
                     //after
-                    doAfter(msg, serialize, is, channel);
+                    doAfter(channel, msg, serialize, frameLength);
                 } catch (Throwable e) {
                     SerializationException se = new SerializationException(e);
 
@@ -162,7 +183,7 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
                 //deserialize
                 msg = deserialize(serialize, is);
                 //doAfter
-                doAfter(msg, serialize, is, channel);
+                doAfter(channel, msg, serialize, frameLength);
             } catch (Throwable e) {
 
                 logger.error("Deserialize failed. host:"
@@ -176,8 +197,9 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
     }
 
     protected ChannelBuffer extractFrame(ChannelBuffer buffer, int index, int length) {
-        ChannelBuffer frame = buffer.factory().getBuffer(length);
-        frame.writeBytes(buffer, index, length);
+//        ChannelBuffer frame = buffer.factory().getBuffer(length);
+//        frame.writeBytes(buffer, index, length);
+        ChannelBuffer frame = buffer.slice(index, length);
         return frame;
     }
 
@@ -243,16 +265,21 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
         return doCompress(channel, buffer, isChecksum);
     }
 
-    private Object doAfter(Object msg, byte serialize, ChannelBufferInputStream is, Channel channel) throws IOException {
-        int available = is.available();
+    private Object doAfter(Channel channel, Object msg, byte serialize, int frameLength) throws IOException {
 
         if (msg instanceof InvocationSerializable) {
 
             InvocationSerializable msg_ = (InvocationSerializable) msg;
             int msgType = msg_.getMessageType();
 
-            if (msgType == Constants.MESSAGE_TYPE_SERVICE && available > 0) {
-                msg_.setSize(available + 3);//error
+            if (msgType == Constants.MESSAGE_TYPE_SERVICE && frameLength > 0) {
+
+                if (msg instanceof UnifiedInvocation) {
+                    msg_.setSize(frameLength);
+                } else {
+                    msg_.setSize(frameLength);
+                }
+
             }
 
             msg_.setSerialize(serialize);

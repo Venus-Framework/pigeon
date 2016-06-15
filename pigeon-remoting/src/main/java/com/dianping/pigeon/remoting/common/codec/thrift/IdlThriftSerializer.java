@@ -1,12 +1,12 @@
 package com.dianping.pigeon.remoting.common.codec.thrift;
 
-import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericResponse;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.Header;
 import com.dianping.pigeon.remoting.common.domain.generic.ThriftMapper;
 import com.dianping.pigeon.remoting.common.domain.generic.StatusCode;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.ClassUtils;
 import com.dianping.pigeon.util.ThriftUtils;
 import org.apache.commons.lang.StringUtils;
@@ -21,6 +21,7 @@ import org.apache.thrift.protocol.TProtocol;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,13 +34,21 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
 
     private static ConcurrentHashMap<String, Class<?>> cachedClass = new ConcurrentHashMap<String, Class<?>>();
 
+    private static final String BYTE_ARRAY_CLASS_NAME = "[B";
+
     @Override
     protected void doDeserializeRequest(GenericRequest request, TProtocol protocol) throws Exception {
         TMessage message = protocol.readMessageBegin();
 
         if (message.type == TMessageType.CALL) {
+            Class<?> iface = ServicePublisher.getInterface(request.getServiceName());
+
+            if (iface == null) {
+                throw new SerializationException("Deserialize thrift serviceName is invalid.");
+            }
+
             String argsClassName = ThriftClassNameGenerator.generateArgsClassName(
-                    request.getServiceName(),
+                    iface.getName(),
                     message.name);
 
             if (StringUtils.isEmpty(argsClassName)) {
@@ -89,16 +98,29 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
                 try {
                     getMethod = clazz.getMethod(getMethodName);
                 } catch (NoSuchMethodException e) {
-                    throw new SerializationException(e);
+
+                    try {
+                        getMethod = clazz.getMethod(ThriftUtils.generateBoolMethodName(fieldName));
+                    } catch (NoSuchMethodException e0) {
+                        throw new SerializationException("Deserialize failed.", e);
+                    }
                 }
 
-                parameterTypes.add(getMethod.getReturnType());
+                Object getResult;
                 try {
-                    parameters.add(getMethod.invoke(args));
+                    getResult = getMethod.invoke(args);
                 } catch (IllegalAccessException e) {
-                    throw new SerializationException(e);
+                    throw new SerializationException("Deserialize failed.", e);
                 } catch (InvocationTargetException e) {
-                    throw new SerializationException(e);
+                    throw new SerializationException("Deserialize failed.", e);
+                }
+
+                if (BYTE_ARRAY_CLASS_NAME.equals(getMethod.getReturnType().getName())) {
+                    parameterTypes.add(ByteBuffer.class);
+                    parameters.add(ByteBuffer.wrap((byte[]) getResult));
+                } else {
+                    parameterTypes.add(getMethod.getReturnType());
+                    parameters.add(getResult);
                 }
 
             }
@@ -117,8 +139,14 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
                 TMessageType.CALL,
                 getSequenceId());
 
+        Class<?> iface = request.getServiceInterface();
+
+        if (iface == null) {
+            throw new SerializationException("Serialize thrift interface is null.");
+        }
+
         String argsClassName = ThriftClassNameGenerator.generateArgsClassName(
-                request.getServiceName(),
+                iface.getName(),
                 request.getMethodName());
 
         if (StringUtils.isEmpty(argsClassName)) {
@@ -189,19 +217,23 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
         // body
         TMessage message = protocol.readMessageBegin();
 
-        InvocationRequest request = repository.get(
+        GenericRequest request = (GenericRequest) repository.get(
                 header.getResponseInfo().getSequenceId());
 
         if (request == null) {
             throw new SerializationException("Deserialize cannot find related request. header " + header);
         }
 
-        String serviceName = request.getServiceName();
-
         if (message.type == TMessageType.REPLY) {
 
+            Class<?> iface = request.getServiceInterface();
+
+            if (iface == null) {
+                throw new SerializationException("Deserialize interface is null.");
+            }
+
             String resultClassName = ThriftClassNameGenerator.generateResultClassName(
-                    serviceName,
+                    iface.getName(),
                     message.name);
 
             if (StringUtils.isEmpty(resultClassName)) {
@@ -283,9 +315,14 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
     protected void doSerializeResponse(GenericResponse response, TProtocol protocol,
                                        Header header, DynamicByteArrayOutputStream bos)
             throws Exception {
+        Class<?> iface = ServicePublisher.getInterface(response.getServiceName());
+
+        if (iface == null) {
+            throw new SerializationException("Serialize thrift serviceName is invalid.");
+        }
 
         String resultClassName = ThriftClassNameGenerator.generateResultClassName(
-                response.getServiceName(),
+                iface.getName(),
                 response.getMethodName());
 
         if (StringUtils.isEmpty(resultClassName)) {
@@ -333,7 +370,15 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
                 Method getMethod;
                 Method setMethod;
                 try {
-                    getMethod = clazz.getMethod(getMethodName);
+                    try {
+                        getMethod = clazz.getMethod(getMethodName);
+                    } catch (NoSuchMethodException e) {
+                        try {
+                            getMethod = clazz.getMethod(ThriftUtils.generateBoolMethodName(fieldName));
+                        } catch (NoSuchMethodException e0) {
+                            throw new SerializationException("Serialize failed.", e);
+                        }
+                    }
                     if (getMethod.getReturnType().equals(throwable.getClass())) {
                         header.responseInfo.setStatus(StatusCode.ApplicationException.getCode());
                         found = true;
@@ -362,8 +407,23 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
             Method getMethod;
             Method setMethod;
             try {
-                getMethod = clazz.getMethod(getMethodName);
-                setMethod = clazz.getMethod(setMethodName, getMethod.getReturnType());
+
+                try {
+                    getMethod = clazz.getMethod(getMethodName);
+                } catch (NoSuchMethodException e) {
+                    try {
+                        getMethod = clazz.getMethod(ThriftUtils.generateBoolMethodName(fieldName));
+                    } catch (NoSuchMethodException e0) {
+                        throw new SerializationException("Serialize failed.", e);
+                    }
+                }
+
+                Class<?> returnType = getMethod.getReturnType();
+                if (BYTE_ARRAY_CLASS_NAME.equals(getMethod.getReturnType().getName())) {
+                    returnType = ByteBuffer.class;
+                }
+
+                setMethod = clazz.getMethod(setMethodName, returnType);
                 setMethod.invoke(resultObj, realResult);
             } catch (NoSuchMethodException e) {
                 throw new SerializationException("Serialize failed.", e);

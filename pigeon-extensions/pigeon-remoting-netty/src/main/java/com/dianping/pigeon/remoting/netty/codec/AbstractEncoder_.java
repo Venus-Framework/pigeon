@@ -110,7 +110,7 @@ public abstract class AbstractEncoder_ extends OneToOneEncoder implements Encode
 
         serialize(msg.getSerialize(), os, msg, channel);
 
-        ChannelBuffer head = channel.getConfig().getBufferFactory().getBuffer(8);
+        ChannelBuffer head = channel.getConfig().getBufferFactory().getBuffer(CodecConstants._FRONT_LENGTH_);
         //magic
         head.writeBytes(CodecConstants._MAGIC);
         //version
@@ -186,7 +186,7 @@ public abstract class AbstractEncoder_ extends OneToOneEncoder implements Encode
         frame.getBytes(0, lengthBuf, 0, lengthBuf.length);
 
         int compressLength = out.length + lengthBuf.length;
-        compressLength = isChecksum ? compressLength + 4 : compressLength;
+        compressLength = isChecksum ? compressLength + CodecConstants._TAIL_LENGTH : compressLength;
         result = dynamicBuffer(compressLength, channel.getConfig().getBufferFactory());
         result.writeBytes(lengthBuf);
         result.writeBytes(out);

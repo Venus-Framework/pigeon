@@ -6,9 +6,14 @@ package com.dianping.pigeon.remoting.netty.codec;
  */
 public class CodecConstants {
 
+
+    public static final int MEGIC_FIELD_LENGTH = 2;
     public static final int BODY_FIELD_LENGTH = 4;
     public static final int HEAD_LENGTH = 3;
-    public static final int TAIL_LENGTH = 11;
+    public static final int SEQ_FIELD_LENGTH = 8;
+    public static final int EXPAND_FIELD_LENGTH = 3;
+    public static final int TAIL_LENGTH = SEQ_FIELD_LENGTH + EXPAND_FIELD_LENGTH;
+
 
     public static final int FRONT_LENGTH = HEAD_LENGTH + BODY_FIELD_LENGTH;
     public static final int FRAME_LENGTH = HEAD_LENGTH + BODY_FIELD_LENGTH + TAIL_LENGTH;

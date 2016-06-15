@@ -10,6 +10,7 @@ import com.dianping.pigeon.remoting.common.domain.generic.thrift.Header;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import org.apache.commons.lang.StringUtils;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -117,11 +118,11 @@ public abstract class AbstractThriftSerializer extends AbstractSerializer {
             Header header = new Header();
             header.read(protocol);
 
-            response = ThriftMapper.convertHeaderToResponse(header);
-
             if (header.getResponseInfo() == null) {
                 throw new SerializationException("Deserialize response is no legal. header " + header);
             }
+
+            response = ThriftMapper.convertHeaderToResponse(header);
             //body
             doDeserializeResponse(response, protocol, header);
 
