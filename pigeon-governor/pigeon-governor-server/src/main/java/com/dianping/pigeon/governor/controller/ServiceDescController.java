@@ -1,12 +1,15 @@
 package com.dianping.pigeon.governor.controller;
 
 import com.dianping.lion.client.Lion;
+import com.dianping.pigeon.governor.bean.scanServiceDesc.PurgeExpireDescTask;
 import com.dianping.pigeon.governor.bean.scanServiceDesc.ScanServiceTask;
 import com.dianping.pigeon.governor.bean.scanServiceDesc.ScanStaticsBean;
 import com.dianping.pigeon.governor.bean.serviceDesc.SearchResults;
 import com.dianping.pigeon.governor.bean.serviceDesc.ServiceDescBean;
+import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.EsService;
 import com.dianping.pigeon.governor.service.ServiceDescService;
+import com.dianping.pigeon.governor.util.Constants;
 import com.google.gson.Gson;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHits;
@@ -35,6 +38,10 @@ public class ServiceDescController extends BaseController{
 
     @Autowired
     private EsService esService;
+
+    @Autowired
+    private PurgeExpireDescTask purgeExpireDescTask;
+
 
     private String index = Lion.get("pigeon-governor-server.es.index","bean");
     private String type = Lion.get("pigeon-governor-server.es.type","camel");
@@ -149,5 +156,14 @@ public class ServiceDescController extends BaseController{
                                    ModelMap modelMap){
         commonnav(modelMap, request);
         return "/doc/esSearch";
+    }
+
+
+    @RequestMapping(value={"/doc/Purge"},method = RequestMethod.GET)
+    public void test11(HttpServletRequest request, HttpServletResponse response, ModelMap modelMap){
+        User user = (User) request.getSession().getAttribute(Constants.DP_USER);
+        String currentUser = user!=null?user.getDpaccount():"";
+        if(currentUser.equals("shihuashen"))
+            purgeExpireDescTask.startPurge();
     }
 }

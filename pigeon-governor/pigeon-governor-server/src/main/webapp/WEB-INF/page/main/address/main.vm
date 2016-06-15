@@ -22,8 +22,7 @@
 	<!-- /section:settings.box -->
 	<div class="page-content-area">
 	
-		<div class="container"
-      style="margin: 0 auto; width: 100%; margin-bottom: 50px; height: 1050px;">
+		<div class="container">
       <div>
       <form id="form" class="form-horizontal"
                      method="post"
@@ -62,6 +61,7 @@
 
 <script>
 window.onload = function() {
+    $('li[id="service_index"]').addClass("active open");
 	$('li[id="address_search"]').addClass("active");
 };
 </script>

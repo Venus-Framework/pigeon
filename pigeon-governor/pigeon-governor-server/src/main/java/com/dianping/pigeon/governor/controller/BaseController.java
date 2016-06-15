@@ -17,17 +17,24 @@ import com.dianping.pigeon.governor.util.IPUtils;
  *
  */
 public class BaseController {
-
+	public User getUserInfo(HttpServletRequest request){
+		User user = (User)request.getSession().getAttribute(Constants.DP_USER);
+		return user;
+	}
 	public void commonnav(Map<String, Object> map, HttpServletRequest request) {
 		User user = (User) request.getSession().getAttribute(Constants.DP_USER);
 		String currentUser = user!=null?user.getDpaccount():"";
+		String userName = user!=null?user.getUsername():"";
 		map.put("currentUser", currentUser);
+		map.put("userName",userName);
 	}
 
 	public void commonnav(ModelMap modelMap, HttpServletRequest request) {
 		User user = (User) request.getSession().getAttribute(Constants.DP_USER);
 		String currentUser = user!=null?user.getDpaccount():"";
+		String userName = user!=null?user.getUsername():"";
 		modelMap.addAttribute("currentUser", currentUser);
+		modelMap.addAttribute("userName",userName);
 	}
 
 	public void verifyIdentity(int agentId) throws Exception{

@@ -11,62 +11,45 @@
 	} catch (e) {
 	}
 </script>
-
-<div class="sidebar-shortcuts" id="sidebar-shortcuts">
-	<div class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
-		<a class="btn btn-success" href="#">
-			<i class="ace-icon fa fa-signal"></i>&nbsp;&nbsp;项目
-		</a>
-
-		<a class="btn btn-info" href="${rc.contextPath}/resources/mdwiki/index.html#!index.md">
-			<i class="ace-icon fa fa-pencil"></i>&nbsp;&nbsp;文档
-		</a>
-
-		<!-- #section:basics/sidebar.layout.shortcuts -->
-		<a class="btn btn-warning" href="#">
-			<i class="ace-icon fa fa-users"></i>&nbsp;&nbsp;用户
-		</a>
-
-		<a class="btn btn-danger" href="#">
-			<i class="ace-icon fa fa-cogs"></i>&nbsp;&nbsp;配置
-		</a>
-
-		<!-- /section:basics/sidebar.layout.shortcuts -->
-	</div>
-
-	<div class="sidebar-shortcuts-mini" id="sidebar-shortcuts-mini">
-		<span class="btn btn-success"></span> <span class="btn btn-info"></span>
-
-		<span class="btn btn-warning"></span> <span class="btn btn-danger"></span>
-	</div>
-</div>
 <!-- /.sidebar-shortcuts -->
 
 <ul class="nav nav-list">
 	<li id="project_search"><a href="${rc.contextPath}/"> <i
-			class="menu-icon fa fa-tachometer"></i> <span class="menu-text">
+			class="menu-icon glyphicon glyphicon-eye-open"></i> <span class="menu-text">
 				快速查询 </span>
 	</a> <b class="arrow"></b></li>
-	<li id="service_search"><a href="${rc.contextPath}/service/"> <i
-			class="menu-icon fa fa-desktop"></i> <span class="menu-text">
-				服务名称查询 </span>
-	</a> <b class="arrow"></b></li>
-	<li id="address_search"><a href="${rc.contextPath}/address/"> <i
-			class="menu-icon fa fa-desktop"></i> <span class="menu-text">
-				服务地址查询 </span>
-	</a> <b class="arrow"></b></li>
-	<li id="service_doc">
-		<a href="${rc.contextPath}/doc/docCenter">
-			<i class="menu-icon fa fa-book"></i>
-			<span class="menu-text">服务文档中心</span>
-			<span class="badge badge-danger">New!</span>
-		</a>
-		<b class="arrow"></b>
-	</li>
-	<li id="projects_index" class="">
+	<li id="service_index">
 		<a href="#" class="dropdown-toggle">
 			<i class="menu-icon fa fa-list"></i>
-			<span class="menu-text">服务管理</span>
+			<span class="menu-text">注册中心查询</span>
+			<b class="arrow fa fa-angle-down"></b>
+		</a>
+		<b class="arrow"></b>
+        <ul class="submenu">
+            <li id="service_search" class="">
+                <a href="${rc.contextPath}/service/">
+                    <i class="menu-icon fa fa-caret-right"></i>
+                    服务名称查询
+                </a>
+
+                <b class="arrow"></b>
+            </li>
+
+            <li id="address_search" class="">
+                <a href="${rc.contextPath}/address/">
+                    <i class="menu-icon fa fa-caret-right"></i>
+					服务地址查询
+                </a>
+
+                <b class="arrow"></b>
+            </li>
+        </ul>
+	</li>
+
+	<li id="projects_index" class="">
+		<a href="#" class="dropdown-toggle">
+			<i class="menu-icon fa fa-cogs"></i>
+			<span class="menu-text">应用管理</span>
 
 			<b class="arrow fa fa-angle-down"></b>
 		</a>
@@ -82,18 +65,35 @@
 
 				<b class="arrow"></b>
 			</li>
-
 			<li id="project_all" class="">
 				<a href="${rc.contextPath}/projects.all">
 					<i class="menu-icon fa fa-caret-right"></i>
 					全部应用
 				</a>
-
 				<b class="arrow"></b>
+			</li>
+			<li id="region_router" class="">
+				<a href="${rc.contextPath}/region/regionRouter">
+					<i class="menu-icon fa fa-caret-right"></i>
+					Region路由
+				</a>
 			</li>
 		</ul>
 	</li>
-
+    <li id="service_doc">
+        <a href="${rc.contextPath}/doc/docCenter">
+            <i class="menu-icon fa fa-book"></i>
+            <span class="menu-text">服务文档中心</span>
+        </a>
+        <b class="arrow"></b>
+    </li>
+	<li id ="user_guide">
+		<a href="${rc.contextPath}/resources/mdwiki/index.html#!USER_GUIDE.md">
+			<i class="menu-icon fa fa-pencil-square-o"></i>
+			<span class="menu-text">Pigeon指南</span>
+		</a>
+		<b class="arrow"></b>
+	</li>
 </ul>
 <!-- /.nav-list -->
 <!-- #section:basics/sidebar.layout.minimize -->

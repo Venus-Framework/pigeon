@@ -95,7 +95,8 @@
                         <div class="col-xs-1">
                         </div>
                         <div class="input-group col-xs-7">
-                            <input id="searchInput" placeholder="输入服务,方法,描述搜索文档" type="text" class="form-control" name="message" />
+                            <input id="searchInput" placeholder="输入服务,方法,描述搜索文档" type="text" class="form-control" name="message"
+                                   autocomplete="off"/>
                         <span class="input-group-btn">
                             <button  id = "search" class="btn btn-sm btn-info no-radius" type="button">
                                 <i class="ace-icon fa fa-search"></i>
@@ -175,6 +176,9 @@
 <script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
 <script src="${rc.contextPath}/resources/js/my-pagination.js"></script>
 <script type="text/javascript">
+    window.onload = function() {
+        $('li[id="service_doc"]').addClass("active");
+    };
     jQuery(function($) {
         $('#search').click(function () {
             var searchKey = $('#searchInput').val();
@@ -199,7 +203,7 @@
                             var serviceId = item.serviceId;
                             var serviceName = item.serviceName;
                             $('#searchAns').append("<div id = 'hit-"+hitId+"'></div>");
-                            $('#'+'hit-'+hitId).append("<h4><a href='/doc/+"+serviceId+"'>"+serviceName+"</a></h4>");
+                            $('#'+'hit-'+hitId).append("<h4><a href='/doc/+"+serviceId+"' target='_blank'>"+serviceName+"</a></h4>");
                             var hightLight = item.fragmentsFormat;
                             $('#'+'hit-'+hitId).append("<p class='value-size'>"+hightLight+"</p>");
                         });
@@ -228,7 +232,7 @@
                                             var serviceId = item.serviceId;
                                             var serviceName = item.serviceName;
                                             $('#searchAns').append("<div id = 'hit-"+hitId+"'></div>");
-                                            $('#'+'hit-'+hitId).append("<h4><a href='/doc/+"+serviceId+"'>"+serviceName+"</a></h4>");
+                                            $('#'+'hit-'+hitId).append("<h4><a href='/doc/+"+serviceId+"' target='_blank'>"+serviceName+"</a></h4>");
                                             var hightLight = item.fragmentsFormat;
                                             $('#'+'hit-'+hitId).append("<p class='value-size'>"+hightLight+"</p>");
                                         });

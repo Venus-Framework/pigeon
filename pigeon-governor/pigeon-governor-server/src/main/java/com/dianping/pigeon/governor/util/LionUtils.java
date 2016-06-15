@@ -30,6 +30,34 @@ public class LionUtils {
             return result;
         }
     }
+    public static void createConfig(String env,String projectName,String key,String desc){
+        String url = "http://lionapi.dp:8080/config2/create?env="+env+"&id=2&project="+projectName+"&key="+key+
+                "&desc="+desc;
+        System.out.println(url);
+        HttpCallUtils.httpGet(url);
+    }
+
+
+    public static void setConfig(String env,String lionKey,String lionValue){
+        String url = "http://lionapi.dp:8080/config2/set?env="+env+"&id=2&key="+lionKey+"&value="+lionValue;
+        System.out.println(url);
+        HttpCallUtils.httpGet(url);
+    }
+
+    public static boolean isExistKey(String env, String lionKey){
+        String url = "http://lionapi.dp:8080/config2/get?env="+env+"&id=2&key="+lionKey;
+        String response = null;
+        response = HttpCallUtils.httpGet(url);
+        if(response!=null){
+            System.out.println(response);
+            if(response.equals("{\"status\":\"success\",\"message\":null,\"result\":null}")){
+                return false;
+            }
+            else
+                return true;
+        }
+        return false;
+    }
 
     public static Map<String,List<RouterInfo>> getServiceRouterConfigsPerProject(String projectName,String type,String env){
         LionHttpResponse response = getLionConfigs(projectName+".pigeon.group."+type,env);

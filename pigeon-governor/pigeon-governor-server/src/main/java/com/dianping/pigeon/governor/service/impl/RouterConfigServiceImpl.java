@@ -106,6 +106,7 @@ public class RouterConfigServiceImpl implements RouterConfigService {
         System.out.println(value);
         if(value==null){
             String newValue = serviceName+":"+group;
+            //TODO using LionUtils to create
             String url = "http://lionapi.dp:8080/config2/create?env="+configManager.getEnv()+"&id=2&project="+projectName+"&key="+lionKey+
                     "&desc=Auto%20generate%20router%20config";
             System.out.println(url);

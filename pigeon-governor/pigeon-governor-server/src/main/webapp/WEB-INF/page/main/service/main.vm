@@ -68,6 +68,7 @@
 
 <script>
 window.onload = function() {
-	$('li[id="service_search"]').addClass("active");
+    $('li[id="service_index"]').addClass("active open");
+    $('li[id="service_search"]').addClass("active");
 };
 </script>
