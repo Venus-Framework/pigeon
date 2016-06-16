@@ -256,7 +256,7 @@ public class RegistryManager {
 		T result = checkList.get(0);
 
 		for (T t : checkList) {
-			if (!t.equals(result)) {
+			if (t != null && !t.equals(result)) {
 				String errorMsg = "result not same in different registries! value1: " + result + ", value2: " + t;
 
 				if(configManager.getBooleanValue("pigeon.registry.check.value.consistency.exception", false)) {
@@ -711,5 +711,9 @@ public class RegistryManager {
 		public void onKeyRemoved(String key) {
 
 		}
+	}
+
+	public static void main(String[] args) {
+
 	}
 }
