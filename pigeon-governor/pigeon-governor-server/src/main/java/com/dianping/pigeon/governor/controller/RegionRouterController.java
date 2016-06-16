@@ -77,7 +77,7 @@ public class RegionRouterController extends BaseController{
             return "/config/project/projectRegionRouterConfig";
         }else{
             modelMap.put("error","Project: "+projectName+" doesn't exist .");
-            return "/config/project/Ngit pusotFound";
+            return "/config/project/NotFound";
         }
     }
 
