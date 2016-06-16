@@ -1,7 +1,6 @@
 package com.dianping.pigeon.governor.util;
 
 import com.dianping.pigeon.governor.bean.ConfigBean.RouterInfo;
-import com.dianping.pigeon.governor.bean.ConfigBean.ServiceConfigBean;
 import com.google.gson.Gson;
 
 import java.util.*;
@@ -9,9 +8,11 @@ import java.util.*;
 /**
  * Created by shihuashen on 16/5/19.
  */
+
+//TODO we need a better understand of the Lion http client response.
 public class LionUtils {
 
-    public static LionHttpResponse getLionConfigs(String prefix,String env){
+    public static GetPrefixLionHttpResponse getLionConfigs(String prefix, String env){
         String url = "http://lionapi.dp:8080/config2/get?env="+env+"&id=2&prefix="+prefix;
         System.out.println(url);
         String response  = null;
@@ -19,10 +20,10 @@ public class LionUtils {
         System.out.println(response);
         Gson gson = new Gson();
         if(response!= null)
-            return gson.fromJson(response,LionHttpResponse.class);
+            return gson.fromJson(response,GetPrefixLionHttpResponse.class);
         return null;
     }
-    public class LionHttpResponse{
+    public class GetPrefixLionHttpResponse {
         private String status;
         private String message;
         private Map<String,String> result;
@@ -30,6 +31,25 @@ public class LionUtils {
             return result;
         }
     }
+    public class GetKeyLionResponse {
+        private String status;
+        private String message;
+        private String result;
+        public String getResult(){
+            return result;
+        }
+    }
+    public class GetProjectLionResponse{
+        private String status;
+        private String message;
+        private List<String> result;
+        public List<String> getResult(){
+            return result;
+        }
+    }
+    
+    
+    //TODO parsing the json result. Check whether the create success or not.
     public static void createConfig(String env,String projectName,String key,String desc){
         String url = "http://lionapi.dp:8080/config2/create?env="+env+"&id=2&project="+projectName+"&key="+key+
                 "&desc="+desc;
@@ -37,7 +57,7 @@ public class LionUtils {
         HttpCallUtils.httpGet(url);
     }
 
-
+    //TODO parsing the json result. Check whether the set success or not;
     public static void setConfig(String env,String lionKey,String lionValue){
         String url = "http://lionapi.dp:8080/config2/set?env="+env+"&id=2&key="+lionKey+"&value="+lionValue;
         System.out.println(url);
@@ -50,22 +70,49 @@ public class LionUtils {
         response = HttpCallUtils.httpGet(url);
         if(response!=null){
             System.out.println(response);
-            if(response.equals("{\"status\":\"success\",\"message\":null,\"result\":null}")){
-                return false;
-            }
-            else
+            GetKeyLionResponse getKeyLionResponse = new Gson().fromJson(response,GetKeyLionResponse.class);
+            if(getKeyLionResponse.getResult()!=null)
                 return true;
+            else
+                return false;
         }
         return false;
     }
 
+
+    public static String getKey(String env,String lionKey){
+        String url = "http://lionapi.dp:8080/config2/get?env="+env+"&id=2&key="+lionKey;
+        String response = null;
+        response = HttpCallUtils.httpGet(url);
+        if(response!=null){
+            GetKeyLionResponse getKeyLionResponse = new Gson().fromJson(response,GetKeyLionResponse.class);
+            return getKeyLionResponse.getResult();
+        }
+        return null;
+    }
+
+    public static boolean isExistProject(String projectName){
+        String url = "http://lionapi.dp:8080/config2/list?project="+projectName;
+        String response = null;
+        response = HttpCallUtils.httpGet(url);
+        if(response!=null){
+            try{
+                GetProjectLionResponse getPrefixLionHttpResponse = new Gson().fromJson(response,GetProjectLionResponse.class);
+            }catch (Throwable t){
+                t.printStackTrace();
+                return false;
+            }
+            return true;
+        }else
+            return false;
+    }
     public static Map<String,List<RouterInfo>> getServiceRouterConfigsPerProject(String projectName,String type,String env){
-        LionHttpResponse response = getLionConfigs(projectName+".pigeon.group."+type,env);
+        GetPrefixLionHttpResponse response = getLionConfigs(projectName+".pigeon.group."+type,env);
         System.out.println(new Gson().toJson(response));
         return constructServiceRouterConfigs(response,type);
     }
 
-    private static Map<String,List<RouterInfo>> constructServiceRouterConfigs(LionHttpResponse response,String type){
+    private static Map<String,List<RouterInfo>> constructServiceRouterConfigs(GetPrefixLionHttpResponse response, String type){
         HashMap<String,List<RouterInfo>> map = new HashMap<String,List<RouterInfo>>();
         Map<String,String> configs = response.getResult();
         Iterator<String> iterator = configs.keySet().iterator();

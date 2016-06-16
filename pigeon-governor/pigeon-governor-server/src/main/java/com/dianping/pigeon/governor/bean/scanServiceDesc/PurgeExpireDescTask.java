@@ -100,7 +100,7 @@ public class PurgeExpireDescTask {
 
         }
         try {
-            exec.awaitTermination(20, TimeUnit.MINUTES);
+            exec.awaitTermination(30, TimeUnit.MINUTES);
             stopwatch.stop();
             System.out.println(stopwatch.elapsed(TimeUnit.SECONDS));
             logger.info("Purge terminated");

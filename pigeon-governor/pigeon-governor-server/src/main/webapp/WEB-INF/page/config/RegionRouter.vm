@@ -76,9 +76,9 @@
                     </li>
 
                     <li>
-                        <a href="#">服务治理</a>
+                        <a href="#">应用管理</a>
                     </li>
-                    <li class="active">分组路由</li>
+                    <li class="active">Region路由</li>
                 </ul><!-- /.breadcrumb -->
             </div>
             <div class="col-xs-4">

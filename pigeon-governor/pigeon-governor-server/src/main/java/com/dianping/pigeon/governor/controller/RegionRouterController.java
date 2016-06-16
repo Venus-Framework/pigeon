@@ -1,10 +1,13 @@
 package com.dianping.pigeon.governor.controller;
 
+import com.dianping.pigeon.governor.exception.LionNullProjectException;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.RegionRouterService;
+import com.dianping.pigeon.governor.util.UserRole;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -40,15 +43,29 @@ public class RegionRouterController extends BaseController{
     @RequestMapping(value = {"/region/projectRegionRouter"},method = RequestMethod.POST)
     public String ajaxLoadProjectRegionConfig(HttpServletRequest request , HttpServletResponse response , ModelMap modelMap){
         String projectName = request.getParameter("projectName");
+        projectName = StringUtils.trim(projectName);
+        if(projectName.equals("pigeon")){
+            modelMap.put("error","Project :pigeon is an architecture component. The configure must be deployed in Lion");
+            return "config/project/notFound";
+        }
         if(projectService.findProject(projectName)!=null){
             System.out.println(projectName);
-            boolean enableState = regionRouterService.getEnableState(projectName);
+            boolean enableState ;
+            try{
+                enableState = regionRouterService.getEnableState(projectName);
+            }catch(LionNullProjectException e){
+                e.printStackTrace();
+                modelMap.put("error","Project: "+projectName+" wasn't created in Lion");
+                return "config/project/notFound";
+            }
             System.out.println("The init region router state: "+ enableState);
             modelMap.put("projectName",projectName);
             commonnav(modelMap,request);
             User user = getUserInfo(request);
             String dpAccount = user!=null?user.getDpaccount():"null";
-            if(projectOwnerService.isProjectOwner(dpAccount,projectName)){
+            System.out.println(user.getRoleid());
+            if(UserRole.USER_SCM.getValue().equals(user.getRoleid()) ||
+                    projectOwnerService.isProjectOwner(dpAccount,projectName)){
                 modelMap.put("empowered","true");
                 System.out.println("is Owner");
             }
@@ -59,6 +76,7 @@ public class RegionRouterController extends BaseController{
             modelMap.put("enableState",String.valueOf(enableState));
             return "/config/project/projectRegionRouterConfig";
         }else{
+            modelMap.put("error","Project: "+projectName+" doesn't exist .");
             return "/config/project/notFound";
         }
     }
