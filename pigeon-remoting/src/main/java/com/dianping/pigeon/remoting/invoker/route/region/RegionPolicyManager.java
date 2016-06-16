@@ -94,7 +94,7 @@ public enum RegionPolicyManager {
 
         clientList = regionPolicy.getPreferRegionClients(clientList, request);
         checkClientsNotNull(clientList, invokerConfig);
-        monitor.logEvent("PigeonCall.region", clientList.get(0).getRegion().getName(), "");
+        monitor.logEvent("PigeonCall.region", request.getServiceName() + "#" + clientList.get(0).getRegion().getName(), "");
 
         return clientList;
     }
