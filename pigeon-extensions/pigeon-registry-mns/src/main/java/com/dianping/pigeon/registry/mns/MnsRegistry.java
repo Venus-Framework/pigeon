@@ -8,6 +8,7 @@ import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.util.VersionUtils;
 import com.sankuai.inf.octo.mns.MnsInvoker;
+import com.sankuai.inf.octo.mns.model.ServiceListRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import org.apache.logging.log4j.Logger;
 
@@ -42,29 +43,21 @@ public class MnsRegistry implements Registry {
 
     @Override
     public String getServiceAddress(String serviceName) throws RegistryException {
-        /*try {
-            sgServiceList = MnsInvoker.getSGServiceList();
-        } catch (Exception e) {
-            logger.warn("getServerList by Agent Exception", e);
-        }
-        if (null != sgServiceList && sgServiceList.size() > 0) {
-            updatSeverList();
-        }
-
+        String result = "";
 
         ServiceListRequest serviceListRequest = new ServiceListRequest();
-        serviceListRequest.setAppkey(configManager.getAppName());
-        serviceListRequest.setServiceName(serviceName);
+        serviceListRequest.setRemoteAppkey("这里怎么拿服务的appkey呢？");
+        serviceListRequest.setLocalAppkey(configManager.getAppName());
+        serviceListRequest.setProtocol("pigeon");
+        List<SGService> sgServices = MnsInvoker.getServiceList(serviceListRequest);
 
-        List<SGService> services = MnsInvoker.getServiceList(serviceListRequest);
-        List<String> serviceHosts = Lists.newArrayList();
-
-        for (SGService service : services) {
-            serviceHosts.add(service.getHostId());
+        for (SGService sgService : sgServices) {
+            if(serviceName.equals(sgService.getServiceName())) {
+                result += sgService.getIp() + ":" + sgService.getPort() +",";
+            }
         }
 
-        return StringUtils.join(serviceHosts, ",");*/
-        return "";
+        return result;
     }
 
     @Override
@@ -101,7 +94,7 @@ public class MnsRegistry implements Registry {
         sgService.setFweight(10.d);
 
         //TODO 这里怎么填写？
-        sgService.setProtocolType(/**琦总的接口*/ "old" );
+        sgService.setUnifiedProto(/**琦总的接口*/false);
 
         // 下面这两个有用吗？
         sgService.setRole(0);
@@ -112,7 +105,7 @@ public class MnsRegistry implements Registry {
 
         try {
             MnsInvoker.registerService(sgService);
-            logger.info("registerProviderOnMns: " + sgService.toString());
+            logger.info("registerProviderOnMns: " + sgService);
         } catch (Throwable e) {
             logger.error("Register by agent exception!", e);
             throw new RegistryException("error while register service: " + serviceName, e);
@@ -260,15 +253,6 @@ public class MnsRegistry implements Registry {
     }
 
     public static void main(String[] args) {
-        String serviceAddress = ":";
-        int index = serviceAddress.lastIndexOf(":");
-        if (index != -1) {
-            String ip = serviceAddress.substring(0, index);
-            String port = serviceAddress.substring(index + 1);
-            System.out.println(ip);
-            System.out.println(port);
-            System.out.println("end");
-        }
 
     }
 }
