@@ -48,6 +48,8 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
     }
 
     private List<Client> getRegionActiveClients(List<Client> clientList, InvocationRequest request) {
+        int sizeBefore = clientList.size();
+
         Map<Region, InnerRegionStat> regionStats = new HashMap<Region, InnerRegionStat>();
         List<Region> regionArrays = Lists.newArrayList(regionPolicyManager.getRegionArray());
 
@@ -84,6 +86,7 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
                             return filterClients;
                         }
                     } else {
+                        logger.info("b: " + sizeBefore + ", a:" + regionClientList.size());
                         return regionClientList;
                     }
                 } else {
