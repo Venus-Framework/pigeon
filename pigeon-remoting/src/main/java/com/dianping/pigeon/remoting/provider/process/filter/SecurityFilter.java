@@ -57,7 +57,7 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 
 	public SecurityFilter() {
 		configManager.getBooleanValue(KEY_TOKEN_ENABLE, false);
-		configManager.getBooleanValue(KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE, true);
+		configManager.getBooleanValue(KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE, false);
 		configManager.getIntValue(KEY_TOKEN_TIMESTAMP_DIFF, 120);
 		configManager.getBooleanValue(KEY_ACCESS_DEFAULT, true);
 		configManager.getBooleanValue(KEY_ACCESS_IP_ENABLE, false);
@@ -215,7 +215,7 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 			if (from == null) {
 				isAuth = true;
 			}
-			if (!configManager.getBooleanValue(KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE, true)
+			if (!configManager.getBooleanValue(KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE, false)
 					&& Constants.PROTOCOL_DEFAULT.equals(invocationContext.getChannel().getProtocol())) {
 				isAuth = false;
 			}

@@ -134,16 +134,15 @@ public class LionConfigManager extends AbstractConfigManager {
 
 	@Override
 	public void init() {
-		Map<String, Object> config = new HashMap<String, Object>();
-		try {
-			LocalConfigLoader.loadProperties(config, FileUtils.readFile(new FileInputStream(ENV_FILE)));
-		} catch (Throwable e) {
-		}
-		ip = (String) config.get("ip");
-
 		if (configCache == null) {
 			synchronized (this) {
 				if (configCache == null) {
+					Map<String, Object> config = new HashMap<String, Object>();
+					try {
+						LocalConfigLoader.loadProperties(config, FileUtils.readFile(new FileInputStream(ENV_FILE)));
+					} catch (Throwable e) {
+					}
+					ip = (String) config.get("ip");
 					try {
 						configCache = ConfigCache.getInstance();
 					} catch (Exception e) {
