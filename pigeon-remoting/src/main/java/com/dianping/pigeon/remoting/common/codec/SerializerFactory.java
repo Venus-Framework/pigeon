@@ -7,7 +7,6 @@ package com.dianping.pigeon.remoting.common.codec;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.remoting.common.codec.thrift.AnnotationThriftSerializer;
 import com.dianping.pigeon.remoting.common.codec.thrift.IDLThriftSerializer;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.logging.log4j.Logger;

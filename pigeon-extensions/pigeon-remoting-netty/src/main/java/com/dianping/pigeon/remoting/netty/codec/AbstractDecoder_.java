@@ -33,9 +33,7 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
 
     private static final Logger logger = LoggerLoader.getLogger(AbstractDecoder_.class);
 
-    private byte[] headMsgs = new byte[2];
-
-    private static Adler32 adler32 = new Adler32();
+    private static ThreadLocal<Adler32> adler32s = new ThreadLocal<Adler32>();
 
     private static Compress gZipCompress = new GZipCompress();
 
@@ -53,6 +51,9 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
             if (buffer.readableBytes() <= 2) {
                 break;
             } else {
+
+                byte[] headMsgs = new byte[2];
+
                 buffer.getBytes(buffer.readerIndex(), headMsgs);
 
                 if ((CodecConstants.MAGIC_FIRST == headMsgs[0]
@@ -197,14 +198,19 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
     }
 
     protected ChannelBuffer extractFrame(ChannelBuffer buffer, int index, int length) {
-//        ChannelBuffer frame = buffer.factory().getBuffer(length);
-//        frame.writeBytes(buffer, index, length);
-        ChannelBuffer frame = buffer.slice(index, length);
+        ChannelBuffer frame = buffer.factory().getBuffer(length);
+        frame.writeBytes(buffer, index, length);
+        //ChannelBuffer frame = buffer.slice(index, length);
         return frame;
     }
 
     private boolean checksum(ChannelBuffer frame, int totalLength) {
         int dataLength = totalLength + CodecConstants._HEAD_LENGTH;
+        Adler32 adler32 = adler32s.get();
+        if (adler32 == null) {
+            adler32 = new Adler32();
+            adler32s.set(adler32);
+        }
         adler32.reset();
         adler32.update(frame.array(), 0, dataLength);
 

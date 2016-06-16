@@ -6,9 +6,7 @@ package com.dianping.pigeon.remoting.netty.invoker;
 
 import static org.jboss.netty.channel.Channels.pipeline;
 
-import com.dianping.pigeon.remoting.netty.invoker.codec.InvokerDecoder;
 import com.dianping.pigeon.remoting.netty.invoker.codec.InvokerDecoder_;
-import com.dianping.pigeon.remoting.netty.invoker.codec.InvokerEncoder;
 import com.dianping.pigeon.remoting.netty.invoker.codec.InvokerEncoder_;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -24,8 +22,8 @@ public class NettyClientPipelineFactory implements ChannelPipelineFactory {
 
 	public NettyClientPipelineFactory(NettyClient client) {
 		this.client = client;
-		this.decoder = new InvokerDecoder();
-		this.encoder = new InvokerEncoder();
+		this.decoder = new InvokerDecoder_();
+		this.encoder = new InvokerEncoder_();
 		this.handler = new NettyClientHandler(this.client);
 	}
 

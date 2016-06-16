@@ -7,9 +7,9 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 
 /**
  * @author qi.yin
- *         2016/06/14  下午11:40.
+ *         2016/06/16  下午2:26.
  */
-public class CompressHandler extends SimpleChannelHandler {
+public class CodecHandler extends SimpleChannelHandler {
 
     @Override
     public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {

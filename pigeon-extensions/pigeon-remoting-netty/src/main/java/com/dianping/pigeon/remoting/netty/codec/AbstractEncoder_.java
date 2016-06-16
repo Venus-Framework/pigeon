@@ -35,7 +35,7 @@ public abstract class AbstractEncoder_ extends OneToOneEncoder implements Encode
 
     private static final Logger logger = LoggerLoader.getLogger(AbstractEncoder_.class);
 
-    private static Adler32 adler32 = new Adler32();
+    private static ThreadLocal<Adler32> adler32s = new ThreadLocal<Adler32>();
 
     private static Compress gZipCompress = new GZipCompress();
 
@@ -203,6 +203,11 @@ public abstract class AbstractEncoder_ extends OneToOneEncoder implements Encode
             head.writeByte(command);
             head.writeInt(frameLength + CodecConstants._TAIL_LENGTH);
             //checksum
+            Adler32 adler32 = adler32s.get();
+            if (adler32 == null) {
+                adler32 = new Adler32();
+                adler32s.set(adler32);
+            }
             adler32.reset();
             adler32.update(head.array());
             adler32.update(frame.array(), 0, frameLength);
