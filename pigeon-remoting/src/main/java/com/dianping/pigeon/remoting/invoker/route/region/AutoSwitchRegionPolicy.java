@@ -4,6 +4,8 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -36,6 +38,7 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
     private Map<String, Set<HostInfo>> serviceHostInfos = clientManager.getServiceHosts();
     private Map<String, Client> allClients = clientManager.getClusterListener().getAllClients();
     private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+    private final Monitor monitor = MonitorLoader.getMonitor();
 
     private AutoSwitchRegionPolicy() {}
 
@@ -83,6 +86,11 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
                     } else {
                         return regionClientList;
                     }
+                } else {
+                    logger.warn("Region " + region.getName() + "'s available clients is less than "
+                            + least + ", trying to switch to next region...");
+                    monitor.logEvent("PigeonCall.regionUnavailable",
+                            request.getServiceName() + "#" + region.getName(), "");
                 }
 
             } catch (Throwable t) {
