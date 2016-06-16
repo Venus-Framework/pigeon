@@ -46,7 +46,7 @@ public class RegionRouterController extends BaseController{
         projectName = StringUtils.trim(projectName);
         if(projectName.equals("pigeon")){
             modelMap.put("error","Project :pigeon is an architecture component. The configure must be deployed in Lion");
-            return "config/project/notFound";
+            return "config/project/NotFound";
         }
         if(projectService.findProject(projectName)!=null){
             System.out.println(projectName);
@@ -56,7 +56,7 @@ public class RegionRouterController extends BaseController{
             }catch(LionNullProjectException e){
                 e.printStackTrace();
                 modelMap.put("error","Project: "+projectName+" wasn't created in Lion");
-                return "config/project/notFound";
+                return "config/project/NotFound";
             }
             System.out.println("The init region router state: "+ enableState);
             modelMap.put("projectName",projectName);
@@ -77,7 +77,7 @@ public class RegionRouterController extends BaseController{
             return "/config/project/projectRegionRouterConfig";
         }else{
             modelMap.put("error","Project: "+projectName+" doesn't exist .");
-            return "/config/project/notFound";
+            return "/config/project/Ngit pusotFound";
         }
     }
 
