@@ -1,11 +1,11 @@
 package com.dianping.pigeon.remoting.netty.codec;
 
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
+import org.jboss.netty.channel.*;
 
+import java.net.InetSocketAddress;
 import java.util.zip.Adler32;
 
 /**
@@ -14,46 +14,86 @@ import java.util.zip.Adler32;
  */
 public class Crc32Handler extends SimpleChannelHandler {
 
+    private static final Logger logger = LoggerLoader.getLogger(Crc32Handler.class);
+
     private static ThreadLocal<Adler32> adler32s = new ThreadLocal<Adler32>();
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        if (e.getMessage() != null) {
-            if (e.getMessage() instanceof DataPackage) {
-
-                DataPackage dataPackage = (DataPackage) e.getMessage();
-
-                if (dataPackage.isUnified()) {
-                    ChannelBuffer frame = dataPackage.getFrameBuffer();
-
-                    byte command = frame.getByte(frame.readerIndex() +
-                            CodecConstants._FRONT_COMMAND_LENGTH);
-
-                    if ((command & 0x80) == 0x80) {
-                        int totalLength = frame.readableBytes();
-
-//                        ChannelBuffer buffer = frame.factory().getBuffer(length);
-//                        buffer.writeBytes(frame, index, length);
-//                        //ChannelBuffer frame = buffer.slice(index, length);
-//                        if (!checksum(frame, totalLength)) {
-//                            return msg;
-//                        }
-                    }
-
-                } else {
-                    ctx.sendUpstream(e);
-                }
-            }
+        if (e.getMessage() == null ||
+                !(e.getMessage() instanceof DataPackage)) {
+            return;
         }
+
+        DataPackage dataPackage = (DataPackage) e.getMessage();
+
+        if (!dataPackage.isUnified()) {
+            ctx.sendUpstream(e);
+            return;
+        }
+
+        ChannelBuffer frame = dataPackage.getFrameBuffer();
+
+        byte command = frame.getByte(frame.readerIndex() +
+                CodecConstants._FRONT_COMMAND_LENGTH);
+
+        if ((command & 0x80) == 0x80) {
+            int totalLength = frame.readableBytes();
+
+            ChannelBuffer buffer = frame.factory().getBuffer(totalLength);
+            buffer.writeBytes(frame, frame.readerIndex(), totalLength);
+
+            dataPackage.setIsChecksum(true);
+
+            if (checksum(frame, totalLength)) {
+                dataPackage.setFrameBuffer(buffer);
+                Channels.fireMessageReceived(e.getChannel(), dataPackage, e.getRemoteAddress());
+            } else {
+                String host = ((InetSocketAddress) e.getRemoteAddress()).getAddress().getHostAddress();
+                logger.error("Checksum failed. data from host:" + host);
+            }
+
+        } else {
+            ctx.sendUpstream(e);
+        }
+
     }
+
 
     @Override
     public void handleDownstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
         super.handleDownstream(ctx, e);
     }
 
+    private ChannelBuffer doChecksum(Channel channel, DataPackage dataPackage) {
+
+        ChannelBuffer frame = dataPackage.getFrameBuffer();
+
+        byte command = frame.getByte(frame.readerIndex() +
+                CodecConstants._FRONT_COMMAND_LENGTH);
+
+        if ((command & 0x80) == 0x80) {
+            int totalLength = frame.readableBytes();
+
+            ChannelBuffer buffer = frame.factory().getBuffer(totalLength);
+            buffer.writeBytes(frame, frame.readerIndex(), totalLength);
+
+            dataPackage.setIsChecksum(true);
+
+            if (checksum(frame, totalLength)) {
+                dataPackage.setFrameBuffer(buffer);
+            } else {
+                String host = ((InetSocketAddress) channel.getRemoteAddress()).getAddress().getHostAddress();
+                logger.error("Checksum failed. data from host:" + host);
+            }
+            return buffer;
+        } else {
+            return frame;
+        }
+    }
+
     private boolean checksum(ChannelBuffer frame, int totalLength) {
-        int dataLength = totalLength + CodecConstants._HEAD_LENGTH;
+        int dataLength = totalLength - CodecConstants._TAIL_LENGTH;
         Adler32 adler32 = adler32s.get();
         if (adler32 == null) {
             adler32 = new Adler32();

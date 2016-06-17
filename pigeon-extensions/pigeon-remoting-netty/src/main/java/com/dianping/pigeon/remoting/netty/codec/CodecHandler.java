@@ -18,7 +18,18 @@ public class CodecHandler extends SimpleChannelHandler {
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        super.messageReceived(ctx, e);
+        if (e.getMessage() == null ||
+                !(e.getMessage() instanceof DataPackage)) {
+            return;
+        }
+
+        DataPackage dataPackage = (DataPackage) e.getMessage();
+
+        if (dataPackage.isUnified()) {
+
+        } else {
+
+        }
     }
 
 }

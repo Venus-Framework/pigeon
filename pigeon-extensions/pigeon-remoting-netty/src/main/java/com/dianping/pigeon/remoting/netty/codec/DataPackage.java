@@ -12,7 +12,11 @@ public class DataPackage {
 
     private boolean isUnified;
 
-    public DataPackage(ChannelBuffer frameBuffer,boolean isUnified) {
+    private boolean isCompress;
+
+    private boolean isChecksum;
+
+    public DataPackage(ChannelBuffer frameBuffer, boolean isUnified) {
         this.frameBuffer = frameBuffer;
         this.isUnified = isUnified;
     }
@@ -31,5 +35,21 @@ public class DataPackage {
 
     public void setIsUnified(boolean isUnified) {
         this.isUnified = isUnified;
+    }
+
+    public boolean isCompress() {
+        return isCompress;
+    }
+
+    public void setIsCompress(boolean isCompress) {
+        this.isCompress = isCompress;
+    }
+
+    public boolean isChecksum() {
+        return isChecksum;
+    }
+
+    public void setIsChecksum(boolean isChecksum) {
+        this.isChecksum = isChecksum;
     }
 }
