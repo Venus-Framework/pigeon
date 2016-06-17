@@ -64,9 +64,11 @@ public class MnsRegistry implements Registry {
         serviceListRequest.setRemoteAppkey(appkey);
         serviceListRequest.setLocalAppkey(configManager.getAppName());
         serviceListRequest.setProtocol("thrift");
+        logger.info(serviceListRequest.getRemoteAppkey());
         List<SGService> sgServices = MnsInvoker.getServiceList(serviceListRequest);
 
         for (SGService sgService : sgServices) {
+            logger.info(sgService.toString());
             if(url.equals(sgService.getServiceName())) {
                 result += sgService.getIp() + ":" + sgService.getPort() +",";
             }
