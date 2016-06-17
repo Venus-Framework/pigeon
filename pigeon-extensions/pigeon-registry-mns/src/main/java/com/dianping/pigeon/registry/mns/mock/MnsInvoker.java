@@ -1,9 +1,13 @@
 package com.dianping.pigeon.registry.mns.mock;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TException;
 
 import java.util.ArrayList;
@@ -17,14 +21,34 @@ import java.util.Set;
 public class MnsInvoker {
 
     private static Set<SGService> sgServices = Sets.newConcurrentHashSet();
-
     // serviceId --> sgService
     private static Map<String, List<SGService>> sgServiceMapByServiceId = Maps.newConcurrentMap();
-
     // hostId --> sgService
     private static Map<String, List<SGService>> sgServiceMapByHostId = Maps.newConcurrentMap();
 
+    private static volatile boolean inited = false;
+    private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+    private static FileClient client;
+    private static Logger logger = LoggerLoader.getLogger(MnsInvoker.class);
 
+    public static void init () {
+        if (!inited) {
+            synchronized (MnsInvoker.class) {
+                if (!inited) {
+
+                    try {
+                        String basePath = configManager.getStringValue("pigeon.registry.address.file",
+                                "/data/appdatas/mockmns");
+                        client = new FileClient(basePath);
+                    } catch (Exception ex) {
+                        logger.error("failed to initialize file client", ex);
+                    }
+
+                    inited = true;
+                }
+            }
+        }
+    }
 
     public static void registerService(SGService sgService) throws TException {
         sgServices.add(sgService);
@@ -46,6 +70,8 @@ public class MnsInvoker {
             services.add(sgService);
             sgServiceMapByHostId.put(sgService.getHostId(), services);
         }
+
+        //写weight，写server，不监听
     }
 
     public static void unRegisterService(SGService sgService) throws TException {
@@ -73,6 +99,10 @@ public class MnsInvoker {
                 return sgServiceMapByHostId.get(req.getHostId());
             }
         }
+
+        //监听serverPath
+        String path = client.getServicePath(req.getServiceName());
+        String servers = client.get(path, true);
 
         return new ArrayList<SGService>();
     }

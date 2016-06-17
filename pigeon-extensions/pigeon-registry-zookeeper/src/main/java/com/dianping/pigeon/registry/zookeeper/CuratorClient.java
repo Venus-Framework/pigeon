@@ -66,7 +66,7 @@ public class CuratorClient {
 		configManager.registerConfigChangeListener(new InnerConfigChangeListener());
 	}
 
-	public boolean newCuratorClient() throws InterruptedException {
+	private boolean newCuratorClient() throws InterruptedException {
 		logger.info("begin to create zookeeper client");
 		CuratorFramework client = CuratorFrameworkFactory.newClient(address, sessionTimeout, connectionTimeout,
 				new MyRetryPolicy(retries, retryInterval));

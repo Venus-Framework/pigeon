@@ -2,6 +2,7 @@ package com.dianping.pigeon.registry.mns;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
@@ -12,8 +13,10 @@ import com.sankuai.inf.octo.mns.model.ServiceListRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Created by chenchongze on 16/5/25.
@@ -253,6 +256,16 @@ public class MnsRegistry implements Registry {
     }
 
     public static void main(String[] args) {
-
+        Set<HostInfo> hostInfos = new HashSet<HostInfo>();
+        HostInfo hostInfo = new HostInfo("111",111,0);
+        hostInfos.add(hostInfo);
+        for (HostInfo info : hostInfos) {
+            System.out.println(info.getWeight());
+        }
+        HostInfo hostInfo1 = new HostInfo("111",111,1);
+        hostInfos.add(hostInfo1);
+        for (HostInfo info : hostInfos) {
+            System.out.println(info.getWeight());
+        }
     }
 }

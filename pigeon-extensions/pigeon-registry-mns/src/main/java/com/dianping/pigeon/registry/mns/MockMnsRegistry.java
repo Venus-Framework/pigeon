@@ -5,6 +5,7 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.registry.mns.mock.FileClient;
 import com.dianping.pigeon.registry.mns.mock.MnsInvoker;
 import com.dianping.pigeon.registry.mns.mock.SGService;
 import com.dianping.pigeon.registry.mns.mock.ServiceListRequest;
@@ -22,15 +23,24 @@ import java.util.Properties;
  */
 public class MockMnsRegistry implements Registry {
 
-    private Logger logger = LoggerLoader.getLogger(getClass());
-
+    private final Logger logger = LoggerLoader.getLogger(getClass());
     private Properties properties;
-
-    private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+    private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+    private volatile boolean inited = false;
+    private FileClient client;
 
     @Override
     public void init(Properties properties) {
         this.properties = properties;
+
+        if (!inited) {
+            synchronized (this) {
+                if (!inited) {
+                    MnsInvoker.init();
+                    inited = true;
+                }
+            }
+        }
     }
 
     @Override
