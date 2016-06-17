@@ -87,9 +87,23 @@ public class MnsRegistry implements Registry {
 
     @Override
     public void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
+        String[] appkeyAndUrl = serviceName.split("#");
+        String appkey = "";
+        String url = "";
+
+        if(appkeyAndUrl.length == 2) {
+            appkey = appkeyAndUrl[0];
+            url = appkeyAndUrl[1];
+        } else if (appkeyAndUrl.length == 1) {
+            appkey = appkeyAndUrl[0];
+            url = "default";
+        } else {
+            throw new RegistryException("Invalid serviceName: " + serviceName);
+        }
+
         SGService sgService = new SGService();
-        sgService.setAppkey(serviceName);
-        sgService.setServiceName("default");
+        sgService.setAppkey(appkey);
+        sgService.setServiceName(url);
         // 暂时忽略group
         sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
