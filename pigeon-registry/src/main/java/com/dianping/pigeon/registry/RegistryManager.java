@@ -102,7 +102,7 @@ public class RegistryManager {
 			if (_registryList.size() > 0) {
 				try {
 					parseRegistryConfig(_registryList,
-							configManager.getStringValue(KEY_PIGEON_REGISTRY_PREFER, Constants.REGISTRY_CURATOR_NAME));
+							configManager.getStringValue(KEY_PIGEON_REGISTRY_PREFER, "curator,mns"));
 					//configManager.registerConfigChangeListener(new InnerConfigChangeListener());
 
 					for (Registry registry : registryList) {
@@ -596,8 +596,14 @@ public class RegistryManager {
 	}
 
 	private String mergeAddress(String address, String anotherAddress) {
-		Set<String> result = new HashSet<String>(Arrays.asList(address.split(",")));
-		result.addAll(Arrays.asList(anotherAddress.split(",")));
+
+		Set<String> result = new HashSet<>();
+		if(StringUtils.isNotBlank(address)) {
+			result.addAll(Arrays.asList(address.split(",")));
+		}
+		if(StringUtils.isNotBlank(anotherAddress)) {
+			result.addAll(Arrays.asList(anotherAddress.split(",")));
+		}
 
 		return StringUtils.join(result,",");
 	}

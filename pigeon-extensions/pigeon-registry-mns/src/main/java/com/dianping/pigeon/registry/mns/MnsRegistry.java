@@ -52,7 +52,7 @@ public class MnsRegistry implements Registry {
             url = appkeyAndUrl[1];
         } else if (appkeyAndUrl.length == 1) {
             appkey = appkeyAndUrl[0];
-            url = "default";
+            url = appkey;
         } else {
             throw new RegistryException("Invalid serviceName: " + serviceName);
         }
@@ -96,7 +96,7 @@ public class MnsRegistry implements Registry {
             url = appkeyAndUrl[1];
         } else if (appkeyAndUrl.length == 1) {
             appkey = appkeyAndUrl[0];
-            url = "default";
+            url = appkey;
         } else {
             throw new RegistryException("Invalid serviceName: " + serviceName);
         }
