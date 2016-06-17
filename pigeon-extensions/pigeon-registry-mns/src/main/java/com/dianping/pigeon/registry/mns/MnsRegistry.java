@@ -2,7 +2,6 @@ package com.dianping.pigeon.registry.mns;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
@@ -13,10 +12,8 @@ import com.sankuai.inf.octo.mns.model.ServiceListRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * Created by chenchongze on 16/5/25.
@@ -46,12 +43,27 @@ public class MnsRegistry implements Registry {
 
     @Override
     public String getServiceAddress(String serviceName) throws RegistryException {
-        String result = "";
+        String[] appkeyAndUrl = serviceName.split("#");
+        String appkey = "";
+        String url = "";
 
+        if(appkeyAndUrl.length == 2) {
+            appkey = appkeyAndUrl[0];
+            url = appkeyAndUrl[1];
+        } else if (appkeyAndUrl.length == 1) {
+            appkey = appkeyAndUrl[0];
+            url = "default";
+        } else {
+            throw new RegistryException("Invalid serviceName: " + serviceName);
+        }
+
+        //todo 如果不做appkey和url的判空，sgService的list返回的是什么结果？先观察一下
+
+        String result = "";
         ServiceListRequest serviceListRequest = new ServiceListRequest();
-        serviceListRequest.setRemoteAppkey("这里怎么拿服务的appkey呢？");
+        serviceListRequest.setRemoteAppkey(appkey);
         serviceListRequest.setLocalAppkey(configManager.getAppName());
-        serviceListRequest.setProtocol("pigeon");
+        serviceListRequest.setProtocol("thrift");
         List<SGService> sgServices = MnsInvoker.getServiceList(serviceListRequest);
 
         for (SGService sgService : sgServices) {
@@ -76,8 +88,8 @@ public class MnsRegistry implements Registry {
     @Override
     public void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
         SGService sgService = new SGService();
-        sgService.setAppkey(configManager.getAppName());
-        sgService.setServiceName(serviceName);
+        sgService.setAppkey(serviceName);
+        sgService.setServiceName("default");
         // 暂时忽略group
         sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
@@ -96,8 +108,9 @@ public class MnsRegistry implements Registry {
         sgService.setWeight(10);
         sgService.setFweight(10.d);
 
-        //TODO 这里怎么填写？
-        sgService.setUnifiedProto(/**琦总的接口*/false);
+        //TODO 改成琦总的接口
+        sgService.setUnifiedProto(/**琦总的接口*/true);
+        sgService.setProtocol("thrift");
 
         // 下面这两个有用吗？
         sgService.setRole(0);
@@ -256,16 +269,16 @@ public class MnsRegistry implements Registry {
     }
 
     public static void main(String[] args) {
-        Set<HostInfo> hostInfos = new HashSet<HostInfo>();
-        HostInfo hostInfo = new HostInfo("111",111,0);
-        hostInfos.add(hostInfo);
-        for (HostInfo info : hostInfos) {
-            System.out.println(info.getWeight());
-        }
-        HostInfo hostInfo1 = new HostInfo("111",111,1);
-        hostInfos.add(hostInfo1);
-        for (HostInfo info : hostInfos) {
-            System.out.println(info.getWeight());
+        String serviceName = "#fdsd";
+        String[] appkeyAndUrl = serviceName.split("#");
+        if(appkeyAndUrl.length == 2) {
+            //注意判空
+            System.out.println(appkeyAndUrl[0]);
+            System.out.println(appkeyAndUrl[1]);
+        } else if (appkeyAndUrl.length == 1) {
+            System.out.println(appkeyAndUrl[0]);
+        } else {
+            throw new RuntimeException();
         }
     }
 }
