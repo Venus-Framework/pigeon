@@ -67,7 +67,7 @@ public class MnsRegistry implements Registry {
         List<SGService> sgServices = MnsInvoker.getServiceList(serviceListRequest);
 
         for (SGService sgService : sgServices) {
-            if(serviceName.equals(sgService.getServiceName())) {
+            if(url.equals(sgService.getServiceName())) {
                 result += sgService.getIp() + ":" + sgService.getPort() +",";
             }
         }
