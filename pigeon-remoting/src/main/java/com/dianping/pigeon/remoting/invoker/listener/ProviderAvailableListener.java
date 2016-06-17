@@ -132,20 +132,19 @@ public class ProviderAvailableListener implements Runnable {
 	}
 
 	private void checkReferencedServices() {
-		Registry registry = RegistryManager.getInstance().getRegistry();
 		Map<String, Set<HostInfo>> serviceAddresses = RegistryManager.getInstance().getAllReferencedServiceAddresses();
 		for (String key : serviceAddresses.keySet()) {
 			Set<HostInfo> hosts = serviceAddresses.get(key);
 			if (hosts != null) {
 				for (HostInfo host : hosts) {
 					if (host.getApp() == null) {
-						String app = registry.getServerApp(host.getConnect());
+						String app = RegistryManager.getInstance().getReferencedApp(host.getConnect());
 						logger.info("set " + host.getConnect() + "'s app to " + app);
 						host.setApp(app);
 						RegistryManager.getInstance().setReferencedApp(host.getConnect(), app);
 					}
 					if (host.getVersion() == null) {
-						String version = registry.getServerVersion(host.getConnect());
+						String version = RegistryManager.getInstance().getReferencedVersion(host.getConnect());
 						logger.info("set " + host.getConnect() + "'s version to " + version);
 						host.setVersion(version);
 						RegistryManager.getInstance().setReferencedVersion(host.getConnect(), version);

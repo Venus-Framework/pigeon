@@ -20,8 +20,6 @@ import com.dianping.pigeon.registry.util.Constants;
  */
 public class DefaultRegistryConfigManager implements RegistryConfigManager {
 
-	private static Logger logger = LoggerLoader.getLogger(DefaultRegistryConfigManager.class);
-
 	@Override
 	public Properties getRegistryConfig() {
 		ConfigManager configManager = ConfigManagerLoader.getConfigManager();

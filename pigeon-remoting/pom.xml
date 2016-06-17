@@ -64,10 +64,6 @@
 			<artifactId>protobuf-java</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-		</dependency>
-		<dependency>
 			<artifactId>protostuff-runtime</artifactId>
 			<groupId>io.protostuff</groupId>
 		</dependency>

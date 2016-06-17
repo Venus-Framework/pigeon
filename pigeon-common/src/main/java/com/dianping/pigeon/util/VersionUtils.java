@@ -1,7 +1,7 @@
 package com.dianping.pigeon.util;
 
 public class VersionUtils {
-
+    
     public static final String VERSION = "2.7.8";
 
     public static final String THRIFT_VERSION = "2.7.8";

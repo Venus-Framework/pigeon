@@ -1,8 +1,13 @@
 package com.dianping.pigeon.registry.zookeeper;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -12,6 +17,8 @@ import com.dianping.pigeon.registry.util.Constants;
 public class Utils {
 
 	private static final Logger logger = LoggerLoader.getLogger(Utils.class);
+
+	private static final ObjectMapper mapper = new ObjectMapper();
 
 	public static String unescapeServiceName(String serviceName) {
 		return serviceName.replace(Constants.PLACEHOLDER, Constants.PATH_SEPARATOR);
@@ -44,14 +51,13 @@ public class Utils {
 		return path;
 	}
 
-	public static String getAppHostPath(String serviceAddress, String appName) {
-		String path = Constants.APPNAME_PATH + Constants.PATH_SEPARATOR + appName + Constants.PATH_SEPARATOR
-				+ serviceAddress;
+	public static String getHeartBeatPath(String serviceAddress) {
+		String path = Constants.HEARTBEAT_PATH + Constants.PATH_SEPARATOR + serviceAddress;
 		return path;
 	}
 
-	public static String getHeartBeatPath(String serviceAddress) {
-		String path = Constants.HEARTBEAT_PATH + Constants.PATH_SEPARATOR + serviceAddress;
+	public static String getProtocolPath(String serviceAddress) {
+		String path = Constants.PROTOCOL_PATH + Constants.PATH_SEPARATOR + serviceAddress;
 		return path;
 	}
 
@@ -106,5 +112,13 @@ public class Utils {
 			return true;
 		}
 		return false;
+	}
+
+	public static String getProtocolInfo(Map<String, Boolean> infoMap) throws JsonProcessingException {
+		return mapper.writeValueAsString(infoMap);
+	}
+
+	public static Map<String, Boolean> getProtocolInfoMap(String info) throws IOException {
+		return mapper.readValue(info, ConcurrentHashMap.class);
 	}
 }

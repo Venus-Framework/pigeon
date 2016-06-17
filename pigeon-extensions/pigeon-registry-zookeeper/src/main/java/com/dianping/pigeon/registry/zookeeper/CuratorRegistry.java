@@ -1,10 +1,8 @@
 package com.dianping.pigeon.registry.zookeeper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.KeeperException.NodeExistsException;
@@ -43,6 +41,11 @@ public class CuratorRegistry implements Registry {
 				if (!inited) {
 					try {
 						String zkAddress = properties.getProperty(Constants.KEY_REGISTRY_ADDRESS);
+
+						if(zkAddress == null) {
+							zkAddress = configManager.getStringValue(Constants.KEY_REGISTRY_ADDRESS);
+						}
+
 						logger.info("start to initialize zookeeper client:" + zkAddress);
 						client = new CuratorClient(zkAddress);
 						logger.info("succeed to initialize zookeeper client:" + zkAddress);
@@ -57,7 +60,7 @@ public class CuratorRegistry implements Registry {
 
 	@Override
 	public String getName() {
-		return "curator";
+		return Constants.REGISTRY_CURATOR_NAME;
 	}
 
 	@Override
@@ -284,7 +287,7 @@ public class CuratorRegistry implements Registry {
 	}
 
 	@Override
-	public String getServerApp(String serverAddress) {
+	public String getServerApp(String serverAddress) throws RegistryException {
 		String path = Utils.getAppPath(serverAddress);
 		String strApp;
 		try {
@@ -295,7 +298,7 @@ public class CuratorRegistry implements Registry {
 			return strApp;
 		} catch (Throwable e) {
 			logger.error("failed to get app for " + serverAddress);
-			return "";
+			throw new RegistryException(e);
 		}
 	}
 
@@ -335,13 +338,13 @@ public class CuratorRegistry implements Registry {
 	}
 
 	@Override
-	public String getServerVersion(String serverAddress) {
+	public String getServerVersion(String serverAddress) throws RegistryException {
 		String path = Utils.getVersionPath(serverAddress);
 		try {
 			return client.get(path);
 		} catch (Throwable e) {
 			logger.error("failed to get version for " + serverAddress);
-			return null;
+			throw new RegistryException(e);
 		}
 	}
 
@@ -392,34 +395,12 @@ public class CuratorRegistry implements Registry {
 	}
 
 	@Override
-	public void registerAppHostList(String serviceAddress, String appName, Integer consolePort) {
-		try {
-			String appHostPath = Utils.getAppHostPath(serviceAddress, appName);
-			client.set(appHostPath, consolePort);
-		} catch (Throwable e) {
-			logger.fatal("failed to register service heartbeat of " + serviceAddress, e);
-		}
-
-	}
-
-	@Override
-	public void unregisterAppHostList(String serviceAddress, String appName) {
-		try {
-			String appHostPath = Utils.getAppHostPath(serviceAddress, appName);
-			client.delete(appHostPath);
-		} catch (Throwable e) {
-			logger.fatal("failed to unregister service heartbeat of " + serviceAddress, e);
-		}
-
-	}
-
-	@Override
 	public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
 		try {
 			String heartBeatPath = Utils.getHeartBeatPath(serviceAddress);
 			client.set(heartBeatPath, heartBeatTimeMillis);
 		} catch (Throwable e) {
-			logger.fatal("failed to delete heartbeat", e);
+			logger.fatal("failed to update heartbeat", e);
 		}
 	}
 
@@ -430,6 +411,101 @@ public class CuratorRegistry implements Registry {
 			client.delete(heartBeatPath);
 		} catch (Throwable e) {
 			logger.fatal("failed to delete heartbeat", e);
+		}
+	}
+
+	@Override
+	public boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
+		try {
+			String protocolPath = Utils.getProtocolPath(serviceAddress);
+			String info = client.get(protocolPath);
+
+			if (info != null) {
+				Map<String, Boolean> infoMap = Utils.getProtocolInfoMap(info);
+
+				if(infoMap.containsKey(serviceName)) {
+					return infoMap.get(serviceName);
+				}
+
+			}
+
+			return false;
+
+		} catch (Throwable e) {
+			logger.error("failed to get protocol:" + serviceName
+					+ "of host:" + serviceAddress + ", caused by:" + e.getMessage());
+			throw new RegistryException(e);
+		}
+	}
+
+	@Override
+	public void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support)
+			throws RegistryException {
+		try {
+			String protocolPath = Utils.getProtocolPath(serviceAddress);
+			Stat stat = new Stat();
+			String info = client.get(protocolPath, stat);
+
+			if(info != null) {
+				Map<String, Boolean> infoMap = Utils.getProtocolInfoMap(info);
+				infoMap.put(serviceName, support);
+				client.set(protocolPath, Utils.getProtocolInfo(infoMap), stat.getVersion());
+			} else {
+				Map<String, Boolean> infoMap = ImmutableMap.of(serviceName, support);
+				client.create(protocolPath, Utils.getProtocolInfo(infoMap));
+			}
+
+		} catch (Throwable e) {
+			if (e instanceof BadVersionException || e instanceof NodeExistsException) {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException ie) {
+					//ignore
+				}
+				setSupportNewProtocol(serviceAddress, serviceName, support);
+			} else {
+				logger.error("failed to set protocol:" + serviceName
+						+ "of host:" + serviceAddress + " to:" + support
+						+ ", caused by:" + e.getMessage());
+				throw new RegistryException(e);
+			}
+
+		}
+	}
+
+	@Override
+	public void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
+		try {
+			String protocolPath = Utils.getProtocolPath(serviceAddress);
+			Stat stat = new Stat();
+			String info = client.get(protocolPath, stat);
+
+			if(info != null) {
+				Map<String, Boolean> infoMap = Utils.getProtocolInfoMap(info);
+				infoMap.remove(serviceName);
+
+				if (infoMap.size() == 0 && delEmptyNode) {
+					client.delete(protocolPath);
+				} else {
+					client.set(protocolPath, Utils.getProtocolInfo(infoMap), stat.getVersion());
+				}
+
+			}
+
+		} catch (Throwable e) {
+			if (e instanceof BadVersionException || e instanceof NodeExistsException) {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException ie) {
+					//ignore
+				}
+				unregisterSupportNewProtocol(serviceAddress, serviceName);
+			} else {
+				logger.error("failed to del protocol:" + serviceName
+						+ "of host:" + serviceAddress + ", caused by:" + e.getMessage());
+				throw new RegistryException(e);
+			}
+
 		}
 	}
 }

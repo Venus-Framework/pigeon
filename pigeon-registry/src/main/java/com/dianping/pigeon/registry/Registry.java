@@ -31,7 +31,7 @@ public interface Registry {
 
 	void setServerWeight(String serverAddress, int weight) throws RegistryException;
 
-	String getServerApp(String serverAddress);
+	String getServerApp(String serverAddress) throws RegistryException;
 
 	void setServerApp(String serverAddress, String app);
 
@@ -39,7 +39,7 @@ public interface Registry {
 
 	void setServerVersion(String serverAddress, String version);
 
-	String getServerVersion(String serverAddress);
+	String getServerVersion(String serverAddress) throws RegistryException;
 
 	void unregisterServerVersion(String serverAddress);
 
@@ -49,11 +49,13 @@ public interface Registry {
 
 	void delServerService(String serviceName, String group) throws RegistryException;
 
-	void registerAppHostList(String serviceAddress, String appName, Integer consolePort);
-
-	void unregisterAppHostList(String serviceAddress, String appName);
-
 	void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis);
 
 	void deleteHeartBeat(String serviceAddress);
+
+	boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException;
+
+	void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException;
+
+	void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException;
 }

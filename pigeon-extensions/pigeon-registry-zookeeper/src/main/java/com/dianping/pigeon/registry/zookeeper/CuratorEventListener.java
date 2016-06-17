@@ -1,7 +1,9 @@
 package com.dianping.pigeon.registry.zookeeper;
 
 import java.util.List;
+import java.util.Map;
 
+import com.dianping.pigeon.registry.RegistryManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CuratorEvent;
@@ -27,6 +29,7 @@ public class CuratorEventListener implements CuratorListener {
 	private static final int WEIGHT = 2;
 	private static final int APP = 3;
 	private static final int VERSION = 4;
+	private static final int PROTOCOL = 5;
 
 	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
@@ -66,6 +69,8 @@ public class CuratorEventListener implements CuratorListener {
 				appChanged(pathInfo);
 			} else if (pathInfo.type == VERSION) {
 				versionChanged(pathInfo);
+			} else if (pathInfo.type == PROTOCOL) {
+				protocolChanged(pathInfo);
 			}
 		} catch (Throwable e) {
 			logger.error("Error in ZookeeperWatcher.process()", e);
@@ -103,7 +108,8 @@ public class CuratorEventListener implements CuratorListener {
 			return true;
 		if (StringUtils.isEmpty(currentGroup) && !StringUtils.isEmpty(pathInfo.group))
 			return false;
-		if (!StringUtils.isEmpty(currentGroup) && StringUtils.isEmpty(pathInfo.group)) {
+		if (!StringUtils.isEmpty(currentGroup) && StringUtils.isEmpty(pathInfo.group)
+				&& RegistryManager.fallbackDefaultGroup) {
 			String servicePath = Utils.getServicePath(pathInfo.serviceName, currentGroup);
 			if (!client.exists(servicePath)) {
 				return true;
@@ -150,6 +156,18 @@ public class CuratorEventListener implements CuratorListener {
 		}
 	}
 
+	private void protocolChanged(PathInfo pathInfo) throws Exception {
+		try {
+			String info = client.get(pathInfo.path);
+			Map<String, Boolean> infoMap = Utils.getProtocolInfoMap(info);
+			logger.info("protocol changed, path " + pathInfo.path + " value " + info);
+			RegistryEventListener.serverProtocolChanged(pathInfo.server, infoMap);
+			client.watch(pathInfo.path);
+		} catch (Throwable e) {
+			throw new RegistryException(e);
+		}
+	}
+
 	public PathInfo parsePath(String path) {
 		if (path == null)
 			return null;
@@ -178,7 +196,12 @@ public class CuratorEventListener implements CuratorListener {
 			pathInfo = new PathInfo(path);
 			pathInfo.type = VERSION;
 			pathInfo.server = path.substring(Constants.VERSION_PATH.length() + 1);
+		} else if (path.startsWith(Constants.PROTOCOL_PATH)) {
+			pathInfo = new PathInfo(path);
+			pathInfo.type = PROTOCOL;
+			pathInfo.server = path.substring(Constants.PROTOCOL_PATH.length() + 1);
 		}
+
 		return pathInfo;
 	}
 

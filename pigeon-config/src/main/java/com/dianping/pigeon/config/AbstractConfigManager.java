@@ -121,7 +121,9 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		String strValue = null;
 		if (localCache.containsKey(key)) {
 			Object value = localCache.get(key);
-			if (value.getClass() == type) {
+			if (value == null) {
+				//nothing
+			} else if (value.getClass() == type) {
 				return (T) value;
 			} else {
 				strValue = value + "";
@@ -173,7 +175,9 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		String strValue = null;
 		if (localCache.containsKey(key)) {
 			Object value = localCache.get(key);
-			if (value.getClass() == type) {
+			if (value == null) {
+				//nothing
+			} else if (value.getClass() == type) {
 				return (T) value;
 			} else {
 				strValue = value + "";

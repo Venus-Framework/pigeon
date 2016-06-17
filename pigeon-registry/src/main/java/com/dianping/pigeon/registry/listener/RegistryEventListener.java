@@ -6,6 +6,7 @@ package com.dianping.pigeon.registry.listener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
@@ -90,5 +91,12 @@ public class RegistryEventListener {
 	public static void serverInfoChanged(String serviceName, String serverAddress) {
 		RegistryManager.getInstance().getReferencedApp(serverAddress);
 		RegistryManager.getInstance().getReferencedVersion(serverAddress);
+		RegistryManager.getInstance().getReferencedProtocol(serverAddress, serviceName);
+	}
+
+	public static void serverProtocolChanged(String serverAddress, Map<String, Boolean> protocolInfoMap) {
+		for (ServerInfoListener listener : serverInfoListeners) {
+			listener.onServerProtocolChange(serverAddress, protocolInfoMap);
+		}
 	}
 }

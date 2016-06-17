@@ -17,7 +17,16 @@ import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 @Service
 public class RegistrationInfoServiceDefaultImpl implements RegistrationInfoService {
 
-	private static Registry registry = RegistryManager.getInstance().getRegistry();
+	private static Registry registry = null;
+
+	static {
+		for (Registry _registry : RegistryManager.getInstance().getRegistryList()) {
+			if(registry instanceof CuratorRegistry) {
+				registry = _registry;
+				break;
+			}
+		}
+	}
 
 	@Override
 	public String getAppOfService(String url, String group) throws RegistryException {

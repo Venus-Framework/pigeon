@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.dianping.pigeon.registry.Registry;
+import com.dianping.pigeon.registry.util.Constants;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -164,10 +166,19 @@ public class ServiceServlet extends HttpServlet {
 		page.setEnvironment(configManager.getEnv());
 		page.setGroup(configManager.getGroup());
 		page.setServiceWeights(ServicePublisher.getServerWeight());
-		page.setRegistry(RegistryManager.getInstance().getRegistry().getStatistics());
+
+		for (Registry registry : RegistryManager.getInstance().getRegistryList()) {
+			if (Constants.REGISTRY_CURATOR_NAME.equals(registry.getName())) {
+				page.setRegistry(registry.getStatistics());
+				break;
+			}
+		}
+
 		page.setAppName(configManager.getAppName());
 		page.setStartTime(ProviderBootStrap.getStartTime() + "");
 		page.setValidate("" + isValidate);
+		page.setGovernorUrl(configManager.getStringValue("pigeon.governor.address")
+				+ "/services/" + configManager.getAppName());
 		this.model = page;
 		return true;
 	}

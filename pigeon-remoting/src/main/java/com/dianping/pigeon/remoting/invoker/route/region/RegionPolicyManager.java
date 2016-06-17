@@ -6,6 +6,7 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -29,14 +30,25 @@ public enum RegionPolicyManager {
 
     private RegionPolicyManager () {}
 
+    private static volatile boolean isInitialized = false;
+
     public void init() {
-        register(AutoSwitchRegionPolicy.NAME, null, AutoSwitchRegionPolicy.INSTANCE);
-        register(WeightBasedRegionPolicy.NAME, null, WeightBasedRegionPolicy.INSTANCE);
-        configManager.registerConfigChangeListener(new InnerConfigChangeListener());
-        if(enableRegionPolicy) {
-            initRegionsConfig();
-        } else {
-            logger.warn("Region route policy switch off!");
+        if (!isInitialized) {
+           synchronized (RegionPolicyManager.class) {
+               if (!isInitialized) {
+                   register(AutoSwitchRegionPolicy.NAME, null, AutoSwitchRegionPolicy.INSTANCE);
+                   register(WeightBasedRegionPolicy.NAME, null, WeightBasedRegionPolicy.INSTANCE);
+
+                   if(configManager.getBooleanValue(KEY_ENABLEREGIONPOLICY, DEFAULT_ENABLEREGIONPOLICY)) {
+                       initRegionsConfig();
+                   } else {
+                       logger.warn("Region policy is disabled!");
+                   }
+
+                   configManager.registerConfigChangeListener(new InnerConfigChangeListener());
+                   isInitialized = true;
+               }
+           }
         }
     }
 
@@ -47,13 +59,18 @@ public enum RegionPolicyManager {
     private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
     // 自动切换region的开关
-    private volatile boolean enableRegionPolicy = configManager.getBooleanValue("pigeon.regions.enable", false);
-    private volatile boolean isInit = false;
+    public final String KEY_ENABLEREGIONPOLICY = "pigeon.regions.route.enable";
+    public final boolean DEFAULT_ENABLEREGIONPOLICY = false;
+    public final String KEY_REGIONINFO = "pigeon.regions";
+    public final String KEY_REGION_PREFER_BASE = "pigeon.regions.prefer.";
+    private volatile boolean isEnabled = false;
 
     // example: 10.66 --> region1
     private Map<String, Region> patternRegionMappings = new HashMap<String, Region>();
 
-    private List<Region> regionArray;
+    private volatile List<Region> regionArray;
+
+    private volatile Region localRegion;
 
     public final String DEFAULT_REGIONPOLICY = configManager.getStringValue(
             Constants.KEY_REGIONPOLICY, AutoSwitchRegionPolicy.NAME);
@@ -67,20 +84,17 @@ public enum RegionPolicyManager {
         }
     }
 
-    public List<Client> getPreferRegionClients(List<Client> clientList, InvokerConfig<?> invokerConfig) {
-        if(!isEnableRegionPolicy()) {// region策略开关关闭时不处理
-            return clientList;
-        }
-
+    public List<Client> getPreferRegionClients(List<Client> clientList, InvokerConfig<?> invokerConfig,
+                                               InvocationRequest request) {
         RegionPolicy regionPolicy = getRegionPolicy(invokerConfig);
 
         if(regionPolicy == null) {
             regionPolicy = AutoSwitchRegionPolicy.INSTANCE;
         }
 
-        clientList = regionPolicy.getPreferRegionClients(clientList, invokerConfig);
+        clientList = regionPolicy.getPreferRegionClients(clientList, request);
         checkClientsNotNull(clientList, invokerConfig);
-        monitor.logEvent("PigeonCall.region", clientList.get(0).getRegion().getName(), "");
+        monitor.logEvent("PigeonCall.region", request.getServiceName() + "#" + clientList.get(0).getRegion().getName(), "");
 
         return clientList;
     }
@@ -151,21 +165,28 @@ public enum RegionPolicyManager {
 
         @Override
         public void onKeyUpdated(String key, String value) {
-            if (key.endsWith("pigeon.regions.enable")) {
-                boolean _enableRegionPolicy = Boolean.valueOf(value);
 
-                if(enableRegionPolicy != _enableRegionPolicy) { // region路由开关改变
-                    enableRegionPolicy = _enableRegionPolicy;
-                    if(enableRegionPolicy) { // region路由开,重新读取配置
-                        // 清空allClient region信息
-                        clearRegion();
-                        initRegionsConfig();
-                    } else { // region路由关
-                        isInit = false;
-                        logger.warn("Region auto switch off!");
-                    }
+            if (key.endsWith(KEY_ENABLEREGIONPOLICY)) {
+
+                if(Boolean.valueOf(value)) { // region路由开,重新读取配置
+                    // 清空allClient region信息
+                    initRegionsConfig();
+
+                } else { // region路由关
+                    isEnabled = false;
+                    logger.warn("Region policy is disabled!");
                 }
+
+            } else if(isEnabled && key.endsWith(KEY_REGIONINFO)) {
+
+                initRegionsConfig(value);
+
+            } else if(isEnabled && localRegion != null && key.endsWith(KEY_REGION_PREFER_BASE + localRegion.getName())) {
+
+                initRegionsConfig(configManager.getStringValue(KEY_REGIONINFO), value);
+
             }
+
         }
 
         @Override
@@ -190,21 +211,25 @@ public enum RegionPolicyManager {
     }
 
     public boolean isEnableRegionPolicy() {
-        return enableRegionPolicy && isInit;
+        return configManager.getBooleanValue(KEY_ENABLEREGIONPOLICY, DEFAULT_ENABLEREGIONPOLICY) && isEnabled;
     }
 
-    private synchronized void initRegionsConfig() {
-        if(isInit) {return;}
+    private void initRegionsConfig() {
+        initRegionsConfig(configManager.getStringValue(KEY_REGIONINFO));
+    }
+
+    private void initRegionsConfig(String pigeonRegionsConfig) {
+        initRegionsConfig(pigeonRegionsConfig, null);
+    }
+
+    private synchronized void initRegionsConfig(String pigeonRegionsConfig, String regionsPreferConfig) {
         try {
-            // 处理pigeon.regions配置
-            String pigeonRegionsConfig = configManager.getStringValue("pigeon.regions");
             String[] regionConfigs = pigeonRegionsConfig.split(";");
 
             int regionCount = regionConfigs.length;
 
             if(regionCount <= 0) {
-                logger.error("Error! Set [enableRegionPolicy] to false! Please check regions config!");
-                enableRegionPolicy = false;
+                logger.error("Error! Please check regions config!");
                 return ;
             }
 
@@ -227,31 +252,34 @@ public enum RegionPolicyManager {
             if(patternRegionNameMappings.containsKey(localRegionPattern)) {
                 String localRegionName = patternRegionNameMappings.get(localRegionPattern);
                 // 权重处理
-                List<Region> regions = initRegionsWithPriority(localRegionName);
+                if (StringUtils.isBlank(regionsPreferConfig)) {
+                    regionsPreferConfig = configManager.getStringValue(KEY_REGION_PREFER_BASE + localRegionName);
+                }
+                List<Region> regions = initRegionsWithPriority(regionsPreferConfig);
                 if(regionSet.size() == regions.size()) {
                     for(Region region : regions) {
                         if(!regionSet.contains(region.getName())) {
-                            logger.error("Error! Set [enableRegionPolicy] to false! regions prefer not match regions config: " + region.getName());
-                            enableRegionPolicy = false;
+                            logger.error("Error! Regions prefer not match regions config: " + region.getName());
                             return;
                         }
                     }
-                    regionArray = Collections.unmodifiableList(regions);
-                    // 初始化pattern region映射
-                    initPatterRegionMappings(patternRegionNameMappings);
-                    isInit = true;
+
+                    //(re)init
+                    regionArray = Collections.unmodifiableList(regions);// 下面的步骤都基于regionArray
+                    initPatterRegionMappings(patternRegionNameMappings);// 初始化pattern region映射
+                    localRegion = getRegionByName(localRegionName);
+                    clearRegion();
+                    isEnabled = true;
                     logger.warn("Region route policy switch on! Local region is: " + regionArray.get(0));
+
                 } else {
-                    logger.error("Error! Set [enableRegionPolicy] to false! regions prefer counts not match regions config!");
-                    enableRegionPolicy = false;
+                    logger.error("Error! Regions prefer counts not match regions config!");
                 }
             } else {
-                logger.error("Error! Set [enableRegionPolicy] to false! Can't init local region: " + configManager.getLocalIp());
-                enableRegionPolicy = false;
+                logger.error("Error! Can't init local region: " + configManager.getLocalIp());
             }
         } catch (Throwable t) {
-            logger.error("Error! Set [enableRegionPolicy] to false!", t);
-            enableRegionPolicy = false;
+            logger.error("Error! Init region policy failed!", t);
         }
     }
 
@@ -266,10 +294,9 @@ public enum RegionPolicyManager {
         }
     }
 
-    private List<Region> initRegionsWithPriority(String localRegionName) {
-        String regionsPrefer = configManager.getStringValue("pigeon.regions.prefer." + localRegionName);
-        if(StringUtils.isNotBlank(regionsPrefer)) {
-            String[] regionNameAndWeights = regionsPrefer.split(",");
+    private List<Region> initRegionsWithPriority(String regionsPreferConfig) {
+        if(StringUtils.isNotBlank(regionsPreferConfig)) {
+            String[] regionNameAndWeights = regionsPreferConfig.split(",");
             List<Region> regions = new ArrayList<Region>(regionNameAndWeights.length);
             for(int i = 0; i < regionNameAndWeights.length; ++i) {
                 String[] _regionNameAndWeight = regionNameAndWeights[i].split(":");
@@ -306,4 +333,7 @@ public enum RegionPolicyManager {
         return regionArray;
     }
 
+    public Region getLocalRegion() {
+        return localRegion;
+    }
 }

@@ -19,7 +19,7 @@ public final class Constants {
 	public static final String VERSION_PATH = "/DP/VERSION";
 	public static final String TOKEN_PATH = "/DP/TOKEN";
 	public static final String HEARTBEAT_PATH = "/DP/HEARTBEAT";
-	public static final String APPNAME_PATH = "/DP/APPNAME";
+	public static final String PROTOCOL_PATH = "/DP/PROTOCOL";
 	public static final String PATH_SEPARATOR = "/";
 	public static final String PLACEHOLDER = "^";
 
@@ -38,6 +38,8 @@ public final class Constants {
 	public static final String REGISTRY_TYPE_ZOOKEEPER = "zookeeper";
 	public static final String REGISTRY_TYPE_LOCAL = "local";
 	public static final String DEFAULT_REGISTRY_TYPE = REGISTRY_TYPE_ZOOKEEPER;
+	public static final String REGISTRY_MNS_NAME = "mns";
+	public static final String REGISTRY_CURATOR_NAME = "curator";
 
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 

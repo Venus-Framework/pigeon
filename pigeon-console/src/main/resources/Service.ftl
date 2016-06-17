@@ -51,9 +51,9 @@
 						pdata.url = treeNode.data_url;
 						pdata.method = treeNode.data_method;
 						pdata.parameterTypes = treeNode.data_parameterTypes.split(',');
-						<#if direct??>
+
 						$.ajax({
-							url:"/invoke.json?validate=true&direct=${direct}&token=" + $("#token").val(),
+							url:"./invoke.json?validate=true&direct=${direct!"true"}&token=" + $("#token").val(),
 							data: pdata,
 							success: function(m){
 								result.text(JSON.stringify(m)).show();
@@ -62,18 +62,7 @@
 								result.text(JSON.stringify(m)).show();
 							}
 						});
-						<#else>
-						$.ajax({
-							url:"/invoke.json?validate=true&direct=true&token=" + $("#token").val(),
-							data: pdata,
-							success: function(m){
-								result.text(JSON.stringify(m)).show();
-							},
-							error: function(m){
-								result.text(JSON.stringify(m)).show();
-							}
-						});
-						</#if>
+
 					});
 					if('${validate}'=='true'){
 						$("#invokeBtn").easyconfirm({locale: {
@@ -109,6 +98,12 @@
 	</SCRIPT>
 </head>
 <body style="font-size:62.5%;padding-top:10px;padding-left:10px;">
+	<div class="row">
+		<div class="span12">
+            管理门户: <a href="${governorUrl}">${governorUrl}</a>
+		</div>
+	</div>
+
 	<div class="row">
 	  <div class="span8"  style="overflow:hidden">
 		<div>
