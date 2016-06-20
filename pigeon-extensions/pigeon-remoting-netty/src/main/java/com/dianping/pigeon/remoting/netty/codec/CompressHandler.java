@@ -59,11 +59,6 @@ public class CompressHandler extends SimpleChannelHandler {
         int totalLength = frame.getInt(frame.readerIndex() + CodecConstants._HEAD_LENGTH);
         int compressLength = totalLength - CodecConstants._HEAD_FIELD_LENGTH;
 
-        boolean isChecksum = (command & 0x80) == 0x80;
-
-        compressLength = isChecksum ? compressLength - CodecConstants._TAIL_LENGTH
-                : compressLength;
-
         byte[] in;
         byte[] out = null;
         ChannelBuffer result;
@@ -88,7 +83,6 @@ public class CompressHandler extends SimpleChannelHandler {
         }
 
         int _totalLength = CodecConstants._HEAD_FIELD_LENGTH + out.length;
-        _totalLength = isChecksum ? _totalLength + CodecConstants._TAIL_LENGTH : totalLength;
 
         result = channel.getConfig().getBufferFactory().getBuffer(
                 _totalLength + CodecConstants._FRONT_LENGTH_);
@@ -96,8 +90,6 @@ public class CompressHandler extends SimpleChannelHandler {
         result.writeBytes(frame, frame.readerIndex(), CodecConstants._HEAD_LENGTH);
         result.writeBytes(frame, _totalLength);
         result.writeBytes(out);
-        result.writeBytes(frame, frame.readerIndex() + totalLength +
-                CodecConstants._FRONT_LENGTH_ - CodecConstants._TAIL_LENGTH);
 
         return result;
     }

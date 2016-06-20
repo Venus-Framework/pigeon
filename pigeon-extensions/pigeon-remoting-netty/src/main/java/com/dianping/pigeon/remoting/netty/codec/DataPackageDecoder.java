@@ -26,12 +26,12 @@ public class DataPackageDecoder extends FrameDecoder {
 
             if ((0x39 == headMsgs[0] && 0x3A == headMsgs[1])) {
                 //old protocal
-                message = decode0(buffer);
+                message = doDecode(buffer);
 
             } else if ((byte) 0xAB == headMsgs[0]
                     && (byte) 0xBA == headMsgs[1]) {
                 //new protocal
-                message = _decode0(buffer);
+                message = _doDecode(buffer);
 
             } else {
                 throw new IllegalArgumentException("Decode invalid message head:" +
@@ -42,7 +42,7 @@ public class DataPackageDecoder extends FrameDecoder {
         return message;
     }
 
-    protected Object decode0(ChannelBuffer buffer)
+    protected Object doDecode(ChannelBuffer buffer)
             throws Exception {
 
         DataPackage dataPackage = null;
@@ -67,7 +67,7 @@ public class DataPackageDecoder extends FrameDecoder {
         return dataPackage;
     }
 
-    protected Object _decode0(ChannelBuffer buffer)
+    protected Object _doDecode(ChannelBuffer buffer)
             throws Exception {
         DataPackage dataPackage = null;
 
