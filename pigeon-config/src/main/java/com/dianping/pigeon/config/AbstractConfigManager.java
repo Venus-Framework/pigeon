@@ -21,7 +21,7 @@ import com.dianping.pigeon.util.NetUtils;
 /**
  * @author xiangwu
  * @Sep 22, 2013
- * 
+ *
  */
 public abstract class AbstractConfigManager implements ConfigManager {
 
@@ -126,7 +126,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			if (value == NULL) {
 				return null;
 			}
-			} else if (value.getClass() == type) {
+			if (value.getClass() == type) {
 				return (T) value;
 			} else {
 				strValue = value + "";
@@ -177,7 +177,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			if (value == NULL) {
 				return null;
 			}
-			} else if (value.getClass() == type) {
+			if (value.getClass() == type) {
 				return (T) value;
 			} else {
 				strValue = value + "";
