@@ -65,7 +65,6 @@ public class CatMonitorTransaction implements MonitorTransaction {
 	public void complete(long startTime) {
 		if (this.transaction != null) {
 			long now = System.currentTimeMillis();
-			this.invocationContext.getTimeline().add(new TimePoint(TimePhase.E, now));
 			List<TimePoint> timeline = this.invocationContext.getTimeline();
 			StringBuilder s = new StringBuilder();
 			s.append(timeline.get(0));

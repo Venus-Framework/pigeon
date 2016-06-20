@@ -22,6 +22,11 @@ import org.apache.logging.log4j.Logger;
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLoader;
+import com.dianping.pigeon.monitor.MonitorTransaction;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.RejectedException;
@@ -32,6 +37,7 @@ import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.AbstractRequestProcessor;
 import com.dianping.pigeon.remoting.provider.process.ProviderProcessHandlerFactory;
+import com.dianping.pigeon.remoting.provider.process.filter.GatewayProcessFilter;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethodCache;
 import com.dianping.pigeon.remoting.provider.service.method.ServiceMethodFactory;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
@@ -86,6 +92,8 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 	private static boolean enableSlowPool = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.provider.pool.slow.enable", true);
 
+	private static final Monitor monitor = MonitorLoader.getMonitor();
+
 	public RequestThreadPoolProcessor(ServerConfig serverConfig) {
 		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());
 		if ("server".equals(poolStrategy)) {
@@ -110,6 +118,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 			@Override
 			public InvocationResponse call() throws Exception {
+				providerContext.getTimeline().add(new TimePoint(TimePhase.T));
 				try {
 					ServiceInvocationHandler invocationHandler = ProviderProcessHandlerFactory
 							.selectInvocationHandler(providerContext.getRequest().getMessageType());
@@ -125,14 +134,27 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 				return null;
 			}
 		};
-
-		ThreadPool pool = selectThreadPool(request);
+		final ThreadPool pool = selectThreadPool(request);
+		// MonitorTransaction transaction =
+		// monitor.createTransaction("PigeonRequestSubmit", "",
+		// providerContext);
+		// transaction.setStatusOk();
 		try {
+			checkRequest(pool, request);
+			providerContext.getTimeline().add(new TimePoint(TimePhase.T));
 			return pool.submit(requestExecutor);
 		} catch (RejectedExecutionException e) {
+			// transaction.setStatusError(e);
 			requestContextMap.remove(request);
 			throw new RejectedException(getProcessorStatistics(request), e);
 		}
+		// finally {
+		// transaction.complete();
+		// }
+	}
+
+	private void checkRequest(final ThreadPool pool, final InvocationRequest request) {
+		GatewayProcessFilter.checkRequest(request);
 	}
 
 	private ThreadPool selectThreadPool(final InvocationRequest request) {
@@ -178,6 +200,7 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 						.append("]");
 			}
 		}
+		stats.append(GatewayProcessFilter.getStatistics());
 		return stats.toString();
 	}
 
@@ -187,6 +210,10 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 	@Override
 	public synchronized <T> void addService(ProviderConfig<T> providerConfig) {
+		String url = providerConfig.getUrl();
+		Map<String, ProviderMethodConfig> methodConfigs = providerConfig.getMethods();
+		ServiceMethodCache methodCache = ServiceMethodFactory.getServiceMethodCache(url);
+		Set<String> methodNames = methodCache.getMethodMap().keySet();
 		if (needStandalonePool(providerConfig)) {
 			if (methodThreadPools == null) {
 				methodThreadPools = new ConcurrentHashMap<String, ThreadPool>();
@@ -194,10 +221,6 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 			if (serviceThreadPools == null) {
 				serviceThreadPools = new ConcurrentHashMap<String, ThreadPool>();
 			}
-			String url = providerConfig.getUrl();
-			Map<String, ProviderMethodConfig> methodConfigs = providerConfig.getMethods();
-			ServiceMethodCache methodCache = ServiceMethodFactory.getServiceMethodCache(url);
-			Set<String> methodNames = methodCache.getMethodMap().keySet();
 			if (providerConfig.getActives() > 0 && CollectionUtils.isEmpty(methodConfigs)) {
 				String key = url;
 				ThreadPool pool = serviceThreadPools.get(key);

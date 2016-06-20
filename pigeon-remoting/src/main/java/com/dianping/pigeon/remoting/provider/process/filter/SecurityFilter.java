@@ -19,6 +19,8 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.exception.SecurityException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
@@ -55,7 +57,7 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 
 	public SecurityFilter() {
 		configManager.getBooleanValue(KEY_TOKEN_ENABLE, false);
-		configManager.getBooleanValue(KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE, true);
+		configManager.getBooleanValue(KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE, false);
 		configManager.getIntValue(KEY_TOKEN_TIMESTAMP_DIFF, 120);
 		configManager.getBooleanValue(KEY_ACCESS_DEFAULT, true);
 		configManager.getBooleanValue(KEY_ACCESS_IP_ENABLE, false);
@@ -205,6 +207,7 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
+		invocationContext.getTimeline().add(new TimePoint(TimePhase.A));
 		InvocationRequest request = invocationContext.getRequest();
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 			boolean isAuth = false;
@@ -212,7 +215,7 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 			if (from == null) {
 				isAuth = true;
 			}
-			if (!configManager.getBooleanValue(KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE, true)
+			if (!configManager.getBooleanValue(KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE, false)
 					&& Constants.PROTOCOL_DEFAULT.equals(invocationContext.getChannel().getProtocol())) {
 				isAuth = false;
 			}

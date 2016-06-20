@@ -11,8 +11,12 @@ public interface ServiceChangeListener {
 	void notifyServicePublished(ProviderConfig<?> providerConfig);
 
 	void notifyServiceUnpublished(ProviderConfig<?> providerConfig);
-	
+
 	void notifyServiceOnline(ProviderConfig<?> providerConfig);
-	
+
 	void notifyServiceOffline(ProviderConfig<?> providerConfig);
+
+	void notifyServiceAdded(ProviderConfig<?> providerConfig);
+
+	void notifyServiceRemoved(ProviderConfig<?> providerConfig);
 }

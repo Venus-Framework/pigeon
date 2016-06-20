@@ -176,4 +176,14 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		}
 	}
 
+	@Override
+	public void notifyServiceAdded(ProviderConfig<?> providerConfig) {
+		
+	}
+
+	@Override
+	public void notifyServiceRemoved(ProviderConfig<?> providerConfig) {
+		
+	}
+
 }

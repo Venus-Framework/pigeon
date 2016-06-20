@@ -4,43 +4,14 @@
  */
 package com.dianping.pigeon.demo.typical;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import com.dianping.dpsf.async.ServiceCallback;
-import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
-import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.demo.UserService;
 
 public class ConcurrentClient {
 
 	private static SpringContainer CLIENT_CONTAINER = new SpringContainer(
 			"classpath*:META-INF/spring/typical/invoker.xml");
-
-	static AtomicInteger counter = new AtomicInteger(0);
-	
-	static ServiceCallback callback = new ServiceCallback() {
-
-		@Override
-		public void callback(Object result) {
-			
-		}
-
-		@Override
-		public void serviceException(Exception e) {
-
-		}
-
-		@Override
-		public void frameworkException(DPSFException e) {
-
-		}
-
-	};
-
-	static EchoService echoServiceCallback = ServiceFactory.getService(EchoService.class, callback, 1000);
 
 	/**
 	 * @param args
@@ -50,25 +21,41 @@ public class ConcurrentClient {
 		CLIENT_CONTAINER.start();
 
 		final EchoService echoService = (EchoService) CLIENT_CONTAINER.getBean("echoService");
+		EchoService echoServiceWithCallback = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithCallback");
+		UserService userService = (UserService) CLIENT_CONTAINER.getBean("userService");
 
-		int threads = 70;
-
-		ExecutorService executor = Executors.newFixedThreadPool(threads);
-		for (int i = 0; i < threads; i++) {
-			executor.submit(new Runnable() {
+		for (int i = 0; i < 100; i++) {
+			// Thread.sleep(1000);
+			// InvokerHelper.setCancel(true);
+			// InvokerHelper.setDefaultResult("hello, scott");
+			Runnable r = new Runnable() {
 
 				@Override
 				public void run() {
 					while (true) {
 						try {
-							echoServiceCallback.echo("xx");
+							echoService.echo("scott");
+							// System.out.println(echoService.echo("scott"));
+							// System.out.println(echoService.echo2(2005));
+
+							// System.out.println("getUserDetailArray="
+							// +
+							// Arrays.toString(userService.getUserDetailArray(new
+							// User[] { new User("jack") }, true)));
+							// System.out.println("getUserDetailList="
+							// + userService.getUserDetailList(Arrays.asList(new
+							// User[] { new User("jack") }), true));
+							// System.out.println("getUserDetail=" +
+							// userService.getUserDetail(new User("jack")));
 						} catch (Exception e) {
-							e.printStackTrace();
 						}
 					}
 				}
-			});
-		}
-	}
 
+			};
+			new Thread(r).start();
+		}
+		System.in.read();
+		// echoServiceWithCallback.echo("echoServiceWithCallback_input");
+	}
 }

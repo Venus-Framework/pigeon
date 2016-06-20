@@ -66,7 +66,7 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
 						&& request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
 					ctx.getChannel().write(ProviderUtils.createFailResponse(request, e));
 				}
-				log.error(msg, e);
+				//log.error(msg, e);
 			}
 		}
 	}

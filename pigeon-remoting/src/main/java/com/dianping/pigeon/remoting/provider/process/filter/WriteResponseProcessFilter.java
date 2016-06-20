@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -28,15 +30,14 @@ public class WriteResponseProcessFilter implements ServiceInvocationFilter<Provi
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
-		if (logger.isDebugEnabled()) {
-			logger.debug("invoke the WriteResponseProcessFilter, invocationContext:" + invocationContext);
-		}
 		try {
 			ProviderChannel channel = invocationContext.getChannel();
 			InvocationRequest request = invocationContext.getRequest();
 			InvocationResponse response = handler.handle(invocationContext);
 			if (request.getCallType() == Constants.CALLTYPE_REPLY) {
+				invocationContext.getTimeline().add(new TimePoint(TimePhase.P));
 				channel.write(response);
+				invocationContext.getTimeline().add(new TimePoint(TimePhase.P));
 			}
 			if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 				List<ProviderProcessInterceptor> interceptors = ProviderProcessInterceptorFactory.getInterceptors();
