@@ -32,6 +32,8 @@ public class LoggerLoader {
 
 	public static String LOG_ROOT = System.getProperty("pigeon.log.dir", "/data/applogs/pigeon");
 
+	public static final String KEY_LOG_DEBUG_ENABLE = "pigeon.log.debug.enable";
+
 	static {
 		init();
 	}

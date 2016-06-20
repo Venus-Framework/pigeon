@@ -86,7 +86,9 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
                             return filterClients;
                         }
                     } else {
-                        logger.info("b: " + sizeBefore + ", a:" + regionClientList.size());
+                        if (configManager.getBooleanValue(LoggerLoader.KEY_LOG_DEBUG_ENABLE, false)) {
+                            logger.info("b: " + sizeBefore + ", a:" + regionClientList.size());
+                        }
                         return regionClientList;
                     }
                 } else {
