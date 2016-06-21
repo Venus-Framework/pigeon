@@ -27,30 +27,10 @@ public class Crc32Handler extends SimpleChannelHandler {
 
         DataPackage dataPackage = (DataPackage) e.getMessage();
 
-        if (!dataPackage.isUnified()) {
-            ctx.sendUpstream(e);
-            return;
-        }
+        if (dataPackage.isUnified()) {
 
-        ChannelBuffer frame = dataPackage.getFrameBuffer();
-
-        byte command = frame.getByte(frame.readerIndex() +
-                CodecConstants._FRONT_COMMAND_LENGTH);
-
-        if ((command & 0x80) == 0x80) {
-            int totalLength = frame.readableBytes();
-
-            ChannelBuffer buffer = frame.factory().getBuffer(totalLength);
-            buffer.writeBytes(frame, frame.readerIndex(), totalLength);
-
-            dataPackage.setIsChecksum(true);
-
-            if (checksum(frame, totalLength)) {
-                dataPackage.setFrameBuffer(buffer);
+            if (doChecksum(e.getChannel(), dataPackage)) {
                 Channels.fireMessageReceived(e.getChannel(), dataPackage, e.getRemoteAddress());
-            } else {
-                String host = ((InetSocketAddress) e.getRemoteAddress()).getAddress().getHostAddress();
-                logger.error("Checksum failed. data from host:" + host);
             }
 
         } else {
@@ -65,7 +45,7 @@ public class Crc32Handler extends SimpleChannelHandler {
         super.handleDownstream(ctx, e);
     }
 
-    private ChannelBuffer doChecksum(Channel channel, DataPackage dataPackage) {
+    private boolean doChecksum(Channel channel, DataPackage dataPackage) {
 
         ChannelBuffer frame = dataPackage.getFrameBuffer();
 
@@ -73,40 +53,35 @@ public class Crc32Handler extends SimpleChannelHandler {
                 CodecConstants._FRONT_COMMAND_LENGTH);
 
         if ((command & 0x80) == 0x80) {
-            int totalLength = frame.readableBytes();
+            int frameLength = frame.readableBytes();
 
-            ChannelBuffer buffer = frame.factory().getBuffer(totalLength);
-            buffer.writeBytes(frame, frame.readerIndex(), totalLength);
+            int dataLength = frameLength - CodecConstants._TAIL_LENGTH;
+            ChannelBuffer buffer = frame.factory().getBuffer(dataLength);
+            buffer.writeBytes(frame, frame.readerIndex(), dataLength);
 
             dataPackage.setIsChecksum(true);
 
-            if (checksum(frame, totalLength)) {
+            Adler32 adler32 = adler32s.get();
+            if (adler32 == null) {
+                adler32 = new Adler32();
+                adler32s.set(adler32);
+            }
+            adler32.reset();
+            adler32.update(buffer.array(), 0, dataLength);
+
+            int checksum = (int) adler32.getValue();
+            int _checksum = frame.getInt(dataLength);
+
+            if (checksum == _checksum) {
+                int totalLength = buffer.getByte(CodecConstants._HEAD_LENGTH);
+                buffer.setInt(CodecConstants._HEAD_LENGTH, totalLength - CodecConstants._TAIL_LENGTH);
+
                 dataPackage.setFrameBuffer(buffer);
             } else {
                 String host = ((InetSocketAddress) channel.getRemoteAddress()).getAddress().getHostAddress();
                 logger.error("Checksum failed. data from host:" + host);
+                return false;
             }
-            return buffer;
-        } else {
-            return frame;
-        }
-    }
-
-    private boolean checksum(ChannelBuffer frame, int totalLength) {
-        int dataLength = totalLength - CodecConstants._TAIL_LENGTH;
-        Adler32 adler32 = adler32s.get();
-        if (adler32 == null) {
-            adler32 = new Adler32();
-            adler32s.set(adler32);
-        }
-        adler32.reset();
-        adler32.update(frame.array(), 0, dataLength);
-
-        int checksum = (int) adler32.getValue();
-        int _checksum = frame.getInt(dataLength);
-
-        if (checksum != _checksum) {
-            return false;
         }
         return true;
     }
