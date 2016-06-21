@@ -29,7 +29,7 @@ public class Crc32Handler extends SimpleChannelHandler {
 
         if (dataPackage.isUnified()) {
 
-            if (doChecksum(e.getChannel(), dataPackage)) {
+            if (doUnChecksum(e.getChannel(), dataPackage)) {
                 Channels.fireMessageReceived(e.getChannel(), dataPackage, e.getRemoteAddress());
             }
 
@@ -42,10 +42,24 @@ public class Crc32Handler extends SimpleChannelHandler {
 
     @Override
     public void handleDownstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
-        super.handleDownstream(ctx, e);
+        if (!(e instanceof MessageEvent)) {
+            return;
+        }
+
+        MessageEvent evt = (MessageEvent) e;
+        if (evt.getMessage() instanceof DataPackage) {
+            return;
+        }
+
+        DataPackage dataPackage = (DataPackage) evt;
+        if (dataPackage.isUnified()) {
+            Channels.write(evt.getChannel(), dataPackage, evt.getRemoteAddress());
+        } else {
+            ctx.sendDownstream(e);
+        }
     }
 
-    private boolean doChecksum(Channel channel, DataPackage dataPackage) {
+    private boolean doUnChecksum(Channel channel, DataPackage dataPackage) {
 
         ChannelBuffer frame = dataPackage.getFrameBuffer();
 
@@ -86,4 +100,7 @@ public class Crc32Handler extends SimpleChannelHandler {
         return true;
     }
 
+    private boolean doChecksum(Channel channel, DataPackage dataPackage) {
+        return true;
+    }
 }

@@ -11,8 +11,9 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 public class DataPackageEncoder extends OneToOneEncoder {
 
     @Override
-    protected Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
-        return null;
+    protected Object encode(ChannelHandlerContext ctx, Channel channel, Object msg)
+            throws Exception {
+        return msg;
     }
 
 }

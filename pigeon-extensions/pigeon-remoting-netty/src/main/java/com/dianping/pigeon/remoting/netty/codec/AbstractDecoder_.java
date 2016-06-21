@@ -41,7 +41,7 @@ public abstract class AbstractDecoder_ extends FrameDecoder implements Decoder_ 
 
     @Override
     public Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer)
-            throws IOException {
+            throws Exception {
 
         Object message = null;
         List<Object> messages = null;

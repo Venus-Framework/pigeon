@@ -30,7 +30,7 @@ public class CompressHandler extends SimpleChannelHandler {
 
         if (dataPackage.isUnified()) {
 
-            ChannelBuffer buffer = doCompress(e.getChannel(), dataPackage);
+            ChannelBuffer buffer = doUnCompress(e.getChannel(), dataPackage);
             dataPackage.setFrameBuffer(buffer);
 
             Channels.fireMessageReceived(e.getChannel(), dataPackage, e.getRemoteAddress());
@@ -41,10 +41,24 @@ public class CompressHandler extends SimpleChannelHandler {
 
     @Override
     public void handleDownstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
-        super.handleDownstream(ctx, e);
+        if (!(e instanceof MessageEvent)) {
+            return;
+        }
+
+        MessageEvent evt = (MessageEvent) e;
+        if (evt.getMessage() instanceof DataPackage) {
+            return;
+        }
+
+        DataPackage dataPackage = (DataPackage) evt;
+        if (dataPackage.isUnified()) {
+            Channels.write(evt.getChannel(), dataPackage, evt.getRemoteAddress());
+        } else {
+            ctx.sendDownstream(e);
+        }
     }
 
-    private ChannelBuffer doCompress(Channel channel, DataPackage dataPackage)
+    private ChannelBuffer doUnCompress(Channel channel, DataPackage dataPackage)
             throws IOException {
         ChannelBuffer frame = dataPackage.getFrameBuffer();
 
@@ -94,5 +108,9 @@ public class CompressHandler extends SimpleChannelHandler {
         return result;
     }
 
-
+    private ChannelBuffer doCompress(Channel channel, DataPackage dataPackage)
+            throws IOException {
+        ChannelBuffer frame = dataPackage.getFrameBuffer();
+        return null;
+    }
 }

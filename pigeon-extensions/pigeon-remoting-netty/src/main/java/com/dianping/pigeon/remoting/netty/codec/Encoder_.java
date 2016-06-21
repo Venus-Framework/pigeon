@@ -12,6 +12,6 @@ import java.io.IOException;
 public interface Encoder_ {
 
     Object encode(ChannelHandlerContext ctx, Channel channel, Object msg)
-            throws IOException;
+            throws Exception;
 
 }

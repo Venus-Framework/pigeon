@@ -44,7 +44,7 @@ public abstract class AbstractEncoder_ extends OneToOneEncoder implements Encode
     public abstract void serialize(byte serializer, OutputStream os, Object obj, Channel channel) throws IOException;
 
     @Override
-    public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws IOException {
+    public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
         if (msg instanceof InvocationSerializable) {
 
             InvocationSerializable _msg = (InvocationSerializable) msg;

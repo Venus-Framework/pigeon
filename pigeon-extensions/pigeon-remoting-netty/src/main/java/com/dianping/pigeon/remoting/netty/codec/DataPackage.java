@@ -16,6 +16,10 @@ public class DataPackage {
 
     private boolean isChecksum;
 
+    public DataPackage(){
+
+    }
+
     public DataPackage(ChannelBuffer frameBuffer, boolean isUnified) {
         this.frameBuffer = frameBuffer;
         this.isUnified = isUnified;
