@@ -70,8 +70,7 @@ public abstract class AbstractServiceProxy implements ServiceProxy {
             }
 
             try {
-                ClientManager.getInstance().registerClients(invokerConfig.getUrl(), invokerConfig.getGroup(),
-                        invokerConfig.getVip());
+                ClientManager.getInstance().registerClients(invokerConfig);
             } catch (Throwable t) {
 //				try {
 //					ClientManager.getInstance().registerClients(invokerConfig.getUrl(),

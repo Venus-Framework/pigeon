@@ -19,6 +19,9 @@ public interface Registry {
 
 	String getServiceAddress(String serviceName, String group, boolean fallbackDefaultGroup) throws RegistryException;
 
+	String getServiceAddress(String remoteAppkey, String serviceName, String group,
+							 boolean fallbackDefaultGroup) throws RegistryException;
+
 	void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException;
 
 	void unregisterService(String serviceName, String serviceAddress) throws RegistryException;
@@ -58,4 +61,6 @@ public interface Registry {
 	void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException;
 
 	void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException;
+
+
 }

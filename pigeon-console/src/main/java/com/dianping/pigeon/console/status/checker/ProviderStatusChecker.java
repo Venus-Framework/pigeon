@@ -69,8 +69,7 @@ public class ProviderStatusChecker implements StatusChecker {
 				if (!serviceInvokers.isEmpty()) {
 					for (InvokerConfig<?> invokerConfig : serviceInvokers.keySet()) {
 						if (CHECK_PROVIDER_EXIST) {
-							ClientManager.getInstance().getServiceAddress(invokerConfig.getUrl(),
-									invokerConfig.getGroup(), invokerConfig.getVip());
+							ClientManager.getInstance().getServiceAddress(invokerConfig);
 						}
 						if (CHECK_PROVIDER_AVAILABLE) {
 							Map<String, List<Client>> clientsMap = ClientManager.getInstance().getHeartTask()

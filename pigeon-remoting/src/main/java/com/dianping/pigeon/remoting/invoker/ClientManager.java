@@ -139,7 +139,12 @@ public class ClientManager {
 		this.clusterListener.destroy();
 	}
 
-	public String getServiceAddress(String serviceName, String group, String vip) {
+	public String getServiceAddress(InvokerConfig invokerConfig) {
+		String remoteAppkey = invokerConfig.getRemoteAppKey();
+		String serviceName = invokerConfig.getUrl();
+		String group = invokerConfig.getGroup();
+		String vip = invokerConfig.getVip();
+
 		String serviceAddress = null;
 		boolean useVip = false;
 		if (StringUtils.isNotBlank(vip)) {
@@ -154,35 +159,42 @@ public class ClientManager {
 		try {
 			if (useVip) {
 				serviceAddress = vip;
-			} else {
+			} else if (StringUtils.isNotBlank(remoteAppkey)) {
+				serviceAddress = RegistryManager.getInstance().getServiceAddress(remoteAppkey, serviceName, group);
+			}else {
 				serviceAddress = RegistryManager.getInstance().getServiceAddress(serviceName, group);
 			}
 		} catch (Throwable e) {
 			logger.error("cannot get service provider for service:" + serviceName, e);
-			throw new ServiceUnavailableException("cannot get service provider for service:" + serviceName + ", env:"
-					+ configManager.getEnv(), e);
+			throw new ServiceUnavailableException("cannot get service provider for service:" + serviceName
+					+ ", remoteAppkey:" + remoteAppkey + ", env:" + configManager.getEnv(), e);
 		}
 
 		if (StringUtils.isBlank(serviceAddress)) {
 			throw new ServiceUnavailableException("empty service address from registry for service:" + serviceName
-					+ ", group:" + group + ", env:" + configManager.getEnv());
+					+ ", group:" + group + ", remoteAppkey:" + remoteAppkey + ", env:" + configManager.getEnv());
 		}
 
 		if (logger.isInfoEnabled()) {
 			logger.info("selected service provider address is:" + serviceAddress + " with service:" + serviceName
-					+ ",group:" + group);
+					+ ",group:" + group + ", remoteAppkey:" + remoteAppkey);
 		}
 		serviceAddress = serviceAddress.trim();
 		return serviceAddress;
 	}
 
-	public Set<HostInfo> registerClients(String serviceName, String group, String vip) {
+	public Set<HostInfo> registerClients(InvokerConfig invokerConfig) {
+		String remoteAppkey = invokerConfig.getRemoteAppKey();
+		String serviceName = invokerConfig.getUrl();
+		String group = invokerConfig.getGroup();
+		String vip = invokerConfig.getVip();
+
 		logger.info("start to register clients for service '" + serviceName + "#" + group + "'");
 		String localHost = null;
 		if (vip != null && vip.startsWith("console:")) {
 			localHost = configManager.getLocalIp() + vip.substring(vip.indexOf(":"));
 		}
-		String serviceAddress = getServiceAddress(serviceName, group, vip);
+		String serviceAddress = getServiceAddress(invokerConfig);
 		String[] addressArray = serviceAddress.split(",");
 		Set<HostInfo> addresses = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo, Boolean>());
 		for (int i = 0; i < addressArray.length; i++) {
@@ -312,16 +324,14 @@ public class ClientManager {
 		@Override
 		public void reconnected() {
 			Set<InvokerConfig<?>> services = ServiceFactory.getAllServiceInvokers().keySet();
-			Map<String, String> serviceGroupMap = new HashMap<String, String>();
-			for (InvokerConfig<?> invokerConfig : services) {
-				serviceGroupMap.put(invokerConfig.getUrl(), invokerConfig.getGroup());
-			}
 			Map<String, Set<HostInfo>> serviceAddresses = RegistryManager.getInstance()
 					.getAllReferencedServiceAddresses();
-			logger.info("begin to sync service addresses:" + serviceGroupMap.size());
-			for (String url : serviceGroupMap.keySet()) {
+			logger.info("begin to sync service addresses:" + services.size());
+
+			for (InvokerConfig<?> invokerConfig : services) {
+				String url = invokerConfig.getUrl();
 				try {
-					Set<HostInfo> addresses = registerClients(url, serviceGroupMap.get(url), null);
+					Set<HostInfo> addresses = registerClients(invokerConfig);
 					// remove unreferenced service address
 					Set<HostInfo> currentAddresses = serviceAddresses.get(url);
 					if (currentAddresses != null && addresses != null) {
@@ -332,6 +342,7 @@ public class ClientManager {
 					logger.warn("error while trying to sync service addresses:" + url + ", caused by:" + t.getMessage());
 				}
 			}
+
 			logger.info("succeed to sync service addresses");
 		}
 

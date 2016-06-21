@@ -69,51 +69,32 @@ public class ProviderAvailableListener implements Runnable {
 				}
 
 				Set<InvokerConfig<?>> services = ServiceFactory.getAllServiceInvokers().keySet();
-				Map<String, String> serviceGroupMap = new HashMap<String, String>();
-				for (InvokerConfig<?> invokerConfig : services) {
-					String vip = "";
-					if (StringUtils.isNotBlank(invokerConfig.getVip())) {
-						vip = invokerConfig.getVip();
-					}
-					serviceGroupMap.put(invokerConfig.getUrl(), invokerConfig.getGroup() + "#" + vip);
-				}
 				long now = System.currentTimeMillis();
-				for (String url : serviceGroupMap.keySet()) {
-					String groupValue = serviceGroupMap.get(url);
-					String group = groupValue.substring(0, groupValue.lastIndexOf("#"));
-					String vip = groupValue.substring(groupValue.lastIndexOf("#") + 1);
-					if (vip != null && vip.startsWith("console:")) {
+
+				for (InvokerConfig<?> invokerConfig : services) {
+					String url = invokerConfig.getUrl();
+					String vip = invokerConfig.getVip();
+
+					if (StringUtils.isNotBlank(vip) && vip.startsWith("console:")) {
 						continue;
 					}
 
 					int available = getAvailableClients(this.getWorkingClients().get(url));
+
 					if (available < configManager.getIntValue(KEY_AVAILABLE_LEAST, 1)) {
 						logger.info("check provider available for service:" + url);
 						String error = null;
 						try {
-							ClientManager.getInstance().registerClients(url, group, vip);
+							ClientManager.getInstance().registerClients(invokerConfig);
 						} catch (Throwable e) {
 							error = e.getMessage();
 						}
-						// if (StringUtils.isNotBlank(group)) {
-						// available =
-						// getAvailableClients(this.getWorkingClients().get(url));
-						// if (available < providerAvailableLeast) {
-						// logger.info("check provider available with default group for service:"
-						// + url);
-						// try {
-						// ClientManager.getInstance().registerClients(url,
-						// Constants.DEFAULT_GROUP, vip);
-						// } catch (Throwable e) {
-						// error = e.getMessage();
-						// }
-						// }
-						// }
 						if (error != null) {
 							logger.warn("[provider-available] failed to get providers, caused by:" + error);
 						}
 					}
 				}
+
 				sleepTime = configManager.getLongValue(KEY_INTERVAL, 3000) - (System.currentTimeMillis() - now);
 
 				// close register thread pool

@@ -117,6 +117,13 @@ public class CuratorRegistry implements Registry {
 	}
 
 	@Override
+	public String getServiceAddress(String remoteAppkey, String serviceName, String group,
+									boolean fallbackDefaultGroup) throws RegistryException {
+		// mtthrift service, pigeon zk registry do nothing
+		return "";
+	}
+
+	@Override
 	public void registerService(String serviceName, String group, String serviceAddress, int weight)
 			throws RegistryException {
 		registerPersistentNode(serviceName, group, serviceAddress, weight);

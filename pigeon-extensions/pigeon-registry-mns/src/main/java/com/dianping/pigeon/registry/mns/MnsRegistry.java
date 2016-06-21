@@ -43,38 +43,7 @@ public class MnsRegistry implements Registry {
 
     @Override
     public String getServiceAddress(String serviceName) throws RegistryException {
-        String[] appkeyAndUrl = serviceName.split("#");
-        String appkey = "";
-        String url = "";
-
-        if(appkeyAndUrl.length == 2) {
-            appkey = appkeyAndUrl[0];
-            url = appkeyAndUrl[1];
-        } else if (appkeyAndUrl.length == 1) {
-            appkey = appkeyAndUrl[0];
-            url = appkey;
-        } else {
-            throw new RegistryException("Invalid serviceName: " + serviceName);
-        }
-
-        //todo 如果不做appkey和url的判空，sgService的list返回的是什么结果？先观察一下
-
-        String result = "";
-        ServiceListRequest serviceListRequest = new ServiceListRequest();
-        serviceListRequest.setRemoteAppkey(appkey);
-        serviceListRequest.setLocalAppkey(configManager.getAppName());
-        serviceListRequest.setProtocol("thrift");
-        logger.info(serviceListRequest.getRemoteAppkey());
-        List<SGService> sgServices = MnsInvoker.getServiceList(serviceListRequest);
-
-        for (SGService sgService : sgServices) {
-            logger.info(sgService.toString());
-            if(url.equals(sgService.getServiceName())) {
-                result += sgService.getIp() + ":" + sgService.getPort() +",";
-            }
-        }
-
-        return result;
+        return getServiceAddress(serviceName, serviceName, null, false);
     }
 
     @Override
@@ -88,24 +57,28 @@ public class MnsRegistry implements Registry {
     }
 
     @Override
-    public void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
-        String[] appkeyAndUrl = serviceName.split("#");
-        String appkey = "";
-        String url = "";
+    public String getServiceAddress(String remoteAppkey, String serviceName, String group, boolean fallbackDefaultGroup) throws RegistryException {
+        String result = "";
+        ServiceListRequest serviceListRequest = new ServiceListRequest();
+        serviceListRequest.setRemoteAppkey(remoteAppkey);
+        serviceListRequest.setLocalAppkey(configManager.getAppName());
+        serviceListRequest.setProtocol("thrift");
+        List<SGService> sgServices = MnsInvoker.getServiceList(serviceListRequest);
 
-        if(appkeyAndUrl.length == 2) {
-            appkey = appkeyAndUrl[0];
-            url = appkeyAndUrl[1];
-        } else if (appkeyAndUrl.length == 1) {
-            appkey = appkeyAndUrl[0];
-            url = appkey;
-        } else {
-            throw new RegistryException("Invalid serviceName: " + serviceName);
+        for (SGService sgService : sgServices) {
+            if(serviceName.equals(sgService.getServiceName())) {
+                result += sgService.getIp() + ":" + sgService.getPort() +",";
+            }
         }
 
+        return result;
+    }
+
+    @Override
+    public void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
         SGService sgService = new SGService();
-        sgService.setAppkey(appkey);
-        sgService.setServiceName(url);
+        sgService.setAppkey(serviceName);
+        sgService.setServiceName(serviceName);
         // 暂时忽略group
         sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
@@ -119,14 +92,14 @@ public class MnsRegistry implements Registry {
             throw new RegistryException("error serviceAddress: " + serviceAddress, e);
         }
 
-        sgService.setLastUpdateTime((int) (System.currentTimeMillis() / 1000));
-        sgService.setVersion("pigeon-" + VersionUtils.VERSION);
         sgService.setWeight(10);
         sgService.setFweight(10.d);
 
         //TODO 改成琦总的接口，这里有点分歧，再说，看下servicepublisher
-        sgService.setUnifiedProto(/**琦总的接口*/true);
+        //sgService.setUnifiedProto(/**琦总的接口*/false);
+        sgService.setVersion(VersionUtils.VERSION);
         sgService.setProtocol("thrift");
+        sgService.setLastUpdateTime((int) (System.currentTimeMillis() / 1000));
 
         // 下面这两个有用吗？
         sgService.setRole(0);
@@ -146,6 +119,7 @@ public class MnsRegistry implements Registry {
 
     @Override
     public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
+        //todo 设置status为禁用
         SGService sgService = new SGService();
         sgService.setAppkey(configManager.getAppName());
         sgService.setServiceName(serviceName);

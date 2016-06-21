@@ -80,6 +80,11 @@ public class MockMnsRegistry implements Registry {
     }
 
     @Override
+    public String getServiceAddress(String remoteAppkey, String serviceName, String group, boolean fallbackDefaultGroup) throws RegistryException {
+        return null;
+    }
+
+    @Override
     public void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
         SGService sgService = new SGService();
         sgService.setAppkey(configManager.getAppName());
