@@ -160,6 +160,7 @@ public class ClientManager {
 			if (useVip) {
 				serviceAddress = vip;
 			} else if (StringUtils.isNotBlank(remoteAppkey)) {
+				logger.info("appkey: " + remoteAppkey + ", url: " + serviceName);
 				serviceAddress = RegistryManager.getInstance().getServiceAddress(remoteAppkey, serviceName, group);
 			}else {
 				serviceAddress = RegistryManager.getInstance().getServiceAddress(serviceName, group);
