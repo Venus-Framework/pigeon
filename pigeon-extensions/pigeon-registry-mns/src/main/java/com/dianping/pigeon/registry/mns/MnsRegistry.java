@@ -124,7 +124,7 @@ public class MnsRegistry implements Registry {
         sgService.setWeight(10);
         sgService.setFweight(10.d);
 
-        //TODO 改成琦总的接口
+        //TODO 改成琦总的接口，这里有点分歧，再说，看下servicepublisher
         sgService.setUnifiedProto(/**琦总的接口*/true);
         sgService.setProtocol("thrift");
 

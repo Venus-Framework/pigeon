@@ -198,7 +198,7 @@ public class RegistryManager {
 
 		String addr = "";
 		for (Registry registry : registryList) { // merge registry addr
-			// Todo 两个注册中心获取到本地内存 目前采取合并地址方式
+			// 多个注册中心获取到本地内存 目前采取合并地址方式
 			addr = mergeAddress(addr,
 					registry.getServiceAddress(serviceName, group, fallbackDefaultGroup));
 		}
@@ -233,7 +233,7 @@ public class RegistryManager {
 
 		List<Integer> checkList = Lists.newArrayList();
 		for (Registry registry : registryList) {
-			// Todo 两个注册中心获取到本地内存
+			// 多个注册中心获取到本地内存
 			try {
 				checkList.add(registry.getServerWeight(serverAddress));
 			} catch (Throwable e) {
@@ -365,7 +365,7 @@ public class RegistryManager {
 			List<String> checkVersionList = Lists.newArrayList();
 
 			for (Registry registry : registryList) {
-				// Todo 两个注册中心获取到本地内存
+				// 多个注册中心获取到本地内存
 				try {
 					checkAppList.add(registry.getServerApp(serviceAddress));
 				} catch (Throwable e) {
@@ -444,7 +444,7 @@ public class RegistryManager {
 
 		List<String> checkList = Lists.newArrayList();
 		for (Registry registry : registryList) {
-			// Todo 两个注册中心获取到本地内存
+			// 多个注册中心获取到本地内存
 			try {
 				checkList.add(registry.getServerApp(serverAddress));
 			} catch (Throwable e) {
@@ -498,7 +498,7 @@ public class RegistryManager {
 
 		List<String> checkList = Lists.newArrayList();
 		for (Registry registry : registryList) {
-			// Todo 两个注册中心获取到本地内存
+			// 多个注册中心获取到本地内存
 			try {
 				checkList.add(registry.getServerVersion(serverAddress));
 			} catch (Throwable e) {
@@ -608,8 +608,8 @@ public class RegistryManager {
 		return StringUtils.join(result,",");
 	}
 
-	public boolean isSupportNewProtocol(String serverAddress) {
-		return VersionUtils.compareVersion(getReferencedVersion(serverAddress), "2.7.8") >=0;
+	public boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
+		return isSupportNewProtocol(serviceAddress, serviceName, true);
 	}
 
 	public boolean isSupportNewProtocol(String serviceAddress, String serviceName, boolean readCache)
@@ -623,19 +623,17 @@ public class RegistryManager {
 
 		boolean support = false;
 
+		List<Boolean> checkList = Lists.newArrayList();
 		for (Registry registry : registryList) {
-			// Todo 两个注册中心获取到本地内存
+			// 多个注册中心获取到本地内存
 			try {
-				if (registry.getName().equals(Constants.REGISTRY_CURATOR_NAME)) {
-					support = registry.isSupportNewProtocol(serviceAddress, serviceName);
-				}
-				if (registry.getName().equals(Constants.REGISTRY_MNS_NAME)) {
-					support = registry.isSupportNewProtocol(serviceAddress, serviceName);
-					break; // 有mns weight时，以mns为主
-				}
+				checkList.add(registry.isSupportNewProtocol(serviceAddress, serviceName));
 			} catch (Throwable e) {
 				logger.error("failed to get protocol for " + serviceAddress + "#" + serviceName, e);
 			}
+		}
+		if(checkList.size() > 0) {
+			support = checkValueConsistency(checkList);
 		}
 
 		Map<String, Boolean> protocolInfoMap = referencedServiceProtocols.get(serviceAddress);
@@ -673,7 +671,7 @@ public class RegistryManager {
 
 		List<Boolean> checkList = Lists.newArrayList();
 		for (Registry registry : registryList) {
-			// Todo 两个注册中心获取到本地内存
+			// 多个注册中心获取到本地内存
 			try {
 				checkList.add(registry.isSupportNewProtocol(serverAddress, serviceName));
 			} catch (Throwable e) {
