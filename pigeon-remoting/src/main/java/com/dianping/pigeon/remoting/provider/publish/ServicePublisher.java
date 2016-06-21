@@ -134,7 +134,7 @@ public final class ServicePublisher {
 				int registerCount = 0;
 				for (Server server : servers) {
 					publishService(url, server.getRegistryUrl(url), server.getPort(), providerConfig.getServerConfig()
-							.getGroup());
+							.getGroup(), providerConfig.isSupported());
 					registerCount++;
 				}
 				if (registerCount > 0) {
@@ -189,7 +189,7 @@ public final class ServicePublisher {
 		}
 	}
 
-	private synchronized static <T> void publishService(String url, String registryUrl, int port, String group)
+	private synchronized static <T> void publishService(String url, String registryUrl, int port, String group, boolean support)
 			throws RegistryException {
 		String ip = configManager.getLocalIp();
 		if (!canRegister(ip)) {
@@ -227,9 +227,8 @@ public final class ServicePublisher {
 					+ ", address:" + serverAddress + ", weight:" + weight);
 		}
 		RegistryManager.getInstance().registerService(registryUrl, group, serverAddress, weight);
-		//todo register protocol, include http server, 从琦总的接口拿
-		RegistryManager.getInstance().registerSupportNewProtocol(serverAddress, registryUrl,
-				/**从providerconfig拿，有可能要增加providerconfig参数，这个方法体加一个参数*/false);
+		//todo 待验证，register protocol, include http server, 从琦总的接口拿
+		RegistryManager.getInstance().registerSupportNewProtocol(serverAddress, registryUrl, support);
 
 		if (weight >= 0) {
 			if (!serverWeightCache.containsKey(serverAddress)) {
