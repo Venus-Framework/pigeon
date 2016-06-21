@@ -171,12 +171,36 @@ public class RegistryManager {
     }
 
 	public String getServiceAddress(String remoteAppkey, String serviceName, String group) throws RegistryException {
+		String serviceKey = getServiceKey(serviceName, group);
+		if (props.containsKey(serviceKey)) {
+			if (logger.isInfoEnabled()) {
+				logger.info("get service address from local properties, service name:" + serviceName + "  address:"
+						+ props.getProperty(serviceKey));
+			}
+			return props.getProperty(serviceKey);
+		}
+		if (enableLocalConfig) {
+			String addr = configManager.getLocalStringValue(Utils.escapeServiceName(serviceKey));
+			if (addr == null) {
+				try {
+					addr = configManager.getLocalStringValue(serviceKey);
+				} catch (Throwable e) {
+				}
+			}
+			if (!StringUtils.isBlank(addr)) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("get service address from local properties, service name:" + serviceName
+							+ "  address:" + addr);
+				}
+				return addr;
+			}
+		}
+
 		String addr = "";
 		for (Registry registry : registryList) { // merge registry addr
 			// 多个注册中心获取到本地内存 目前采取合并地址方式
 			addr = mergeAddress(addr,
 					registry.getServiceAddress(remoteAppkey, serviceName, group, fallbackDefaultGroup));
-            logger.info(addr);
 		}
 
 		return addr;

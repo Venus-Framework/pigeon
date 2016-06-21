@@ -2,6 +2,8 @@ package com.dianping.pigeon.registry.mns;
 
 import com.dianping.pigeon.registry.listener.DefaultServiceChangeListener;
 import com.dianping.pigeon.registry.listener.ServiceChangeListener;
+import com.sankuai.inf.octo.mns.MnsInvoker;
+import com.sankuai.inf.octo.mns.model.ServiceListRequest;
 
 import java.util.ArrayList;
 
@@ -10,9 +12,9 @@ import java.util.ArrayList;
  */
 public class MnsEventNotifier {
 
-    private ServiceChangeListener serviceChangeListener = new DefaultServiceChangeListener();
+    private static ServiceChangeListener serviceChangeListener = new DefaultServiceChangeListener();
 
-    public void eventReceived(MnsEvent event) throws Exception {
+    public static void eventReceived(MnsEvent event) throws Exception {
 
         if(event != null) {
             addressChanged();
@@ -21,11 +23,19 @@ public class MnsEventNotifier {
         }
     }
 
-    private void addressChanged() {
+    private static void addressChanged() {
         serviceChangeListener.onServiceHostChange("fakeServiceName", new ArrayList<String[]>());
     }
 
-    private void weightChanged() {
+    private static void weightChanged() {
         serviceChangeListener.onHostWeightChange("fakeHost", 1);
+    }
+
+    public static void main(String[] args) {
+        ServiceListRequest serviceListRequest = new ServiceListRequest();
+        serviceListRequest.setRemoteAppkey("remoteAppkey");
+        serviceListRequest.setLocalAppkey("localAppkey");
+        serviceListRequest.setProtocol("thrift");
+        MnsInvoker.addServiceListener(serviceListRequest, new DefaultServiceListChangeListener());
     }
 }

@@ -70,8 +70,6 @@ public class MnsRegistry implements Registry {
 
         for (SGService sgService : sgServices) {
             if(serviceName.equals(sgService.getServiceName())) {
-
-                logger.info("sgService: " + sgService);
                 result += sgService.getIp() + ":" + sgService.getPort() +",";
             }
         }
