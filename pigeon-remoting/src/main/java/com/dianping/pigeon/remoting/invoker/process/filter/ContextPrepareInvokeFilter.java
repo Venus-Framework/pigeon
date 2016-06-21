@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.dianping.dpsf.protocol.DefaultRequest;
+import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedRequest;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -33,7 +36,6 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
     private static final Logger logger = LoggerLoader.getLogger(ContextPrepareInvokeFilter.class);
     private ConcurrentHashMap<String, Boolean> protoVersionMap = new ConcurrentHashMap<String, Boolean>();
-    //private ConcurrentHashMap<String, Boolean> thriftVersionMap = new ConcurrentHashMap<String, Boolean>();
     private ConcurrentHashMap<String, Boolean> compactVersionMap = new ConcurrentHashMap<String, Boolean>();
     private static AtomicLong requestSequenceMaker = new AtomicLong();
     private static final String KEY_COMPACT = "pigeon.invoker.request.compact";
@@ -101,19 +103,15 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
         if (request.getSerialize() == SerializerFactory.SERIALIZE_PROTO
                 || request.getSerialize() == SerializerFactory.SERIALIZE_FST) {
-
-            checkSerialize0(invokerContext, protoVersionMap, false);
+            checkVersion(invokerContext);
+        } else if (request.getSerialize() == SerializerFactory.SERIALIZE_THRIFT) {
+            checkProtocal(invokerContext);
         }
 
-//        } else if (request.getSerialize() == SerializerFactory.SERIALIZE_THRIFT) {
-//
-//            checkSerialize0(invokerContext, thriftVersionMap, true);
-//
-//        }
     }
 
     //缺服务是否支持判断
-    private void checkSerialize0(InvokerContext invokerContext, ConcurrentHashMap<String, Boolean> versionMap, boolean isThrift) {
+    private void checkVersion(InvokerContext invokerContext) {
         Client client = invokerContext.getClient();
         InvocationRequest request = invokerContext.getRequest();
 
@@ -122,20 +120,34 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
         boolean supported = true;
         if (StringUtils.isBlank(version)) {
             supported = false;
-        } else if (versionMap.containsKey(version)) {
-            supported = versionMap.get(version);
+        } else if (protoVersionMap.containsKey(version)) {
+            supported = protoVersionMap.get(version);
         } else {
-//            if (isThrift) {
-//                supported = VersionUtils.isThriftSupported(version);
-//            } else {
-                supported = VersionUtils.isProtoFstSupported(version);
-//            }
-            versionMap.putIfAbsent(version, supported);
+            supported = VersionUtils.isProtoFstSupported(version);
+            protoVersionMap.putIfAbsent(version, supported);
         }
 
         if (!supported) {
             request.setSerialize(SerializerFactory.SERIALIZE_HESSIAN);
             invokerContext.getInvokerConfig().setSerialize(SerializerFactory.HESSIAN);
+        }
+    }
+
+    private void checkProtocal(InvokerContext invokerContext) {
+        Client client = invokerContext.getClient();
+        InvocationRequest request = invokerContext.getRequest();
+        boolean supported = false;
+        try {
+            supported = RegistryManager.getInstance().isSupportNewProtocol(
+                    client.getAddress(), request.getServiceName());
+        } catch (RegistryException e) {
+            supported = false;
+        }
+
+        if (!supported) {
+            request.setSerialize(SerializerFactory.SERIALIZE_HESSIAN);
+            invokerContext.getInvokerConfig().setSerialize(SerializerFactory.HESSIAN);
+            invokerContext.setRequest(new DefaultRequest(invokerContext));
         }
     }
 

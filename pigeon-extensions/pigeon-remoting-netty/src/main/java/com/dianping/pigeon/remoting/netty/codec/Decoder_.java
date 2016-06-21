@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 public interface Decoder_ {
 
-    Object decode(ChannelHandlerContext ctx, Channel channel, Object msg)
+    Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer)
             throws Exception;
 
 }

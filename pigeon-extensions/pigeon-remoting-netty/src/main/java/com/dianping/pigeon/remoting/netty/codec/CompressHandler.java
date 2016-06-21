@@ -3,11 +3,14 @@ package com.dianping.pigeon.remoting.netty.codec;
 import com.dianping.pigeon.compress.Compress;
 import com.dianping.pigeon.compress.GZipCompress;
 import com.dianping.pigeon.compress.SnappyCompress;
+import com.dianping.pigeon.remoting.common.config.CodecConfig;
+import com.dianping.pigeon.remoting.common.domain.generic.CompressType;
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
 
 import java.io.IOException;
+
+import static org.jboss.netty.buffer.ChannelBuffers.dynamicBuffer;
 
 /**
  * @author qi.yin
@@ -22,18 +25,18 @@ public class CompressHandler extends SimpleChannelHandler {
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         if (e.getMessage() == null ||
-                !(e.getMessage() instanceof DataPackage)) {
+                !(e.getMessage() instanceof CodecEvent)) {
             return;
         }
 
-        DataPackage dataPackage = (DataPackage) e.getMessage();
+        CodecEvent codecEvent = (CodecEvent) e.getMessage();
 
-        if (dataPackage.isUnified()) {
+        if (codecEvent.isUnified()) {
 
-            ChannelBuffer buffer = doUnCompress(e.getChannel(), dataPackage);
-            dataPackage.setFrameBuffer(buffer);
+            ChannelBuffer buffer = doUnCompress(e.getChannel(), codecEvent);
+            codecEvent.setFrameBuffer(buffer);
 
-            Channels.fireMessageReceived(e.getChannel(), dataPackage, e.getRemoteAddress());
+            Channels.fireMessageReceived(e.getChannel(), codecEvent, e.getRemoteAddress());
         } else {
             ctx.sendUpstream(e);
         }
@@ -46,21 +49,24 @@ public class CompressHandler extends SimpleChannelHandler {
         }
 
         MessageEvent evt = (MessageEvent) e;
-        if (evt.getMessage() instanceof DataPackage) {
+        if (evt.getMessage() instanceof CodecEvent) {
             return;
         }
 
-        DataPackage dataPackage = (DataPackage) evt;
-        if (dataPackage.isUnified()) {
-            Channels.write(evt.getChannel(), dataPackage, evt.getRemoteAddress());
+        CodecEvent codecEvent = (CodecEvent) evt;
+        if (codecEvent.isUnified()) {
+            ChannelBuffer buffer = doCompress(e.getChannel(), codecEvent);
+            codecEvent.setFrameBuffer(buffer);
+
+            Channels.write(evt.getChannel(), codecEvent, evt.getRemoteAddress());
         } else {
             ctx.sendDownstream(e);
         }
     }
 
-    private ChannelBuffer doUnCompress(Channel channel, DataPackage dataPackage)
+    private ChannelBuffer doUnCompress(Channel channel, CodecEvent codecEvent)
             throws IOException {
-        ChannelBuffer frame = dataPackage.getFrameBuffer();
+        ChannelBuffer frame = codecEvent.getFrameBuffer();
 
         byte command = frame.getByte(CodecConstants._FRONT_COMMAND_LENGTH);
         //compact
@@ -84,13 +90,13 @@ public class CompressHandler extends SimpleChannelHandler {
                 in = new byte[compressLength];
                 frame.getBytes(frame.readerIndex() + CodecConstants._FRONT_LENGTH, in);
                 out = snappyCompress.unCompress(in);
-                dataPackage.setIsCompress(true);
+                codecEvent.setIsCompress(true);
                 break;
             case 0x40:
                 in = new byte[compressLength];
                 frame.getBytes(frame.readerIndex() + CodecConstants._FRONT_LENGTH, in);
                 out = gZipCompress.unCompress(in);
-                dataPackage.setIsCompress(true);
+                codecEvent.setIsCompress(true);
                 break;
             case 0x60:
                 throw new IllegalArgumentException("Invalid compress type.");
@@ -108,9 +114,59 @@ public class CompressHandler extends SimpleChannelHandler {
         return result;
     }
 
-    private ChannelBuffer doCompress(Channel channel, DataPackage dataPackage)
+    private ChannelBuffer doCompress(Channel channel, CodecEvent codecEvent)
             throws IOException {
-        ChannelBuffer frame = dataPackage.getFrameBuffer();
-        return null;
+        ChannelBuffer frame = codecEvent.getFrameBuffer();
+        int command = frame.getByte(CodecConstants._FRONT_COMMAND_LENGTH);
+        //compress
+        ChannelBuffer result = frame;
+        int frameLength = frame.readableBytes();
+
+        if (CodecConfig.isCompress(frameLength)) {
+            CompressType compressType = CodecConfig.getCompressType();
+
+            switch (compressType) {
+                case None:
+                    command = command | 0x00;
+                case Snappy:
+                    command = command | 0x20;
+                    result = doCompress0(channel, frame, frameLength, snappyCompress);
+                    break;
+                case Gzip:
+                    command = command | 0x40;
+                    result = doCompress0(channel, frame, frameLength, gZipCompress);
+                    break;
+            }
+        } else {
+            command = command | 0x00;
+        }
+        int oldWriteIndex = result.writerIndex();
+        result.writerIndex(CodecConstants._FRONT_COMMAND_LENGTH);
+        result.writeByte(command);
+        result.writerIndex(oldWriteIndex);
+        return result;
+    }
+
+    private ChannelBuffer doCompress0(Channel channel, ChannelBuffer frame,
+                                      int frameLength, Compress compress)
+            throws IOException {
+        ChannelBuffer result;
+        int bodyLength = frameLength - CodecConstants._FRONT_LENGTH;
+        byte[] in = new byte[bodyLength];
+
+        frame.getBytes(CodecConstants._FRONT_LENGTH, in, 0, bodyLength);
+
+        byte[] out = compress.compress(in);
+        byte[] lengthBuf = new byte[CodecConstants._HEAD_FIELD_LENGTH];
+        frame.getBytes(0, lengthBuf, 0, lengthBuf.length);
+
+        int totalLength = out.length + lengthBuf.length;
+        int _frameLength = totalLength + CodecConstants._FRONT_LENGTH_;
+        result = dynamicBuffer(_frameLength, channel.getConfig().getBufferFactory());
+        result.writeBytes(frame, frame.readerIndex(), CodecConstants._HEAD_LENGTH);
+        result.writeInt(totalLength);
+        result.writeBytes(lengthBuf);
+        result.writeBytes(out);
+        return result;
     }
 }

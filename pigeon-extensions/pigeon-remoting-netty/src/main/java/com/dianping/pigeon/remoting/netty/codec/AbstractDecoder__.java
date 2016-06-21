@@ -23,7 +23,7 @@ import java.net.InetSocketAddress;
  * @author qi.yin
  *         2016/06/21  上午9:55.
  */
-public abstract class AbstractDecoder__ extends OneToOneDecoder implements Decoder_ {
+public abstract class AbstractDecoder__ extends OneToOneDecoder {
 
     private static final Logger logger = LoggerLoader.getLogger(AbstractDecoder__.class);
 
@@ -31,15 +31,15 @@ public abstract class AbstractDecoder__ extends OneToOneDecoder implements Decod
     public Object decode(ChannelHandlerContext ctx, Channel channel, Object msg)
             throws Exception {
 
-        if (msg == null || !(msg instanceof DataPackage)) {
+        if (msg == null || !(msg instanceof CodecEvent)) {
             return null;
         }
-        DataPackage dataPackage = (DataPackage) msg;
+        CodecEvent codecEvent = (CodecEvent) msg;
 
-        if (dataPackage.isUnified()) {
-            return _doDecode(channel, dataPackage.getFrameBuffer());
+        if (codecEvent.isUnified()) {
+            return _doDecode(channel, codecEvent.getFrameBuffer());
         } else {
-            return doDecode(channel, dataPackage.getFrameBuffer());
+            return doDecode(channel, codecEvent.getFrameBuffer());
         }
 
     }

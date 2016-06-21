@@ -6,7 +6,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * @author qi.yin
  *         2016/06/16  下午1:37.
  */
-public class DataPackage {
+public class CodecEvent {
 
     private ChannelBuffer frameBuffer;
 
@@ -16,11 +16,11 @@ public class DataPackage {
 
     private boolean isChecksum;
 
-    public DataPackage(){
+    public CodecEvent(){
 
     }
 
-    public DataPackage(ChannelBuffer frameBuffer, boolean isUnified) {
+    public CodecEvent(ChannelBuffer frameBuffer, boolean isUnified) {
         this.frameBuffer = frameBuffer;
         this.isUnified = isUnified;
     }

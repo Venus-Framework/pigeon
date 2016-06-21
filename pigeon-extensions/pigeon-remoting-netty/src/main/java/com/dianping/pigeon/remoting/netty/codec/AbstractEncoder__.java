@@ -25,7 +25,7 @@ import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
  *         2016/06/21  上午9:55.
  */
 
-public abstract class AbstractEncoder__ extends OneToOneEncoder implements Encoder_ {
+public abstract class AbstractEncoder__ extends OneToOneEncoder {
 
     private static final Logger logger = LoggerLoader.getLogger(AbstractEncoder__.class);
 
@@ -39,17 +39,18 @@ public abstract class AbstractEncoder__ extends OneToOneEncoder implements Encod
             try {
 
                 ChannelBuffer frame;
-                DataPackage dataPackage;
+                CodecEvent codecEvent;
 
                 if (msg instanceof UnifiedInvocation) {
                     frame = _doEncode(channel, (UnifiedInvocation) _msg);
-                    dataPackage = new DataPackage(frame, true);
+                    codecEvent = new CodecEvent(frame, true);
+                    return codecEvent;
                 }
 
                 frame = doEncode(channel, _msg);
-                dataPackage = new DataPackage(frame, false);
+                codecEvent = new CodecEvent(frame, false);
 
-                return dataPackage;
+                return codecEvent;
             } catch (IOException e) {
                 SerializationException se = new SerializationException(e);
 

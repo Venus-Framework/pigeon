@@ -79,6 +79,8 @@ public class InvokerConfig<T> {
 
     private String secret;
 
+    private String remoteAppKey;
+
     public String getSecret() {
         return secret;
     }
@@ -192,6 +194,14 @@ public class InvokerConfig<T> {
 
     public void setRetries(int retries) {
         this.retries = retries;
+    }
+
+    public String getRemoteAppKey() {
+        return remoteAppKey;
+    }
+
+    public void setRemoteAppKey(String remoteAppKey) {
+        this.remoteAppKey = remoteAppKey;
     }
 
     public InvokerConfig(Class<T> serviceInterface, String url, int timeout, String callMethod, String serialize,

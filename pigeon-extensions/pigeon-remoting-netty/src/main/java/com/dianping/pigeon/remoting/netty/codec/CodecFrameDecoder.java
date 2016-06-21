@@ -9,7 +9,7 @@ import org.jboss.netty.handler.codec.frame.FrameDecoder;
  * @author qi.yin
  *         2016/06/16  下午2:38.
  */
-public class DataPackageDecoder extends FrameDecoder {
+public class CodecFrameDecoder extends FrameDecoder {
 
 
     @Override
@@ -45,7 +45,7 @@ public class DataPackageDecoder extends FrameDecoder {
     protected Object doDecode(ChannelBuffer buffer)
             throws Exception {
 
-        DataPackage dataPackage = null;
+        CodecEvent codecEvent = null;
 
         if (buffer.readableBytes() > CodecConstants.FRONT_LENGTH) {
 
@@ -60,19 +60,19 @@ public class DataPackageDecoder extends FrameDecoder {
                 ChannelBuffer frame = buffer.slice(buffer.readerIndex(), frameLength);
                 buffer.readerIndex(buffer.readerIndex() + frameLength);
 
-                dataPackage = new DataPackage(frame, true);
+                codecEvent = new CodecEvent(frame, true);
             }
 
         }
-        return dataPackage;
+        return codecEvent;
     }
 
     protected Object _doDecode(ChannelBuffer buffer)
             throws Exception {
-        DataPackage dataPackage = null;
+        CodecEvent codecEvent = null;
 
         if (buffer.readableBytes() <= CodecConstants._FRONT_LENGTH) {
-            return dataPackage;
+            return codecEvent;
         }
 
         int totalLength = (int) (buffer.getUnsignedInt(
@@ -86,10 +86,10 @@ public class DataPackageDecoder extends FrameDecoder {
             ChannelBuffer frame = buffer.slice(buffer.readerIndex(), frameLength);
             buffer.readerIndex(buffer.readerIndex() + frameLength);
 
-            dataPackage = new DataPackage(frame, true);
+            codecEvent = new CodecEvent(frame, true);
         }
 
-        return dataPackage;
+        return codecEvent;
     }
 
 

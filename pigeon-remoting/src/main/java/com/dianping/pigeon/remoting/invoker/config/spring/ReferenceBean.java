@@ -28,250 +28,257 @@ import com.dianping.pigeon.util.CollectionUtils;
 
 public class ReferenceBean implements FactoryBean {
 
-	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+    private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
-	private String url;
+    private String url;
 
-	private String interfaceName;
+    private String interfaceName;
 
-	private String serialize = Constants.SERIALIZE_HESSIAN;
+    private String serialize = Constants.SERIALIZE_HESSIAN;
 
-	private String callType = Constants.CALL_SYNC;
+    private String callType = Constants.CALL_SYNC;
 
-	private String cluster = Constants.CLUSTER_FAILFAST;
+    private String cluster = Constants.CLUSTER_FAILFAST;
 
-	private String vip;
+    private String vip;
 
-	private int retries = 1;
+    private int retries = 1;
 
-	private boolean timeoutRetry;
+    private boolean timeoutRetry;
 
-	private int timeout = configManager.getIntValue(Constants.KEY_INVOKER_TIMEOUT, Constants.DEFAULT_INVOKER_TIMEOUT);
+    private int timeout = configManager.getIntValue(Constants.KEY_INVOKER_TIMEOUT, Constants.DEFAULT_INVOKER_TIMEOUT);
 
-	private Object obj;
+    private Object obj;
 
-	private Class<?> objType;
+    private Class<?> objType;
 
-	private ServiceCallback callback;
+    private ServiceCallback callback;
 
-	private String version;
+    private String version;
 
-	private String protocol;
+    private String protocol;
 
-	private List<InvokerMethodConfig> methods;
+    private List<InvokerMethodConfig> methods;
 
-	private ClassLoader classLoader;
+    private ClassLoader classLoader;
 
-	private String secret;
+    private String secret;
 
-	public String getSecret() {
-		return secret;
-	}
+    private String remoteAppKey;
 
-	public void setSecret(String secret) {
-		this.secret = secret;
-	}
+    public String getSecret() {
+        return secret;
+    }
 
-	public ClassLoader getClassLoader() {
-		return classLoader;
-	}
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
 
-	public void setClassLoader(ClassLoader classLoader) {
-		this.classLoader = classLoader;
-	}
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
 
-	public List<InvokerMethodConfig> getMethods() {
-		return methods;
-	}
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
 
-	public void setMethods(List<InvokerMethodConfig> methods) {
-		this.methods = methods;
-	}
+    public List<InvokerMethodConfig> getMethods() {
+        return methods;
+    }
 
-	public String getProtocol() {
-		return protocol;
-	}
+    public void setMethods(List<InvokerMethodConfig> methods) {
+        this.methods = methods;
+    }
 
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
+    public String getProtocol() {
+        return protocol;
+    }
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
 
-	private String group = configManager.getGroup();
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
-	private String loadBalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
+    private String group = configManager.getGroup();
 
-	private String regionPolicy = RegionPolicyManager.INSTANCE.DEFAULT_REGIONPOLICY;
+    private String loadBalance = LoadBalanceManager.DEFAULT_LOADBALANCE;
 
-	private Class<? extends LoadBalance> loadBalanceClass;
+    private String regionPolicy = RegionPolicyManager.INSTANCE.DEFAULT_REGIONPOLICY;
 
-	/**
-	 * @deprecated
-	 */
-	private LoadBalance loadBalanceObj;
+    private Class<? extends LoadBalance> loadBalanceClass;
 
-	/**
-	 * 是否对写Buffer限制大小(对于channel使用到的queue buffer的大小限制, 避免OutOfMemoryError)
-	 */
-	private boolean writeBufferLimit = configManager.getBooleanValue(Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT,
-			Constants.DEFAULT_WRITE_BUFF_LIMIT);
+    /**
+     * @deprecated
+     */
+    private LoadBalance loadBalanceObj;
 
-	public String getCluster() {
-		return cluster;
-	}
+    /**
+     * 是否对写Buffer限制大小(对于channel使用到的queue buffer的大小限制, 避免OutOfMemoryError)
+     */
+    private boolean writeBufferLimit = configManager.getBooleanValue(Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT,
+            Constants.DEFAULT_WRITE_BUFF_LIMIT);
 
-	public void setCluster(String cluster) {
-		this.cluster = cluster;
-	}
+    public String getCluster() {
+        return cluster;
+    }
 
-	public String getVip() {
-		return vip;
-	}
+    public void setCluster(String cluster) {
+        this.cluster = cluster;
+    }
 
-	public void setVip(String vip) {
-		this.vip = vip;
-	}
+    public String getVip() {
+        return vip;
+    }
 
-	public String getLoadBalance() {
-		return loadBalance;
-	}
+    public void setVip(String vip) {
+        this.vip = vip;
+    }
 
-	public int getRetries() {
-		return retries;
-	}
+    public String getLoadBalance() {
+        return loadBalance;
+    }
 
-	public void setRetries(int retries) {
-		this.retries = retries;
-	}
+    public int getRetries() {
+        return retries;
+    }
 
-	public boolean isTimeoutRetry() {
-		return timeoutRetry;
-	}
+    public void setRetries(int retries) {
+        this.retries = retries;
+    }
 
-	public void setTimeoutRetry(boolean timeoutRetry) {
-		this.timeoutRetry = timeoutRetry;
-	}
+    public boolean isTimeoutRetry() {
+        return timeoutRetry;
+    }
 
-	public Object getObject() {
-		return this.obj;
-	}
+    public void setTimeoutRetry(boolean timeoutRetry) {
+        this.timeoutRetry = timeoutRetry;
+    }
 
-	public Class<?> getObjectType() {
-		return this.objType;
-	}
+    public Object getObject() {
+        return this.obj;
+    }
 
-	public boolean isSingleton() {
-		return true;
-	}
+    public Class<?> getObjectType() {
+        return this.objType;
+    }
 
-	/**
-	 * @param url
-	 *            the url to set
-	 */
-	public void setUrl(String url) {
-		this.url = url;
-	}
+    public boolean isSingleton() {
+        return true;
+    }
 
-	public void setCallType(String callType) {
-		this.callType = callType;
-	}
+    /**
+     * @param url the url to set
+     */
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-	/**
-	 * @param timeout
-	 *            the timeout to set
-	 */
-	public void setTimeout(int timeout) {
-		this.timeout = timeout;
-	}
+    public void setCallType(String callType) {
+        this.callType = callType;
+    }
 
-	public void setInterfaceName(String interfaceName) {
-		this.interfaceName = interfaceName;
-	}
+    /**
+     * @param timeout the timeout to set
+     */
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
 
-	/**
-	 * @param serialize
-	 *            the serialize to set
-	 */
-	public void setSerialize(String serialize) {
-		this.serialize = serialize;
-	}
+    public void setInterfaceName(String interfaceName) {
+        this.interfaceName = interfaceName;
+    }
 
-	/**
-	 * @param callback
-	 *            the callback to set
-	 */
-	public void setCallback(ServiceCallback callback) {
-		this.callback = callback;
-	}
+    /**
+     * @param serialize the serialize to set
+     */
+    public void setSerialize(String serialize) {
+        this.serialize = serialize;
+    }
 
-	/**
-	 * @param group
-	 *            the group to set
-	 */
-	public void setGroup(String group) {
-		this.group = group;
-	}
+    /**
+     * @param callback the callback to set
+     */
+    public void setCallback(ServiceCallback callback) {
+        this.callback = callback;
+    }
 
-	public void setLoadBalance(String loadBalance) {
-		this.loadBalance = loadBalance;
-	}
+    /**
+     * @param group the group to set
+     */
+    public void setGroup(String group) {
+        this.group = group;
+    }
 
-	public void setLoadBalanceClass(Class<? extends LoadBalance> loadBalanceClass) {
-		this.loadBalanceClass = loadBalanceClass;
-	}
+    public void setLoadBalance(String loadBalance) {
+        this.loadBalance = loadBalance;
+    }
 
-	public void setLoadBalanceObj(LoadBalance loadBalanceObj) {
-		this.loadBalanceObj = loadBalanceObj;
-	}
+    public void setLoadBalanceClass(Class<? extends LoadBalance> loadBalanceClass) {
+        this.loadBalanceClass = loadBalanceClass;
+    }
 
-	public void setWriteBufferLimit(boolean writeBufferLimit) {
-		this.writeBufferLimit = writeBufferLimit;
-	}
+    public void setLoadBalanceObj(LoadBalance loadBalanceObj) {
+        this.loadBalanceObj = loadBalanceObj;
+    }
 
-	public String getRegionPolicy() {
-		return regionPolicy;
-	}
+    public void setWriteBufferLimit(boolean writeBufferLimit) {
+        this.writeBufferLimit = writeBufferLimit;
+    }
 
-	public void setRegionPolicy(String regionPolicy) {
-		this.regionPolicy = regionPolicy;
-	}
+    public String getRegionPolicy() {
+        return regionPolicy;
+    }
 
-	public void init() throws Exception {
-		if (StringUtils.isBlank(interfaceName)) {
-			throw new IllegalArgumentException("invalid interface:" + interfaceName);
-		}
-		this.objType = ClassUtils.loadClass(this.classLoader, this.interfaceName.trim());
-		InvokerConfig<?> invokerConfig = new InvokerConfig(this.objType, this.url, this.timeout, this.callType,
-				this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadBalance, this.cluster,
-				this.retries, this.timeoutRetry, this.vip, this.version, this.protocol);
-		invokerConfig.setClassLoader(classLoader);
-		invokerConfig.setSecret(secret);
-		invokerConfig.setRegionPolicy(regionPolicy);
+    public void setRegionPolicy(String regionPolicy) {
+        this.regionPolicy = regionPolicy;
+    }
 
-		if (!CollectionUtils.isEmpty(methods)) {
-			Map<String, InvokerMethodConfig> methodMap = new HashMap<String, InvokerMethodConfig>();
-			invokerConfig.setMethods(methodMap);
-			for (InvokerMethodConfig method : methods) {
-				methodMap.put(method.getName(), method);
-			}
-		}
-		this.obj = ServiceFactory.getService(invokerConfig);
-		configLoadBalance(invokerConfig);
-	}
 
-	private void configLoadBalance(InvokerConfig invokerConfig) {
-		Object loadBalanceToSet = loadBalanceObj != null ? loadBalanceObj
-				: (loadBalanceClass != null ? loadBalanceClass : (loadBalance != null ? loadBalance : null));
-		if (loadBalanceToSet != null) {
-			LoadBalanceManager.register(invokerConfig.getUrl(), group, loadBalanceToSet);
-		}
-	}
+    public String getRemoteAppKey() {
+        return remoteAppKey;
+    }
 
-	@Override
-	public String toString() {
-		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-	}
+    public void setRemoteAppKey(String remoteAppKey) {
+        this.remoteAppKey = remoteAppKey;
+    }
+
+    public void init() throws Exception {
+        if (StringUtils.isBlank(interfaceName)) {
+            throw new IllegalArgumentException("invalid interface:" + interfaceName);
+        }
+        this.objType = ClassUtils.loadClass(this.classLoader, this.interfaceName.trim());
+        InvokerConfig<?> invokerConfig = new InvokerConfig(this.objType, this.url, this.timeout, this.callType,
+                this.serialize, this.callback, this.group, this.writeBufferLimit, this.loadBalance, this.cluster,
+                this.retries, this.timeoutRetry, this.vip, this.version, this.protocol);
+        invokerConfig.setClassLoader(classLoader);
+        invokerConfig.setSecret(secret);
+        invokerConfig.setRegionPolicy(regionPolicy);
+        invokerConfig.setRemoteAppKey(remoteAppKey);
+
+        if (!CollectionUtils.isEmpty(methods)) {
+            Map<String, InvokerMethodConfig> methodMap = new HashMap<String, InvokerMethodConfig>();
+            invokerConfig.setMethods(methodMap);
+            for (InvokerMethodConfig method : methods) {
+                methodMap.put(method.getName(), method);
+            }
+        }
+        this.obj = ServiceFactory.getService(invokerConfig);
+        configLoadBalance(invokerConfig);
+    }
+
+    private void configLoadBalance(InvokerConfig invokerConfig) {
+        Object loadBalanceToSet = loadBalanceObj != null ? loadBalanceObj
+                : (loadBalanceClass != null ? loadBalanceClass : (loadBalance != null ? loadBalance : null));
+        if (loadBalanceToSet != null) {
+            LoadBalanceManager.register(invokerConfig.getUrl(), group, loadBalanceToSet);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
 }
