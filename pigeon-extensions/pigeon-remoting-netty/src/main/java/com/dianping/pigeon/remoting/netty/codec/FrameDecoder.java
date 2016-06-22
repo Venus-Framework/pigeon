@@ -3,13 +3,12 @@ package com.dianping.pigeon.remoting.netty.codec;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.frame.FrameDecoder;
 
 /**
  * @author qi.yin
  *         2016/06/16  下午2:38.
  */
-public class CodecFrameDecoder extends FrameDecoder {
+public class FrameDecoder extends org.jboss.netty.handler.codec.frame.FrameDecoder {
 
 
     @Override
@@ -60,7 +59,7 @@ public class CodecFrameDecoder extends FrameDecoder {
                 ChannelBuffer frame = buffer.slice(buffer.readerIndex(), frameLength);
                 buffer.readerIndex(buffer.readerIndex() + frameLength);
 
-                codecEvent = new CodecEvent(frame, true);
+                codecEvent = new CodecEvent(frame, false);
             }
 
         }

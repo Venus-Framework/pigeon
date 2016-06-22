@@ -71,12 +71,12 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
             _request.setParameterTypes(invokerContext.getParameterTypes());
         }
 
+        checkSerialize(invokerContext);
         request = invokerContext.getRequest();
-
         request.setSequence(requestSequenceMaker.incrementAndGet() * -1);
         request.setCreateMillisTime(System.currentTimeMillis());
         request.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
-        checkSerialize(invokerContext);
+
 
         InvokerConfig<?> invokerConfig = invokerContext.getInvokerConfig();
         if (invokerConfig != null) {
@@ -143,7 +143,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
         } catch (RegistryException e) {
             supported = false;
         }
-
+        supported = true;
         if (!supported) {
             request.setSerialize(SerializerFactory.SERIALIZE_HESSIAN);
             invokerContext.getInvokerConfig().setSerialize(SerializerFactory.HESSIAN);

@@ -4,12 +4,13 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.config.CodecConfig;
 import org.apache.logging.log4j.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.CompositeChannelBuffer;
+import org.jboss.netty.buffer.DynamicChannelBuffer;
 import org.jboss.netty.channel.*;
 
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.util.zip.Adler32;
+
+import static org.jboss.netty.channel.Channels.write;
 
 /**
  * @author qi.yin
@@ -33,7 +34,7 @@ public class Crc32Handler extends SimpleChannelHandler {
         if (codecEvent.isUnified()) {
 
             if (doUnChecksum(e.getChannel(), codecEvent)) {
-                Channels.fireMessageReceived(e.getChannel(), codecEvent, e.getRemoteAddress());
+                Channels.fireMessageReceived(ctx, codecEvent, e.getRemoteAddress());
             }
 
         } else {
@@ -46,20 +47,22 @@ public class Crc32Handler extends SimpleChannelHandler {
     @Override
     public void handleDownstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
         if (!(e instanceof MessageEvent)) {
+            ctx.sendDownstream(e);
             return;
         }
 
         MessageEvent evt = (MessageEvent) e;
-        if (evt.getMessage() instanceof CodecEvent) {
+        if (!(evt.getMessage() instanceof CodecEvent)) {
+            ctx.sendDownstream(evt);
             return;
         }
 
-        CodecEvent codecEvent = (CodecEvent) evt;
+        CodecEvent codecEvent = (CodecEvent) evt.getMessage();
         if (codecEvent.isUnified()) {
             ChannelBuffer buffer = doChecksum(e.getChannel(), codecEvent);
-            codecEvent.setFrameBuffer(buffer);
+            codecEvent.setBuffer(buffer);
 
-            Channels.write(evt.getChannel(), codecEvent, evt.getRemoteAddress());
+            write(ctx, evt.getFuture(), codecEvent, evt.getRemoteAddress());
         } else {
             ctx.sendDownstream(e);
         }
@@ -67,7 +70,7 @@ public class Crc32Handler extends SimpleChannelHandler {
 
     private boolean doUnChecksum(Channel channel, CodecEvent codecEvent) {
 
-        ChannelBuffer frame = codecEvent.getFrameBuffer();
+        ChannelBuffer frame = codecEvent.getBuffer();
 
         byte command = frame.getByte(frame.readerIndex() +
                 CodecConstants._FRONT_COMMAND_LENGTH);
@@ -81,22 +84,15 @@ public class Crc32Handler extends SimpleChannelHandler {
 
             codecEvent.setIsChecksum(true);
 
-            Adler32 adler32 = adler32s.get();
-            if (adler32 == null) {
-                adler32 = new Adler32();
-                adler32s.set(adler32);
-            }
-            adler32.reset();
-            adler32.update(buffer.array(), 0, dataLength);
 
-            int checksum = (int) adler32.getValue();
+            int checksum = (int) doChecksum0(buffer, dataLength);
             int _checksum = frame.getInt(dataLength);
 
             if (checksum == _checksum) {
-                int totalLength = buffer.getByte(CodecConstants._HEAD_LENGTH);
+                int totalLength = buffer.getInt(CodecConstants._HEAD_LENGTH);
                 buffer.setInt(CodecConstants._HEAD_LENGTH, totalLength - CodecConstants._TAIL_LENGTH);
 
-                codecEvent.setFrameBuffer(buffer);
+                codecEvent.setBuffer(buffer);
             } else {
                 String host = ((InetSocketAddress) channel.getRemoteAddress()).getAddress().getHostAddress();
                 logger.error("Checksum failed. data from host:" + host);
@@ -107,7 +103,7 @@ public class Crc32Handler extends SimpleChannelHandler {
     }
 
     private ChannelBuffer doChecksum(Channel channel, CodecEvent codecEvent) {
-        ChannelBuffer frame = codecEvent.getFrameBuffer();
+        ChannelBuffer frame = codecEvent.getBuffer();
 
         boolean isChecksum = CodecConfig.isChecksum();
 
@@ -116,34 +112,29 @@ public class Crc32Handler extends SimpleChannelHandler {
 
         if (isChecksum) {
             command = command | 0x80;
+            //command
             frame.writerIndex(CodecConstants._FRONT_COMMAND_LENGTH);
             frame.writeByte(command);
-            frame.writeInt(frameLength + CodecConstants._TAIL_LENGTH);
-
-            //checksum
-            Adler32 adler32 = adler32s.get();
-            if (adler32 == null) {
-                adler32 = new Adler32();
-                adler32s.set(adler32);
-            }
-            adler32.reset();
-
-            if (frame instanceof CompositeChannelBuffer) {
-                CompositeChannelBuffer compositeBuffer = (CompositeChannelBuffer) frame;
-                ByteBuffer[] bufs = compositeBuffer.toByteBuffers();
-
-                for (ByteBuffer buf : bufs) {
-                    adler32.update(buf.array());
-                }
-            } else {
-                adler32.update(frame.array(), 0, frameLength);
-            }
-
-            long checksum = adler32.getValue();
+            //totalLength
+            frame.writeInt(frameLength -
+                    CodecConstants._FRONT_LENGTH_ +
+                    CodecConstants._TAIL_LENGTH);
 
             frame.writerIndex(frameLength);
+
+            if (!(frame instanceof DynamicChannelBuffer)) {
+                ChannelBuffer buffer = frame.factory().getBuffer(frameLength +
+                        CodecConstants._TAIL_LENGTH);
+                buffer.writeBytes(frame, frame.readerIndex(), frameLength);
+                frame = buffer;
+            }
+
+            long checksum = doChecksum0(frame, frameLength);
+
             frame.writeInt((int) checksum);
+
         } else {
+            //command
             command = command & 0x7f;
             frame.writerIndex(CodecConstants._FRONT_COMMAND_LENGTH);
             frame.writeByte(command);
@@ -152,5 +143,19 @@ public class Crc32Handler extends SimpleChannelHandler {
 
         return frame;
     }
+
+    private long doChecksum0(ChannelBuffer frame, int frameLength) {
+        //checksum
+        Adler32 adler32 = adler32s.get();
+        if (adler32 == null) {
+            adler32 = new Adler32();
+            adler32s.set(adler32);
+        }
+        adler32.reset();
+
+        adler32.update(frame.array(), 0, frameLength);
+        return adler32.getValue();
+    }
+
 
 }

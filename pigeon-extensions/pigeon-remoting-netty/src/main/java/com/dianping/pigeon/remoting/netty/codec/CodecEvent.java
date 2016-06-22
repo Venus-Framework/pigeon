@@ -8,7 +8,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  */
 public class CodecEvent {
 
-    private ChannelBuffer frameBuffer;
+    private ChannelBuffer buffer;
 
     private boolean isUnified;
 
@@ -16,21 +16,21 @@ public class CodecEvent {
 
     private boolean isChecksum;
 
-    public CodecEvent(){
+    public CodecEvent() {
 
     }
 
-    public CodecEvent(ChannelBuffer frameBuffer, boolean isUnified) {
-        this.frameBuffer = frameBuffer;
+    public CodecEvent(ChannelBuffer buffer, boolean isUnified) {
+        this.buffer = buffer;
         this.isUnified = isUnified;
     }
 
-    public ChannelBuffer getFrameBuffer() {
-        return frameBuffer;
+    public ChannelBuffer getBuffer() {
+        return buffer;
     }
 
-    public void setFrameBuffer(ChannelBuffer frameBuffer) {
-        this.frameBuffer = frameBuffer;
+    public void setBuffer(ChannelBuffer buffer) {
+        this.buffer = buffer;
     }
 
     public boolean isUnified() {

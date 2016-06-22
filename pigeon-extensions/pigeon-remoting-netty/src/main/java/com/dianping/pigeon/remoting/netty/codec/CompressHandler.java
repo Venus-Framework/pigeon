@@ -11,6 +11,7 @@ import org.jboss.netty.channel.*;
 import java.io.IOException;
 
 import static org.jboss.netty.buffer.ChannelBuffers.dynamicBuffer;
+import static org.jboss.netty.channel.Channels.write;
 
 /**
  * @author qi.yin
@@ -34,9 +35,9 @@ public class CompressHandler extends SimpleChannelHandler {
         if (codecEvent.isUnified()) {
 
             ChannelBuffer buffer = doUnCompress(e.getChannel(), codecEvent);
-            codecEvent.setFrameBuffer(buffer);
+            codecEvent.setBuffer(buffer);
 
-            Channels.fireMessageReceived(e.getChannel(), codecEvent, e.getRemoteAddress());
+            Channels.fireMessageReceived(ctx, codecEvent, e.getRemoteAddress());
         } else {
             ctx.sendUpstream(e);
         }
@@ -45,20 +46,21 @@ public class CompressHandler extends SimpleChannelHandler {
     @Override
     public void handleDownstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
         if (!(e instanceof MessageEvent)) {
+            ctx.sendDownstream(e);
             return;
         }
 
         MessageEvent evt = (MessageEvent) e;
-        if (evt.getMessage() instanceof CodecEvent) {
+        if (!(evt.getMessage() instanceof CodecEvent)) {
+            ctx.sendDownstream(evt);
             return;
         }
 
-        CodecEvent codecEvent = (CodecEvent) evt;
+        CodecEvent codecEvent = (CodecEvent) evt.getMessage();
         if (codecEvent.isUnified()) {
             ChannelBuffer buffer = doCompress(e.getChannel(), codecEvent);
-            codecEvent.setFrameBuffer(buffer);
-
-            Channels.write(evt.getChannel(), codecEvent, evt.getRemoteAddress());
+            codecEvent.setBuffer(buffer);
+            write(ctx, evt.getFuture(), codecEvent, evt.getRemoteAddress());
         } else {
             ctx.sendDownstream(e);
         }
@@ -66,7 +68,7 @@ public class CompressHandler extends SimpleChannelHandler {
 
     private ChannelBuffer doUnCompress(Channel channel, CodecEvent codecEvent)
             throws IOException {
-        ChannelBuffer frame = codecEvent.getFrameBuffer();
+        ChannelBuffer frame = codecEvent.getBuffer();
 
         byte command = frame.getByte(CodecConstants._FRONT_COMMAND_LENGTH);
         //compact
@@ -116,7 +118,7 @@ public class CompressHandler extends SimpleChannelHandler {
 
     private ChannelBuffer doCompress(Channel channel, CodecEvent codecEvent)
             throws IOException {
-        ChannelBuffer frame = codecEvent.getFrameBuffer();
+        ChannelBuffer frame = codecEvent.getBuffer();
         int command = frame.getByte(CodecConstants._FRONT_COMMAND_LENGTH);
         //compress
         ChannelBuffer result = frame;

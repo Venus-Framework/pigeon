@@ -37,9 +37,9 @@ public abstract class AbstractDecoder__ extends OneToOneDecoder {
         CodecEvent codecEvent = (CodecEvent) msg;
 
         if (codecEvent.isUnified()) {
-            return _doDecode(channel, codecEvent.getFrameBuffer());
+            return _doDecode(channel, codecEvent.getBuffer());
         } else {
-            return doDecode(channel, codecEvent.getFrameBuffer());
+            return doDecode(channel, codecEvent.getBuffer());
         }
 
     }
@@ -56,7 +56,6 @@ public abstract class AbstractDecoder__ extends OneToOneDecoder {
             //body length
             int totalLength = buffer.readInt();
             int frameLength = totalLength + CodecConstants.FRONT_LENGTH;
-            buffer.skipBytes(CodecConstants.BODY_FIELD_LENGTH);
             //body
             int bodyLength = (totalLength - CodecConstants.TAIL_LENGTH);
             ChannelBuffer frame = extractFrame(buffer, buffer.readerIndex(), bodyLength);
@@ -102,7 +101,7 @@ public abstract class AbstractDecoder__ extends OneToOneDecoder {
             byte serialize = (byte) (buffer.readByte() & 0x1f);
             serialize = SerializerFactory.convertToSerialize(serialize);
 
-            int totalLength =buffer.readInt();
+            int totalLength = buffer.readInt();
             int frameLength = totalLength + CodecConstants._FRONT_LENGTH_;
 
             ChannelBuffer frameBody = extractFrame(buffer, buffer.readerIndex(), totalLength);
