@@ -97,6 +97,7 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 			throw rpcEx;
 		} finally {
 			if (transaction != null) {
+				invocationContext.getTimeline().add(new TimePoint(TimePhase.E, System.currentTimeMillis()));
 				try {
 					transaction.complete(start);
 				} catch (Throwable e) {

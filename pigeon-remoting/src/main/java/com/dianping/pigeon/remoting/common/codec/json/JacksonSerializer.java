@@ -110,7 +110,7 @@ public class JacksonSerializer extends AbstractSerializer {
 			if (logger.isDebugEnabled()) {
 				logger.debug("deserialize:" + new String(sw.toByteArray()));
 			}
-			return JacksonObjectMapper.convertObject(mapper.readValue(sw.toByteArray(), clazz));
+			return this.toObject(clazz, new String(sw.toByteArray()));
 		} catch (Throwable e) {
 			throw new SerializationException(e);
 		} finally {

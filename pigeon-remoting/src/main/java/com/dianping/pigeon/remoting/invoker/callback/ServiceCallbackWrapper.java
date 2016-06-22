@@ -94,6 +94,7 @@ public class ServiceCallbackWrapper implements Callback {
 			monitor.logMonitorError(e);
 		} finally {
 			if (transaction != null) {
+				invocationContext.getTimeline().add(new TimePoint(TimePhase.E, System.currentTimeMillis()));
 				try {
 					transaction.complete();
 				} catch (Throwable e) {

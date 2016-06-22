@@ -5,11 +5,11 @@
 package com.dianping.pigeon.config;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +21,7 @@ import com.dianping.pigeon.util.NetUtils;
 /**
  * @author xiangwu
  * @Sep 22, 2013
- * 
+ *
  */
 public abstract class AbstractConfigManager implements ConfigManager {
 
@@ -39,9 +39,11 @@ public abstract class AbstractConfigManager implements ConfigManager {
 
 	public static final int DEFAULT_WEIGHT = 1;
 
+	private static final Object NULL = new Object();
+
 	private static List<ConfigChangeListener> configChangeListeners = new ArrayList<ConfigChangeListener>();
 
-	protected Map<String, Object> localCache = new HashMap<String, Object>();
+	protected Map<String, Object> localCache = new ConcurrentHashMap<String, Object>();
 
 	public abstract String doGetProperty(String key) throws Exception;
 
@@ -121,9 +123,10 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		String strValue = null;
 		if (localCache.containsKey(key)) {
 			Object value = localCache.get(key);
-			if (value == null) {
-				//nothing
-			} else if (value.getClass() == type) {
+			if (value == NULL) {
+				return null;
+			}
+			if (value.getClass() == type) {
 				return (T) value;
 			} else {
 				strValue = value + "";
@@ -142,8 +145,8 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				logger.error("error while reading local config[" + key + "]:" + e.getMessage());
 			}
 		}
+		Object value = null;
 		if (strValue != null) {
-			Object value = null;
 			if (String.class == type) {
 				value = strValue;
 			} else if (!StringUtils.isBlank(strValue)) {
@@ -157,13 +160,9 @@ public abstract class AbstractConfigManager implements ConfigManager {
 					value = Boolean.valueOf(strValue);
 				}
 			}
-			if (value != null) {
-				localCache.put(key, value);
-			}
-			return (T) value;
-		} else {
 		}
-		return null;
+		setLocalValue(key, value);
+		return (T) value;
 	}
 
 	@Override
@@ -175,9 +174,10 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		String strValue = null;
 		if (localCache.containsKey(key)) {
 			Object value = localCache.get(key);
-			if (value == null) {
-				//nothing
-			} else if (value.getClass() == type) {
+			if (value == NULL) {
+				return null;
+			}
+			if (value.getClass() == type) {
 				return (T) value;
 			} else {
 				strValue = value + "";
@@ -218,8 +218,8 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				logger.error("error while reading property[" + key + "]:" + e.getMessage());
 			}
 		}
+		Object value = null;
 		if (strValue != null) {
-			Object value = null;
 			if (String.class == type) {
 				value = strValue;
 			} else if (!StringUtils.isBlank(strValue)) {
@@ -235,13 +235,9 @@ public abstract class AbstractConfigManager implements ConfigManager {
 					value = Double.valueOf(strValue);
 				}
 			}
-			if (value != null) {
-				localCache.put(key, value);
-			}
-			return (T) value;
-		} else {
 		}
-		return null;
+		setLocalValue(key, value);
+		return (T) value;
 	}
 
 	public int getLocalIntValue(String key, int defaultValue) {
@@ -275,18 +271,21 @@ public abstract class AbstractConfigManager implements ConfigManager {
 
 	public String getLocalProperty(String key) {
 		if (localCache.containsKey(key)) {
-			String value = "" + localCache.get(key);
-			return value;
+			Object v = localCache.get(key);
+			if (v == NULL) {
+				return "";
+			} else {
+				return "" + v;
+			}
 		}
 		try {
 			String value = doGetLocalProperty(key);
+			setLocalValue(key, value);
 			if (value != null) {
-				localCache.put(key, value);
 				if (logger.isInfoEnabled()) {
 					logger.info("read from config server with key[" + key + "]:" + value);
 				}
 				return value;
-			} else {
 			}
 		} catch (Throwable e) {
 			logger.error("error while reading property[" + key + "]:" + e.getMessage());
@@ -299,7 +298,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 		for (Iterator ir = properties.keySet().iterator(); ir.hasNext();) {
 			String key = ir.next().toString();
 			String value = properties.getProperty(key);
-			localCache.put(key, value);
+			setLocalValue(key, value);
 		}
 	}
 
@@ -312,7 +311,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				logger.error("error while reading env:" + e.getMessage());
 			}
 			if (value != null) {
-				localCache.put(KEY_ENV, value);
+				setLocalValue(KEY_ENV, value);
 				logger.info("environment:" + value);
 			}
 		}
@@ -328,7 +327,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 				logger.error("error while reading app name:" + e.getMessage());
 			}
 			if (value != null) {
-				localCache.put(KEY_APP_NAME, value);
+				setLocalValue(KEY_APP_NAME, value);
 			}
 			if (StringUtils.isNotBlank(value)) {
 				logger.info("app name:" + value);
@@ -348,7 +347,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			value = NetUtils.getFirstLocalIp();
 		}
 		if (value != null) {
-			localCache.put(KEY_LOCAL_IP, value);
+			setLocalValue(KEY_LOCAL_IP, value);
 		}
 		return value;
 	}
@@ -399,7 +398,17 @@ public abstract class AbstractConfigManager implements ConfigManager {
 
 	@Override
 	public void setLocalStringValue(String key, String value) {
-		localCache.put(key, value);
+		setLocalValue(key, value);
+	}
+
+	public void setLocalValue(String key, Object value) {
+		if (key != null) {
+			if (value != null) {
+				localCache.put(key, value);
+			} else {
+				localCache.put(key, NULL);
+			}
+		}
 	}
 
 	public Map<String, Object> getLocalConfig() {
@@ -416,7 +425,7 @@ public abstract class AbstractConfigManager implements ConfigManager {
 			listener.onKeyUpdated(key, value);
 		}
 		if (localCache.containsKey(key)) {
-			localCache.put(key, value);
+			setLocalValue(key, value);
 		}
 	}
 

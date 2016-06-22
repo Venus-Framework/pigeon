@@ -119,6 +119,11 @@ public class Utils {
 	}
 
 	public static Map<String, Boolean> getProtocolInfoMap(String info) throws IOException {
-		return mapper.readValue(info, ConcurrentHashMap.class);
+
+		if(StringUtils.isNotBlank(info)) {
+			return mapper.readValue(info, ConcurrentHashMap.class);
+		}
+
+		return new ConcurrentHashMap<String, Boolean>();
 	}
 }

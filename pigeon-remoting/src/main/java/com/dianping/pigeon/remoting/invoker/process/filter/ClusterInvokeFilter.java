@@ -23,9 +23,6 @@ public class ClusterInvokeFilter extends InvocationInvokeFilter {
 
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
-		if (logger.isDebugEnabled()) {
-			logger.debug("invoke the ClusterInvokeFilter, invocationContext:" + invocationContext);
-		}
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		Cluster cluster = ClusterFactory.selectCluster(invokerConfig.getCluster());
 		if (cluster == null) {

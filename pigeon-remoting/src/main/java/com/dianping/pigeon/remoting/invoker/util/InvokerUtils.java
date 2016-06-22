@@ -100,29 +100,29 @@ public class InvokerUtils {
         }
     }
 
-    public static Throwable toApplicationException(InvocationResponse response) {
-        Object responseReturn = response.getReturn();
-        if (responseReturn == null) {
-            return new ApplicationException(response.getCause());
-        } else if (responseReturn instanceof DPSFException) {
-            return new ApplicationException(invokerExceptionTranslator.translate((DPSFException) responseReturn));
-        } else if (responseReturn instanceof RpcException) {
-            return new ApplicationException((RpcException) responseReturn);
-        } else if (responseReturn instanceof RuntimeException) {
-            return (RuntimeException) responseReturn;
-        } else if (responseReturn instanceof Throwable) {
-            return new RemoteInvocationException((Throwable) responseReturn);
-        } else if (responseReturn instanceof Map) {
-            Map errors = (Map) responseReturn;
-            String detailMessage = (String) errors.get("detailMessage");
-            StackTraceElement[] stackTrace = (StackTraceElement[]) errors.get("stackTrace");
-            ApplicationException e = new ApplicationException(detailMessage);
-            e.setStackTrace(stackTrace);
-            return e;
-        } else {
-            return new ApplicationException(responseReturn.toString());
-        }
-    }
+	public static Throwable toApplicationException(InvocationResponse response) {
+		Object responseReturn = response.getReturn();
+		if (responseReturn == null) {
+			return new ApplicationException(response.getCause());
+		} else if (responseReturn instanceof DPSFException) {
+			return new ApplicationException(invokerExceptionTranslator.translate((DPSFException) responseReturn));
+		} else if (responseReturn instanceof RpcException) {
+			return new ApplicationException((RpcException) responseReturn);
+		} else if (responseReturn instanceof Exception) {
+			return (Exception) responseReturn;
+		} else if (responseReturn instanceof Throwable) {
+			return new RemoteInvocationException((Throwable) responseReturn);
+		} else if (responseReturn instanceof Map) {
+			Map errors = (Map) responseReturn;
+			String detailMessage = (String) errors.get("detailMessage");
+			StackTraceElement[] stackTrace = (StackTraceElement[]) errors.get("stackTrace");
+			ApplicationException e = new ApplicationException(detailMessage);
+			e.setStackTrace(stackTrace);
+			return e;
+		} else {
+			return new ApplicationException(responseReturn.toString());
+		}
+	}
 
     public static RpcException toRpcException(InvocationResponse response) {
         Throwable e = null;

@@ -36,9 +36,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
-		if (logger.isDebugEnabled()) {
-			logger.debug("invoke the BusinessProcessFilter, invocationContext:" + invocationContext);
-		}
+		invocationContext.getTimeline().add(new TimePoint(TimePhase.U));
 		InvocationRequest request = invocationContext.getRequest();
 		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 			if (Constants.RESET_TIMEOUT && request.getTimeout() > 0) {

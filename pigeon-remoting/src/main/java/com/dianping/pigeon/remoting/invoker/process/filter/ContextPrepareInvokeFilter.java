@@ -24,6 +24,8 @@ import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.CompactRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
+import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -47,9 +49,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
     @Override
     public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
             throws Throwable {
-        if (logger.isDebugEnabled()) {
-            logger.debug("invoke the ContextPrepareInvokeFilter, invocationContext:" + invocationContext);
-        }
+		invocationContext.getTimeline().add(new TimePoint(TimePhase.C));
         initRequest(invocationContext);
         transferContextValueToRequest(invocationContext, invocationContext.getRequest());
         try {

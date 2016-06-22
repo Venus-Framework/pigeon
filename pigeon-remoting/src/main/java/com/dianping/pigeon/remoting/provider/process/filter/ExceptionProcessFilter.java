@@ -34,9 +34,6 @@ public class ExceptionProcessFilter implements ServiceInvocationFilter<ProviderC
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
-		if (logger.isDebugEnabled()) {
-			logger.debug("invoke the ExceptionProcessFilter, invocationContext:" + invocationContext);
-		}
 		InvocationRequest request = invocationContext.getRequest();
 		InvocationResponse response = null;
 		try {

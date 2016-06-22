@@ -164,7 +164,6 @@ public class RequestTimeoutListener implements Runnable {
                                             te = new RequestAbortedException(msg.toString());
                                             te.setStackTrace(new StackTraceElement[]{});
                                         } else {
-                                            msg.append("\r\nthread:").append(t.getName());
                                             te = new ProcessTimeoutException(msg.toString());
                                             te.setStackTrace(t.getStackTrace());
                                         }
@@ -173,35 +172,35 @@ public class RequestTimeoutListener implements Runnable {
                                             ContextUtils.setContext(request.getContext());
                                         }
 
-                                        boolean isLog = true;
-                                        if (timeoutCountInLastSecond > ConfigManagerLoader.getConfigManager()
-                                                .getIntValue("pigeon.log.threshold", 10)
-                                                && timeoutCountInCurrentSecond
-                                                % ConfigManagerLoader.getConfigManager().getIntValue(
-                                                "pigeon.log.interval", 10) != 1) {
-                                            isLog = false;
-                                        }
-                                        if (isLog) {
-                                            logger.error(te.getMessage(), te);
-                                        }
-                                        if (monitor != null) {
-                                            monitor.logError(te);
-                                        }
-                                    }
-                                    Future<?> future = rc.getFuture();
-                                    if (future != null && !future.isCancelled()) {
-                                        if (future.cancel(cancelTimeout)) {
-                                        }
-                                    }
-                                }
-                            } else {
-                                logger.error("provider context is null with request:" + request);
-                            }
-                        } finally {
-                            requestContextMap.remove(request);
-                        }
-                    }
-                }
+										boolean isLog = true;
+										if (timeoutCountInLastSecond > ConfigManagerLoader.getConfigManager()
+												.getIntValue("pigeon.log.threshold", 10)
+												&& timeoutCountInCurrentSecond
+														% ConfigManagerLoader.getConfigManager().getIntValue(
+																"pigeon.log.interval", 10) != 1) {
+											isLog = false;
+										}
+										if (isLog) {
+											logger.error(te.getMessage(), te);
+										}
+										if (monitor != null) {
+											monitor.logError(te);
+										}
+									}
+									Future<?> future = rc.getFuture();
+									if (future != null && !future.isCancelled()) {
+										if (future.cancel(cancelTimeout)) {
+										}
+									}
+								}
+							} else {
+								// logger.error("provider context is null with request:" + request);
+							}
+						} finally {
+							requestContextMap.remove(request);
+						}
+					}
+				}
                 timeoutRequestQueue.offer(timeoutRequests);
                 countTotalTimeoutRequests();
             } catch (Throwable e) {
