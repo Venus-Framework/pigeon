@@ -24,15 +24,13 @@ public class Crc32Handler extends SimpleChannelHandler {
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        if (e.getMessage() == null ||
-                !(e.getMessage() instanceof CodecEvent)) {
+        if (e.getMessage() == null || !(e.getMessage() instanceof CodecEvent)) {
             return;
         }
 
         CodecEvent codecEvent = (CodecEvent) e.getMessage();
 
         if (codecEvent.isUnified()) {
-
             if (doUnChecksum(e.getChannel(), codecEvent)) {
                 Channels.fireMessageReceived(ctx, codecEvent, e.getRemoteAddress());
             }

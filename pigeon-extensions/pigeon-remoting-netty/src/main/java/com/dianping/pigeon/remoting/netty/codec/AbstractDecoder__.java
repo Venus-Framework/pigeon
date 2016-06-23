@@ -34,6 +34,7 @@ public abstract class AbstractDecoder__ extends OneToOneDecoder {
         if (msg == null || !(msg instanceof CodecEvent)) {
             return null;
         }
+
         CodecEvent codecEvent = (CodecEvent) msg;
 
         if (codecEvent.isUnified()) {

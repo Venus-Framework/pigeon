@@ -55,9 +55,7 @@ public class CodecConfig {
     }
 
     public static boolean isChecksum() {
-
         return configManager.getBooleanValue(CHECKSUM_ENABLE_KEY, false);
-
     }
 
 }

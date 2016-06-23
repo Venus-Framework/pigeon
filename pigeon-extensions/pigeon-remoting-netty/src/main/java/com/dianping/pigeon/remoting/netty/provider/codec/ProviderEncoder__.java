@@ -2,7 +2,6 @@ package com.dianping.pigeon.remoting.netty.provider.codec;
 
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
-import com.dianping.pigeon.remoting.netty.codec.AbstractEncoder_;
 import com.dianping.pigeon.remoting.netty.codec.AbstractEncoder__;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;

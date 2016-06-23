@@ -25,8 +25,7 @@ public class CompressHandler extends SimpleChannelHandler {
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        if (e.getMessage() == null ||
-                !(e.getMessage() instanceof CodecEvent)) {
+        if (e.getMessage() == null || !(e.getMessage() instanceof CodecEvent)) {
             return;
         }
 
@@ -110,7 +109,9 @@ public class CompressHandler extends SimpleChannelHandler {
                 _totalLength + CodecConstants._FRONT_LENGTH_);
 
         result.writeBytes(frame, frame.readerIndex(), CodecConstants._HEAD_LENGTH);
-        result.writeBytes(frame, _totalLength);
+        result.writeInt(_totalLength);
+        result.writeBytes(frame, frame.readerIndex() + CodecConstants._FRONT_LENGTH_,
+                CodecConstants._HEAD_FIELD_LENGTH);
         result.writeBytes(out);
 
         return result;

@@ -44,11 +44,10 @@ public abstract class AbstractEncoder__ extends OneToOneEncoder {
                 if (msg instanceof UnifiedInvocation) {
                     frame = _doEncode(channel, (UnifiedInvocation) _msg);
                     codecEvent = new CodecEvent(frame, true);
-                    return codecEvent;
+                }else{
+                    frame = doEncode(channel, _msg);
+                    codecEvent = new CodecEvent(frame, false);
                 }
-
-                frame = doEncode(channel, _msg);
-                codecEvent = new CodecEvent(frame, false);
 
                 return codecEvent;
             } catch (IOException e) {
