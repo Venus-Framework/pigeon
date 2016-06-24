@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -25,6 +24,8 @@ public interface EchoService {
 	String asyncEcho(String msg);
 
 	long now();
+	
+	boolean isMale();
 
 	void addUser(User<?> user);
 

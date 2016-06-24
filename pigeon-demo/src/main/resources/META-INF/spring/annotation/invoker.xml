@@ -13,4 +13,7 @@
 	<bean id="annotationTestService"
 		class="com.dianping.pigeon.demo.annotation.AnnotationTestService" />
 
+	<!-- <bean id="annotationTestAbstractService" abstract="true" class="com.dianping.pigeon.demo.annotation.AnnotationTestAbstractService" 
+		/> -->
+
 </beans>

@@ -4,15 +4,16 @@
  */
 package com.dianping.pigeon.demo.annotation;
 
-import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.demo.UserService;
 import com.dianping.pigeon.remoting.invoker.config.annotation.Reference;
 
-public class AnnotationTestService extends AnnotationTestAbstractService {
+public abstract class AnnotationTestAbstractAService {
 
 	@Reference(timeout = 500)
-	private EchoService echoService;
+	private UserService userService2;
 
-	public String testEcho(String input) {
-		return echoService.echo(input);
+	public String testUser2(String input) {
+		return userService2.echo(input);
 	}
+
 }

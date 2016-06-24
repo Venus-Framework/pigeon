@@ -17,7 +17,11 @@ public class Client {
 
 		AnnotationTestService annotationTestService = (AnnotationTestService) CLIENT_CONTAINER
 				.getBean("annotationTestService");
-		System.out.println(annotationTestService.testEcho("annotationTestService_input"));
+		System.out.println(annotationTestService.testEcho("echo"));
+		System.out.println(annotationTestService.testUser("user"));
+		System.out.println(annotationTestService.testUser2("user"));
+
+
 	}
 
 }
