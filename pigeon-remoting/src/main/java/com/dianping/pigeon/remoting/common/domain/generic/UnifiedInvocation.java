@@ -26,4 +26,8 @@ public interface UnifiedInvocation extends InvocationSerializable {
     Map<String, String> getLocalContext();
 
     void setLocalContext(Map<String, String> localContext);
+
+    Class<?> getServiceInterface();
+
+    void setServiceInterface(Class<?> serviceInterface);
 }

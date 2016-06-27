@@ -27,6 +27,8 @@ public class GenericResponse implements UnifiedResponse {
 
     private transient String methodName;
 
+    private transient Class<?> serviceInterface;
+
     private Object returnVal;
 
     private int compressType;
@@ -101,6 +103,14 @@ public class GenericResponse implements UnifiedResponse {
 
     public void setMethodName(String methodName) {
         this.methodName = methodName;
+    }
+
+    public Class<?> getServiceInterface() {
+        return serviceInterface;
+    }
+
+    public void setServiceInterface(Class<?> serviceInterface) {
+        this.serviceInterface = serviceInterface;
     }
 
     public String getCause() {

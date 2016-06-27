@@ -41,14 +41,9 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
         TMessage message = protocol.readMessageBegin();
 
         if (message.type == TMessageType.CALL) {
-            Class<?> iface = ServicePublisher.getInterface(request.getServiceName());
-
-            if (iface == null) {
-                throw new SerializationException("Deserialize thrift serviceName is invalid.");
-            }
 
             String argsClassName = ThriftClassNameGenerator.generateArgsClassName(
-                    iface.getName(),
+                    request.getServiceInterface().getName(),
                     message.name);
 
             if (StringUtils.isEmpty(argsClassName)) {
@@ -139,14 +134,8 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
                 TMessageType.CALL,
                 getSequenceId());
 
-        Class<?> iface = request.getServiceInterface();
-
-        if (iface == null) {
-            throw new SerializationException("Serialize thrift interface is null.");
-        }
-
         String argsClassName = ThriftClassNameGenerator.generateArgsClassName(
-                iface.getName(),
+                request.getServiceInterface().getName(),
                 request.getMethodName());
 
         if (StringUtils.isEmpty(argsClassName)) {
@@ -212,28 +201,15 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
         protocol.getTransport().flush();
     }
 
-    protected void doDeserializeResponse(GenericResponse response, TProtocol protocol, Header header)
+    protected void doDeserializeResponse(GenericResponse response, GenericRequest request,TProtocol protocol, Header header)
             throws Exception {
         // body
         TMessage message = protocol.readMessageBegin();
 
-        GenericRequest request = (GenericRequest) repository.get(
-                header.getResponseInfo().getSequenceId());
-
-        if (request == null) {
-            throw new SerializationException("Deserialize cannot find related request. header " + header);
-        }
-
         if (message.type == TMessageType.REPLY) {
 
-            Class<?> iface = request.getServiceInterface();
-
-            if (iface == null) {
-                throw new SerializationException("Deserialize interface is null.");
-            }
-
             String resultClassName = ThriftClassNameGenerator.generateResultClassName(
-                    iface.getName(),
+                    request.getServiceInterface().getName(),
                     message.name);
 
             if (StringUtils.isEmpty(resultClassName)) {
@@ -315,14 +291,9 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
     protected void doSerializeResponse(GenericResponse response, TProtocol protocol,
                                        Header header, DynamicByteArrayOutputStream bos)
             throws Exception {
-        Class<?> iface = ServicePublisher.getInterface(response.getServiceName());
-
-        if (iface == null) {
-            throw new SerializationException("Serialize thrift serviceName is invalid.");
-        }
 
         String resultClassName = ThriftClassNameGenerator.generateResultClassName(
-                iface.getName(),
+                response.getServiceInterface().getName(),
                 response.getMethodName());
 
         if (StringUtils.isEmpty(resultClassName)) {
