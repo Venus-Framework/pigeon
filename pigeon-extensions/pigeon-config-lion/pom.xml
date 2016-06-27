@@ -21,9 +21,5 @@
 			<groupId>com.dianping.lion</groupId>
 			<artifactId>lion-client</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.dianping.platform</groupId>
-			<artifactId>phoenix-environment</artifactId>
-		</dependency>
 	</dependencies>
 </project>

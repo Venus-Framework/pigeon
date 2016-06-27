@@ -31,9 +31,5 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.dianping.platform</groupId>
-			<artifactId>phoenix-environment</artifactId>
-		</dependency>
 	</dependencies>
 </project>

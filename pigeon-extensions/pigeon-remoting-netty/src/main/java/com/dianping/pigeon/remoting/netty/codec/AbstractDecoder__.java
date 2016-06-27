@@ -136,13 +136,7 @@ public abstract class AbstractDecoder__ extends OneToOneDecoder {
             int msgType = msg_.getMessageType();
 
             if (msgType == Constants.MESSAGE_TYPE_SERVICE && frameLength > 0) {
-
-                if (msg instanceof UnifiedInvocation) {
-                    msg_.setSize(frameLength);
-                } else {
-                    msg_.setSize(frameLength);
-                }
-
+                msg_.setSize(frameLength);
             }
 
             msg_.setSerialize(serialize);
