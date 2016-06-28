@@ -24,7 +24,8 @@ public class FeedbackController extends BaseController{
     @Autowired
     private FeedbackService feedbackService;
     @RequestMapping(value = {"/feedback"},method = RequestMethod.GET)
-    public String feedbackMainPage(){
+    public String feedbackMainPage(HttpServletRequest request,HttpServletResponse response,ModelMap modelMap){
+        commonnav(modelMap,request);
         return "/feedback/main";
     }
 
