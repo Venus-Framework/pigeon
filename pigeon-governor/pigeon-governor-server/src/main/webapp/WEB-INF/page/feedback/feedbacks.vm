@@ -1,0 +1,124 @@
+#set($layout="layoutblank.vm")
+<div class="col-xs-12 feedbacks">
+    <div class="timeline-container timeline-style2 no-padding-top">
+        <div class="timeline-items">
+            #foreach($feedback in ${feedbacks})
+                <div class="timeline-item clearfix feedback" data-feedback-id = "$feedback.id">
+                    <div class="timeline-info">
+                        <span class="timeline-date">$feedback.getDate()</span>
+                        <span class="timeline-date">$feedback.getTime()</span>
+
+                        <i class="timeline-indicator btn btn-info no-hover"></i>
+                    </div>
+
+                    <div class="widget-box timeline-widget">
+                        <div class="widget-header widget-header-small timeline-widget-header">
+                            <h5 class="widget-title smaller">
+                                <span class="grey">$feedback.title</span>
+                            </h5>
+                            <span class="widget-toolbar no-border">
+                                Created by $feedback.author
+                            </span>
+                        </div>
+                        <div class="widget-body">
+                            <div class="widget-main">
+                                <span class="bigger-110" style=" word-break:break-all;">
+                                    $feedback.content
+                                </span>
+                            </div>
+                            <div class="widget-toolbox clearfix"  style=" background-color: #ECF1F4 !important;padding-top: 5px !important;padding-bottom: 5px !important;padding-left: 0px !important;padding-right: 0px !important;">
+                                <div class="col-xs-3">
+                                </div>
+                                <div class="col-xs-3 bottom-toolbar-tool-first center delete-feedback">
+                                    #if($feedback.empowered)
+                                            <a>
+                                                <i class="ace-icon fa fa-times bigger-125 orange"></i>
+                                            </a>
+                                    #else
+                                    #end
+                                </div>
+                                <div class="col-xs-3 bottom-toolbar-tool center  list-comments">
+                                        <a>
+                                            <i class=" ace-icon fa fa-comment-o bigger-125 green commentsCount">&nbsp;<span>$feedback.commentsNumber</span></i>
+                                        </a>
+                                </div>
+                                <div class="col-xs-3 bottom-toolbar-tool-last center support-feedback">
+                                        <a><i  class="  ace-icon fa
+                                        #if($feedback.supported)
+                                        fa-heart
+                                        #else
+                                        fa-heart-o
+                                        #end
+                                        red bigger-125">&nbsp;<span>$feedback.supportsNumber</span></i></a>
+                                </div>
+                            </div>
+                            <div class="widget-main hide comments-group">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            #end
+        </div><!-- /.timeline-items -->
+    </div>
+</div>
+<script>
+    jQuery(function($) {
+        $('.feedback').each(function (i,item) {
+            var wrapperObject = $(item);
+            $(wrapperObject).find('.list-comments').bind('click',function () {
+                var commentsObject = wrapperObject.find('.comments-group');
+                var commentsContent  =  commentsObject.html();
+                if(/^\s*?$/.test(commentsContent)){
+                    commentsObject.removeClass('hide');
+                    commentsObject.ajaxLoad({
+                        url:"/feedback/commentsInit",
+                        data:{'feedbackId': wrapperObject.attr('data-feedback-id')}
+                    });
+
+                }else{
+                    if(commentsObject.hasClass('hide'))
+                        commentsObject.removeClass('hide');
+                    else
+                        commentsObject.addClass('hide');
+                }
+            });
+            $(wrapperObject).find(".delete-feedback").bind('click',function(){
+                $.ajax({
+                    type : "post",
+                    url :"/feedback/deleteFeedback",
+                    data:{'feedbackId':wrapperObject.attr('data-feedback-id')},
+                    success : function (data) {
+                        $('.ajaxContent').ajaxLoad({
+                            url:'/feedback/feedbacksInit',
+                            data:''
+                        });
+                    }
+                });
+            });
+            $(wrapperObject).find(".support-feedback").bind('click',function () {
+                $.ajax({
+                    type:"post",
+                    url:"/feedback/support",
+                    data:{'feedbackId':wrapperObject.attr('data-feedback-id')},
+                    success:function (data) {
+
+
+                    }
+                });
+                var supportElement = wrapperObject.find('.support-feedback').find('i');
+                if(supportElement.hasClass('fa-heart')){
+                    supportElement.removeClass('fa-heart');
+                    supportElement.addClass('fa-heart-o');
+                    var count = Number(supportElement.find('span').html());
+                    supportElement.find('span').html(count-1);
+                }else{
+                    supportElement.removeClass('fa-heart-o');
+                    supportElement.addClass('fa-heart');
+                    var count = Number(supportElement.find('span').html());
+                    supportElement.find('span').html(count+1);
+                }
+            });
+        });
+    })
+</script>

@@ -113,46 +113,48 @@
                 var size = pageList.length;
                 if(size==0){
                     size = settings.size;
-                    wrapper.append("<li class='pagination-pre'><a href='#'><i class='ace-icon fa fa-angle-double-left'></i></a></li>");
-                    var i = 0;
-                    while(i<size){
-                        wrapper.append("<li><a>"+(i+1)+"</a></li>");
-                        wrapper.children().eq(i+1).bind('click',function () {
-                            $(this).siblings().filter('.active').removeClass('active')
-                            var index  = parseInt($(this).children().html());
-                            settings.callback(index);
-                            $(this).addClass('active');
-                            if(index == size){
-                                $(this).siblings().last().addClass('disabled');
+                    if(size!=0){
+                        wrapper.append("<li class='pagination-pre'><a href='#'><i class='ace-icon fa fa-angle-double-left'></i></a></li>");
+                        var i = 0;
+                        while(i<size){
+                            wrapper.append("<li><a>"+(i+1)+"</a></li>");
+                            wrapper.children().eq(i+1).bind('click',function () {
+                                $(this).siblings().filter('.active').removeClass('active')
+                                var index  = parseInt($(this).children().html());
+                                settings.callback(index);
+                                $(this).addClass('active');
+                                if(index == size){
+                                    $(this).siblings().last().addClass('disabled');
+                                }else
+                                    $(this).siblings().last().removeClass('disabled');
+                                if(index==1){
+                                    $(this).siblings().first().addClass('disabled');
+                                }else{
+                                    $(this).siblings().first().removeClass('disabled');
+                                }
+                            });
+                            i++;
+                        }
+                        wrapper.append("<li class ='pagination-next'><a href='#'><i class='ace-icon fa fa-angle-double-right'></i></a></li>");
+                        wrapper.children().eq(0).bind('click',function(){
+                            var activePage = wrapper.find('.active');
+                            if(activePage.prev().hasClass('pagination-pre')){
+
                             }else
-                                $(this).siblings().last().removeClass('disabled');
-                            if(index==1){
-                                $(this).siblings().first().addClass('disabled');
-                            }else{
-                                $(this).siblings().first().removeClass('disabled');
-                            }
+                                activePage.prev().click();
                         });
-                        i++;
-                    }
-                    wrapper.append("<li class ='pagination-next'><a href='#'><i class='ace-icon fa fa-angle-double-right'></i></a></li>");
-                    wrapper.children().eq(0).bind('click',function(){
-                        var activePage = wrapper.find('.active');
-                        if(activePage.prev().hasClass('pagination-pre')){
+                        wrapper.children().eq(size+1).bind('click',function () {
+                            var activePage = wrapper.find('.active');
+                            if(activePage.next().hasClass('pagination-next')){
 
-                        }else
-                            activePage.prev().click();
-                    });
-                    wrapper.children().eq(size+1).bind('click',function () {
-                        var activePage = wrapper.find('.active');
-                        if(activePage.next().hasClass('pagination-next')){
-
-                        }else
-                            activePage.next().click();
-                    });
-                    wrapper.children().eq(1).addClass('active');
-                    wrapper.children().eq(0).addClass('disabled');
-                    if(size==1){
-                        wrapper.children().eq(2).addClass('disabled');
+                            }else
+                                activePage.next().click();
+                        });
+                        wrapper.children().eq(1).addClass('active');
+                        wrapper.children().eq(0).addClass('disabled');
+                        if(size==1){
+                            wrapper.children().eq(2).addClass('disabled');
+                        }
                     }
                 }else{
                     {

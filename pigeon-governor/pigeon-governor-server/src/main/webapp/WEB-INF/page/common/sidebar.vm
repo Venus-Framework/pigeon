@@ -89,11 +89,18 @@
     </li>
 	<li id ="user_guide">
 		<a href="${rc.contextPath}/resources/mdwiki/index.html#!USER_GUIDE.md">
-			<i class="menu-icon fa fa-pencil-square-o"></i>
-			<span class="menu-text">Pigeon指南</span>
+			<i class="menu-icon fa fa-question"></i>
+			<span class="menu-text">使用帮助</span>
 		</a>
 		<b class="arrow"></b>
 	</li>
+    <li id ="user_feedback">
+        <a href="${rc.contextPath}/feedback">
+            <i class="menu-icon ace-icon fa fa-comments-o fa-2x "></i>
+            <span class="menu-text">意见反馈</span>
+        </a>
+        <b class="arrow"></b>
+    </li>
 </ul>
 <!-- /.nav-list -->
 <!-- #section:basics/sidebar.layout.minimize -->
