@@ -4,13 +4,13 @@
 	<parent>
 		<artifactId>pigeon-parent</artifactId>
 		<groupId>com.dianping</groupId>
-		<version>2.7.8-2</version>
+		<version>2.7.9</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<name>pigeon-config</name>
 	<groupId>com.dianping</groupId>
 	<artifactId>pigeon-config</artifactId>
-	<version>2.7.8-2</version>
+	<version>2.7.9</version>
 	<url>http://maven.apache.org</url>
 	<packaging>jar</packaging>
 	<dependencies>
