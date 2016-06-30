@@ -40,6 +40,7 @@ public class JettyConsoleProcessor implements JettyHttpServerProcessor {
 		context.addServlet(new ServletHolder(new ServiceOfflineServlet(serverConfig, port)), "/services.offline");
 		context.addServlet(new ServletHolder(new StatisticsJsonServlet(serverConfig, port)), "/stats.json");
 		context.addServlet(new ServletHolder(new RegionStatusServlet(serverConfig, port)), "/region.status");
+		context.addServlet(new ServletHolder(new RequestQualityServlet(serverConfig, port)), "/requestQuality.status");
 		ServletHolder holder = new ServletHolder(new DefaultServlet());
 		URL url = JettyConsoleProcessor.class.getClassLoader().getResource("statics");
 		if (url == null) {
