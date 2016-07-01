@@ -1,0 +1,28 @@
+#set($layout="layoutblank.vm")
+#parse("feedback/feedbacks.vm")
+<div class="col-xs-12">
+
+    <div class="hr hr20 hr-dotted margin-no-bottom"></div>
+    <div class="col-xs-9" id="pagination">
+    </div>
+    <div class="col-xs-3" style="margin-top: 27px">
+        <span class="pull-right">共 $totalNumber 条反馈信息</span>
+    </div>
+    <script>
+        jQuery(function($) {
+            $('#pagination').accordion({
+                "fold": true,
+                "size": Math.ceil($totalNumber/ 10),
+                "viewNumber": 7,
+                "callback": function (page) {
+                var start = (page-1)*10;
+                var size = 10;
+                $('.feedbacks').ajaxLoad({
+                    url:'/feedback/feedbacks',
+                    data:{'start':start,"size":size}
+                });
+            }
+            });
+        })
+    </script>
+</div>

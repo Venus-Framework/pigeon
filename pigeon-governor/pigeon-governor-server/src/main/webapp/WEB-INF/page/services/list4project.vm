@@ -108,6 +108,11 @@
 							点击左下角小红人可申请管理员。
 							#end
 						</div>
+                        <div>
+                            <a class="btn btn-danger" href="http://web.cmdb.dp/?project=${projectName}" target="_blank">
+                                点击查询应用所属信息
+                            </a>
+                        </div>
 						<table id="grid-table"></table>
 
 						<div id="grid-pager"></div>

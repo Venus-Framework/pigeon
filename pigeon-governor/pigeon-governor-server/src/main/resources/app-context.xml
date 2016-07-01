@@ -128,8 +128,10 @@
 	</task:scheduled-tasks>
 	<bean id="scanServiceTask"
 		  class="com.dianping.pigeon.governor.bean.scanServiceDesc.ScanServiceTask"/>
-	
-	
+	<task:scheduled-tasks>
+		<task:scheduled ref="purgeExpireDescTask" method="schedule" cron="0 0 4 * * *"/>
+	</task:scheduled-tasks>
+	<bean id = "purgeExpireDescTask" class="com.dianping.pigeon.governor.bean.scanServiceDesc.PurgeExpireDescTask" />
 	<pigeon:annotation />
 
 	<pigeon:reference id="masterDataEmployeeService"  timeout="5000"
@@ -143,8 +145,8 @@
 
 	<!-- core bean -->
 	<bean id="taskExecutor"  class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name ="corePoolSize" value ="400" />
-		<property name ="maxPoolSize" value ="800" />
+		<property name ="corePoolSize" value ="800" />
+		<property name ="maxPoolSize" value ="1200" />
 		<property name ="keepAliveSeconds" value ="300" />
 		<!--<property name ="queueCapacity" value ="10000" />-->
 		<property name= "rejectedExecutionHandler" >

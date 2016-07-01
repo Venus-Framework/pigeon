@@ -1,0 +1,61 @@
+#set($layout="layoutblank.vm")
+<div class="feedback-input-group"  data-feedbackId = '$feedbackId'>
+    <div class="row" style="padding-bottom: 5px">
+        <div class="col-sm-12">
+            <textarea class="autosize col-sm-12"></textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-10"></div>
+        <div class="col-xs-2">
+            <button type="button" class="btn btn-sm btn-danger col-xs-12">
+                评论
+            </button>
+        </div>
+    </div>
+</div>
+<div class="comments-container">
+    <div class="comments">
+        #parse("/feedback/comments.vm")
+    </div>
+    <div class="row">
+        <div class="col-xs-9 comments-pagination" data-feedbackId = '$feedbackId'></div>
+        <div class="col-xs-3" style="margin-top: 27px">
+            <span>共 $commentsNumber 条评论</span>
+        </div>
+    </div>
+</div>
+<script>
+    jQuery(function($) {
+        var targetFeedbackObject = $('.comments-pagination').filter("[data-feedbackId='$feedbackId']");
+        targetFeedbackObject.accordion({
+            "fold": true,
+            "size": Math.ceil($commentsNumber/ 10),
+                "viewNumber": 7,
+                "callback": function (page) {
+            targetFeedbackObject.parent().siblings('.comments').ajaxLoad({
+                url:'/feedback/comments',
+                data:{'feedbackId':targetFeedbackObject.attr('data-feedbackId'),'start':(page-1)*10,'size':10}
+            });
+        }
+    });
+        var submitObject = $('.feedback-input-group').filter("[data-feedbackId='$feedbackId']");
+        submitObject.find('button').bind('click',function(){
+            var feedbackContent = submitObject.find('textarea').val();
+            $.ajax({
+                type : "post",
+                url :"/feedback/newComment",
+                data:{'content':feedbackContent,"feedbackId":$feedbackId},
+                success : function (data) {
+                    submitObject.parent().ajaxLoad({
+                        url:"/feedback/commentsInit",
+                        data:{'feedbackId': $feedbackId}
+                    });
+                    var commentsCountObject = targetFeedbackObject.parents('.feedback').find('.commentsCount').find('span');
+                    commentsCountObject.html(Number(commentsCountObject.html())+1);
+                }
+            });
+        });
+
+    })
+</script>
