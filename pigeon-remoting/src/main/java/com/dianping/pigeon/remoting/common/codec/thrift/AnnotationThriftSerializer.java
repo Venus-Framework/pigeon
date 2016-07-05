@@ -4,14 +4,11 @@ import com.dianping.pigeon.remoting.common.codec.thrift.annotation.ThriftClientM
 import com.dianping.pigeon.remoting.common.codec.thrift.annotation.ThriftMethodHandler;
 import com.dianping.pigeon.remoting.common.codec.thrift.annotation.ThriftMethodProcessor;
 import com.dianping.pigeon.remoting.common.codec.thrift.annotation.ThriftServerMetadata;
-import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericResponse;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.Header;
 import com.dianping.pigeon.remoting.common.domain.generic.StatusCode;
 import com.dianping.pigeon.remoting.common.domain.generic.ThriftMapper;
-import com.dianping.pigeon.remoting.common.exception.SerializationException;
-import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.ClassUtils;
 import org.apache.thrift.TApplicationException;
 import org.apache.thrift.protocol.TMessage;
@@ -44,6 +41,7 @@ public class AnnotationThriftSerializer extends AbstractThriftSerializer {
 
         Object[] parameters = methodProcessor.readArguments(protocol);
 
+        request.setSeqId(message.seqid);
         request.setMethodName(message.name);
         request.setParameters(parameters);
 
@@ -71,6 +69,7 @@ public class AnnotationThriftSerializer extends AbstractThriftSerializer {
         ThriftMethodHandler methodHandler = getMethodHandler(
                 request.getServiceInterface().getName(),
                 message.name);
+        response.setSeqId(message.seqid);
 
         //body
         if (message.type == TMessageType.REPLY) {
@@ -109,9 +108,9 @@ public class AnnotationThriftSerializer extends AbstractThriftSerializer {
         }
 
         if (applicationException != null) {
-            message = new TMessage(response.getMethodName(), TMessageType.EXCEPTION, getSequenceId());
+            message = new TMessage(response.getMethodName(), TMessageType.EXCEPTION, response.getSeqId());
         } else {
-            message = new TMessage(response.getMethodName(), TMessageType.REPLY, getSequenceId());
+            message = new TMessage(response.getMethodName(), TMessageType.REPLY, response.getSeqId());
         }
 
         //header

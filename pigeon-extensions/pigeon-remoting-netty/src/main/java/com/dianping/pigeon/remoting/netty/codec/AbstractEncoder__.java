@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import static org.jboss.netty.buffer.ChannelBuffers.dynamicBuffer;
-import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
 /**
  * @author qi.yin
@@ -44,7 +43,7 @@ public abstract class AbstractEncoder__ extends OneToOneEncoder {
                 if (msg instanceof UnifiedInvocation) {
                     frame = _doEncode(channel, (UnifiedInvocation) _msg);
                     codecEvent = new CodecEvent(frame, true);
-                }else{
+                } else {
                     frame = doEncode(channel, _msg);
                     codecEvent = new CodecEvent(frame, false);
                 }
@@ -70,53 +69,53 @@ public abstract class AbstractEncoder__ extends OneToOneEncoder {
 
     protected ChannelBuffer doEncode(Channel channel, InvocationSerializable msg)
             throws IOException {
-        OutputStream os = new ChannelBufferOutputStream(dynamicBuffer(CodecConstants.ESTIMATED_LENGTH,
+        ChannelBufferOutputStream os = new ChannelBufferOutputStream(dynamicBuffer(CodecConstants.ESTIMATED_LENGTH,
                 channel.getConfig().getBufferFactory()));
+        //magic
+        os.write(CodecConstants.MAGIC);
+        //serialize
+        os.writeByte(msg.getSerialize());
+        //bodyLength
+        os.writeInt(Integer.MAX_VALUE);
 
         serialize(msg.getSerialize(), os, msg, channel);
-
-        ChannelBuffer head = channel.getConfig().getBufferFactory().getBuffer(CodecConstants.FRONT_LENGTH);
-
-        //magic
-        head.writeBytes(CodecConstants.MAGIC);
-        //serialize
-        head.writeByte(msg.getSerialize());
-
         //body
-        ChannelBuffer body = ((ChannelBufferOutputStream) os).buffer();
+        ChannelBuffer frame = os.buffer();
         //sequence
-        body.writeLong(msg.getSequence());
+        frame.writeLong(msg.getSequence());
         //expand
-        body.writeBytes(CodecConstants.EXPAND);
+        frame.writeBytes(CodecConstants.EXPAND);
+        //bodyLength
+        frame.setInt(CodecConstants.HEAD_LENGTH, frame.readableBytes() -
+                CodecConstants.FRONT_LENGTH);
 
-        head.writeInt(body.readableBytes());
-
-        return wrappedBuffer(head, body);
+        return frame;
     }
 
     protected ChannelBuffer _doEncode(Channel channel, UnifiedInvocation msg)
             throws IOException {
 
-        OutputStream os = new ChannelBufferOutputStream(dynamicBuffer(CodecConstants.ESTIMATED_LENGTH,
+        ChannelBufferOutputStream os = new ChannelBufferOutputStream(dynamicBuffer(CodecConstants.ESTIMATED_LENGTH,
                 channel.getConfig().getBufferFactory()));
 
-        serialize(msg.getSerialize(), os, msg, channel);
-
-        ChannelBuffer head = channel.getConfig().getBufferFactory().getBuffer(CodecConstants._FRONT_LENGTH_);
         //magic
-        head.writeBytes(CodecConstants._MAGIC);
-        //version
-        head.writeByte(msg.getProtocalVersion());
+        os.write(CodecConstants._MAGIC);
+        os.writeByte(msg.getProtocalVersion());
         //serialize
         byte serialize = SerializerFactory.convertToUnifiedSerialize(msg.getSerialize());
         //serialize
-        head.writeByte(serialize);
-        //body
-        ChannelBuffer frame = ((ChannelBufferOutputStream) os).buffer();
+        os.writeByte(serialize);
         //totalLength
-        head.writeInt(frame.readableBytes());
+        os.writeInt(Integer.MAX_VALUE);
 
-        return wrappedBuffer(head, frame);
+        serialize(msg.getSerialize(), os, msg, channel);
+
+        ChannelBuffer frame = os.buffer();
+        //totalLength
+        frame.setInt(CodecConstants._HEAD_LENGTH, frame.readableBytes() -
+                CodecConstants._FRONT_LENGTH_);
+
+        return frame;
     }
 
     public abstract void doFailResponse(Channel channel, InvocationResponse response);

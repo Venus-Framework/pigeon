@@ -17,7 +17,6 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.monitor.MonitorConstants;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext;
-import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.util.ContextUtils;
 

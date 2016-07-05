@@ -6,7 +6,6 @@ import com.dianping.pigeon.remoting.common.domain.generic.thrift.Header;
 import com.dianping.pigeon.remoting.common.domain.generic.ThriftMapper;
 import com.dianping.pigeon.remoting.common.domain.generic.StatusCode;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
-import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.ClassUtils;
 import com.dianping.pigeon.util.ThriftUtils;
 import org.apache.commons.lang.StringUtils;
@@ -119,7 +118,7 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
                 }
 
             }
-
+            request.setSeqId(message.seqid);
             request.setMethodName(message.name);
             request.setParameters(parameters.toArray());
             request.setParameterTypes(parameterTypes.toArray(new Class[parameterTypes.size()]));
@@ -205,6 +204,7 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
             throws Exception {
         // body
         TMessage message = protocol.readMessageBegin();
+        response.setSeqId(message.seqid);
 
         if (message.type == TMessageType.REPLY) {
 
@@ -407,9 +407,9 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
         }
 
         if (applicationException != null) {
-            message = new TMessage(response.getMethodName(), TMessageType.EXCEPTION, getSequenceId());
+            message = new TMessage(response.getMethodName(), TMessageType.EXCEPTION, response.getSeqId());
         } else {
-            message = new TMessage(response.getMethodName(), TMessageType.REPLY, getSequenceId());
+            message = new TMessage(response.getMethodName(), TMessageType.REPLY, response.getSeqId());
         }
 
         //header

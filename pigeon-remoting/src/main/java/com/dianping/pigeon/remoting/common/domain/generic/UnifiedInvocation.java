@@ -30,4 +30,8 @@ public interface UnifiedInvocation extends InvocationSerializable {
     Class<?> getServiceInterface();
 
     void setServiceInterface(Class<?> serviceInterface);
+
+    void setSeqId(int seqId);
+
+    int getSeqId();
 }

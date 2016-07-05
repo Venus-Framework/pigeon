@@ -13,42 +13,44 @@ import com.dianping.pigeon.remoting.invoker.route.region.Region;
 
 public interface Client {
 
-	ConnectInfo getConnectInfo();
+    ConnectInfo getConnectInfo();
 
-	void connect();
+    void connect();
 
-	InvocationResponse write(InvocationRequest request, Callback callback) throws NetworkException;
+    InvocationResponse write(InvocationRequest request, Callback callback) throws NetworkException;
 
-	InvocationResponse write(InvocationRequest request) throws NetworkException;
+    InvocationResponse write(InvocationRequest request) throws NetworkException;
 
-	void connectionException(Object attachment, Throwable e);
+    void connectionException(Object attachment, Throwable e);
 
-	void processResponse(InvocationResponse response);
+    void processResponse(InvocationResponse response);
 
-	boolean isConnected();
+    boolean isConnected();
 
-	boolean isActive();
+    boolean isActive();
 
-	void setActive(boolean active);
+    void setActive(boolean active);
 
-	boolean isWritable();
+    boolean isWritable();
 
-	String getHost();
+    String getHost();
 
-	String getAddress();
+    String getAddress();
 
-	int getPort();
+    int getPort();
 
-	void close();
+    void close();
 
-	boolean isDisposable();
+    boolean isDisposable();
 
-	void dispose();
-	
-	String getProtocol();
+    void dispose();
 
-	Region getRegion();
+    String getProtocol();
 
-	void clearRegion();
+    Region getRegion();
+
+    void clearRegion();
+
+    String getLocalIp();
 
 }

@@ -13,4 +13,8 @@ public interface UnifiedRequest extends InvocationRequest, UnifiedInvocation {
 
     void setParameterTypes(Class<?>[] parameterTypes);
 
+    void setClientIp(String ip);
+
+    String getClientIp();
+
 }

@@ -161,7 +161,7 @@ public class CompressHandler extends SimpleChannelHandler {
 
         byte[] out = compress.compress(in);
         byte[] lengthBuf = new byte[CodecConstants._HEAD_FIELD_LENGTH];
-        frame.getBytes(0, lengthBuf, 0, lengthBuf.length);
+        frame.getBytes(CodecConstants._FRONT_LENGTH_, lengthBuf, 0, lengthBuf.length);
 
         int totalLength = out.length + lengthBuf.length;
         int _frameLength = totalLength + CodecConstants._FRONT_LENGTH_;

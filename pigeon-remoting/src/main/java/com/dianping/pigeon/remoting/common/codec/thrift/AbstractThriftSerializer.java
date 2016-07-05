@@ -1,23 +1,11 @@
 package com.dianping.pigeon.remoting.common.codec.thrift;
 
-import com.dianping.pigeon.remoting.common.codec.AbstractSerializer;
-import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
-import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericResponse;
-import com.dianping.pigeon.remoting.common.domain.generic.ThriftMapper;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.Header;
-import com.dianping.pigeon.remoting.common.exception.SerializationException;
-import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
-import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
-import org.apache.commons.lang.StringUtils;
-import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TIOStreamTransport;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -27,6 +15,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class AbstractThriftSerializer {
 
     protected static final int HEADER_FIELD_LENGTH = 2;
+
+    private static final AtomicInteger SEQID = new AtomicInteger();
 
     protected ServiceInvocationRepository repository = ServiceInvocationRepository.getInstance();
 
@@ -46,7 +36,7 @@ public abstract class AbstractThriftSerializer {
                                                 Header header, DynamicByteArrayOutputStream bos)
             throws Exception;
 
-    protected int getSequenceId() {
-        return 1;
+    protected static int getSequenceId() {
+        return SEQID.getAndIncrement();
     }
 }

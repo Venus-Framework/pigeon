@@ -12,8 +12,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.TypeToken;
 import org.apache.thrift.TApplicationException;
-import org.apache.thrift.protocol.TMessage;
-import org.apache.thrift.protocol.TMessageType;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolException;
 

@@ -17,64 +17,71 @@ import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHo
 
 public abstract class AbstractClient implements Client {
 
-	private volatile boolean active = true;
+    private volatile boolean active = true;
 
-	ResponseProcessor responseProcessor = ResponseProcessorFactory.selectProcessor();
+    ResponseProcessor responseProcessor = ResponseProcessorFactory.selectProcessor();
 
-	protected volatile Region region;
+    protected volatile Region region;
 
-	@Override
-	public void connectionException(Object attachment, Throwable e) {
-		// TODO Auto-generated method stub
+    protected String localIp;
 
-	}
+    @Override
+    public void connectionException(Object attachment, Throwable e) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public void processResponse(InvocationResponse response) {
-		this.responseProcessor.processResponse(response, this);
-	}
+    }
 
-	public InvocationResponse write(InvocationRequest request) throws NetworkException {
-		return write(request, null);
-	}
+    @Override
+    public void processResponse(InvocationResponse response) {
+        this.responseProcessor.processResponse(response, this);
+    }
 
-	public InvocationResponse write(InvocationRequest request, Callback callback) throws NetworkException {
-		ServiceStatisticsHolder.flowIn(request, this.getAddress());
-		try {
-			return doWrite(request, callback);
-		} catch (NetworkException e) {
-			ServiceStatisticsHolder.flowOut(request, this.getAddress());
-			throw e;
-		}
-	}
+    public InvocationResponse write(InvocationRequest request) throws NetworkException {
+        return write(request, null);
+    }
 
-	public abstract InvocationResponse doWrite(InvocationRequest request, Callback callback) throws NetworkException;
+    public InvocationResponse write(InvocationRequest request, Callback callback) throws NetworkException {
+        ServiceStatisticsHolder.flowIn(request, this.getAddress());
+        try {
+            return doWrite(request, callback);
+        } catch (NetworkException e) {
+            ServiceStatisticsHolder.flowOut(request, this.getAddress());
+            throw e;
+        }
+    }
 
-	public boolean isActive() {
-		return active && HeartBeatListener.isActiveAddress(getAddress());
-	}
+    public abstract InvocationResponse doWrite(InvocationRequest request, Callback callback) throws NetworkException;
 
-	public void setActive(boolean active) {
-		if (active) {
-			ConnectInfo connectInfo = getConnectInfo();
-			Map<String, Integer> services = connectInfo.getServiceNames();
-			for (String url : services.keySet()) {
-				RegistryEventListener.serverInfoChanged(url, connectInfo.getConnect());
-			}
-		}
-		this.active = active;
-	}
+    public boolean isActive() {
+        return active && HeartBeatListener.isActiveAddress(getAddress());
+    }
 
-	@Override
-	public Region getRegion() {
-		if(region == null) {
-			region = RegionPolicyManager.INSTANCE.getRegion(getHost());
-		}
-		return region;
-	}
+    public void setActive(boolean active) {
+        if (active) {
+            ConnectInfo connectInfo = getConnectInfo();
+            Map<String, Integer> services = connectInfo.getServiceNames();
+            for (String url : services.keySet()) {
+                RegistryEventListener.serverInfoChanged(url, connectInfo.getConnect());
+            }
+        }
+        this.active = active;
+    }
 
-	@Override
-	public void clearRegion() {
-		region = null;
-	}
+    @Override
+    public Region getRegion() {
+        if (region == null) {
+            region = RegionPolicyManager.INSTANCE.getRegion(getHost());
+        }
+        return region;
+    }
+
+    @Override
+    public void clearRegion() {
+        region = null;
+    }
+
+    @Override
+    public String getLocalIp() {
+        return localIp;
+    }
 }

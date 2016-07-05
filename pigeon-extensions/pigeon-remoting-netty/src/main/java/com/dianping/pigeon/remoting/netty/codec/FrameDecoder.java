@@ -17,25 +17,25 @@ public class FrameDecoder extends org.jboss.netty.handler.codec.frame.FrameDecod
 
         Object message = null;
 
-        if (buffer.readableBytes() > 2) {
+        if (buffer.readableBytes() <= 2) {
+            return message;
+        }
 
-            byte[] headMsgs = new byte[2];
+        byte[] headMsgs = new byte[2];
 
-            buffer.getBytes(buffer.readerIndex(), headMsgs);
+        buffer.getBytes(buffer.readerIndex(), headMsgs);
 
-            if ((0x39 == headMsgs[0] && 0x3A == headMsgs[1])) {
-                //old protocal
-                message = doDecode(buffer);
+        if ((0x39 == headMsgs[0] && 0x3A == headMsgs[1])) {
+            //old protocal
+            message = doDecode(buffer);
 
-            } else if ((byte) 0xAB == headMsgs[0]
-                    && (byte) 0xBA == headMsgs[1]) {
-                //new protocal
-                message = _doDecode(buffer);
+        } else if ((byte) 0xAB == headMsgs[0] && (byte) 0xBA == headMsgs[1]) {
+            //new protocal
+            message = _doDecode(buffer);
 
-            } else {
-                throw new IllegalArgumentException("Decode invalid message head:" +
-                        headMsgs[0] + " " + headMsgs[1] + ", " + "message:" + buffer);
-            }
+        } else {
+            throw new IllegalArgumentException("Decode invalid message head:" +
+                    headMsgs[0] + " " + headMsgs[1] + ", " + "message:" + buffer);
         }
 
         return message;
@@ -46,23 +46,24 @@ public class FrameDecoder extends org.jboss.netty.handler.codec.frame.FrameDecod
 
         CodecEvent codecEvent = null;
 
-        if (buffer.readableBytes() > CodecConstants.FRONT_LENGTH) {
-
-            int totalLength = (int) buffer.getUnsignedInt(
-                    buffer.readerIndex() +
-                            CodecConstants.HEAD_LENGTH);
-
-            int frameLength = totalLength + CodecConstants.FRONT_LENGTH;
-
-            if (buffer.readableBytes() >= frameLength) {
-
-                ChannelBuffer frame = buffer.slice(buffer.readerIndex(), frameLength);
-                buffer.readerIndex(buffer.readerIndex() + frameLength);
-
-                codecEvent = new CodecEvent(frame, false);
-            }
-
+        if (buffer.readableBytes() <= CodecConstants.FRONT_LENGTH) {
+            return codecEvent;
         }
+
+        int totalLength = (int) buffer.getUnsignedInt(
+                buffer.readerIndex() +
+                        CodecConstants.HEAD_LENGTH);
+
+        int frameLength = totalLength + CodecConstants.FRONT_LENGTH;
+
+        if (buffer.readableBytes() >= frameLength) {
+
+            ChannelBuffer frame = buffer.slice(buffer.readerIndex(), frameLength);
+            buffer.readerIndex(buffer.readerIndex() + frameLength);
+
+            codecEvent = new CodecEvent(frame, false);
+        }
+
         return codecEvent;
     }
 

@@ -83,6 +83,7 @@ public final class ProviderUtils {
         } else {
             response.setReturn(exceptionTranslator.translate(e));
         }
+        response.setSeqId(request.getSeqId());
         return response;
     }
 
@@ -136,7 +137,7 @@ public final class ProviderUtils {
         } else {
             response.setReturn(e);
         }
-
+        response.setSeqId(request.getSeqId());
         return response;
     }
 
@@ -170,7 +171,7 @@ public final class ProviderUtils {
         response.setServiceName(request.getServiceName());
         response.setMethodName(request.getMethodName());
         response.setReturn(returnObj);
-
+        response.setSeqId(request.getSeqId());
         return response;
     }
 

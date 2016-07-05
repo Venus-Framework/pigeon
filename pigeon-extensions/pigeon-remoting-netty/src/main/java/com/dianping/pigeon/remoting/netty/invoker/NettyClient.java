@@ -122,6 +122,7 @@ public class NettyClient extends AbstractClient {
                         }
                     } finally {
                         this.channel = newChannel;
+                        localIp = ((InetSocketAddress) channel.getLocalAddress()).getAddress().getHostAddress();
                     }
                     logger.info("client is connected to " + this.host + ":" + this.port);
                     this.connected = true;

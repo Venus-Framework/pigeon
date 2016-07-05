@@ -41,6 +41,8 @@ public class GenericResponse implements UnifiedResponse {
 
     private Map<String, String> localContext = null;
 
+    private int seqId;
+
     public GenericResponse() {
 
     }
@@ -207,5 +209,15 @@ public class GenericResponse implements UnifiedResponse {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public int getSeqId() {
+        return seqId;
+    }
+
+    @Override
+    public void setSeqId(int seqId) {
+        this.seqId = seqId;
     }
 }

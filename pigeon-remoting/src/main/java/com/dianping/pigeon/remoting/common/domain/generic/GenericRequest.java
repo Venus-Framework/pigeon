@@ -56,6 +56,10 @@ public class GenericRequest implements UnifiedRequest {
 
     private String version;
 
+    private int seqId;
+
+    private String clientIp;
+
     public GenericRequest(String serviceName, String methodName, Object[] parameters, byte serialize, int messageType,
                           int timeout, int callType, long seq) {
         this.serviceName = serviceName;
@@ -301,4 +305,23 @@ public class GenericRequest implements UnifiedRequest {
         this.localContext = localContext;
     }
 
+    @Override
+    public int getSeqId() {
+        return seqId;
+    }
+
+    @Override
+    public void setSeqId(int seqId) {
+        this.seqId = seqId;
+    }
+
+    @Override
+    public void setClientIp(String clientIp) {
+        this.clientIp = clientIp;
+    }
+
+    @Override
+    public String getClientIp() {
+        return clientIp;
+    }
 }
