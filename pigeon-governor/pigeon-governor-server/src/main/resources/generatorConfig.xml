@@ -5,6 +5,10 @@
 
 <generatorConfiguration>
     <context id="my" targetRuntime="MyBatis3">
+
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
+
         <commentGenerator>
             <property name="suppressDate" value="false"/>
             <property name="suppressAllComments" value="false"/>
@@ -28,7 +32,7 @@
                              targetProject="src/main/java" type="XMLMAPPER">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
-        <table tableName="method_desc" domainObjectName="MethodDesc"
+        <!--<table tableName="method_desc" domainObjectName="MethodDesc"
                enableCountByExample="true" enableUpdateByExample="true"
                enableDeleteByExample="true" enableSelectByExample="true"
                selectByExampleQueryId="true">
@@ -72,7 +76,11 @@
                enableCountByExample="true" enableUpdateByExample="true"
                enableDeleteByExample="true" enableSelectByExample="true"
                selectByExampleQueryId="true">
-        </table>
+        </table>-->
+
+        <!--<table schema="" tableName="service_node" domainObjectName="ServiceNode">
+            <columnOverride column="group" delimitedColumnName="true" />
+        </table>-->
 
     </context>
 </generatorConfiguration>
