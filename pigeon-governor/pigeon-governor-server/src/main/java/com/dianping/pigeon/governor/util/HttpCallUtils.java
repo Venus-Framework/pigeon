@@ -4,6 +4,9 @@ import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.io.SAXReader;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -50,5 +53,28 @@ public class HttpCallUtils {
             method.releaseConnection();
         }
         return responseBody;
+    }
+
+    public static Document httpGetCatReport(String url){
+        HttpMethod method = new GetMethod(url);
+        Document doc = null;
+        try{
+            int statusCode = httpClient.executeMethod(method);
+            logger.debug("Http GET 返回码为:"+statusCode);
+            InputStream resStream = method.getResponseBodyAsStream();
+            SAXReader saxReader = new SAXReader();
+            doc = saxReader.read(resStream); //
+        }catch (DocumentException e){
+            //TODO fix when commit code
+            e.printStackTrace();
+            logger.warn(e);
+        }catch(HttpException e){
+            logger.warn(e);
+        }catch(Throwable t){
+            logger.warn(t);
+        }finally{
+            method.releaseConnection();
+        }
+        return doc;
     }
 }

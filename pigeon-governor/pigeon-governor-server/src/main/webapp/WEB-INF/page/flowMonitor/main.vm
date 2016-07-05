@@ -1,0 +1,384 @@
+#set($layout="layoutblank.vm")
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta charset="utf-8" />
+    <title>Pigeon</title>
+
+    <meta name="description" content="pigeon config"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/font-awesome.min.css" />
+
+    <!-- page specific plugin styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery-ui.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/datepicker.css" />
+
+    <!-- text fonts -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-fonts.css" />
+
+    <!-- ace styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace.min.css" id="main-ace-style" />
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-part2.min.css" />
+    <![endif]-->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-rtl.min.css" />
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-ie.min.css" />
+    <![endif]-->
+
+    <!-- inline styles related to this page -->
+    <link href="${rc.contextPath}/resources/style/bootstrap-switch.min.css" rel="stylesheet">
+    <style type="text/css">
+
+        .vertical-center{
+            float: none !important;
+        }
+
+        .ui-sortable-handle:hover
+        {
+            background-color:#F8FAFF;
+        }
+
+
+        /*ACE DataTable的相关属性 设计主要是Table头参见RouterConfig页面*/
+        .aceTableRow{
+            border-bottom: 1px solid #e0e0e0;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            background-color: #EFF3F8;
+        }
+        .leftPosition{
+            float:right;
+            display: inline;
+        }
+        .myRow{
+            width: 100%;
+            overflow:auto;
+        }
+        .primary{
+            color: rgb(42, 139, 203);
+        }
+        .success{
+            color: rgb(133, 181, 88);
+        }
+        .danger{
+            color: rgb(211, 65, 59);
+        }
+
+        /*覆盖Item div相关的默认属性*/
+        .itemdiv>.body{
+            margin-left: 0px;
+        }
+        .itemdiv{
+            min-height:0;
+        }
+        .itemdiv.memberdiv{
+            width: auto;
+        }
+    </style>
+
+    <!-- ace settings handler -->
+    <script src="${rc.contextPath}/resources/assets/js/ace-extra.min.js"></script>
+    <script src="${rc.contextPath}/resources/js/echarts.common.min.js"></script>
+</head>
+<body class="no-skin">
+
+<!-- #section:basics/navbar.layout -->
+<div id="navbar" class="navbar navbar-default">
+    #parse("common/navbar.vm")
+</div>
+<div class="main-container" id="main-container">
+
+    <script type="text/javascript">
+        try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+    </script>
+    <!-- #section:basics/sidebar -->
+    <div id="sidebar" class="sidebar   responsive">
+        #parse("common/sidebar.vm")
+    </div>
+    <div class="main-content">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <script type="text/javascript">
+                try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+            </script>
+            <div class="col-xs-6">
+                <ul class="breadcrumb">
+                    <li>
+                        <i class="ace-icon fa fa-home home-icon"></i>
+                        <a href="#">主页</a>
+                    </li>
+
+                    <li class="active">
+                        <a href="#">流量监控</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="modal fade" id="infoPage" aria-hidden="true" data-backdrop="static">
+                <div class="modal-dialog" style="width:800px;">
+                    <div class="modal-content">
+                        <div class="modal-header" style="border-bottom: none;">
+                            <ul class="nav nav-tabs padding-18 tab-size-bigger">
+                                <li class="active">
+                                    <a data-toggle="tab" href="#faq-tab-1">
+                                        流量分布统计图
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-toggle="tab" href="#faq-tab-2">
+                                        流量数据
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="modal-body">
+
+                        </div>
+                        <div class="modal-footer">
+                            <button id="feedback-submit" data-bb-handler="success" type="button" class="btn btn-sm btn-success" data-dismiss="modal"><i class="ace-icon fa fa-check"></i>Confirm</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="page-content-area">
+                <div class="page-header">
+                    <h1>
+                        流量监控
+                        <small>
+                            <i class="ace-icon fa fa-angle-double-right"></i>
+                            Monitor Service Data Flow
+                        </small>
+                    </h1>
+                </div>
+                <div class="row">
+
+
+
+
+
+
+
+
+                    <div class="col-xs-12">
+                        <div class="tabbable">
+                            <!-- #section:pages/faq -->
+                            <ul class="nav nav-tabs padding-18 tab-size-bigger" id="myTab">
+                                <li class="active">
+                                    <a data-toggle="tab" href="#serverFlow">
+                                        服务端流量分布
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-toggle="tab" href="#clientFlow">
+                                        客户端流量分布
+                                    </a>
+                                </li>
+                            </ul>
+                            <div id = "serverFlow" class="active">
+                                <!--后续用AJAX,并且实现Lazy Init模式.-->
+                                #parse("flowMonitor/server/framework.vm")
+                            </div>
+                            <div id = "clientFlow" >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        #parse("common/sub-footer.vm")
+    </div>
+
+    <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+        <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+    </a>
+</div>
+
+
+
+
+
+
+<!-- basic scripts -->
+
+<!--[if !IE]> -->
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.min.js'>"+"<"+"/script>");
+</script>
+
+<!-- <![endif]-->
+
+<!--[if IE]>
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery1x.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+<script type="text/javascript">
+    if('ontouchstart' in document.documentElement)
+        document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
+<!-- page specific plugin scripts -->
+
+<script src="${rc.contextPath}/resources/js/bootstrap-switch.min.js"></script>
+<script src="${rc.contextPath}/resources/js/bootstrap-typeahead.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/bootbox.min.js"></script>
+<script src="${rc.contextPath}/resources/js/dataTable.min.js"></script>
+<script src="${rc.contextPath}/resources/js/Pigeon.dataTables.bootstrap.js"></script>
+<script>
+    jQuery(function($) {
+        $('table').dataTable({
+            bAutoWidth: false,
+            aoColumns: [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "aaSorting": [],
+            dom: "<'myRow'<'col-xs-8'><'col-xs-4'B>>" +
+            "<'row aceTableRow'<'col-xs-3'l><'col-xs-9'fr>>" +
+            "t" +
+            "<'row'<'col-xs-3'i><'col-xs-9'p>>"
+        });
+
+
+
+
+        // 基于准备好的dom，初始化echarts实例
+//        var width  = $('#main').width();
+//        var height = width/2;
+//        $('#main').height(height);
+//        var myChart = echarts.init(document.getElementById('main'));
+
+        // 指定图表的配置项和数据
+        var option = {
+            backgroundColor: '#2c343c',
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                data: ['直接访问','邮件营销','联盟广告','视频广告','搜索引擎']
+            },
+            title: {
+                text: '方法调用分布',
+                left: 'center',
+                top: 20,
+                textStyle: {
+                    color: '#ccc'
+                }
+            },
+
+            tooltip : {
+                trigger: 'item',
+                formatter: "{a} <br/>{b} : {c} ({d}%)"
+            },
+
+            visualMap: {
+                show: false,
+                min: 80,
+                max: 600,
+                inRange: {
+                    colorLightness: [0, 1]
+                }
+            },
+            series : [
+                {
+                    name:'访问来源',
+                    type:'pie',
+                    radius : '55%',
+                    center: ['50%', '50%'],
+                    data:[
+                        {value:335, name:'直接访问'},
+                        {value:310, name:'邮件营销'},
+                        {value:274, name:'联盟广告'},
+                        {value:235, name:'视频广告'},
+                        {value:400, name:'搜索引擎'}
+                    ].sort(function (a, b) { return a.value - b.value}),
+                    roseType: 'angle',
+                    label: {
+                        normal: {
+                            textStyle: {
+                                color: 'rgba(255, 255, 255, 0.3)'
+                            }
+                        }
+                    },
+                    labelLine: {
+                        normal: {
+                            lineStyle: {
+                                color: 'rgba(255, 255, 255, 0.3)'
+                            },
+                            smooth: 0.2,
+                            length: 10,
+                            length2: 20
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#c23531',
+                            shadowBlur: 200,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+//        myChart.setOption(option);
+        var width = $("#accessPatternGraph").width();
+        var height = width/2;
+        $("#accessPatternGraph").height(height);
+        var accessPatternGraph = echarts.init(document.getElementById('accessPatternGraph'));
+        var patternOption =  {
+            tooltip: {
+                trigger: 'item',
+                formatter: "{a} <br/>{b}: {c} ({d}%)"
+            },
+            legend: {
+                orient: 'vertical',
+                x: 'left',
+                data:${summaryGraph.getElemntName()}
+            },
+            series: [
+                {
+                    name:'访问来源',
+                    type:'pie',
+                    radius: [0, '30%'],
+                    data:${summaryGraph.getServiceMap()}
+                },
+                {
+                    name:'访问来源',
+                    type:'pie',
+                    radius: ['40%', '55%'],
+
+                    data:${summaryGraph.getMethodMap()}
+                }
+            ]
+        };
+        accessPatternGraph.setOption(patternOption);
+    });
+</script>
+<!-- ace scripts -->
+<script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
+
+</body>
+</html>

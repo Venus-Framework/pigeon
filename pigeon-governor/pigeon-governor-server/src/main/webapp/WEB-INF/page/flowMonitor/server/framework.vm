@@ -1,0 +1,110 @@
+#set($layout="layoutblank.vm")
+<div class="col-xs-12">
+    <div class="col-xs-8">
+        <div class="widget-box transparent">
+            <div class="widget-header">
+                <h4 class="widget-title lighter smaller">
+                    调用分布
+                </h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main padding-0">
+                    <div id="accessPatternGraph"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-4">
+        <div class="widget-box transparent">
+            <div class="widget-header">
+                <h4 class="widget-title lighter smaller">
+                    机器列表
+                </h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main padding-0">
+                    <div id="member-tab" class="tab-pane active">
+                        <!-- #section:pages/dashboard.members -->
+                        <div class="clearfix">
+                            #foreach( $machine in $serverMachines.getMachines())
+                                <div class="itemdiv memberdiv">
+                                    <div class="body">
+                                        <div class="name">
+                                            <a href="#">$machine.getIpAddress()</a>
+                                        </div>
+                                        <div>
+                                            <span class="label label-warning label-sm">正常</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            #end
+                        </div>
+
+                        <div class="space-4"></div>
+
+                        <div class="center">
+                            <i class="ace-icon fa fa-users fa-2x green middle"></i>
+
+                            &nbsp;
+                            <a href="#" class="btn btn-sm btn-white btn-info">
+                                分页插件位置
+                                <i class="ace-icon fa fa-arrow-right"></i>
+                            </a>
+                        </div>
+
+                        <div class="hr hr-double hr8"></div>
+
+                        <!-- /section:pages/dashboard.members -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-xs-12">
+    <div class="widget-box transparent">
+        <div class="widget-header">
+            <h4 class="widget-title lighter smaller">
+                数据统计
+            </h4>
+            <div class="widget-body">
+                <div class="widget-main padding-0">
+                    <table  class="table table-striped table-bordered table-hover">
+                        <thead>
+                        <tr>
+                            <th>调用方法名</th>
+                            <th>调用次数</th>
+                            <th>失败次数</th>
+                            <th>失败率</th>
+                            <th>最小耗时</th>
+                            <th>最大耗时</th>
+                            <th>平均耗时</th>
+                            <th>95Line</th>
+                            <th>99Line</th>
+                            <th>Std</th>
+                            <th>Qps</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        #foreach($row in $serverSummaryData.getList())
+                        <tr>
+                            <td>$row.getMethodName()</td>
+                            <td>$row.getCallTime()</td>
+                            <td>$row.getFailureTime()</td>
+                            <td>$row.getFailureRate()</td>
+                            <td>$row.getMinConsumeTime()</td>
+                            <td>$row.getMaxConsumeTime()</td>
+                            <td>$row.getAvgConsumeTime()</td>
+                            <td>$row.getLine95()</td>
+                            <td>$row.getLine99()</td>
+                            <td>$row.getStd()</td>
+                            <td>$row.getQPS()</td>
+                        </tr>
+                        #end
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
