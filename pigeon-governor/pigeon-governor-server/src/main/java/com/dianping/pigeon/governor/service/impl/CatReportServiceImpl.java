@@ -1,14 +1,20 @@
 package com.dianping.pigeon.governor.service.impl;
 
+import com.dianping.cat.consumer.transaction.model.entity.Machine;
 import com.dianping.cat.consumer.transaction.model.entity.TransactionReport;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.governor.bean.FlowMonitorBean.method.MethodDistributedGraphBean;
 import com.dianping.pigeon.governor.service.CatReportService;
 import com.dianping.pigeon.governor.util.CatReportXMLUtils;
 import com.dianping.pigeon.governor.util.Constants;
 import com.dianping.pigeon.governor.util.HttpCallUtils;
 import org.dom4j.Document;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by shihuashen on 16/6/29.
@@ -17,6 +23,13 @@ import org.springframework.stereotype.Service;
 public class CatReportServiceImpl implements CatReportService{
     private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
+
+    //TODO implements Cache
+    private TransactionReport cacheFetch(){
+        return null;
+    }
+
+
     @Override
     public TransactionReport getCatTransactionReport(String projectName, String date, String ip,String type) {
         String url = getCatAddress()+"cat/r/t?domain="+projectName+"&date="+date+"&ip="+ip+"&type="+type+"&forceDownload=xml";
@@ -24,12 +37,27 @@ public class CatReportServiceImpl implements CatReportService{
         return CatReportXMLUtils.convertXMLToModel(CatReportXMLUtils.XMLFitFormat(xml));
     }
 
+    @Override
+    public MethodDistributedGraphBean getMethodDistributedGraph(String projectName, String date, String nameId) {
+        TransactionReport allReport = getCatTransactionReport(projectName,date,"All","PigeonService");
+        String tmpIp = allReport.getIps().iterator().next();
+        TransactionReport report = getCatTransactionReport(projectName,date,tmpIp,"PigeonService");
+        Map<String,Long> dataMap = new HashMap<String, Long>();
+        for(Iterator<String> iterator = report.getMachines().keySet().iterator();iterator.hasNext();){
+            String ip = iterator.next();
+            long visitData = report.getMachines().get(ip).getTypes().get("PigeonService").getNames().get(nameId).getTotalCount();
+            dataMap.put(ip,visitData);
+        }
+        return new MethodDistributedGraphBean(dataMap);
+    }
+
     private String getCatAddress(){
-        String env = configManager.getEnv();
-        if(env.equals("qa"))
-            return Constants.qaCatAddress;
-        if(env.equals("prelease"))
-            return Constants.ppeCatAddress;
         return Constants.onlineCatAddress;
+//        String env = configManager.getEnv();
+//        if(env.equals("qa"))
+//            return Constants.qaCatAddress;
+//        if(env.equals("prelease"))
+//            return Constants.ppeCatAddress;
+//        return Constants.onlineCatAddress;
     }
 }

@@ -28,7 +28,7 @@ public class Constants {
 	public static final String KEY_INVALIDADDRESS = "pigeon-governor-server.healthcheck.invalidaddress";
 	public static final String qaCatAddress = "http://cat.qa.dianpingoa.com/";
 	public static final String ppeCatAddress = "http://ppe.cat.dp/cat/";
-	public static final String onlineCatAddress = "http://cat.dp/cat/";
+	public static final String onlineCatAddress = "http://cat.dp/";
 
 	private static final String testAddress = ConfigManagerLoader.getConfigManager().getStringValue(
 			"pigeon-governor-server.address.test", "127.0.0.1:2181");

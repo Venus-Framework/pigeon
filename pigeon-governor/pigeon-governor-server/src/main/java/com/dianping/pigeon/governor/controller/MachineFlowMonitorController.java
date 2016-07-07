@@ -4,7 +4,9 @@ import com.dianping.cat.consumer.transaction.model.entity.TransactionReport;
 import com.dianping.pigeon.governor.bean.FlowMonitorBean.ServerMachines;
 import com.dianping.pigeon.governor.bean.FlowMonitorBean.ServerMethodDataTableBean;
 import com.dianping.pigeon.governor.bean.FlowMonitorBean.ServerSummaryGraphBean;
+import com.dianping.pigeon.governor.bean.FlowMonitorBean.method.MethodDistributedGraphBean;
 import com.dianping.pigeon.governor.service.CatReportService;
+import com.dianping.pigeon.governor.util.GsonUtils;
 import org.omg.CORBA.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,9 +35,9 @@ public class MachineFlowMonitorController extends BaseController{
     @RequestMapping(value={"/shs/flowMonitor"},method = RequestMethod.GET)
     public String entrance(HttpServletRequest request, HttpServletResponse response, ModelMap modelMap){
         commonnav(modelMap,request);
-        String projectName = "baymax-adbrand-web-service";
-        String date = "2016063014";
-        TransactionReport report  = catReportService.getCatTransactionReport(projectName,date,"all","PigeonService");
+        String projectName = "ts-account-service";
+        String date = "2016070610";
+        TransactionReport report  = catReportService.getCatTransactionReport(projectName,date,"All","PigeonService");
         modelMap.put("summaryGraph",new ServerSummaryGraphBean(report));
         modelMap.put("serverMachines",new ServerMachines(report));
         modelMap.put("serverSummaryData",new ServerMethodDataTableBean(report));
@@ -51,5 +53,15 @@ public class MachineFlowMonitorController extends BaseController{
     public String testFlow(HttpServletRequest request,HttpServletResponse response,ModelMap modelMap){
         return "/flowMonitor/material";
     }
-
+    @RequestMapping(value = {"/flowMonitor/methodDetail"},method = RequestMethod.POST)
+    public String  getMethodDetail(HttpServletRequest request,HttpServletResponse response,ModelMap modelMap){
+        String projectName = request.getParameter("projectName");
+        String ip = request.getParameter("ip");
+        String time = request.getParameter("time");
+        String nameId = request.getParameter("nameId");
+        MethodDistributedGraphBean bean = catReportService.getMethodDistributedGraph(projectName,time,nameId);
+        modelMap.put("name",bean.getIpName());
+        modelMap.put("data",bean.getData());
+        return "/flowMonitor/server/modalContent";
+    }
 }

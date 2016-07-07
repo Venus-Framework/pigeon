@@ -8,11 +8,15 @@ import org.dom4j.io.SAXReader;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by shihuashen on 16/6/29.
  */
 public class CatReportXMLUtils {
+
+    public static SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHH");
     //Since the TransactionReport model differ from the real Cat XML, we need to convert to fit.
     //The java model is : <transaction-report></transaction-report>.
     //The XML format is : <transaction><report></report></transaction>.
@@ -35,5 +39,9 @@ public class CatReportXMLUtils {
             e.printStackTrace();
         }
         return tr;
+    }
+    public static String dateFormat(Date date){
+        String dateString = formatter.format(date);
+        return dateString;
     }
 }

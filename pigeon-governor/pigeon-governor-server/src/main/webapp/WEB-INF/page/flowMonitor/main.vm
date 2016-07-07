@@ -30,12 +30,15 @@
     <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-skins.min.css" />
     <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-rtl.min.css" />
 
+
     <!--[if lte IE 9]>
     <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-ie.min.css" />
     <![endif]-->
 
     <!-- inline styles related to this page -->
     <link href="${rc.contextPath}/resources/style/bootstrap-switch.min.css" rel="stylesheet">
+    <link href="${rc.contextPath}/resources/assets/css/datepicker.css" rel="stylesheet">
+    <link href="${rc.contextPath}/resources/assets/css/bootstrap-timepicker.css " rel="stylesheet">
     <style type="text/css">
 
         .vertical-center{
@@ -140,8 +143,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="modal-body">
-
+                        <div class="modal-body" style="height: 600px">
                         </div>
                         <div class="modal-footer">
                             <button id="feedback-submit" data-bb-handler="success" type="button" class="btn btn-sm btn-success" data-dismiss="modal"><i class="ace-icon fa fa-check"></i>Confirm</button>
@@ -160,14 +162,22 @@
                     </h1>
                 </div>
                 <div class="row">
-
-
-
-
-
-
-
-
+                    <div class="col-xs-6">
+                        <div class="input-group input-group-sm">
+                            <input id="datepicker" class="form-control" />
+                            <span class="input-group-addon">
+                                <i class="ace-icon fa fa-calendar"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div class="input-group input-group-sm">
+                            <input id="timepicker" class="form-control"/>
+                            <span class="input-group-addon">
+                                <i class="ace-icon fa fa-calendar"></i>
+                            </span>
+                        </div>
+                    </div>
                     <div class="col-xs-12">
                         <div class="tabbable">
                             <!-- #section:pages/faq -->
@@ -236,8 +246,62 @@
 <script src="${rc.contextPath}/resources/assets/js/bootbox.min.js"></script>
 <script src="${rc.contextPath}/resources/js/dataTable.min.js"></script>
 <script src="${rc.contextPath}/resources/js/Pigeon.dataTables.bootstrap.js"></script>
+<script src="${rc.contextPath}/resources/js/my-ajax-wrapper.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/spin.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-timepicker.min.js"></script>
 <script>
     jQuery(function($) {
+//        $( "#datepicker" ).datepicker({
+//            showOtherMonths: true,
+//            selectOtherMonths: false,
+//            //isRTL:true,
+//
+//
+//            /*
+//            changeMonth: true,
+//            changeYear: true,
+//
+//            showButtonPanel: true,
+//            beforeShow: function() {
+//                //change button colors
+//                var datepicker = $(this).datepicker( "widget" );
+//                setTimeout(function(){
+//                    var buttons = datepicker.find('.ui-datepicker-buttonpane')
+//                    .find('button');
+//                    buttons.eq(0).addClass('btn btn-xs');
+//                    buttons.eq(1).addClass('btn btn-xs btn-success');
+//                    buttons.wrapInner('<span class="bigger-110" />');
+//                }, 0);
+//            }
+//    */
+//        });
+
+
+
+
+        var mydate = $('#datepicker')[0];
+        $(mydate).datepicker({
+            showOtherMonths: true,
+            selectOtherMonths: false,
+        });
+        var mytime = $('#timepicker')[0];
+        $(mytime).timepicker({
+
+        });
+//        if(mytime.type !== 'time') {//if browser doesn't support "time" input
+//            $(mytime).timepicker({
+//                //options
+//            })
+//        }
+//        if(mydate.type !== 'date') {//if browser doesn't support "date" input
+//            alert('Using bootstrap date picker')
+//            $(mydate).datepicker({
+//                //options
+//            })
+//        }
+
+
         $('table').dataTable({
             bAutoWidth: false,
             aoColumns: [
@@ -259,6 +323,18 @@
             "t" +
             "<'row'<'col-xs-3'i><'col-xs-9'p>>"
         });
+        $('.methodName').bind('click',function () {
+            var tableObject = $(this).parents('table');
+            var projectName = tableObject.attr('data-projectName');
+            var ip = tableObject.attr('data-ip');
+            var time  = tableObject.attr('data-time');
+            var nameId = $(this).attr('data-name-id');
+            $('#infoPage').modal('show');
+            $('.modal-body').ajaxLoad({
+                url:'/flowMonitor/methodDetail',
+                data:{'projectName':projectName,'ip':ip,'time':time,'nameId':nameId}
+            });
+        })
 
 
 
