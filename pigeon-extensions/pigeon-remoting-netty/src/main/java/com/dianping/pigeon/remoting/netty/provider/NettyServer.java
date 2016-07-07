@@ -42,7 +42,7 @@ public class NettyServer extends AbstractServer implements Disposable {
 			"Pigeon-Netty-Server-Worker", true));
 
 	private static final int workerCount = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.netty.workercount", Runtime.getRuntime().availableProcessors() + 2);
+			"pigeon.provider.netty.workercount", Runtime.getRuntime().availableProcessors() * 2);
 
 	private static ChannelFactory channelFactory = new NioServerSocketChannelFactory(bossExecutor, workerExecutor,
 			workerCount);
