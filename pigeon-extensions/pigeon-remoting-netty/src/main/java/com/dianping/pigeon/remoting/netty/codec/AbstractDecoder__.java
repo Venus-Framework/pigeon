@@ -37,20 +37,21 @@ public abstract class AbstractDecoder__ extends OneToOneDecoder {
         CodecEvent codecEvent = (CodecEvent) msg;
 
         if (codecEvent.isUnified()) {
-            return _doDecode(channel, codecEvent.getBuffer());
+            return _doDecode(channel, codecEvent);
         } else {
-            return doDecode(channel, codecEvent.getBuffer());
+            return doDecode(channel, codecEvent);
         }
     }
 
-    protected Object doDecode(Channel channel, ChannelBuffer buffer)
+    protected Object doDecode(Channel channel, CodecEvent codecEvent)
             throws IOException {
         Object msg = null;
-
+        ChannelBuffer buffer = codecEvent.getBuffer();
         //head
         buffer.skipBytes(CodecConstants.MEGIC_FIELD_LENGTH);
         byte serialize = buffer.readByte();
         Long sequence = null;
+
         try {
             //body length
             int totalLength = buffer.readInt();
@@ -67,7 +68,7 @@ public abstract class AbstractDecoder__ extends OneToOneDecoder {
 
             msg = deserialize(serialize, is);
             //after
-            doAfter(channel, msg, serialize, frameLength);
+            doAfter(channel, msg, serialize, frameLength, codecEvent.getReceiveTime());
         } catch (Throwable e) {
             SerializationException se = new SerializationException(e);
 
@@ -88,8 +89,9 @@ public abstract class AbstractDecoder__ extends OneToOneDecoder {
         return msg;
     }
 
-    protected Object _doDecode(Channel channel, ChannelBuffer buffer) throws IOException {
+    protected Object _doDecode(Channel channel, CodecEvent codecEvent) throws IOException {
         Object msg = null;
+        ChannelBuffer buffer = codecEvent.getBuffer();
 
         try {
             //magic
@@ -110,7 +112,7 @@ public abstract class AbstractDecoder__ extends OneToOneDecoder {
             //deserialize
             msg = deserialize(serialize, is);
             //doAfter
-            doAfter(channel, msg, serialize, frameLength);
+            doAfter(channel, msg, serialize, frameLength, codecEvent.getReceiveTime());
         } catch (Throwable e) {
 
             logger.error("Deserialize failed. host:"
@@ -126,7 +128,12 @@ public abstract class AbstractDecoder__ extends OneToOneDecoder {
         return frame;
     }
 
-    private Object doAfter(Channel channel, Object msg, byte serialize, int frameLength) throws IOException {
+    private Object doAfter(Channel channel,
+                           Object msg,
+                           byte serialize,
+                           int frameLength,
+                           long receiveTime)
+            throws IOException {
 
         if (msg instanceof InvocationSerializable) {
 
@@ -140,7 +147,6 @@ public abstract class AbstractDecoder__ extends OneToOneDecoder {
             msg_.setSerialize(serialize);
         }
 
-        long receiveTime = System.currentTimeMillis();
         doInitMsg(msg, channel, receiveTime);
         return msg;
     }

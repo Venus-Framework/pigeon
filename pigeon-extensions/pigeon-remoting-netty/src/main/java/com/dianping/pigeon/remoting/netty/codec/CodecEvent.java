@@ -16,6 +16,8 @@ public class CodecEvent {
 
     private boolean isChecksum;
 
+    private long receiveTime;
+
     public CodecEvent() {
 
     }
@@ -55,5 +57,13 @@ public class CodecEvent {
 
     public void setIsChecksum(boolean isChecksum) {
         this.isChecksum = isChecksum;
+    }
+
+    public long getReceiveTime() {
+        return receiveTime;
+    }
+
+    public void setReceiveTime(long receiveTime) {
+        this.receiveTime = receiveTime;
     }
 }

@@ -62,6 +62,7 @@ public class FrameDecoder extends org.jboss.netty.handler.codec.frame.FrameDecod
             buffer.readerIndex(buffer.readerIndex() + frameLength);
 
             codecEvent = new CodecEvent(frame, false);
+            codecEvent.setReceiveTime(System.currentTimeMillis());
         }
 
         return codecEvent;
@@ -87,6 +88,7 @@ public class FrameDecoder extends org.jboss.netty.handler.codec.frame.FrameDecod
             buffer.readerIndex(buffer.readerIndex() + frameLength);
 
             codecEvent = new CodecEvent(frame, true);
+            codecEvent.setReceiveTime(System.currentTimeMillis());
         }
 
         return codecEvent;
