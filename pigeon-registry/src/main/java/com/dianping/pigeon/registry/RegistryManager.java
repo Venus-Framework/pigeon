@@ -102,7 +102,7 @@ public class RegistryManager {
             if (_registryList.size() > 0) {
                 try {
                     parseRegistryConfig(_registryList,
-                            configManager.getStringValue(KEY_PIGEON_REGISTRY_PREFER, "curator,mns"));
+                            configManager.getStringValue(KEY_PIGEON_REGISTRY_PREFER, Constants.REGISTRY_CURATOR_NAME));
                     configManager.registerConfigChangeListener(new InnerConfigChangeListener());
 
                     for (Registry registry : registryList) {
