@@ -97,7 +97,7 @@ public class ClientManager {
 		this.clusterListenerManager.addListener(this.clusterListener);
 		this.clusterListenerManager.addListener(this.heartBeatTask);
 		this.clusterListenerManager.addListener(this.reconnectTask);
-		//heartBeatThreadPool.execute(this.heartBeatTask);
+		heartBeatThreadPool.execute(this.heartBeatTask);
 		reconnectThreadPool.execute(this.reconnectTask);
 		providerAvailableThreadPool.execute(this.providerAvailableListener);
 		RegistryEventListener.addListener(providerChangeListener);
