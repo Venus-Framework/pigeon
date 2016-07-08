@@ -144,7 +144,6 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
         } catch (RegistryException e) {
             supported = false;
         }
-        supported = true;
         if (!supported) {
             request.setSerialize(SerializerFactory.SERIALIZE_HESSIAN);
             invokerContext.getInvokerConfig().setSerialize(SerializerFactory.HESSIAN);
