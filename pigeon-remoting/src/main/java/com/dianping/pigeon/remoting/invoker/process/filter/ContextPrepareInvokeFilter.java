@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.registry.exception.RegistryException;
-import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedRequest;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -106,7 +105,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
                 || request.getSerialize() == SerializerFactory.SERIALIZE_FST) {
             checkVersion(invokerContext);
         } else if (request.getSerialize() == SerializerFactory.SERIALIZE_THRIFT) {
-            checkProtocal(invokerContext);
+            checkProtocol(invokerContext);
         }
 
     }
@@ -134,7 +133,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
         }
     }
 
-    private void checkProtocal(InvokerContext invokerContext) {
+    private void checkProtocol(InvokerContext invokerContext) {
         Client client = invokerContext.getClient();
         InvocationRequest request = invokerContext.getRequest();
         boolean supported = false;
