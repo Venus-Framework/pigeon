@@ -1,24 +1,6 @@
-/**
- * Dianping.com Inc.
- * Copyright (c) 2003-2013 All Rights Reserved.
- */
 package com.dianping.pigeon.remoting.netty.invoker;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-
 import com.dianping.pigeon.log.LoggerLoader;
-
-import org.apache.logging.log4j.Logger;
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -26,13 +8,23 @@ import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHo
 import com.dianping.pigeon.remoting.netty.codec.NettyCodecUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
+import org.apache.logging.log4j.Logger;
+import org.jboss.netty.channel.*;
 
+import java.io.IOException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+
+/**
+ * @author qi.yin
+ *         2016/06/21  下午3:36.
+ */
 public class NettyClientHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger logger = LoggerLoader.getLogger(NettyClientHandler.class);
 
     private static ThreadPool exceptionProcessThreadPool = new DefaultThreadPool("Pigeon-Exception-Processor", 2, 50,
-            new LinkedBlockingQueue<Runnable>(50), new CallerRunsPolicy());
+            new LinkedBlockingQueue<Runnable>(50), new ThreadPoolExecutor.CallerRunsPolicy());
 
     private NettyClient client;
 
@@ -49,11 +41,8 @@ public class NettyClientHandler extends SimpleChannelUpstreamHandler {
     @SuppressWarnings("unchecked")
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
-        List<InvocationResponse> messages = (List<InvocationResponse>) e.getMessage();
-
-        for (final InvocationResponse response : messages) {
-            client.processResponse(response);
-        }
+        InvocationResponse response = (InvocationResponse) e.getMessage();
+        client.processResponse(response);
     }
 
     @Override

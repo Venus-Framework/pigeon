@@ -29,9 +29,9 @@ public class NettyServerPipelineFactory implements ChannelPipelineFactory {
         pipeline.addLast("frameDecoder", new FrameDecoder());
         pipeline.addLast("crc32Handler", new Crc32Handler());
         pipeline.addLast("compressHandler", new CompressHandler());
-        pipeline.addLast("providerDecoder", new ProviderDecoder__());
-        pipeline.addLast("providerEncoder", new ProviderEncoder__());
-        pipeline.addLast("serverHandler", new NettyServerHandler__(server));
+        pipeline.addLast("providerDecoder", new ProviderDecoder());
+        pipeline.addLast("providerEncoder", new ProviderEncoder());
+        pipeline.addLast("serverHandler", new NettyServerHandler(server));
         return pipeline;
     }
 

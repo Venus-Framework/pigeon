@@ -29,9 +29,9 @@ public class NettyClientPipelineFactory implements ChannelPipelineFactory {
 		pipeline.addLast("frameDecoder", new FrameDecoder());
 		pipeline.addLast("crc32Handler", new Crc32Handler());
 		pipeline.addLast("compressHandler", new CompressHandler());
-		pipeline.addLast("invokerDecoder", new InvokerDecoder__());
-		pipeline.addLast("invokerEncoder", new InvokerEncoder__());
-		pipeline.addLast("clientHandler", new NettyClientHandler__(this.client));
+		pipeline.addLast("invokerDecoder", new InvokerDecoder());
+		pipeline.addLast("invokerEncoder", new InvokerEncoder());
+		pipeline.addLast("clientHandler", new NettyClientHandler(this.client));
 		return pipeline;
 	}
 
