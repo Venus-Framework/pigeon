@@ -55,6 +55,8 @@ public class ServiceApiController extends BaseController {
 	private RegistryService registryService;
     @Autowired
     private HostService hostService;
+    @Autowired
+    private ServiceNodeService serviceNodeService;
 
 	public static final String SUCCESS_CODE = "0|";		//正确返回码
 	public static final String ERROR_CODE = "1|";		//错误返回码
@@ -135,25 +137,12 @@ public class ServiceApiController extends BaseController {
             return;
         }
 
-    	String hosts = null;
-		try {
-			hosts = serviceService.publishService(appname, service, group, ip, port, updatezk);
+        //todo 暂时双写
+        serviceNodeService.publishService(appname, service, group, ip, port, updatezk);
 
-
-            /*Host host = hostService.retrieveByIpPort(ip,port);
-
-            if(host != null && host.getRegistry() == Constants.HOST_REGISTRY_LION) {
-                host.setRegistry(Constants.HOST_REGISTRY_PIGEON);
-                hostService.update(host);
-            }
-
-            if(host == null) {
-                host = new Host();
-                host.setIpport(ip + ":" + port);
-                host.setAppname(appname);
-                host.setRegistry(Constants.HOST_REGISTRY_PIGEON);
-                hostService.create(host);
-            }*/
+        String hosts = null;
+        try {
+            hosts = serviceService.publishService(appname, service, group, ip, port, updatezk);
 
             if(StringUtils.isNotBlank(op))
 				logger.info("publish op is: " + op);
@@ -193,6 +182,9 @@ public class ServiceApiController extends BaseController {
         	writer.write(ERROR_CODE + e.getMessage());
         	return;
         }
+
+        //todo 暂时双写
+        serviceNodeService.unpublishService(service, group, ip, port, updatezk);
 
     	String hosts = null;
 		try {

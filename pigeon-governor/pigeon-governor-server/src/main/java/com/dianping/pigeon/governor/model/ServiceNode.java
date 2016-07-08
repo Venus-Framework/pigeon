@@ -226,4 +226,15 @@ public class ServiceNode {
     public void setUpdatetime(Date updatetime) {
         this.updatetime = updatetime;
     }
+
+    @Override
+    public String toString() {
+        return "ServiceNode{" +
+                "ip='" + ip + '\'' +
+                ", port='" + port + '\'' +
+                ", serviceName='" + serviceName + '\'' +
+                ", group='" + group + '\'' +
+                ", projectName='" + projectName + '\'' +
+                '}';
+    }
 }
