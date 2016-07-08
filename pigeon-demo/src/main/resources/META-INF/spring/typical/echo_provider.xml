@@ -15,9 +15,17 @@
 				<entry key="com.dianping.pigeon.demo.EchoService" value-ref="defaultEchoServiceImpl" />
 			</map>
 		</property>
-		<!-- <property name="port">
-			<value>5008</value>
-		</property> -->
+		<!-- <property name="port"> <value>5008</value> </property> -->
+	</bean>
+
+	<bean id="echoService"
+		class="com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean"
+		init-method="init">
+		<property name="url" value="com.dianping.pigeon.demo.EchoService" />
+		<property name="interfaceName" value="com.dianping.pigeon.demo.EchoService" />
+		<property name="serialize" value="fst" />
+		<property name="callType" value="sync" />
+		<property name="timeout" value="500" />
 	</bean>
 
 	<bean id="defaultEchoServiceImpl" class="com.dianping.pigeon.demo.EchoServiceDefaultImpl" />

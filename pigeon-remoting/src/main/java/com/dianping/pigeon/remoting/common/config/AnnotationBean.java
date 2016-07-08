@@ -168,7 +168,17 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 				}
 			}
 		}
-		Field[] fields = bean.getClass().getDeclaredFields();
+		Class<?> superClass = bean.getClass().getSuperclass();
+		while (superClass != null && isMatchPackage(superClass)) {
+			referFields(bean, superClass.getDeclaredFields());
+			superClass = superClass.getSuperclass();
+		}
+		referFields(bean, bean.getClass().getDeclaredFields());
+
+		return bean;
+	}
+
+	private void referFields(Object bean, Field[] fields) {
 		for (Field field : fields) {
 			try {
 				if (!field.isAccessible()) {
@@ -186,7 +196,6 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 						+ bean.getClass().getName() + ", cause: " + e.getMessage(), e);
 			}
 		}
-		return bean;
 	}
 
 	private Object refer(Reference reference, Class<?> referenceClass) { // method.getParameterTypes()[0]

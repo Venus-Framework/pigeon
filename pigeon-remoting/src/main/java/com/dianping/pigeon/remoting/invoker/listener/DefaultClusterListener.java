@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.remoting.invoker.listener;
 
+import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
@@ -16,8 +17,11 @@ import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 import com.dianping.pigeon.util.CollectionUtils;
 import com.dianping.pigeon.util.ThreadPoolUtils;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +49,8 @@ public class DefaultClusterListener implements ClusterListener {
 
 	private ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
+	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+
 	public DefaultClusterListener(HeartBeatListener heartbeatListener, ReconnectListener reconnectListener,
 			ProviderAvailableListener providerAvailableListener) {
 		this.heartbeatListener = heartbeatListener;
@@ -69,6 +75,13 @@ public class DefaultClusterListener implements ClusterListener {
 			throw new ServiceUnavailableException("no available provider for service:" + invokerConfig.getUrl()
 					+ ", group:" + invokerConfig.getGroup() + ", env:"
 					+ ConfigManagerLoader.getConfigManager().getEnv());
+		}
+		String vip = invokerConfig.getVip();
+		if (vip != null && vip.startsWith("console:")) {
+			Client localClient = allClients.get(configManager.getLocalIp() + vip.substring(vip.indexOf(":")));
+			if (localClient != null) {
+				return Arrays.asList(localClient);
+			}
 		}
 		return clientList;
 	}

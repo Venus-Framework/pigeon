@@ -1,8 +1,13 @@
 package com.dianping.pigeon.util;
 
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.logging.log4j.Logger;
+
 import java.lang.reflect.Field;
 
 public class ReflectUtils {
+
+	private static final Logger logger = LoggerLoader.getLogger(ReflectUtils.class);
 
 	public static Field getDeclaredField(Class cls, String fieldName, boolean forceAccess) {
 		if (cls == null) {
@@ -54,6 +59,12 @@ public class ReflectUtils {
 		if (forceAccess && !field.isAccessible()) {
 			field.setAccessible(true);
 		}
+
+		if(fieldName.startsWith("$")) {
+			logger.warn("Illegal fieldName: " + fieldName);
+			return ;
+		}
+
 		field.set(target, value);
 	}
 }

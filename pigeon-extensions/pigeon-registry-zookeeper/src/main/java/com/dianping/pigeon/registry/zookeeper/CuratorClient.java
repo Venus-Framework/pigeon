@@ -71,7 +71,6 @@ public class CuratorClient {
 //		CuratorFramework client = CuratorFrameworkFactory.newClient(address, sessionTimeout, connectionTimeout,
 //				new MyRetryPolicy(retries, retryInterval));
 		CuratorFramework client = CuratorFrameworkFactory.builder()
-				.ensembleProvider(new RegionEnsembleProvider(address))
 				.sessionTimeoutMs(sessionTimeout)
 				.connectionTimeoutMs(connectionTimeout)
 				.retryPolicy(new MyRetryPolicy(retries, retryInterval))

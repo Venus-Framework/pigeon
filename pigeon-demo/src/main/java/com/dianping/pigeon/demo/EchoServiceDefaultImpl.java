@@ -146,4 +146,9 @@ public class EchoServiceDefaultImpl implements EchoService {
 		return genders.toString();
 	}
 
+	@Override
+	public boolean isMale() {
+		return true;
+	}
+
 }
