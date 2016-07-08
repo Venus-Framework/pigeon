@@ -59,6 +59,79 @@ public class TestController {
 
     @RequestMapping(value = "/betaonly/dellocalip", method = {RequestMethod.POST})
     @ResponseBody
+    public Result syncService2ServiceNode(@RequestParam(value="validate") final String validate) {
+
+        if(IPUtils.getFirstNoLoopbackIP4Address().equalsIgnoreCase(validate)) {
+
+            threadPoolTaskExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        checkAndSyncServiceDB.loadFromDb();
+                    } catch (DbException e1) {
+                        logger.warn("load from db failed!try again!",e1);
+                        try {
+                            checkAndSyncServiceDB.loadFromDb();
+                        } catch (DbException e2) {
+                            logger.error("load from db failed!!",e2);
+                        }
+                    }
+
+                    serviceGroupDbIndex = CheckAndSyncServiceDB.getServiceGroupDbIndex();
+
+                    for (ServiceWithGroup serviceWithGroup : serviceGroupDbIndex.keySet()) {
+                        final Service serviceDb = serviceGroupDbIndex.get(serviceWithGroup);
+                        String hosts = serviceDb.getHosts();
+                        if(StringUtils.isNotBlank(hosts) && StringUtils.isBlank(serviceDb.getGroup())) { // 默认泳道有机器
+
+                            Set<String> hostSet = new HashSet<String>();
+                            hostSet.addAll(Arrays.asList(hosts.split(",")));
+                            boolean needUpdate = false;
+
+                            for(String host : hosts.split(",")) {
+                                if(!host.startsWith("192.168") && !host.startsWith("10.66")) {
+                                    hostSet.remove(host);
+                                    needUpdate = true;
+                                }
+                            }
+
+                            // 更新数据库和zk
+                            if(needUpdate) {
+                                String newHostList = StringUtils.join(hostSet, ",");
+                                String service_zk = Utils.escapeServiceName(serviceWithGroup.getService());
+                                String serviceHostAddress = "/DP/SERVER/" + service_zk;
+
+                                try {
+                                    client.set(serviceHostAddress, newHostList);
+                                } catch (Exception e) {
+                                    logger.error("write zk error! return!", e);
+                                    return;
+                                }
+
+                                //update database
+                                serviceDb.setHosts(newHostList);
+                                serviceService.updateById(serviceDb);
+
+                                logger.warn("update: " + serviceWithGroup + " with: " + newHostList);
+                            }
+                        }
+                    }
+
+                }
+            });
+
+            return Result.createSuccessResult("start job...");
+
+        } else {
+
+            return Result.createErrorResult("failed to validate...");
+
+        }
+
+    }
+
+    @RequestMapping(value = "/betaonly/dellocalip", method = {RequestMethod.POST})
+    @ResponseBody
     public Result dellocalip(@RequestParam(value="validate") final String validate) {
 
         if(IPUtils.getFirstNoLoopbackIP4Address().equalsIgnoreCase(validate)) {
@@ -159,6 +232,12 @@ public class TestController {
         logger.fatal("fatal");
 
         return Result.createSuccessResult("success!");
+    }
+
+
+    @RequestMapping(value = {"/shs/test1"},method = {RequestMethod.GET})
+    public String testVelocity(HttpServletRequest request, HttpServletResponse response){
+        return "/config/GroupConfig";
     }
 
 }

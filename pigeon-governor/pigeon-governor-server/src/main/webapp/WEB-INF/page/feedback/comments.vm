@@ -1,0 +1,131 @@
+#set($layout="layoutblank.vm")
+#foreach($comment in ${comments})
+<div class="profile-activity clearfix comment" data-comment-id = "$comment.id" data-feedback-id = "${feedbackId}">
+    <a class="user" href="#">$comment.author</a>:
+    #if($comment.replyAuthor=="")
+    #else
+        <span>回复</span><a class="user" href="#">@$comment.replyAuthor</a>
+    #end
+    <span style="word-break: break-all;">$comment.content</span>
+    <div class="widget-toolbox clearfix"  style="  !important;padding-top: 5px !important;padding-bottom: 5px !important;padding-left: 0px !important;padding-right: 0px !important;">
+        <div class="col-xs-6">
+        </div >
+            #if($comment.empowered)
+                <a class="col-xs-2 bottom-toolbar-tool-first center deleteComment">
+                    <i class="ace-icon fa fa-times bigger-125 orange"></i>
+                </a>
+            #else
+            #end
+
+            <a class="col-xs-2 bottom-toolbar-tool center reply-button">
+                <i class=" ace-icon fa fa-comment-o bigger-125 green "></i>
+            </a>
+
+
+            <a class="col-xs-2 bottom-toolbar-tool-last center support-comment">
+                <i  class="  ace-icon fa
+                                        #if($comment.supported)
+                                        fa-heart
+                                        #else
+                                        fa-heart-o
+                                        #end
+                                        red bigger-125">$comment.supportedNumber</i></a>
+
+    </div>
+
+    <div class="reply-group hide">
+        <div class="row" style="padding-bottom: 5px">
+            <div class="col-sm-12">
+                <textarea class="autosize col-sm-12"></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="col-sm-10"></div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn btn-sm btn-danger col-xs-12">
+                        评论
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+#end
+
+<script>
+    jQuery(function($) {
+        $('textarea.autosize').autosize({append: "\n"});
+        $('.comment').filter("[data-feedback-Id='$feedbackId']").each(function (i,item) {
+            var commentObject = $(item);
+            var commentsCountObject = commentObject.parents('.feedback').find('.commentsCount');
+            var commentId = commentObject.attr('data-comment-id');
+            commentObject.find('.reply-button').bind('click',function () {
+                var replyGroupObject = commentObject.find('.reply-group');
+                if(replyGroupObject.hasClass('hide'))
+                    replyGroupObject.removeClass('hide');
+                else
+                    replyGroupObject.addClass('hide');
+            });
+
+            commentObject.find('button').bind('click',function () {
+                var replyContent = commentObject.find('textarea').val();
+                $.ajax({
+                    type : "post",
+                    url :"/feedback/newReply",
+                    data:{'content':replyContent,"commentId":commentId},
+                    success : function (data) {
+                        var commentsWrapper = commentObject.parents('.comments-group');
+                        var feedbackId = commentObject.parents('.feedback').attr('data-feedback-id');;
+                        commentsWrapper.ajaxLoad({
+                            url:"/feedback/commentsInit",
+                            data:{'feedbackId': feedbackId}
+                        });
+                        commentsCountObject.find('span').html(Number(commentsCountObject.find('span').html())+1);
+                    }
+                });
+            });
+            commentObject.find('.deleteComment').bind('click',function () {
+                $.ajax({
+                    type : "post",
+                    url :"/feedback/deleteComment",
+                    data:{'commentId':commentId},
+                    success : function (data) {
+                        var commentsWrapper = commentObject.parents('.comments-group');
+                        var feedbackId = commentObject.parents('.feedback').attr('data-feedback-id');
+                        commentsWrapper.ajaxLoad({
+                            url:'/feedback/commentsInit',
+                            data:{'feedbackId': feedbackId}
+                        });
+                        commentsCountObject.find('span').html(Number(commentsCountObject.find('span').html())-1);
+                    }
+                });
+            });
+            commentObject.find('.support-comment').bind('click',function () {
+                $.ajax({
+                    type:"post",
+                    url:"/feedback/comment/support",
+                    data:{'commentId':commentId},
+                    success:function (data) {
+
+
+                    }
+                });
+                var supportElement = commentObject.find('.support-comment').find('i');
+                if(supportElement.hasClass('fa-heart')){
+                    supportElement.removeClass('fa-heart');
+                    supportElement.addClass('fa-heart-o');
+                    supportElement.html(Number(supportElement.html())-1);
+                }else{
+                    supportElement.removeClass('fa-heart-o');
+                    supportElement.addClass('fa-heart');
+                    supportElement.html(Number(supportElement.html())+1)
+                }
+            });
+        });
+
+
+
+    })
+</script>

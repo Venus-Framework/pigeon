@@ -1,0 +1,1157 @@
+#set($layout="layoutblank.vm")
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta charset="utf-8" />
+    <title>Pigeon</title>
+
+    <meta name="description" content="pigeon config"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/font-awesome.min.css" />
+
+    <!-- page specific plugin styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery-ui.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/datepicker.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ui.jqgrid.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery-ui.custom.min.css" />
+
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery.gritter.css" />
+
+    <!-- text fonts -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-fonts.css" />
+
+    <!-- ace styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace.min.css" id="main-ace-style" />
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-part2.min.css" />
+    <![endif]-->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-rtl.min.css" />
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-ie.min.css" />
+    <![endif]-->
+
+    <!-- inline styles related to this page -->
+
+    <!-- ace settings handler -->
+    <script src="${rc.contextPath}/resources/assets/js/ace-extra.min.js"></script>
+
+</head>
+<body class="no-skin">
+
+<!-- #section:basics/navbar.layout -->
+<div id="navbar" class="navbar navbar-default">
+    #parse("common/navbar.vm")
+</div>
+
+<div class="main-container" id="main-container">
+
+    <script type="text/javascript">
+        try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+    </script>
+    <!-- #section:basics/sidebar -->
+    <div id="sidebar" class="sidebar   responsive">
+        #parse("common/sidebar.vm")
+    </div>
+    <div class="main-content">
+
+        <!-- #section:basics/content.breadcrumbs -->
+        <div class="breadcrumbs" id="breadcrumbs">
+            <script type="text/javascript">
+                try {
+                    ace.settings.check('breadcrumbs', 'fixed')
+                } catch (e) {
+                }
+            </script>
+
+            <ul class="breadcrumb">
+                <li><i class="ace-icon fa fa-home home-icon"></i> <a href="/">主页</a>
+                </li>
+                <li>配置服务</li>
+                <li class="active">${projectName}</li>
+            </ul>
+            <!-- /.breadcrumb -->
+        </div>
+
+        <!-- /section:basics/content.breadcrumbs -->
+        <div class="page-content">
+
+            <!-- /section:settings.box -->
+            <div class="page-content-area">
+                <div class="page-header">
+                    <h1>
+                        ${projectName}
+                        <small>
+                            <i class="ace-icon fa fa-angle-double-right"></i>
+                            添加、删除、修改、查看pigeon服务配置
+                        </small>
+                    </h1>
+                </div><!-- /.page-header -->
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <!-- PAGE CONTENT BEGINS -->
+                        <div class="well well-sm">
+                            <button type="button" class="close line-height-0" data-dismiss="alert">
+                                <i class="ace-icon fa fa-times smaller-75"></i>
+                            </button>
+                            #if($isProjectOwner)
+                                更多帮助请前往架构客服群咨询。
+                            #else
+                                点击左下角小红人可申请管理员。
+                            #end
+                        </div>
+                        <div>
+                            <a class="btn btn-danger" href="http://web.cmdb.dp/?project=${projectName}" target="_blank">
+                                点击查询应用所属信息
+                            </a>
+                        </div>
+                        <table id="grid-table"></table>
+
+                        <div id="grid-pager"></div>
+
+                        <!-- PAGE CONTENT ENDS -->
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div>
+
+        </div>
+        <!-- /.page-content -->
+
+
+    </div><!-- /.main-content -->
+
+    <div class="footer">
+        #parse("common/sub-footer.vm")
+    </div>
+
+    <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+        <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+    </a>
+
+    <div id="dialog-message" class="hide">
+        <p>
+            请点击<a href="http://crab.dp/cmdb/app_manage?project=${projectName}" target="_blank">此处</a>添加管理员邮箱到项目邮件组，然后点击按钮即可添加
+        </p>
+
+        <div class="hr hr-12 hr-double"></div>
+
+        <p>
+            <b class="red">项目邮件组添加完成后,点击OK即可.</b>
+        </p>
+    </div><!-- #dialog-message -->
+
+    <div id="oneClickAdd-modal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="blue bigger">填写服务器信息</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+
+                        <div class="col-xs-12">
+
+                            <div class="form-group">
+                                <label for="form-field-provider-ip">服务提供方IP</label>
+
+                                <div>
+                                    <input class="input-large" type="text" id="form-field-provider-ip"
+                                           placeholder="192.168.0.1" value="" />
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label for="form-field-provider-port">单机测试控制台端口(默认为4080)</label>
+
+                                <div>
+                                    <input class="input-medium" type="text" id="form-field-provider-port"
+                                           placeholder="4080" value="4080" />
+                                    &nbsp;&nbsp;
+                                    <a title="服务启动时若4080端口被占用，端口号顺延" data-rel="tooltip" href="#">
+                                        <i class="fa fa-question-circle dark"></i></a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button id="test-oneClick-add" class="btn btn-sm btn-primary">
+                        <i class="ace-icon fa fa-circle-o"></i>
+                        测试
+                    </button>
+
+                    <button class="btn btn-sm" data-dismiss="modal">
+                        <i class="ace-icon fa fa-times"></i>
+                        取消
+                    </button>
+
+                    <button id="submit-oneClick-add" class="btn btn-sm btn-primary">
+                        <i class="ace-icon fa fa-check"></i>
+                        提交
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="oneClickOn-modal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="blue bigger">填写服务器信息</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+
+                        <div class="col-xs-12">
+
+                            <div class="form-group">
+                                <label for="form-field-provider-off-host">服务所在的ip:port</label>
+
+                                <div>
+                                    <input class="input-large" type="text" id="form-field-provider-on-host"
+                                           placeholder="ip:port, e.g. 10.1.77.131:5060" value="" />
+                                    &nbsp;&nbsp;
+                                    <a title="通常用于服务非正常发布的补救措施" data-rel="tooltip" href="#">
+                                        <i class="fa fa-question-circle dark"></i></a>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label for="form-field-provider-on-group">泳道(group)</label>
+
+                                <div>
+                                    <input class="input-medium" type="text" id="form-field-provider-on-group"
+                                           placeholder="default" value="" />
+                                    &nbsp;&nbsp;
+                                    <a title="一键添加指定泳道的指定ip:port，默认为无泳道" data-rel="tooltip" href="#">
+                                        <i class="fa fa-question-circle dark"></i></a>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-sm" data-dismiss="modal">
+                        <i class="ace-icon fa fa-times"></i>
+                        取消
+                    </button>
+
+                    <button id="submit-oneClick-on" class="btn btn-sm btn-primary">
+                        <i class="ace-icon fa fa-check"></i>
+                        提交
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="oneClickOff-modal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="blue bigger">填写服务器信息</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+
+                        <div class="col-xs-12">
+
+                            <div class="form-group">
+                                <label for="form-field-provider-off-host">服务所在的ip:port</label>
+
+                                <div>
+                                    <input class="input-large" type="text" id="form-field-provider-off-host"
+                                           placeholder="ip:port, e.g. 10.1.77.131:5060" value="" />
+                                    &nbsp;&nbsp;
+                                    <a title="通常用于服务非正常关闭时的补救措施" data-rel="tooltip" href="#">
+                                        <i class="fa fa-question-circle dark"></i></a>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label for="form-field-provider-off-group">泳道(group)</label>
+
+                                <div>
+                                    <input class="input-medium" type="text" id="form-field-provider-off-group"
+                                           placeholder="default" value="" />
+                                    &nbsp;&nbsp;
+                                    <a title="一键删除指定泳道的指定ip:port，默认为无泳道" data-rel="tooltip" href="#">
+                                        <i class="fa fa-question-circle dark"></i></a>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-sm" data-dismiss="modal">
+                        <i class="ace-icon fa fa-times"></i>
+                        取消
+                    </button>
+
+                    <button id="submit-oneClick-off" class="btn btn-sm btn-primary">
+                        <i class="ace-icon fa fa-check"></i>
+                        提交
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="oneClickOffGroup-modal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="blue bigger">注意：危险操作！！！</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+
+                        <div class="col-xs-12">
+
+                            <div class="form-group">
+                                <label for="form-field-provider-off-group-2">泳道(group)</label>
+
+                                <div>
+                                    <input class="input-medium" type="text" id="form-field-provider-off-group-2"
+                                           placeholder="default" value="" />
+                                    &nbsp;&nbsp;
+                                    <a title="一键删除该应用指定泳道的所有服务" data-rel="tooltip" href="#">
+                                        <i class="fa fa-question-circle dark"></i></a>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-sm" data-dismiss="modal">
+                        <i class="ace-icon fa fa-times"></i>
+                        取消
+                    </button>
+
+                    <button id="submit-oneClick-off-group" class="btn btn-sm btn-primary">
+                        <i class="ace-icon fa fa-check"></i>
+                        提交
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- basic scripts -->
+<!--[if !IE]> -->
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.min.js'>"+"<"+"/script>");
+</script>
+<!-- <![endif]-->
+<!--[if IE]>
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery1x.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+<script type="text/javascript">
+    if('ontouchstart' in document.documentElement)
+        document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap.min.js"></script>
+
+<!-- page specific plugin scripts -->
+<script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jqGrid/jquery.jqGrid.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jqGrid/i18n/grid.locale-cn.js"></script>
+
+<script src="${rc.contextPath}/resources/assets/js/jquery-ui.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.ui.touch-punch.min.js"></script>
+
+<script src="${rc.contextPath}/resources/assets/js/jquery-ui.custom.min.js"></script>
+
+<script src="${rc.contextPath}/resources/assets/js/jquery.gritter.min.js"></script>
+
+<!-- ace scripts -->
+<script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
+
+<script>
+    var projectId = ${projectId};
+    $(function(){
+        $('li[id="projects_index"]').addClass("active open");
+        //$('li[id="project_info"]').addClass("active");
+        $('[data-rel=tooltip]').tooltip();
+
+    });
+
+    $('#test-oneClick-add').on('click',function(){
+        var url = "http://" + $('#form-field-provider-ip').val() + ":"
+                + $('#form-field-provider-port').val() + "/services";
+        window.open(url);
+    });
+
+    $('#submit-oneClick-add').on('click',function(){
+        var data = {"ip": $('#form-field-provider-ip').val(), "port": $('#form-field-provider-port').val()};
+        $.ajax({
+            url: '/services/oneClickAdd',
+            type: 'POST',
+            data: data,
+            error: function(){
+                console.log("server error!");
+            },
+            success: function(response, textStatus) {
+                if(response.status == "success") {
+                    window.location.reload();
+                } else {
+                    //console.log(response);
+                    $('#oneClickAdd-modal').modal('hide');
+                    $.gritter.add({
+                        title: response.status,
+                        text: response.message,
+                        class_name: 'gritter-error gritter-center gritter-light'
+                    });
+                }
+
+            }
+        });
+
+    });
+
+    $('#submit-oneClick-on').on('click',function(){
+        var data = {"host": $('#form-field-provider-on-host').val(), "group": $('#form-field-provider-on-group').val(), "projectId": projectId};
+        $.ajax({
+            url: '/services/oneClickOn',
+            type: 'POST',
+            data: data,
+            error: function(){
+                console.log("server error!");
+            },
+            success: function(response, textStatus) {
+                if(response.status == "success") {
+                    window.location.reload();
+                } else {
+                    //console.log(response);
+                    $('#oneClickOn-modal').modal('hide');
+                    $.gritter.add({
+                        title: response.status,
+                        text: response.message,
+                        class_name: 'gritter-error gritter-center gritter-light'
+                    });
+                }
+
+            }
+        });
+
+    });
+
+    $('#submit-oneClick-off').on('click',function(){
+        var data = {"host": $('#form-field-provider-off-host').val(), "group": $('#form-field-provider-off-group').val(), "projectId": projectId};
+        $.ajax({
+            url: '/services/oneClickOff',
+            type: 'POST',
+            data: data,
+            error: function(){
+                console.log("server error!");
+            },
+            success: function(response, textStatus) {
+                if(response.status == "success") {
+                    window.location.reload();
+                } else {
+                    //console.log(response);
+                    $('#oneClickOff-modal').modal('hide');
+                    $.gritter.add({
+                        title: response.status,
+                        text: response.message,
+                        class_name: 'gritter-error gritter-center gritter-light'
+                    });
+                }
+
+            }
+        });
+
+    });
+
+    $('#submit-oneClick-off-group').on('click',function(){
+        var data = {"group": $('#form-field-provider-off-group-2').val(), "projectId": projectId};
+        $.ajax({
+            url: '/services/oneClickOffGroup',
+            type: 'POST',
+            data: data,
+            error: function(){
+                console.log("server error!");
+            },
+            success: function(response, textStatus) {
+                if(response.status == "success") {
+                    window.location.reload();
+                } else {
+                    //console.log(response);
+                    $('#oneClickOffGroup-modal').modal('hide');
+                    $.gritter.add({
+                        title: response.status,
+                        text: response.message,
+                        class_name: 'gritter-error gritter-center gritter-light'
+                    });
+                }
+
+            }
+        });
+
+    });
+
+    // 本地数据
+    var services = ${services};
+        #if(!$isProjectOwner)
+        var adminApplyFunc = function (e) {
+            e.preventDefault();
+
+            var dialog = $( "#dialog-message" ).removeClass('hide').dialog({
+                modal: true,
+                title: "<div class='widget-header widget-header-small'><h4 class='smaller'><i class='ace-icon fa fa-check'></i>申请管理员?</h4></div>",
+                title_html: true,
+                buttons: [
+                    {
+                        text: "Cancel",
+                        "class" : "btn btn-xs",
+                        click: function() {
+                            $( this ).dialog( "close" );
+                        }
+                    },
+                    {
+                        text: "OK",
+                        "class" : "btn btn-primary btn-xs",
+                        click: function() {
+                            var currentUser = "${currentUser}";
+                            var projectName = "${projectName}";
+                            $.ajax({
+                                url: '/projectowners/cmdb',
+                                type: 'POST',
+                                data:{"dpaccount": currentUser, "projectName": projectName},
+                                error: function(){
+                                    console.log("server error!");
+                                },
+                                success: function(response, textStatus) {
+                                    //console.log(response.result);
+                                    window.location.reload();
+                                }
+                            });
+                        }
+                    }
+                ]
+            });
+
+        }
+        #end
+
+    jQuery(function($) {
+        var grid_selector = "#grid-table";
+        var pager_selector = "#grid-pager";
+
+        //resize to fit page size
+        $(window).on('resize.jqGrid', function () {
+            $(grid_selector).jqGrid( 'setGridWidth', $(".page-content").width() );
+        })
+        //resize on sidebar collapse/expand
+        var parent_column = $(grid_selector).closest('[class*="col-"]');
+        $(document).on('settings.ace.jqGrid' , function(ev, event_name, collapsed) {
+            if( event_name === 'sidebar_collapsed' || event_name === 'main_container_fixed' ) {
+                //setTimeout is for webkit only to give time for DOM changes and then redraw!!!
+                setTimeout(function() {
+                    $(grid_selector).jqGrid( 'setGridWidth', parent_column.width() );
+                }, 0);
+            }
+        })
+
+        #if(!$isProjectOwner)
+            $.extend($.fn.fmatter, {
+                actionFormatter: function(cellvalue, options, rowObject) {
+                    var retVal = '<a href="javascript:void(0)" onclick="adminApplyFunc(event)" title="申请成为管理员">apply</a>';
+                    var anotherRetVal =
+                            '<div title="申请成为管理员" style="float:left;cursor:pointer;" ' +
+                            'class="ui-pg-div" onclick="adminApplyFunc(event)" ' +
+                            'onmouseover="jQuery(this).addClass(\'ui-state-hover\');" ' +
+                            'onmouseout="jQuery(this).removeClass(\'ui-state-hover\')">' +
+                            '<span class="ui-icon ace-icon fa fa-user red"></span></div>';
+                    return retVal;
+                }
+            } );
+        #end
+
+        jQuery(grid_selector).jqGrid({
+
+            datatype: "local",
+            data: services,
+            height: 350,
+            colNames:['操作', 'ID','Name','描述', '泳道', 'Hosts','PID'],
+            colModel:[
+                {name:'myac',index:'', width:70, fixed:true, sortable:false, resize:false,
+                formatter: #if($isProjectOwner)'actions'#else'actionFormatter'#end,
+                    formatoptions:{
+                        keys:true,
+                        delbutton: true,
+                        delOptions:{
+                            recreateForm: true, beforeShowForm:beforeDeleteCallback,
+                            onclickSubmit: function (params) {
+                                //console.log(params);
+                                var arraySelected = jQuery(grid_selector).jqGrid('getGridParam', 'selarrrow');
+                                return { name: $(grid_selector).getRowData(arraySelected[0]).name,
+                                    group: $(grid_selector).getRowData(arraySelected[0]).group,
+                                    hosts: $(grid_selector).getRowData(arraySelected[0]).hosts};
+                            },
+                            serializeDelData: function (data) {
+                                //console.log(data);
+                                return data;
+                            },
+                            afterComplete: function (resp, data) {
+                                //console.log(data);
+                                //for(var j = 0; j < data.length; ++j) {
+                                for(var i = 0; i < services.length; ++i) {
+                                    if(data[0] == services[i].id) {
+                                        services.splice(i,1);
+                                    }
+                                }
+                                //}
+                            }
+                        },
+
+                        editformbutton: false,
+                        editOptions: { /*recreateForm: true, beforeShowForm:beforeEditCallback*/ },
+                        //extraparam: {oper:'edit'},
+                        editbutton: true,
+                        onEdit: function(rowId) {// 点击 edit 之后
+                            var nameCol = '#'+rowId + '_name';
+                            var groupCol = '#'+rowId + '_group';
+                            $(nameCol).attr("disabled","disabled");
+                            $(groupCol).attr("disabled","disabled");
+                        },
+                        onSuccess:function (resp) {// edit 成功之后
+                            //console.log(resp);
+                            var status = resp.responseJSON.status;
+                            var data = resp.responseJSON.result;
+                            if(status == "success") {
+                                for(var i = 0; i < services.length; ++i) {
+                                    if(data.id == services[i].id) {
+                                        services.splice(i,1,data);
+                                    }
+                                }
+                                return true;//turns to afterSave
+                            } else if(status == "error") {
+                                alert(resp.responseJSON.message);
+                                return false;
+                            }
+
+                        },
+                        onError:function(rowId, resp, textStatus) {// [click submit] and [if onSuccess return false]
+                            //console.log(rowId);
+                        },
+                        afterSave:function(rowId) { //if onSuccess return true
+                            //console.log("in afterSave (Submit): rowid="+rowId+"\nWe don't need return anything");
+                        },
+                        afterRestore:function(rowId) { // [click cancel] or [if onSuccess return false]
+                            //console.log("in afterRestore (Cancel): rowid="+rowId+"\nWe don't need return anything");
+                        }
+                    }
+                },
+                {name:'id', index:'id', width:20, sorttype:"int", search:false, hidden:true, editable:false},
+                {name:'name', index:'name', width:220, editable:true,editoptions:{size:"80", maxlength:"250"}},
+                {name:'desc', index:'desc', width:100, editable:true, search:false, sortable:false, editoptions:{size:"80", maxlength:"250"}},
+                {name:'group',index:'group', width:50, editable:true, editoptions:{size:"80", maxlength:"100"}},
+                {name:'hosts',index:'hosts', width:200, editable:true, search:false, sortable:false,
+                    editoptions:{
+                        size:"80", maxlength:"2000"
+
+                    }
+                },
+                {name:'projectid',index:'projectid', width:20, hidden:true, editable:false}
+            ],
+
+            viewrecords : true,
+            rowNum:400,
+            rowList:[400,800],
+            pager : pager_selector,
+            altRows: true,
+            //toppager: true,
+
+            multiselect: false,
+            //multikey: "ctrlKey",
+            multiboxonly: true,
+
+            loadComplete : function() {
+                var table = this;
+                setTimeout(function(){
+                    styleCheckbox(table);
+
+                    updateActionIcons(table);
+                    updatePagerIcons(table);
+                    enableTooltips(table);
+                }, 0);
+
+                #if(! $isProjectOwner)
+                    $('[data-rel=tooltip]').tooltip();
+                #end
+                /*$('.ui-inline-edit').click(function(e){
+                    //console.log(e);
+                    var btnId = e.currentTarget.id;
+                    var rowId = btnId.split("_")[1];
+                    var nameCol = '#'+rowId + '_name';
+                    var groupCol = '#'+rowId + '_group';
+                    $(nameCol).attr("disabled","disabled");
+                    $(groupCol).attr("disabled","disabled");
+                });*/
+            },
+
+            editurl: "${rc.contextPath}/services.api/${projectId}",//nothing is saved
+            caption: "加载服务配置"
+
+            //,autowidth: true,
+
+        });
+
+
+        $(window).triggerHandler('resize.jqGrid');//trigger window resize to make the grid get the correct size
+
+        //enable search/filter toolbar
+        //jQuery(grid_selector).jqGrid('filterToolbar',{defaultSearch:true,stringResult:true})
+        //jQuery(grid_selector).filterToolbar({});
+
+        //switch element when editing inline
+        function aceSwitch( cellvalue, options, cell ) {
+            setTimeout(function(){
+                $(cell) .find('input[type=checkbox]')
+                        .addClass('ace ace-switch ace-switch-5')
+                        .after('<span class="lbl"></span>');
+            }, 0);
+        }
+        //enable datepicker
+        function pickDate( cellvalue, options, cell ) {
+            setTimeout(function(){
+                $(cell) .find('input[type=text]')
+                        .datepicker({format:'yyyy-mm-dd' , autoclose:true});
+            }, 0);
+        }
+
+        //navButtons
+        jQuery(grid_selector).jqGrid('navGrid',pager_selector,
+                { 	//navbar options
+                    edit: false,
+                    editicon : 'ace-icon fa fa-pencil blue',
+                    add: ${isProjectOwner},
+                    addicon : 'ace-icon fa fa-plus-circle purple',
+                    del: false,
+                    delicon : 'ace-icon fa fa-trash-o red',
+                    search: false,
+                    searchicon : 'ace-icon fa fa-search orange',
+                    refresh: false,
+                    refreshicon : 'ace-icon fa fa-refresh green',
+                    view: false,
+                    viewicon : 'ace-icon fa fa-search-plus grey',
+                },
+                {
+                    //edit record form
+                    //closeAfterEdit: true,
+                    width: 650,
+                    recreateForm: true,
+                    onclickSubmit: function (params) {
+                        //console.log(params);
+                    },
+                    serializeEditData: function(data) {
+                        //console.log(data);
+                        return data;
+                    },
+                    afterComplete: function (resp, data) {
+                        var status = resp.responseJSON.status;
+                        delete data.oper;
+                        if(status == "success") {
+                            delete data.oper;
+                            for(var i = 0; i < services.length; ++i) {
+                                if(data.id == services[i].id) {
+                                    services.splice(i,1,data);
+                                }
+                            }
+                            jQuery(grid_selector).jqGrid('clearGridData')
+                                    .jqGrid('setGridParam', { data: services })
+                                    .trigger('reloadGrid', [{ page: 1}]);
+                        } else if(status == "error") {
+                            alert(resp.responseJSON.message);
+                        }
+                    },
+                    beforeShowForm : function(e) {
+                        //console.log(e);
+                        var form = $(e[0]);
+                        form.find('#name').attr('readOnly',true);
+                        form.find('#group').attr('readOnly',true);
+                        form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
+                        style_edit_form(form);
+                    }
+                },
+                {
+                    //new record form
+                    width: 650,
+                    closeAfterAdd: true,
+                    recreateForm: true,
+                    viewPagerButtons: false,
+                    onclickSubmit: function (params) {
+                        //console.log(params);
+                    },
+                    serializeEditData: function(data) {
+                        //console.log(data);
+                        return data;
+                    },
+                    afterComplete: function (resp, data) {
+                        //console.log(resp);
+                        var status = resp.responseJSON.status;
+                        if(status == "success") {
+                            services.push(resp.responseJSON.result);
+                            jQuery(grid_selector).jqGrid('clearGridData')
+                                    .jqGrid('setGridParam', { data: services })
+                                    .trigger('reloadGrid', [{ page: 1}]);
+                        } else if(status == "error") {
+                            alert(resp.responseJSON.message);
+                        }
+
+                    },
+                    beforeShowForm : function(e) {
+                        //console.log(e);
+                        var form = $(e[0]);
+                        form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar')
+                                .wrapInner('<div class="widget-header" />')
+                        style_edit_form(form);
+                    }
+                },
+                {
+                    //delete record form
+                    recreateForm: true,
+                    reloadAfterSubmit:true,
+                    onclickSubmit: function (params) {
+                        //console.log(params);
+                        var names = [];
+                        var groups = [];
+                        var hostsArr = [];
+                        var arraySelected = jQuery(grid_selector).jqGrid('getGridParam', 'selarrrow');
+                        for (var i = 0; i < arraySelected.length; i++) {
+                            names.push($(grid_selector).getRowData(arraySelected[i]).name);
+                            groups.push($(grid_selector).getRowData(arraySelected[i]).group);
+                            hostsArr.push($(grid_selector).getRowData(arraySelected[i]).hosts)
+                        }
+                        return { name: names.join(','), group: groups.join(','), hosts: hostsArr.join(',') };
+                    },
+                    serializeDelData: function (data) {
+                        //console.log(data);
+                        return data;
+                    },
+                    afterComplete: function (resp, data) {
+                        //console.log(data)
+                        for(var j = 0; j < data.length; ++j) {
+                            for(var i = 0; i < services.length; ++i) {
+                                if(data[j] == services[i].id) {
+                                    services.splice(i,1);
+                                }
+                            }
+                        }
+                    },
+                    beforeShowForm : function(e) {
+                        var form = $(e[0]);
+                        if(form.data('styled')) return false;
+
+                        form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
+                        style_delete_form(form);
+
+                        form.data('styled', true);
+                    },
+                    onClick : function(e) {
+                        alert(1);
+                    }
+                },
+                {
+                    //search form
+                    recreateForm: true,
+                    afterShowSearch: function(e){
+                        var form = $(e[0]);
+                        form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
+                        style_search_form(form);
+                    },
+                    afterRedraw: function(){
+                        style_search_filters($(this));
+                    }
+                    ,
+                    multipleSearch: true,
+                    /**
+                     multipleGroup:true,
+                     showQuery: true
+                     */
+                },
+                {
+                    //view record form
+                    width: 650,
+                    recreateForm: true,
+                    beforeShowForm: function(e){
+                        var form = $(e[0]);
+                        form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
+                    }
+                }
+        )
+
+        #if(! $isProjectOwner)
+            jQuery(grid_selector).navButtonAdd(pager_selector,{
+                caption: "",
+                title:"申请成为管理员",
+                buttonicon:'ace-icon fa fa-user red',
+                onClickButton: adminApplyFunc,
+                position:"first",
+                id: "addOwnerBtn"
+            });
+        #end
+
+        #if($isProjectOwner)
+            jQuery(grid_selector).navButtonAdd(pager_selector,{
+                caption: "",
+                title:"在线服务一键发布",
+                buttonicon:'ace-icon fa fa-plus-square green',
+                onClickButton: function(){
+                    $('#oneClickAdd-modal').modal();
+                },
+                position:"last",
+                id: "oneClickPublish"
+            });
+            jQuery(grid_selector).navButtonAdd(pager_selector,{
+                caption: "",
+                title:"一键添加",
+                buttonicon:'ace-icon fa fa-plus-square red',
+                onClickButton: function(){
+                    $('#oneClickOn-modal').modal();
+                },
+                position:"last",
+                id: "oneClickOn"
+            });
+            jQuery(grid_selector).navButtonAdd(pager_selector,{
+                caption: "",
+                title:"一键删除",
+                buttonicon:'ace-icon fa fa-minus-square red',
+                onClickButton: function(){
+                    $('#oneClickOff-modal').modal();
+                },
+                position:"last",
+                id: "oneClickOff"
+            });
+            jQuery(grid_selector).navButtonAdd(pager_selector,{
+                caption: "",
+                title:"一键删除指定泳道的所有服务",
+                buttonicon:'ace-icon fa fa-minus-square red',
+                onClickButton: function(){
+                    $('#oneClickOffGroup-modal').modal();
+                },
+                position:"last",
+                id: "oneClickOffGroup"
+            });
+            /* jQuery(grid_selector).navButtonAdd(pager_selector,{
+                caption: "",
+                title:"从lion同步配置服务",
+                buttonicon:'ace-icon fa fa-user red',
+                onClickButton: function(){
+                    var projectName = "${projectName}";
+			//alert("将覆盖本地配置");
+			$.ajax({
+				url: '/registry/update',
+		        type: 'POST',
+				error: function(){
+					alert("error!");
+				},
+				success: function(response, textStatus) {
+
+				}
+			});
+		},
+		position:"last",
+		id: "refreshZkBtn"
+	}); */
+        #end
+
+        function style_edit_form(form) {
+            //enable datepicker on "sdate" field and switches for "stock" field
+            form.find('input[name=sdate]').datepicker({format:'yyyy-mm-dd' , autoclose:true})
+                    .end().find('input[name=stock]')
+                    .addClass('ace ace-switch ace-switch-5').after('<span class="lbl"></span>');
+            //don't wrap inside a label element, the checkbox value won't be submitted (POST'ed)
+            //.addClass('ace ace-switch ace-switch-5').wrap('<label class="inline" />').after('<span class="lbl"></span>');
+
+            //update buttons classes
+            var buttons = form.next().find('.EditButton .fm-button');
+            buttons.addClass('btn btn-sm').find('[class*="-icon"]').hide();//ui-icon, s-icon
+            buttons.eq(0).addClass('btn-primary').prepend('<i class="ace-icon fa fa-check"></i>');
+            buttons.eq(1).prepend('<i class="ace-icon fa fa-times"></i>')
+
+            buttons = form.next().find('.navButton a');
+            buttons.find('.ui-icon').hide();
+            buttons.eq(0).append('<i class="ace-icon fa fa-chevron-left"></i>');
+            buttons.eq(1).append('<i class="ace-icon fa fa-chevron-right"></i>');
+        }
+
+        function style_delete_form(form) {
+            var buttons = form.next().find('.EditButton .fm-button');
+            buttons.addClass('btn btn-sm btn-white btn-round').find('[class*="-icon"]').hide();//ui-icon, s-icon
+            buttons.eq(0).addClass('btn-danger').prepend('<i class="ace-icon fa fa-trash-o"></i>');
+            buttons.eq(1).addClass('btn-default').prepend('<i class="ace-icon fa fa-times"></i>')
+        }
+
+        function style_search_filters(form) {
+            form.find('.delete-rule').val('X');
+            form.find('.add-rule').addClass('btn btn-xs btn-primary');
+            form.find('.add-group').addClass('btn btn-xs btn-success');
+            form.find('.delete-group').addClass('btn btn-xs btn-danger');
+        }
+        function style_search_form(form) {
+            var dialog = form.closest('.ui-jqdialog');
+            var buttons = dialog.find('.EditTable')
+            buttons.find('.EditButton a[id*="_reset"]').addClass('btn btn-sm btn-info').find('.ui-icon').attr('class', 'ace-icon fa fa-retweet');
+            buttons.find('.EditButton a[id*="_query"]').addClass('btn btn-sm btn-inverse').find('.ui-icon').attr('class', 'ace-icon fa fa-comment-o');
+            buttons.find('.EditButton a[id*="_search"]').addClass('btn btn-sm btn-purple').find('.ui-icon').attr('class', 'ace-icon fa fa-search');
+        }
+
+        function beforeDeleteCallback(e) {
+            var form = $(e[0]);
+            if(form.data('styled')) return false;
+
+            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
+            style_delete_form(form);
+
+            form.data('styled', true);
+        }
+
+        function beforeEditCallback(e) {
+            var form = $(e[0]);
+            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
+            style_edit_form(form);
+        }
+
+
+
+        //it causes some flicker when reloading or navigating grid
+        //it may be possible to have some custom formatter to do this as the grid is being created to prevent this
+        //or go back to default browser checkbox styles for the grid
+        function styleCheckbox(table) {
+            /**
+             $(table).find('input:checkbox').addClass('ace')
+             .wrap('<label />')
+             .after('<span class="lbl align-top" />')
+
+
+             $('.ui-jqgrid-labels th[id*="_cb"]:first-child')
+             .find('input.cbox[type=checkbox]').addClass('ace')
+             .wrap('<label />').after('<span class="lbl align-top" />');
+             */
+        }
+
+        //unlike navButtons icons, action icons in rows seem to be hard-coded
+        //you can change them like this in here if you want
+        function updateActionIcons(table) {
+            /**
+             var replacement =
+             {
+                 'ui-ace-icon fa fa-pencil' : 'ace-icon fa fa-pencil blue',
+                 'ui-ace-icon fa fa-trash-o' : 'ace-icon fa fa-trash-o red',
+                 'ui-icon-disk' : 'ace-icon fa fa-check green',
+                 'ui-icon-cancel' : 'ace-icon fa fa-times red'
+             };
+             $(table).find('.ui-pg-div span.ui-icon').each(function(){
+			var icon = $(this);
+			var $class = $.trim(icon.attr('class').replace('ui-icon', ''));
+			if($class in replacement) icon.attr('class', 'ui-icon '+replacement[$class]);
+		})
+             */
+        }
+
+        //replace icons with FontAwesome icons like above
+        function updatePagerIcons(table) {
+            var replacement =
+            {
+                'ui-icon-seek-first' : 'ace-icon fa fa-angle-double-left bigger-140',
+                'ui-icon-seek-prev' : 'ace-icon fa fa-angle-left bigger-140',
+                'ui-icon-seek-next' : 'ace-icon fa fa-angle-right bigger-140',
+                'ui-icon-seek-end' : 'ace-icon fa fa-angle-double-right bigger-140'
+            };
+            $('.ui-pg-table:not(.navtable) > tbody > tr > .ui-pg-button > .ui-icon').each(function(){
+                var icon = $(this);
+                var $class = $.trim(icon.attr('class').replace('ui-icon', ''));
+
+                if($class in replacement) icon.attr('class', 'ui-icon '+replacement[$class]);
+            })
+        }
+
+        function enableTooltips(table) {
+            $('.navtable .ui-pg-button').tooltip({container:'body'});
+            $(table).find('.ui-pg-div').tooltip({container:'body'});
+        }
+
+        //var selr = jQuery(grid_selector).jqGrid('getGridParam','selrow');
+
+        $(document).on('ajaxloadstart', function(e) {
+            $(grid_selector).jqGrid('GridUnload');
+            $('.ui-jqdialog').remove();
+        });
+
+
+
+        //override dialog's title function to allow for HTML titles
+        $.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
+            _title: function(title) {
+                var $title = this.options.title || '&nbsp;'
+                if( ("title_html" in this.options) && this.options.title_html == true )
+                    title.html($title);
+                else title.text($title);
+            }
+        }));
+
+    });
+</script>
+
+<style>
+    /* 使表格内容自动换行 */
+    .ui-jqgrid tr.jqgrow td {
+        word-wrap: break-word; /* IE 5.5+ and CSS3 */
+        white-space: pre-wrap; /* CSS3 */
+        white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+        white-space: -pre-wrap; /* Opera 4-6 */
+        white-space: -o-pre-wrap; /* Opera 7 */
+        overflow: hidden;
+        height: auto;
+        vertical-align: middle;
+        padding-top: 3px;
+        padding-bottom: 3px
+    }
+</style>
+
+</body>
+</html>

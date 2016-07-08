@@ -35,5 +35,6 @@ public interface CombinedServiceDescMapper {
     //查询方法元数据,构建MethodMeta.
     List<MethodMeta> selectMethodMetas(String query);
 
+    List<Integer> selectAllServiceDescBeanId();
 
 }

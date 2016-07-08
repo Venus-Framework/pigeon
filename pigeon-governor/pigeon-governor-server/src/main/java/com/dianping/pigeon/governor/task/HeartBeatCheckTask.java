@@ -204,9 +204,7 @@ public class HeartBeatCheckTask extends Thread {
 
     private void checkHeartBeats(long startTime, long checkInternal) {
         for(String heartBeatKey : heartBeatsMap.keySet()) {
-            if(startTime - heartBeatsMap.get(heartBeatKey) < checkInternal) {
-                //heartbeat ok
-            } else if (startTime - heartBeatsMap.get(heartBeatKey) > 3 * checkInternal) {
+            if (startTime - heartBeatsMap.get(heartBeatKey) > 3 * checkInternal) {
                 //create a thread to take off service
                 threadPoolTaskExecutor.submit(new DealHeartBeat(startTime, heartBeatKey));
             }
@@ -236,8 +234,8 @@ public class HeartBeatCheckTask extends Thread {
                         String service_zk = Utils.escapeServiceName(serviceName);
                         Service service = serviceGroupDbIndex.get(serviceWithGroup);
 
-                        // 服务只剩一个host不摘除
-                        if(!isPortAvailable(host)) {
+                        // 服务只剩一个host不摘除，探测3次，间隔一秒
+                        if(!isPortAvailable(host, 3)) {
                             /* 这里拉数据库的话可能导致缓存的数据和zk不一致，
                             直接更新zk导致有的host没写上去，所以直接拉zk */
                             String serviceHostAddress = "/DP/SERVER/" + service_zk;
@@ -262,9 +260,10 @@ public class HeartBeatCheckTask extends Thread {
                             int minProviderHeartbeat = Lion.getIntValue(LionKeys.MIN_PROVIDER_HEARTBEAT.value(), 2);
                             int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
                             // 摘除心跳条件：不满足最小阈值条件时，判断心跳失联时间超过8小时，且当前系统时间为凌晨3点到5点之间，摘除
-                            if (set.size() >= minProviderHeartbeat || "qa".equals(configManager.getEnv())
+                            if (set.size() >= minProviderHeartbeat
+                                    || ("qa".equals(configManager.getEnv()) && StringUtils.isNotBlank(group))
                                     || (startTime - heartBeatsMap.get(host) > pickOffHeartBeatNodeInternal
-                                            && hour > 2 && hour < 6) ) { // 摘除心跳
+                                    && hour > 2 && hour < 6) ) { // 摘除心跳
                                 String hosts = StringUtils.join(set, ",");
                                 client.set(serviceHostAddress, hosts);
                                 //update database
@@ -310,7 +309,8 @@ public class HeartBeatCheckTask extends Thread {
         }
     }
 
-    private boolean isPortAvailable(String host) {
+    private boolean isPortAvailable(String host, int count) {
+        boolean isAlive;
         int idx = host.lastIndexOf(":");
         if(idx == -1) {
             return false;
@@ -326,15 +326,39 @@ public class HeartBeatCheckTask extends Thread {
         String ip = host.substring(0, idx);
 
         Socket socket = null;
+        int next = --count;
+
         try {
             socket = new Socket();
             socket.setReuseAddress(true);
             SocketAddress sa = new InetSocketAddress(ip, port);
             socket.connect(sa, 2000);
-            return socket.isConnected();
-        } catch (IOException e) {
+            isAlive = socket.isConnected();
+
+            if (!isAlive && --next > 0) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    //e.printStackTrace();
+                }
+                return isPortAvailable(host, next);
+            } else {
+                return isAlive;
+            }
+
+        } catch (IOException ioe) {
             logger.warn(host + " socket read failed!");
-            return false;
+            if (--next > 0) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    //e.printStackTrace();
+                }
+                return isPortAvailable(host, next);
+            } else {
+                return false;
+            }
+
         } finally {
             if (socket != null) {
                 try {

@@ -89,6 +89,7 @@ public class ProjectController extends BaseController {
 						   HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getSession().getAttribute(Constants.DP_USER);
 		String dpAccount = user!=null ? user.getDpaccount() : "";
+		commonnav(modelMap,request);
 		modelMap.addAttribute("currentUser", dpAccount);
 		modelMap.addAttribute("projectOwner", dpAccount);
 

@@ -42,7 +42,7 @@ public class CuratorRegistry implements Registry {
 					try {
 						String zkAddress = properties.getProperty(Constants.KEY_REGISTRY_ADDRESS);
 
-						if(zkAddress == null) {
+						if(StringUtils.isBlank(zkAddress)) {
 							zkAddress = configManager.getStringValue(Constants.KEY_REGISTRY_ADDRESS);
 						}
 

@@ -97,7 +97,7 @@ public class ServiceController extends BaseController {
 	 * @param projectName
 	 * @return
 	 */
-	@RequestMapping(value = {"/services/{projectName}"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/services/{projectName:.+}"}, method = RequestMethod.POST)
 	@ResponseBody
 	public JqGridRespBean servicesRetrieve(JqGridReqBean jqGridReqBean,
 											@PathVariable String projectName) {

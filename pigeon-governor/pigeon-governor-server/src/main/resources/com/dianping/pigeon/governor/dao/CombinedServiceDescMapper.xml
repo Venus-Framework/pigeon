@@ -91,6 +91,9 @@
         service_id = s.id
     </select>
 
+    <select id="selectAllServiceDescBeanId" resultType="Integer">
+        SELECT service_id FROM service_desc
+    </select>
     <!--
     <resultMap id="ServiceDescBeanResultMap" type="com.dianping.pigeon.governor.bean.serviceDesc.ServiceDescBean">
         <id column="service_id" jdbcType="INTEGER" property="serviceId"/>

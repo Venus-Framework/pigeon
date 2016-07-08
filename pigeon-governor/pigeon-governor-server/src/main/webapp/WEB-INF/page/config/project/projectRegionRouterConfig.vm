@@ -1,0 +1,130 @@
+#set($layout="layoutblank.vm")
+<div class="page-header">
+    <h1>
+        应用名:<span id = "projectName">$projectName</span>
+
+            <div class="pull-right"><span style="font-size: small">Region路由状态: &nbsp;</span>
+                <input id="switch" type="checkbox" name="my-checkbox" />
+            </div>
+            <script>
+                jQuery(function($) {
+                    var enable = $empowered;
+                    var enableState = $enableState;
+                    <!--配置bootstrapSwitch-->
+                    $.fn.bootstrapSwitch.defaults.onText = '<i class="ace-icon glyphicon glyphicon-play white"></i><span class="white">开启</span>';
+                    $.fn.bootstrapSwitch.defaults.offText = '<i class="ace-icon glyphicon glyphicon-pause red"></i><span class="red">关闭</span>';
+                    $.fn.bootstrapSwitch.defaults.size='mini';
+                    $("[name='my-checkbox']").bootstrapSwitch();
+                    if(enableState){
+                        $("[name='my-checkbox']").bootstrapSwitch('state',true);
+                        console.log("enabledState:"+enableState);
+                    }
+                    else{
+                        $("[name='my-checkbox']").bootstrapSwitch('state',false);
+                        console.log("enabledState:"+enableState);
+                    }
+                    if(enable){
+                        $("[name='my-checkbox']").bootstrapSwitch('disabled',false);
+                        console.log("disabled:false");
+                    }
+
+                    else{
+                        $("[name='my-checkbox']").bootstrapSwitch('disabled',true);
+                        console.log("disabled:true");
+                    }
+                    $('input[name="my-checkbox"]').on('switchChange.bootstrapSwitch', function(event, state) {
+                        if(state){
+                            $("[name='my-checkbox']").bootstrapSwitch("state",false,true);
+                            bootbox.dialog({
+                                message: "<span class='bigger-110'>是否开启Region路由</span>",
+                                buttons:
+                                {
+                                    "confirm" :
+                                    {
+                                        "label" : "确认开启",
+                                        "className" : "btn-sm btn-danger",
+                                        "callback": function() {
+                                            $.ajax({
+                                                type: "post",
+                                                url: "/region/setRegionEnableState",
+                                                data: {'projectName': $('#projectName').html(),'state':'true'},
+                                                dataType: "html",
+                                                async: true,
+                                                success: function (data) {
+                                                    bootbox.dialog({
+                                                        message: "开启成功!",
+                                                        buttons: {
+                                                            "success": {
+                                                                "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                                "className": "btn-sm btn-success"
+                                                            }
+                                                        }
+                                                    });
+                                                    $("[name='my-checkbox']").bootstrapSwitch("state",true,true);
+                                                }
+                                            });
+                                        }
+                                    },
+                                    "cancel" :
+                                    {
+                                        "label" : "保持关闭",
+                                        "className" : "btn-sm btn-success",
+                                        "callback": function() {
+                                        }
+                                    }
+                                }
+                            });
+                        }else{
+                            $("[name='my-checkbox']").bootstrapSwitch("state",true,true);
+                            bootbox.dialog({
+                                message: "<span class='bigger-110'>是否关闭Region路由</span>",
+                                buttons:
+                                {
+                                    "confirm" :
+                                    {
+                                        "label" : "确认关闭",
+                                        "className" : "btn-sm btn-danger",
+                                        "callback": function() {
+                                            //TODO
+                                            $.ajax({
+                                                type: "post",
+                                                url: "/region/setRegionEnableState",
+                                                data: {'projectName': $('#projectName').html(),'state':'false'},
+                                                dataType: "html",
+                                                async: true,
+                                                success: function (data) {
+                                                    bootbox.dialog({
+                                                        message: "关闭成功!",
+                                                        buttons: {
+                                                            "success": {
+                                                                "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                                "className": "btn-sm btn-success"
+                                                            }
+                                                        }
+                                                    });
+                                                    $("[name='my-checkbox']").bootstrapSwitch("state",false,true);
+                                                }
+                                            });
+                                        }
+                                    },
+                                    "cancel" :
+                                    {
+                                        "label" : "保持开启",
+                                        "className" : "btn-sm btn-success",
+                                        "callback": function() {
+                                        }
+                                    }
+                                }
+                            });
+
+                        }
+                    });
+                });
+            </script>
+    </h1>
+</div>
+<div class ="row">
+    <div class="col-xs-12">
+
+    </div>
+</div>
