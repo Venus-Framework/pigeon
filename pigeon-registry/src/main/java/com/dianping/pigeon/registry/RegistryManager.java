@@ -43,7 +43,7 @@ public class RegistryManager {
 
     private static RegistryConfigManager registryConfigManager = new MultiRegistryConfigManager();
 
-    private volatile static List<Registry> registryList;
+    private volatile static List<Registry> registryList = ExtensionLoader.getExtensionList(Registry.class);
 
     private static final String KEY_PIGEON_REGISTRY_PREFER = "pigeon.registry.prefer.snapshot";
 
@@ -103,7 +103,7 @@ public class RegistryManager {
                 try {
                     parseRegistryConfig(_registryList,
                             configManager.getStringValue(KEY_PIGEON_REGISTRY_PREFER, "curator,mns"));
-                    //configManager.registerConfigChangeListener(new InnerConfigChangeListener());
+                    configManager.registerConfigChangeListener(new InnerConfigChangeListener());
 
                     for (Registry registry : registryList) {
                         registry.init(properties);
@@ -133,11 +133,17 @@ public class RegistryManager {
             if (registryMapByName.containsKey(registryName)) {
                 orderedRegistryList.add(registryMapByName.get(registryName));
             } else {
-                throw new RuntimeException("pigeon.registry.prefer config error! no registry: " + registryName);
+                logger.error("pigeon.registry.prefer config error! no registry: " + registryName);
+                return;
             }
         }
 
-        registryList = orderedRegistryList;
+        if (orderedRegistryList.size() > 0) {
+            registryList = orderedRegistryList;
+        } else {
+            logger.error("pigeon.registry.prefer config error! registry num is 0!");
+        }
+
     }
 
     public List<Registry> getRegistryList() {
@@ -736,6 +742,10 @@ public class RegistryManager {
             if (key.endsWith(KEY_PIGEON_REGISTRY_PREFER)) {
                 try {
                     parseRegistryConfig(ExtensionLoader.getExtensionList(Registry.class), value);
+
+                    for (Registry registry : registryList) {
+                        registry.init(props);
+                    }
                 } catch (Throwable t) {
                     logger.error(t);
                 }

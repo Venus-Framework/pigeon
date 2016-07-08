@@ -26,9 +26,19 @@ public class MnsRegistry implements Registry {
 
     private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
+    private volatile boolean inited = false;
+
     @Override
     public void init(Properties properties) {
         this.properties = properties;
+        if (!inited) {
+            synchronized (this) {
+                if (!inited) {
+
+                    inited = true;
+                }
+            }
+        }
     }
 
     @Override
