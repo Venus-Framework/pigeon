@@ -2,9 +2,9 @@ package com.dianping.pigeon.util;
 
 public class VersionUtils {
 
-	public static final String VERSION = "2.7.9-SNAPSHOT";
+	public static final String VERSION = "2.8.0-SNAPSHOT";
 	
-    public static final String THRIFT_VERSION = "2.7.9-SNAPSHOT";
+    public static final String THRIFT_VERSION = "2.8.0-SNAPSHOT";
 
     public static final String PROTO_FST_VERSION = "2.4.3";
 
