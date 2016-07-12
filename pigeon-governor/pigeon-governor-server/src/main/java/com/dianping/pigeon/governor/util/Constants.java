@@ -143,8 +143,21 @@ public class Constants {
 			return sb.toString();
 		}
 
+		@Override
 		public boolean equals(Object an) {
 			return new EqualsBuilder().append(this.getAddress(), ((Host) an).getAddress()).isEquals();
+		}
+
+		@Override
+		public int hashCode() {
+			int result = service != null ? service.hashCode() : 0;
+			result = 31 * result + (ip != null ? ip.hashCode() : 0);
+			result = 31 * result + port;
+			result = 31 * result + (alive ? 1 : 0);
+			result = 31 * result + deadCount;
+			result = 31 * result + (int) (lastCheckTime ^ (lastCheckTime >>> 32));
+			result = 31 * result + (checkResponse ? 1 : 0);
+			return result;
 		}
 	}
 

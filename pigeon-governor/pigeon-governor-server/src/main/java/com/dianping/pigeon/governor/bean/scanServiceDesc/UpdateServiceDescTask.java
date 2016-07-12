@@ -176,9 +176,9 @@ public class UpdateServiceDescTask implements Runnable{
                 logger.warn("Gson转换失败");
                 logger.warn("原始数据源为"+result);
                 logger.warn(e);
-            }finally {
-                return services;
             }
+
+            return services;
         }
     }
 
