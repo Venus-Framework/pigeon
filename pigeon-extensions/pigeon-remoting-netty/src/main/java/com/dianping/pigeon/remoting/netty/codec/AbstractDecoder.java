@@ -17,6 +17,8 @@ import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author qi.yin
@@ -30,17 +32,26 @@ public abstract class AbstractDecoder extends OneToOneDecoder {
     public Object decode(ChannelHandlerContext ctx, Channel channel, Object msg)
             throws Exception {
 
-        if (msg == null || !(msg instanceof CodecEvent)) {
+        if (msg == null || !(msg instanceof List)) {
             return null;
         }
 
-        CodecEvent codecEvent = (CodecEvent) msg;
+        List<CodecEvent> codecEvents = (List<CodecEvent>) msg;
 
-        if (codecEvent.isUnified()) {
-            return _doDecode(channel, codecEvent);
-        } else {
-            return doDecode(channel, codecEvent);
+        List<Object> messages = new ArrayList<Object>(codecEvents.size());
+
+        for (CodecEvent codecEvent : codecEvents) {
+            Object message = null;
+
+            if (codecEvent.isUnified()) {
+                message = _doDecode(channel, codecEvent);
+            } else {
+                message = doDecode(channel, codecEvent);
+            }
+            messages.add(message);
         }
+
+        return messages;
     }
 
     protected Object doDecode(Channel channel, CodecEvent codecEvent)

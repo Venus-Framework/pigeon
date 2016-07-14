@@ -13,6 +13,9 @@ import java.io.IOException;
 import static org.jboss.netty.buffer.ChannelBuffers.dynamicBuffer;
 import static org.jboss.netty.channel.Channels.write;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author qi.yin
  *         2016/06/14  下午11:40.
@@ -25,21 +28,25 @@ public class CompressHandler extends SimpleChannelHandler {
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        if (e.getMessage() == null || !(e.getMessage() instanceof CodecEvent)) {
+        if (e.getMessage() == null || !(e.getMessage() instanceof List)) {
             return;
         }
 
-        CodecEvent codecEvent = (CodecEvent) e.getMessage();
+        List<CodecEvent> codecEvents = (List<CodecEvent>) e.getMessage();
 
-        if (codecEvent.isUnified()) {
+        List<CodecEvent> messages = new ArrayList<CodecEvent>(codecEvents.size());
 
-            ChannelBuffer buffer = doUnCompress(e.getChannel(), codecEvent);
-            codecEvent.setBuffer(buffer);
+        for (CodecEvent codecEvent : codecEvents) {
+            if (codecEvent.isUnified()) {
 
-            Channels.fireMessageReceived(ctx, codecEvent, e.getRemoteAddress());
-        } else {
-            ctx.sendUpstream(e);
+                ChannelBuffer buffer = doUnCompress(e.getChannel(), codecEvent);
+                codecEvent.setBuffer(buffer);
+            }
+
+            messages.add(codecEvent);
         }
+
+        Channels.fireMessageReceived(ctx, messages, e.getRemoteAddress());
     }
 
     @Override

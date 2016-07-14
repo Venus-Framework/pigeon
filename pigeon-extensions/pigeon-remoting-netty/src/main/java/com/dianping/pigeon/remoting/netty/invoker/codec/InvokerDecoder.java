@@ -7,6 +7,8 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.Channels;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author qi.yin
@@ -26,7 +28,9 @@ public class InvokerDecoder extends AbstractDecoder {
 
     @Override
     public void doFailResponse(Channel channel, InvocationResponse response) {
-        Channels.fireMessageReceived(channel, response);
+        List<InvocationResponse> responses = new ArrayList<InvocationResponse>();
+        responses.add(response);
+        Channels.fireMessageReceived(channel, responses);
     }
 
     @Override

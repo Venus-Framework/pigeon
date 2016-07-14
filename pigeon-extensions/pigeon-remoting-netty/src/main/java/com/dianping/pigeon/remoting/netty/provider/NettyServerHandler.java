@@ -44,20 +44,24 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
     @SuppressWarnings("unchecked")
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent message) {
-        InvocationRequest request = (InvocationRequest) message.getMessage();
 
-        ProviderContext invocationContext = new DefaultProviderContext(request, new NettyChannel(ctx.getChannel()));
-        try {
-            this.server.processRequest(request, invocationContext);
+        List<InvocationRequest> messages = (List<InvocationRequest>) (message.getMessage());
 
-        } catch (Throwable e) {
-            String msg = "process request failed:" + request;
-            // 心跳消息只返回正常的, 异常不返回
-            if (request.getCallType() == Constants.CALLTYPE_REPLY
-                    && request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
-                ctx.getChannel().write(ProviderUtils.createFailResponse(request, e));
+        for (InvocationRequest request : messages) {
+
+            ProviderContext invocationContext = new DefaultProviderContext(request, new NettyChannel(ctx.getChannel()));
+            try {
+                this.server.processRequest(request, invocationContext);
+
+            } catch (Throwable e) {
+                String msg = "process request failed:" + request;
+                // 心跳消息只返回正常的, 异常不返回
+                if (request.getCallType() == Constants.CALLTYPE_REPLY
+                        && request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
+                    ctx.getChannel().write(ProviderUtils.createFailResponse(request, e));
+                }
+                log.error(msg, e);
             }
-            log.error(msg, e);
         }
     }
 
