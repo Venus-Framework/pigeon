@@ -108,17 +108,14 @@ public class Utils {
 	}
 
 	public static boolean isValidAddress(String addr) {
-		if (StringUtils.isNotBlank(addr) && addr.indexOf(":") != -1 && addr.length() > 10) {
-			return true;
-		}
-		return false;
+		return StringUtils.isNotBlank(addr) && addr.contains(":") && addr.length() > 10;
 	}
 
 	public static String getProtocolInfo(Map<String, Boolean> infoMap) throws JsonProcessingException {
 		return mapper.writeValueAsString(infoMap);
 	}
 
-	public static Map<String, Boolean> getProtocolInfoMap(String info) throws IOException {
+	public static ConcurrentHashMap getProtocolInfoMap(String info) throws IOException {
 
 		if(StringUtils.isNotBlank(info)) {
 			return mapper.readValue(info, ConcurrentHashMap.class);
