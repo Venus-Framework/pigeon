@@ -1,10 +1,18 @@
 package com.dianping.pigeon.registry.mns;
 
+import com.dianping.pigeon.log.LoggerLoader;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by chenchongze on 16/6/13.
  */
 public class MnsUtils {
 
+    private final static Logger logger = LoggerLoader.getLogger(MnsUtils.class);
 
     /**
      * 注册服务, uptCmd:
@@ -42,5 +50,38 @@ public class MnsUtils {
         }
 
         return weight;
+    }
+
+    public static List<String[]> getServiceIpPortList(String serviceAddress) {
+        List<String[]> result = new ArrayList<String[]>();
+
+        if (StringUtils.isNotBlank(serviceAddress)) {
+            String[] hostArray = serviceAddress.split(",");
+
+            for (String host : hostArray) {
+                int idx = host.lastIndexOf(":");
+
+                if (idx != -1) {
+                    String ip = null;
+                    int port = -1;
+
+                    try {
+                        ip = host.substring(0, idx);
+                        port = Integer.parseInt(host.substring(idx + 1));
+                    } catch (RuntimeException e) {
+                        logger.warn("invalid host: " + host + ", ignored!");
+                    }
+
+                    if (ip != null && port > 0) {
+                        result.add(new String[] { ip, port + "" });
+                    }
+
+                } else {
+                    logger.warn("invalid host: " + host + ", ignored!");
+                }
+            }
+        }
+
+        return result;
     }
 }

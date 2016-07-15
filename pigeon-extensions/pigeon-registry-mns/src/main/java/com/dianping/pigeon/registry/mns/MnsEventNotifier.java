@@ -29,32 +29,38 @@ public class MnsEventNotifier {
         String remoteAppkey = req.getRemoteAppkey();
         String serviceName = req.getServiceName();
 
-        //newList 通知addressChanged(pathInfo);
-        for (SGService sgService : newList) {
 
+        if (newList.size() > 0) { //newList 通知addressChanged
+            String hosts = "";
+
+            for (SGService sgService : newList) {
+                if (MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight()) > 0) {
+                    hosts += sgService.getIp() + ":" + sgService.getPort() +",";
+                }
+            }
+
+            List<String[]> hostDetail = MnsUtils.getServiceIpPortList(hosts);
+            addressChanged(serviceName, hostDetail);
         }
 
-        //modifiedList 检查修改的字段，通知不同的通知器
+        if (modifiedList.size() > 0) { //modifiedList 检查修改的字段，通知不同的通知器
+
+        }
 
         //old本地有缓存，用不到； add delete也暂时用不到
 
     }
 
-    private static void addressChanged() {
-        serviceChangeListener.onServiceHostChange("fakeServiceName", new ArrayList<String[]>());
+    private static void addressChanged(String serviceName, List<String[]> hostList) {
+        serviceChangeListener.onServiceHostChange(serviceName, hostList);
     }
 
-    private static void weightChanged() {
-        serviceChangeListener.onHostWeightChange("fakeHost", 1);
+    private static void weightChanged(String host, int weight) {
+        serviceChangeListener.onHostWeightChange(host, weight);
     }
 
     public static void eventReceived(MnsEvent event) throws Exception {
 
-        if(event != null) {
-            addressChanged();
-        } else {
-            weightChanged();
-        }
     }
 
     public static void main(String[] args) {
