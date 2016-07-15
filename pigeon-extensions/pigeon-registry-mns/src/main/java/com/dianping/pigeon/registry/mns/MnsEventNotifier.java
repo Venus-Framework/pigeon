@@ -20,15 +20,6 @@ public class MnsEventNotifier {
 
     private static List<IServiceListChangeListener> serviceListChangeListeners = Lists.newArrayList();
 
-    public static void eventReceived(MnsEvent event) throws Exception {
-
-        if(event != null) {
-            addressChanged();
-        } else {
-            weightChanged();
-        }
-    }
-
     public static void eventReceived(ProtocolRequest req,
                                      List<SGService> oldList,
                                      List<SGService> newList,
@@ -36,6 +27,7 @@ public class MnsEventNotifier {
                                      List<SGService> deletedList,
                                      List<SGService> modifiedList) throws Exception {
         String remoteAppkey = req.getRemoteAppkey();
+        String serviceName = req.getServiceName();
 
         //servicename的对应关系还未讨论清楚
 
@@ -55,11 +47,21 @@ public class MnsEventNotifier {
         serviceChangeListener.onHostWeightChange("fakeHost", 1);
     }
 
+    public static void eventReceived(MnsEvent event) throws Exception {
+
+        if(event != null) {
+            addressChanged();
+        } else {
+            weightChanged();
+        }
+    }
+
     public static void main(String[] args) {
         ProtocolRequest serviceListRequest = new ProtocolRequest();
         serviceListRequest.setRemoteAppkey("remoteAppkey");
         serviceListRequest.setLocalAppkey("localAppkey");
         serviceListRequest.setProtocol("thrift");
+        serviceListRequest.setServiceName("serviceName");
         MnsInvoker.addServiceListener(serviceListRequest, new DefaultServiceListChangeListener());
     }
 }
