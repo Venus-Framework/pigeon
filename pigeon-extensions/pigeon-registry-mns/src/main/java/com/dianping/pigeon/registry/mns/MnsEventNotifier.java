@@ -29,9 +29,10 @@ public class MnsEventNotifier {
         String remoteAppkey = req.getRemoteAppkey();
         String serviceName = req.getServiceName();
 
-        //servicename的对应关系还未讨论清楚
-
         //newList 通知addressChanged(pathInfo);
+        for (SGService sgService : newList) {
+
+        }
 
         //modifiedList 检查修改的字段，通知不同的通知器
 

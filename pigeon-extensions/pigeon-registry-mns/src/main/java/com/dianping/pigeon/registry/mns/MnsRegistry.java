@@ -84,7 +84,9 @@ public class MnsRegistry implements Registry {
         logger.info("remoteAppkey: " + remoteAppkey + ", serviceName: " + serviceName);
 
         for (SGService sgService : sgServices) {
-            result += sgService.getIp() + ":" + sgService.getPort() +",";
+            if (MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight()) > 0) {
+                result += sgService.getIp() + ":" + sgService.getPort() +",";
+            }
         }
 
         return result;
