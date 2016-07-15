@@ -18,11 +18,14 @@ public class CodecEvent {
 
     private long receiveTime;
 
-    public CodecEvent() {
+    private boolean isValid;
 
+    public CodecEvent() {
+        isValid = true;
     }
 
     public CodecEvent(ChannelBuffer buffer, boolean isUnified) {
+        this();
         this.buffer = buffer;
         this.isUnified = isUnified;
     }
@@ -65,5 +68,13 @@ public class CodecEvent {
 
     public void setReceiveTime(long receiveTime) {
         this.receiveTime = receiveTime;
+    }
+
+    public boolean isValid() {
+        return isValid;
+    }
+
+    public void setIsValid(boolean isValid) {
+        this.isValid = isValid;
     }
 }

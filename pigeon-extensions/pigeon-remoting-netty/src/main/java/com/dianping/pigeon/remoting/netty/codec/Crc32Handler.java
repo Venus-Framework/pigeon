@@ -8,7 +8,6 @@ import org.jboss.netty.buffer.DynamicChannelBuffer;
 import org.jboss.netty.channel.*;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.zip.Adler32;
 
 import static org.jboss.netty.channel.Channels.write;
@@ -33,19 +32,19 @@ public class Crc32Handler extends SimpleChannelHandler {
 
         List<CodecEvent> codecEvents = (List<CodecEvent>) e.getMessage();
 
-        List<CodecEvent> messages = new ArrayList<CodecEvent>(codecEvents.size());
-
         for (CodecEvent codecEvent : codecEvents) {
+            if(!codecEvent.isValid()){
+                continue;
+            }
 
             if (codecEvent.isUnified()) {
                 if (!doUnChecksum(e.getChannel(), codecEvent)) {
-                    continue;
+                    codecEvent.setIsValid(false);
                 }
             }
-            messages.add(codecEvent);
-
         }
-        Channels.fireMessageReceived(ctx, messages, e.getRemoteAddress());
+
+        Channels.fireMessageReceived(ctx, codecEvents, e.getRemoteAddress());
     }
 
 

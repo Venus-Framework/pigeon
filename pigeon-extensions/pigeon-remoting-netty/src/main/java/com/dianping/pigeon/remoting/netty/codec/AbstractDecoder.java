@@ -41,6 +41,10 @@ public abstract class AbstractDecoder extends OneToOneDecoder {
         List<Object> messages = new ArrayList<Object>(codecEvents.size());
 
         for (CodecEvent codecEvent : codecEvents) {
+            if(!codecEvent.isValid()){
+                continue;
+            }
+
             Object message = null;
 
             if (codecEvent.isUnified()) {
@@ -48,6 +52,7 @@ public abstract class AbstractDecoder extends OneToOneDecoder {
             } else {
                 message = doDecode(channel, codecEvent);
             }
+
             messages.add(message);
         }
 

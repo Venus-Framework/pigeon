@@ -13,7 +13,6 @@ import java.io.IOException;
 import static org.jboss.netty.buffer.ChannelBuffers.dynamicBuffer;
 import static org.jboss.netty.channel.Channels.write;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,19 +33,18 @@ public class CompressHandler extends SimpleChannelHandler {
 
         List<CodecEvent> codecEvents = (List<CodecEvent>) e.getMessage();
 
-        List<CodecEvent> messages = new ArrayList<CodecEvent>(codecEvents.size());
-
         for (CodecEvent codecEvent : codecEvents) {
-            if (codecEvent.isUnified()) {
+            if(!codecEvent.isValid()){
+                continue;
+            }
 
+            if (codecEvent.isUnified()) {
                 ChannelBuffer buffer = doUnCompress(e.getChannel(), codecEvent);
                 codecEvent.setBuffer(buffer);
             }
-
-            messages.add(codecEvent);
         }
 
-        Channels.fireMessageReceived(ctx, messages, e.getRemoteAddress());
+        Channels.fireMessageReceived(ctx, codecEvents, e.getRemoteAddress());
     }
 
     @Override
