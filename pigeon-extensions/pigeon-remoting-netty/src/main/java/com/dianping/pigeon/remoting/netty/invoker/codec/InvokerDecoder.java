@@ -3,8 +3,11 @@ package com.dianping.pigeon.remoting.netty.invoker.codec;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.netty.codec.AbstractDecoder;
+import com.dianping.pigeon.remoting.netty.codec.CodecEvent;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.Channels;
+import org.omg.IOP.Codec;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -27,10 +30,14 @@ public class InvokerDecoder extends AbstractDecoder {
     }
 
     @Override
-    public void doFailResponse(Channel channel, InvocationResponse response) {
-        List<InvocationResponse> responses = new ArrayList<InvocationResponse>();
-        responses.add(response);
-        Channels.fireMessageReceived(channel, responses);
+    public void doFailResponse(ChannelHandlerContext ctx, Channel channel, InvocationResponse response) {
+        List<CodecEvent> codecEvents = new ArrayList<CodecEvent>();
+        CodecEvent codecEvent = new CodecEvent();
+
+        codecEvent.setInvocation(response);
+        codecEvents.add(codecEvent);
+
+        Channels.fireMessageReceived(ctx, codecEvents);
     }
 
     @Override

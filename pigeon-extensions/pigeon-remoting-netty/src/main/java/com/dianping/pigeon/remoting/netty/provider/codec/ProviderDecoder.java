@@ -6,6 +6,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.netty.codec.AbstractDecoder;
 import com.dianping.pigeon.remoting.netty.provider.NettyChannel;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelHandlerContext;
 
 import java.io.InputStream;
 
@@ -26,7 +27,7 @@ public class ProviderDecoder extends AbstractDecoder {
     }
 
     @Override
-    public void doFailResponse(Channel channel, InvocationResponse response) {
+    public void doFailResponse(ChannelHandlerContext ctx, Channel channel, InvocationResponse response) {
         NettyChannel nettyChannel = new NettyChannel(channel);
         nettyChannel.write(response);
     }

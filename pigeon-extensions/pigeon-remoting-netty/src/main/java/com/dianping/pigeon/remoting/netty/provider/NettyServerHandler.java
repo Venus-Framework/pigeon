@@ -3,6 +3,7 @@ package com.dianping.pigeon.remoting.netty.provider;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.netty.codec.CodecEvent;
 import com.dianping.pigeon.remoting.provider.domain.DefaultProviderContext;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
@@ -44,10 +45,15 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
     @SuppressWarnings("unchecked")
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent message) {
+        List<CodecEvent> codecEvents = (List<CodecEvent>) (message.getMessage());
 
-        List<InvocationRequest> messages = (List<InvocationRequest>) (message.getMessage());
+        for (CodecEvent codecEvent : codecEvents) {
 
-        for (InvocationRequest request : messages) {
+            if (!codecEvent.isValid() || codecEvent.getInvocation() == null) {
+                continue;
+            }
+
+            InvocationRequest request = (InvocationRequest) codecEvent.getInvocation();
 
             ProviderContext invocationContext = new DefaultProviderContext(request, new NettyChannel(ctx.getChannel()));
             try {

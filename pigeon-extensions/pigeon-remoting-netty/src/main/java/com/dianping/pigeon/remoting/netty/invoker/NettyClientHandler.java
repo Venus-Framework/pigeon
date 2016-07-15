@@ -5,6 +5,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
+import com.dianping.pigeon.remoting.netty.codec.CodecEvent;
 import com.dianping.pigeon.remoting.netty.codec.NettyCodecUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
@@ -43,10 +44,13 @@ public class NettyClientHandler extends SimpleChannelUpstreamHandler {
     @SuppressWarnings("unchecked")
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
-        List<InvocationResponse> messages = (List<InvocationResponse>) e.getMessage();
+        List<CodecEvent> codecEvents = (List<CodecEvent>) e.getMessage();
 
-        for (final InvocationResponse response : messages) {
-            client.processResponse(response);
+        for (final CodecEvent codecEvent : codecEvents) {
+
+            if (codecEvent.isValid() && codecEvent.getInvocation() != null) {
+                client.processResponse((InvocationResponse) codecEvent.getInvocation());
+            }
         }
     }
 

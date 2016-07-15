@@ -53,7 +53,7 @@ public abstract class AbstractEncoder extends OneToOneEncoder {
                 SerializationException se = new SerializationException(e);
 
                 try {
-                    doFailResponse(channel, ProviderUtils.createThrowableResponse(_msg.getSequence(),
+                    doFailResponse(ctx, channel, ProviderUtils.createThrowableResponse(_msg.getSequence(),
                             _msg.getSerialize(), se));
                 } catch (Throwable t) {
                 }
@@ -118,6 +118,6 @@ public abstract class AbstractEncoder extends OneToOneEncoder {
         return frame;
     }
 
-    public abstract void doFailResponse(Channel channel, InvocationResponse response);
+    public abstract void doFailResponse(ChannelHandlerContext ctx, Channel channel, InvocationResponse response);
 
 }

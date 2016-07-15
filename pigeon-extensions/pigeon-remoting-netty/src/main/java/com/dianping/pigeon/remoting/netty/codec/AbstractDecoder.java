@@ -38,28 +38,27 @@ public abstract class AbstractDecoder extends OneToOneDecoder {
 
         List<CodecEvent> codecEvents = (List<CodecEvent>) msg;
 
-        List<Object> messages = new ArrayList<Object>(codecEvents.size());
-
         for (CodecEvent codecEvent : codecEvents) {
-            if(!codecEvent.isValid()){
+            if (!codecEvent.isValid()) {
                 continue;
             }
 
             Object message = null;
 
             if (codecEvent.isUnified()) {
-                message = _doDecode(channel, codecEvent);
+                message = _doDecode(ctx, channel, codecEvent);
+                codecEvent.setInvocation((InvocationSerializable) message);
             } else {
-                message = doDecode(channel, codecEvent);
+                message = doDecode(ctx, channel, codecEvent);
+                codecEvent.setInvocation((InvocationSerializable) message);
             }
 
-            messages.add(message);
         }
 
-        return messages;
+        return codecEvents;
     }
 
-    protected Object doDecode(Channel channel, CodecEvent codecEvent)
+    protected Object doDecode(ChannelHandlerContext ctx, Channel channel, CodecEvent codecEvent)
             throws IOException {
         Object msg = null;
         ChannelBuffer buffer = codecEvent.getBuffer();
@@ -90,7 +89,7 @@ public abstract class AbstractDecoder extends OneToOneDecoder {
 
             try {
                 if (sequence != null) {
-                    doFailResponse(channel, ProviderUtils.createThrowableResponse(sequence.longValue(),
+                    doFailResponse(ctx, channel, ProviderUtils.createThrowableResponse(sequence.longValue(),
                             serialize, se));
                 }
 
@@ -105,7 +104,7 @@ public abstract class AbstractDecoder extends OneToOneDecoder {
         return msg;
     }
 
-    protected Object _doDecode(Channel channel, CodecEvent codecEvent) throws IOException {
+    protected Object _doDecode(ChannelHandlerContext ctx, Channel channel, CodecEvent codecEvent) throws IOException {
         Object msg = null;
         ChannelBuffer buffer = codecEvent.getBuffer();
 
@@ -172,6 +171,6 @@ public abstract class AbstractDecoder extends OneToOneDecoder {
 
     protected abstract Object doInitMsg(Object message, Channel channel, long receiveTime);
 
-    protected abstract void doFailResponse(Channel channel, InvocationResponse response);
+    protected abstract void doFailResponse(ChannelHandlerContext ctx, Channel channel, InvocationResponse response);
 
 }

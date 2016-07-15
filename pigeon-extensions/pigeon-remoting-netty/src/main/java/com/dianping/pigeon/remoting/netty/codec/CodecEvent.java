@@ -1,5 +1,6 @@
 package com.dianping.pigeon.remoting.netty.codec;
 
+import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 import org.jboss.netty.buffer.ChannelBuffer;
 
 /**
@@ -9,6 +10,8 @@ import org.jboss.netty.buffer.ChannelBuffer;
 public class CodecEvent {
 
     private ChannelBuffer buffer;
+
+    private InvocationSerializable invocation;
 
     private boolean isUnified;
 
@@ -76,5 +79,13 @@ public class CodecEvent {
 
     public void setIsValid(boolean isValid) {
         this.isValid = isValid;
+    }
+
+    public InvocationSerializable getInvocation() {
+        return invocation;
+    }
+
+    public void setInvocation(InvocationSerializable invocation) {
+        this.invocation = invocation;
     }
 }

@@ -22,7 +22,7 @@ public class ProviderEncoder extends AbstractEncoder {
     }
 
     @Override
-    public void doFailResponse(Channel channel, InvocationResponse response) {
+    public void doFailResponse(ChannelHandlerContext ctx, Channel channel, InvocationResponse response) {
         Channels.write(channel, response);
     }
 
