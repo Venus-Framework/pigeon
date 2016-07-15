@@ -5,7 +5,7 @@ import com.dianping.pigeon.registry.listener.ServiceChangeListener;
 import com.google.common.collect.Lists;
 import com.sankuai.inf.octo.mns.MnsInvoker;
 import com.sankuai.inf.octo.mns.listener.IServiceListChangeListener;
-import com.sankuai.inf.octo.mns.model.ServiceListRequest;
+import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class MnsEventNotifier {
         }
     }
 
-    public static void eventReceived(ServiceListRequest req,
+    public static void eventReceived(ProtocolRequest req,
                                      List<SGService> oldList,
                                      List<SGService> newList,
                                      List<SGService> addList,
@@ -56,7 +56,7 @@ public class MnsEventNotifier {
     }
 
     public static void main(String[] args) {
-        ServiceListRequest serviceListRequest = new ServiceListRequest();
+        ProtocolRequest serviceListRequest = new ProtocolRequest();
         serviceListRequest.setRemoteAppkey("remoteAppkey");
         serviceListRequest.setLocalAppkey("localAppkey");
         serviceListRequest.setProtocol("thrift");
