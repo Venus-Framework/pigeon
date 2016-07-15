@@ -8,9 +8,12 @@ import org.jboss.netty.buffer.DynamicChannelBuffer;
 import org.jboss.netty.channel.*;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.zip.Adler32;
 
 import static org.jboss.netty.channel.Channels.write;
+
+import java.util.List;
 
 /**
  * @author qi.yin
@@ -24,21 +27,25 @@ public class Crc32Handler extends SimpleChannelHandler {
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        if (e.getMessage() == null || !(e.getMessage() instanceof CodecEvent)) {
+        if (e.getMessage() == null || !(e.getMessage() instanceof List)) {
             return;
         }
 
-        CodecEvent codecEvent = (CodecEvent) e.getMessage();
+        List<CodecEvent> codecEvents = (List<CodecEvent>) e.getMessage();
 
-        if (codecEvent.isUnified()) {
-            if (doUnChecksum(e.getChannel(), codecEvent)) {
-                Channels.fireMessageReceived(ctx, codecEvent, e.getRemoteAddress());
+        List<CodecEvent> messages = new ArrayList<CodecEvent>(codecEvents.size());
+
+        for (CodecEvent codecEvent : codecEvents) {
+
+            if (codecEvent.isUnified()) {
+                if (!doUnChecksum(e.getChannel(), codecEvent)) {
+                    continue;
+                }
             }
+            messages.add(codecEvent);
 
-        } else {
-            ctx.sendUpstream(e);
         }
-
+        Channels.fireMessageReceived(ctx, messages, e.getRemoteAddress());
     }
 
 

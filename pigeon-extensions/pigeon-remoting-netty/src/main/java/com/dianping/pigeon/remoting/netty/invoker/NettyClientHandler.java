@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import java.util.List;
+
 /**
  * @author qi.yin
  *         2016/06/21  下午3:36.
@@ -41,8 +43,11 @@ public class NettyClientHandler extends SimpleChannelUpstreamHandler {
     @SuppressWarnings("unchecked")
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
-        InvocationResponse response = (InvocationResponse) e.getMessage();
-        client.processResponse(response);
+        List<InvocationResponse> messages = (List<InvocationResponse>) e.getMessage();
+
+        for (final InvocationResponse response : messages) {
+            client.processResponse(response);
+        }
     }
 
     @Override
