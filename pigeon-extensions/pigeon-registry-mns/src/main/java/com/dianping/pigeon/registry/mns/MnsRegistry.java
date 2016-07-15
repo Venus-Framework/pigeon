@@ -12,8 +12,10 @@ import com.sankuai.inf.octo.mns.model.ServiceListRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Created by chenchongze on 16/5/25.
@@ -91,7 +93,9 @@ public class MnsRegistry implements Registry {
     public void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
         SGService sgService = new SGService();
         sgService.setAppkey(serviceName);
-        sgService.setServiceName(serviceName);
+        Set<String> serviceSet = new HashSet<>();
+        serviceSet.add(serviceName);
+        sgService.setServiceName(serviceSet);
         // 暂时忽略group
         sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
@@ -135,7 +139,9 @@ public class MnsRegistry implements Registry {
         //todo 设置status为禁用
         SGService sgService = new SGService();
         sgService.setAppkey(configManager.getAppName());
-        sgService.setServiceName(serviceName);
+        Set<String> serviceSet = new HashSet<>();
+        serviceSet.add(serviceName);
+        sgService.setServiceName(serviceSet);
 
         int index = serviceAddress.lastIndexOf(":");
         try {

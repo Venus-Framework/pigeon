@@ -79,7 +79,8 @@ public class CatMonitorTransaction implements MonitorTransaction {
             }
             duration = now - start;
             if (resetStarttime && this.transaction instanceof DefaultTransaction) {
-                ((DefaultTransaction) this.transaction).setDurationStart(start * 1000 * 1000);
+                ((DefaultTransaction) this.transaction).setTimestamp(start);
+                //((DefaultTransaction) this.transaction).setDurationStart(start * 1000 * 1000);
             }
             this.transaction.addData("Timeline", s.toString());
             this.transaction.complete();
