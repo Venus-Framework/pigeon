@@ -35,8 +35,8 @@ public class ConcurrentClient {
 					while (true) {
 						try {
 							echoService.echo("scott");
-							// System.out.println(echoService.echo("scott"));
-							// System.out.println(echoService.echo2(2005));
+							System.out.println(echoService.echo("scott"));
+							System.out.println(echoService.echo(2005));
 
 							// System.out.println("getUserDetailArray="
 							// +

@@ -51,9 +51,10 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 	private static final String KEY_APPLIMIT = "pigeon.provider.applimit";
 	private static volatile Map<String, Long> appLimitMap = new ConcurrentHashMap<String, Long>();
 	private static ThreadPool statisticsCheckerPool = new DefaultThreadPool("Pigeon-Server-Statistics-Checker");
-	private static ConcurrentHashMap<String, AtomicInteger> methodActives = new ConcurrentHashMap<String, AtomicInteger>();
-	private static final int MAX_THREADS_PER_METHOD = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.pool.method.maxthreads", 30);
+	private static final ConcurrentHashMap<String, AtomicInteger> methodActives = new ConcurrentHashMap<String, AtomicInteger>();
+	private static final AtomicInteger total = new AtomicInteger();
+	private static final int MAX_THREADS = ConfigManagerLoader.getConfigManager().getIntValue(
+			"pigeon.provider.pool.method.maxthreads", 100);
 
 	static {
 		String appLimitConfig = configManager.getStringValue(KEY_APPLIMIT);
@@ -113,8 +114,8 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 						long requests = ProviderStatisticsHolder.getCapacityBucket(request)
 								.getRequestsInCurrentSecond();
 						if (requests + 1 > limit) {
-							throw new RejectedException("request from app:" + fromApp
-									+ " refused, max requests limit reached:" + limit);
+							throw new RejectedException(String.format(
+									"Max requests limit %s reached for request from app:%s", limit, fromApp));
 						}
 					}
 				}
@@ -148,22 +149,41 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 				&& configManager.getBooleanValue(KEY_METHODLIMIT_ENABLE, true)) {
 			final String requestMethod = request.getServiceName() + "#" + request.getMethodName();
 			AtomicInteger count = methodActives.get(requestMethod);
-			if (count != null && count.get() > MAX_THREADS_PER_METHOD) {
-				throw new RejectedException("Reached the maximum limit " + MAX_THREADS_PER_METHOD + " for method:"
-						+ requestMethod);
+			if (count != null) {
+				int limit = getMaxThreadsForMethod(requestMethod, count.get());
+				if (count.get() > limit) {
+					throw new RejectedException(String.format(
+							"Reached the maximum limit %s for method: %s, current: %s", limit, requestMethod,
+							count.get()));
+				}
 			}
 		}
 	}
 
+	private static int getMaxThreadsForMethod(String requestMethod, int requestMethodThreadCount) {
+		int totalThreads = total.get();
+		int limit = MAX_THREADS > totalThreads ? MAX_THREADS - totalThreads + requestMethodThreadCount
+				: requestMethodThreadCount;
+		if (limit > MAX_THREADS - 20) {
+			limit = MAX_THREADS - 20;
+		}
+		return limit;
+	}
+
 	private static void incrementRequest(String requestMethod) {
+		total.incrementAndGet();
 		AtomicInteger count = methodActives.get(requestMethod);
-		if (count != null && count.incrementAndGet() > MAX_THREADS_PER_METHOD) {
-			throw new RejectedException("Reached the maximum limit " + MAX_THREADS_PER_METHOD + " for method:"
-					+ requestMethod);
+		if (count != null) {
+			int limit = getMaxThreadsForMethod(requestMethod, count.get());
+			if (count.incrementAndGet() > limit) {
+				throw new RejectedException(String.format("Reached the maximum limit %s for method: %s, current: %s",
+						limit, requestMethod, count.get()));
+			}
 		}
 	}
 
 	private static void decrementRequest(String requestMethod) {
+		total.decrementAndGet();
 		AtomicInteger count = methodActives.get(requestMethod);
 		if (count != null) {
 			count.decrementAndGet();

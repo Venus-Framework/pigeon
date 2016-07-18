@@ -40,9 +40,15 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 
 	private static final Monitor monitor = MonitorLoader.getMonitor();
 
-	private static boolean isAccessLogEnabled = ConfigManagerLoader.getConfigManager().getBooleanValue(
+	private static final boolean isAccessLogEnabled = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.provider.accesslog.enable", false);
-	
+
+	private static final String KEY_LOG_SERVICE_EXCEPTION = "pigeon.provider.logserviceexception";
+
+	public MonitorProcessFilter() {
+		ConfigManagerLoader.getConfigManager().getBooleanValue(KEY_LOG_SERVICE_EXCEPTION, true);
+	}
+
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
@@ -116,8 +122,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					if (response != null) {
 						String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
 						if (respSize != null) {
-							transaction.logEvent("PigeonService.responseSize",
-									respSize, "" + response.getSize());
+							transaction.logEvent("PigeonService.responseSize", respSize, "" + response.getSize());
 						}
 					}
 					Map<String, Serializable> globalContext = ContextUtils.getGlobalContext();
@@ -135,7 +140,7 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 					if (from != null) {
 						transaction.logEvent("PigeonConsole.client", from, "");
 						String app = (String) ContextUtils.getLocalContext("RequestApp");
-						if(app != null) {
+						if (app != null) {
 							transaction.logEvent("PigeonConsole.app", app, "");
 						}
 					}
@@ -145,8 +150,14 @@ public class MonitorProcessFilter implements ServiceInvocationFilter<ProviderCon
 				}
 			}
 		} finally {
-			if (invocationContext.getServiceError() != null && monitor != null) {
+			Throwable serviceError = invocationContext.getServiceError();
+			if (serviceError != null && monitor != null) {
 				monitor.logError(invocationContext.getServiceError());
+			}
+			Throwable frameworkError = invocationContext.getFrameworkError();
+			if (frameworkError != null && monitor != null) {
+				monitor.logError(frameworkError);
+				transaction.setStatusError(frameworkError);
 			}
 			if (transaction != null) {
 				invocationContext.getTimeline().add(new TimePoint(TimePhase.E, System.currentTimeMillis()));

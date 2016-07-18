@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.dianping.pigeon.demo.DealGroupBaseDTO;
 import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.demo.EchoService.Gender;
 import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 import com.google.common.collect.Lists;
 
@@ -26,15 +27,19 @@ public class EchoServiceAnnotationImpl implements EchoService {
 	public String echo(String input) {
 		return "echo:" + input;
 	}
-	
+
 	@Override
-	public String echo2(Integer size) throws IOException {
-		//throw new RuntimeException("error with echo service");
+	public String echo(Integer size) {
 		try {
 			Thread.sleep(size);
 		} catch (InterruptedException e) {
 		}
 		return "echo:" + size;
+	}
+
+	@Override
+	public String echoWithException(String msg) throws IOException {
+		throw new RuntimeException("error with echo service");
 	}
 
 	@Override
@@ -76,7 +81,7 @@ public class EchoServiceAnnotationImpl implements EchoService {
 
 	@Override
 	public String echo(List<Gender> genders) {
-		for(Gender g : genders) {
+		for (Gender g : genders) {
 			System.out.println(g);
 		}
 		return genders.toString();
@@ -85,5 +90,19 @@ public class EchoServiceAnnotationImpl implements EchoService {
 	@Override
 	public boolean isMale() {
 		return true;
+	}
+
+	@Override
+	public Gender echo(Gender gender) {
+		Gender g = null;
+		try {
+			g = Gender.valueOf("XXX");
+		} catch (RuntimeException e) {
+
+		}
+		if (g == null) {
+			g = Gender.FEMALE;
+		}
+		return g;
 	}
 }

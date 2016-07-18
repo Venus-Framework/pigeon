@@ -15,6 +15,7 @@ import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.DealBaseDTO;
 import com.dianping.pigeon.demo.DealGroupBaseDTO;
 import com.dianping.pigeon.demo.EchoService;
+import com.dianping.pigeon.demo.EchoService.Gender;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.util.ContextUtils;
 
@@ -57,40 +58,41 @@ public class Client {
 		int i = 0;
 		while (true) {
 			try {
-//				ContextUtils.putRequestContext("key1", "1");
-//				// echoService.echo("" + (i++));
-//				// echoServiceCallback.asyncEcho("" + (i++));
-//				DealBaseDTO b = new DealBaseDTO();
-//				b.setCost(new BigDecimal("3.22"));
-//				b.setCurrentJoin(22);
-//				b.setMarketPrice(new BigDecimal("32.4"));
-//				b.setPrice(new BigDecimal("42.2"));
-//				b.setReceiptBeginDate(new Date());
-//				DealBaseDTO b2 = new DealBaseDTO();
-//				b2.setCost(new BigDecimal("32.22"));
-//				b2.setCurrentJoin(21);
-//				b2.setMarketPrice(new BigDecimal("322.4"));
-//				b2.setPrice(new BigDecimal("42.4"));
-//				b2.setReceiptBeginDate(new Date());
-//				List<DealBaseDTO> deals = new ArrayList<DealBaseDTO>();
-//				deals.add(b);
-//				deals.add(b2);
-//				
-//				DealGroupBaseDTO gb = new DealGroupBaseDTO();
-//				gb.setAutoRefundSwitch(3);
-//				gb.setBeginDate(new Date());
-//				gb.setBlockStock(true);
-//				gb.setDealGroupId(232);
-//				gb.setDealGroupPrice(new BigDecimal("32.22"));
-//				gb.setDeals(deals);
-//				gb.setCanUseCoupon(false);
-//				gb.setEndDate(new Date());
-//				gb.setThirdPartVerify(false);
-//				
-//				System.out.println(echoService.test(gb));
-				System.out.println(echoService.isMale());
-				//System.out.println(echoService.findUsers(1));
-				//Thread.sleep(10);
+				// ContextUtils.putRequestContext("key1", "1");
+				// // echoService.echo("" + (i++));
+				// // echoServiceCallback.asyncEcho("" + (i++));
+				// DealBaseDTO b = new DealBaseDTO();
+				// b.setCost(new BigDecimal("3.22"));
+				// b.setCurrentJoin(22);
+				// b.setMarketPrice(new BigDecimal("32.4"));
+				// b.setPrice(new BigDecimal("42.2"));
+				// b.setReceiptBeginDate(new Date());
+				// DealBaseDTO b2 = new DealBaseDTO();
+				// b2.setCost(new BigDecimal("32.22"));
+				// b2.setCurrentJoin(21);
+				// b2.setMarketPrice(new BigDecimal("322.4"));
+				// b2.setPrice(new BigDecimal("42.4"));
+				// b2.setReceiptBeginDate(new Date());
+				// List<DealBaseDTO> deals = new ArrayList<DealBaseDTO>();
+				// deals.add(b);
+				// deals.add(b2);
+				//
+				// DealGroupBaseDTO gb = new DealGroupBaseDTO();
+				// gb.setAutoRefundSwitch(3);
+				// gb.setBeginDate(new Date());
+				// gb.setBlockStock(true);
+				// gb.setDealGroupId(232);
+				// gb.setDealGroupPrice(new BigDecimal("32.22"));
+				// gb.setDeals(deals);
+				// gb.setCanUseCoupon(false);
+				// gb.setEndDate(new Date());
+				// gb.setThirdPartVerify(false);
+				//
+				System.out.println(echoService.echoWithException(""));
+				// System.out.println(echoService.echo(Gender.FEMALE));
+				// System.out.println(echoService.isMale());
+				// System.out.println(echoService.findUsers(1));
+				// Thread.sleep(10);
 				// System.out.println(echoService.asyncEcho("" + (i++)));
 				// System.out.println(echoService.now());
 				// echoServiceWithFuture.echo("hi " + i++);

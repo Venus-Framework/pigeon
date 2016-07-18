@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.exception.DPSFException;
+import com.dianping.pigeon.demo.EchoService.Gender;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
@@ -45,22 +46,21 @@ public class EchoServiceDefaultImpl implements EchoService {
 		// ContextUtils.getGlobalContext("SOURCE_APP"));
 		// System.out.println("SOURCE_IP:" +
 		// ContextUtils.getGlobalContext("SOURCE_IP"));
-//		 try {
-//		 Thread.sleep(10);
-//		 } catch (InterruptedException e) {
-//		 }
+		// try {
+		// Thread.sleep(10);
+		// } catch (InterruptedException e) {
+		// }
 		// System.out.println(msg);
-//		ContextUtils.putResponseContext("key1", "repsonse1");
+		// ContextUtils.putResponseContext("key1", "repsonse1");
 		// ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(),
 		// "async echo:" + msg);
 
 		// return "echo:" + userService.echo(msg);
 		return "echo:" + msg;
 	}
-	
+
 	@Override
-	public String echo2(Integer size) throws IOException {
-		//throw new RuntimeException("error with echo service");
+	public String echo(Integer size) {
 		try {
 			Thread.sleep(size);
 		} catch (InterruptedException e) {
@@ -68,6 +68,15 @@ public class EchoServiceDefaultImpl implements EchoService {
 		return "echo:" + size;
 	}
 
+	@Override
+	public String echoWithException(String msg) throws IOException {
+		throw new RuntimeException("error with echo service");
+		// try {
+		// Thread.sleep(size);
+		// } catch (InterruptedException e) {
+		// }
+		// return "echo:" + size;
+	}
 
 	@Override
 	public long now() {
@@ -77,7 +86,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 	@Override
 	public List<User<?>> findUsers(int count) {
 		return Lists.newArrayList(users.subList(0, count));
-		//return users.subList(0, count);
+		// return users.subList(0, count);
 	}
 
 	@Override
@@ -140,7 +149,7 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public String echo(List<Gender> genders) {
-		for(Gender g : genders) {
+		for (Gender g : genders) {
 			System.out.println(g);
 		}
 		return genders.toString();
@@ -149,6 +158,20 @@ public class EchoServiceDefaultImpl implements EchoService {
 	@Override
 	public boolean isMale() {
 		return true;
+	}
+
+	@Override
+	public Gender echo(Gender gender) {
+		Gender g = null;
+		try {
+			g = Gender.valueOf("XXX");
+		} catch (RuntimeException e) {
+
+		}
+		if (g == null) {
+			g = Gender.FEMALE;
+		}
+		return g;
 	}
 
 }

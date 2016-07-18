@@ -17,14 +17,18 @@ public interface EchoService {
 
 	String echo(String msg);
 	
-	String echo2(Integer size) throws IOException;
-	
+	String echo(Integer size);
+
+	String echoWithException(String msg) throws IOException;
+
 	String echo(List<Gender> genders);
+
+	Gender echo(Gender gender);
 
 	String asyncEcho(String msg);
 
 	long now();
-	
+
 	boolean isMale();
 
 	void addUser(User<?> user);
@@ -34,7 +38,7 @@ public interface EchoService {
 	Map<String, String> testMap(Map<String, String> values);
 
 	String test(Map<User, String> values);
-	
+
 	DealGroupBaseDTO test(DealGroupBaseDTO dto);
 
 	enum Grade {
@@ -191,6 +195,6 @@ public interface EchoService {
 	}
 
 	public enum Gender {
-		AUTO, MALE, FEMALE;
+		AUTO, MALE, FEMALE, XXX;
 	}
 }

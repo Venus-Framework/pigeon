@@ -13,6 +13,7 @@ import com.dianping.pigeon.remoting.provider.service.method.ServiceMethod;
 public class DefaultProviderContext extends AbstractInvocationContext implements ProviderContext {
 
 	private Throwable serviceError;
+	private Throwable frameworkError;
 	private ProviderChannel channel;
 	private Future<?> future;
 	private Thread thread;
@@ -32,6 +33,14 @@ public class DefaultProviderContext extends AbstractInvocationContext implements
 
 	public void setServiceError(Throwable serviceError) {
 		this.serviceError = serviceError;
+	}
+
+	public Throwable getFrameworkError() {
+		return frameworkError;
+	}
+
+	public void setFrameworkError(Throwable frameworkError) {
+		this.frameworkError = frameworkError;
 	}
 
 	@Override

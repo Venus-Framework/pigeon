@@ -15,6 +15,10 @@ public interface ProviderContext extends InvocationContext {
 
 	void setServiceError(Throwable serviceError);
 
+	Throwable getFrameworkError();
+
+	void setFrameworkError(Throwable frameworkError);
+
 	ProviderChannel getChannel();
 
 	Future<?> getFuture();
@@ -22,11 +26,11 @@ public interface ProviderContext extends InvocationContext {
 	void setFuture(Future<?> future);
 
 	Thread getThread();
-	
+
 	void setThread(Thread thread);
-	
+
 	void setServiceMethod(ServiceMethod serviceMethod);
-	
+
 	ServiceMethod getServiceMethod();
-	
+
 }
