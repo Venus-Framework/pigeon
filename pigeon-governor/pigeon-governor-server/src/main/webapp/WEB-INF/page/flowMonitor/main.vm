@@ -35,20 +35,24 @@
     <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-ie.min.css" />
     <![endif]-->
 
+
+
+
     <!-- inline styles related to this page -->
     <link href="${rc.contextPath}/resources/style/bootstrap-switch.min.css" rel="stylesheet">
     <link href="${rc.contextPath}/resources/assets/css/datepicker.css" rel="stylesheet">
     <link href="${rc.contextPath}/resources/assets/css/bootstrap-timepicker.css " rel="stylesheet">
+    <link href="${rc.contextPath}/resources/assets/css/bootstrap-datetimepicker.css" rel="stylesheet">
     <style type="text/css">
 
-        .vertical-center{
-            float: none !important;
-        }
+        /*.vertical-center{*/
+            /*float: none !important;*/
+        /*}*/
 
-        .ui-sortable-handle:hover
-        {
-            background-color:#F8FAFF;
-        }
+        /*.ui-sortable-handle:hover*/
+        /*{*/
+            /*background-color:#F8FAFF;*/
+        /*}*/
 
 
         /*ACE DataTable的相关属性 设计主要是Table头参见RouterConfig页面*/
@@ -66,15 +70,7 @@
             width: 100%;
             overflow:auto;
         }
-        .primary{
-            color: rgb(42, 139, 203);
-        }
-        .success{
-            color: rgb(133, 181, 88);
-        }
-        .danger{
-            color: rgb(211, 65, 59);
-        }
+
 
         /*覆盖Item div相关的默认属性*/
         .itemdiv>.body{
@@ -85,6 +81,12 @@
         }
         .itemdiv.memberdiv{
             width: auto;
+        }
+
+
+
+        .vertical-center{
+            float: none !important;
         }
     </style>
 
@@ -112,7 +114,7 @@
             <script type="text/javascript">
                 try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
             </script>
-            <div class="col-xs-6">
+            <div class="col-xs-3">
                 <ul class="breadcrumb">
                     <li>
                         <i class="ace-icon fa fa-home home-icon"></i>
@@ -123,6 +125,18 @@
                         <a href="#">流量监控</a>
                     </li>
                 </ul>
+            </div>
+
+            <div class="input-group col-xs-4 pull-right">
+                <input id="searchInput" placeholder="应用名搜索" type="text" class="form-control vertical-center" name="message"
+                       data-provide="typeahead" oldautocomplete="off" autocomplete="off" />
+
+                        <span class="input-group-btn">
+                            <button  id = "search" class="btn btn-sm btn-info no-radius" type="button">
+                                <i class="ace-icon fa fa-search"></i>
+                                查询
+                            </button>
+                        </span>
             </div>
         </div>
         <div class="page-content">
@@ -162,42 +176,61 @@
                     </h1>
                 </div>
                 <div class="row">
-                    <div class="col-xs-6">
-                        <div class="input-group input-group-sm">
-                            <input id="datepicker" class="form-control" />
-                            <span class="input-group-addon">
-                                <i class="ace-icon fa fa-calendar"></i>
-                            </span>
+                    <div class="col-xs-12">
+                        <div class="col-xs-8">
+                            <h3 class="blue" style="margin-top: 10px;margin-bottom: 10px;height: 34px;line-height: 34px";>应用名:
+                                <span id = "projecyName">
+                                XXXXXXXXXXXXXXXXXXXXXXXXXX
+                                </span>
+                            </h3>
                         </div>
-                    </div>
-                    <div class="col-xs-6">
-                        <div class="input-group input-group-sm">
-                            <input id="timepicker" class="form-control"/>
-                            <span class="input-group-addon">
-                                <i class="ace-icon fa fa-calendar"></i>
+                        <div class="input-group col-xs-4 pull-right" style="margin-top:10px;margin-bottom: 10px;">
+                            <input type='text' class="form-control vertical-center" id='dateTimePicker'
+                                   autocomplete="off" oldautocomplete="off"/>
+                             <span class="input-group-btn">
+                                <button  id = "search" class="btn btn-sm btn-info no-radius" type="button">
+                                    <i class="ace-icon fa fa-search"></i>
+                                    查询
+                                </button>
                             </span>
                         </div>
                     </div>
                     <div class="col-xs-12">
-                        <div class="tabbable">
-                            <!-- #section:pages/faq -->
-                            <ul class="nav nav-tabs padding-18 tab-size-bigger" id="myTab">
-                                <li class="active">
-                                    <a data-toggle="tab" href="#serverFlow">
-                                        服务端流量分布
-                                    </a>
-                                </li>
-                                <li>
-                                    <a data-toggle="tab" href="#clientFlow">
-                                        客户端流量分布
-                                    </a>
-                                </li>
-                            </ul>
-                            <div id = "serverFlow" class="active">
-                                <!--后续用AJAX,并且实现Lazy Init模式.-->
-                                #parse("flowMonitor/server/framework.vm")
+                        <ul id = "mainTab" class="nav nav-tabs">
+                            <li class="active">
+                                <a href="#serverFlow" data-toggle="tab">
+                                    服务端流量分布
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#clientFlow" data-toggle="tab">
+                                    客户端流量分布
+                                </a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" id="myTabDrop1" class="dropdown-toggle"
+                                   data-toggle="dropdown">Java
+                                    <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="myTabDrop1">
+                                    <li><a href="#jmeter" tabindex="-1" data-toggle="tab">jmeter</a></li>
+                                    <li><a href="#ejb" tabindex="-1" data-toggle="tab">ejb</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <div id = "mainContent" class="tab-content">
+                            <div class="tab-pane fade in active" id="serverFlow">
                             </div>
-                            <div id = "clientFlow" >
+                            <div class="tab-pane fade" id="clientFlow">
+                                <p>iOS 是一个由苹果公司开发和发布的手机操作系统。最初是于 2007 年首次发布 iPhone、iPod Touch 和 Apple
+                                    TV。iOS 派生自 OS X，它们共享 Darwin 基础。OS X 操作系统是用在苹果电脑上，iOS 是苹果的移动版本。</p>
+                            </div>
+                            <div class="tab-pane fade" id="jmeter">
+                                <p>jMeter 是一款开源的测试软件。它是 100% 纯 Java 应用程序，用于负载和性能测试。</p>
+                            </div>
+                            <div class="tab-pane fade" id="ejb">
+                                <p>Enterprise Java Beans（EJB）是一个创建高度可扩展性和强大企业级应用程序的开发架构，部署在兼容应用程序服务器（比如 JBOSS、Web Logic 等）的 J2EE 上。
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -208,7 +241,6 @@
     <div class="footer">
         #parse("common/sub-footer.vm")
     </div>
-
     <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
         <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
     </a>
@@ -250,8 +282,24 @@
 <script src="${rc.contextPath}/resources/assets/js/spin.min.js"></script>
 <script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
 <script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-timepicker.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/date-time/moment.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datetimepicker.min.js"></script>
 <script>
     jQuery(function($) {
+
+        /*初始化DateTimePicker*/
+        $('#dateTimePicker').datetimepicker();
+        /*主Tab栅转*/
+        $("#serverFlow").ajaxLoad({
+            url:'/flowMonitor/server',
+            data:{'projectName':"$projectName",'dateTime':"$dateTime"}
+        });
+        $('#mainTab li:eq(1) a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+            alert('ajax load');
+        })
+
 //        $( "#datepicker" ).datepicker({
 //            showOtherMonths: true,
 //            selectOtherMonths: false,
@@ -278,178 +326,188 @@
 //        });
 
 
-
-
-        var mydate = $('#datepicker')[0];
-        $(mydate).datepicker({
-            showOtherMonths: true,
-            selectOtherMonths: false,
-        });
-        var mytime = $('#timepicker')[0];
-        $(mytime).timepicker({
-
-        });
-//        if(mytime.type !== 'time') {//if browser doesn't support "time" input
-//            $(mytime).timepicker({
-//                //options
-//            })
-//        }
-//        if(mydate.type !== 'date') {//if browser doesn't support "date" input
-//            alert('Using bootstrap date picker')
-//            $(mydate).datepicker({
-//                //options
-//            })
-//        }
-
-
-        $('table').dataTable({
-            bAutoWidth: false,
-            aoColumns: [
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-            ],
-            "aaSorting": [],
-            dom: "<'myRow'<'col-xs-8'><'col-xs-4'B>>" +
-            "<'row aceTableRow'<'col-xs-3'l><'col-xs-9'fr>>" +
-            "t" +
-            "<'row'<'col-xs-3'i><'col-xs-9'p>>"
-        });
-        $('.methodName').bind('click',function () {
-            var tableObject = $(this).parents('table');
-            var projectName = tableObject.attr('data-projectName');
-            var ip = tableObject.attr('data-ip');
-            var time  = tableObject.attr('data-time');
-            var nameId = $(this).attr('data-name-id');
-            $('#infoPage').modal('show');
-            $('.modal-body').ajaxLoad({
-                url:'/flowMonitor/methodDetail',
-                data:{'projectName':projectName,'ip':ip,'time':time,'nameId':nameId}
-            });
-        })
-
-
-
-
-        // 基于准备好的dom，初始化echarts实例
-//        var width  = $('#main').width();
-//        var height = width/2;
-//        $('#main').height(height);
-//        var myChart = echarts.init(document.getElementById('main'));
-
-        // 指定图表的配置项和数据
-        var option = {
-            backgroundColor: '#2c343c',
-            legend: {
-                orient: 'vertical',
-                left: 'left',
-                data: ['直接访问','邮件营销','联盟广告','视频广告','搜索引擎']
-            },
-            title: {
-                text: '方法调用分布',
-                left: 'center',
-                top: 20,
-                textStyle: {
-                    color: '#ccc'
-                }
-            },
-
-            tooltip : {
-                trigger: 'item',
-                formatter: "{a} <br/>{b} : {c} ({d}%)"
-            },
-
-            visualMap: {
-                show: false,
-                min: 80,
-                max: 600,
-                inRange: {
-                    colorLightness: [0, 1]
-                }
-            },
-            series : [
-                {
-                    name:'访问来源',
-                    type:'pie',
-                    radius : '55%',
-                    center: ['50%', '50%'],
-                    data:[
-                        {value:335, name:'直接访问'},
-                        {value:310, name:'邮件营销'},
-                        {value:274, name:'联盟广告'},
-                        {value:235, name:'视频广告'},
-                        {value:400, name:'搜索引擎'}
-                    ].sort(function (a, b) { return a.value - b.value}),
-                    roseType: 'angle',
-                    label: {
-                        normal: {
-                            textStyle: {
-                                color: 'rgba(255, 255, 255, 0.3)'
-                            }
-                        }
-                    },
-                    labelLine: {
-                        normal: {
-                            lineStyle: {
-                                color: 'rgba(255, 255, 255, 0.3)'
-                            },
-                            smooth: 0.2,
-                            length: 10,
-                            length2: 20
-                        }
-                    },
-                    itemStyle: {
-                        normal: {
-                            color: '#c23531',
-                            shadowBlur: 200,
-                            shadowColor: 'rgba(0, 0, 0, 0.5)'
-                        }
-                    }
-                }
-            ]
-        };
-
-        // 使用刚指定的配置项和数据显示图表。
-//        myChart.setOption(option);
-        var width = $("#accessPatternGraph").width();
-        var height = width/2;
-        $("#accessPatternGraph").height(height);
-        var accessPatternGraph = echarts.init(document.getElementById('accessPatternGraph'));
-        var patternOption =  {
-            tooltip: {
-                trigger: 'item',
-                formatter: "{a} <br/>{b}: {c} ({d}%)"
-            },
-            legend: {
-                orient: 'vertical',
-                x: 'left',
-                data:${summaryGraph.getElemntName()}
-            },
-            series: [
-                {
-                    name:'访问来源',
-                    type:'pie',
-                    radius: [0, '30%'],
-                    data:${summaryGraph.getServiceMap()}
-                },
-                {
-                    name:'访问来源',
-                    type:'pie',
-                    radius: ['40%', '55%'],
-
-                    data:${summaryGraph.getMethodMap()}
-                }
-            ]
-        };
-        accessPatternGraph.setOption(patternOption);
+##        $('.machine').each(function () {
+##            var projectName = $(this).attr("data-projectName");
+##            var date = $(this).attr('data-date');
+##            var ip = $(this).attr('data-ip');
+##            $(this).bind('click',function () {
+##                $('#infoPage').modal('show');
+##                $('.modal-body').ajaxLoad({
+##                    url:'/flowMonitor/HostDetail',
+##                    data:{'projectName':projectName,'ip':ip,'time':date}
+##                });
+##            });
+##        })
+##        var mydate = $('#datepicker')[0];
+##        $(mydate).datepicker({
+##            showOtherMonths: true,
+##            selectOtherMonths: false,
+##        });
+##        var mytime = $('#timepicker')[0];
+##        $(mytime).timepicker({
+##
+##        });
+##//        if(mytime.type !== 'time') {//if browser doesn't support "time" input
+##//            $(mytime).timepicker({
+##//                //options
+##//            })
+##//        }
+##//        if(mydate.type !== 'date') {//if browser doesn't support "date" input
+##//            alert('Using bootstrap date picker')
+##//            $(mydate).datepicker({
+##//                //options
+##//            })
+##//        }
+##
+##
+##        $('#methodInvokeTable').dataTable({
+##            bAutoWidth: false,
+##            aoColumns: [
+##                null,
+##                null,
+##                null,
+##                null,
+##                null,
+##                null,
+##                null,
+##                null,
+##                null,
+##                null,
+##                null
+##            ],
+##            "aaSorting": [],
+##            dom: "<'myRow'<'col-xs-8'><'col-xs-4'B>>" +
+##            "<'row aceTableRow'<'col-xs-3'l><'col-xs-9'fr>>" +
+##            "t" +
+##            "<'row'<'col-xs-3'i><'col-xs-9'p>>"
+##        });
+##        $('.methodName').bind('click',function () {
+##            var tableObject = $(this).parents('table');
+##            var projectName = tableObject.attr('data-projectName');
+##            var ip = tableObject.attr('data-ip');
+##            var time  = tableObject.attr('data-time');
+##            var nameId = $(this).attr('data-name-id');
+##            $('#infoPage').modal('show');
+##            $('.modal-body').ajaxLoad({
+##                url:'/flowMonitor/methodDetail',
+##                data:{'projectName':projectName,'ip':ip,'time':time,'nameId':nameId}
+##            });
+##        })
+##
+##
+##
+##
+##        // 基于准备好的dom，初始化echarts实例
+##//        var width  = $('#main').width();
+##//        var height = width/2;
+##//        $('#main').height(height);
+##//        var myChart = echarts.init(document.getElementById('main'));
+##
+##        // 指定图表的配置项和数据
+##        var option = {
+##            backgroundColor: '#2c343c',
+##            legend: {
+##                orient: 'vertical',
+##                left: 'left',
+##                data: ['直接访问','邮件营销','联盟广告','视频广告','搜索引擎']
+##            },
+##            title: {
+##                text: '方法调用分布',
+##                left: 'center',
+##                top: 20,
+##                textStyle: {
+##                    color: '#ccc'
+##                }
+##            },
+##
+##            tooltip : {
+##                trigger: 'item',
+##                formatter: "{a} <br/>{b} : {c} ({d}%)"
+##            },
+##
+##            visualMap: {
+##                show: false,
+##                min: 80,
+##                max: 600,
+##                inRange: {
+##                    colorLightness: [0, 1]
+##                }
+##            },
+##            series : [
+##                {
+##                    name:'访问来源',
+##                    type:'pie',
+##                    radius : '55%',
+##                    center: ['50%', '50%'],
+##                    data:[
+##                        {value:335, name:'直接访问'},
+##                        {value:310, name:'邮件营销'},
+##                        {value:274, name:'联盟广告'},
+##                        {value:235, name:'视频广告'},
+##                        {value:400, name:'搜索引擎'}
+##                    ].sort(function (a, b) { return a.value - b.value}),
+##                    roseType: 'angle',
+##                    label: {
+##                        normal: {
+##                            textStyle: {
+##                                color: 'rgba(255, 255, 255, 0.3)'
+##                            }
+##                        }
+##                    },
+##                    labelLine: {
+##                        normal: {
+##                            lineStyle: {
+##                                color: 'rgba(255, 255, 255, 0.3)'
+##                            },
+##                            smooth: 0.2,
+##                            length: 10,
+##                            length2: 20
+##                        }
+##                    },
+##                    itemStyle: {
+##                        normal: {
+##                            color: '#c23531',
+##                            shadowBlur: 200,
+##                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+##                        }
+##                    }
+##                }
+##            ]
+##        };
+##
+##        // 使用刚指定的配置项和数据显示图表。
+##//        myChart.setOption(option);
+##        var width = $("#accessPatternGraph").width();
+##        var height = width/2;
+##        $("#accessPatternGraph").height(height);
+##        var accessPatternGraph = echarts.init(document.getElementById('accessPatternGraph'));
+##        var patternOption =  {
+##            tooltip: {
+##                trigger: 'item',
+##                formatter: "{a} <br/>{b}: {c} ({d}%)"
+##            },
+##            legend: {
+##                orient: 'vertical',
+##                x: 'left',
+##                data:${summaryGraph.getElemntName()}
+##            },
+##            series: [
+##                {
+##                    name:'访问来源',
+##                    type:'pie',
+##                    radius: [0, '30%'],
+##                    data:${summaryGraph.getServiceMap()}
+##                },
+##                {
+##                    name:'访问来源',
+##                    type:'pie',
+##                    radius: ['40%', '55%'],
+##
+##                    data:${summaryGraph.getMethodMap()}
+##                }
+##            ]
+##        };
+##        accessPatternGraph.setOption(patternOption);
     });
 </script>
 <!-- ace scripts -->

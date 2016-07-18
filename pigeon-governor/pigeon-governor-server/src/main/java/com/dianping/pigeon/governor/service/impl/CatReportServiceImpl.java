@@ -4,10 +4,12 @@ import com.dianping.cat.consumer.transaction.model.entity.Machine;
 import com.dianping.cat.consumer.transaction.model.entity.TransactionReport;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.governor.bean.FlowMonitorBean.host.ServerHostDataTableBean;
 import com.dianping.pigeon.governor.bean.FlowMonitorBean.method.MethodDistributedGraphBean;
 import com.dianping.pigeon.governor.service.CatReportService;
 import com.dianping.pigeon.governor.util.CatReportXMLUtils;
 import com.dianping.pigeon.governor.util.Constants;
+import com.dianping.pigeon.governor.util.GsonUtils;
 import com.dianping.pigeon.governor.util.HttpCallUtils;
 import org.dom4j.Document;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,7 @@ public class CatReportServiceImpl implements CatReportService{
         TransactionReport allReport = getCatTransactionReport(projectName,date,"All","PigeonService");
         String tmpIp = allReport.getIps().iterator().next();
         TransactionReport report = getCatTransactionReport(projectName,date,tmpIp,"PigeonService");
+        System.out.println(GsonUtils.prettyPrint(GsonUtils.toJson(report)));
         Map<String,Long> dataMap = new HashMap<String, Long>();
         for(Iterator<String> iterator = report.getMachines().keySet().iterator();iterator.hasNext();){
             String ip = iterator.next();
@@ -49,6 +52,12 @@ public class CatReportServiceImpl implements CatReportService{
             dataMap.put(ip,visitData);
         }
         return new MethodDistributedGraphBean(dataMap);
+    }
+
+    @Override
+    public ServerHostDataTableBean getServerHostTable(String projectName, String date, String ip) {
+        TransactionReport hostReport = getCatTransactionReport(projectName,date,ip,"PigeonService");
+        return new ServerHostDataTableBean(hostReport.getMachines().get(ip).getTypes().get("PigeonService").getNames().values(),projectName,date,ip);
     }
 
     private String getCatAddress(){

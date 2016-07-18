@@ -1,5 +1,6 @@
 package com.dianping.pigeon.governor.util;
 
+import com.dianping.cat.consumer.cross.model.entity.CrossReport;
 import com.dianping.cat.consumer.transaction.model.entity.TransactionReport;
 import com.dianping.cat.consumer.transaction.model.transform.DefaultSaxParser;
 import org.dom4j.Document;
@@ -43,5 +44,26 @@ public class CatReportXMLUtils {
     public static String dateFormat(Date date){
         String dateString = formatter.format(date);
         return dateString;
+    }
+    public static CrossReport XMLToCrossReport(String xml){
+        String fitXML = CrossXMLFitFormat(xml);
+        CrossReport cr = null;
+        try{
+            cr = com.dianping.cat.consumer.cross.model.transform.DefaultSaxParser.parse(fitXML);
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return cr;
+    }
+    public static String CrossXMLFitFormat(String origin){
+        StringBuilder sb = new StringBuilder(origin);
+        int startIndex = origin.indexOf("<report");
+        String postfix = "report></cross>";
+        sb.replace(0,startIndex+1,"<cross-");
+        int length = sb.length();
+        sb.replace(length-postfix.length(),length,"cross-report>");
+        return sb.toString();
     }
 }

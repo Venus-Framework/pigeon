@@ -71,7 +71,6 @@ public class RestCallUtils {
 		} catch (Exception e) {
 			logger.error("Failed to GET: "+ targetUrl + "; " + e.getMessage());
 		}
-
 		return result;
 	}
 	
