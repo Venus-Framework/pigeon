@@ -172,7 +172,7 @@ public class MnsRegistry implements Registry {
     @Override
     public int getServerWeight(String serverAddress) throws RegistryException {
         //todo 北京侧的最小单位不是serverAddress
-
+        //todo client建立连接时候，带上host和serviceName的映射
         try {
             return 1;
         } catch (Throwable e) {

@@ -1,6 +1,7 @@
 package com.dianping.pigeon.registry.mns;
 
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.listener.DefaultServiceChangeListener;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
@@ -12,7 +13,6 @@ import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,16 +52,36 @@ public class MnsEventNotifier {
 
         if (modifiedList.size() > 0) { //modifiedList 检查修改的字段，通知不同的通知器
 
+            // 简单处理，不管有没有变动，所有通知器全部通知
             for (SGService sgService : modifiedList) {
+                String host = sgService.getIp() + ":" + sgService.getPort();
                 //weight
-                sgService.getStatus();
+                int weightNew = MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight());
+                int weightCached = RegistryManager.getInstance().getServiceWeightFromCache(host);
+
+                if(weightNew != weightCached) {
+                    weightChanged(host, weightNew);
+                }
 
                 //app 即remoteAppKey
+                //todo 暂搁
 
-                //version
-                sgService.getVersion();
+                //version 目前貌似没用，暂不管
+                String versionNew = sgService.getVersion();
+                String versionCached = RegistryManager.getInstance().getReferencedVersionFromCache(host);
+
+                if (versionNew.equals(versionCached)) {
+                    versionChanged(host, versionNew);
+                }
+
                 //protocol
-                sgService.isUnifiedProto();
+                boolean supportedNew = sgService.isUnifiedProto();
+                boolean supportedCached = RegistryManager.getInstance().isSupportNewProtocolFromCache(host, serviceName);
+
+                if(supportedNew != supportedCached) {
+                    protocolChanged(host, serviceName, supportedNew);
+                }
+
 
             }
         }
@@ -104,12 +124,13 @@ public class MnsEventNotifier {
         }
     }
 
-    private static void protocolChanged(String host, String serviceName, String protocol) throws RegistryException {
+    private static void protocolChanged(String host, String serviceName, boolean isSupport) throws RegistryException {
         try {
             //todo load protocol map and update
-            Map<String, Boolean> infoMap = new HashMap<>();
-            logger.info("protocol changed, value " + serviceName + "#" + protocol);
-            RegistryEventListener.serverProtocolChanged(host, infoMap);
+            Map<String, Boolean> protocolInfoMap = RegistryManager.getInstance().getProtocolInfoFromCache(host);
+            protocolInfoMap.put(serviceName, isSupport);
+            logger.info("protocol changed, value " + serviceName + "#" + isSupport);
+            RegistryEventListener.serverProtocolChanged(host, protocolInfoMap);
         } catch (Throwable e) {
             throw new RegistryException(e);
         }
