@@ -24,7 +24,7 @@ public class DefaultServiceListChangeListener implements IServiceListChangeListe
                         List<SGService> modifiedList) {
         try {
             MnsEventNotifier.eventReceived(req, oldList, newList, addList, deletedList, modifiedList);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logger.error("failed to notify service list change...", e);
         }
     }
