@@ -2,7 +2,7 @@ package com.dianping.pigeon.registry.mns;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.sankuai.inf.octo.mns.listener.IServiceListChangeListener;
-import com.sankuai.inf.octo.mns.model.ServiceListRequest;
+import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import org.apache.logging.log4j.Logger;
 
@@ -16,7 +16,7 @@ public class DefaultServiceListChangeListener implements IServiceListChangeListe
     private static Logger logger = LoggerLoader.getLogger(DefaultServiceListChangeListener.class);
 
     @Override
-    public void changed(ServiceListRequest req,
+    public void changed(ProtocolRequest req,
                         List<SGService> oldList,
                         List<SGService> newList,
                         List<SGService> addList,
@@ -24,7 +24,7 @@ public class DefaultServiceListChangeListener implements IServiceListChangeListe
                         List<SGService> modifiedList) {
         try {
             MnsEventNotifier.eventReceived(req, oldList, newList, addList, deletedList, modifiedList);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logger.error("failed to notify service list change...", e);
         }
     }

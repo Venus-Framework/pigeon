@@ -8,7 +8,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
-import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
@@ -479,6 +478,24 @@ public class RegistryManager {
             return app;
         }
         return "";
+    }
+
+    public Map<String, Boolean> getProtocolInfoFromCache(String serviceAddress) {
+        Map<String, Boolean> protocolInfoMap = referencedServiceProtocols.get(serviceAddress);
+        if (protocolInfoMap != null) {
+            return protocolInfoMap;
+        }
+
+        return new HashMap<String, Boolean>();
+    }
+
+    public boolean isSupportNewProtocolFromCache(String serviceAddress, String serviceName) {
+        Map<String, Boolean> protocolInfoMap = referencedServiceProtocols.get(serviceAddress);
+        if (protocolInfoMap != null && protocolInfoMap.containsKey(serviceName)) {
+            return protocolInfoMap.get(serviceName);
+        }
+
+        return false;
     }
 
     public String getReferencedApp(String serverAddress) {
