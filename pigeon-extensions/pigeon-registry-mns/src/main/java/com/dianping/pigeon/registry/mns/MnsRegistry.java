@@ -7,6 +7,8 @@ import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.util.VersionUtils;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.sankuai.inf.octo.mns.MnsInvoker;
 import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
@@ -25,6 +27,10 @@ public class MnsRegistry implements Registry {
     private Properties properties;
 
     private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+
+    private Map<String, Set<String>> hostServiceNameMapping = Maps.newConcurrentMap();
+
+    public static final int WEIGHT_DEFAULT = 1;
 
     private volatile boolean inited = false;
 
@@ -82,7 +88,25 @@ public class MnsRegistry implements Registry {
 
         for (SGService sgService : sgServices) {
             if (MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight()) > 0) {
-                result += sgService.getIp() + ":" + sgService.getPort() +",";
+                String host = sgService.getIp() + ":" + sgService.getPort();
+                result += host +",";
+
+                if (hostServiceNameMapping.containsKey(host)) {
+                    Set<String> serviceNames = hostServiceNameMapping.get(host);
+
+                    if (serviceNames != null) {
+                        serviceNames.add(serviceName);
+                    } else {
+                        serviceNames = Sets.newConcurrentHashSet();
+                        serviceNames.add(serviceName);
+                        hostServiceNameMapping.put(host, serviceNames);
+                    }
+
+                } else {
+                    Set<String> serviceNames = Sets.newConcurrentHashSet();
+                    serviceNames.add(serviceName);
+                    hostServiceNameMapping.put(host, serviceNames);
+                }
             }
         }
 
@@ -176,8 +200,17 @@ public class MnsRegistry implements Registry {
     public int getServerWeight(String serverAddress) throws RegistryException {
         //todo 北京侧的最小单位不是serverAddress
         //todo client建立连接时候，带上host和serviceName的映射
+        //todo host ---> Set<serviceName>
+        //todo 存在的问题，高度依赖于连接client时序，是否一定是先建立client连接
         try {
-            return 1;
+            Set<String> serviceNames = hostServiceNameMapping.get(serverAddress);
+
+            if (serviceNames != null && serviceNames.size() > 0) {
+                SGService sgService = getSGService(null, (String) serviceNames.toArray()[0], serverAddress);
+                return MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight());
+            }
+
+            return WEIGHT_DEFAULT;
         } catch (Throwable e) {
             logger.error("failed to get weight for " + serverAddress);
             throw new RegistryException(e);
@@ -192,8 +225,14 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public String getServerApp(String serverAddress) throws RegistryException {
-        //todo
+        //todo 参考getServerWeight
         try {
+            Set<String> serviceNames = hostServiceNameMapping.get(serverAddress);
+
+            if (serviceNames != null && serviceNames.size() > 0) {
+                SGService sgService = getSGService(null, (String) serviceNames.toArray()[0], serverAddress);
+                return sgService.getAppkey();
+            }
 
             return "";
         } catch (Throwable e) {
@@ -210,8 +249,14 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public String getServerVersion(String serverAddress) throws RegistryException {
-        //todo
+        //todo 参考getServerWeight
         try {
+            Set<String> serviceNames = hostServiceNameMapping.get(serverAddress);
+
+            if (serviceNames != null && serviceNames.size() > 0) {
+                SGService sgService = getSGService(null, (String) serviceNames.toArray()[0], serverAddress);
+                return sgService.getVersion();
+            }
 
             return "";
         } catch (Throwable e) {
@@ -229,15 +274,9 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
-        try {
+        SGService sgService = getSGService(null, serviceName, serviceAddress);
 
-            return false;
-
-        } catch (Throwable e) {
-            logger.error("failed to get protocol:" + serviceName
-                    + "of host:" + serviceAddress + ", caused by:" + e.getMessage());
-            throw new RegistryException(e);
-        }
+        return sgService.isUnifiedProto();
     }
 
     /**
