@@ -1,0 +1,67 @@
+#set($layout="layoutblank.vm")
+<div class="col-xs-12 center">
+    <div>
+        <table id = "HostTable" class="table table-striped table-bordered table-hover"
+                data-projectName = "$data.getProjectName()"
+                data-ip = "$data.getIp()"
+                data-time = "$data.getTime()">
+            <thead>
+            <tr>
+                <th>调用方法名</th>
+                <th>调用次数</th>
+                <th>失败次数</th>
+                <th>失败率</th>
+                <th>最小耗时</th>
+                <th>最大耗时</th>
+                <th>平均耗时</th>
+                <th>95Line</th>
+                <th>99Line</th>
+                <th>Std</th>
+                <th>Qps</th>
+            </tr>
+            </thead>
+            <tbody>
+                #foreach($row in $data.getList())
+                <tr>
+                    <td class="methodName" data-name-id="$row.getMethodName()">$row.getMethodName()</td>
+                    <td>$row.getCallTime()</td>
+                    <td>$row.getFailureTime()</td>
+                    <td>$row.getFailureRate()</td>
+                    <td>$row.getMinConsumeTime()</td>
+                    <td>$row.getMaxConsumeTime()</td>
+                    <td>$row.getAvgConsumeTime()</td>
+                    <td>$row.getLine95()</td>
+                    <td>$row.getLine99()</td>
+                    <td>$row.getStd()</td>
+                    <td>$row.getQPS()</td>
+                </tr>
+                #end
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    jQuery(function($) {
+        $('#HostTable').dataTable({
+            bAutoWidth: false,
+            aoColumns: [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "aaSorting": [],
+            dom: "<'myRow'<'col-xs-8'><'col-xs-4'B>>" +
+            "<'row aceTableRow'<'col-xs-3'l><'col-xs-9'fr>>" +
+            "t" +
+            "<'row'<'col-xs-3'i><'col-xs-9'p>>"
+        });
+    })
+</script>

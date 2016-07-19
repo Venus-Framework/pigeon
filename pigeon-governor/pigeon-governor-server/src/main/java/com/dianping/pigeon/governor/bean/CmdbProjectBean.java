@@ -18,7 +18,7 @@ public class CmdbProjectBean {
     
     private String project_description;
     
-    private String container_type; 
+    private String container_type;
     
     private String project_type;
     

@@ -32,6 +32,25 @@
 	</properties>
 
 	<dependencies>
+		<!-- Cat transaction report model-->
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>CatPigeonCallModel</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping</groupId>
+			<artifactId>CrossModel</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<!-- Cat transaction report model-->
+
+
 		<dependency>
 			<groupId>com.dianping</groupId>
 			<artifactId>CatPigeonCallModel</artifactId>
