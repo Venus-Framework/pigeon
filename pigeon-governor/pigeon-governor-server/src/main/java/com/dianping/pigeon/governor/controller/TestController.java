@@ -129,7 +129,7 @@ public class TestController {
 
     }
 
-    @RequestMapping(value = "/betaonly/dellocalip", method = {RequestMethod.POST})
+    @RequestMapping(value = "/syncnode2db", method = {RequestMethod.POST})
     @ResponseBody
     public Result syncService2ServiceNode(@RequestParam(value="validate") final String validate) {
 
