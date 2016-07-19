@@ -18,9 +18,7 @@ public class Constants {
 	public static final String DP_USER = "dp-user";
 
 	public static final String NON_SSO_FLAG = "is-non-sso";
-	
 	public static final String CMDB_API_BASE = "http://api.cmdb.dp/api/v0.1";
-	
 	public static final String KEY_ACTION = "pigeon-governor-server.healthcheck.action";
 	public static final String KEY_INTERVAL = "pigeon-governor-server.healthcheck.interval";
 	public static final String KEY_HOST_INTERVAL = "pigeon-governor-server.healthcheck.host.interval";
@@ -28,6 +26,9 @@ public class Constants {
 	public static final String KEY_MINHOSTS = "pigeon-governor-server.healthcheck.minhosts";
 	public static final String KEY_DEADTHRESHOLDS = "pigeon-governor-server.healthcheck.deadthreshold";
 	public static final String KEY_INVALIDADDRESS = "pigeon-governor-server.healthcheck.invalidaddress";
+	public static final String qaCatAddress = "http://cat.qa.dianpingoa.com/";
+	public static final String ppeCatAddress = "http://ppe.cat.dp/cat/";
+	public static final String onlineCatAddress = "http://cat.dp/";
 
 	private static final String testAddress = ConfigManagerLoader.getConfigManager().getStringValue(
 			"pigeon-governor-server.address.test", "127.0.0.1:2181");

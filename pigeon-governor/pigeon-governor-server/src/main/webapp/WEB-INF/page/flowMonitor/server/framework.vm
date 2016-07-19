@@ -1,0 +1,476 @@
+#set($layout="layoutblank.vm")
+<div class="col-xs-12">
+    <div class="col-xs-8">
+        <div class="widget-box transparent">
+            <div class="widget-header">
+                <h4 class="widget-title lighter smaller">
+                    调用分布
+                </h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main padding-0">
+                    <div id="accessPatternGraph"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-4">
+        <div class="widget-box transparent">
+            <div class="widget-header">
+                <h4 class="widget-title lighter smaller">
+                    机器列表
+                </h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main padding-0">
+                    <div id="member-tab" class="tab-pane active">
+                        <!-- #section:pages/dashboard.members -->
+                        <div class="clearfix">
+                            #foreach( $machine in $serverMachines.getMachines())
+                                <div class="itemdiv memberdiv">
+                                    <div class="body">
+                                        <div class="name">
+                                            <a class="machine" data-ip= "$machine.getIpAddress()"
+                                               data-projectName = "$machine.getProjectName()"
+                                               data-date= "$machine.getDate()" href="#">
+                                                $machine.getIpAddress()
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <span class="label label-warning label-sm">正常</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            #end
+                        </div>
+
+                        <div class="space-4"></div>
+
+                        <div class="center">
+                            <i class="ace-icon fa fa-users fa-2x green middle"></i>
+
+                            &nbsp;
+                            <a href="#" class="btn btn-sm btn-white btn-info">
+                                分页插件位置
+                                <i class="ace-icon fa fa-arrow-right"></i>
+                            </a>
+                        </div>
+
+                        <div class="hr hr-double hr8"></div>
+
+                        <!-- /section:pages/dashboard.members -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-xs-12">
+    <div class="widget-box transparent">
+        <div class="widget-header">
+            <h4 class="widget-title lighter smaller">
+                数据统计
+            </h4>
+            <div class="widget-body">
+                <div class="widget-main padding-0">
+                    <table  id = "methodInvokeTable"class="table table-striped table-bordered table-hover"
+                            data-projectName = "$serverSummaryData.getProjectName()"
+                    data-ip = "$serverSummaryData.getIp()"
+                    data-time = "$serverSummaryData.getTime()">
+                        <thead>
+                        <tr>
+                            <th>调用方法名</th>
+                            <th>调用次数</th>
+                            <th>失败次数</th>
+                            <th>失败率</th>
+                            <th>最小耗时</th>
+                            <th>最大耗时</th>
+                            <th>平均耗时</th>
+                            <th>95Line</th>
+                            <th>99Line</th>
+                            <th>Std</th>
+                            <th>Qps</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        #foreach($row in $serverSummaryData.getList())
+                        <tr>
+                            <td class="methodName" data-name-id="$row.getMethodName()">$row.getMethodName()</td>
+                            <td>$row.getCallTime()</td>
+                            <td>$row.getFailureTime()</td>
+                            <td>$row.getFailureRate()</td>
+                            <td>$row.getMinConsumeTime()</td>
+                            <td>$row.getMaxConsumeTime()</td>
+                            <td>$row.getAvgConsumeTime()</td>
+                            <td>$row.getLine95()</td>
+                            <td>$row.getLine99()</td>
+                            <td>$row.getStd()</td>
+                            <td>$row.getQPS()</td>
+                        </tr>
+                        #end
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    jQuery(function($) {
+            $('.machine').each(function () {
+                var projectName = $(this).attr("data-projectName");
+                var date = $(this).attr('data-date');
+                var ip = $(this).attr('data-ip');
+                $(this).bind('click',function () {
+                    $('#infoPage').modal('show');
+                    $('.modal-body').ajaxLoad({
+                        url:'/flowMonitor/HostDetail',
+                        data:{'projectName':projectName,'ip':ip,'time':date}
+                    });
+                });
+            });
+//            var mydate = $('#datepicker')[0];
+//            $(mydate).datepicker({
+//                showOtherMonths: true,
+//                selectOtherMonths: false,
+//            });
+//            var mytime = $('#timepicker')[0];
+//            $(mytime).timepicker({
+//
+//            });
+    //        if(mytime.type !== 'time') {//if browser doesn't support "time" input
+    //            $(mytime).timepicker({
+    //                //options
+    //            })
+    //        }
+    //        if(mydate.type !== 'date') {//if browser doesn't support "date" input
+    //            alert('Using bootstrap date picker')
+    //            $(mydate).datepicker({
+    //                //options
+    //            })
+    //        }
+
+
+            $('#methodInvokeTable').dataTable({
+                bAutoWidth: false,
+                aoColumns: [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                ],
+                "aaSorting": [],
+                dom: "<'myRow'<'col-xs-8'><'col-xs-4'B>>" +
+                "<'row aceTableRow'<'col-xs-3'l><'col-xs-9'fr>>" +
+                "t" +
+                "<'row'<'col-xs-3'i><'col-xs-9'p>>"
+            });
+            $('.methodName').bind('click',function () {
+                var tableObject = $(this).parents('table');
+                var projectName = tableObject.attr('data-projectName');
+                var ip = tableObject.attr('data-ip');
+                var time  = tableObject.attr('data-time');
+                var nameId = $(this).attr('data-name-id');
+                $('#infoPage').modal('show');
+                $('.modal-body').ajaxLoad({
+                    url:'/flowMonitor/methodDetail',
+                    data:{'projectName':projectName,'ip':ip,'time':time,'nameId':nameId}
+                });
+            })
+//            var option = {
+//                backgroundColor: '#2c343c',
+//                legend: {
+//                    orient: 'vertical',
+//                    left: 'left',
+//                    data: ['直接访问','邮件营销','联盟广告','视频广告','搜索引擎']
+//                },
+//                title: {
+//                    text: '方法调用分布',
+//                    left: 'center',
+//                    top: 20,
+//                    textStyle: {
+//                        color: '#ccc'
+//                    }
+//                },
+//
+//                tooltip : {
+//                    trigger: 'item',
+//                    formatter: "{a} <br/>{b} : {c} ({d}%)"
+//                },
+//
+//                visualMap: {
+//                    show: false,
+//                    min: 80,
+//                    max: 600,
+//                    inRange: {
+//                        colorLightness: [0, 1]
+//                    }
+//                },
+//                series : [
+//                    {
+//                        name:'访问来源',
+//                        type:'pie',
+//                        radius : '55%',
+//                        center: ['50%', '50%'],
+//                        data:[
+//                            {value:335, name:'直接访问'},
+//                            {value:310, name:'邮件营销'},
+//                            {value:274, name:'联盟广告'},
+//                            {value:235, name:'视频广告'},
+//                            {value:400, name:'搜索引擎'}
+//                        ].sort(function (a, b) { return a.value - b.value}),
+//                        roseType: 'angle',
+//                        label: {
+//                            normal: {
+//                                textStyle: {
+//                                    color: 'rgba(255, 255, 255, 0.3)'
+//                                }
+//                            }
+//                        },
+//                        labelLine: {
+//                            normal: {
+//                                lineStyle: {
+//                                    color: 'rgba(255, 255, 255, 0.3)'
+//                                },
+//                                smooth: 0.2,
+//                                length: 10,
+//                                length2: 20
+//                            }
+//                        },
+//                        itemStyle: {
+//                            normal: {
+//                                color: '#c23531',
+//                                shadowBlur: 200,
+//                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+//                            }
+//                        }
+//                    }
+//                ]
+//            };
+
+            // 使用刚指定的配置项和数据显示图表。
+    //        myChart.setOption(option);
+            var width = $("#accessPatternGraph").width();
+            var height = width/2;
+            $("#accessPatternGraph").height(height);
+            var accessPatternGraph = echarts.init(document.getElementById('accessPatternGraph'));
+            var patternOption =  {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b}: {c} ({d}%)"
+                },
+                legend: {
+                    orient: 'vertical',
+                    x: 'left',
+                    data:${summaryGraph.getElemntName()}
+                },
+                series: [
+                    {
+                        name:'访问来源',
+                        type:'pie',
+                        radius: [0, '30%'],
+                        data:${summaryGraph.getServiceMap()}
+                    },
+                    {
+                        name:'访问来源',
+                        type:'pie',
+                        radius: ['40%', '55%'],
+
+                        data:${summaryGraph.getMethodMap()}
+                    }
+                ]
+            };
+            accessPatternGraph.setOption(patternOption);
+    });
+</script>
+
+##        $('.machine').each(function () {
+##            var projectName = $(this).attr("data-projectName");
+##            var date = $(this).attr('data-date');
+##            var ip = $(this).attr('data-ip');
+##            $(this).bind('click',function () {
+##                $('#infoPage').modal('show');
+##                $('.modal-body').ajaxLoad({
+##                    url:'/flowMonitor/HostDetail',
+##                    data:{'projectName':projectName,'ip':ip,'time':date}
+##                });
+##            });
+##        })
+##        var mydate = $('#datepicker')[0];
+##        $(mydate).datepicker({
+##            showOtherMonths: true,
+##            selectOtherMonths: false,
+##        });
+##        var mytime = $('#timepicker')[0];
+##        $(mytime).timepicker({
+##
+##        });
+##//        if(mytime.type !== 'time') {//if browser doesn't support "time" input
+##//            $(mytime).timepicker({
+##//                //options
+##//            })
+##//        }
+##//        if(mydate.type !== 'date') {//if browser doesn't support "date" input
+##//            alert('Using bootstrap date picker')
+##//            $(mydate).datepicker({
+##//                //options
+##//            })
+##//        }
+##
+##
+##        $('#methodInvokeTable').dataTable({
+##            bAutoWidth: false,
+##            aoColumns: [
+##                null,
+##                null,
+##                null,
+##                null,
+##                null,
+##                null,
+##                null,
+##                null,
+##                null,
+##                null,
+##                null
+##            ],
+##            "aaSorting": [],
+##            dom: "<'myRow'<'col-xs-8'><'col-xs-4'B>>" +
+##            "<'row aceTableRow'<'col-xs-3'l><'col-xs-9'fr>>" +
+##            "t" +
+##            "<'row'<'col-xs-3'i><'col-xs-9'p>>"
+##        });
+##        $('.methodName').bind('click',function () {
+##            var tableObject = $(this).parents('table');
+##            var projectName = tableObject.attr('data-projectName');
+##            var ip = tableObject.attr('data-ip');
+##            var time  = tableObject.attr('data-time');
+##            var nameId = $(this).attr('data-name-id');
+##            $('#infoPage').modal('show');
+##            $('.modal-body').ajaxLoad({
+##                url:'/flowMonitor/methodDetail',
+##                data:{'projectName':projectName,'ip':ip,'time':time,'nameId':nameId}
+##            });
+##        })
+##
+##
+##
+##
+##        // 基于准备好的dom，初始化echarts实例
+##//        var width  = $('#main').width();
+##//        var height = width/2;
+##//        $('#main').height(height);
+##//        var myChart = echarts.init(document.getElementById('main'));
+##
+##        // 指定图表的配置项和数据
+##        var option = {
+##            backgroundColor: '#2c343c',
+##            legend: {
+##                orient: 'vertical',
+##                left: 'left',
+##                data: ['直接访问','邮件营销','联盟广告','视频广告','搜索引擎']
+##            },
+##            title: {
+##                text: '方法调用分布',
+##                left: 'center',
+##                top: 20,
+##                textStyle: {
+##                    color: '#ccc'
+##                }
+##            },
+##
+##            tooltip : {
+##                trigger: 'item',
+##                formatter: "{a} <br/>{b} : {c} ({d}%)"
+##            },
+##
+##            visualMap: {
+##                show: false,
+##                min: 80,
+##                max: 600,
+##                inRange: {
+##                    colorLightness: [0, 1]
+##                }
+##            },
+##            series : [
+##                {
+##                    name:'访问来源',
+##                    type:'pie',
+##                    radius : '55%',
+##                    center: ['50%', '50%'],
+##                    data:[
+##                        {value:335, name:'直接访问'},
+##                        {value:310, name:'邮件营销'},
+##                        {value:274, name:'联盟广告'},
+##                        {value:235, name:'视频广告'},
+##                        {value:400, name:'搜索引擎'}
+##                    ].sort(function (a, b) { return a.value - b.value}),
+##                    roseType: 'angle',
+##                    label: {
+##                        normal: {
+##                            textStyle: {
+##                                color: 'rgba(255, 255, 255, 0.3)'
+##                            }
+##                        }
+##                    },
+##                    labelLine: {
+##                        normal: {
+##                            lineStyle: {
+##                                color: 'rgba(255, 255, 255, 0.3)'
+##                            },
+##                            smooth: 0.2,
+##                            length: 10,
+##                            length2: 20
+##                        }
+##                    },
+##                    itemStyle: {
+##                        normal: {
+##                            color: '#c23531',
+##                            shadowBlur: 200,
+##                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+##                        }
+##                    }
+##                }
+##            ]
+##        };
+##
+##        // 使用刚指定的配置项和数据显示图表。
+##//        myChart.setOption(option);
+##        var width = $("#accessPatternGraph").width();
+##        var height = width/2;
+##        $("#accessPatternGraph").height(height);
+##        var accessPatternGraph = echarts.init(document.getElementById('accessPatternGraph'));
+##        var patternOption =  {
+##            tooltip: {
+##                trigger: 'item',
+##                formatter: "{a} <br/>{b}: {c} ({d}%)"
+##            },
+##            legend: {
+##                orient: 'vertical',
+##                x: 'left',
+##                data:${summaryGraph.getElemntName()}
+##            },
+##            series: [
+##                {
+##                    name:'访问来源',
+##                    type:'pie',
+##                    radius: [0, '30%'],
+##                    data:${summaryGraph.getServiceMap()}
+##                },
+##                {
+##                    name:'访问来源',
+##                    type:'pie',
+##                    radius: ['40%', '55%'],
+##
+##                    data:${summaryGraph.getMethodMap()}
+##                }
+##            ]
+##        };
+##        accessPatternGraph.setOption(patternOption);
