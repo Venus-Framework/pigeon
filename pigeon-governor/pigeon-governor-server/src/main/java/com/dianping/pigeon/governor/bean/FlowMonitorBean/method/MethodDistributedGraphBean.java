@@ -53,3 +53,4 @@ public class MethodDistributedGraphBean {
         this.list = list;
     }
 }
+

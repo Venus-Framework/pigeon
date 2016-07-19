@@ -12,7 +12,7 @@ import java.util.*;
 /**
  * Created by shihuashen on 16/7/18.
  */
-public class PaasWebApi {
+public class PaasSender {
     private Logger logger = LogManager.getLogger();
     private final String paasWebApiConfig = "paasWebApi.properties";
     private static final String MAIL_KEY = "mail";
@@ -21,12 +21,12 @@ public class PaasWebApi {
     private String mailUrl;
     private String weiXinUrl;
     private String smsUrl;
-    public PaasWebApi(){
+    public PaasSender(){
         this.initProperties();
     }
     private void initProperties() {
         try {
-            InputStream in = PaasWebApi.class.getClassLoader().getResourceAsStream(paasWebApiConfig);
+            InputStream in = PaasSender.class.getClassLoader().getResourceAsStream(paasWebApiConfig);
             if (in != null) {
                 Properties prop = new Properties();
                 try {
@@ -56,9 +56,24 @@ public class PaasWebApi {
         map.put("title",title);
         map.put("body",content);
         map.put("recipients",addresses);
-        String response = HttpCallUtils.httpPost(this.mailUrl,map);
-        System.out.println(response);
-        return true;
+        String response = null;
+        response = HttpCallUtils.httpPost(this.mailUrl,map);
+        if(response!=null&&response.contains("true"))
+            return true;
+        return false;
+    }
+
+    public boolean sendWeiXin(String email, String title, String content){
+        Map<String,Object> map = new HashMap<String,Object>();
+        map.put("keyword",email);
+        map.put("title",title);
+        map.put("content",content);
+        String response = null;
+        response = HttpCallUtils.httpPost(this.weiXinUrl,map);
+        System.out.print(response);
+        if(response!=null&&response.contains("true"))
+            return true;
+        return false;
     }
 
 

@@ -91,7 +91,7 @@ public class HttpCallUtils {
         PostMethod postMethod = new PostMethod(url);
         postMethod.getParams().setParameter(HttpMethodParams.HTTP_CONTENT_CHARSET,"utf-8");
         Set<String> keySet=propsMap.keySet();
-        NameValuePair[] postData=new NameValuePair[keySet.size()];
+        NameValuePair[] postData = new NameValuePair[keySet.size()];
         int index=0;
         for(String key:keySet){
             postData[index++]=new NameValuePair(key,propsMap.get(key).toString());
