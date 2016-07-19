@@ -57,6 +57,78 @@ public class TestController {
         }
     }
 
+    @RequestMapping(value = "/syncdb2zk", method = {RequestMethod.POST})
+    @ResponseBody
+    public Result syncDbToZk(@RequestParam(value="validate") final String validate) {
+
+        if(IPUtils.getFirstNoLoopbackIP4Address().equalsIgnoreCase(validate)) {
+
+            threadPoolTaskExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        checkAndSyncServiceDB.loadFromDb();
+                    } catch (DbException e1) {
+                        logger.warn("load from db failed!try again!",e1);
+                        try {
+                            checkAndSyncServiceDB.loadFromDb();
+                        } catch (DbException e2) {
+                            logger.error("load from db failed!!",e2);
+                        }
+                    }
+
+                    serviceGroupDbIndex = CheckAndSyncServiceDB.getServiceGroupDbIndex();
+                    Set<String> hostSet = new HashSet<String>();
+
+                    for (ServiceWithGroup serviceWithGroup : serviceGroupDbIndex.keySet()) {
+                        final Service serviceDb = serviceGroupDbIndex.get(serviceWithGroup);
+                        String hosts = serviceDb.getHosts();
+                        String group = serviceDb.getGroup();
+                        if (StringUtils.isNotBlank(hosts)) { // hosts有数据
+
+                            // 更新zk server列表
+                            String service_zk = Utils.escapeServiceName(serviceWithGroup.getService());
+                            String serviceHostAddress = "/DP/SERVER/" + service_zk;
+                            if (StringUtils.isNotBlank(group)) {
+                                serviceHostAddress += "/" + group;
+                            }
+
+                            try {
+                                client.set(serviceHostAddress, hosts);
+                                logger.warn("update zk: " + serviceWithGroup + " with: " + hosts);
+                            } catch (Throwable e) {
+                                logger.error("write zk service error!!", e);
+                            }
+
+                            hostSet.addAll(Arrays.asList(hosts.split(",")));
+
+                        }
+                    }
+
+                    // 更新zk weight列表
+                    for (String host : hostSet) {
+                        try {
+                            String weightPath = "/DP/WEIGHT/" + host;
+                            client.set(weightPath, 1);
+                            logger.warn("update weight: " + host + " with: 1.");
+                        } catch (Throwable e) {
+                            logger.error("write zk weight error!!", e);
+                        }
+                    }
+
+                }
+            });
+
+            return Result.createSuccessResult("start job...");
+
+        } else {
+
+            return Result.createErrorResult("failed to validate...");
+
+        }
+
+    }
+
     @RequestMapping(value = "/betaonly/dellocalip", method = {RequestMethod.POST})
     @ResponseBody
     public Result syncService2ServiceNode(@RequestParam(value="validate") final String validate) {

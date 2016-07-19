@@ -8,9 +8,10 @@ import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.util.VersionUtils;
 import com.sankuai.inf.octo.mns.MnsInvoker;
-import com.sankuai.inf.octo.mns.model.ServiceListRequest;
+import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import org.apache.logging.log4j.Logger;
+import org.apache.thrift.TException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -55,33 +56,35 @@ public class MnsRegistry implements Registry {
 
     @Override
     public String getServiceAddress(String serviceName) throws RegistryException {
-        return getServiceAddress(serviceName, serviceName, null, false);
+        return getServiceAddress(null, serviceName, null, false);
     }
 
     @Override
     public String getServiceAddress(String serviceName, String group) throws RegistryException {
-        return getServiceAddress(serviceName);
+        return getServiceAddress(null, serviceName, group, false);
     }
 
     @Override
     public String getServiceAddress(String serviceName, String group, boolean fallbackDefaultGroup) throws RegistryException {
-        return getServiceAddress(serviceName);
+        return getServiceAddress(null, serviceName, group, fallbackDefaultGroup);
     }
 
     @Override
     public String getServiceAddress(String remoteAppkey, String serviceName, String group, boolean fallbackDefaultGroup) throws RegistryException {
-        String result = "";
-        ServiceListRequest serviceListRequest = new ServiceListRequest();
-        serviceListRequest.setRemoteAppkey(remoteAppkey);
-        serviceListRequest.setLocalAppkey(configManager.getAppName());
-        serviceListRequest.setProtocol("thrift");
-        List<SGService> sgServices = MnsInvoker.getServiceList(serviceListRequest);
 
-        logger.info("appkey: " + remoteAppkey);
-        logger.info("url: " + serviceName);
+        String result = "";
+
+        ProtocolRequest protocolRequest = new ProtocolRequest();
+        protocolRequest.setProtocol("thrift");
+        protocolRequest.setLocalAppkey(configManager.getAppName());
+        protocolRequest.setServiceName(serviceName);
+        protocolRequest.setRemoteAppkey(remoteAppkey);
+        List<SGService> sgServices = MnsInvoker.getServiceList(protocolRequest);
+
+        logger.info("remoteAppkey: " + remoteAppkey + ", serviceName: " + serviceName);
 
         for (SGService sgService : sgServices) {
-            if(serviceName.equals(sgService.getServiceName())) {
+            if (MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight()) > 0) {
                 result += sgService.getIp() + ":" + sgService.getPort() +",";
             }
         }
@@ -96,7 +99,7 @@ public class MnsRegistry implements Registry {
         Set<String> serviceSet = new HashSet<>();
         serviceSet.add(serviceName);
         sgService.setServiceName(serviceSet);
-        // 暂时忽略group
+        //todo 暂时忽略group
         sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
         int index = serviceAddress.lastIndexOf(":");
@@ -126,22 +129,22 @@ public class MnsRegistry implements Registry {
         sgService.setExtend(extend);*/
 
         try {
-            MnsInvoker.registerService(sgService);
+            MnsInvoker.registServicewithCmd(MnsUtils.UPT_CMD_ADD, sgService);
             logger.info("registerProviderOnMns: " + sgService);
-        } catch (Throwable e) {
-            logger.error("Register by agent exception!", e);
+        } catch (TException e) {
             throw new RegistryException("error while register service: " + serviceName, e);
         }
     }
 
     @Override
     public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
-        //todo 设置status为禁用
         SGService sgService = new SGService();
         sgService.setAppkey(configManager.getAppName());
         Set<String> serviceSet = new HashSet<>();
         serviceSet.add(serviceName);
         sgService.setServiceName(serviceSet);
+        //todo 设置status为禁用
+        sgService.setStatus(MnsUtils.getMtthriftStatus(0));
 
         int index = serviceAddress.lastIndexOf(":");
         try {
@@ -153,11 +156,12 @@ public class MnsRegistry implements Registry {
             throw new RegistryException("error serviceAddress: " + serviceAddress, e);
         }
 
-        /*try {
-            MnsInvoker.unRegisterService(sgService);
+        try {
+            MnsInvoker.registServicewithCmd(MnsUtils.UPT_CMD_DEL, sgService);
+            logger.info("unregisterProviderOnMns: " + sgService);
         } catch (TException e) {
             throw new RegistryException("error while unregister service: " + serviceName, e);
-        }*/
+        }
     }
 
     @Override
@@ -168,7 +172,7 @@ public class MnsRegistry implements Registry {
     @Override
     public int getServerWeight(String serverAddress) throws RegistryException {
         //todo 北京侧的最小单位不是serverAddress
-
+        //todo client建立连接时候，带上host和serviceName的映射
         try {
             return 1;
         } catch (Throwable e) {
