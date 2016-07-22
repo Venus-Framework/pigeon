@@ -2027,8 +2027,8 @@
 
 <!-- page specific plugin scripts -->
 <script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
-<script src="${rc.contextPath}/resources/assets/js/jqGrid/jquery.jqGrid.min.js"></script>
-<script src="${rc.contextPath}/resources/assets/js/jqGrid/i18n/grid.locale-cn.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.dataTables.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.dataTables.bootstrap.js"></script>
 
 <script src="${rc.contextPath}/resources/assets/js/jquery-ui.min.js"></script>
 <script src="${rc.contextPath}/resources/assets/js/jquery.ui.touch-punch.min.js"></script>
@@ -2042,127 +2042,39 @@
 <script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
 
 <script>
-    var projectId = ${projectId};
     $(function(){
         $('li[id="projects_index"]').addClass("active open");
         //$('li[id="project_info"]').addClass("active");
         $('[data-rel=tooltip]').tooltip();
 
-    });
 
-    $('#test-oneClick-add').on('click',function(){
-        var url = "http://" + $('#form-field-provider-ip').val() + ":"
-                + $('#form-field-provider-port').val() + "/services";
-        window.open(url);
-    });
+        var oTable1 =
+                $('#sample-table-2')
+                //.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
+                .dataTable( {
+                    bAutoWidth: false,
+                    "aoColumns": [
+                        { "bSortable": false },
+                        null, null,null, null, null,
+                        { "bSortable": false }
+                    ],
+                    "aaSorting": [],
 
-    $('#submit-oneClick-add').on('click',function(){
-        var data = {"ip": $('#form-field-provider-ip').val(), "port": $('#form-field-provider-port').val()};
-        $.ajax({
-            url: '/services/oneClickAdd',
-            type: 'POST',
-            data: data,
-            error: function(){
-                console.log("server error!");
-            },
-            success: function(response, textStatus) {
-                if(response.status == "success") {
-                    window.location.reload();
-                } else {
-                    //console.log(response);
-                    $('#oneClickAdd-modal').modal('hide');
-                    $.gritter.add({
-                        title: response.status,
-                        text: response.message,
-                        class_name: 'gritter-error gritter-center gritter-light'
-                    });
-                }
+                    //,
+                    //"sScrollY": "200px",
+                    //"bPaginate": false,
 
-            }
-        });
+                    //"sScrollX": "100%",
+                    //"sScrollXInner": "120%",
+                    //"bScrollCollapse": true,
+                    //Note: if you are applying horizontal scrolling (sScrollX) on a ".table-bordered"
+                    //you may want to wrap the table inside a "div.dataTables_borderWrap" element
+
+                    //"iDisplayLength": 50
+                } );
 
     });
-
-    $('#submit-oneClick-on').on('click',function(){
-        var data = {"host": $('#form-field-provider-on-host').val(), "group": $('#form-field-provider-on-group').val(), "projectId": projectId};
-        $.ajax({
-            url: '/services/oneClickOn',
-            type: 'POST',
-            data: data,
-            error: function(){
-                console.log("server error!");
-            },
-            success: function(response, textStatus) {
-                if(response.status == "success") {
-                    window.location.reload();
-                } else {
-                    //console.log(response);
-                    $('#oneClickOn-modal').modal('hide');
-                    $.gritter.add({
-                        title: response.status,
-                        text: response.message,
-                        class_name: 'gritter-error gritter-center gritter-light'
-                    });
-                }
-
-            }
-        });
-
-    });
-
-    $('#submit-oneClick-off').on('click',function(){
-        var data = {"host": $('#form-field-provider-off-host').val(), "group": $('#form-field-provider-off-group').val(), "projectId": projectId};
-        $.ajax({
-            url: '/services/oneClickOff',
-            type: 'POST',
-            data: data,
-            error: function(){
-                console.log("server error!");
-            },
-            success: function(response, textStatus) {
-                if(response.status == "success") {
-                    window.location.reload();
-                } else {
-                    //console.log(response);
-                    $('#oneClickOff-modal').modal('hide');
-                    $.gritter.add({
-                        title: response.status,
-                        text: response.message,
-                        class_name: 'gritter-error gritter-center gritter-light'
-                    });
-                }
-
-            }
-        });
-
-    });
-
-    $('#submit-oneClick-off-group').on('click',function(){
-        var data = {"group": $('#form-field-provider-off-group-2').val(), "projectId": projectId};
-        $.ajax({
-            url: '/services/oneClickOffGroup',
-            type: 'POST',
-            data: data,
-            error: function(){
-                console.log("server error!");
-            },
-            success: function(response, textStatus) {
-                if(response.status == "success") {
-                    window.location.reload();
-                } else {
-                    //console.log(response);
-                    $('#oneClickOffGroup-modal').modal('hide');
-                    $.gritter.add({
-                        title: response.status,
-                        text: response.message,
-                        class_name: 'gritter-error gritter-center gritter-light'
-                    });
-                }
-
-            }
-        });
-
-    });
+</script>
 
 </body>
 </html>
