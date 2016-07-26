@@ -1,17 +1,15 @@
 package com.dianping.pigeon.governor.service.impl;
 
-import com.dianping.cat.consumer.transaction.model.entity.Machine;
 import com.dianping.cat.consumer.transaction.model.entity.TransactionReport;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.governor.bean.FlowMonitorBean.host.ServerHostDataTableBean;
-import com.dianping.pigeon.governor.bean.FlowMonitorBean.method.MethodDistributedGraphBean;
+import com.dianping.pigeon.governor.bean.flowMonitor.host.ServerHostDataTableBean;
+import com.dianping.pigeon.governor.bean.flowMonitor.method.MethodDistributedGraphBean;
 import com.dianping.pigeon.governor.service.CatReportService;
 import com.dianping.pigeon.governor.util.CatReportXMLUtils;
 import com.dianping.pigeon.governor.util.Constants;
 import com.dianping.pigeon.governor.util.GsonUtils;
 import com.dianping.pigeon.governor.util.HttpCallUtils;
-import org.dom4j.Document;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

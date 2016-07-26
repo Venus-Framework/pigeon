@@ -79,8 +79,9 @@
 
 	<!-- MyBatis Mappers -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.dianping.pigeon.governor.dao" />
+		<property name="basePackage" value="com.dianping.pigeon.governor.dao,com.dianping.pigeon.governor.message.depenedencies.dao" />
 	</bean>
+
     
     <!-- SessionFactory -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
@@ -101,7 +102,10 @@
 
 	<!-- enable component scanning (beware that this does not enable mapper 
 		scanning!) -->
-	<context:component-scan base-package="com.dianping.pigeon.governor.service" />
+	<!--
+	<context:component-scan base-package="com.dianping.pigeon.governor.service,com.dianping.pigeon.governor.message" />
+	-->
+	<context:component-scan base-package="com.dianping.pigeon.governor.service"/>
 
 	<bean id="healthCheck" class="com.dianping.pigeon.governor.task.HealthCheckBean"
 		lazy-init="false" init-method="init">

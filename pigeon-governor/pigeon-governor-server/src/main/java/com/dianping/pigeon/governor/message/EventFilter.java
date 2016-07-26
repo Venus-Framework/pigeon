@@ -5,4 +5,6 @@ package com.dianping.pigeon.governor.message;
  */
 public interface EventFilter {
     boolean doFilter(Event event);
+    String getSignature();
+    long getId();
 }

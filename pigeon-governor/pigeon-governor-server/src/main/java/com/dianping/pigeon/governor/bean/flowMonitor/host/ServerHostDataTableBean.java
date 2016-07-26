@@ -1,12 +1,10 @@
-package com.dianping.pigeon.governor.bean.FlowMonitorBean.host;
+package com.dianping.pigeon.governor.bean.flowMonitor.host;
 
 import com.dianping.cat.consumer.transaction.model.entity.TransactionName;
-import com.dianping.pigeon.governor.bean.FlowMonitorBean.ServerMethodDataBean;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by shihuashen on 16/7/7.

@@ -1,4 +1,4 @@
-package com.dianping.pigeon.governor.bean.FlowMonitorBean;
+package com.dianping.pigeon.governor.bean.flowMonitor;
 
 /**
  * Created by shihuashen on 16/7/5.

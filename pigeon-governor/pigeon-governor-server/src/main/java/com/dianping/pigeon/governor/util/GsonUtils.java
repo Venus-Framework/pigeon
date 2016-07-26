@@ -33,4 +33,7 @@ public class GsonUtils {
         String prettyJson = prettyGson.toJson(je);
         return prettyJson;
     }
+    public static void Print(Object o){
+        System.out.println(prettyPrint(toJson(o)));
+    }
 }

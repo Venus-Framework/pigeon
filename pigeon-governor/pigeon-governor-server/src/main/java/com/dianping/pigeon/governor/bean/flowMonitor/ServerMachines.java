@@ -1,10 +1,9 @@
-package com.dianping.pigeon.governor.bean.FlowMonitorBean;
+package com.dianping.pigeon.governor.bean.flowMonitor;
 
 import com.dianping.cat.consumer.transaction.model.entity.TransactionReport;
 import com.dianping.pigeon.governor.util.CatReportXMLUtils;
 import com.dianping.pigeon.governor.util.GsonUtils;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 

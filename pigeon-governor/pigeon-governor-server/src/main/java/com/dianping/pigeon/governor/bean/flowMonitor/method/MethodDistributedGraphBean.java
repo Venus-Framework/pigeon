@@ -1,4 +1,4 @@
-package com.dianping.pigeon.governor.bean.FlowMonitorBean.method;
+package com.dianping.pigeon.governor.bean.flowMonitor.method;
 
 import com.dianping.pigeon.governor.util.GsonUtils;
 

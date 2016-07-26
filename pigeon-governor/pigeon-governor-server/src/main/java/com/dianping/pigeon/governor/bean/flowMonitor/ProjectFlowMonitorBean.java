@@ -1,4 +1,4 @@
-package com.dianping.pigeon.governor.bean.FlowMonitorBean;
+package com.dianping.pigeon.governor.bean.flowMonitor;
 
 import java.util.Set;
 

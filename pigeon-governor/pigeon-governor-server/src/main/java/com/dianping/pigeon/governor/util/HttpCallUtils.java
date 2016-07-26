@@ -2,21 +2,29 @@ package com.dianping.pigeon.governor.util;
 
 import com.google.gson.JsonObject;
 import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
+import org.json.JSONObject;
+import org.mortbay.jetty.*;
 import org.unidal.helper.Objects;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Set;
 
@@ -90,6 +98,7 @@ public class HttpCallUtils {
         String response = null;
         PostMethod postMethod = new PostMethod(url);
         postMethod.getParams().setParameter(HttpMethodParams.HTTP_CONTENT_CHARSET,"utf-8");
+        postMethod.addRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
         Set<String> keySet=propsMap.keySet();
         NameValuePair[] postData = new NameValuePair[keySet.size()];
         int index=0;
@@ -112,6 +121,55 @@ public class HttpCallUtils {
             e.printStackTrace();
         }finally{
             postMethod.releaseConnection();//关闭连接
+        }
+        return response;
+    }
+
+
+    public static String httpPost(String url, String content){
+        String response = null;
+        PostMethod postMethod = new PostMethod(url);
+        postMethod.addRequestHeader("Content-Type",
+                "application/json");
+        postMethod.setRequestBody(content);
+        try{
+            httpClient.executeMethod(postMethod);
+            InputStream in = postMethod.getResponseBodyAsStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            StringBuffer sb = new StringBuffer();
+            String ans = "";
+            while((ans=br.readLine())!=null)
+                sb.append(ans);
+            response = ans.toString();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        return  response;
+    }
+
+
+    public static String httpPost(String url, JSONObject jsonObject) {
+        String response = null;
+        PostMethod postMethod = new PostMethod(url);
+        postMethod.addRequestHeader("Content-Type","application/json;charset=utf-8");
+        postMethod.addRequestHeader("Accept","application/json");
+        try {
+            RequestEntity entity = new StringRequestEntity(jsonObject.toString(),"application/json","utf-8");
+            postMethod.setRequestEntity(entity);
+            httpClient.executeMethod(postMethod);
+            InputStream in = postMethod.getResponseBodyAsStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            StringBuilder sb = new StringBuilder();
+            String ans = "";
+            while((ans=br.readLine())!=null)
+                sb.append(ans);
+            response = sb.toString();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (HttpException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return response;
     }

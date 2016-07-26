@@ -1,7 +1,7 @@
 package com.dianping.pigeon.governor.service;
 
-import com.dianping.pigeon.governor.bean.commentsBean.CommentBean;
-import com.dianping.pigeon.governor.bean.commentsBean.FeedbackBean;
+import com.dianping.pigeon.governor.bean.comments.CommentBean;
+import com.dianping.pigeon.governor.bean.comments.FeedbackBean;
 import com.dianping.pigeon.governor.model.User;
 
 import java.util.List;

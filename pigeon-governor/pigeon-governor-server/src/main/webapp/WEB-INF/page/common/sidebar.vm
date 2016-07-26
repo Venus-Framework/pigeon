@@ -81,7 +81,7 @@
 		</ul>
 	</li>
     <li id="service_doc">
-        <a href="${rc.contextPath}/doc/docCenter">
+        <a href="${rc.contextPath}/doc">
             <i class="menu-icon fa fa-book"></i>
             <span class="menu-text">服务文档中心</span>
         </a>

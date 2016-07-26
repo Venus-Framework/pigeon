@@ -1,4 +1,4 @@
-package com.dianping.pigeon.governor.bean.ConfigBean;
+package com.dianping.pigeon.governor.bean.config;
 
 import java.util.HashMap;
 import java.util.LinkedList;

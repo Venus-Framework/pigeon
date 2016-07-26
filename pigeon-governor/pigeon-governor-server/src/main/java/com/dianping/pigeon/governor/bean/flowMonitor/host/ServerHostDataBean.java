@@ -1,11 +1,11 @@
-package com.dianping.pigeon.governor.bean.FlowMonitorBean;
+package com.dianping.pigeon.governor.bean.flowMonitor.host;
 
 import com.dianping.cat.consumer.transaction.model.entity.TransactionName;
 
 /**
- * Created by shihuashen on 16/7/5.
+ * Created by shihuashen on 16/7/7.
  */
-public class ServerMethodDataBean {
+public class ServerHostDataBean {
     private String methodName;
     private long callTime;
     private long failureTime;
@@ -17,7 +17,7 @@ public class ServerMethodDataBean {
     private double line99;
     private double std;
     private double QPS;
-    public ServerMethodDataBean(TransactionName name){
+    public ServerHostDataBean(TransactionName name){
         this.methodName = name.getId();
         this.callTime = name.getTotalCount();
         this.failureTime = name.getFailCount();

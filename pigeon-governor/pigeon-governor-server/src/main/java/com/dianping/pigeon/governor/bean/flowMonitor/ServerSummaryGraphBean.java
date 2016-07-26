@@ -1,4 +1,4 @@
-package com.dianping.pigeon.governor.bean.FlowMonitorBean;
+package com.dianping.pigeon.governor.bean.flowMonitor;
 
 import com.dianping.cat.consumer.transaction.model.entity.TransactionName;
 import com.dianping.cat.consumer.transaction.model.entity.TransactionReport;

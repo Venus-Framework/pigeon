@@ -1,25 +1,6 @@
 package com.dianping.pigeon.governor.controller;
 
-import com.dianping.cat.consumer.transaction.model.entity.TransactionReport;
-import com.dianping.pigeon.governor.bean.FlowMonitorBean.ServerMachines;
-import com.dianping.pigeon.governor.bean.FlowMonitorBean.ServerMethodDataTableBean;
-import com.dianping.pigeon.governor.bean.FlowMonitorBean.ServerSummaryGraphBean;
-import com.dianping.pigeon.governor.bean.FlowMonitorBean.host.ServerHostDataTableBean;
-import com.dianping.pigeon.governor.bean.FlowMonitorBean.method.MethodDistributedGraphBean;
-import com.dianping.pigeon.governor.service.CatReportService;
-import com.dianping.pigeon.governor.util.CatReportXMLUtils;
-import com.dianping.pigeon.governor.util.GsonUtils;
-import org.omg.CORBA.Request;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
 
 /**
  * Created by shihuashen on 16/6/29.

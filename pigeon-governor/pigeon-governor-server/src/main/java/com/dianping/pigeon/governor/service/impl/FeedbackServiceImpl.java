@@ -1,7 +1,7 @@
 package com.dianping.pigeon.governor.service.impl;
 
-import com.dianping.pigeon.governor.bean.commentsBean.CommentBean;
-import com.dianping.pigeon.governor.bean.commentsBean.FeedbackBean;
+import com.dianping.pigeon.governor.bean.comments.CommentBean;
+import com.dianping.pigeon.governor.bean.comments.FeedbackBean;
 import com.dianping.pigeon.governor.dao.*;
 import com.dianping.pigeon.governor.model.*;
 import com.dianping.pigeon.governor.service.FeedbackService;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by shihuashen on 16/6/22.

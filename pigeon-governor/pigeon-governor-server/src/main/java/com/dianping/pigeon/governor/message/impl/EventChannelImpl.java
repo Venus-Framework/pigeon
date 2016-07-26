@@ -2,6 +2,7 @@ package com.dianping.pigeon.governor.message.impl;
 
 import com.dianping.pigeon.governor.message.Event;
 import com.dianping.pigeon.governor.message.EventChannel;
+import com.dianping.pigeon.governor.util.GsonUtils;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;

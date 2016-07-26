@@ -144,14 +144,14 @@
                             <i class="ace-icon fa fa-check"></i>
                             <strong>Welcome to <span class="green">Pigeon</span>!</strong>
                             <p>感谢您使用Pigeon!欢迎您反馈在使用Pigeon或者Pigeon-Web中遇到的问题.我们乐于看到您对Piegon的意见或者建议.</p>
-                            <p>Pigeon架构组会快速响应您的反馈并不断完善.</p>
+                            <!--<p>Pigeon架构组会快速响应您的反馈并不断完善.</p>
                             <strong>联系方式</strong>
                             <br/>
                             <i class="ace-icon glyphicon glyphicon-user"></i>&nbsp;石华珅
                             <br/>
                             <i class="ace-icon glyphicon glyphicon-phone"></i>&nbsp;13818538136
                             <br/>
-                            <i class="ace-icon fa fa-envelope"></i>&nbsp;shihuashen@meituan.com
+                            <i class="ace-icon fa fa-envelope"></i>&nbsp;shihuashen@meituan.com-->
                         </div>
                         <button id="id-add-attachment" type="button" class="btn btn-sm btn-danger col-xs-12" href="#infoPage" data-toggle="modal">
                             <i class="ace-icon fa fa-envelope bigger-130"></i>

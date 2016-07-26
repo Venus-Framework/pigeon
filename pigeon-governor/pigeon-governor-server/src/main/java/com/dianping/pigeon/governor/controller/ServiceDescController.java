@@ -8,8 +8,10 @@ import com.dianping.pigeon.governor.bean.serviceDesc.SearchResults;
 import com.dianping.pigeon.governor.bean.serviceDesc.ServiceDescBean;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.EsService;
+import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ServiceDescService;
 import com.dianping.pigeon.governor.util.Constants;
+import com.dianping.pigeon.governor.util.UserRole;
 import com.google.gson.Gson;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHits;
@@ -24,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Map;
 
 /**
  * Created by shihuashen on 16/4/21.
@@ -41,6 +44,8 @@ public class ServiceDescController extends BaseController{
 
     @Autowired
     private PurgeExpireDescTask purgeExpireDescTask;
+    @Autowired
+    private ProjectOwnerService projectOwnerService;
 
 
     private String index = Lion.get("pigeon-governor-server.es.index","bean");
@@ -53,10 +58,18 @@ public class ServiceDescController extends BaseController{
                                      @PathVariable final Integer serviceId,
                                      HttpServletResponse response){
         commonnav(modelMap, request);
-        ServiceDescBean serviceDescBean = serviceDescService.getServiceDescBeanById(serviceId);
-        if(serviceDescBean!=null){
-            modelMap.put("serviceDescBean", serviceDescService.getServiceDescBeanById(serviceId));
-            modelMap.addAllAttributes(serviceDescService.getServiceMetaInfoById(serviceId));
+        User user = getUserInfo(request);
+        ServiceDescBean bean = serviceDescService.getServiceDescBeanById(serviceId);
+        if(bean!=null){
+            String dpAccount = user!=null?user.getDpaccount():"null";
+            modelMap.put("serviceDescBean", bean);
+            Map<String,Object> metaInfo = serviceDescService.getServiceMetaInfoById(serviceId);
+            modelMap.addAllAttributes(metaInfo);
+            if(UserRole.USER_SCM.getValue().equals(user.getRoleid()) ||
+                    projectOwnerService.isProjectOwner(dpAccount,metaInfo.get("projectName").toString()))
+                modelMap.put("empowered",true);
+            else
+                modelMap.put("empowered",false);
             return "/doc/serviceDoc";
         }else{
             return "/doc/emptyDoc";
@@ -150,7 +163,7 @@ public class ServiceDescController extends BaseController{
         }
     }
 
-    @RequestMapping(value = {"/doc/docCenter"},method = RequestMethod.GET)
+    @RequestMapping(value = {"/doc"},method = RequestMethod.GET)
     public String searchCenter(HttpServletRequest request,
                                   HttpServletResponse response,
                                    ModelMap modelMap){

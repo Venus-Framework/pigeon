@@ -1,7 +1,7 @@
 package com.dianping.pigeon.governor.service;
 
-import com.dianping.pigeon.governor.bean.ConfigBean.ProjectConfigBean;
-import com.dianping.pigeon.governor.bean.ConfigBean.RouterInfo;
+import com.dianping.pigeon.governor.bean.config.ProjectConfigBean;
+import com.dianping.pigeon.governor.bean.config.RouterInfo;
 
 import java.util.List;
 

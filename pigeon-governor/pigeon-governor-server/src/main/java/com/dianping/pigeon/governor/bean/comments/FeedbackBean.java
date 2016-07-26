@@ -1,4 +1,4 @@
-package com.dianping.pigeon.governor.bean.commentsBean;
+package com.dianping.pigeon.governor.bean.comments;
 
 import java.util.Date;
 

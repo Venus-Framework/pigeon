@@ -1,6 +1,6 @@
 package com.dianping.pigeon.governor.util;
 
-import com.dianping.pigeon.governor.bean.ConfigBean.RouterInfo;
+import com.dianping.pigeon.governor.bean.config.RouterInfo;
 import com.google.gson.Gson;
 
 import java.util.*;

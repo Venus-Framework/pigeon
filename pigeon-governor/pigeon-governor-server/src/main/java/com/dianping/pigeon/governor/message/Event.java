@@ -12,5 +12,4 @@ public interface Event {
     String getTitle();
     String getContent();
     Date getCreateTime();
-    EventReceiver getEventReceiver();
 }

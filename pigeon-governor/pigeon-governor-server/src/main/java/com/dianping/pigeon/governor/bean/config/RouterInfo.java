@@ -1,4 +1,4 @@
-package com.dianping.pigeon.governor.bean.ConfigBean;
+package com.dianping.pigeon.governor.bean.config;
 
 /**
  * Created by shihuashen on 16/5/19.

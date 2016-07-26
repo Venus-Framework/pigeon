@@ -1,10 +1,11 @@
 package com.dianping.pigeon.governor.message;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by shihuashen on 16/7/18.
  */
 public interface EventReceiver {
-    List<String> obtainDestinations(Event event);
+    Map<SenderType,List<String>> getDestinations();
 }

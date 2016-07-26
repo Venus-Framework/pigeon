@@ -1,8 +1,8 @@
 package com.dianping.pigeon.governor.service;
 
 import com.dianping.cat.consumer.transaction.model.entity.TransactionReport;
-import com.dianping.pigeon.governor.bean.FlowMonitorBean.host.ServerHostDataTableBean;
-import com.dianping.pigeon.governor.bean.FlowMonitorBean.method.MethodDistributedGraphBean;
+import com.dianping.pigeon.governor.bean.flowMonitor.host.ServerHostDataTableBean;
+import com.dianping.pigeon.governor.bean.flowMonitor.method.MethodDistributedGraphBean;
 
 /**
  * Created by shihuashen on 16/6/29.

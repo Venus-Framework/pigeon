@@ -173,6 +173,25 @@
                                         <div class="widget-main no-padding">
                                             <div class="profile-user-info no-margin width-full">
                                                 <div class="profile-info-row">
+                                                    <div class="profile-info-name left-text">所属BU</div>
+                                                    <div class="profile-info-value">
+                                                        <span class="blue">$projectBu</span>
+                                                    </div>
+                                                </div>
+                                                <div class="profile-info-row">
+                                                    <div class="profile-info-name left-text">所属项目</div>
+
+                                                    <div class="profile-info-value">
+                                                        <a href="/services/$projectName" target="_blank" class="blue">$projectName</a>
+                                                    </div>
+                                                </div>
+                                                <div class="profile-info-row">
+                                                    <div class="profile-info-name left-text">服务所有者</div>
+                                                    <div class="profile-info-value">
+                                                        <span class="blue">$projectOwner</span>
+                                                    </div>
+                                                </div>
+                                                <div class="profile-info-row">
                                                     <div class="profile-info-name left-text">服务泳道</div>
 
                                                     <div class="profile-info-value">
@@ -183,27 +202,8 @@
                                                     <div class="profile-info-name left-text value-size">服务地址</div>
                                                     <div class="profile-info-value">
                                                         #foreach($host in $serviceHosts)
-                                                        <p class="blue">$host</p>
+                                                            <p class="blue">$host</p>
                                                         #end
-                                                    </div>
-                                                </div>
-                                                <div class="profile-info-row">
-                                                    <div class="profile-info-name left-text">所属BU</div>
-                                                    <div class="profile-info-value">
-                                                        <span class="blue">$projectBu</span>
-                                                    </div>
-                                                </div>
-                                                <div class="profile-info-row">
-                                                    <div class="profile-info-name left-text">所属项目</div>
-
-                                                    <div class="profile-info-value">
-                                                        <span class="blue">$projectName</span>
-                                                    </div>
-                                                </div>
-                                                <div class="profile-info-row">
-                                                    <div class="profile-info-name left-text">服务所有者</div>
-                                                    <div class="profile-info-value">
-                                                        <span class="blue">$projectOwner</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -219,7 +219,7 @@
                                             <h4 class="widget-title blue smaller">
                                                 <i class=" glyphicon glyphicon-file orange"></i>
                                                 服务文档
-                                                #if($currentUser==$projectOwner)
+                                                #if($empowered)
                                                     <div class="pull-right"><input type="checkbox" name="my-checkbox" checked "></div>
                                                 #end
                                             </h4>
@@ -239,7 +239,7 @@
                                                         </tr>
                                                         <tr>
                                                             <td class="blue">实现描述</td>
-                                                            <td class="my-editable editable" data-url="/myTest/desc/$serviceDescBean.getServiceId()">$serviceDescBean.serviceDesc</td>
+                                                            <td class="my-editable editable" data-url="/doc/desc/$serviceDescBean.getServiceId()">$serviceDescBean.serviceDesc</td>
                                                             <td>
                                                                 #if($serviceDescBean.serviceDesc == "")
                                                                     <span class="my-empty">描述暂空</span>
@@ -310,7 +310,7 @@
                                                                 <td class="blue"><h5>$method.getMethodFullname()</h5></td>
                                                             </tr>
                                                             <tr>
-                                                                <td class="my-editable editable" data-url="/myTest/method/desc/$method.getMethodId()">$method.getMethodDesc()</td>
+                                                                <td class="my-editable editable" data-url="/doc/method/desc/$method.getMethodId()">$method.getMethodDesc()</td>
                                                                 <td>
                                                                     #if($method.getMethodDesc() == "")
                                                                         <span class="my-empty">描述暂空</span>
@@ -326,7 +326,7 @@
                                                             <tr>
                                                                 <td rowspan=$method.getParamDescBeanArrayList().size() class="blue ">参数信息</td>
                                                                 <td class="blue ">$method.getParamDescBeanArrayList().get(0).getParamName()</td>
-                                                                <td class="my-editable editable" data-url="/myTest/param/desc/$method.getParamDescBeanArrayList().get(0).getParamId()"
+                                                                <td class="my-editable editable" data-url="/doc/param/desc/$method.getParamDescBeanArrayList().get(0).getParamId()"
                                                                 >$method.getParamDescBeanArrayList().get(0).getParamDesc()</td>
                                                                 <td>#if($method.getParamDescBeanArrayList().get(0).getParamDesc()=="")
                                                                         <span class="my-empty">描述暂空</span>
@@ -337,7 +337,7 @@
                                                                     #if($velocityCount!=1)
                                                                         <tr>
                                                                             <td class="blue ">$param.getParamName()</td>
-                                                                            <td class="my-editable editable" data-url="/myTest/param/desc/$param.getParamId()">$param.getParamDesc()</td>
+                                                                            <td class="my-editable editable" data-url="/doc/param/desc/$param.getParamId()">$param.getParamDesc()</td>
                                                                             <td>#if($param.getParamDesc()=="")
                                                                                     <span class="my-empty">描述暂空</span>
                                                                                 #end
@@ -351,7 +351,7 @@
                                                                 <tr>
                                                                     <td class="blue " rowspan=$method.getExceptionDescBeanArrayList().size()>异常信息</td>
                                                                     <td class="blue ">$method.getExceptionDescBeanArrayList().get(0).getExceptionName()</td>
-                                                                    <td class="my-editable editable" data-url="/myTest/exception/desc/$method.getExceptionDescBeanArrayList().get(0).getExceptionId()"
+                                                                    <td class="my-editable editable" data-url="/doc/exception/desc/$method.getExceptionDescBeanArrayList().get(0).getExceptionId()"
                                                                     >$method.getExceptionDescBeanArrayList().get(0).getExceptionDesc()</td>
                                                                     <td>
                                                                         #if($method.getExceptionDescBeanArrayList().get(0).getExceptionDesc()=="")
@@ -364,7 +364,7 @@
                                                                     #if($velocityCount!=1)
                                                                     <tr>
                                                                         <td class="blue ">$exception.getExceptionName()</td>
-                                                                        <td class="my-editable editable" data-url="/myTest/exception/desc/$exception.getExceptionId()">$exception.getExceptionDesc()</td>
+                                                                        <td class="my-editable editable" data-url="/doc/exception/desc/$exception.getExceptionId()">$exception.getExceptionDesc()</td>
                                                                         <td>
                                                                             #if($exception.getExceptionDesc()=="")
                                                                                 <span class="my-empty">描述暂空</span>
@@ -461,18 +461,17 @@
         $("[name='my-checkbox']").bootstrapSwitch();
         $('input[name="my-checkbox"]').on('switchChange.bootstrapSwitch', function(event, state) {
             console.log(state);
-            if(state==false){
-                bootbox.dialog({
-                    message: "编辑功能暂未开启",
-                    buttons: {
-                        "warn": {
-                            "label": "<i class='ace-icon fa fa-check'></i> Confirm",
-                            "className": "btn-sm btn-success"
-                        }
-                    }
-                });
-            }
-            /*
+//            if(state==false){
+//                bootbox.dialog({
+//                    message: "编辑功能暂未开启",
+//                    buttons: {
+//                        "warn": {
+//                            "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+//                            "className": "btn-sm btn-success"
+//                        }
+//                    }
+//                });
+//            }
             var list = $('.my-editable');
             if(state==true){
                 $.each(list,function(){
@@ -498,7 +497,7 @@
                     }
                 });
             }
-            */
+
 
         });
         $('td.editable').editable({

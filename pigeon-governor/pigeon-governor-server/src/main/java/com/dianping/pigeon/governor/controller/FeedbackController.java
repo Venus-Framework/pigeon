@@ -1,8 +1,7 @@
 package com.dianping.pigeon.governor.controller;
 
-import com.dianping.pigeon.governor.bean.commentsBean.CommentBean;
-import com.dianping.pigeon.governor.bean.commentsBean.FeedbackBean;
-import com.dianping.pigeon.governor.model.Comment;
+import com.dianping.pigeon.governor.bean.comments.CommentBean;
+import com.dianping.pigeon.governor.bean.comments.FeedbackBean;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.FeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 import java.util.List;
 
 /**
