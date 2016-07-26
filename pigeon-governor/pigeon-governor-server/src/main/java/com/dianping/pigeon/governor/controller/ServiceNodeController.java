@@ -7,6 +7,8 @@ import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceNodeService;
 import com.dianping.pigeon.governor.util.Constants;
 import com.dianping.pigeon.governor.util.ThreadPoolFactory;
+import com.dianping.pigeon.governor.util.UserRole;
+import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,8 @@ public class ServiceNodeController extends BaseController {
     @Autowired
     private ServiceNodeService serviceNodeService;
 
+    private Gson gson = new Gson();
+
 
     @RequestMapping(value = {"/services/{projectName:.+}"}, method = RequestMethod.GET)
     public String projectInfo(ModelMap modelMap,
@@ -55,7 +59,7 @@ public class ServiceNodeController extends BaseController {
             }
 
             final String emails = project.getEmail();
-            ThreadPoolFactory.getWorkThreadPool().execute(new Runnable() {
+            workThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
                     //create default project owner
@@ -65,6 +69,16 @@ public class ServiceNodeController extends BaseController {
             });
 
         }
+
+        modelMap.addAttribute("isProjectOwner",
+                UserRole.USER_SCM.getValue().equals(user.getRoleid()) ||
+                        projectOwnerService.isProjectOwner(currentUser, project));
+
+        modelMap.addAttribute("projectName", projectName);
+        modelMap.addAttribute("projectId", project.getId());
+
+        modelMap.addAttribute("serviceNodes",serviceNodeService.retrieveAllByProjectName(projectName));
+
 
         return "/serviceNodes/list4project";
     }

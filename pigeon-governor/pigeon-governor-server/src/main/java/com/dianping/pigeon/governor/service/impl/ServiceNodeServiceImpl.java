@@ -1,9 +1,12 @@
 package com.dianping.pigeon.governor.service.impl;
 
 import com.dianping.pigeon.governor.dao.ServiceNodeMapper;
+import com.dianping.pigeon.governor.model.Project;
+import com.dianping.pigeon.governor.model.ServiceExample;
 import com.dianping.pigeon.governor.model.ServiceNode;
 import com.dianping.pigeon.governor.model.ServiceNodeExample;
 import com.dianping.pigeon.governor.service.ServiceNodeService;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,6 +131,20 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
         }
 
         return null;
+    }
+
+    @Override
+    public List<ServiceNode> retrieveAllByProjectName(String projectName) {
+        List<ServiceNode> serviceNodes = new ArrayList<ServiceNode>();
+
+        if(StringUtils.isNotBlank(projectName)) {
+            ServiceNodeExample serviceNodeExample = new ServiceNodeExample();
+            serviceNodeExample.createCriteria().andProjectNameEqualTo(projectName);
+            serviceNodes = serviceNodeMapper.selectByExample(serviceNodeExample);
+
+        }
+
+        return serviceNodes;
     }
 
 }
