@@ -183,4 +183,12 @@ public class IPUtils {
         return result;
     }
 
+    public static String getHost(String ip, String port) {
+        if (StringUtils.isNotBlank(ip) && StringUtils.isNotBlank(port)) {
+            return ip + ":" + port;
+        }
+
+        throw new IllegalArgumentException("ip or port can't be null...please check.");
+    }
+
 }

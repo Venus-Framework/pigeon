@@ -120,11 +120,9 @@
                                             </th>
                                             <th>Name</th>
                                             <th>Group</th>
-                                            <th class="hidden-480">hosts</th>
-                                            <th class="hidden-480">Status</th>
                                             <th>
-                                                <i class="ace-icon fa fa-clock-o bigger-110 hidden-480"></i>
-                                                Update
+                                                <i class="ace-icon fa fa-desktop bigger-110 hidden-480"></i>
+                                                hosts
                                             </th>
                                             <th></th>
                                         </tr>
@@ -132,7 +130,8 @@
 
                                         <tbody>
 
-                                        #foreach($serviceNode in $serviceNodes)
+                                        #foreach($service in $services)
+
                                         <tr>
                                             <td class="center">
                                                 <label class="position-relative">
@@ -142,15 +141,12 @@
                                             </td>
 
                                             <td>
-                                                <a href="#">$!serviceNode.serviceName</a>
+                                                <a href="#">$!service.name</a>
                                             </td>
-                                            <td>$!serviceNode.group</td>
-                                            <td class="hidden-480">$!{serviceNode.ip}:$!{serviceNode.port}</td>
                                             <td class="hidden-480">
-                                                <span class="label label-sm label-warning">Expiring</span>
+                                                <span class="label label-sm label-success">$!service.group</span>
                                             </td>
-
-                                            <td>Feb 12</td>
+                                            <td class="hidden-480" style="word-break: break-all">$!service.hosts</td>
 
                                             <td>
                                                 <div class="hidden-sm hidden-xs action-buttons">
@@ -158,7 +154,7 @@
                                                         <i class="ace-icon fa fa-search-plus bigger-130"></i>
                                                     </a>
 
-                                                    <a class="green" href="#">
+                                                    <a class="green" href="javascript:void(0)" onclick="editService(this)">
                                                         <i class="ace-icon fa fa-pencil bigger-130"></i>
                                                     </a>
 
@@ -169,6 +165,7 @@
 
                                             </td>
                                         </tr>
+
                                         #end
 
                                         </tbody>
@@ -241,11 +238,11 @@
         var oTable1 =
                 $('#servicelist4project')
                 //.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
-                .dataTable( {
+                .DataTable( {
                     bAutoWidth: false,
                     "aoColumns": [
                         { "bSortable": false },
-                        null, null,null, null, null,
+                        null, null,null,
                         { "bSortable": false }
                     ],
                     "aaSorting": [],
@@ -263,7 +260,17 @@
                     //"iDisplayLength": 50
                 } );
 
+        /*$('#servicelist4project tbody').on( 'click', 'tr', function () {
+            console.log( oTable1.row( this ).data() );
+        } );*/
+
     });
+
+
+    function editService(service) {
+        console.log(service);
+        console.log($(service).parent());
+    }
 </script>
 
 </body>

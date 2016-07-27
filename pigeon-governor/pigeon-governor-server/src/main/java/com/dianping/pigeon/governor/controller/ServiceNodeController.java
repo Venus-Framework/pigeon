@@ -1,13 +1,18 @@
 package com.dianping.pigeon.governor.controller;
 
+import com.dianping.pigeon.governor.bean.ServiceWithGroup;
 import com.dianping.pigeon.governor.model.Project;
+import com.dianping.pigeon.governor.model.Service;
+import com.dianping.pigeon.governor.model.ServiceNode;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceNodeService;
 import com.dianping.pigeon.governor.util.Constants;
+import com.dianping.pigeon.governor.util.IPUtils;
 import com.dianping.pigeon.governor.util.ThreadPoolFactory;
 import com.dianping.pigeon.governor.util.UserRole;
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -77,8 +84,31 @@ public class ServiceNodeController extends BaseController {
         modelMap.addAttribute("projectName", projectName);
         modelMap.addAttribute("projectId", project.getId());
 
-        modelMap.addAttribute("serviceNodes",serviceNodeService.retrieveAllByProjectName(projectName));
+        List<ServiceNode> serviceNodeList = serviceNodeService.retrieveAllByProjectName(projectName);
+        Map<ServiceWithGroup, Service> serviceMap = Maps.newHashMap();
 
+        for (ServiceNode serviceNode : serviceNodeList) {
+            String serviceName = serviceNode.getServiceName();
+            String group = serviceNode.getGroup();
+            String host = IPUtils.getHost(serviceNode.getIp(), serviceNode.getPort());
+
+            ServiceWithGroup serviceWithGroup
+                    = new ServiceWithGroup(serviceNode.getServiceName(), serviceNode.getGroup());
+            Service service = serviceMap.get(serviceWithGroup);
+
+            if (service != null) {
+                service.setHosts(service.getHosts() + "," + host);
+            } else {
+                Service newService = new Service();
+                newService.setHosts(host);
+                newService.setName(serviceName);
+                newService.setGroup(group);
+
+                serviceMap.put(serviceWithGroup, newService);
+            }
+        }
+
+        modelMap.addAttribute("services", serviceMap.values());
 
         return "/serviceNodes/list4project";
     }
