@@ -97,7 +97,6 @@ public class ThriftMapper {
             LoadInfo loadInfo = new LoadInfo();
             LoadInfoCollector loadInfoCollector = LoadInfoCollector.INSTANCE;
             loadInfo.setAverageLoad(loadInfoCollector.getSystemLoadAverage());
-            //todo gc信息有待讨论清楚
             loadInfo.setOldGC(loadInfoCollector.getOldGC());
             loadInfo.setThreadNum(loadInfoCollector.getThreadNum());
             loadInfo.setQueueSize(loadInfoCollector.getQueueSize());

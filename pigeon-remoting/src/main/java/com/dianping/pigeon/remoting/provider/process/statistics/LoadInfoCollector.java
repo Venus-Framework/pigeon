@@ -21,7 +21,7 @@ public enum LoadInfoCollector {
     INSTANCE;
 
     private final List<GarbageCollectorMXBean> gcMXBeans = ManagementFactory.getGarbageCollectorMXBeans();
-    private final OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
+    private final OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
 
     private volatile long lastOldGcCount = 0;
     private volatile int currentOldGcCount;
@@ -50,7 +50,7 @@ public enum LoadInfoCollector {
     }
 
     private void updateProcessCpuLoad() {
-        avgLoad = bean.getSystemLoadAverage();
+        avgLoad = osMXBean.getSystemLoadAverage();
     }
 
     public int getOldGC() {
