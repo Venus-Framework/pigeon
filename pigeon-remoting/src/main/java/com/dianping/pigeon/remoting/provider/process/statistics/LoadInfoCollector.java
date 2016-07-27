@@ -10,6 +10,8 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by chenchongze on 16/7/26.
@@ -18,14 +20,45 @@ public enum LoadInfoCollector {
 
     INSTANCE;
 
+    private final List<GarbageCollectorMXBean> gcMXBeans = ManagementFactory.getGarbageCollectorMXBeans();
     private final OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
 
-    public double getSystemLoadAverage() {
-        return bean.getSystemLoadAverage();
+    private volatile long lastOldGcCount = 0;
+    private volatile int currentOldGcCount;
+    private volatile double avgLoad;
+
+    private LoadInfoCollector () {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                doTask();
+            }
+        };
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(r, 10, 10, TimeUnit.SECONDS);
+    }
+
+    private void doTask() {
+        updateOldGcCount();
+        updateProcessCpuLoad();
+    }
+
+    private void updateOldGcCount() {
+        GarbageCollectorMXBean majorGC = gcMXBeans.get(1);
+        long oldGcTotalCount = majorGC.getCollectionCount();
+        currentOldGcCount = (int) (oldGcTotalCount - lastOldGcCount);
+        lastOldGcCount = oldGcTotalCount;
+    }
+
+    private void updateProcessCpuLoad() {
+        avgLoad = bean.getSystemLoadAverage();
     }
 
     public int getOldGC() {
-        return 0;
+        return currentOldGcCount;
+    }
+
+    public double getSystemLoadAverage() {
+        return avgLoad;
     }
 
     public int getThreadNum() {
