@@ -1,11 +1,10 @@
 package com.dianping.pigeon.governor.message.impl;
 
-import com.dianping.pigeon.governor.message.Event;
-import com.dianping.pigeon.governor.message.EventReceiver;
-import com.dianping.pigeon.governor.message.EventSender;
-import com.dianping.pigeon.governor.message.SenderType;
+import com.dianping.pigeon.governor.message.*;
+import com.dianping.pigeon.governor.util.CommonUtils;
 import com.dianping.pigeon.governor.util.GsonUtils;
 import com.dianping.pigeon.governor.util.HttpCallUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -17,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.mortbay.jetty.HttpStatus;
+import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.net.UnknownHostException;
@@ -26,6 +26,7 @@ import java.util.*;
 /**
  * Created by shihuashen on 16/7/18.
  */
+@Component
 public class PaasSender implements EventSender{
     private Logger logger = LogManager.getLogger();
     private final String paasWebApiConfig = "paasWebApi.properties";
@@ -70,7 +71,6 @@ public class PaasSender implements EventSender{
         map.put("title",title);
         map.put("body",content);
         map.put("recipients",addresses);
-        System.out.println(GsonUtils.prettyPrint(GsonUtils.toJson(map)));
         String response = null;
         response = HttpCallUtils.httpPost(this.mailUrl,map);
         if(response!=null&&response.contains("true"))
@@ -83,29 +83,33 @@ public class PaasSender implements EventSender{
         try {
             jsonObject.put("keyword", email);
             jsonObject.put("title", title);
-            jsonObject.put("content", content);
+            jsonObject.put("content", CommonUtils.escapeSpace(content));
         } catch (Exception e) {
             logger.error("[sendWeiXin] jsonObject put error.",e);
         }
         String response = null;
         response = HttpCallUtils.httpPost(this.weiXinUrl,jsonObject);
-        System.out.print(response);
         if(response!=null&&response.contains("true"))
             return true;
         return false;
     }
 
 
-    private boolean sendMail(Event event,List<String> addresses){
-        return sendMail(event.getTitle(),event.getContent(),addresses);
+    private SendResult sendMail(Event event,List<String> addresses){
+        SendResult result = new SendResult();
+        result.add(GsonUtils.toJson(addresses),SenderType.Mail,
+                sendMail(event.getTitle(),event.getSummary(),addresses));
+        return result;
     }
-    private boolean sendWeiXin(Event event,List<String> addresses){
+    private SendResult sendWeiXin(Event event,List<String> addresses){
+        SendResult result = new SendResult();
         for(Iterator<String> iterator = addresses.iterator();
                 iterator.hasNext();){
             String address = iterator.next();
-            sendWeiXin(address,event.getTitle(),event.getContent());
+            result.add(address,SenderType.WeiXin,
+                    sendWeiXin(address,event.getTitle(),event.getSummary()));
         }
-        return true;
+        return result;
     }
 
 
@@ -115,39 +119,41 @@ public class PaasSender implements EventSender{
         map.put("body", body);
         String response = null;
         response = HttpCallUtils.httpPost(this.smsUrl, map);
-        System.out.println(response);
         if (response != null && response.contains("200"))
             return true;
         return false;
     }
 
 
-    public boolean sendSMS(Event event,List<String> addresses){
+    public SendResult sendSMS(Event event,List<String> addresses){
+        SendResult result = new SendResult();
         for(Iterator<String> iterator = addresses.iterator();iterator.hasNext();){
-            sendSMS(iterator.next(),event.getTitle(),event.getContent());
+            String address = iterator.next();
+            result.add(address,SenderType.SMS,sendSMS(address,event.getTitle(),event.getSummary()));
         }
-        return false;
+        return result;
     }
 
     @Override
-    public boolean sendMessage(Event event, EventReceiver receiver) {
+    public SendResult sendMessage(Event event, EventReceiver receiver) {
         Map<SenderType,List<String>> destinations = receiver.getDestinations();
+        SendResult result = new SendResult();
         for(Iterator<SenderType> iterator = destinations.keySet().iterator();
                 iterator.hasNext();){
             SenderType senderType = iterator.next();
             switch(senderType) {
                 //TODO if senderType is unsupported type, we need to log.
                 case WeiXin:
-                    sendWeiXin(event,destinations.get(senderType));
+                    result.add(sendWeiXin(event,destinations.get(senderType)));
                     break;
                 case Mail:
-                    sendMail(event,destinations.get(senderType));
+                    result.add(sendMail(event,destinations.get(senderType)));
                     break;
                 case SMS:
-                    sendSMS(event,destinations.get(senderType));
+                    result.add(sendSMS(event,destinations.get(senderType)));
                     break;
             }
         }
-        return true;
+        return result;
     }
 }

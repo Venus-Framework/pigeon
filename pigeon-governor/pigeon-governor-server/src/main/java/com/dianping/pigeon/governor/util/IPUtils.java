@@ -23,6 +23,14 @@ public class IPUtils {
         return allNoLoopbackIP4Addresses.iterator().next();
     }
 
+
+    public static boolean regionCheck(String regionNetPrefix,String ipAddress){
+        if(ipAddress.indexOf(regionNetPrefix)==0)
+            return true;
+        else
+            return false;
+    }
+
     public static Collection<String> getNoLoopbackIP4Addresses() {
         Collection<String> noLoopbackIP4Addresses = new ArrayList<String>();
         Collection<InetAddress> allInetAddresses = getAllHostAddress();

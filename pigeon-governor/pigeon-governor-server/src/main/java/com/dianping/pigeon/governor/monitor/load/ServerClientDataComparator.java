@@ -1,4 +1,4 @@
-package com.dianping.pigeon.governor.monitor.loadBalanceMonitor;
+package com.dianping.pigeon.governor.monitor.load;
 
 /**
  * Created by shihuashen on 16/7/13.

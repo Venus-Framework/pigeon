@@ -1,6 +1,6 @@
-package com.dianping.pigeon.governor.monitor.loadBalanceMonitor.defaultAnalyzerImpl;
+package com.dianping.pigeon.governor.monitor.load.impl;
 
-import com.dianping.pigeon.governor.monitor.loadBalanceMonitor.ServerClientDataComparator;
+import com.dianping.pigeon.governor.monitor.load.ServerClientDataComparator;
 
 /**
  * Created by shihuashen on 16/7/13.

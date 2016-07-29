@@ -1,7 +1,10 @@
 package com.dianping.pigeon.governor.message.impl;
 
 import com.dianping.pigeon.governor.message.*;
+import com.dianping.pigeon.governor.message.persistence.MessagePersistenceService;
 import com.dianping.pigeon.governor.util.GsonUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Iterator;
 import java.util.List;
@@ -9,24 +12,28 @@ import java.util.List;
 /**
  * Created by shihuashen on 16/7/15.
  */
+@Service
 public class MessageServiceImpl implements MessageService{
+    @Autowired
     private FilterContainer filterContainer;
+    @Autowired
     private EventChannel channel;
+    @Autowired
     private ChannelHandler channelHandler;
-    private DefaultEventReceiverManager eventReceiverManager;
+    @Autowired
+    private EventReceiverManager eventReceiverManager;
+    @Autowired
     private EventSender sender;
-
-    public MessageServiceImpl(){
-        this.filterContainer = new DefaultFilterContainer();
-        this.channel = new EventChannelImpl();
-        this.eventReceiverManager = new DefaultEventReceiverManager();
-        this.sender = new PaasSender();
-        this.channelHandler = new ChannelHandler();
-    }
+    @Autowired
+    private MessagePersistenceService messagePersistenceService;
+    private volatile boolean isInited = false;
     public void init() throws Exception {
-        this.eventReceiverManager.init();
-        channelHandler.init(20,this.channel,this);
-        start();
+        if(!isInited){
+            this.eventReceiverManager.init();
+            channelHandler.init(20,this.channel,this);
+            start();
+            isInited = true;
+        }
     }
     @Override
     public void sendMessage(Event event) {
@@ -59,7 +66,8 @@ public class MessageServiceImpl implements MessageService{
                     }
                 }
                 EventReceiver receiver = eventReceiverManager.getEventReceiver(event);
-                sender.sendMessage(event,receiver);
+                SendResult result = sender.sendMessage(event,receiver);
+                messagePersistenceService.saveMessageSendReport(event,result);
                 //TODO persistent the send result and log.
             }
         };

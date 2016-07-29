@@ -3,6 +3,7 @@ package com.dianping.pigeon.governor.message.impl;
 import com.dianping.pigeon.governor.message.Event;
 import com.dianping.pigeon.governor.message.EventChannel;
 import com.dianping.pigeon.governor.util.GsonUtils;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -10,6 +11,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by shihuashen on 16/7/15.
  */
+@Component
 public class EventChannelImpl implements EventChannel {
     private BlockingQueue<Event> eventBuffer;
     private int bufferSize = 3000;

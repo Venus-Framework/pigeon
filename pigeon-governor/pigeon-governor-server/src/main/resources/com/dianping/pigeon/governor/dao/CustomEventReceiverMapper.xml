@@ -3,7 +3,7 @@
 <mapper namespace="com.dianping.pigeon.governor.message.depenedencies.dao.CustomEventReceiverMapper">
     <resultMap id="BaseResultMap" type="com.dianping.pigeon.governor.model.EventReceiverModel">
         <id column="id" jdbcType="INTEGER" property="id" />
-        <result column="event_signature" jdbcType="INTEGER" property="eventSignature" />
+        <result column="event_signature" jdbcType="VARCHAR" property="eventSignature" />
         <result column="address" jdbcType="VARCHAR" property="address" />
         <result column="recevier_type" jdbcType="VARCHAR" property="recevierType" />
         <result column="updateTime" jdbcType="TIMESTAMP" property="updatetime" />

@@ -12,4 +12,7 @@ public interface Event {
     String getTitle();
     String getContent();
     Date getCreateTime();
+    String getSummary();
+    int getLevel();
+
 }

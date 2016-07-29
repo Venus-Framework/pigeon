@@ -8,9 +8,29 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 public class GsonUtils {
-
-    public static final Gson gson = new Gson();
+    private static final GsonBuilder gsonBuilder = new GsonBuilder();
+    public static final Gson gson = gsonBuilder.create();
     public static final Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
+    public static final GsonBuilder gsonBuilderEscape = new GsonBuilder().disableHtmlEscaping();
+    public static final Gson gsonEscape = gsonBuilderEscape.create();
+    public static final Gson prettyGsonEscape = gsonBuilderEscape.setPrettyPrinting().create();
+    public static String toJson(Object src,boolean isEscape){
+        if(isEscape)
+            return gson.toJson(src);
+        else
+            return gsonEscape.toJson(src);
+    }
+    public static String prettyPrint(String s,boolean isEscape){
+        if(!isEscape){
+            JsonParser jp = new JsonParser();
+            JsonElement je = jp.parse(s);
+            String prettyJson = prettyGsonEscape.toJson(je);
+            return prettyJson;
+        }else
+            return prettyPrint(s);
+    }
+
+
 
 
     public static String toJson(Object src) {

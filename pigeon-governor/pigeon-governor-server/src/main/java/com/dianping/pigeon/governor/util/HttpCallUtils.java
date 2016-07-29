@@ -154,7 +154,7 @@ public class HttpCallUtils {
         postMethod.addRequestHeader("Content-Type","application/json;charset=utf-8");
         postMethod.addRequestHeader("Accept","application/json");
         try {
-            RequestEntity entity = new StringRequestEntity(jsonObject.toString(),"application/json","utf-8");
+            RequestEntity entity = new StringRequestEntity(jsonObject.toString()/**,"application/json","utf-8"**/);
             postMethod.setRequestEntity(entity);
             httpClient.executeMethod(postMethod);
             InputStream in = postMethod.getResponseBodyAsStream();

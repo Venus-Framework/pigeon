@@ -99,6 +99,7 @@ public class PurgeExpireDescTask {
             });
 
         }
+        exec.shutdown();
         try {
             exec.awaitTermination(30, TimeUnit.MINUTES);
             stopwatch.stop();

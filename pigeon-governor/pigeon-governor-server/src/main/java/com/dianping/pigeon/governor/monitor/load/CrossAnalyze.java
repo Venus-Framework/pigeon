@@ -1,15 +1,21 @@
-package com.dianping.pigeon.governor.monitor.loadBalanceMonitor;
+package com.dianping.pigeon.governor.monitor.load;
 
 import com.dianping.cat.consumer.cross.model.entity.CrossReport;
 import com.dianping.cat.consumer.cross.model.entity.Local;
 import com.dianping.cat.consumer.cross.model.entity.Remote;
+import com.dianping.lion.client.region.RegionManager;
+import com.dianping.lion.client.region.RegionManagerLoader;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
-import com.dianping.pigeon.governor.monitor.loadBalanceMonitor.skewMessage.ClientSkewMessage;
-import com.dianping.pigeon.governor.monitor.loadBalanceMonitor.skewMessage.ServerSkewMessage;
+import com.dianping.pigeon.governor.message.MessageService;
+import com.dianping.pigeon.governor.message.impl.MessageServiceImpl;
+import com.dianping.pigeon.governor.monitor.load.message.ClientSkewMessage;
+import com.dianping.pigeon.governor.monitor.load.message.ServerSkewMessage;
 import com.dianping.pigeon.governor.util.CatReportXMLUtils;
 import com.dianping.pigeon.governor.util.Constants;
+import com.dianping.pigeon.governor.util.GsonUtils;
 import com.dianping.pigeon.governor.util.HttpCallUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 
@@ -25,16 +31,21 @@ public class CrossAnalyze implements Runnable{
     private String projectName;
     private String dateTime;
     private String url;
+    private MessageService messageService;
+    private RegionManager regionManager = RegionManagerLoader.getRegionManager();
     public CrossAnalyze(String projectName,
                         String dateTime,
                         ServerClientDataComparator comparator,
-                        BalanceAnalyzer analyzer){
-        this.projectName = projectName;
+                        BalanceAnalyzer analyzer,
+                        MessageService messageService
+                        ){
+        this.projectName = StringUtils.trim(projectName);
         this.dateTime = dateTime;
-        this.url =  getCatAddress()+"cat/r/cross?domain="+projectName+"&ip=All&date="+dateTime+"&forceDownload=xml";
         this.configManager = ConfigManagerLoader.getConfigManager();
+        this.url =  getCatAddress()+"cat/r/cross?domain="+projectName+"&ip=All&date="+dateTime;
         this.comparator = comparator;
         this.analyzer = analyzer;
+        this.messageService = messageService;
     }
     @Override
     public void run() {
@@ -52,12 +63,13 @@ public class CrossAnalyze implements Runnable{
         return CatReportXMLUtils.XMLToCrossReport(xml);
     }
     private String getCatAddress(){
-        String env = configManager.getEnv();
-        if(env.equals("qa"))
-            return Constants.qaCatAddress;
-        if(env.equals("prelease"))
-            return Constants.ppeCatAddress;
         return Constants.onlineCatAddress;
+//        String env = configManager.getEnv();
+//        if(env.equals("qa"))
+//            return Constants.qaCatAddress;
+//        if(env.equals("prelease"))
+//            return Constants.ppeCatAddress;
+//        return Constants.onlineCatAddress;
     }
     //扫描CrossReport,确认服务端收到的调用请求和客户端汇总的调用请求数是否一致.
     public void serverAndClientCountCheck(CrossReport report){
@@ -74,9 +86,9 @@ public class CrossAnalyze implements Runnable{
                     if(tmpMap.containsKey(ip)){
                         long count =  tmpMap.get(ip);
                         if(!this.comparator.compare(remote.getType().getTotalCount(),count)){
-                            System.out.println(remote.getApp()+":"+ip+" count1 as :"+remote.getType().getTotalCount()
-                                    +" count2 as :"+count);
-                            tmpMap.remove(ip);
+//                            System.out.println(remote.getApp()+":"+ip+" count1 as :"+remote.getType().getTotalCount()
+//                                    +" count2 as :"+count);
+//                            tmpMap.remove(ip);
                         }
                     }else{
                         tmpMap.put(ip,remote.getType().getTotalCount());
@@ -140,7 +152,6 @@ public class CrossAnalyze implements Runnable{
         }
         Map<String,Long> serverFlowDistribute = new HashMap<String, Long>();
         Map<String,Map<String,Long>> clientFlowDistribute = new HashMap<String,Map<String,Long>>();
-        Map<String,List<Long>> clientData = new LinkedHashMap<String, List<Long>>();
         for(Iterator<AnalyzeResult> iterator = results.values().iterator();iterator.hasNext();){
             AnalyzeResult analyzeResult = iterator.next();
             serverFlowDistribute.put(analyzeResult.ip,analyzeResult.getHostAccessCount());
@@ -157,20 +168,55 @@ public class CrossAnalyze implements Runnable{
                 }
             }
         }
-        if(analyzer.balanceAnalysis(serverFlowDistribute.values())){
+        if(!regionFlowAnalyze(serverFlowDistribute,analyzer)){
             ServerSkewMessage serverSkewMessage = new ServerSkewMessage();
             serverSkewMessage.setProjectName(this.projectName);
             serverSkewMessage.setFlowDistributed(serverFlowDistribute);
+            serverSkewMessage.setUrl(this.url);
+            serverSkewMessage.setCreateTime();
+            messageService.sendMessage(serverSkewMessage);
         }
         for(Iterator<String> iterator = clientFlowDistribute.keySet().iterator();iterator.hasNext();){
             String projectName = iterator.next();
-            if(analyzer.balanceAnalysis(clientFlowDistribute.get(projectName).values())){
+            if(!regionFlowAnalyze(clientFlowDistribute.get(projectName),analyzer)){
                 ClientSkewMessage clientSkewMessage = new ClientSkewMessage();
                 clientSkewMessage.setServerProjectName(this.projectName);
                 clientSkewMessage.setClientProjectName(projectName);
                 clientSkewMessage.setFlowDistributed(clientFlowDistribute.get(projectName));
+                clientSkewMessage.setUrl(this.url);
+                clientSkewMessage.setCreatTime();
+                messageService.sendMessage(clientSkewMessage);
             }
         }
 
+    }
+
+
+    private boolean regionFlowAnalyze(Map<String,Long> data,BalanceAnalyzer analyzer){
+        Map<String,List<Long>> regionGroups = new HashMap<String,List<Long>>();
+        for(Iterator<String> iterator = data.keySet().iterator();
+                iterator.hasNext();){
+            String ipAddress = iterator.next();
+            String regionName = regionManager.getRegion(ipAddress);
+            if(regionName==null){
+                System.out.println(ipAddress);
+                System.out.println("Critical Error. Ip address region belonging error!!!!");
+                return false;
+            }
+            if(regionGroups.containsKey(regionName)){
+                regionGroups.get(regionName).add(data.get(ipAddress));
+            }else{
+                List<Long> list = new LinkedList<Long>();
+                list.add(data.get(ipAddress));
+                regionGroups.put(regionName,list);
+            }
+        }
+        for(Iterator<String> iterator  = regionGroups.keySet().iterator();
+                iterator.hasNext();){
+            String regionName = iterator.next();
+            if(!analyzer.balanceAnalysis(regionGroups.get(regionName)))
+                return false;
+        }
+        return true;
     }
 }

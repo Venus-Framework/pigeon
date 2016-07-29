@@ -102,10 +102,7 @@
 
 	<!-- enable component scanning (beware that this does not enable mapper 
 		scanning!) -->
-	<!--
-	<context:component-scan base-package="com.dianping.pigeon.governor.service,com.dianping.pigeon.governor.message" />
-	-->
-	<context:component-scan base-package="com.dianping.pigeon.governor.service"/>
+	<context:component-scan base-package="com.dianping.pigeon.governor.service,com.dianping.pigeon.governor.message,com.dianping.pigeon.governor.monitor" />
 
 	<bean id="healthCheck" class="com.dianping.pigeon.governor.task.HealthCheckBean"
 		lazy-init="false" init-method="init">
@@ -136,6 +133,13 @@
 		<task:scheduled ref="purgeExpireDescTask" method="schedule" cron="0 0 4 * * *"/>
 	</task:scheduled-tasks>
 	<bean id = "purgeExpireDescTask" class="com.dianping.pigeon.governor.bean.scanServiceDesc.PurgeExpireDescTask" />
+	<bean id ="flowMonitorTask" class="com.dianping.pigeon.governor.monitor.load.FlowMonitorTask"/>
+	<task:scheduled-tasks>
+		<task:scheduled ref="flowMonitorTask" method="schedule" cron="0 20 * * * *"/>
+	</task:scheduled-tasks>
+	<!--<task:scheduled-tasks>-->
+		<!--<task:scheduled ref="flowMonitorTask" method="start" cron=""/>-->
+	<!--</task:scheduled-tasks>-->
 	<pigeon:annotation />
 
 	<pigeon:reference id="masterDataEmployeeService"  timeout="5000"

@@ -1,4 +1,4 @@
-package com.dianping.pigeon.governor.monitor.loadBalanceMonitor;
+package com.dianping.pigeon.governor.monitor.load;
 
 import java.util.Collection;
 

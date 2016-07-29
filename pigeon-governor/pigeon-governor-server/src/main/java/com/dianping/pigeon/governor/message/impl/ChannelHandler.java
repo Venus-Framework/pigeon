@@ -4,6 +4,7 @@ import com.dianping.pigeon.governor.message.Event;
 import com.dianping.pigeon.governor.message.EventChannel;
 import com.dianping.pigeon.governor.util.GsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by shihuashen on 16/7/20.
  */
+@Component
 public class ChannelHandler {
     private int threadNum;
     private EventChannel eventChannel;

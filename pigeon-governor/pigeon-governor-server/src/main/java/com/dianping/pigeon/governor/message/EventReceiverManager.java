@@ -7,4 +7,5 @@ public interface EventReceiverManager {
     EventReceiver getEventReceiver(Event event);
     boolean setEventReceiver(Event event,EventReceiver receiver);
     boolean deleteEventReceiver(Event event,EventReceiver receiver);
+    void init();
 }

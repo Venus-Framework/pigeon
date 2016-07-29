@@ -7,6 +7,7 @@ import com.dianping.pigeon.governor.message.SenderType;
 import com.dianping.pigeon.governor.message.depenedencies.bean.EventReceiverBean;
 import com.dianping.pigeon.governor.message.depenedencies.service.EventReceiverService;
 import com.dianping.pigeon.governor.model.EventReceiverModel;
+import com.dianping.pigeon.governor.util.GsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,7 @@ public class DefaultEventReceiverManager implements EventReceiverManager{
     @Autowired
     private EventReceiverService eventReceiverService;
 
+    @Override
     public void init(){
         this.modelCache = new ModelCache(5,3);
         System.out.println(this.eventReceiverService);
@@ -38,7 +40,7 @@ public class DefaultEventReceiverManager implements EventReceiverManager{
 
     @Override
     public EventReceiver getEventReceiver(Event event) {
-        List<EventReceiverModel> models = this.modelCache.getCache().get(event.getSignature());
+        List<EventReceiverModel> models = this.modelCache.getCache().get("1");
         if(models!=null)
             return new EventReceiverBean(models);
         else{
@@ -90,7 +92,7 @@ public class DefaultEventReceiverManager implements EventReceiverManager{
             for(Iterator<EventReceiverModel> iterator = models.iterator();iterator.hasNext();){
                 EventReceiverModel model = iterator.next();
                 //TODO rejudge of the signature.
-                String key = String.valueOf(model.getEventSignature());
+                String key = (model.getEventSignature());
                 if(tmp.containsKey(key))
                     tmp.get(key).add(model);
                 else{
