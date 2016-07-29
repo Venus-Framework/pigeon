@@ -295,7 +295,7 @@
 
     // ******************************
     // 编辑服务地址相关方法 begins
-    function editService(dom) {
+    function editService(dom) {// 点击编辑 host 信息
         var onEditServiceTr = $(dom).closest('tr');
         var serviceNameDom = dataTable.cell(onEditServiceTr.find('td')[0]).data();
         var groupDom = dataTable.cell(onEditServiceTr.find('td')[1]).data();
@@ -326,19 +326,7 @@
         $('#edit_hosts_info').modal('show');
     }
 
-    $('#add_one_host').on('click',function(e){
-        //console.log(e.relatedTarget);
-
-        var host_line = '<div class="form-group">'
-                        + '<input class="input-large" type="text" placeholder="ip:port, e.g. 10.1.77.131:5060" value="" />'
-                        + '&nbsp;&nbsp;'
-                        + '<img src="${rc.contextPath}/resources/img/del.png" onclick="delsinglerow(this)" />'
-                        + '</div>';
-
-        $('#edit_hosts_info #host_line').append(host_line);
-    });
-
-    $('#submit_edit_hosts').on('click',function(e){
+    $('#submit_edit_hosts').on('click',function(e){ // 提交 host 修改请求
         var oriHostsStr = $('#edit_hosts_info').attr("data-hosts");
         var inputArr = $('#edit_hosts_info input');
 
@@ -374,7 +362,19 @@
         $('#edit_hosts_info').modal('hide');
     });
 
-    function delsinglerow(dom) {
+    $('#add_one_host').on('click',function(e){ // 添加一行 host 编辑框
+        //console.log(e.relatedTarget);
+
+        var host_line = '<div class="form-group">'
+                + '<input class="input-large" type="text" placeholder="ip:port, e.g. 10.1.77.131:5060" value="" />'
+                + '&nbsp;&nbsp;'
+                + '<img src="${rc.contextPath}/resources/img/del.png" onclick="delsinglerow(this)" />'
+                + '</div>';
+
+        $('#edit_hosts_info #host_line').append(host_line);
+    });
+
+    function delsinglerow(dom) { //删除所在行 host 编辑框
         $(dom).closest('div').remove();
     }
     // 编辑服务地址相关方法 ends
