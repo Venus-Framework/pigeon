@@ -68,15 +68,15 @@ public class FlowMonitorTask {
     }
 
     public void schedule(){
-        boolean enable = true;
-//        String server = Lion.get("pigeon-governor-server.purgeexpiredesctask.enable.ip");
-//        if(org.codehaus.plexus.util.StringUtils.isBlank(server)) {
-//            logger.warn("服务ip为空");
-//            return;
-//        }
-//        if (IPUtils.getFirstNoLoopbackIP4Address().equals(server)) {
-//            enable = true;
-//        }
+        boolean enable = false;
+        String server = Lion.get("pigeon-governor-server.flowmonitortask.enable.ip");
+        if(org.codehaus.plexus.util.StringUtils.isBlank(server)) {
+            logger.warn("服务ip为空");
+            return;
+        }
+        if (IPUtils.getFirstNoLoopbackIP4Address().equals(server)) {
+            enable = true;
+        }
         if(enable) {
             logger.info("Flow monitor task start");
             Transaction transaction = Cat.newTransaction("FlowMonitorTask", "");
