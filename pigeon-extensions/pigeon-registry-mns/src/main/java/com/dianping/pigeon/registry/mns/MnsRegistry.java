@@ -12,6 +12,7 @@ import com.google.common.collect.Sets;
 import com.sankuai.inf.octo.mns.MnsInvoker;
 import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -28,7 +29,7 @@ public class MnsRegistry implements Registry {
 
     private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
-    private Map<String, Set<String>> hostServiceNameMapping = Maps.newConcurrentMap();
+    private Map<String, String> hostRemoteAppkeyMapping = Maps.newConcurrentMap();
 
     public static final int WEIGHT_DEFAULT = 1;
 
@@ -90,22 +91,19 @@ public class MnsRegistry implements Registry {
             if (MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight()) > 0) {
                 String host = sgService.getIp() + ":" + sgService.getPort();
                 result += host +",";
+                String remoteAppkeyCache = null;
 
-                if (hostServiceNameMapping.containsKey(host)) {
-                    Set<String> serviceNames = hostServiceNameMapping.get(host);
+                if (hostRemoteAppkeyMapping.containsKey(host)) {
+                    remoteAppkeyCache = hostRemoteAppkeyMapping.get(host);
 
-                    if (serviceNames != null) {
-                        serviceNames.add(serviceName);
-                    } else {
-                        serviceNames = Sets.newConcurrentHashSet();
-                        serviceNames.add(serviceName);
-                        hostServiceNameMapping.put(host, serviceNames);
+                    if (StringUtils.isNotBlank(remoteAppkeyCache)) {
+                        remoteAppkeyCache = remoteAppkey;
+                        hostRemoteAppkeyMapping.put(host, remoteAppkeyCache);
                     }
 
                 } else {
-                    Set<String> serviceNames = Sets.newConcurrentHashSet();
-                    serviceNames.add(serviceName);
-                    hostServiceNameMapping.put(host, serviceNames);
+                    remoteAppkeyCache = remoteAppkey;
+                    hostRemoteAppkeyMapping.put(host, remoteAppkeyCache);
                 }
             }
         }
@@ -199,14 +197,14 @@ public class MnsRegistry implements Registry {
     @Override
     public int getServerWeight(String serverAddress) throws RegistryException {
         //todo 北京侧的最小单位不是serverAddress
-        //todo client建立连接时候，带上host和serviceName的映射
-        //todo host ---> Set<serviceName>
+        //todo client建立连接时候，带上host和remoteAppkey的映射
+        //todo host ---> remoteAppkey
         //todo 存在的问题，高度依赖于连接client时序，是否一定是先建立client连接
         try {
-            Set<String> serviceNames = hostServiceNameMapping.get(serverAddress);
+            String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
 
-            if (serviceNames != null && serviceNames.size() > 0) {
-                SGService sgService = getSGService(null, (String) serviceNames.toArray()[0], serverAddress);
+            if (StringUtils.isNotBlank(remoteAppkey)) {
+                SGService sgService = getSGService(remoteAppkey, null, serverAddress);
                 return MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight());
             }
 
@@ -227,10 +225,10 @@ public class MnsRegistry implements Registry {
     public String getServerApp(String serverAddress) throws RegistryException {
         //todo 参考getServerWeight
         try {
-            Set<String> serviceNames = hostServiceNameMapping.get(serverAddress);
+            String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
 
-            if (serviceNames != null && serviceNames.size() > 0) {
-                SGService sgService = getSGService(null, (String) serviceNames.toArray()[0], serverAddress);
+            if (StringUtils.isNotBlank(remoteAppkey)) {
+                SGService sgService = getSGService(remoteAppkey, null, serverAddress);
                 return sgService.getAppkey();
             }
 
@@ -251,10 +249,10 @@ public class MnsRegistry implements Registry {
     public String getServerVersion(String serverAddress) throws RegistryException {
         //todo 参考getServerWeight
         try {
-            Set<String> serviceNames = hostServiceNameMapping.get(serverAddress);
+            String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
 
-            if (serviceNames != null && serviceNames.size() > 0) {
-                SGService sgService = getSGService(null, (String) serviceNames.toArray()[0], serverAddress);
+            if (StringUtils.isNotBlank(remoteAppkey)) {
+                SGService sgService = getSGService(remoteAppkey, null, serverAddress);
                 return sgService.getVersion();
             }
 

@@ -618,6 +618,7 @@ public class RegistryManager {
     }
 
     /**
+     * manual update service and set weight to 1
      * @param serviceName
      * @param group
      * @param hosts
@@ -629,7 +630,7 @@ public class RegistryManager {
             registry.setServerService(serviceName, group, hosts);
         }
 
-        monitor.logEvent("PigeonService.setHosts", serviceName, "swimlane=" + group + "&hosts=" + hosts);
+        monitor.logEvent("PigeonGovernor.setHosts", serviceName, "swimlane=" + group + "&hosts=" + hosts);
     }
 
     public void delServerService(String serviceName, String group) throws RegistryException {
@@ -638,7 +639,7 @@ public class RegistryManager {
             registry.delServerService(serviceName, group);
         }
 
-        monitor.logEvent("PigeonService.delService", serviceName, "swimlane=" + group);
+        monitor.logEvent("PigeonGovernor.delService", serviceName, "swimlane=" + group);
     }
 
     public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
