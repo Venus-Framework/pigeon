@@ -4,6 +4,7 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
+import com.google.common.collect.Maps;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
@@ -93,7 +94,7 @@ public enum LoadInfoCollector {
         return 0;
     }
 
-    public int getQPS() {
+    public Map<String,Double> getQpsMap() {
         int qps = 0;
         Map<String, ProviderCapacityBucket> providerCapacityMap = ProviderStatisticsHolder.getCapacityBuckets();
 
@@ -104,7 +105,10 @@ public enum LoadInfoCollector {
             }
         }
 
-        return qps;
+        Map<String,Double> methodQpsMap = Maps.newHashMap();
+        methodQpsMap.put("all", (double) qps);
+
+        return methodQpsMap;
     }
 
     public static void main(String[] args) {

@@ -832,15 +832,15 @@ public class Header implements org.apache.thrift.TBase<Header, Header._Fields>, 
           case 5: // GLOBAL_CONTEXT
             if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
               {
-                org.apache.thrift.protocol.TMap _map0 = iprot.readMapBegin();
-                struct.globalContext = new HashMap<String,String>(2*_map0.size);
-                for (int _i1 = 0; _i1 < _map0.size; ++_i1)
+                org.apache.thrift.protocol.TMap _map10 = iprot.readMapBegin();
+                struct.globalContext = new HashMap<String,String>(2*_map10.size);
+                for (int _i11 = 0; _i11 < _map10.size; ++_i11)
                 {
-                  String _key2; // required
-                  String _val3; // required
-                  _key2 = iprot.readString();
-                  _val3 = iprot.readString();
-                  struct.globalContext.put(_key2, _val3);
+                  String _key12; // required
+                  String _val13; // required
+                  _key12 = iprot.readString();
+                  _val13 = iprot.readString();
+                  struct.globalContext.put(_key12, _val13);
                 }
                 iprot.readMapEnd();
               }
@@ -852,15 +852,15 @@ public class Header implements org.apache.thrift.TBase<Header, Header._Fields>, 
           case 6: // LOCAL_CONTEXT
             if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
               {
-                org.apache.thrift.protocol.TMap _map4 = iprot.readMapBegin();
-                struct.localContext = new HashMap<String,String>(2*_map4.size);
-                for (int _i5 = 0; _i5 < _map4.size; ++_i5)
+                org.apache.thrift.protocol.TMap _map14 = iprot.readMapBegin();
+                struct.localContext = new HashMap<String,String>(2*_map14.size);
+                for (int _i15 = 0; _i15 < _map14.size; ++_i15)
                 {
-                  String _key6; // required
-                  String _val7; // required
-                  _key6 = iprot.readString();
-                  _val7 = iprot.readString();
-                  struct.localContext.put(_key6, _val7);
+                  String _key16; // required
+                  String _val17; // required
+                  _key16 = iprot.readString();
+                  _val17 = iprot.readString();
+                  struct.localContext.put(_key16, _val17);
                 }
                 iprot.readMapEnd();
               }
@@ -924,10 +924,10 @@ public class Header implements org.apache.thrift.TBase<Header, Header._Fields>, 
           oprot.writeFieldBegin(GLOBAL_CONTEXT_FIELD_DESC);
           {
             oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRING, struct.globalContext.size()));
-            for (Map.Entry<String, String> _iter8 : struct.globalContext.entrySet())
+            for (Map.Entry<String, String> _iter18 : struct.globalContext.entrySet())
             {
-              oprot.writeString(_iter8.getKey());
-              oprot.writeString(_iter8.getValue());
+              oprot.writeString(_iter18.getKey());
+              oprot.writeString(_iter18.getValue());
             }
             oprot.writeMapEnd();
           }
@@ -939,10 +939,10 @@ public class Header implements org.apache.thrift.TBase<Header, Header._Fields>, 
           oprot.writeFieldBegin(LOCAL_CONTEXT_FIELD_DESC);
           {
             oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRING, struct.localContext.size()));
-            for (Map.Entry<String, String> _iter9 : struct.localContext.entrySet())
+            for (Map.Entry<String, String> _iter19 : struct.localContext.entrySet())
             {
-              oprot.writeString(_iter9.getKey());
-              oprot.writeString(_iter9.getValue());
+              oprot.writeString(_iter19.getKey());
+              oprot.writeString(_iter19.getValue());
             }
             oprot.writeMapEnd();
           }
@@ -1011,20 +1011,20 @@ public class Header implements org.apache.thrift.TBase<Header, Header._Fields>, 
       if (struct.isSetGlobalContext()) {
         {
           oprot.writeI32(struct.globalContext.size());
-          for (Map.Entry<String, String> _iter10 : struct.globalContext.entrySet())
+          for (Map.Entry<String, String> _iter20 : struct.globalContext.entrySet())
           {
-            oprot.writeString(_iter10.getKey());
-            oprot.writeString(_iter10.getValue());
+            oprot.writeString(_iter20.getKey());
+            oprot.writeString(_iter20.getValue());
           }
         }
       }
       if (struct.isSetLocalContext()) {
         {
           oprot.writeI32(struct.localContext.size());
-          for (Map.Entry<String, String> _iter11 : struct.localContext.entrySet())
+          for (Map.Entry<String, String> _iter21 : struct.localContext.entrySet())
           {
-            oprot.writeString(_iter11.getKey());
-            oprot.writeString(_iter11.getValue());
+            oprot.writeString(_iter21.getKey());
+            oprot.writeString(_iter21.getValue());
           }
         }
       }
@@ -1058,30 +1058,30 @@ public class Header implements org.apache.thrift.TBase<Header, Header._Fields>, 
       }
       if (incoming.get(4)) {
         {
-          org.apache.thrift.protocol.TMap _map12 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.globalContext = new HashMap<String,String>(2*_map12.size);
-          for (int _i13 = 0; _i13 < _map12.size; ++_i13)
+          org.apache.thrift.protocol.TMap _map22 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.globalContext = new HashMap<String,String>(2*_map22.size);
+          for (int _i23 = 0; _i23 < _map22.size; ++_i23)
           {
-            String _key14; // required
-            String _val15; // required
-            _key14 = iprot.readString();
-            _val15 = iprot.readString();
-            struct.globalContext.put(_key14, _val15);
+            String _key24; // required
+            String _val25; // required
+            _key24 = iprot.readString();
+            _val25 = iprot.readString();
+            struct.globalContext.put(_key24, _val25);
           }
         }
         struct.setGlobalContextIsSet(true);
       }
       if (incoming.get(5)) {
         {
-          org.apache.thrift.protocol.TMap _map16 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.localContext = new HashMap<String,String>(2*_map16.size);
-          for (int _i17 = 0; _i17 < _map16.size; ++_i17)
+          org.apache.thrift.protocol.TMap _map26 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.localContext = new HashMap<String,String>(2*_map26.size);
+          for (int _i27 = 0; _i27 < _map26.size; ++_i27)
           {
-            String _key18; // required
-            String _val19; // required
-            _key18 = iprot.readString();
-            _val19 = iprot.readString();
-            struct.localContext.put(_key18, _val19);
+            String _key28; // required
+            String _val29; // required
+            _key28 = iprot.readString();
+            _val29 = iprot.readString();
+            struct.localContext.put(_key28, _val29);
           }
         }
         struct.setLocalContextIsSet(true);

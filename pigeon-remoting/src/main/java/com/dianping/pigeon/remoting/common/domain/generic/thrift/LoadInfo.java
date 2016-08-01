@@ -34,7 +34,7 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
   private static final org.apache.thrift.protocol.TField OLD_GC_FIELD_DESC = new org.apache.thrift.protocol.TField("oldGC", org.apache.thrift.protocol.TType.I32, (short)2);
   private static final org.apache.thrift.protocol.TField THREAD_NUM_FIELD_DESC = new org.apache.thrift.protocol.TField("threadNum", org.apache.thrift.protocol.TType.I32, (short)3);
   private static final org.apache.thrift.protocol.TField QUEUE_SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("queueSize", org.apache.thrift.protocol.TType.I32, (short)4);
-  private static final org.apache.thrift.protocol.TField QPS_FIELD_DESC = new org.apache.thrift.protocol.TField("qps", org.apache.thrift.protocol.TType.I32, (short)5);
+  private static final org.apache.thrift.protocol.TField METHOD_QPS_MAP_FIELD_DESC = new org.apache.thrift.protocol.TField("methodQpsMap", org.apache.thrift.protocol.TType.MAP, (short)5);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -46,7 +46,7 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
   public int oldGC; // optional
   public int threadNum; // optional
   public int queueSize; // optional
-  public int qps; // optional
+  public Map<String,Double> methodQpsMap; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -54,7 +54,7 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
     OLD_GC((short)2, "oldGC"),
     THREAD_NUM((short)3, "threadNum"),
     QUEUE_SIZE((short)4, "queueSize"),
-    QPS((short)5, "qps");
+    METHOD_QPS_MAP((short)5, "methodQpsMap");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -77,8 +77,8 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
           return THREAD_NUM;
         case 4: // QUEUE_SIZE
           return QUEUE_SIZE;
-        case 5: // QPS
-          return QPS;
+        case 5: // METHOD_QPS_MAP
+          return METHOD_QPS_MAP;
         default:
           return null;
       }
@@ -123,9 +123,8 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
   private static final int __OLDGC_ISSET_ID = 1;
   private static final int __THREADNUM_ISSET_ID = 2;
   private static final int __QUEUESIZE_ISSET_ID = 3;
-  private static final int __QPS_ISSET_ID = 4;
-  private BitSet __isset_bit_vector = new BitSet(5);
-  private _Fields optionals[] = {_Fields.AVERAGE_LOAD,_Fields.OLD_GC,_Fields.THREAD_NUM,_Fields.QUEUE_SIZE,_Fields.QPS};
+  private BitSet __isset_bit_vector = new BitSet(4);
+  private _Fields optionals[] = {_Fields.AVERAGE_LOAD,_Fields.OLD_GC,_Fields.THREAD_NUM,_Fields.QUEUE_SIZE,_Fields.METHOD_QPS_MAP};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -137,8 +136,10 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.QUEUE_SIZE, new org.apache.thrift.meta_data.FieldMetaData("queueSize", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.QPS, new org.apache.thrift.meta_data.FieldMetaData("qps", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.METHOD_QPS_MAP, new org.apache.thrift.meta_data.FieldMetaData("methodQpsMap", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.MapMetaData(org.apache.thrift.protocol.TType.MAP, 
+            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING), 
+            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(LoadInfo.class, metaDataMap);
   }
@@ -156,7 +157,21 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
     this.oldGC = other.oldGC;
     this.threadNum = other.threadNum;
     this.queueSize = other.queueSize;
-    this.qps = other.qps;
+    if (other.isSetMethodQpsMap()) {
+      Map<String,Double> __this__methodQpsMap = new HashMap<String,Double>();
+      for (Map.Entry<String, Double> other_element : other.methodQpsMap.entrySet()) {
+
+        String other_element_key = other_element.getKey();
+        Double other_element_value = other_element.getValue();
+
+        String __this__methodQpsMap_copy_key = other_element_key;
+
+        Double __this__methodQpsMap_copy_value = other_element_value;
+
+        __this__methodQpsMap.put(__this__methodQpsMap_copy_key, __this__methodQpsMap_copy_value);
+      }
+      this.methodQpsMap = __this__methodQpsMap;
+    }
   }
 
   public LoadInfo deepCopy() {
@@ -173,8 +188,7 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
     this.threadNum = 0;
     setQueueSizeIsSet(false);
     this.queueSize = 0;
-    setQpsIsSet(false);
-    this.qps = 0;
+    this.methodQpsMap = null;
   }
 
   public double getAverageLoad() {
@@ -269,27 +283,39 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
     __isset_bit_vector.set(__QUEUESIZE_ISSET_ID, value);
   }
 
-  public int getQps() {
-    return this.qps;
+  public int getMethodQpsMapSize() {
+    return (this.methodQpsMap == null) ? 0 : this.methodQpsMap.size();
   }
 
-  public LoadInfo setQps(int qps) {
-    this.qps = qps;
-    setQpsIsSet(true);
+  public void putToMethodQpsMap(String key, double val) {
+    if (this.methodQpsMap == null) {
+      this.methodQpsMap = new HashMap<String,Double>();
+    }
+    this.methodQpsMap.put(key, val);
+  }
+
+  public Map<String,Double> getMethodQpsMap() {
+    return this.methodQpsMap;
+  }
+
+  public LoadInfo setMethodQpsMap(Map<String,Double> methodQpsMap) {
+    this.methodQpsMap = methodQpsMap;
     return this;
   }
 
-  public void unsetQps() {
-    __isset_bit_vector.clear(__QPS_ISSET_ID);
+  public void unsetMethodQpsMap() {
+    this.methodQpsMap = null;
   }
 
-  /** Returns true if field qps is set (has been assigned a value) and false otherwise */
-  public boolean isSetQps() {
-    return __isset_bit_vector.get(__QPS_ISSET_ID);
+  /** Returns true if field methodQpsMap is set (has been assigned a value) and false otherwise */
+  public boolean isSetMethodQpsMap() {
+    return this.methodQpsMap != null;
   }
 
-  public void setQpsIsSet(boolean value) {
-    __isset_bit_vector.set(__QPS_ISSET_ID, value);
+  public void setMethodQpsMapIsSet(boolean value) {
+    if (!value) {
+      this.methodQpsMap = null;
+    }
   }
 
   public void setFieldValue(_Fields field, Object value) {
@@ -326,11 +352,11 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
       }
       break;
 
-    case QPS:
+    case METHOD_QPS_MAP:
       if (value == null) {
-        unsetQps();
+        unsetMethodQpsMap();
       } else {
-        setQps((Integer)value);
+        setMethodQpsMap((Map<String,Double>)value);
       }
       break;
 
@@ -351,8 +377,8 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
     case QUEUE_SIZE:
       return Integer.valueOf(getQueueSize());
 
-    case QPS:
-      return Integer.valueOf(getQps());
+    case METHOD_QPS_MAP:
+      return getMethodQpsMap();
 
     }
     throw new IllegalStateException();
@@ -373,8 +399,8 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
       return isSetThreadNum();
     case QUEUE_SIZE:
       return isSetQueueSize();
-    case QPS:
-      return isSetQps();
+    case METHOD_QPS_MAP:
+      return isSetMethodQpsMap();
     }
     throw new IllegalStateException();
   }
@@ -428,12 +454,12 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
         return false;
     }
 
-    boolean this_present_qps = true && this.isSetQps();
-    boolean that_present_qps = true && that.isSetQps();
-    if (this_present_qps || that_present_qps) {
-      if (!(this_present_qps && that_present_qps))
+    boolean this_present_methodQpsMap = true && this.isSetMethodQpsMap();
+    boolean that_present_methodQpsMap = true && that.isSetMethodQpsMap();
+    if (this_present_methodQpsMap || that_present_methodQpsMap) {
+      if (!(this_present_methodQpsMap && that_present_methodQpsMap))
         return false;
-      if (this.qps != that.qps)
+      if (!this.methodQpsMap.equals(that.methodQpsMap))
         return false;
     }
 
@@ -493,12 +519,12 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetQps()).compareTo(typedOther.isSetQps());
+    lastComparison = Boolean.valueOf(isSetMethodQpsMap()).compareTo(typedOther.isSetMethodQpsMap());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetQps()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.qps, typedOther.qps);
+    if (isSetMethodQpsMap()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.methodQpsMap, typedOther.methodQpsMap);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -546,10 +572,14 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
       sb.append(this.queueSize);
       first = false;
     }
-    if (isSetQps()) {
+    if (isSetMethodQpsMap()) {
       if (!first) sb.append(", ");
-      sb.append("qps:");
-      sb.append(this.qps);
+      sb.append("methodQpsMap:");
+      if (this.methodQpsMap == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.methodQpsMap);
+      }
       first = false;
     }
     sb.append(")");
@@ -628,10 +658,22 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // QPS
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.qps = iprot.readI32();
-              struct.setQpsIsSet(true);
+          case 5: // METHOD_QPS_MAP
+            if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
+              {
+                org.apache.thrift.protocol.TMap _map0 = iprot.readMapBegin();
+                struct.methodQpsMap = new HashMap<String,Double>(2*_map0.size);
+                for (int _i1 = 0; _i1 < _map0.size; ++_i1)
+                {
+                  String _key2; // required
+                  double _val3; // required
+                  _key2 = iprot.readString();
+                  _val3 = iprot.readDouble();
+                  struct.methodQpsMap.put(_key2, _val3);
+                }
+                iprot.readMapEnd();
+              }
+              struct.setMethodQpsMapIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -671,10 +713,20 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
         oprot.writeI32(struct.queueSize);
         oprot.writeFieldEnd();
       }
-      if (struct.isSetQps()) {
-        oprot.writeFieldBegin(QPS_FIELD_DESC);
-        oprot.writeI32(struct.qps);
-        oprot.writeFieldEnd();
+      if (struct.methodQpsMap != null) {
+        if (struct.isSetMethodQpsMap()) {
+          oprot.writeFieldBegin(METHOD_QPS_MAP_FIELD_DESC);
+          {
+            oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.DOUBLE, struct.methodQpsMap.size()));
+            for (Map.Entry<String, Double> _iter4 : struct.methodQpsMap.entrySet())
+            {
+              oprot.writeString(_iter4.getKey());
+              oprot.writeDouble(_iter4.getValue());
+            }
+            oprot.writeMapEnd();
+          }
+          oprot.writeFieldEnd();
+        }
       }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -706,7 +758,7 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
       if (struct.isSetQueueSize()) {
         optionals.set(3);
       }
-      if (struct.isSetQps()) {
+      if (struct.isSetMethodQpsMap()) {
         optionals.set(4);
       }
       oprot.writeBitSet(optionals, 5);
@@ -722,8 +774,15 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
       if (struct.isSetQueueSize()) {
         oprot.writeI32(struct.queueSize);
       }
-      if (struct.isSetQps()) {
-        oprot.writeI32(struct.qps);
+      if (struct.isSetMethodQpsMap()) {
+        {
+          oprot.writeI32(struct.methodQpsMap.size());
+          for (Map.Entry<String, Double> _iter5 : struct.methodQpsMap.entrySet())
+          {
+            oprot.writeString(_iter5.getKey());
+            oprot.writeDouble(_iter5.getValue());
+          }
+        }
       }
     }
 
@@ -748,8 +807,19 @@ public class LoadInfo implements org.apache.thrift.TBase<LoadInfo, LoadInfo._Fie
         struct.setQueueSizeIsSet(true);
       }
       if (incoming.get(4)) {
-        struct.qps = iprot.readI32();
-        struct.setQpsIsSet(true);
+        {
+          org.apache.thrift.protocol.TMap _map6 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.DOUBLE, iprot.readI32());
+          struct.methodQpsMap = new HashMap<String,Double>(2*_map6.size);
+          for (int _i7 = 0; _i7 < _map6.size; ++_i7)
+          {
+            String _key8; // required
+            double _val9; // required
+            _key8 = iprot.readString();
+            _val9 = iprot.readDouble();
+            struct.methodQpsMap.put(_key8, _val9);
+          }
+        }
+        struct.setMethodQpsMapIsSet(true);
       }
     }
   }

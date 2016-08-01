@@ -100,7 +100,7 @@ public class ThriftMapper {
             loadInfo.setOldGC(loadInfoCollector.getOldGC());
             loadInfo.setThreadNum(loadInfoCollector.getThreadNum());
             loadInfo.setQueueSize(loadInfoCollector.getQueueSize());
-            loadInfo.setQps(loadInfoCollector.getQPS());
+            loadInfo.setMethodQpsMap(loadInfoCollector.getQpsMap());
 
             heartbeatInfo.setLoadInfo(loadInfo);
             header.setHeartbeatInfo(heartbeatInfo);

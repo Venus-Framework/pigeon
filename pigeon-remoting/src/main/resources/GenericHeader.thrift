@@ -5,7 +5,7 @@ struct LoadInfo{
     2: optional i32 oldGC;
     3: optional i32 threadNum;      //默认线程池
     4: optional i32 queueSize;       //主IO线程队列长度
-    5: optional i32 qps;     //1分钟内的qps值
+    5: optional map<string, double> methodQpsMap;   //key为ServiceName.methodName，value为1分钟内的对应的qps值（key为all，value则为所有方法的qps）
 }
 
 struct HeartbeatInfo {
