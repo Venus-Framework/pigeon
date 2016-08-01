@@ -1,13 +1,12 @@
 package com.dianping.pigeon.governor.util;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -156,14 +155,27 @@ public class IPUtils {
         return realip;
     }
 
+    public static boolean validatePort(String port) {
+        try {
+            Integer.valueOf(port);
+            return true;
+        } catch (NumberFormatException e) {
+            logger.error("error port [" + port + "]");
+            return false;
+        }
+    }
+
     /**
      * @author chenchongze
      * @param hosts
      * @return
      */
     public static String getValidHosts(String hosts) {
-        String result = "";
-        String[] ipPorts = hosts.split(",");
+        return StringUtils.join(Arrays.asList(getValidHosts(hosts.split(","))), ",");
+    }
+
+    public static String[] getValidHosts(String[] ipPorts) {
+        List<String> result = Lists.newArrayList();
 
         for(String ipPort : ipPorts) {
 
@@ -171,16 +183,18 @@ public class IPUtils {
                 int length = ipPort.split(":").length;
 
                 if(length > 1 && length < 10) {
-                    String ip = ipPort.substring(0, ipPort.lastIndexOf(":"));
+                    int index = ipPort.lastIndexOf(":");
+                    String ip = ipPort.substring(0, index);
+                    String port = ipPort.substring(index + 1);
 
-                    if(validateIpAddr(ip) != null) {
-                        result += ipPort + ",";
+                    if(validateIpAddr(ip) != null && validatePort(port)) {
+                        result.add(ipPort);
                     }
                 }
             }
         }
 
-        return result;
+        return result.toArray(new String[result.size()]);
     }
 
     public static String getHost(String ip, String port) {

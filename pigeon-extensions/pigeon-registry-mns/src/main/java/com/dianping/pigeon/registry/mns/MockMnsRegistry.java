@@ -222,6 +222,11 @@ public class MockMnsRegistry implements Registry {
     }
 
     @Override
+    public void setHostsWeight(String serviceName, String group, String hosts, int weight) throws RegistryException {
+
+    }
+
+    @Override
     public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
 
     }

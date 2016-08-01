@@ -17,5 +17,9 @@ public interface ServiceNodeService {
 
     public ServiceNode getServiceNode(String serviceName, String group, String ip, String port);
 
-    List<ServiceNode> retrieveAllByProjectName(String projectName);
+    public List<ServiceNode> retrieveAllByProjectName(String projectName);
+
+    public int createServiceNode(ServiceNode serviceNode);
+
+    public int deleteServiceNodeById(ServiceNode serviceNode);
 }

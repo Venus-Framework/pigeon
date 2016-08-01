@@ -126,7 +126,7 @@
                                                 <i class="ace-icon fa fa-desktop bigger-110 hidden-480"></i>
                                                 hosts
                                             </th>
-                                            <th></th>
+                                            <th>#*看用户权限给予添加记录或申请管理员接口*#</th>
                                         </tr>
                                         </thead>
 
@@ -145,17 +145,14 @@
 
                                             <td>
                                                 <div class="hidden-sm hidden-xs action-buttons">
-                                                    #*<a class="blue" href="#">
-                                                        <i class="ace-icon fa fa-search-plus bigger-130"></i>
-                                                    </a>*#
 
                                                     <a class="green" href="javascript:void(0)" onclick="editService(this)">
                                                         <i class="ace-icon fa fa-pencil bigger-130"></i>
                                                     </a>
 
-                                                    <a class="red" href="#">
+                                                    #*<a class="red" href="#">
                                                         <i class="ace-icon fa fa-trash-o bigger-130"></i>
-                                                    </a>
+                                                    </a>*#
                                                 </div>
 
                                             </td>
@@ -190,7 +187,9 @@
 
     <!-- page hidden elements begins -->
 
-    <div id="edit_hosts_info" class="modal" tabindex="-1" data-hosts="" data-serviceid="">
+    <div id="edit_hosts_info" class="modal fade" tabindex="-1"
+         aria-hidden="true" data-backdrop="static" data-keyboard="false"
+         data-hosts="" data-serviceid="" data-servicename="" data-group="" >
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -301,11 +300,13 @@
         var groupDom = dataTable.cell(onEditServiceTr.find('td')[1]).data();
         var hosts = dataTable.cell(onEditServiceTr.find('td')[2]).data();
         var serviceName = $(serviceNameDom).html();
-        //var group = $(groupDom).html();
+        var group = $(groupDom).html();
 
-        //保存下当前行的id和hosts的值
+        //保存下当前行的值
         $('#edit_hosts_info').attr("data-serviceid", onEditServiceTr.attr('id'));
         $('#edit_hosts_info').attr("data-hosts", hosts);
+        $('#edit_hosts_info').attr("data-servicename", serviceName);
+        $('#edit_hosts_info').attr("data-group", group);
         $('#edit_hosts_info #service_name').html(serviceName);
         $('#edit_hosts_info #group').html('分组：' + groupDom);
 
@@ -327,9 +328,11 @@
     }
 
     $('#submit_edit_hosts').on('click',function(e){ // 提交 host 修改请求
+        var serviceName = $('#edit_hosts_info').attr("data-servicename");
+        var group = $('#edit_hosts_info').attr("data-group");
         var oriHostsStr = $('#edit_hosts_info').attr("data-hosts");
-        var inputArr = $('#edit_hosts_info input');
 
+        var inputArr = $('#edit_hosts_info input');
         var oriHostArr = oriHostsStr.split(",");
         var newHostArr = new Array();
 
@@ -354,12 +357,46 @@
         var toAddHostArr = Array.minus(newHostArr, oriHostArr);
         var toDelHostArr = Array.minus(oriHostArr, newHostArr);
 
-        // 服务器提交修改成功后，再修改页面缓存
-        var onEditServiceTrId = $('#edit_hosts_info').attr("data-serviceid");
-        var onEditServiceTr = $('#' + onEditServiceTrId);
-        dataTable.cell( onEditServiceTr.find('td')[2] ).data(newHostArr.join(",")).draw();
+        var data = {
+            "serviceName" : serviceName,
+            "group" : group,
+            "toAddHosts" : toAddHostArr.join(","),
+            "toDelHosts" : toDelHostArr.join(",")
+        };
 
-        $('#edit_hosts_info').modal('hide');
+        // 服务器提交修改成功后，返回最新hosts，再修改页面缓存
+        $.ajax({
+            url: '${rc.contextPath}/test/services/edit/${projectName}',
+            type: 'POST',
+            data: data,
+            error: function(response, textStatus){ // 500 etc.
+                $.gritter.add({
+                    title: response.status,
+                    text: response.statusText,
+                    class_name: 'gritter-error gritter-center gritter-light'
+                });
+            },
+            success: function(response, textStatus) {
+                if(response.status == "success") { // 更新本地缓存
+
+                    var onEditServiceTrId = $('#edit_hosts_info').attr("data-serviceid");
+                    var onEditServiceTr = $('#' + onEditServiceTrId);
+                    dataTable.cell( onEditServiceTr.find('td')[2] ).data(newHostArr.join(",")).draw();
+
+                    $('#edit_hosts_info').modal('hide');
+
+                } else { // 报个错
+                    $.gritter.add({
+                        title: response.status,
+                        text: response.message,
+                        class_name: 'gritter-error gritter-center gritter-light'
+                    });
+                }
+
+            }
+        });
+        // 各个按钮置为不可用
+
     });
 
     $('#add_one_host').on('click',function(e){ // 添加一行 host 编辑框

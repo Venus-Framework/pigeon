@@ -617,31 +617,6 @@ public class RegistryManager {
 
     }
 
-    /**
-     * manual update service and set weight to 1
-     * @param serviceName
-     * @param group
-     * @param hosts
-     * @author chenchongze
-     */
-    public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
-        //TODO 待验证
-        for (Registry registry : registryList) {
-            registry.setServerService(serviceName, group, hosts);
-        }
-
-        monitor.logEvent("PigeonGovernor.setHosts", serviceName, "swimlane=" + group + "&hosts=" + hosts);
-    }
-
-    public void delServerService(String serviceName, String group) throws RegistryException {
-        //TODO 待验证
-        for (Registry registry : registryList) {
-            registry.delServerService(serviceName, group);
-        }
-
-        monitor.logEvent("PigeonGovernor.delService", serviceName, "swimlane=" + group);
-    }
-
     public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
         for (Registry registry : registryList) {
             registry.updateHeartBeat(serviceAddress, heartBeatTimeMillis);
@@ -753,6 +728,77 @@ public class RegistryManager {
         }
     }
 
+
+    /**
+     * for governor: manual update service and set weight to 1
+     * @param serviceName
+     * @param group
+     * @param hosts
+     * @author chenchongze
+     */
+    public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
+        //TODO 待验证
+        for (Registry registry : registryList) {
+            registry.setServerService(serviceName, group, hosts);
+        }
+
+        monitor.logEvent("PigeonGovernor.setHosts", serviceName, "swimlane=" + group + "&hosts=" + hosts);
+    }
+
+    public void setHostsWeight(String serviceName, String group,
+                               String hosts, int weight) throws RegistryException {
+        for (Registry registry : registryList) {
+            registry.setHostsWeight(serviceName, group, hosts, weight);
+        }
+
+        monitor.logEvent("PigeonGovernor.setWeight", hosts, weight + "");
+    }
+
+    /**
+     * for governor: manual delete service
+     * @param serviceName
+     * @param group
+     * @throws RegistryException
+     */
+    public void delServerService(String serviceName, String group) throws RegistryException {
+        //TODO 待验证
+        for (Registry registry : registryList) {
+            registry.delServerService(serviceName, group);
+        }
+
+        monitor.logEvent("PigeonGovernor.delService", serviceName, "swimlane=" + group);
+    }
+
+    /**
+     * for governor: getServiceHosts from zk
+     * @param serviceName
+     * @param group
+     * @return
+     * @throws RegistryException
+     */
+    public String getServiceHosts(String serviceName, String group) throws RegistryException {
+        String addr = "";
+
+        List<String> checkList = Lists.newArrayList();
+        for (Registry registry : registryList) {
+            // 多个注册中心获取到本地内存
+            try {
+                checkList.add(registry.getServiceAddress(serviceName, group, false));
+            } catch (Throwable e) {
+                logger.error("failed to get service hosts for "
+                        + serviceName + "#" + group + ", msg: " + e.getMessage());
+                if (checkList.size() == 0) {
+                    throw new RegistryException(e);
+                }
+            }
+        }
+        if (checkList.size() > 0) {
+            addr = checkValueConsistency(checkList);
+        }
+
+        return addr;
+    }
+
     private class InnerConfigChangeListener implements ConfigChangeListener {
 
         @Override
@@ -781,7 +827,4 @@ public class RegistryManager {
         }
     }
 
-    public static void main(String[] args) {
-
-    }
 }

@@ -48,19 +48,24 @@ public interface Registry {
 
 	String getStatistics();
 
-	void setServerService(String serviceName, String group, String hosts) throws RegistryException;
-
-	void delServerService(String serviceName, String group) throws RegistryException;
-
-	void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis);
-
-	void deleteHeartBeat(String serviceAddress);
-
 	boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException;
 
 	void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException;
 
 	void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException;
 
+	//for provider
+	void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis);
 
+	//for provider
+	void deleteHeartBeat(String serviceAddress);
+
+	// for governor
+	void setServerService(String serviceName, String group, String hosts) throws RegistryException;
+
+	// for governor
+	void delServerService(String serviceName, String group) throws RegistryException;
+
+	// for governor
+	void setHostsWeight(String serviceName, String group, String hosts, int weight) throws RegistryException;
 }

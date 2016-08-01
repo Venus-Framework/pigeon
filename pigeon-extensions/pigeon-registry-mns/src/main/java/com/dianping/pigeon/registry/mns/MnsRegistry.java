@@ -75,8 +75,12 @@ public class MnsRegistry implements Registry {
 
     @Override
     public String getServiceAddress(String remoteAppkey, String serviceName, String group, boolean fallbackDefaultGroup) throws RegistryException {
-
         String result = "";
+
+        if(StringUtils.isNotBlank(group)) {
+            logger.warn("mns is not support pigeon group feature!");
+            return result;
+        }
 
         ProtocolRequest protocolRequest = new ProtocolRequest();
         protocolRequest.setProtocol("thrift");
@@ -113,12 +117,16 @@ public class MnsRegistry implements Registry {
 
     @Override
     public void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
+        if (StringUtils.isNotBlank(group)) {// 暂时忽略group
+            logger.warn("mns is not support pigeon group feature!");
+            return ;
+        }
+
         SGService sgService = new SGService();
         sgService.setAppkey(configManager.getAppName());
         Set<String> serviceSet = new HashSet<>();
         serviceSet.add(serviceName);
         sgService.setServiceName(serviceSet);
-        //todo 暂时忽略group
         sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
         int index = serviceAddress.lastIndexOf(":");
@@ -157,6 +165,16 @@ public class MnsRegistry implements Registry {
 
     @Override
     public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
+        unregisterService(serviceName, null, serviceAddress);
+    }
+
+    @Override
+    public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
+        if (StringUtils.isNotBlank(group)) {// 暂时忽略group
+            logger.warn("mns is not support pigeon group feature!");
+            return ;
+        }
+
         SGService sgService = new SGService();
         sgService.setAppkey(configManager.getAppName());
         Set<String> serviceSet = new HashSet<>();
@@ -181,11 +199,6 @@ public class MnsRegistry implements Registry {
         } catch (TException e) {
             throw new RegistryException("error while unregister service: " + serviceName, e);
         }
-    }
-
-    @Override
-    public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
-        unregisterService(serviceName, serviceAddress);
     }
 
     /**
@@ -414,12 +427,44 @@ public class MnsRegistry implements Registry {
 
     @Override
     public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
+        if(StringUtils.isNotBlank(group)) {
+            logger.warn("mns is not support pigeon group feature!");
+            return ;
+        }
+
         // 管理端接口，待定
     }
 
     @Override
     public void delServerService(String serviceName, String group) throws RegistryException {
+        if(StringUtils.isNotBlank(group)) {
+            logger.warn("mns is not support pigeon group feature!");
+            return ;
+        }
+
         // 管理端接口，待定
+    }
+
+    @Override
+    public void setHostsWeight(String serviceName, String group, String hosts, int weight) throws RegistryException {
+        if(StringUtils.isNotBlank(group)) {
+            logger.warn("mns is not support pigeon group feature!");
+            return ;
+        }
+
+        for (String host : hosts.split(",")) {
+            SGService sgService = getSGService(null, serviceName, host);
+            sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
+
+            try {
+                MnsInvoker.registerService(sgService);
+                logger.info("update provider's status: " + sgService);
+            } catch (TException e) {
+                //todo 管理端这里抛异常的处理要打磨一下
+                throw new RegistryException("error while update host weight: " + host, e);
+            }
+        }
+
     }
 
     @Override

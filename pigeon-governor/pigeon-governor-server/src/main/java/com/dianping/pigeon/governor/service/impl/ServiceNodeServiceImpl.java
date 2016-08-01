@@ -140,11 +140,46 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
         if(StringUtils.isNotBlank(projectName)) {
             ServiceNodeExample serviceNodeExample = new ServiceNodeExample();
             serviceNodeExample.createCriteria().andProjectNameEqualTo(projectName);
-            serviceNodes = serviceNodeMapper.selectByExample(serviceNodeExample);
 
+            try {
+                serviceNodes = serviceNodeMapper.selectByExample(serviceNodeExample);
+            } catch (DataAccessException e) {
+                logger.error(e.getMessage());
+            }
         }
 
         return serviceNodes;
+    }
+
+    @Override
+    public int createServiceNode(ServiceNode serviceNode) {
+        int sqlSucCount = 0;
+
+        try {
+            sqlSucCount = serviceNodeMapper.insertSelective(serviceNode);
+        } catch (DataAccessException e) {
+            logger.error(e.getMessage());
+            sqlSucCount = -1;
+        }
+
+        return sqlSucCount;
+    }
+
+    @Override
+    public int deleteServiceNodeById(ServiceNode serviceNode) {
+        int sqlSucCount = 0;
+        Integer id = serviceNode.getId();
+
+        if (id != null) {
+            try {
+                sqlSucCount = serviceNodeMapper.deleteByPrimaryKey(id);
+            } catch (DataAccessException e) {
+                logger.error(e.getMessage());
+                sqlSucCount = -1;
+            }
+        }
+
+        return sqlSucCount;
     }
 
 }
