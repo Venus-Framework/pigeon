@@ -101,12 +101,12 @@ public enum LoadInfoCollector {
         for (String app : providerCapacityMap.keySet()) {
             ProviderCapacityBucket appCapacity = providerCapacityMap.get(app);
             if (appCapacity != null) {
-                qps += appCapacity.getRequestsInLastSecond();
+                qps += appCapacity.getRequestsInLastMinute();
             }
         }
 
         Map<String,Double> methodQpsMap = Maps.newHashMap();
-        methodQpsMap.put("all", (double) qps);
+        methodQpsMap.put("all", qps / 60.0);
 
         return methodQpsMap;
     }

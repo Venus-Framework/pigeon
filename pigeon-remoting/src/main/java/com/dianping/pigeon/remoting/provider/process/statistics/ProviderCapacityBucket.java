@@ -97,7 +97,7 @@ public class ProviderCapacityBucket implements Serializable {
 		if (counter != null) {
 			counter.incrementAndGet();
 		} else {
-			logger.warn("Impossible case happended, day[" + minute + "]'s request counter is null.");
+			logger.warn("Impossible case happended, minute[" + minute + "]'s request counter is null.");
 		}
 	}
 
