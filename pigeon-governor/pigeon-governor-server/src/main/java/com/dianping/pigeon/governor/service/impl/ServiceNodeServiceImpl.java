@@ -182,4 +182,9 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
         return sqlSucCount;
     }
 
+    @Override
+    public List<ServiceNode> retrieveAll() {
+        return serviceNodeMapper.selectByExample(null);
+    }
+
 }

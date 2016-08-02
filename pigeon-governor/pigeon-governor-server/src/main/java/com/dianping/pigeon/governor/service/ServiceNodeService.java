@@ -22,4 +22,6 @@ public interface ServiceNodeService {
     public int createServiceNode(ServiceNode serviceNode);
 
     public int deleteServiceNodeById(ServiceNode serviceNode);
+
+    public List<ServiceNode> retrieveAll();
 }

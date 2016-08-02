@@ -1,6 +1,6 @@
 package com.dianping.pigeon.governor.util;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -171,11 +171,11 @@ public class IPUtils {
      * @return
      */
     public static String getValidHosts(String hosts) {
-        return StringUtils.join(Arrays.asList(getValidHosts(hosts.split(","))), ",");
+        return StringUtils.join(Sets.newHashSet(getValidHosts(hosts.split(","))), ",");
     }
 
     public static String[] getValidHosts(String[] ipPorts) {
-        List<String> result = Lists.newArrayList();
+        Set<String> result = Sets.newHashSet();
 
         for(String ipPort : ipPorts) {
 

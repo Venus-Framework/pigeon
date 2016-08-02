@@ -117,11 +117,18 @@
 
 
 	
-	<task:scheduled-tasks>
+	<!--<task:scheduled-tasks>
 		<task:scheduled ref="checkAndSyncServiceDB" method="schedule" cron="0 0 0/8 * * ?"/>
-	</task:scheduled-tasks>
+	</task:scheduled-tasks>-->
 	<bean id="checkAndSyncServiceDB"
 		  class="com.dianping.pigeon.governor.task.CheckAndSyncServiceDB" />
+
+
+	<task:scheduled-tasks>
+		<task:scheduled ref="checkAndSyncServiceDB" method="schedule" cron="0 30 2 * * ? "/>
+	</task:scheduled-tasks>
+	<bean id="checkAndSyncServiceNodeDB"
+		  class="com.dianping.pigeon.governor.task.CheckAndSyncServiceNodeDB" />
 
 	<task:scheduled-tasks>
 		<task:scheduled ref="scanServiceTask" method="schedule" cron=" 0 0 3 * * *"/>

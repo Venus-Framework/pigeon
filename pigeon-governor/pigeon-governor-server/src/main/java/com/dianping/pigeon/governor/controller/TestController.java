@@ -6,6 +6,7 @@ import com.dianping.pigeon.governor.exception.DbException;
 import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.task.CheckAndSyncServiceDB;
+import com.dianping.pigeon.governor.task.CheckAndSyncServiceNodeDB;
 import com.dianping.pigeon.governor.util.IPUtils;
 import com.dianping.pigeon.governor.util.OpType;
 import com.dianping.pigeon.registry.Registry;
@@ -39,6 +40,8 @@ public class TestController {
     private Logger logger = LogManager.getLogger();
     @Autowired
     private CheckAndSyncServiceDB checkAndSyncServiceDB;
+    @Autowired
+    private CheckAndSyncServiceNodeDB checkAndSyncServiceNodeDB;
     @Autowired
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
     @Autowired
@@ -129,7 +132,7 @@ public class TestController {
 
     }
 
-    @RequestMapping(value = "/syncnode2db", method = {RequestMethod.POST})
+    @RequestMapping(value = "/syncnode2dbold", method = {RequestMethod.POST})
     @ResponseBody
     public Result syncService2ServiceNode(@RequestParam(value="validate") final String validate) {
 
@@ -271,6 +274,24 @@ public class TestController {
 
             return Result.createErrorResult("failed to validate...");
 
+        }
+
+    }
+
+    @RequestMapping(value = {"/syncnode2db"}, method = {RequestMethod.POST})
+    @ResponseBody
+    public Result syncnode2db(@RequestParam(value="validate") final String validate,
+                         HttpServletRequest request, HttpServletResponse response) {
+        if(IPUtils.getFirstNoLoopbackIP4Address().equalsIgnoreCase(validate)) {
+            threadPoolTaskExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    checkAndSyncServiceNodeDB.checkAndSyncDB();
+                }
+            });
+            return Result.createSuccessResult("start sync db...");
+        } else {
+            return Result.createErrorResult("failed to validate...");
         }
 
     }
