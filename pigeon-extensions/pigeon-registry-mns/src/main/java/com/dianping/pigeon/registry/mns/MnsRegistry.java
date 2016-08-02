@@ -6,6 +6,8 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
+import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -123,6 +125,22 @@ public class MnsRegistry implements Registry {
         }
 
         SGService sgService = new SGService();
+
+        ProviderConfig providerConfig = ServicePublisher.getServiceConfig(serviceName);
+        boolean isSupport = false;
+
+        if (providerConfig != null) {
+            isSupport = providerConfig.isSupported();
+        }
+
+        if (configManager.getBooleanValue("pigeon.registry.mns.notsuport.old.protocol", true)
+                && !isSupport) {
+            logger.warn("mns is not support pigeon old protocol register!");
+            return ;
+        }
+
+        sgService.setUnifiedProto(isSupport);
+
         sgService.setAppkey(configManager.getAppName());
         Set<String> serviceSet = new HashSet<>();
         serviceSet.add(serviceName);
@@ -142,8 +160,6 @@ public class MnsRegistry implements Registry {
         sgService.setWeight(10);
         sgService.setFweight(10.d);
 
-        //TODO 改成琦总的接口，这里有点分歧，再说，看下servicepublisher
-        //sgService.setUnifiedProto(/**琦总的接口*/false);
         sgService.setVersion(VersionUtils.VERSION);
         sgService.setProtocol("thrift");
         sgService.setLastUpdateTime((int) (System.currentTimeMillis() / 1000));
