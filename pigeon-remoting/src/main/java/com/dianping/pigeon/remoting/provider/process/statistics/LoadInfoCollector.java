@@ -95,18 +95,32 @@ public enum LoadInfoCollector {
     }
 
     public Map<String,Double> getQpsMap() {
-        int qps = 0;
-        Map<String, ProviderCapacityBucket> providerCapacityMap = ProviderStatisticsHolder.getCapacityBuckets();
+        Map<String,Double> methodQpsMap = Maps.newHashMap();
 
-        for (String app : providerCapacityMap.keySet()) {
-            ProviderCapacityBucket appCapacity = providerCapacityMap.get(app);
+        // total
+        int totalQps = 0;
+        Map<String, ProviderCapacityBucket> appCapacityBuckets = ProviderStatisticsHolder.getCapacityBuckets();
+
+        for (String app : appCapacityBuckets.keySet()) {
+            ProviderCapacityBucket appCapacity = appCapacityBuckets.get(app);
+
             if (appCapacity != null) {
-                qps += appCapacity.getRequestsInLastMinute();
+                totalQps += appCapacity.getRequestsInLastMinute();
             }
         }
 
-        Map<String,Double> methodQpsMap = Maps.newHashMap();
-        methodQpsMap.put("all", qps / 60.0);
+        methodQpsMap.put("all", totalQps / 60.0);
+
+        // method
+        Map<String, ProviderCapacityBucket> methodCapacityBuckets = ProviderStatisticsHolder.getMethodCapacityBuckets();
+
+        for (String requestMethod : methodCapacityBuckets.keySet()) {
+            ProviderCapacityBucket methodCapacity = methodCapacityBuckets.get(requestMethod);
+
+            if (methodCapacity != null) {
+                methodQpsMap.put(requestMethod, methodCapacity.getRequestsInLastMinute() / 60.0);
+            }
+        }
 
         return methodQpsMap;
     }

@@ -20,16 +20,25 @@ public class ProviderStatisticsChecker implements Runnable {
 				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 			}
-			Map<String, ProviderCapacityBucket> buckets = ProviderStatisticsHolder.getCapacityBuckets();
-			if (buckets != null) {
+			Map<String, ProviderCapacityBucket> appCapacityBuckets = ProviderStatisticsHolder.getCapacityBuckets();
+			Map<String, ProviderCapacityBucket> methodCapacityBuckets = ProviderStatisticsHolder.getMethodCapacityBuckets();
+			if (appCapacityBuckets != null && methodCapacityBuckets != null) {
 				try {
-					for (String key : buckets.keySet()) {
-						ProviderCapacityBucket bucket = buckets.get(key);
+					for (String key : appCapacityBuckets.keySet()) {
+						ProviderCapacityBucket bucket = appCapacityBuckets.get(key);
 						bucket.resetRequestsInSecondCounter();
 					}
+					for (String key : methodCapacityBuckets.keySet()) {
+						ProviderCapacityBucket bucket = methodCapacityBuckets.get(key);
+						bucket.resetRequestsInSecondCounter();
+					}
+
 					if (++i % 12 == 0) {
 						i = 0;
-						for (ProviderCapacityBucket bucket : buckets.values()) {
+						for (ProviderCapacityBucket bucket : appCapacityBuckets.values()) {
+							bucket.resetRequestsInMinuteCounter();
+						}
+						for (ProviderCapacityBucket bucket : methodCapacityBuckets.values()) {
 							bucket.resetRequestsInMinuteCounter();
 						}
 					}
