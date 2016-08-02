@@ -18,6 +18,10 @@
     <dependencies>
         <dependency>
             <groupId>com.dianping</groupId>
+            <artifactId>pigeon-remoting</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dianping</groupId>
             <artifactId>pigeon-registry</artifactId>
         </dependency>
         <dependency>

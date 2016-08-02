@@ -6,17 +6,19 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
+import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.VersionUtils;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.sankuai.inf.octo.mns.MnsInvoker;
 import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TException;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by chenchongze on 16/5/25.
@@ -28,6 +30,10 @@ public class MnsRegistry implements Registry {
     private Properties properties;
 
     private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+
+    private Map<String, String> hostRemoteAppkeyMapping = Maps.newConcurrentMap();
+
+    public static final int WEIGHT_DEFAULT = 1;
 
     private volatile boolean inited = false;
 
@@ -71,8 +77,12 @@ public class MnsRegistry implements Registry {
 
     @Override
     public String getServiceAddress(String remoteAppkey, String serviceName, String group, boolean fallbackDefaultGroup) throws RegistryException {
-
         String result = "";
+
+        if(StringUtils.isNotBlank(group)) {
+            logger.warn("mns is not support pigeon group feature!");
+            return result;
+        }
 
         ProtocolRequest protocolRequest = new ProtocolRequest();
         protocolRequest.setProtocol("thrift");
@@ -85,7 +95,22 @@ public class MnsRegistry implements Registry {
 
         for (SGService sgService : sgServices) {
             if (MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight()) > 0) {
-                result += sgService.getIp() + ":" + sgService.getPort() +",";
+                String host = sgService.getIp() + ":" + sgService.getPort();
+                result += host +",";
+                String remoteAppkeyCache = null;
+
+                if (hostRemoteAppkeyMapping.containsKey(host)) {
+                    remoteAppkeyCache = hostRemoteAppkeyMapping.get(host);
+
+                    if (StringUtils.isNotBlank(remoteAppkeyCache)) {
+                        remoteAppkeyCache = remoteAppkey;
+                        hostRemoteAppkeyMapping.put(host, remoteAppkeyCache);
+                    }
+
+                } else {
+                    remoteAppkeyCache = remoteAppkey;
+                    hostRemoteAppkeyMapping.put(host, remoteAppkeyCache);
+                }
             }
         }
 
@@ -94,12 +119,32 @@ public class MnsRegistry implements Registry {
 
     @Override
     public void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
+        if (StringUtils.isNotBlank(group)) {// 暂时忽略group
+            logger.warn("mns is not support pigeon group feature!");
+            return ;
+        }
+
         SGService sgService = new SGService();
-        sgService.setAppkey(serviceName);
+
+        ProviderConfig providerConfig = ServicePublisher.getServiceConfig(serviceName);
+        boolean isSupport = false;
+
+        if (providerConfig != null) {
+            isSupport = providerConfig.isSupported();
+        }
+
+        if (configManager.getBooleanValue("pigeon.registry.mns.notsuport.old.protocol", true)
+                && !isSupport) {
+            logger.warn("mns is not support pigeon old protocol register!");
+            return ;
+        }
+
+        sgService.setUnifiedProto(isSupport);
+
+        sgService.setAppkey(configManager.getAppName());
         Set<String> serviceSet = new HashSet<>();
         serviceSet.add(serviceName);
         sgService.setServiceName(serviceSet);
-        //todo 暂时忽略group
         sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
         int index = serviceAddress.lastIndexOf(":");
@@ -115,8 +160,6 @@ public class MnsRegistry implements Registry {
         sgService.setWeight(10);
         sgService.setFweight(10.d);
 
-        //TODO 改成琦总的接口，这里有点分歧，再说，看下servicepublisher
-        //sgService.setUnifiedProto(/**琦总的接口*/false);
         sgService.setVersion(VersionUtils.VERSION);
         sgService.setProtocol("thrift");
         sgService.setLastUpdateTime((int) (System.currentTimeMillis() / 1000));
@@ -138,12 +181,22 @@ public class MnsRegistry implements Registry {
 
     @Override
     public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
+        unregisterService(serviceName, null, serviceAddress);
+    }
+
+    @Override
+    public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
+        if (StringUtils.isNotBlank(group)) {// 暂时忽略group
+            logger.warn("mns is not support pigeon group feature!");
+            return ;
+        }
+
         SGService sgService = new SGService();
         sgService.setAppkey(configManager.getAppName());
         Set<String> serviceSet = new HashSet<>();
         serviceSet.add(serviceName);
         sgService.setServiceName(serviceSet);
-        //todo 设置status为禁用
+        // 设置status为禁用
         sgService.setStatus(MnsUtils.getMtthriftStatus(0));
 
         int index = serviceAddress.lastIndexOf(":");
@@ -164,36 +217,49 @@ public class MnsRegistry implements Registry {
         }
     }
 
-    @Override
-    public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
-        unregisterService(serviceName, serviceAddress);
-    }
-
+    /**
+     * for invoker
+     * @param serverAddress
+     * @return
+     * @throws RegistryException
+     */
     @Override
     public int getServerWeight(String serverAddress) throws RegistryException {
         //todo 北京侧的最小单位不是serverAddress
-        //todo client建立连接时候，带上host和serviceName的映射
+        //todo client建立连接时候，带上host和remoteAppkey的映射
+        //todo host ---> remoteAppkey
+        //todo 存在的问题，高度依赖于连接client时序，是否一定是先建立client连接
         try {
-            return 1;
+            String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
+
+            if (StringUtils.isNotBlank(remoteAppkey)) {
+                SGService sgService = getSGService(remoteAppkey, null, serverAddress);
+                return MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight());
+            }
+
+            return WEIGHT_DEFAULT;
         } catch (Throwable e) {
             logger.error("failed to get weight for " + serverAddress);
             throw new RegistryException(e);
         }
     }
 
-    @Override
-    public List<String> getChildren(String key) throws RegistryException {
-        return null;
-    }
-
-    @Override
-    public void setServerWeight(String serverAddress, int weight) throws RegistryException {
-
-    }
-
+    /**
+     * for invoker
+     * @param serverAddress
+     * @return
+     * @throws RegistryException
+     */
     @Override
     public String getServerApp(String serverAddress) throws RegistryException {
+        //todo 参考getServerWeight
         try {
+            String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
+
+            if (StringUtils.isNotBlank(remoteAppkey)) {
+                SGService sgService = getSGService(remoteAppkey, null, serverAddress);
+                return sgService.getAppkey();
+            }
 
             return "";
         } catch (Throwable e) {
@@ -202,24 +268,22 @@ public class MnsRegistry implements Registry {
         }
     }
 
-    @Override
-    public void setServerApp(String serverAddress, String app) {
-
-    }
-
-    @Override
-    public void unregisterServerApp(String serverAddress) {
-
-    }
-
-    @Override
-    public void setServerVersion(String serverAddress, String version) {
-
-    }
-
+    /**
+     * for invoker
+     * @param serverAddress
+     * @return
+     * @throws RegistryException
+     */
     @Override
     public String getServerVersion(String serverAddress) throws RegistryException {
+        //todo 参考getServerWeight
         try {
+            String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
+
+            if (StringUtils.isNotBlank(remoteAppkey)) {
+                SGService sgService = getSGService(remoteAppkey, null, serverAddress);
+                return sgService.getVersion();
+            }
 
             return "";
         } catch (Throwable e) {
@@ -228,57 +292,205 @@ public class MnsRegistry implements Registry {
         }
     }
 
+    /**
+     * for invoker
+     * @param serviceAddress
+     * @param serviceName
+     * @return
+     * @throws RegistryException
+     */
+    @Override
+    public boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
+        SGService sgService = getSGService(null, serviceName, serviceAddress);
+
+        return sgService.isUnifiedProto();
+    }
+
+    /**
+     * for provider
+     * @param serverAddress
+     * @param weight
+     * @throws RegistryException
+     */
+    @Override
+    public void setServerWeight(String serverAddress, int weight) throws RegistryException {
+        SGService sgService = getSGService(configManager.getAppName(), null, serverAddress);
+        sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
+
+        try {
+            MnsInvoker.registerService(sgService);
+            logger.info("update provider's status: " + sgService);
+        } catch (TException e) {
+            throw new RegistryException("error while update host weight: " + serverAddress, e);
+        }
+    }
+
+    /**
+     * for provider
+     * @param serviceAddress
+     * @param serviceName
+     * @param support
+     * @throws RegistryException
+     */
+    @Override
+    public void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException {
+        SGService sgService = getSGService(configManager.getAppName(), serviceName, serviceAddress);
+        sgService.setUnifiedProto(support);
+
+        try {
+            MnsInvoker.registerService(sgService);
+            logger.info("update provider's protocol: " + serviceAddress + "#" + serviceName + ": " + support);
+        } catch (TException e) {
+            throw new RegistryException("error while update service protocol: " + serviceAddress + "#" + serviceName,  e);
+        }
+    }
+
+    /**
+     * for provider
+     * @param serviceAddress
+     * @param serviceName
+     * @throws RegistryException
+     */
+    @Override
+    public void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
+        setSupportNewProtocol(serviceAddress, serviceName, false);
+    }
+
+    /**
+     * for provider
+     * @param serverAddress
+     * @param app
+     */
+    @Override
+    public void setServerApp(String serverAddress, String app) {
+        // keep blank is enough
+        /*try {
+            SGService sgService = getSGService(configManager.getAppName(), null, serverAddress);
+            sgService.setAppkey(configManager.getAppName());
+            MnsInvoker.registerService(sgService);
+            logger.info("update provider's appkey: " + sgService);
+        } catch (Throwable e) {
+            logger.error("failed to set app of " + serverAddress + " to " + app);
+        }*/
+    }
+
+    /**
+     * for provider
+     * @param serverAddress
+     */
+    @Override
+    public void unregisterServerApp(String serverAddress) {
+        // keep blank is enough
+    }
+
+    /**
+     * for provider
+     * @param serverAddress
+     * @param version
+     */
+    @Override
+    public void setServerVersion(String serverAddress, String version) {
+        // keep blank is enough
+        /*try {
+            SGService sgService = getSGService(configManager.getAppName(), null, serverAddress);
+            sgService.setVersion(version);
+            MnsInvoker.registerService(sgService);
+            logger.info("update provider's version: " + sgService);
+        } catch (Throwable e) {
+            logger.error("failed to set version of " + serverAddress + " to " + version);
+        }*/
+    }
+
+    /**
+     * for provider
+     * @param serverAddress
+     */
     @Override
     public void unregisterServerVersion(String serverAddress) {
+        // keep blank is enough
+    }
 
+    private SGService getSGService(String remoteAppkey, String serviceName, String serverAddress) throws RegistryException {
+
+        ProtocolRequest protocolRequest = new ProtocolRequest();
+        protocolRequest.setProtocol("thrift");
+        protocolRequest.setLocalAppkey(configManager.getAppName());
+        protocolRequest.setServiceName(serviceName);
+        protocolRequest.setRemoteAppkey(remoteAppkey);
+        List<SGService> sgServices = MnsInvoker.getServiceList(protocolRequest);
+
+        if (sgServices != null && sgServices.size() > 0) {
+            for (SGService sgService : sgServices) {
+                String host = sgService.getIp() + ":" + sgService.getPort();
+                if(host.equals(serverAddress)) {
+                    return sgService;
+                }
+            }
+        }
+
+        throw new RegistryException("SGService not found: " + remoteAppkey + ", " + serviceName + ", " + serverAddress);
     }
 
     @Override
     public String getStatistics() {
-        return null;
+        return getName();
+    }
+
+    @Override
+    public List<String> getChildren(String key) throws RegistryException {
+        throw new RegistryException("unsupported interface in registry: " + getName());
     }
 
     @Override
     public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
+        if(StringUtils.isNotBlank(group)) {
+            logger.warn("mns is not support pigeon group feature!");
+            return ;
+        }
 
+        // 管理端接口，待定
     }
 
     @Override
     public void delServerService(String serviceName, String group) throws RegistryException {
+        if(StringUtils.isNotBlank(group)) {
+            logger.warn("mns is not support pigeon group feature!");
+            return ;
+        }
+
+        // 管理端接口，待定
+    }
+
+    @Override
+    public void setHostsWeight(String serviceName, String group, String hosts, int weight) throws RegistryException {
+        if(StringUtils.isNotBlank(group)) {
+            logger.warn("mns is not support pigeon group feature!");
+            return ;
+        }
+
+        for (String host : hosts.split(",")) {
+            SGService sgService = getSGService(null, serviceName, host);
+            sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
+
+            try {
+                MnsInvoker.registerService(sgService);
+                logger.info("update provider's status: " + sgService);
+            } catch (TException e) {
+                //todo 管理端这里抛异常的处理要打磨一下
+                throw new RegistryException("error while update host weight: " + host, e);
+            }
+        }
 
     }
 
     @Override
     public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
-
+        // keep blank
     }
 
     @Override
     public void deleteHeartBeat(String serviceAddress) {
-
-    }
-
-    @Override
-    public boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
-        try {
-
-            return false;
-
-        } catch (Throwable e) {
-            logger.error("failed to get protocol:" + serviceName
-                    + "of host:" + serviceAddress + ", caused by:" + e.getMessage());
-            throw new RegistryException(e);
-        }
-    }
-
-    @Override
-    public void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException {
-
-    }
-
-    @Override
-    public void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
-
+        // keep blank
     }
 
     public static void main(String[] args) {

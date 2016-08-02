@@ -7,7 +7,8 @@ package com.dianping.pigeon.remoting.common.domain.generic;
 public enum MessageType {
 
     Normal((byte) 0),    // 正常消息
-    Heartbeat((byte) 1); // 心跳消息
+    Heartbeat((byte) 1), // 心跳消息
+    ScannerHeartbeat((byte) 2); // scanner 心跳消息
 
     private byte code;
 

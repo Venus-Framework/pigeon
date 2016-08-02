@@ -21,6 +21,8 @@ public class ProviderCapacityBucket implements Serializable {
 
 	private Map<Integer, AtomicInteger> totalRequestsInMinute = new ConcurrentHashMap<Integer, AtomicInteger>();
 
+	//private Map<Integer, AtomicInteger> methodActives = new ConcurrentHashMap<Integer, AtomicInteger>();
+
 	public static final boolean enableMinuteStats = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.providerstat.minute.enable", true);
 
@@ -97,7 +99,7 @@ public class ProviderCapacityBucket implements Serializable {
 		if (counter != null) {
 			counter.incrementAndGet();
 		} else {
-			logger.warn("Impossible case happended, day[" + minute + "]'s request counter is null.");
+			logger.warn("Impossible case happended, minute[" + minute + "]'s request counter is null.");
 		}
 	}
 

@@ -11,6 +11,7 @@ import com.sankuai.inf.octo.mns.MnsInvoker;
 import com.sankuai.inf.octo.mns.listener.IServiceListChangeListener;
 import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
@@ -64,13 +65,18 @@ public class MnsEventNotifier {
                 }
 
                 //app 即remoteAppKey
-                //todo 暂搁
+                String appNew = sgService.getAppkey();
+                String appCached = RegistryManager.getInstance().getReferencedAppFromCache(host);
+
+                if (StringUtils.isNotBlank(appNew) && appNew.equals(appCached)) {
+                    appChanged(host, appNew);
+                }
 
                 //version 目前貌似没用，暂不管
                 String versionNew = sgService.getVersion();
                 String versionCached = RegistryManager.getInstance().getReferencedVersionFromCache(host);
 
-                if (versionNew.equals(versionCached)) {
+                if (StringUtils.isNotBlank(versionNew) && versionNew.equals(versionCached)) {
                     versionChanged(host, versionNew);
                 }
 
@@ -126,7 +132,7 @@ public class MnsEventNotifier {
 
     private static void protocolChanged(String host, String serviceName, boolean isSupport) throws RegistryException {
         try {
-            //todo load protocol map and update
+            // load protocol map and update
             Map<String, Boolean> protocolInfoMap = RegistryManager.getInstance().getProtocolInfoFromCache(host);
             protocolInfoMap.put(serviceName, isSupport);
             logger.info("protocol changed, value " + serviceName + "#" + isSupport);

@@ -402,6 +402,14 @@ public class CuratorRegistry implements Registry {
 	}
 
 	@Override
+	public void setHostsWeight(String serviceName, String group, String hosts, int weight) throws RegistryException {
+
+		for (String host : hosts.split(",")) {
+			setServerWeight(host, weight);
+		}
+	}
+
+	@Override
 	public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
 		try {
 			String heartBeatPath = Utils.getHeartBeatPath(serviceAddress);

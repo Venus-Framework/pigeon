@@ -1,5 +1,6 @@
 package com.dianping.pigeon.remoting.common.domain.generic;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.monitor.MonitorConstants;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.*;
 import com.dianping.pigeon.remoting.common.exception.*;
@@ -8,6 +9,7 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceDegradedException;
 import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
+import com.dianping.pigeon.remoting.provider.process.statistics.LoadInfoCollector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,19 +29,6 @@ public class ThriftMapper {
             header.setMessageType(MessageType.Heartbeat.getCode());
         } else {
             header.setMessageType(MessageType.Normal.getCode());
-        }
-
-        //compresstype
-        switch (request.getCompressType()) {
-            case Constants.COMPRESS_TYPE_NONE:
-                header.setCompressType(CompressType.None.getCode());
-                break;
-            case Constants.COMPRESS_TYPE_SNAPPY:
-                header.setCompressType(CompressType.Snappy.getCode());
-                break;
-            case Constants.COMPRESS_TYPE_GZIP:
-                header.setCompressType(CompressType.Gzip.getCode());
-                break;
         }
 
         //requestInfo
@@ -86,25 +75,39 @@ public class ThriftMapper {
         int messageType = response.getMessageType();
 
         //messageType
-        if (messageType == Constants.MESSAGE_TYPE_HEART) {
+        if (messageType == Constants.MESSAGE_TYPE_SERVICE) {
+            header.setMessageType(MessageType.Normal.getCode());
+
+        } else if (messageType == Constants.MESSAGE_TYPE_HEART) {
             header.setMessageType(MessageType.Heartbeat.getCode());
+            // 响应心跳信息
+            HeartbeatInfo heartbeatInfo = new HeartbeatInfo();
+            heartbeatInfo.setAppkey(ConfigManagerLoader.getConfigManager().getAppName());
+            heartbeatInfo.setSendTime(response.getCreateMillisTime());
+
+            header.setHeartbeatInfo(heartbeatInfo);
+
+        } else if (messageType == Constants.MESSAGE_TYPE_SCANNER_HEART) {
+            header.setMessageType(MessageType.ScannerHeartbeat.getCode());
+            // 响应心跳信息
+            HeartbeatInfo heartbeatInfo = new HeartbeatInfo();
+            heartbeatInfo.setAppkey(ConfigManagerLoader.getConfigManager().getAppName());
+            heartbeatInfo.setSendTime(response.getCreateMillisTime());
+
+            LoadInfo loadInfo = new LoadInfo();
+            LoadInfoCollector loadInfoCollector = LoadInfoCollector.INSTANCE;
+            loadInfo.setAverageLoad(loadInfoCollector.getSystemLoadAverage());
+            loadInfo.setOldGC(loadInfoCollector.getOldGC());
+            loadInfo.setThreadNum(loadInfoCollector.getThreadNum());
+            loadInfo.setQueueSize(loadInfoCollector.getQueueSize());
+            loadInfo.setMethodQpsMap(loadInfoCollector.getQpsMap());
+
+            heartbeatInfo.setLoadInfo(loadInfo);
+            header.setHeartbeatInfo(heartbeatInfo);
+
         } else {
             header.setMessageType(MessageType.Normal.getCode());
         }
-
-        //compresstype
-        switch (response.getCompressType()) {
-            case Constants.COMPRESS_TYPE_NONE:
-                header.setCompressType(CompressType.None.getCode());
-                break;
-            case Constants.COMPRESS_TYPE_SNAPPY:
-                header.setCompressType(CompressType.Snappy.getCode());
-                break;
-            case Constants.COMPRESS_TYPE_GZIP:
-                header.setCompressType(CompressType.Gzip.getCode());
-                break;
-        }
-
 
         //requestInfo
         ResponseInfo responseInfo = new ResponseInfo();
@@ -155,25 +158,15 @@ public class ThriftMapper {
     public static GenericRequest convertHeaderToRequest(Header header) {
         GenericRequest request = new GenericRequest();
         //messageType
-        if (header.getMessageType() == MessageType.Heartbeat.getCode()) {
+        if (header.getMessageType() == MessageType.Normal.getCode()) {
+            request.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
+        } else if (header.getMessageType() == MessageType.Heartbeat.getCode()) {
             request.setMessageType(Constants.MESSAGE_TYPE_HEART);
+        } else if (header.getMessageType() == MessageType.ScannerHeartbeat.getCode()) {
+            request.setMessageType(Constants.MESSAGE_TYPE_SCANNER_HEART);
         } else {
             request.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
         }
-
-        //compresstype
-        switch (CompressType.getCompressType(header.getCompressType())) {
-            case None:
-                request.setCompressType(Constants.COMPRESS_TYPE_NONE);
-                break;
-            case Snappy:
-                request.setCompressType(Constants.COMPRESS_TYPE_SNAPPY);
-                break;
-            case Gzip:
-                request.setCompressType(Constants.COMPRESS_TYPE_GZIP);
-                break;
-        }
-
 
         //requestInfo
         if (header.getRequestInfo() != null) {
@@ -245,19 +238,6 @@ public class ThriftMapper {
                     response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
                     break;
             }
-        }
-
-        //compresstype
-        switch (CompressType.getCompressType(header.getCompressType())) {
-            case None:
-                response.setCompressType(Constants.COMPRESS_TYPE_NONE);
-                break;
-            case Snappy:
-                response.setCompressType(Constants.COMPRESS_TYPE_SNAPPY);
-                break;
-            case Gzip:
-                response.setCompressType(Constants.COMPRESS_TYPE_GZIP);
-                break;
         }
 
         //requestInfo
