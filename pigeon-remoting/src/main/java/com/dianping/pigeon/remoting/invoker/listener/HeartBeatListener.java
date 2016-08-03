@@ -4,6 +4,19 @@
  */
 package com.dianping.pigeon.remoting.invoker.listener;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.apache.logging.log4j.Logger;
+
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
@@ -16,7 +29,6 @@ import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
-import com.dianping.pigeon.remoting.common.exception.ServiceStatusException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
@@ -25,13 +37,6 @@ import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
-import org.apache.logging.log4j.Logger;
-
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class HeartBeatListener implements Runnable, ClusterListener {
 
@@ -62,7 +67,6 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	private static int heartBeatTimeout = configManager.getIntValue(Constants.KEY_HEARTBEAT_TIMEOUT,
 			Constants.DEFAULT_HEARTBEAT_TIMEOUT);
 	private static float pickoffRatio = configManager.getFloatValue("pigeon.heartbeat.pickoffratio", 0.5f);
-	private static boolean logPickOff = configManager.getBooleanValue("pigeon.heartbeat.logpickoff", true);
 	private static final Monitor monitor = MonitorLoader.getMonitor();
 
 	private static volatile Set<String> inactiveAddresses = new HashSet<String>();
@@ -77,12 +81,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 		@Override
 		public void onKeyUpdated(String key, String value) {
-			if (key.endsWith("pigeon.heartbeat.logpickoff")) {
-				try {
-					logPickOff = Boolean.valueOf(value);
-				} catch (RuntimeException e) {
-				}
-			} else if (key.endsWith("pigeon.heartbeat.pickoffratio")) {
+			if (key.endsWith("pigeon.heartbeat.pickoffratio")) {
 				try {
 					pickoffRatio = Float.valueOf(value);
 				} catch (RuntimeException e) {
@@ -259,6 +258,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 					inactiveAddresses.remove(client.getAddress());
 					logger.info("@service-activate:" + client + ", service:" + getServiceName(client)
 							+ ", inactive addresses:" + inactiveAddresses);
+					monitor.logEvent("PigeonCall.heartbeat", "Activate", client.getAddress());
 				}
 				heartStat.resetCounter();
 			} else if (heartStat.failedCounter.longValue() >= heartBeatDeadCount) {
@@ -267,13 +267,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 						client.setActive(false);
 						inactiveAddresses.add(client.getAddress());
 						logger.info("@service-deactivate:" + client + ", inactive addresses:" + inactiveAddresses);
-
-						if (logPickOff) {
-							ServiceStatusException ex = new ServiceStatusException("remote server " + client
-									+ " unavailable");
-							ex.setStackTrace(new StackTraceElement[] {});
-							monitor.logError(ex);
-						}
+						monitor.logEvent("PigeonCall.heartbeat", "Deactivate", client.getAddress());
 					} else {
 						logger.info("@service-dieaway:" + client + ", inactive addresses:" + inactiveAddresses);
 					}
