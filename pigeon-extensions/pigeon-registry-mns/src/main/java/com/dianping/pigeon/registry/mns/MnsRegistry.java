@@ -10,11 +10,10 @@ import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.sankuai.inf.octo.mns.MnsInvoker;
 import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
-import com.sankuai.sgagent.thrift.model.serviceDetail;
+import com.sankuai.sgagent.thrift.model.ServiceDetail;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TException;
@@ -132,8 +131,8 @@ public class MnsRegistry implements Registry {
         boolean isSupport = providerConfig.isSupported();
 
         sgService.setAppkey(configManager.getAppName());
-        Map<String, serviceDetail> serviceDetailMap = Maps.newHashMap();
-        serviceDetailMap.put(serviceName, new serviceDetail(isSupport));
+        Map<String, ServiceDetail> serviceDetailMap = Maps.newHashMap();
+        serviceDetailMap.put(serviceName, new ServiceDetail(isSupport));
         sgService.setServiceInfo(serviceDetailMap);
         sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
@@ -186,8 +185,8 @@ public class MnsRegistry implements Registry {
 
         ProviderConfig providerConfig = ServicePublisher.getServiceConfig(serviceName);
         boolean isSupport = providerConfig.isSupported();
-        Map<String, serviceDetail> serviceDetailMap = Maps.newHashMap();
-        serviceDetailMap.put(serviceName, new serviceDetail(isSupport));
+        Map<String, ServiceDetail> serviceDetailMap = Maps.newHashMap();
+        serviceDetailMap.put(serviceName, new ServiceDetail(isSupport));
         sgService.setServiceInfo(serviceDetailMap);
         // 设置status为禁用
         //sgService.setStatus(MnsUtils.getMtthriftStatus(0));
@@ -306,7 +305,7 @@ public class MnsRegistry implements Registry {
     @Override
     public boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
         SGService sgService = getSGService(null, serviceName, serviceAddress);
-        serviceDetail serviceDetail = sgService.getServiceInfo().get(serviceName);
+        ServiceDetail serviceDetail = sgService.getServiceInfo().get(serviceName);
 
         if(serviceDetail != null) {
             return serviceDetail.isUnifiedProto();
@@ -344,12 +343,12 @@ public class MnsRegistry implements Registry {
     @Override
     public void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException {
         SGService sgService = getSGService(configManager.getAppName(), serviceName, serviceAddress);
-        serviceDetail serviceDetail = sgService.getServiceInfo().get(serviceName);
+        ServiceDetail serviceDetail = sgService.getServiceInfo().get(serviceName);
 
         if (serviceDetail != null) {
             serviceDetail.setUnifiedProto(support);
         } else {
-            serviceDetail = new serviceDetail(support);
+            serviceDetail = new ServiceDetail(support);
             sgService.getServiceInfo().put(serviceName, serviceDetail);
         }
 
