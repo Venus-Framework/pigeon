@@ -2,6 +2,7 @@ package com.dianping.pigeon.registry.zookeeper;
 
 import java.util.*;
 
+import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -427,6 +428,11 @@ public class CuratorRegistry implements Registry {
 		} catch (Throwable e) {
 			logger.fatal("failed to delete heartbeat", e);
 		}
+	}
+
+	@Override
+	public boolean isSupportNewProtocol(String serviceAddress) throws RegistryException {
+		return VersionUtils.isThriftSupported(getServerVersion(serviceAddress));
 	}
 
 	@Override

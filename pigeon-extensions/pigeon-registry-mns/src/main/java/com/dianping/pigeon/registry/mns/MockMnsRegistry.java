@@ -212,6 +212,11 @@ public class MockMnsRegistry implements Registry {
     }
 
     @Override
+    public boolean isSupportNewProtocol(String serviceAddress) throws RegistryException {
+        return false;
+    }
+
+    @Override
     public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
 
     }

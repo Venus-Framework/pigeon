@@ -34,9 +34,9 @@ public class ThriftMapper {
 
             header.setHeartbeatInfo(heartbeatInfo);
 
-            //清空thrift心跳不需要的serviceName和methodName
-            request.setServiceName(null);
-            request.setMethodName(null);
+            //todo 是否清空thrift心跳不需要的serviceName和methodName
+            /*request.setServiceName(null);
+            request.setMethodName(null);*/
 
         } else {
             header.setMessageType(MessageType.Normal.getCode());

@@ -642,6 +642,26 @@ public class RegistryManager {
         return StringUtils.join(result, ",");
     }
 
+    public boolean isSupportNewProtocol(String serviceAddress) throws RegistryException {
+        //todo 查机器级别的支持
+        boolean support = false;
+
+        List<Boolean> checkList = Lists.newArrayList();
+        for (Registry registry : registryList) {
+            // 多个注册中心获取到本地内存
+            try {
+                checkList.add(registry.isSupportNewProtocol(serviceAddress));
+            } catch (Throwable e) {
+                logger.error("failed to get protocol for " + serviceAddress, e);
+            }
+        }
+        if (checkList.size() > 0) {
+            support = checkValueConsistency(checkList);
+        }
+
+        return support;
+    }
+
     public boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
         return isSupportNewProtocol(serviceAddress, serviceName, true);
     }

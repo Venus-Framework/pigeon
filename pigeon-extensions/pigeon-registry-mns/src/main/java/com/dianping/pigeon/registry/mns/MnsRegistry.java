@@ -96,6 +96,7 @@ public class MnsRegistry implements Registry {
 
         for (SGService sgService : sgServices) {
             if (MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight()) > 0) {
+                //todo 加入筛选掉octo的旧服务端
                 String host = sgService.getIp() + ":" + sgService.getPort();
                 result += host +",";
                 String remoteAppkeyCache = null;
@@ -282,6 +283,17 @@ public class MnsRegistry implements Registry {
             logger.error("failed to get version for " + serverAddress);
             throw new RegistryException(e);
         }
+    }
+
+    /**
+     * for invoker
+     * @param serviceAddress
+     * @return
+     * @throws RegistryException
+     */
+    @Override
+    public boolean isSupportNewProtocol(String serviceAddress) throws RegistryException {
+        return VersionUtils.isThriftSupported(getServerVersion(serviceAddress));
     }
 
     /**
