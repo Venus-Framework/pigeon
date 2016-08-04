@@ -187,4 +187,25 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
         return serviceNodeMapper.selectByExample(null);
     }
 
+    @Override
+    public int deleteServiceNode(String serviceName, String group, String ip, String port) {
+        int count = 0;
+
+        ServiceNodeExample serviceNodeExample = new ServiceNodeExample();
+        serviceNodeExample.createCriteria()
+                .andServiceNameEqualTo(serviceName)
+                .andGroupEqualTo(group)
+                .andIpEqualTo(ip)
+                .andPortEqualTo(port);
+
+        try {
+            count = serviceNodeMapper.deleteByExample(serviceNodeExample);
+        } catch (DataAccessException e) {
+            logger.error(e.getMessage());
+            count = -1;
+        }
+
+        return count;
+    }
+
 }

@@ -11,6 +11,7 @@ import com.sankuai.inf.octo.mns.MnsInvoker;
 import com.sankuai.inf.octo.mns.listener.IServiceListChangeListener;
 import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
+import com.sankuai.sgagent.thrift.model.serviceDetail;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -81,8 +82,13 @@ public class MnsEventNotifier {
                 }
 
                 //protocol
-                boolean supportedNew = sgService.isUnifiedProto();
                 boolean supportedCached = RegistryManager.getInstance().isSupportNewProtocolFromCache(host, serviceName);
+                boolean supportedNew = supportedCached;
+                serviceDetail serviceDetail = sgService.getServiceInfo().get(serviceName);
+
+                if (serviceDetail != null) {
+                    supportedNew = serviceDetail.isUnifiedProto();
+                }
 
                 if(supportedNew != supportedCached) {
                     protocolChanged(host, serviceName, supportedNew);

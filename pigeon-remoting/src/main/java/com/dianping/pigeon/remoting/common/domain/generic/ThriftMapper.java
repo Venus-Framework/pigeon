@@ -26,7 +26,18 @@ public class ThriftMapper {
 
         //messageType
         if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
+            // 发送心跳消息到服务端
             header.setMessageType(MessageType.Heartbeat.getCode());
+            HeartbeatInfo heartbeatInfo = new HeartbeatInfo();
+            heartbeatInfo.setAppkey(ConfigManagerLoader.getConfigManager().getAppName());
+            heartbeatInfo.setSendTime(request.getCreateMillisTime());
+
+            header.setHeartbeatInfo(heartbeatInfo);
+
+            //清空thrift心跳不需要的serviceName和methodName
+            request.setServiceName(null);
+            request.setMethodName(null);
+
         } else {
             header.setMessageType(MessageType.Normal.getCode());
         }

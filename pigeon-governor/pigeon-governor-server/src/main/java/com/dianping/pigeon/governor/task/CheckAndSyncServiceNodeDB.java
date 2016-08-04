@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by chenchongze on 16/7/7.
@@ -44,6 +45,10 @@ public class CheckAndSyncServiceNodeDB {
 
     // serviceNodeBean from zk
     Set<ServiceNodeBean> serviceNodeBeanSet = Sets.newHashSet();
+
+    public Map<ServiceNodeBean, ServiceNode> getServiceNodeMap() {
+        return serviceNodeMap;
+    }
 
     public CheckAndSyncServiceNodeDB() {
         for (Registry registry : RegistryManager.getInstance().getRegistryList()) {
@@ -94,6 +99,9 @@ public class CheckAndSyncServiceNodeDB {
             // clear cache objects
             reInitCache();
 
+            // fake host heartbeat
+            fakeServiceHeart();
+
             transaction.setStatus(Transaction.SUCCESS);
         } catch (DbException e) {
             logger.error("Load from db error!", e);
@@ -107,7 +115,7 @@ public class CheckAndSyncServiceNodeDB {
         }
     }
 
-    private void loadFromDb() throws DbException {
+    public void loadFromDb() throws DbException {
         List<ServiceNode> serviceNodeList = serviceNodeService.retrieveAll();
         Map<ServiceNodeBean, ServiceNode> tmp_serviceNodeMap = Maps.newHashMap();
 
@@ -241,6 +249,32 @@ public class CheckAndSyncServiceNodeDB {
         serviceNodeMap = Maps.newHashMap();
         hostAppMapping = Maps.newHashMap();
         serviceNodeBeanSet = Sets.newHashSet();
+    }
+
+    private void fakeServiceHeart() {
+        Transaction transaction = Cat.newTransaction("PigeonGovernor.fakeHeartbeat", "");
+        try {
+            List<ServiceNode> serviceNodeList = serviceNodeService.retrieveAll();
+            Set<String> hostSet = Sets.newHashSet();
+
+            for (ServiceNode serviceNode : serviceNodeList) {
+                String host = IPUtils.getHost(serviceNode.getIp(), serviceNode.getPort());
+                hostSet.add(host);
+            }
+
+            long now = System.currentTimeMillis();
+
+            for(String host : hostSet) {
+                client.set("/DP/HEARTBEAT/" + host, now);
+            }
+
+            transaction.setStatus(Transaction.SUCCESS);
+        } catch (Throwable t) {
+            logger.error("fake heartbeats error", t);
+            transaction.setStatus(t);
+        } finally {
+            transaction.complete();
+        }
     }
 
 }

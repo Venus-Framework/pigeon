@@ -14,6 +14,7 @@ import com.google.common.collect.Sets;
 import com.sankuai.inf.octo.mns.MnsInvoker;
 import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
+import com.sankuai.sgagent.thrift.model.serviceDetail;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TException;
@@ -127,24 +128,12 @@ public class MnsRegistry implements Registry {
         SGService sgService = new SGService();
 
         ProviderConfig providerConfig = ServicePublisher.getServiceConfig(serviceName);
-        boolean isSupport = false;
-
-        if (providerConfig != null) {
-            isSupport = providerConfig.isSupported();
-        }
-
-        if (configManager.getBooleanValue("pigeon.registry.mns.notsuport.old.protocol", true)
-                && !isSupport) {
-            logger.warn("mns is not support pigeon old protocol register!");
-            return ;
-        }
-
-        sgService.setUnifiedProto(isSupport);
+        boolean isSupport = providerConfig.isSupported();
 
         sgService.setAppkey(configManager.getAppName());
-        Set<String> serviceSet = new HashSet<>();
-        serviceSet.add(serviceName);
-        sgService.setServiceName(serviceSet);
+        Map<String, serviceDetail> serviceDetailMap = Maps.newHashMap();
+        serviceDetailMap.put(serviceName, new serviceDetail(isSupport));
+        sgService.setServiceInfo(serviceDetailMap);
         sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
         int index = serviceAddress.lastIndexOf(":");
@@ -193,11 +182,14 @@ public class MnsRegistry implements Registry {
 
         SGService sgService = new SGService();
         sgService.setAppkey(configManager.getAppName());
-        Set<String> serviceSet = new HashSet<>();
-        serviceSet.add(serviceName);
-        sgService.setServiceName(serviceSet);
+
+        ProviderConfig providerConfig = ServicePublisher.getServiceConfig(serviceName);
+        boolean isSupport = providerConfig.isSupported();
+        Map<String, serviceDetail> serviceDetailMap = Maps.newHashMap();
+        serviceDetailMap.put(serviceName, new serviceDetail(isSupport));
+        sgService.setServiceInfo(serviceDetailMap);
         // 设置status为禁用
-        sgService.setStatus(MnsUtils.getMtthriftStatus(0));
+        //sgService.setStatus(MnsUtils.getMtthriftStatus(0));
 
         int index = serviceAddress.lastIndexOf(":");
         try {
@@ -302,8 +294,13 @@ public class MnsRegistry implements Registry {
     @Override
     public boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
         SGService sgService = getSGService(null, serviceName, serviceAddress);
+        serviceDetail serviceDetail = sgService.getServiceInfo().get(serviceName);
 
-        return sgService.isUnifiedProto();
+        if(serviceDetail != null) {
+            return serviceDetail.isUnifiedProto();
+        }
+
+        throw new RegistryException("serviceDetail not existed for " + serviceAddress + "#" + serviceName);
     }
 
     /**
@@ -335,7 +332,14 @@ public class MnsRegistry implements Registry {
     @Override
     public void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException {
         SGService sgService = getSGService(configManager.getAppName(), serviceName, serviceAddress);
-        sgService.setUnifiedProto(support);
+        serviceDetail serviceDetail = sgService.getServiceInfo().get(serviceName);
+
+        if (serviceDetail != null) {
+            serviceDetail.setUnifiedProto(support);
+        } else {
+            serviceDetail = new serviceDetail(support);
+            sgService.getServiceInfo().put(serviceName, serviceDetail);
+        }
 
         try {
             MnsInvoker.registerService(sgService);

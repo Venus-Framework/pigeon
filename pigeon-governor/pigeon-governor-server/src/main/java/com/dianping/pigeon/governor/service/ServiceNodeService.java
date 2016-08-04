@@ -24,4 +24,6 @@ public interface ServiceNodeService {
     public int deleteServiceNodeById(ServiceNode serviceNode);
 
     public List<ServiceNode> retrieveAll();
+
+    public int deleteServiceNode(String serviceName, String group, String ip, String port);
 }

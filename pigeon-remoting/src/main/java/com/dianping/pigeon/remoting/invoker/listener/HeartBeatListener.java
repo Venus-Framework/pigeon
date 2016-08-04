@@ -16,6 +16,8 @@ import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
+import com.dianping.pigeon.remoting.common.domain.generic.UnifiedRequest;
 import com.dianping.pigeon.remoting.common.exception.ServiceStatusException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -184,7 +186,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
 	private void sendHeartBeatRequest(Client client) {
 		HeartBeatStat heartBeatStat = getHeartBeatStatWithCreate(client.getAddress());
-		InvocationRequest heartRequest = createHeartRequest(client);
+		InvocationRequest heartRequest = createHeartRequest_(client);
 		try {
 			InvocationResponse response = null;
 			CallbackFuture future = new CallbackFuture();
@@ -219,6 +221,15 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 	private InvocationRequest createHeartRequest(Client client) {
 		InvocationRequest request = new DefaultRequest(HEART_TASK_SERVICE + client.getAddress(), HEART_TASK_METHOD,
 				null, SerializerFactory.SERIALIZE_HESSIAN, Constants.MESSAGE_TYPE_HEART, heartBeatTimeout, null);
+		request.setSequence(generateHeartSeq(client));
+		request.setCreateMillisTime(System.currentTimeMillis());
+		request.setCallType(Constants.CALLTYPE_REPLY);
+		return request;
+	}
+
+	private InvocationRequest createHeartRequest_(Client client) {
+		InvocationRequest request = new GenericRequest(HEART_TASK_SERVICE + client.getAddress(), HEART_TASK_METHOD,
+				null, SerializerFactory.SERIALIZE_THRIFT, Constants.MESSAGE_TYPE_HEART, heartBeatTimeout);
 		request.setSequence(generateHeartSeq(client));
 		request.setCreateMillisTime(System.currentTimeMillis());
 		request.setCallType(Constants.CALLTYPE_REPLY);

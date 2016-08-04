@@ -115,7 +115,9 @@
 		  class="com.dianping.pigeon.governor.task.HeartBeatCheckTask"
 		  init-method="init" />
 
-
+	<bean id="serviceNodeHeartBeatCheckTask"
+		  class="com.dianping.pigeon.governor.task.ServiceNodeHeartBeatCheckTask"
+		  init-method="init" />
 
 	
 	<!--<task:scheduled-tasks>
@@ -126,7 +128,7 @@
 
 
 	<task:scheduled-tasks>
-		<task:scheduled ref="checkAndSyncServiceDB" method="schedule" cron="0 30 2 * * ? "/>
+		<task:scheduled ref="checkAndSyncServiceNodeDB" method="schedule" cron="0 30 2 * * ? "/>
 	</task:scheduled-tasks>
 	<bean id="checkAndSyncServiceNodeDB"
 		  class="com.dianping.pigeon.governor.task.CheckAndSyncServiceNodeDB" />

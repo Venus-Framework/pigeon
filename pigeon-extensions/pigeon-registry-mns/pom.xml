@@ -27,12 +27,12 @@
         <dependency>
             <groupId>com.sankuai.octo</groupId>
             <artifactId>idl-common</artifactId>
-            <version>1.1.0-pigeon-SNAPSHOT</version>
+            <version>1.2.0-service-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sankuai.octo</groupId>
             <artifactId>mns-invoker</artifactId>
-            <version>1.0.6-pigeon-SNAPSHOT</version>
+            <version>1.1.0-service-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.thrift</groupId>
