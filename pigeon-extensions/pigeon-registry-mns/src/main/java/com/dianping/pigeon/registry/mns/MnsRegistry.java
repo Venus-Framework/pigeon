@@ -343,7 +343,14 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public void setServerWeight(String serverAddress, int weight) throws RegistryException {
-        SGService sgService = getSGService(configManager.getAppName(), null, serverAddress);
+        SGService sgService = null;
+        try {
+            sgService = getSGService(configManager.getAppName(), null, serverAddress);
+        } catch (RegistryException e) {
+            logger.warn("set server weight to mns failed! no sg_service found of " + serverAddress);
+            return ;
+        }
+
         sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
         try {
