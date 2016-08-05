@@ -43,6 +43,12 @@ public class MnsRegistry implements Registry {
         if (!inited) {
             synchronized (this) {
                 if (!inited) {
+                    String specifySgAgent = configManager
+                            .getStringValue("pigeon.mns.sgagent.specify.address.snapshot", "");
+
+                    if (StringUtils.isNotBlank(specifySgAgent)) {
+                        MnsInvoker.setCustomizedSGAgents(specifySgAgent);
+                    }
 
                     inited = true;
                 }
@@ -352,9 +358,10 @@ public class MnsRegistry implements Registry {
         }
 
         sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
+        sgService.setServiceInfo(null);
 
         try {
-            MnsInvoker.registerService(sgService);
+            MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);
             logger.info("update provider's status: " + sgService);
         } catch (TException e) {
             throw new RegistryException("error while update host weight: " + serverAddress, e);
@@ -386,7 +393,7 @@ public class MnsRegistry implements Registry {
         }
 
         try {
-            MnsInvoker.registerService(sgService);
+            MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);
             logger.info("update provider's protocol: " + serviceAddress + "#" + serviceName + ": " + support);
         } catch (TException e) {
             throw new RegistryException("error while update service protocol: " + serviceAddress + "#" + serviceName,  e);
@@ -538,9 +545,10 @@ public class MnsRegistry implements Registry {
         for (String host : hosts.split(",")) {
             SGService sgService = getSGService(null, serviceName, host);
             sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
+            sgService.setServiceInfo(null);
 
             try {
-                MnsInvoker.registerService(sgService);
+                MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);
                 logger.info("update provider's status: " + sgService);
             } catch (TException e) {
                 //todo 管理端这里抛异常的处理要打磨一下

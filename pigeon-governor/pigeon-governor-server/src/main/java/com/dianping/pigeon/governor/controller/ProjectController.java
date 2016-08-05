@@ -11,8 +11,9 @@ import com.dianping.pigeon.governor.bean.*;
 import com.dianping.pigeon.governor.dao.ProjectMapper;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.Service;
+import com.dianping.pigeon.governor.model.ServiceNode;
 import com.dianping.pigeon.governor.model.User;
-import com.dianping.pigeon.governor.service.ServiceService;
+import com.dianping.pigeon.governor.service.*;
 import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -25,9 +26,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.dianping.pigeon.governor.service.ProjectOwnerService;
-import com.dianping.pigeon.governor.service.ProjectService;
-import com.dianping.pigeon.governor.service.UserService;
 import com.dianping.pigeon.governor.util.Constants;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -53,6 +51,8 @@ public class ProjectController extends BaseController {
 	private ProjectOwnerService projectOwnerService;
 	@Autowired
 	private ServiceService serviceService;
+	@Autowired
+	private ServiceNodeService serviceNodeService;
 
 	/**
 	 * 首页：查询缓存中的所有应用，跳转到应用服务配置页
@@ -66,13 +66,13 @@ public class ProjectController extends BaseController {
 								   HttpServletRequest request,
 								   HttpServletResponse response) {
 		commonnav(modelMap, request);
-		//List<String> projectNames = projectService.retrieveAllNameByCache();
 		List<Project> projects = projectService.retrieveAllIdNamesByCache();
-		List<Service> services = serviceService.retrieveAllIdNamesByCache();
+		//List<Service> services = serviceService.retrieveAllIdNamesByCache();
+		List<ServiceNode> serviceNodes = serviceNodeService.retrieveAllIdNamesByCache();
 
-		//modelMap.addAttribute("projectNames",gson.toJson(projectNames));
 		modelMap.addAttribute("projects", gson.toJson(projects));
-		modelMap.addAttribute("services", gson.toJson(services));
+		//modelMap.addAttribute("services", gson.toJson(services));
+		modelMap.addAttribute("serviceNodes", gson.toJson(serviceNodes));
 
 		return "/index";
 	}
@@ -235,6 +235,23 @@ public class ProjectController extends BaseController {
 			}
 		} else {
 			return Result.createErrorResult("service not found: " + serviceName);
+		}
+	}
+
+	@RequestMapping(value = {"/projects.find"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Result searchServiceNode(@RequestParam(value="service", required = true) String serviceName,
+									@RequestParam(value="group", required = true) String group,
+									HttpServletRequest request, HttpServletResponse response) {
+		List<ServiceNode> serviceNodeList = serviceNodeService.retrieveAllByServiceNameAndGroup(serviceName, group);
+
+		if(serviceNodeList != null && serviceNodeList.size() > 0) {
+			String projectName = serviceNodeList.get(0).getProjectName();
+
+			return Result.createSuccessResult(projectName);
+
+		} else {
+			return Result.createErrorResult("service not found: " + serviceName + "#" + group);
 		}
 	}
 }

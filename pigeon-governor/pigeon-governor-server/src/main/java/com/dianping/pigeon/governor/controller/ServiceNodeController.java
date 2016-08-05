@@ -31,7 +31,6 @@ import java.util.concurrent.ExecutorService;
  * Created by chenchongze on 16/7/7.
  */
 @Controller
-@RequestMapping("/test")
 public class ServiceNodeController extends BaseController {
 
     private Logger logger = LogManager.getLogger();
