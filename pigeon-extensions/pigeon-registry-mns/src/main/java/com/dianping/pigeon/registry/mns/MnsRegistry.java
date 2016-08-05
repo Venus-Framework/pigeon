@@ -135,12 +135,13 @@ public class MnsRegistry implements Registry {
             return ;
         }
 
-        SGService sgService = new SGService();
+        String remoteAppkey = configManager.getAppName();
 
+        SGService sgService = sgService = new SGService();
         ProviderConfig providerConfig = ServicePublisher.getServiceConfig(serviceName);
         boolean isSupport = providerConfig.isSupported();
 
-        sgService.setAppkey(configManager.getAppName());
+        sgService.setAppkey(remoteAppkey);
         Map<String, ServiceDetail> serviceDetailMap = Maps.newHashMap();
         serviceDetailMap.put(serviceName, new ServiceDetail(isSupport));
         sgService.setServiceInfo(serviceDetailMap);
@@ -171,7 +172,7 @@ public class MnsRegistry implements Registry {
         sgService.setExtend(extend);*/
 
         try {
-            MnsInvoker.registServicewithCmd(MnsUtils.UPT_CMD_ADD, sgService);
+            MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);
             logger.info("registerProviderOnMns: " + sgService);
         } catch (TException e) {
             throw new RegistryException("error while register service: " + serviceName, e);
@@ -217,7 +218,7 @@ public class MnsRegistry implements Registry {
         }
 
         try {
-            MnsInvoker.registServicewithCmd(MnsUtils.UPT_CMD_DEL, sgService);
+            MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_DEL, sgService);
             logger.info("unregisterProviderOnMns: " + sgService);
         } catch (TException e) {
             throw new RegistryException("error while unregister service: " + serviceName, e);
@@ -453,7 +454,7 @@ public class MnsRegistry implements Registry {
     private SGService getSGService(String remoteAppkey, String serviceName, String serverAddress) throws RegistryException {
         if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
             logger.warn("mns is not support pigeon @HTTP@ service!");
-            return new SGService();
+            throw new RegistryException("mns is not support pigeon @HTTP@ service!");
         }
 
         ProtocolRequest protocolRequest = new ProtocolRequest();
