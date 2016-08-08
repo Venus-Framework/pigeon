@@ -207,13 +207,14 @@ public class HeartBeatListener implements Runnable, ClusterListener {
     }
 
     private boolean isSupportNewProtocol(Client client) {
-//        boolean supported = false;
-//
-//        try {
-//            supported = RegistryManager.getInstance().isSupportNewProtocol(client.getAddress());
-//        } catch (RegistryException e) {
-//            supported = false;
-//        }
+        boolean supported = false;
+
+        try {
+            supported = RegistryManager.getInstance().isSupportNewProtocol(client.getAddress());
+        } catch (RegistryException e) {
+            //todo default lion key
+            supported = false;
+        }
 
         return true;
     }

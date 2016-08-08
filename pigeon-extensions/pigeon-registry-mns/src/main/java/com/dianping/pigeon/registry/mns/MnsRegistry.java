@@ -151,7 +151,7 @@ public class MnsRegistry implements Registry {
         Map<String, ServiceDetail> serviceDetailMap = Maps.newHashMap();
         serviceDetailMap.put(serviceName, new ServiceDetail(isSupport));
         sgService.setServiceInfo(serviceDetailMap);
-        sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
+        //sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
         int index = serviceAddress.lastIndexOf(":");
         try {
@@ -163,15 +163,14 @@ public class MnsRegistry implements Registry {
             throw new RegistryException("error serviceAddress: " + serviceAddress, e);
         }
 
-        sgService.setWeight(10);
-        sgService.setFweight(10.d);
+        sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
 
         sgService.setVersion(VersionUtils.VERSION);
         sgService.setProtocol("thrift");
         sgService.setLastUpdateTime((int) (System.currentTimeMillis() / 1000));
 
-        // 下面这两个有用吗？
-        sgService.setRole(0);
+        //sgService.setFweight(10.d);
+        //sgService.setRole(0);
         // 慢启动
         /*String extend = clusterManager +
                 Consts.vbar + "slowStartSeconds" + Consts.colon + slowStartSeconds;
@@ -357,7 +356,8 @@ public class MnsRegistry implements Registry {
             return ;
         }
 
-        sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
+        sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
+        //sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
         sgService.setServiceInfo(null);
 
         try {
@@ -546,7 +546,8 @@ public class MnsRegistry implements Registry {
 
         for (String host : hosts.split(",")) {
             SGService sgService = getSGService(null, serviceName, host);
-            sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
+            //sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
+            sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
             sgService.setServiceInfo(null);
 
             try {

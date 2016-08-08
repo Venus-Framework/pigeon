@@ -24,6 +24,18 @@ public class MnsUtils {
     public final static int UPT_CMD_ADD = 1;
     public final static int UPT_CMD_DEL = 2;
 
+    public static int getMtthriftWeight(int pigeon_weight) {
+        int mtThriftWeight = 0;
+
+        if (pigeon_weight <= 0) {
+            mtThriftWeight = 0;//stopped
+        }  else if (pigeon_weight > 0) {
+            mtThriftWeight = 10;//alive
+        }
+
+        return mtThriftWeight;
+    }
+
     public static int getMtthriftStatus(int pigeon_weight) {
         int status = 0;
 
