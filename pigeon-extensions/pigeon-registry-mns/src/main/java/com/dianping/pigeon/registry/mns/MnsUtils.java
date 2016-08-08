@@ -69,7 +69,7 @@ public class MnsUtils {
             weight = -1;
         } else if (mtthrift_status == 0) {
             weight = 0;
-        } else if (mtthrift_status == 2 && mtthrift_weight > 0) {
+        } else if ((mtthrift_status == 2 || mtthrift_status == 1) && mtthrift_weight > 0) {
             weight = 1;
         }
 
