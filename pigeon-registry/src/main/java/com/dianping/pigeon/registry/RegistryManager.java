@@ -714,9 +714,10 @@ public class RegistryManager {
         monitor.logEvent("PigeonService.protocol", serviceName, "support=" + support);
     }
 
-    public void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
+    public void unregisterSupportNewProtocol(String serviceAddress, String serviceName,
+                                             boolean support) throws RegistryException {
         for (Registry registry : registryList) {
-            registry.unregisterSupportNewProtocol(serviceAddress, serviceName);
+            registry.unregisterSupportNewProtocol(serviceAddress, serviceName, support);
         }
         monitor.logEvent("PigeonService.protocol", serviceName, "unregister");
     }

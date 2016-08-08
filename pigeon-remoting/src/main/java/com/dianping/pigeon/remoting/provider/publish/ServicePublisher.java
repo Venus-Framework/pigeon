@@ -224,10 +224,9 @@ public final class ServicePublisher {
 		}
 		if (logger.isInfoEnabled()) {
 			logger.info("publish service to registry, url:" + registryUrl + ", port:" + port + ", group:" + group
-					+ ", address:" + serverAddress + ", weight:" + weight);
+					+ ", address:" + serverAddress + ", weight:" + weight + ", support: " + support);
 		}
 		RegistryManager.getInstance().registerService(registryUrl, group, serverAddress, weight);
-		//todo 待验证，register protocol, include http server, 从琦总的接口拿
 		RegistryManager.getInstance().registerSupportNewProtocol(serverAddress, registryUrl, support);
 
 		if (weight >= 0) {
@@ -282,7 +281,8 @@ public final class ServicePublisher {
 				RegistryManager.getInstance().unregisterService(registryUrl,
 						providerConfig.getServerConfig().getGroup(), serverAddress);
 				// unregister protocol, include http server
-				RegistryManager.getInstance().unregisterSupportNewProtocol(serverAddress, registryUrl);
+				RegistryManager.getInstance().unregisterSupportNewProtocol(serverAddress, registryUrl,
+						providerConfig.isSupported());
 
 				Integer weight = serverWeightCache.remove(serverAddress);
 				if (weight != null) {

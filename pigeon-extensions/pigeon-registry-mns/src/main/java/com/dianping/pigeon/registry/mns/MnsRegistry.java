@@ -377,7 +377,8 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException {
-        if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
+        // keep blank is enough
+        /*if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
             logger.warn("mns is not support pigeon @HTTP@ service!");
             return ;
         }
@@ -397,7 +398,7 @@ public class MnsRegistry implements Registry {
             logger.info("update provider's protocol: " + serviceAddress + "#" + serviceName + ": " + support);
         } catch (TException e) {
             throw new RegistryException("error while update service protocol: " + serviceAddress + "#" + serviceName,  e);
-        }
+        }*/
     }
 
     /**
@@ -407,8 +408,9 @@ public class MnsRegistry implements Registry {
      * @throws RegistryException
      */
     @Override
-    public void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
-        setSupportNewProtocol(serviceAddress, serviceName, false);
+    public void unregisterSupportNewProtocol(String serviceAddress, String serviceName,
+                                             boolean support) throws RegistryException {
+        //keep blank is enough
     }
 
     /**

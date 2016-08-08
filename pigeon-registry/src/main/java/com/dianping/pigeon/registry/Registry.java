@@ -54,7 +54,7 @@ public interface Registry {
 
 	void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException;
 
-	void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException;
+	void unregisterSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException;
 
 	//for provider
 	void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis);
