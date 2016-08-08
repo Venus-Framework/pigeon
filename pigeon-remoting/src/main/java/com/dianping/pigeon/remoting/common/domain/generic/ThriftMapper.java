@@ -25,21 +25,19 @@ public class ThriftMapper {
         Header header = new Header();
 
         //messageType
-        if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
+        if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+            header.setMessageType(MessageType.Normal.getCode());
+        } else if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
             // 发送心跳消息到服务端
             header.setMessageType(MessageType.Heartbeat.getCode());
             HeartbeatInfo heartbeatInfo = new HeartbeatInfo();
-            heartbeatInfo.setAppkey(ConfigManagerLoader.getConfigManager().getAppName());
+            heartbeatInfo.setAppkey(request.getApp());
             heartbeatInfo.setSendTime(request.getCreateMillisTime());
 
             header.setHeartbeatInfo(heartbeatInfo);
 
-            //todo 是否清空thrift心跳不需要的serviceName和methodName
-            /*request.setServiceName(null);
-            request.setMethodName(null);*/
-
         } else {
-            header.setMessageType(MessageType.Normal.getCode());
+            throw new SerializationException("Serialize unknown messageType.");
         }
 
         //requestInfo
