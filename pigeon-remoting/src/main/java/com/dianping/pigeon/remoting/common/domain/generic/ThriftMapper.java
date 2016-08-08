@@ -85,7 +85,8 @@ public class ThriftMapper {
 
         //messageType
         if (messageType == Constants.MESSAGE_TYPE_SERVICE ||
-                messageType == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
+                messageType == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION ||
+                messageType == Constants.MESSAGE_TYPE_EXCEPTION) {
             header.setMessageType(MessageType.Normal.getCode());
 
         } else if (messageType == Constants.MESSAGE_TYPE_HEART) {
@@ -229,7 +230,7 @@ public class ThriftMapper {
         //messageType
         if (header.getMessageType() == MessageType.Heartbeat.getCode()) {
             response.setMessageType(Constants.MESSAGE_TYPE_HEART);
-        } else {
+        } else if (header.getMessageType() == MessageType.Normal.getCode()) {
             switch (statusCode) {
                 case Success:
                     response.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
@@ -248,6 +249,8 @@ public class ThriftMapper {
                     response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
                     break;
             }
+        } else {
+            throw new SerializationException("Deserialize unknown messageType.");
         }
 
         //requestInfo
