@@ -109,20 +109,12 @@ public class MnsRegistry implements Registry {
                 String host = sgService.getIp() + ":" + sgService.getPort();
                 result += host +",";
                 String remoteAppkeyReal = sgService.getAppkey();
-                String remoteAppkeyCache = null;
 
-                if (hostRemoteAppkeyMapping.containsKey(host)) {
-                    remoteAppkeyCache = hostRemoteAppkeyMapping.get(host);
-
-                    if (StringUtils.isNotBlank(remoteAppkeyCache)) {
-                        remoteAppkeyCache = remoteAppkeyReal;
-                        hostRemoteAppkeyMapping.put(host, remoteAppkeyCache);
-                    }
-
-                } else {
-                    remoteAppkeyCache = remoteAppkeyReal;
-                    hostRemoteAppkeyMapping.put(host, remoteAppkeyCache);
+                if (remoteAppkeyReal == null) {
+                    remoteAppkeyReal = "";
                 }
+
+                hostRemoteAppkeyMapping.put(host, remoteAppkeyReal);
             }
         }
 
