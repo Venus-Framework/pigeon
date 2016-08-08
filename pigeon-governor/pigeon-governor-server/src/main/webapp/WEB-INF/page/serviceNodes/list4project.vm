@@ -126,7 +126,13 @@
                                                 <i class="ace-icon fa fa-desktop bigger-110 hidden-480"></i>
                                                 hosts
                                             </th>
-                                            <th>#*看用户权限给予添加记录或申请管理员接口*#</th>
+                                            <th>
+                                            #if(!$isProjectOwner)
+                                                <a class="red" href="javascript:void(0)" onclick="adminApplyFunc(event)">
+                                                    <i class="ace-icon fa fa-user red bigger-130"></i>
+                                                </a>
+                                            #end
+                                            </th>
                                         </tr>
                                         </thead>
 
@@ -154,7 +160,7 @@
                                                         <i class="ace-icon fa fa-trash-o bigger-130"></i>
                                                     </a>*#
                                             #else
-                                                <a class="red" href="#javascript:void(0)" onclick="adminApplyFunc(event)">
+                                                <a class="red" href="javascript:void(0)" onclick="adminApplyFunc(event)">
                                                     <i class="ace-icon fa fa-user red bigger-130"></i>
                                                 </a>
                                             #end
@@ -234,6 +240,18 @@
             </div>
         </div>
     </div>
+
+    <div id="dialog-message" class="hide">
+        <p>
+            请点击<a href="http://crab.dp/cmdb/app_manage?project=${projectName}" target="_blank">此处</a>添加管理员邮箱到项目邮件组，然后点击按钮即可添加
+        </p>
+
+        <div class="hr hr-12 hr-double"></div>
+
+        <p>
+            <b class="red">项目邮件组添加完成后,点击OK即可.</b>
+        </p>
+    </div><!-- #dialog-message -->
 
     <!-- page hidden elements ends -->
 
@@ -421,6 +439,16 @@
     }
     // 编辑服务地址相关方法 ends
     // ******************************
+
+    //override dialog's title function to allow for HTML titles
+    $.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
+        _title: function(title) {
+            var $title = this.options.title || '&nbsp;'
+            if( ("title_html" in this.options) && this.options.title_html == true )
+                title.html($title);
+            else title.text($title);
+        }
+    }));
 
     // 申请管理员
     var adminApplyFunc = function (e) {
