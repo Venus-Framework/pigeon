@@ -47,7 +47,7 @@ public class MnsRegistry implements Registry {
                             .getStringValue("pigeon.mns.sgagent.specify.address.snapshot", "");
 
                     if (StringUtils.isNotBlank(specifySgAgent)) {
-                        //MnsInvoker.setCustomizedSGAgents(specifySgAgent);
+                        MnsInvoker.setCustomizedSGAgents(specifySgAgent);
                     }
 
                     inited = true;
