@@ -495,7 +495,8 @@ public class CuratorRegistry implements Registry {
 	}
 
 	@Override
-	public void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
+	public void unregisterSupportNewProtocol(String serviceAddress, String serviceName,
+											 boolean support) throws RegistryException {
 		try {
 			String protocolPath = Utils.getProtocolPath(serviceAddress);
 			Stat stat = new Stat();
@@ -520,7 +521,7 @@ public class CuratorRegistry implements Registry {
 				} catch (InterruptedException ie) {
 					//ignore
 				}
-				unregisterSupportNewProtocol(serviceAddress, serviceName);
+				unregisterSupportNewProtocol(serviceAddress, serviceName, support);
 			} else {
 				logger.error("failed to del protocol:" + serviceName
 						+ "of host:" + serviceAddress + ", caused by:" + e.getMessage());

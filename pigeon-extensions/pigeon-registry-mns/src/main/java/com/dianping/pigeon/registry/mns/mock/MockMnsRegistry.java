@@ -1,4 +1,4 @@
-package com.dianping.pigeon.registry.mns;
+package com.dianping.pigeon.registry.mns.mock;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -260,7 +260,7 @@ public class MockMnsRegistry implements Registry {
     }
 
     @Override
-    public void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
+    public void unregisterSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException {
 
     }
 

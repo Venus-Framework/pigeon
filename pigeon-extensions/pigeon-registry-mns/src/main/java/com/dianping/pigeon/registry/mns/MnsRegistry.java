@@ -43,6 +43,12 @@ public class MnsRegistry implements Registry {
         if (!inited) {
             synchronized (this) {
                 if (!inited) {
+                    String specifySgAgent = configManager
+                            .getStringValue("pigeon.mns.sgagent.specify.address.snapshot", "");
+
+                    if (StringUtils.isNotBlank(specifySgAgent)) {
+                        MnsInvoker.setCustomizedSGAgents(specifySgAgent);
+                    }
 
                     inited = true;
                 }
@@ -343,11 +349,19 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public void setServerWeight(String serverAddress, int weight) throws RegistryException {
-        SGService sgService = getSGService(configManager.getAppName(), null, serverAddress);
+        SGService sgService = null;
+        try {
+            sgService = getSGService(configManager.getAppName(), null, serverAddress);
+        } catch (RegistryException e) {
+            logger.warn("set server weight to mns failed! no sg_service found of " + serverAddress);
+            return ;
+        }
+
         sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
+        sgService.setServiceInfo(null);
 
         try {
-            MnsInvoker.registerService(sgService);
+            MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);
             logger.info("update provider's status: " + sgService);
         } catch (TException e) {
             throw new RegistryException("error while update host weight: " + serverAddress, e);
@@ -363,7 +377,8 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException {
-        if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
+        // keep blank is enough
+        /*if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
             logger.warn("mns is not support pigeon @HTTP@ service!");
             return ;
         }
@@ -379,11 +394,11 @@ public class MnsRegistry implements Registry {
         }
 
         try {
-            MnsInvoker.registerService(sgService);
+            MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);
             logger.info("update provider's protocol: " + serviceAddress + "#" + serviceName + ": " + support);
         } catch (TException e) {
             throw new RegistryException("error while update service protocol: " + serviceAddress + "#" + serviceName,  e);
-        }
+        }*/
     }
 
     /**
@@ -393,8 +408,9 @@ public class MnsRegistry implements Registry {
      * @throws RegistryException
      */
     @Override
-    public void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
-        setSupportNewProtocol(serviceAddress, serviceName, false);
+    public void unregisterSupportNewProtocol(String serviceAddress, String serviceName,
+                                             boolean support) throws RegistryException {
+        //keep blank is enough
     }
 
     /**
@@ -531,9 +547,10 @@ public class MnsRegistry implements Registry {
         for (String host : hosts.split(",")) {
             SGService sgService = getSGService(null, serviceName, host);
             sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
+            sgService.setServiceInfo(null);
 
             try {
-                MnsInvoker.registerService(sgService);
+                MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);
                 logger.info("update provider's status: " + sgService);
             } catch (TException e) {
                 //todo 管理端这里抛异常的处理要打磨一下

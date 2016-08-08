@@ -31,7 +31,6 @@ import java.util.concurrent.ExecutorService;
  * Created by chenchongze on 16/7/7.
  */
 @Controller
-@RequestMapping("/test")
 public class ServiceNodeController extends BaseController {
 
     private Logger logger = LogManager.getLogger();
@@ -58,7 +57,7 @@ public class ServiceNodeController extends BaseController {
                               HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute(Constants.DP_USER);
         String currentUser = user.getDpaccount();
-        modelMap.addAttribute("currentUser", currentUser);
+        modelMap.addAttribute("userName", currentUser);
         Project project = projectService.findProject(projectName);
 
         if(project == null){

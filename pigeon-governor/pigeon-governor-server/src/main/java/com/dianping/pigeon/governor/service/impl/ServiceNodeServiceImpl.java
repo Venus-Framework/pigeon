@@ -27,6 +27,10 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
     @Autowired
     private ServiceNodeMapper serviceNodeMapper;
 
+    private List<ServiceNode> serviceNodesCache;
+    private long serviceNodesCacheLastUpdateTime = 0;
+    private long checkCacheInternal = 20000;
+
     /**
      *
      * @param projectName
@@ -152,6 +156,26 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
     }
 
     @Override
+    public List<ServiceNode> retrieveAllByServiceNameAndGroup(String serviceName, String group) {
+        List<ServiceNode> serviceNodes = new ArrayList<ServiceNode>();
+
+        if(StringUtils.isNotBlank(serviceName) && group != null) {
+            ServiceNodeExample serviceNodeExample = new ServiceNodeExample();
+            serviceNodeExample.createCriteria()
+                    .andServiceNameEqualTo(serviceName)
+                    .andGroupEqualTo(group);
+
+            try {
+                serviceNodes = serviceNodeMapper.selectByExample(serviceNodeExample);
+            } catch (DataAccessException e) {
+                logger.error(e.getMessage());
+            }
+        }
+
+        return serviceNodes;
+    }
+
+    @Override
     public int createServiceNode(ServiceNode serviceNode) {
         int sqlSucCount = 0;
 
@@ -185,6 +209,17 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
     @Override
     public List<ServiceNode> retrieveAll() {
         return serviceNodeMapper.selectByExample(null);
+    }
+
+    @Override
+    public List<ServiceNode> retrieveAllIdNamesByCache() {
+        long currentTime = System.currentTimeMillis();
+        if(currentTime - serviceNodesCacheLastUpdateTime > checkCacheInternal){
+            serviceNodesCache = retrieveAll();
+            serviceNodesCacheLastUpdateTime = currentTime;
+        }
+
+        return serviceNodesCache;
     }
 
     @Override

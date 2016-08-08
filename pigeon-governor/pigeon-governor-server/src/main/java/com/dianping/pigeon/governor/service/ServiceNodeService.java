@@ -19,11 +19,15 @@ public interface ServiceNodeService {
 
     public List<ServiceNode> retrieveAllByProjectName(String projectName);
 
+    public List<ServiceNode> retrieveAllByServiceNameAndGroup(String serviceName, String group);
+
     public int createServiceNode(ServiceNode serviceNode);
 
     public int deleteServiceNodeById(ServiceNode serviceNode);
 
     public List<ServiceNode> retrieveAll();
+
+    public List<ServiceNode> retrieveAllIdNamesByCache();
 
     public int deleteServiceNode(String serviceName, String group, String ip, String port);
 }
