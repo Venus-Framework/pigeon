@@ -164,12 +164,12 @@ public class MnsRegistry implements Registry {
         }
 
         sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
+        sgService.setFweight(MnsUtils.getMtthriftFWeight(weight));
 
         sgService.setVersion(VersionUtils.VERSION);
         sgService.setProtocol("thrift");
         sgService.setLastUpdateTime((int) (System.currentTimeMillis() / 1000));
 
-        //sgService.setFweight(10.d);
         //sgService.setRole(0);
         // 慢启动
         /*String extend = clusterManager +
@@ -357,6 +357,7 @@ public class MnsRegistry implements Registry {
         }
 
         sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
+        sgService.setFweight(MnsUtils.getMtthriftFWeight(weight));
         //sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
         sgService.setServiceInfo(null);
 
@@ -548,6 +549,7 @@ public class MnsRegistry implements Registry {
             SGService sgService = getSGService(null, serviceName, host);
             //sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
             sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
+            sgService.setFweight(MnsUtils.getMtthriftFWeight(weight));
             sgService.setServiceInfo(null);
 
             try {
