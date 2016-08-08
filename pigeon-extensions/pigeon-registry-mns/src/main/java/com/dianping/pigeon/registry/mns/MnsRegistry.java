@@ -101,6 +101,7 @@ public class MnsRegistry implements Registry {
         protocolRequest.setServiceName(serviceName);
         protocolRequest.setRemoteAppkey(remoteAppkey);
         List<SGService> sgServices = MnsInvoker.getServiceList(protocolRequest);
+        MnsInvoker.addServiceListener(protocolRequest, new DefaultServiceListChangeListener());
 
         logger.info("remoteAppkey: " + remoteAppkey + ", serviceName: " + serviceName);
 
