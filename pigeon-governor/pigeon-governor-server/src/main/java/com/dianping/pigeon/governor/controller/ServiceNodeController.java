@@ -57,7 +57,7 @@ public class ServiceNodeController extends BaseController {
                               HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute(Constants.DP_USER);
         String currentUser = user.getDpaccount();
-        modelMap.addAttribute("currentUser", currentUser);
+        modelMap.addAttribute("userName", currentUser);
         Project project = projectService.findProject(projectName);
 
         if(project == null){

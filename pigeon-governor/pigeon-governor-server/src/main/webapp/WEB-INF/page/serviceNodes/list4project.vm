@@ -145,7 +145,7 @@
 
                                             <td>
                                                 <div class="hidden-sm hidden-xs action-buttons">
-
+                                            #if($isProjectOwner)
                                                     <a class="green" href="javascript:void(0)" onclick="editService(this)">
                                                         <i class="ace-icon fa fa-pencil bigger-130"></i>
                                                     </a>
@@ -153,6 +153,11 @@
                                                     #*<a class="red" href="#">
                                                         <i class="ace-icon fa fa-trash-o bigger-130"></i>
                                                     </a>*#
+                                            #else
+                                                <a class="red" href="#javascript:void(0)" onclick="adminApplyFunc(event)">
+                                                    <i class="ace-icon fa fa-user red bigger-130"></i>
+                                                </a>
+                                            #end
                                                 </div>
 
                                             </td>
@@ -366,7 +371,7 @@
 
         // 服务器提交修改成功后，返回最新hosts，再修改页面缓存
         $.ajax({
-            url: '${rc.contextPath}/test/services/edit/${projectName}',
+            url: '${rc.contextPath}/services/edit/${projectName}',
             type: 'POST',
             data: data,
             error: function(response, textStatus){ // 500 etc.
@@ -416,6 +421,47 @@
     }
     // 编辑服务地址相关方法 ends
     // ******************************
+
+    // 申请管理员
+    var adminApplyFunc = function (e) {
+        e.preventDefault();
+
+        var dialog = $( "#dialog-message" ).removeClass('hide').dialog({
+            modal: true,
+            title: "<div class='widget-header widget-header-small'><h4 class='smaller'><i class='ace-icon fa fa-check'></i>申请管理员?</h4></div>",
+            title_html: true,
+            buttons: [
+                {
+                    text: "Cancel",
+                    "class" : "btn btn-xs",
+                    click: function() {
+                        $( this ).dialog( "close" );
+                    }
+                },
+                {
+                    text: "OK",
+                    "class" : "btn btn-primary btn-xs",
+                    click: function() {
+                        var currentUser = "${userName}";
+                        var projectName = "${projectName}";
+                        $.ajax({
+                            url: '/projectowners/cmdb',
+                            type: 'POST',
+                            data:{"dpaccount": currentUser, "projectName": projectName},
+                            error: function(){
+                                console.log("server error!");
+                            },
+                            success: function(response, textStatus) {
+                                //console.log(response.result);
+                                window.location.reload();
+                            }
+                        });
+                    }
+                }
+            ]
+        });
+
+    }
 
 </script>
 
