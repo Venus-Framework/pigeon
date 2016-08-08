@@ -216,7 +216,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
             supported = false;
         }
 
-        return true;
+        return supported;
     }
 
     private HeartBeatStat getHeartBeatStatWithCreate(String connect) {
