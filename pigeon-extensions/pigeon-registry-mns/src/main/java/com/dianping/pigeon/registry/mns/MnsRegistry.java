@@ -101,11 +101,12 @@ public class MnsRegistry implements Registry {
         protocolRequest.setServiceName(serviceName);
         protocolRequest.setRemoteAppkey(remoteAppkey);
         List<SGService> sgServices = MnsInvoker.getServiceList(protocolRequest);
+        //todo 添加listener，注意去重
         MnsInvoker.addServiceListener(protocolRequest, new DefaultServiceListChangeListener());
 
         for (SGService sgService : sgServices) {
-            if (MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight()) > 0) {
-                //todo 加入筛选掉octo的旧服务端
+            // 剔除掉octo的旧服务端
+            if (checkVersion(sgService.getVersion())) {
                 String host = sgService.getIp() + ":" + sgService.getPort();
                 result += host +",";
                 String remoteAppkeyReal = sgService.getAppkey();
@@ -133,17 +134,16 @@ public class MnsRegistry implements Registry {
             return ;
         }
 
-        String remoteAppkey = configManager.getAppName();
+        SGService sgService = new SGService();
+        sgService.setAppkey(configManager.getAppName());
+        sgService.setVersion(VersionUtils.VERSION);
 
-        SGService sgService = sgService = new SGService();
         ProviderConfig providerConfig = ServicePublisher.getServiceConfig(serviceName);
         boolean isSupport = providerConfig.isSupported();
 
-        sgService.setAppkey(remoteAppkey);
         Map<String, ServiceDetail> serviceDetailMap = Maps.newHashMap();
         serviceDetailMap.put(serviceName, new ServiceDetail(isSupport));
         sgService.setServiceInfo(serviceDetailMap);
-        //sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
         int index = serviceAddress.lastIndexOf(":");
         try {
@@ -158,15 +158,8 @@ public class MnsRegistry implements Registry {
         sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
         sgService.setFweight(MnsUtils.getMtthriftFWeight(weight));
 
-        sgService.setVersion(VersionUtils.VERSION);
         sgService.setProtocol("thrift");
         sgService.setLastUpdateTime((int) (System.currentTimeMillis() / 1000));
-
-        //sgService.setRole(0);
-        // 慢启动
-        /*String extend = clusterManager +
-                Consts.vbar + "slowStartSeconds" + Consts.colon + slowStartSeconds;
-        sgService.setExtend(extend);*/
 
         try {
             MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);
@@ -195,14 +188,13 @@ public class MnsRegistry implements Registry {
 
         SGService sgService = new SGService();
         sgService.setAppkey(configManager.getAppName());
+        sgService.setVersion(VersionUtils.VERSION);
 
         ProviderConfig providerConfig = ServicePublisher.getServiceConfig(serviceName);
         boolean isSupport = providerConfig.isSupported();
         Map<String, ServiceDetail> serviceDetailMap = Maps.newHashMap();
         serviceDetailMap.put(serviceName, new ServiceDetail(isSupport));
         sgService.setServiceInfo(serviceDetailMap);
-        // 设置status为禁用
-        //sgService.setStatus(MnsUtils.getMtthriftStatus(0));
 
         int index = serviceAddress.lastIndexOf(":");
         try {
@@ -257,7 +249,7 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public String getServerApp(String serverAddress) throws RegistryException {
-        //todo 参考getServerWeight
+        // 参考getServerWeight
         try {
             String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
 
@@ -281,7 +273,7 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public String getServerVersion(String serverAddress) throws RegistryException {
-        //todo 参考getServerWeight
+        // 参考getServerWeight
         try {
             String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
 
@@ -341,8 +333,10 @@ public class MnsRegistry implements Registry {
     @Override
     public void setServerWeight(String serverAddress, int weight) throws RegistryException {
         SGService sgService = null;
+        String remoteAppkey = configManager.getAppName();
+
         try {
-            sgService = getSGService(configManager.getAppName(), null, serverAddress);
+            sgService = getSGService(remoteAppkey, null, serverAddress);
         } catch (RegistryException e) {
             logger.warn("set server weight to mns failed! no sg_service found of " + serverAddress);
             return ;
@@ -350,8 +344,9 @@ public class MnsRegistry implements Registry {
 
         sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
         sgService.setFweight(MnsUtils.getMtthriftFWeight(weight));
-        //sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
         sgService.setServiceInfo(null);
+        sgService.setAppkey(remoteAppkey);
+        sgService.setVersion(VersionUtils.VERSION);
 
         try {
             MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);
@@ -371,27 +366,6 @@ public class MnsRegistry implements Registry {
     @Override
     public void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException {
         // keep blank is enough
-        /*if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
-            logger.warn("mns is not support pigeon @HTTP@ service!");
-            return ;
-        }
-
-        SGService sgService = getSGService(configManager.getAppName(), serviceName, serviceAddress);
-        ServiceDetail serviceDetail = sgService.getServiceInfo().get(serviceName);
-
-        if (serviceDetail != null) {
-            serviceDetail.setUnifiedProto(support);
-        } else {
-            serviceDetail = new ServiceDetail(support);
-            sgService.getServiceInfo().put(serviceName, serviceDetail);
-        }
-
-        try {
-            MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);
-            logger.info("update provider's protocol: " + serviceAddress + "#" + serviceName + ": " + support);
-        } catch (TException e) {
-            throw new RegistryException("error while update service protocol: " + serviceAddress + "#" + serviceName,  e);
-        }*/
     }
 
     /**
@@ -414,14 +388,6 @@ public class MnsRegistry implements Registry {
     @Override
     public void setServerApp(String serverAddress, String app) {
         // keep blank is enough
-        /*try {
-            SGService sgService = getSGService(configManager.getAppName(), null, serverAddress);
-            sgService.setAppkey(configManager.getAppName());
-            MnsInvoker.registerService(sgService);
-            logger.info("update provider's appkey: " + sgService);
-        } catch (Throwable e) {
-            logger.error("failed to set app of " + serverAddress + " to " + app);
-        }*/
     }
 
     /**
@@ -441,14 +407,6 @@ public class MnsRegistry implements Registry {
     @Override
     public void setServerVersion(String serverAddress, String version) {
         // keep blank is enough
-        /*try {
-            SGService sgService = getSGService(configManager.getAppName(), null, serverAddress);
-            sgService.setVersion(version);
-            MnsInvoker.registerService(sgService);
-            logger.info("update provider's version: " + sgService);
-        } catch (Throwable e) {
-            logger.error("failed to set version of " + serverAddress + " to " + version);
-        }*/
     }
 
     /**
@@ -565,17 +523,16 @@ public class MnsRegistry implements Registry {
         // keep blank
     }
 
-    public static void main(String[] args) {
-        String serviceName = "#fdsd";
-        String[] appkeyAndUrl = serviceName.split("#");
-        if(appkeyAndUrl.length == 2) {
-            //注意判空
-            System.out.println(appkeyAndUrl[0]);
-            System.out.println(appkeyAndUrl[1]);
-        } else if (appkeyAndUrl.length == 1) {
-            System.out.println(appkeyAndUrl[0]);
-        } else {
-            throw new RuntimeException();
+    private boolean checkVersion(String version) {
+        // support new mtthrift and new/old pigeon
+        if (version.startsWith(VersionUtils.MT_THRIFT_VERSION_BASE)) {
+            return VersionUtils.isThriftSupported(version);
         }
+
+        return true;
+    }
+
+    public static void main(String[] args) {
+
     }
 }

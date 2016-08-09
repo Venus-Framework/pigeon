@@ -304,7 +304,9 @@ public class RegistryManager {
                     throw new RuntimeException(errorMsg);
                 }
 
-                logger.warn(errorMsg);
+                if (configManager.getBooleanValue(LoggerLoader.KEY_LOG_DEBUG_ENABLE, false)) {
+                    logger.warn(errorMsg);
+                }
                 break;
             }
         }
