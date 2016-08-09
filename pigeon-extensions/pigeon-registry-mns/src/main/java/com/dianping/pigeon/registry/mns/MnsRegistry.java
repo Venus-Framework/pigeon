@@ -25,15 +25,18 @@ import java.util.*;
  */
 public class MnsRegistry implements Registry {
 
-    private Logger logger = LoggerLoader.getLogger(getClass());
+    private final Logger logger = LoggerLoader.getLogger(getClass());
 
     private Properties properties;
 
-    private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+    private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
-    private static final Map<String, String> hostRemoteAppkeyMapping = MnsUtils.getHostRemoteAppkeyMapping();
+    private final ServiceListChangeListenerManager
+            serviceListChangeListenerManager = ServiceListChangeListenerManager.INSTANCE;
 
     public static final int WEIGHT_DEFAULT = 1;
+
+    private static final Map<String, String> hostRemoteAppkeyMapping = MnsUtils.getHostRemoteAppkeyMapping();
 
     private volatile boolean inited = false;
 
@@ -101,8 +104,8 @@ public class MnsRegistry implements Registry {
         protocolRequest.setServiceName(serviceName);
         protocolRequest.setRemoteAppkey(remoteAppkey);
         List<SGService> sgServices = MnsInvoker.getServiceList(protocolRequest);
-        //todo 添加listener，注意去重
-        MnsInvoker.addServiceListener(protocolRequest, new DefaultServiceListChangeListener());
+        // 添加listener，注意去重
+        serviceListChangeListenerManager.registerListener(protocolRequest);
 
         for (SGService sgService : sgServices) {
             // 剔除掉octo的旧服务端
@@ -222,10 +225,10 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public int getServerWeight(String serverAddress) throws RegistryException {
-        //todo 北京侧的最小单位不是serverAddress
-        //todo client建立连接时候，带上host和remoteAppkey的映射
-        //todo host ---> remoteAppkey
-        //todo 存在的问题，高度依赖于连接client时序，是否一定是先建立client连接
+        // 北京侧的最小单位不是serverAddress
+        // client建立连接时候，带上host和remoteAppkey的映射
+        // host ---> remoteAppkey
+        // 存在的问题，高度依赖于连接client时序，是否一定是先建立client连接
         try {
             String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
 

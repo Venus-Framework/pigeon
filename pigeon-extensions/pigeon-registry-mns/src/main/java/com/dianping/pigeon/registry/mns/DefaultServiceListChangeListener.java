@@ -1,12 +1,14 @@
 package com.dianping.pigeon.registry.mns;
 
 import com.dianping.pigeon.log.LoggerLoader;
+import com.google.common.collect.Sets;
 import com.sankuai.inf.octo.mns.listener.IServiceListChangeListener;
 import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by chenchongze on 16/6/21.
