@@ -432,7 +432,13 @@ public class CuratorRegistry implements Registry {
 
 	@Override
 	public boolean isSupportNewProtocol(String serviceAddress) throws RegistryException {
-		return VersionUtils.isThriftSupported(getServerVersion(serviceAddress));
+		String version = getServerVersion(serviceAddress);
+
+		if (StringUtils.isBlank(version)) {
+			version = "";
+		}
+
+		return VersionUtils.isThriftSupported(version);
 	}
 
 	@Override

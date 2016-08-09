@@ -103,27 +103,18 @@ public class MnsRegistry implements Registry {
         List<SGService> sgServices = MnsInvoker.getServiceList(protocolRequest);
         MnsInvoker.addServiceListener(protocolRequest, new DefaultServiceListChangeListener());
 
-        logger.info("remoteAppkey: " + remoteAppkey + ", serviceName: " + serviceName);
-
         for (SGService sgService : sgServices) {
             if (MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight()) > 0) {
                 //todo 加入筛选掉octo的旧服务端
                 String host = sgService.getIp() + ":" + sgService.getPort();
                 result += host +",";
-                String remoteAppkeyCache = null;
+                String remoteAppkeyReal = sgService.getAppkey();
 
-                if (hostRemoteAppkeyMapping.containsKey(host)) {
-                    remoteAppkeyCache = hostRemoteAppkeyMapping.get(host);
-
-                    if (StringUtils.isNotBlank(remoteAppkeyCache)) {
-                        remoteAppkeyCache = remoteAppkey;
-                        hostRemoteAppkeyMapping.put(host, remoteAppkeyCache);
-                    }
-
-                } else {
-                    remoteAppkeyCache = remoteAppkey;
-                    hostRemoteAppkeyMapping.put(host, remoteAppkeyCache);
+                if (remoteAppkeyReal == null) {
+                    remoteAppkeyReal = "";
                 }
+
+                hostRemoteAppkeyMapping.put(host, remoteAppkeyReal);
             }
         }
 
