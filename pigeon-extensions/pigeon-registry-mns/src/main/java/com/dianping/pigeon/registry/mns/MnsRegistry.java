@@ -31,7 +31,7 @@ public class MnsRegistry implements Registry {
 
     private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
-    private Map<String, String> hostRemoteAppkeyMapping = Maps.newConcurrentMap();
+    private static final Map<String, String> hostRemoteAppkeyMapping = MnsUtils.getHostRemoteAppkeyMapping();
 
     public static final int WEIGHT_DEFAULT = 1;
 
@@ -106,9 +106,9 @@ public class MnsRegistry implements Registry {
 
         for (SGService sgService : sgServices) {
             // 剔除掉octo的旧服务端
-            if (checkVersion(sgService.getVersion())) {
+            if (MnsUtils.checkVersion(sgService.getVersion())) {
                 String host = sgService.getIp() + ":" + sgService.getPort();
-                result += host +",";
+                result += host + ",";
                 String remoteAppkeyReal = sgService.getAppkey();
 
                 if (remoteAppkeyReal == null) {
@@ -523,14 +523,7 @@ public class MnsRegistry implements Registry {
         // keep blank
     }
 
-    private boolean checkVersion(String version) {
-        // support new mtthrift and new/old pigeon
-        if (version.startsWith(VersionUtils.MT_THRIFT_VERSION_BASE)) {
-            return VersionUtils.isThriftSupported(version);
-        }
 
-        return true;
-    }
 
     public static void main(String[] args) {
 

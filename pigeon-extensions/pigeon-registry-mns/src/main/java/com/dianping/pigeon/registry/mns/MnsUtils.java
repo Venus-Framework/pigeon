@@ -1,11 +1,14 @@
 package com.dianping.pigeon.registry.mns;
 
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.util.VersionUtils;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by chenchongze on 16/6/13.
@@ -23,6 +26,12 @@ public class MnsUtils {
     public final static int UPT_CMD_RESET = 0;
     public final static int UPT_CMD_ADD = 1;
     public final static int UPT_CMD_DEL = 2;
+
+    private static final Map<String, String> hostRemoteAppkeyMapping = Maps.newConcurrentMap();
+
+    public static Map<String, String> getHostRemoteAppkeyMapping() {
+        return hostRemoteAppkeyMapping;
+    }
 
     public static int getMtthriftWeight(int pigeon_weight) {
         int mtThriftWeight = 0;
@@ -107,5 +116,14 @@ public class MnsUtils {
         }
 
         return result;
+    }
+
+    public static boolean checkVersion(String version) {
+        // support new mtthrift and new/old pigeon
+        if (version.startsWith(VersionUtils.MT_THRIFT_VERSION_BASE)) {
+            return VersionUtils.isThriftSupported(version);
+        }
+
+        return true;
     }
 }

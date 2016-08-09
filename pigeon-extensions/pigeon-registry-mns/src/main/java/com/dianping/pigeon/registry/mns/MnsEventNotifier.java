@@ -27,6 +27,8 @@ public class MnsEventNotifier {
 
     private static ServiceChangeListener serviceChangeListener = new DefaultServiceChangeListener();
 
+    private static final Map<String, String> hostRemoteAppkeyMapping = MnsUtils.getHostRemoteAppkeyMapping();
+
     private static List<IServiceListChangeListener> serviceListChangeListeners = Lists.newArrayList();
 
     public static void eventReceived(ProtocolRequest req,
@@ -43,8 +45,17 @@ public class MnsEventNotifier {
             String hosts = "";
 
             for (SGService sgService : newList) {
-                if (MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight()) > 0) {
-                    hosts += sgService.getIp() + ":" + sgService.getPort() +",";
+                // 剔除掉octo的旧服务端
+                if (MnsUtils.checkVersion(sgService.getVersion())) {
+                    String host = sgService.getIp() + ":" + sgService.getPort();
+                    hosts += host + ",";
+                    String remoteAppkeyReal = sgService.getAppkey();
+
+                    if (remoteAppkeyReal == null) {
+                        remoteAppkeyReal = "";
+                    }
+
+                    hostRemoteAppkeyMapping.put(host, remoteAppkeyReal);
                 }
             }
 

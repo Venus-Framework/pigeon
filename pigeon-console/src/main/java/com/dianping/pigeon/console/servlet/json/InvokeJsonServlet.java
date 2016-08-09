@@ -114,7 +114,7 @@ public class InvokeJsonServlet extends ServiceServlet {
 				}
 			}
 		}
-		boolean needValidate = needValidate(request);
+		boolean needValidate =needValidate(request);
 		String token = request.getParameter("token");
 		String serviceName = request.getParameter("url");
 		String expectToken = null;
