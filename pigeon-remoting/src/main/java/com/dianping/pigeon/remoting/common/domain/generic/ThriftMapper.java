@@ -28,14 +28,7 @@ public class ThriftMapper {
         if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
             header.setMessageType(MessageType.Normal.getCode());
         } else if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
-            // 发送心跳消息到服务端
             header.setMessageType(MessageType.Heartbeat.getCode());
-            HeartbeatInfo heartbeatInfo = new HeartbeatInfo();
-            heartbeatInfo.setAppkey(request.getApp());
-            heartbeatInfo.setSendTime(request.getCreateMillisTime());
-
-            header.setHeartbeatInfo(heartbeatInfo);
-
         } else {
             throw new SerializationException("Serialize unknown messageType.");
         }
@@ -85,17 +78,12 @@ public class ThriftMapper {
 
         //messageType
         if (messageType == Constants.MESSAGE_TYPE_SERVICE ||
-                messageType == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
+                messageType == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION ||
+                messageType == Constants.MESSAGE_TYPE_EXCEPTION) {
             header.setMessageType(MessageType.Normal.getCode());
 
         } else if (messageType == Constants.MESSAGE_TYPE_HEART) {
             header.setMessageType(MessageType.Heartbeat.getCode());
-            // 响应心跳信息
-            HeartbeatInfo heartbeatInfo = new HeartbeatInfo();
-            heartbeatInfo.setAppkey(ConfigManagerLoader.getConfigManager().getAppName());
-            heartbeatInfo.setSendTime(response.getCreateMillisTime());
-
-            header.setHeartbeatInfo(heartbeatInfo);
 
         } else if (messageType == Constants.MESSAGE_TYPE_SCANNER_HEART) {
             header.setMessageType(MessageType.ScannerHeartbeat.getCode());
@@ -229,7 +217,7 @@ public class ThriftMapper {
         //messageType
         if (header.getMessageType() == MessageType.Heartbeat.getCode()) {
             response.setMessageType(Constants.MESSAGE_TYPE_HEART);
-        } else {
+        } else if (header.getMessageType() == MessageType.Normal.getCode()) {
             switch (statusCode) {
                 case Success:
                     response.setMessageType(Constants.MESSAGE_TYPE_SERVICE);
@@ -248,6 +236,8 @@ public class ThriftMapper {
                     response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
                     break;
             }
+        } else {
+            throw new SerializationException("Deserialize unknown messageType.");
         }
 
         //requestInfo

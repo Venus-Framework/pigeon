@@ -148,7 +148,7 @@ public class ThriftSerializer extends AbstractSerializer {
 
             response = ThriftMapper.convertHeaderToResponse(header);
 
-            if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+            if (header.getMessageType() == MessageType.Normal.getCode()) {
 
                 GenericRequest request = (GenericRequest) repository.get(
                         header.getResponseInfo().getSequenceId());
@@ -167,6 +167,7 @@ public class ThriftSerializer extends AbstractSerializer {
                 //body
                 serializer.doDeserializeResponse(response, request, protocol, header);
             }
+
         } catch (Exception e) {
             throw new SerializationException("Deserialize response failed.", e);
         }
