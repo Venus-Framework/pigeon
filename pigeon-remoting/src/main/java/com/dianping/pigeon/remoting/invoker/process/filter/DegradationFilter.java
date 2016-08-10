@@ -6,7 +6,6 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
