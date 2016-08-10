@@ -1,11 +1,15 @@
 package com.dianping.pigeon.registry.mns;
 
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.util.VersionUtils;
+import com.google.common.collect.Maps;
+import com.sankuai.sgagent.thrift.model.fb_status;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by chenchongze on 16/6/13.
@@ -24,32 +28,84 @@ public class MnsUtils {
     public final static int UPT_CMD_ADD = 1;
     public final static int UPT_CMD_DEL = 2;
 
-    public static int getMtthriftStatus(int pigeon_weight) {
-        int status = 0;
+    public final static int MNS_WEIGHT_ACTIVE_DEFAULT = 10;
+    public final static int MNS_WEIGHT_INACTIVE_DEFAULT = 0;
+    public final static double MNS_FWEIGHT_ACTIVE_DEFAULT = 10.d;
+    public final static double MNS_FWEIGHT_INACTIVE_DEFAULT = 0.d;
 
-        if (pigeon_weight < 0) {
-            status = 4;//stopped
-        } else if (pigeon_weight == 0) {
-            status = 0;//dead
-        } else if (pigeon_weight > 0) {
-            status = 2;//alive
+    // 框架层权重
+    public final static int WEIGHT_ACTIVE = 1;
+    public final static int WEIGHT_INACTIVE = 0;
+
+
+    private static final Map<String, String> hostRemoteAppkeyMapping = Maps.newConcurrentMap();
+
+    public static Map<String, String> getHostRemoteAppkeyMapping() {
+        return hostRemoteAppkeyMapping;
+    }
+
+    public static int getMtthriftWeight(int weight) {
+        int mtThriftWeight;
+
+        if (weight == WEIGHT_INACTIVE) {
+            mtThriftWeight = MNS_WEIGHT_INACTIVE_DEFAULT;//inactive
+        }  else if (weight > WEIGHT_INACTIVE) {
+            mtThriftWeight = MNS_WEIGHT_ACTIVE_DEFAULT;//active
+        } else {
+            mtThriftWeight = MNS_WEIGHT_ACTIVE_DEFAULT;//active
+        }
+
+        return mtThriftWeight;
+    }
+
+    public static double getMtthriftFWeight(int weight) {
+        double mtThriftWeight;
+
+        if (weight == WEIGHT_INACTIVE) {
+            mtThriftWeight = MNS_FWEIGHT_INACTIVE_DEFAULT;//inactive
+        }  else if (weight > WEIGHT_INACTIVE) {
+            mtThriftWeight = MNS_FWEIGHT_ACTIVE_DEFAULT;//active
+        } else {
+            mtThriftWeight = MNS_FWEIGHT_ACTIVE_DEFAULT;//active
+        }
+
+        return mtThriftWeight;
+    }
+
+    public static int getMtthriftStatus(int weight) {
+        int status;
+
+        if (weight == WEIGHT_INACTIVE) {
+            status = fb_status.DEAD.getValue();//dead
+        } else if (weight > WEIGHT_INACTIVE) {
+            status = fb_status.ALIVE.getValue();//alive
+        } else {
+            status = fb_status.ALIVE.getValue();
         }
 
         return status;
     }
 
-    public static int getPigeonWeight(int mtthrift_status, int mtthrift_weight) {
-        int weight = -1;
+    public static int getWeight(int mtthriftStatus, int mtthriftWeight) {
+        int weight;
 
-        if (mtthrift_status == 4) {
-            weight = -1;
-        } else if (mtthrift_status == 0) {
-            weight = 0;
-        } else if (mtthrift_status == 2 && mtthrift_weight > 0) {
-            weight = 1;
+        if (mtthriftStatus == fb_status.ALIVE.getValue()
+                && mtthriftWeight > MNS_WEIGHT_INACTIVE_DEFAULT) {
+            weight = WEIGHT_ACTIVE;
+        } else {
+            weight = WEIGHT_INACTIVE;
         }
 
         return weight;
+    }
+
+    public static boolean checkVersion(String version) {
+        // support new mtthrift and new/old pigeon
+        if (version.startsWith(VersionUtils.MT_THRIFT_VERSION_BASE)) {
+            return VersionUtils.isThriftSupported(version);
+        }
+
+        return true;
     }
 
     public static List<String[]> getServiceIpPortList(String serviceAddress) {

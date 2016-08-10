@@ -29,6 +29,7 @@ import org.springframework.dao.DataAccessException;
  * @author chenchongze
  *
  */
+@Deprecated
 @org.springframework.stereotype.Service
 public class ServiceServiceImpl implements ServiceService {
 

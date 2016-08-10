@@ -6,6 +6,7 @@ import com.dianping.pigeon.governor.bean.JqGridRespBean;
 import com.dianping.pigeon.governor.bean.ServiceBean;
 import com.dianping.pigeon.governor.model.Service;
 
+@Deprecated
 public interface ServiceService {
 
 	public int create(ServiceBean serviceBean, String updatezk) throws Exception;

@@ -107,13 +107,17 @@
                     </div>
 
                     <div class="col-xs-12" style="margin-top: 10px">
-                        <label class="col-xs-1 control-label no-padding-right" for="serviceSearch">服务搜索</label>
-                        <div class="col-xs-8">
-                            <input id="serviceSearch" type="text" placeholder="Search for services..."
+                        <label class="col-xs-1 control-label no-padding-right" for="serviceNodeSearch">服务搜索</label>
+                        <div class="col-xs-6">
+                            <input id="serviceNodeName" type="text" placeholder="Search for services..."
+                                   data-provide="typeahead" style="min-width: 100%" oldautocomplete="off">
+                        </div>
+                        <div class="col-xs-2">
+                            <input id="serviceNodeGroup" type="text" placeholder="group"
                                    data-provide="typeahead" style="min-width: 100%" oldautocomplete="off">
                         </div>
                         <div class="col-xs-3">
-                            <button class="btn btn-primary" style="height: 34px" onclick="gotoService()">Go!</button>
+                            <button class="btn btn-primary" style="height: 34px" onclick="gotoServicePage()">Go!</button>
                         </div>
                     </div>
 
@@ -170,10 +174,7 @@
 
 <script>
     var projects = ${projects};
-    var services = ${services};
-    /*var serviceId;
-    var serviceName;
-    var projectId;*/
+    var serviceNodes = ${serviceNodes};
 
     $(function(){
         $('li[id="project_search"]').addClass("active");
@@ -182,9 +183,9 @@
             source: projects
         });
 
-        $('#serviceSearch').typeahead({
-            source: services,
-            display: "name",     // 默认的对象属性名称为 name 属性
+        $('#serviceNodeName').typeahead({
+            source: serviceNodes,
+            display: "serviceName",     // 默认的对象属性名称为 name 属性
             val: "id",           // 默认的标识属性名称为 id 属性
             itemSelected: function (item, val, text) {      // 当选中一个项目的时候，回调函数
                 /*serviceId = val;
@@ -198,14 +199,14 @@
         window.location = "/services/" + $('#projectSearch').val();
     }
 
-    function gotoService() {
+    function gotoServicePage() {
         //TODO 参考http://www.cnblogs.com/haogj/p/3378508.html
         //怎么拿到object对象里的另外一个参数
         //window.location = "/services?service=" + $('#serviceSearch').val();
 
-        var data = { "service" : $('#serviceSearch').val() };
+        var data = { "service" : $('#serviceNodeName').val(), "group" : $('#serviceNodeGroup').val() };
         $.ajax({
-            url: '/projects.search',
+            url: '/projects.find',
             type: 'POST',
             data: data,
             error: function(){
@@ -213,10 +214,9 @@
             },
             success: function(response, textStatus) {
                 if(response.status == "success") {
-                    window.location = "/services/" + response.result.name;
+                    console.log(response);
+                    window.location = "/services/" + response.result;
                 } else {
-                    //console.log(response);
-                    $('#oneClickAdd-modal').modal('hide');
                     $.gritter.add({
                         title: response.status,
                         text: response.message,

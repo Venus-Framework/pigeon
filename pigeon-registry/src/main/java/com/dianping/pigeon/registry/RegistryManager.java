@@ -304,7 +304,9 @@ public class RegistryManager {
                     throw new RuntimeException(errorMsg);
                 }
 
-                logger.warn(errorMsg);
+                if (configManager.getBooleanValue(LoggerLoader.KEY_LOG_DEBUG_ENABLE, false)) {
+                    logger.warn(errorMsg);
+                }
                 break;
             }
         }
@@ -617,30 +619,6 @@ public class RegistryManager {
 
     }
 
-    /**
-     * @param serviceName
-     * @param group
-     * @param hosts
-     * @author chenchongze
-     */
-    public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
-        //TODO 待验证
-        for (Registry registry : registryList) {
-            registry.setServerService(serviceName, group, hosts);
-        }
-
-        monitor.logEvent("PigeonService.setHosts", serviceName, "swimlane=" + group + "&hosts=" + hosts);
-    }
-
-    public void delServerService(String serviceName, String group) throws RegistryException {
-        //TODO 待验证
-        for (Registry registry : registryList) {
-            registry.delServerService(serviceName, group);
-        }
-
-        monitor.logEvent("PigeonService.delService", serviceName, "swimlane=" + group);
-    }
-
     public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
         for (Registry registry : registryList) {
             registry.updateHeartBeat(serviceAddress, heartBeatTimeMillis);
@@ -664,6 +642,26 @@ public class RegistryManager {
         }
 
         return StringUtils.join(result, ",");
+    }
+
+    public boolean isSupportNewProtocol(String serviceAddress) throws RegistryException {
+        //todo 查机器级别的支持
+        boolean support = false;
+
+        List<Boolean> checkList = Lists.newArrayList();
+        for (Registry registry : registryList) {
+            // 多个注册中心获取到本地内存
+            try {
+                checkList.add(registry.isSupportNewProtocol(serviceAddress));
+            } catch (Throwable e) {
+                logger.error("failed to get protocol for " + serviceAddress, e);
+            }
+        }
+        if (checkList.size() > 0) {
+            support = checkValueConsistency(checkList);
+        }
+
+        return support;
     }
 
     public boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
@@ -718,9 +716,10 @@ public class RegistryManager {
         monitor.logEvent("PigeonService.protocol", serviceName, "support=" + support);
     }
 
-    public void unregisterSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
+    public void unregisterSupportNewProtocol(String serviceAddress, String serviceName,
+                                             boolean support) throws RegistryException {
         for (Registry registry : registryList) {
-            registry.unregisterSupportNewProtocol(serviceAddress, serviceName);
+            registry.unregisterSupportNewProtocol(serviceAddress, serviceName, support);
         }
         monitor.logEvent("PigeonService.protocol", serviceName, "unregister");
     }
@@ -752,6 +751,77 @@ public class RegistryManager {
         }
     }
 
+
+    /**
+     * for governor: manual update service and set weight to 1
+     * @param serviceName
+     * @param group
+     * @param hosts
+     * @author chenchongze
+     */
+    public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
+        //TODO 待验证
+        for (Registry registry : registryList) {
+            registry.setServerService(serviceName, group, hosts);
+        }
+
+        monitor.logEvent("PigeonGovernor.setHosts", serviceName, "swimlane=" + group + "&hosts=" + hosts);
+    }
+
+    public void setHostsWeight(String serviceName, String group,
+                               String hosts, int weight) throws RegistryException {
+        for (Registry registry : registryList) {
+            registry.setHostsWeight(serviceName, group, hosts, weight);
+        }
+
+        monitor.logEvent("PigeonGovernor.setWeight", hosts, weight + "");
+    }
+
+    /**
+     * for governor: manual delete service
+     * @param serviceName
+     * @param group
+     * @throws RegistryException
+     */
+    public void delServerService(String serviceName, String group) throws RegistryException {
+        //TODO 待验证
+        for (Registry registry : registryList) {
+            registry.delServerService(serviceName, group);
+        }
+
+        monitor.logEvent("PigeonGovernor.delService", serviceName, "swimlane=" + group);
+    }
+
+    /**
+     * for governor: getServiceHosts from zk
+     * @param serviceName
+     * @param group
+     * @return
+     * @throws RegistryException
+     */
+    public String getServiceHosts(String serviceName, String group) throws RegistryException {
+        String addr = "";
+
+        List<String> checkList = Lists.newArrayList();
+        for (Registry registry : registryList) {
+            // 多个注册中心获取到本地内存
+            try {
+                checkList.add(registry.getServiceAddress(serviceName, group, false));
+            } catch (Throwable e) {
+                logger.error("failed to get service hosts for "
+                        + serviceName + "#" + group + ", msg: " + e.getMessage());
+                if (checkList.size() == 0) {
+                    throw new RegistryException(e);
+                }
+            }
+        }
+        if (checkList.size() > 0) {
+            addr = checkValueConsistency(checkList);
+        }
+
+        return addr;
+    }
+
     private class InnerConfigChangeListener implements ConfigChangeListener {
 
         @Override
@@ -780,7 +850,4 @@ public class RegistryManager {
         }
     }
 
-    public static void main(String[] args) {
-
-    }
 }

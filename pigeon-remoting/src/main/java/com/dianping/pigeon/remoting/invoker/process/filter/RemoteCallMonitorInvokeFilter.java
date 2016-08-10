@@ -123,11 +123,11 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 					transaction.addData("Serialize", invokerConfig.getSerialize());
 
 					transaction.logEvent("PigeonCall.QPS", "S" + Calendar.getInstance().get(Calendar.SECOND), "");
-					boolean logTimeout = random.nextInt(Constants.INVOKER_LOG_TIMEOUT_PERCENT) < 1;
+					/*boolean logTimeout = random.nextInt(Constants.INVOKER_LOG_TIMEOUT_PERCENT) < 1;
 					if (logTimeout) {
 						transaction
 								.logEvent("PigeonCall.timeout." + callInterface, invokerConfig.getTimeout() + "", "");
-					}
+					}*/
 					transaction.readMonitorContext();
 				}
 			} catch (Throwable e) {

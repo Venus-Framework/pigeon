@@ -61,15 +61,13 @@ public class GenericRequest implements UnifiedRequest {
     private String clientIp;
 
     public GenericRequest(String serviceName, String methodName, Object[] parameters, byte serialize, int messageType,
-                          int timeout, int callType, long seq) {
+                          int timeout) {
         this.serviceName = serviceName;
         this.methodName = methodName;
         this.parameters = parameters;
         this.serialize = serialize;
         this.messageType = messageType;
         this.timeout = timeout;
-        this.callType = callType;
-        this.seq = seq;
     }
 
 

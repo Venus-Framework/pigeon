@@ -4,21 +4,29 @@ public class VersionUtils {
 
 	public static final String VERSION = "2.8.0-SNAPSHOT";
 	
-    public static final String THRIFT_VERSION = "2.8.0-SNAPSHOT";
+    public static final String DP_THRIFT_VERSION = "2.8.0-SNAPSHOT";
+
+    public static final String MT_THRIFT_VERSION = "mtthrift-v1.7.0-NightlyBuild-SNAPSHOT";
+
+    public static final String MT_THRIFT_VERSION_BASE = "mtthrift";
 
     public static final String PROTO_FST_VERSION = "2.4.3";
 
     public static final String COMPACT_VERSION = "2.7.5";
 
-    public static final boolean isThriftSupported(String version) {
-        return compareVersion(version, THRIFT_VERSION) >= 0;
+    public static boolean isThriftSupported(String version) {
+        if (version.startsWith(MT_THRIFT_VERSION_BASE)) {
+            return compareVersion(version, MT_THRIFT_VERSION) >= 0;
+        } else {
+            return compareVersion(version, DP_THRIFT_VERSION) >= 0;
+        }
     }
 
-    public static final boolean isProtoFstSupported(String version) {
+    public static boolean isProtoFstSupported(String version) {
         return compareVersion(version, PROTO_FST_VERSION) >= 0;
     }
 
-    public static final boolean isCompactSupported(String version) {
+    public static boolean isCompactSupported(String version) {
         return compareVersion(version, COMPACT_VERSION) >= 0;
     }
 

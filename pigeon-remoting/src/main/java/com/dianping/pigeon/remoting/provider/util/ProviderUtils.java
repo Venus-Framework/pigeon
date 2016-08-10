@@ -13,10 +13,12 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.generic.GenericResponse;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.remoting.provider.exception.BadRequestException;
 import com.dianping.pigeon.remoting.provider.process.ProviderExceptionTranslator;
 import com.dianping.pigeon.util.LangUtils;
 import com.dianping.pigeon.util.VersionUtils;
@@ -176,11 +178,51 @@ public final class ProviderUtils {
     }
 
     public static InvocationResponse createHeartResponse(InvocationRequest request) {
+        if (request instanceof UnifiedRequest) {
+            return createHeartResponse0((UnifiedRequest)request);
+        } else {
+            return createHeartResponse0(request);
+        }
+    }
+
+    public static InvocationResponse createHeartResponse0(UnifiedRequest request) {
+        UnifiedResponse response = null;
+        byte serialize = request.getSerialize();
+        response = (UnifiedResponse) SerializerFactory.getSerializer(serialize).newResponse();
+        response.setSequence(request.getSequence());
+        response.setSerialize(serialize);
+        response.setMessageType(Constants.MESSAGE_TYPE_HEART);
+        response.setServiceName(request.getServiceName());
+        response.setMethodName(request.getMethodName());
+        response.setSeqId(request.getSeqId());
+        response.setCreateMillisTime(System.currentTimeMillis());
+        return response;
+    }
+
+    public static InvocationResponse createHeartResponse0(InvocationRequest request) {
         InvocationResponse response = new DefaultResponse(Constants.MESSAGE_TYPE_HEART, request.getSerialize());
         response.setSequence(request.getSequence());
         response.setReturn(Constants.VERSION_150);
 
         return response;
+    }
+
+    public static InvocationResponse createScannerHeartResponse(InvocationRequest request) {
+        if (request instanceof UnifiedRequest) {
+            UnifiedResponse response = null;
+            byte serialize = request.getSerialize();
+            response = (UnifiedResponse) SerializerFactory.getSerializer(serialize).newResponse();
+            response.setSequence(request.getSequence());
+            response.setSerialize(serialize);
+            response.setMessageType(Constants.MESSAGE_TYPE_SCANNER_HEART);
+            response.setServiceName(request.getServiceName());
+            response.setMethodName(request.getMethodName());
+            response.setSeqId(((UnifiedRequest) request).getSeqId());
+            response.setCreateMillisTime(System.currentTimeMillis());
+            return response;
+        } else {
+            throw new BadRequestException("invalid scanner heartbeat request");
+        }
     }
 
     public static InvocationResponse createHealthCheckResponse(InvocationRequest request) {

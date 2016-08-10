@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by chenchongze on 15/12/29.
  */
+@Deprecated
 public class HeartBeatCheckTask extends Thread {
 
     private Logger logger = LogManager.getLogger(HeartBeatCheckTask.class);

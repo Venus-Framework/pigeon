@@ -167,17 +167,17 @@ public class ClientManager {
 		} catch (Throwable e) {
 			logger.error("cannot get service provider for service:" + serviceName, e);
 			throw new ServiceUnavailableException("cannot get service provider for service:" + serviceName
-					+ ", remoteAppkey:" + remoteAppkey + ", env:" + configManager.getEnv(), e);
+					+ ", remote app:" + remoteAppkey + ", env:" + configManager.getEnv(), e);
 		}
 
 		if (StringUtils.isBlank(serviceAddress)) {
 			throw new ServiceUnavailableException("empty service address from registry for service:" + serviceName
-					+ ", group:" + group + ", remoteAppkey:" + remoteAppkey + ", env:" + configManager.getEnv());
+					+ ", group:" + group + ", remote app:" + remoteAppkey + ", env:" + configManager.getEnv());
 		}
 
 		if (logger.isInfoEnabled()) {
 			logger.info("selected service provider address is:" + serviceAddress + " with service:" + serviceName
-					+ ",group:" + group + ", remoteAppkey:" + remoteAppkey);
+					+ ",group:" + group + ", remote app:" + remoteAppkey);
 		}
 		serviceAddress = serviceAddress.trim();
 		return serviceAddress;

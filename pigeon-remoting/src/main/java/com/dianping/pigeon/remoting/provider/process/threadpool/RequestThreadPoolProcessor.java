@@ -307,6 +307,19 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 	}
 
 	@Override
+	public ThreadPool getRequestProcessThreadPool() {
+		ThreadPool pool;
+
+		if ("server".equals(poolStrategy)) {
+			pool = requestProcessThreadPool;
+		} else {
+			pool = sharedRequestProcessThreadPool;
+		}
+
+		return pool;
+	}
+
+	@Override
 	public void doStart() {
 
 	}

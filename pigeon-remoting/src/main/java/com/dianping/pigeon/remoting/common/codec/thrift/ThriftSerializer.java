@@ -5,20 +5,22 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericResponse;
+import com.dianping.pigeon.remoting.common.domain.generic.MessageType;
 import com.dianping.pigeon.remoting.common.domain.generic.ThriftMapper;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.Header;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.ThriftUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author qi.yin
@@ -33,7 +35,7 @@ public class ThriftSerializer extends AbstractSerializer {
     private IDLThriftSerializer idlThriftSerializer = new IDLThriftSerializer();
     private AnnotationThriftSerializer annotationThriftSerializer = new AnnotationThriftSerializer();
 
-    private ConcurrentHashMap<Class<?>, AbstractThriftSerializer> serializers =
+    private ConcurrentMap<Class<?>, AbstractThriftSerializer> serializers =
             new ConcurrentHashMap<Class<?>, AbstractThriftSerializer>();
 
     @Override
@@ -51,24 +53,26 @@ public class ThriftSerializer extends AbstractSerializer {
             Header header = new Header();
             header.read(protocol);
 
-            if (header.getRequestInfo() == null ||
-                    StringUtils.isEmpty(header.getRequestInfo().getServiceName())) {
+            if (header.getRequestInfo() == null) {
                 throw new SerializationException("Deserialize requestInfo is no legal. header " + header);
             }
 
             request = ThriftMapper.convertHeaderToRequest(header);
-            //body
-            Class<?> iface = ServicePublisher.getInterface(request.getServiceName());
 
-            if (iface == null) {
-                throw new SerializationException("Deserialize thrift serviceName is invalid.");
+            if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+                //body
+                Class<?> iface = ServicePublisher.getInterface(request.getServiceName());
+
+                if (iface == null) {
+                    throw new SerializationException("Deserialize thrift serviceName is invalid.");
+                }
+
+                request.setServiceInterface(iface);
+
+                AbstractThriftSerializer serializer = getSerializer(iface);
+
+                serializer.doDeserializeRequest(request, protocol);
             }
-
-            request.setServiceInterface(iface);
-
-            AbstractThriftSerializer serializer = getSerializer(iface);
-
-            serializer.doDeserializeRequest(request, protocol);
 
         } catch (Exception e) {
             throw new SerializationException("Deserialize request failed.", e);
@@ -97,17 +101,18 @@ public class ThriftSerializer extends AbstractSerializer {
 
                 short headerLength = (short) (bos.size() - HEADER_FIELD_LENGTH);
 
+                if (header.getMessageType() == MessageType.Normal.getCode()) {
 
-                Class<?> iface = request.getServiceInterface();
+                    Class<?> iface = request.getServiceInterface();
 
-                if (iface == null) {
-                    throw new SerializationException("Serialize thrift interface is null.");
+                    if (iface == null) {
+                        throw new SerializationException("Serialize thrift interface is null.");
+                    }
+
+                    AbstractThriftSerializer serializer = getSerializer(iface);
+
+                    serializer.doSerializeRequest(request, protocol);
                 }
-
-                AbstractThriftSerializer serializer = getSerializer(iface);
-
-                serializer.doSerializeRequest(request, protocol);
-
                 int messageLength = bos.size();
 
                 try {
@@ -144,22 +149,25 @@ public class ThriftSerializer extends AbstractSerializer {
 
             response = ThriftMapper.convertHeaderToResponse(header);
 
-            GenericRequest request = (GenericRequest) repository.get(
-                    header.getResponseInfo().getSequenceId());
+            if (header.getMessageType() == MessageType.Normal.getCode()) {
 
-            if (request == null) {
-                throw new SerializationException("Deserialize cannot find related request. sequenceId " + header.getResponseInfo().getSequenceId());
+                GenericRequest request = (GenericRequest) repository.get(
+                        header.getResponseInfo().getSequenceId());
+
+                if (request == null) {
+                    throw new SerializationException("Deserialize cannot find related request. sequenceId " + header.getResponseInfo().getSequenceId());
+                }
+
+                Class<?> iface = request.getServiceInterface();
+
+                if (iface == null) {
+                    throw new SerializationException("Deserialize interface is null.");
+                }
+
+                AbstractThriftSerializer serializer = getSerializer(iface);
+                //body
+                serializer.doDeserializeResponse(response, request, protocol, header);
             }
-
-            Class<?> iface = request.getServiceInterface();
-
-            if (iface == null) {
-                throw new SerializationException("Deserialize interface is null.");
-            }
-
-            AbstractThriftSerializer serializer = getSerializer(iface);
-            //body
-            serializer.doDeserializeResponse(response, request, protocol, header);
 
         } catch (Exception e) {
             throw new SerializationException("Deserialize response failed.", e);
@@ -186,17 +194,32 @@ public class ThriftSerializer extends AbstractSerializer {
                 //header
                 Header header = ThriftMapper.convertResponseToHeader(response);
 
-                Class<?> iface = ServicePublisher.getInterface(response.getServiceName());
+                if (header.getMessageType() == MessageType.Normal.getCode()) {
+                    Class<?> iface = ServicePublisher.getInterface(response.getServiceName());
 
-                if (iface == null) {
-                    throw new SerializationException("Serialize thrift serviceName is invalid.");
+                    if (iface == null) {
+                        throw new SerializationException("Serialize thrift serviceName is invalid.");
+                    }
+
+                    response.setServiceInterface(iface);
+
+                    AbstractThriftSerializer serializer = getSerializer(iface);
+                    //body
+                    serializer.doSerializeResponse(response, protocol, header, bos);
+
+                } else {
+                    //header
+                    header.write(protocol);
+                    short headerLength = (short) (bos.size() - HEADER_FIELD_LENGTH);
+                    int messageLength = bos.size();
+
+                    try {
+                        bos.setWriteIndex(0);
+                        protocol.writeI16(headerLength);
+                    } finally {
+                        bos.setWriteIndex(messageLength);
+                    }
                 }
-
-                response.setServiceInterface(iface);
-
-                AbstractThriftSerializer serializer = getSerializer(iface);
-                //body
-                serializer.doSerializeResponse(response, protocol, header, bos);
 
                 os.write(bos.toByteArray());
             } catch (Exception e) {

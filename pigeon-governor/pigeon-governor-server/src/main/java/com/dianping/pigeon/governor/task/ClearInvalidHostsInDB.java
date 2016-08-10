@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by chenchongze on 15/11/6.
  */
+@Deprecated
 public class ClearInvalidHostsInDB implements Runnable {
 
     private ExecutorService proOwnerThreadPool = new ThreadPoolExecutor(30, 60, 30L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());

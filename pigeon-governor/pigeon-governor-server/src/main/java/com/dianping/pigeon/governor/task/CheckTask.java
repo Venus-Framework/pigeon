@@ -25,6 +25,7 @@ import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.remoting.netty.invoker.NettyClient;
 
+@Deprecated
 public class CheckTask implements Runnable {
 
 	private static final Logger logger = LogManager.getLogger(CheckTask.class);

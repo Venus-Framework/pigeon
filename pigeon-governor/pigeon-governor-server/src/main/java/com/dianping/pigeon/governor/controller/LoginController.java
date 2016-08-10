@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.dianping.pigeon.governor.bean.Result;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,7 +24,6 @@ import com.dianping.pigeon.governor.lion.LionKeys;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.UserService;
 import com.dianping.pigeon.governor.util.Constants;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * 

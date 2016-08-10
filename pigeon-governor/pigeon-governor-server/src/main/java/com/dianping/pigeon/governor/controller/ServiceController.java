@@ -1,6 +1,5 @@
 package com.dianping.pigeon.governor.controller;
 
-import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.console.Utils;
 import com.dianping.pigeon.governor.bean.*;
 import com.dianping.pigeon.governor.model.*;
@@ -27,6 +26,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
+@Deprecated
 @Controller
 public class ServiceController extends BaseController {
 	
@@ -45,13 +45,28 @@ public class ServiceController extends BaseController {
 	private Gson gson = new Gson();
 
 	/**
+	 * 显示所有服务配置页面（用处不大）
+	 * @param modelMap
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = {"/old/services.all"}, method = RequestMethod.GET)
+	public String allinone(ModelMap modelMap,
+						   HttpServletRequest request, HttpServletResponse response) {
+		commonnav(modelMap, request);
+
+		return "services/all";
+	}
+
+	/**
 	 * 显示 projectName 的服务配置页面
 	 * @param modelMap
 	 * @param projectName
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = {"/services/{projectName:.+}"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/old/services/{projectName:.+}"}, method = RequestMethod.GET)
 	public String projectInfo(ModelMap modelMap,
 								@PathVariable final String projectName,
 								HttpServletRequest request) {
@@ -446,21 +461,6 @@ public class ServiceController extends BaseController {
 			return Result.createErrorResult("http call error or no services found: " + url);
 		}
 
-	}
-
-	/**
-	 * 显示所有服务配置页面（用处不大）
-	 * @param modelMap
-	 * @param request
-	 * @param response
-	 * @return
-	 */
-	@RequestMapping(value = {"/services.all"}, method = RequestMethod.GET)
-	public String allinone(ModelMap modelMap,
-			HttpServletRequest request, HttpServletResponse response) {
-		commonnav(modelMap, request);
-		
-		return "services/all";
 	}
 
 	/**

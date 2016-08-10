@@ -1,9 +1,14 @@
 package com.dianping.pigeon.governor.service.impl;
 
 import com.dianping.pigeon.governor.dao.ServiceNodeMapper;
+import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.ServiceNode;
 import com.dianping.pigeon.governor.model.ServiceNodeExample;
+import com.dianping.pigeon.governor.service.ProjectOwnerService;
+import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceNodeService;
+import com.dianping.pigeon.governor.util.ThreadPoolFactory;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by chenchongze on 16/7/6.
@@ -21,8 +27,18 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
 
     private Logger logger = LogManager.getLogger();
 
+    private ExecutorService proOwnerThreadPool = ThreadPoolFactory.getWorkThreadPool();
+
     @Autowired
     private ServiceNodeMapper serviceNodeMapper;
+    @Autowired
+    private ProjectService projectService;
+    @Autowired
+    private ProjectOwnerService projectOwnerService;
+
+    private List<ServiceNode> serviceNodesCache;
+    private long serviceNodesCacheLastUpdateTime = 0;
+    private long checkCacheInternal = 20000;
 
     /**
      *
@@ -50,7 +66,6 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
                 } else {
                     serviceNode.setProjectName(projectName);
                     serviceNodeMapper.updateByPrimaryKeySelective(serviceNode);
-                    //todo 可能要新建project
                 }
             } else {
                 ServiceNode newServiceNode = new ServiceNode();
@@ -60,8 +75,9 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
                 newServiceNode.setPort(port);
                 newServiceNode.setProjectName(projectName);
                 serviceNodeMapper.insertSelective(newServiceNode);
-                //todo 可能要新建project
             }
+
+            createProject(projectName);
 
             return true;
         } catch (DataAccessException e) {
@@ -130,4 +146,136 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
         return null;
     }
 
+    @Override
+    public List<ServiceNode> retrieveAllByProjectName(String projectName) {
+        List<ServiceNode> serviceNodes = new ArrayList<ServiceNode>();
+
+        if(StringUtils.isNotBlank(projectName)) {
+            ServiceNodeExample serviceNodeExample = new ServiceNodeExample();
+            serviceNodeExample.createCriteria().andProjectNameEqualTo(projectName);
+
+            try {
+                serviceNodes = serviceNodeMapper.selectByExample(serviceNodeExample);
+            } catch (DataAccessException e) {
+                logger.error(e.getMessage());
+            }
+        }
+
+        return serviceNodes;
+    }
+
+    @Override
+    public List<ServiceNode> retrieveAllByServiceNameAndGroup(String serviceName, String group) {
+        List<ServiceNode> serviceNodes = new ArrayList<ServiceNode>();
+
+        if(StringUtils.isNotBlank(serviceName) && group != null) {
+            ServiceNodeExample serviceNodeExample = new ServiceNodeExample();
+            serviceNodeExample.createCriteria()
+                    .andServiceNameEqualTo(serviceName)
+                    .andGroupEqualTo(group);
+
+            try {
+                serviceNodes = serviceNodeMapper.selectByExample(serviceNodeExample);
+            } catch (DataAccessException e) {
+                logger.error(e.getMessage());
+            }
+        }
+
+        return serviceNodes;
+    }
+
+    @Override
+    public int createServiceNode(ServiceNode serviceNode) {
+        int sqlSucCount = 0;
+
+        try {
+            sqlSucCount = serviceNodeMapper.insertSelective(serviceNode);
+        } catch (DataAccessException e) {
+            logger.error(e.getMessage());
+            sqlSucCount = -1;
+        }
+
+        return sqlSucCount;
+    }
+
+    @Override
+    public int deleteServiceNodeById(ServiceNode serviceNode) {
+        int sqlSucCount = 0;
+        Integer id = serviceNode.getId();
+
+        if (id != null) {
+            try {
+                sqlSucCount = serviceNodeMapper.deleteByPrimaryKey(id);
+            } catch (DataAccessException e) {
+                logger.error(e.getMessage());
+                sqlSucCount = -1;
+            }
+        }
+
+        return sqlSucCount;
+    }
+
+    @Override
+    public List<ServiceNode> retrieveAll() {
+        return serviceNodeMapper.selectByExample(null);
+    }
+
+    @Override
+    public List<ServiceNode> retrieveAllIdNamesByCache() {
+        long currentTime = System.currentTimeMillis();
+        if(currentTime - serviceNodesCacheLastUpdateTime > checkCacheInternal){
+            serviceNodesCache = retrieveAll();
+            serviceNodesCacheLastUpdateTime = currentTime;
+        }
+
+        return serviceNodesCache;
+    }
+
+    @Override
+    public int deleteServiceNode(String serviceName, String group, String ip, String port) {
+        int count = 0;
+
+        ServiceNodeExample serviceNodeExample = new ServiceNodeExample();
+        serviceNodeExample.createCriteria()
+                .andServiceNameEqualTo(serviceName)
+                .andGroupEqualTo(group)
+                .andIpEqualTo(ip)
+                .andPortEqualTo(port);
+
+        try {
+            count = serviceNodeMapper.deleteByExample(serviceNodeExample);
+        } catch (DataAccessException e) {
+            logger.error(e.getMessage());
+            count = -1;
+        }
+
+        return count;
+    }
+
+    private void createProject(final String projectName) {
+        try {
+            Project newProject = projectService.findProject(projectName);
+
+            if(newProject == null){
+                newProject = projectService.createProject(projectName, true);
+            }
+
+            if (newProject == null ) {
+                logger.warn("failed to create project: " + projectName);
+                return ;
+            }
+
+            final String emails = newProject.getEmail();
+
+            proOwnerThreadPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    //create default project owner
+                    projectOwnerService.createDefaultOwner(emails, projectName);
+                }
+            });
+        } catch (DataAccessException e) {
+            logger.error(e.getMessage());
+        }
+    }
 }

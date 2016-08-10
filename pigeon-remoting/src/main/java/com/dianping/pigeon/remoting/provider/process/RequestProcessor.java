@@ -10,6 +10,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
+import com.dianping.pigeon.threadpool.ThreadPool;
 
 public interface RequestProcessor {
 
@@ -28,4 +29,6 @@ public interface RequestProcessor {
 	public <T> void removeService(ProviderConfig<T> providerConfig);
 	
 	public boolean needCancelRequest(InvocationRequest request);
+
+	public ThreadPool getRequestProcessThreadPool();
 }

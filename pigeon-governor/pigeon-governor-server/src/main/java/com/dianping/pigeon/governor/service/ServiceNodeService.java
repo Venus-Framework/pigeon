@@ -2,6 +2,8 @@ package com.dianping.pigeon.governor.service;
 
 import com.dianping.pigeon.governor.model.ServiceNode;
 
+import java.util.List;
+
 /**
  * Created by chenchongze on 16/7/6.
  */
@@ -14,4 +16,18 @@ public interface ServiceNodeService {
                                    String ip, String port, String updatezk);
 
     public ServiceNode getServiceNode(String serviceName, String group, String ip, String port);
+
+    public List<ServiceNode> retrieveAllByProjectName(String projectName);
+
+    public List<ServiceNode> retrieveAllByServiceNameAndGroup(String serviceName, String group);
+
+    public int createServiceNode(ServiceNode serviceNode);
+
+    public int deleteServiceNodeById(ServiceNode serviceNode);
+
+    public List<ServiceNode> retrieveAll();
+
+    public List<ServiceNode> retrieveAllIdNamesByCache();
+
+    public int deleteServiceNode(String serviceName, String group, String ip, String port);
 }
