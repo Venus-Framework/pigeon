@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by chenchongze on 15/12/22.
  */
+@Deprecated
 public class PigeonProviderHeartBeatCheck extends Thread {
 
     private Logger logger = LogManager.getLogger(PigeonProviderHeartBeatCheck.class);

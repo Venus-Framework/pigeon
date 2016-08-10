@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
+@Deprecated
 @Controller
 public class ServiceController extends BaseController {
 	

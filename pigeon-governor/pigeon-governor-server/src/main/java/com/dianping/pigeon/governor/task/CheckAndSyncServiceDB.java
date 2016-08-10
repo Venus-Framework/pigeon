@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by chenchongze on 16/1/20.
  */
+@Deprecated
 public class CheckAndSyncServiceDB {
 
     private Logger logger = LogManager.getLogger(CheckAndSyncServiceDB.class);
