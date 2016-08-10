@@ -40,6 +40,7 @@ public class MnsEventNotifier {
         String remoteAppkey = req.getRemoteAppkey();
         String serviceName = req.getServiceName();
 
+        logger.info(req + "changed, new count: " + newList.size() + ", modified count: " + modifiedList.size());
 
         if (newList.size() > 0) { //newList 通知addressChanged
             String hosts = "";
