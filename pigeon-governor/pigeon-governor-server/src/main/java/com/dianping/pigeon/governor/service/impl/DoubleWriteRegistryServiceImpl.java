@@ -17,6 +17,7 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@Deprecated
 @org.springframework.stereotype.Service("doubleWriteRegistrySerivce")
 public class DoubleWriteRegistryServiceImpl implements RegistryService {
 

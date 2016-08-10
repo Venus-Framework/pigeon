@@ -2,10 +2,12 @@ package com.dianping.pigeon.governor.service.impl;
 
 import com.dianping.pigeon.governor.dao.ServiceNodeMapper;
 import com.dianping.pigeon.governor.model.Project;
-import com.dianping.pigeon.governor.model.ServiceExample;
 import com.dianping.pigeon.governor.model.ServiceNode;
 import com.dianping.pigeon.governor.model.ServiceNodeExample;
+import com.dianping.pigeon.governor.service.ProjectOwnerService;
+import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceNodeService;
+import com.dianping.pigeon.governor.util.ThreadPoolFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by chenchongze on 16/7/6.
@@ -24,8 +27,14 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
 
     private Logger logger = LogManager.getLogger();
 
+    private ExecutorService proOwnerThreadPool = ThreadPoolFactory.getWorkThreadPool();
+
     @Autowired
     private ServiceNodeMapper serviceNodeMapper;
+    @Autowired
+    private ProjectService projectService;
+    @Autowired
+    private ProjectOwnerService projectOwnerService;
 
     private List<ServiceNode> serviceNodesCache;
     private long serviceNodesCacheLastUpdateTime = 0;
@@ -57,7 +66,6 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
                 } else {
                     serviceNode.setProjectName(projectName);
                     serviceNodeMapper.updateByPrimaryKeySelective(serviceNode);
-                    //todo 可能要新建project
                 }
             } else {
                 ServiceNode newServiceNode = new ServiceNode();
@@ -67,8 +75,9 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
                 newServiceNode.setPort(port);
                 newServiceNode.setProjectName(projectName);
                 serviceNodeMapper.insertSelective(newServiceNode);
-                //todo 可能要新建project
             }
+
+            createProject(projectName);
 
             return true;
         } catch (DataAccessException e) {
@@ -243,4 +252,25 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
         return count;
     }
 
+    private void createProject(final String projectName) {
+        try {
+            Project newProject = projectService.findProject(projectName);
+
+            if(newProject == null){
+                newProject = projectService.createProject(projectName, true);
+            }
+
+            final String emails = newProject.getEmail();
+
+            proOwnerThreadPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    //create default project owner
+                    projectOwnerService.createDefaultOwner(emails, projectName);
+                }
+            });
+        } catch (DataAccessException e) {
+            logger.error(e.getMessage());
+        }
+    }
 }
