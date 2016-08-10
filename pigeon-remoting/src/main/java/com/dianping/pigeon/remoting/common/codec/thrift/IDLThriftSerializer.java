@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author qi.yin
@@ -31,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class IDLThriftSerializer extends AbstractThriftSerializer {
 
-    private static ConcurrentHashMap<String, Class<?>> cachedClass = new ConcurrentHashMap<String, Class<?>>();
+    private static ConcurrentMap<String, Class<?>> cachedClass = new ConcurrentHashMap<String, Class<?>>();
 
     private static final String BYTE_ARRAY_CLASS_NAME = "[B";
 

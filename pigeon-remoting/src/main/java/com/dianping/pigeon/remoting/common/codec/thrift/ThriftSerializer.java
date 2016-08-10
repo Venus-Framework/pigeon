@@ -20,6 +20,7 @@ import org.apache.thrift.transport.TIOStreamTransport;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author qi.yin
@@ -34,7 +35,7 @@ public class ThriftSerializer extends AbstractSerializer {
     private IDLThriftSerializer idlThriftSerializer = new IDLThriftSerializer();
     private AnnotationThriftSerializer annotationThriftSerializer = new AnnotationThriftSerializer();
 
-    private ConcurrentHashMap<Class<?>, AbstractThriftSerializer> serializers =
+    private ConcurrentMap<Class<?>, AbstractThriftSerializer> serializers =
             new ConcurrentHashMap<Class<?>, AbstractThriftSerializer>();
 
     @Override
