@@ -47,7 +47,7 @@ public class MnsRegistry implements Registry {
             synchronized (this) {
                 if (!inited) {
                     String specifySgAgent = configManager
-                            .getStringValue("pigeon.mns.sgagent.specify.address.snapshot", "");
+                            .getStringValue("pigeon.mns.sgagent.customized.address.snapshot", "");
 
                     if (StringUtils.isNotBlank(specifySgAgent)) {
                         MnsInvoker.setCustomizedSGAgents(specifySgAgent);
@@ -88,13 +88,7 @@ public class MnsRegistry implements Registry {
     public String getServiceAddress(String remoteAppkey, String serviceName, String group, boolean fallbackDefaultGroup) throws RegistryException {
         String result = "";
 
-        if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
-            logger.warn("mns is not support pigeon @HTTP@ service!");
-            return result;
-        }
-
-        if(StringUtils.isNotBlank(group)) {
-            logger.warn("mns is not support pigeon group feature!");
+        if (!checkSupport(serviceName, group)) {
             return result;
         }
 
@@ -127,13 +121,7 @@ public class MnsRegistry implements Registry {
 
     @Override
     public void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException {
-        if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
-            logger.warn("mns is not support pigeon @HTTP@ service!");
-            return ;
-        }
-
-        if (StringUtils.isNotBlank(group)) {// 暂时忽略group
-            logger.warn("mns is not support pigeon group feature!");
+        if (!checkSupport(serviceName, group)) {
             return ;
         }
 
@@ -155,7 +143,7 @@ public class MnsRegistry implements Registry {
             sgService.setIp(ip);
             sgService.setPort(Integer.valueOf(port));
         } catch (Throwable e) {
-            throw new RegistryException("error serviceAddress: " + serviceAddress, e);
+            throw new RegistryException("error service address: " + serviceAddress, e);
         }
 
         sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
@@ -166,9 +154,9 @@ public class MnsRegistry implements Registry {
 
         try {
             MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);
-            logger.info("registerProviderOnMns: " + sgService);
+            logger.info("register provider on mns: " + sgService);
         } catch (TException e) {
-            throw new RegistryException("error while register service: " + serviceName, e);
+            throw new RegistryException("failed to register service: " + serviceName, e);
         }
     }
 
@@ -179,13 +167,7 @@ public class MnsRegistry implements Registry {
 
     @Override
     public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
-        if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
-            logger.warn("mns is not support pigeon @HTTP@ service!");
-            return ;
-        }
-
-        if (StringUtils.isNotBlank(group)) {// 暂时忽略group
-            logger.warn("mns is not support pigeon group feature!");
+        if (!checkSupport(serviceName, group)) {
             return ;
         }
 
@@ -206,14 +188,14 @@ public class MnsRegistry implements Registry {
             sgService.setIp(ip);
             sgService.setPort(Integer.valueOf(port));
         } catch (Throwable e) {
-            throw new RegistryException("error serviceAddress: " + serviceAddress, e);
+            throw new RegistryException("error service address: " + serviceAddress, e);
         }
 
         try {
             MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_DEL, sgService);
-            logger.info("unregisterProviderOnMns: " + sgService);
+            logger.info("unregister provider on mns: " + sgService);
         } catch (TException e) {
-            throw new RegistryException("error while unregister service: " + serviceName, e);
+            throw new RegistryException("failed to unregister service: " + serviceName, e);
         }
     }
 
@@ -252,7 +234,6 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public String getServerApp(String serverAddress) throws RegistryException {
-        // 参考getServerWeight
         try {
             String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
 
@@ -276,7 +257,6 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public String getServerVersion(String serverAddress) throws RegistryException {
-        // 参考getServerWeight
         try {
             String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
 
@@ -312,8 +292,7 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
-        if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
-            logger.warn("mns is not support pigeon @HTTP@ service!");
+        if (!checkSupport(serviceName, null)) {
             return false;
         }
 
@@ -324,7 +303,7 @@ public class MnsRegistry implements Registry {
             return serviceDetail.isUnifiedProto();
         }
 
-        throw new RegistryException("serviceDetail not existed for " + serviceAddress + "#" + serviceName);
+        throw new RegistryException("service detail not existed for " + serviceAddress + "#" + serviceName);
     }
 
     /**
@@ -341,7 +320,7 @@ public class MnsRegistry implements Registry {
         try {
             sgService = getSGService(remoteAppkey, null, serverAddress);
         } catch (RegistryException e) {
-            logger.warn("set server weight to mns failed! no sg_service found of " + serverAddress);
+            logger.warn("failed to set server weight! no sg_service found of " + serverAddress);
             return ;
         }
 
@@ -355,7 +334,7 @@ public class MnsRegistry implements Registry {
             MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);
             logger.info("update provider's status: " + sgService);
         } catch (TException e) {
-            throw new RegistryException("error while update host weight: " + serverAddress, e);
+            throw new RegistryException("failed to update host weight: " + serverAddress, e);
         }
     }
 
@@ -422,9 +401,8 @@ public class MnsRegistry implements Registry {
     }
 
     private SGService getSGService(String remoteAppkey, String serviceName, String serverAddress) throws RegistryException {
-        if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
-            logger.warn("mns is not support pigeon @HTTP@ service!");
-            throw new RegistryException("mns is not support pigeon @HTTP@ service!");
+        if (!checkSupport(serviceName, null)) {
+            throw new RegistryException("mns does not support pigeon @HTTP@ service!");
         }
 
         ProtocolRequest protocolRequest = new ProtocolRequest();
@@ -458,13 +436,7 @@ public class MnsRegistry implements Registry {
 
     @Override
     public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
-        if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
-            logger.warn("mns is not support pigeon @HTTP@ service!");
-            return ;
-        }
-
-        if(StringUtils.isNotBlank(group)) {
-            logger.warn("mns is not support pigeon group feature!");
+        if (!checkSupport(serviceName, group)) {
             return ;
         }
 
@@ -473,13 +445,7 @@ public class MnsRegistry implements Registry {
 
     @Override
     public void delServerService(String serviceName, String group) throws RegistryException {
-        if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
-            logger.warn("mns is not support pigeon @HTTP@ service!");
-            return ;
-        }
-
-        if(StringUtils.isNotBlank(group)) {
-            logger.warn("mns is not support pigeon group feature!");
+        if (!checkSupport(serviceName, group)) {
             return ;
         }
 
@@ -488,13 +454,7 @@ public class MnsRegistry implements Registry {
 
     @Override
     public void setHostsWeight(String serviceName, String group, String hosts, int weight) throws RegistryException {
-        if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
-            logger.warn("mns is not support pigeon @HTTP@ service!");
-            return ;
-        }
-
-        if(StringUtils.isNotBlank(group)) {
-            logger.warn("mns is not support pigeon group feature!");
+        if (!checkSupport(serviceName, group)) {
             return ;
         }
 
@@ -510,7 +470,7 @@ public class MnsRegistry implements Registry {
                 logger.info("update provider's status: " + sgService);
             } catch (TException e) {
                 //todo 管理端这里抛异常的处理要打磨一下
-                throw new RegistryException("error while update host weight: " + host, e);
+                throw new RegistryException("failed to update host weight: " + host, e);
             }
         }
 
@@ -526,9 +486,17 @@ public class MnsRegistry implements Registry {
         // keep blank
     }
 
+    private boolean checkSupport(String serviceName, String group) {
+        if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
+            logger.warn("mns does not support @HTTP@ service!");
+            return false;
+        }
 
+        if(StringUtils.isNotBlank(group)) {
+            logger.warn("mns does not support group feature!");
+            return false;
+        }
 
-    public static void main(String[] args) {
-
+        return true;
     }
 }
