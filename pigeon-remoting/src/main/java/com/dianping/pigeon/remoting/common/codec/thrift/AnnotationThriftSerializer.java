@@ -16,6 +16,7 @@ import org.apache.thrift.protocol.TMessageType;
 import org.apache.thrift.protocol.TProtocol;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author qi.yin
@@ -23,10 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class AnnotationThriftSerializer extends AbstractThriftSerializer {
 
-    private ConcurrentHashMap<String, ThriftClientMetadata> clientMetadatas =
+    private ConcurrentMap<String, ThriftClientMetadata> clientMetadatas =
             new ConcurrentHashMap<String, ThriftClientMetadata>();
 
-    private ConcurrentHashMap<String, ThriftServerMetadata> serverMetadatas =
+    private ConcurrentMap<String, ThriftServerMetadata> serverMetadatas =
             new ConcurrentHashMap<String, ThriftServerMetadata>();
 
     @Override
