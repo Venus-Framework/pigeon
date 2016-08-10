@@ -260,6 +260,11 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
                 newProject = projectService.createProject(projectName, true);
             }
 
+            if (newProject == null ) {
+                logger.warn("failed to create project: " + projectName);
+                return ;
+            }
+
             final String emails = newProject.getEmail();
 
             proOwnerThreadPool.execute(new Runnable() {
