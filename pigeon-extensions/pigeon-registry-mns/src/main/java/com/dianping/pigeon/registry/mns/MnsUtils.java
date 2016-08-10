@@ -72,11 +72,9 @@ public class MnsUtils {
     }
 
     public static int getPigeonWeight(int mtthrift_status, int mtthrift_weight) {
-        int weight = -1;
+        int weight = 1;
 
-        if (mtthrift_status == 4) {
-            weight = -1;
-        } else if (mtthrift_status == 0) {
+        if (mtthrift_status == 0 || mtthrift_status == 4) {
             weight = 0;
         } else if (mtthrift_status == 2 && mtthrift_weight > 0) {
             weight = 1;

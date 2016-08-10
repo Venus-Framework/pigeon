@@ -59,8 +59,7 @@ public class MnsEventNotifier {
                 }
             }
 
-            List<String[]> hostDetail = MnsUtils.getServiceIpPortList(hosts);
-            addressChanged(serviceName, hostDetail);
+            addressChanged(serviceName, hosts);
         }
 
         if (modifiedList.size() > 0) { //modifiedList 检查修改的字段，通知不同的通知器
@@ -105,7 +104,6 @@ public class MnsEventNotifier {
                     protocolChanged(host, serviceName, supportedNew);
                 }
 
-
             }
         }
 
@@ -113,9 +111,11 @@ public class MnsEventNotifier {
 
     }
 
-    private static void addressChanged(String serviceName, List<String[]> hostList) throws RegistryException {
+    private static void addressChanged(String serviceName, String hosts) throws RegistryException {
         try {
-            serviceChangeListener.onServiceHostChange(serviceName, hostList);
+            logger.info("Service address changed, " + serviceName +": " + hosts);
+            List<String[]> hostDetail = MnsUtils.getServiceIpPortList(hosts);
+            serviceChangeListener.onServiceHostChange(serviceName, hostDetail);
         } catch (Throwable e) {
             throw new RegistryException(e);
         }
@@ -123,6 +123,7 @@ public class MnsEventNotifier {
 
     private static void weightChanged(String host, int weight) throws RegistryException {
         try {
+            logger.info("service weight changed, value " + weight);
             serviceChangeListener.onHostWeightChange(host, weight);
         } catch (Throwable e) {
             throw new RegistryException(e);
@@ -157,10 +158,6 @@ public class MnsEventNotifier {
         } catch (Throwable e) {
             throw new RegistryException(e);
         }
-    }
-
-    public static void eventReceived(MnsEvent event) throws Throwable {
-
     }
 
     public static void main(String[] args) {
