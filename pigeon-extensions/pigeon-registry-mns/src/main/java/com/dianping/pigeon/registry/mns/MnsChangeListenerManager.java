@@ -11,11 +11,11 @@ import java.util.Set;
 /**
  * Created by chenchongze on 16/8/9.
  */
-public enum ServiceListChangeListenerManager {
+public enum MnsChangeListenerManager {
 
     INSTANCE;
 
-    private ServiceListChangeListenerManager() {}
+    private MnsChangeListenerManager() {}
 
     private final Logger logger = LoggerLoader.getLogger(this.getClass());
 
@@ -28,7 +28,7 @@ public enum ServiceListChangeListenerManager {
         if (!protocolRequests.contains(protocolRequest)) {
 
             if (ADD_LISTENER_SUCCESS_FLAG == MnsInvoker
-                    .addServiceListener(protocolRequest, new DefaultServiceListChangeListener())) {
+                    .addServiceListener(protocolRequest, new MnsServiceChangeListener())) {
                 protocolRequests.add(protocolRequest);
             } else {
                 logger.error("add listener failed to " + protocolRequest);

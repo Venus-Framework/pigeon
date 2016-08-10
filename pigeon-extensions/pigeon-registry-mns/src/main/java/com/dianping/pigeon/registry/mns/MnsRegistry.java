@@ -31,8 +31,8 @@ public class MnsRegistry implements Registry {
 
     private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
-    private final ServiceListChangeListenerManager
-            serviceListChangeListenerManager = ServiceListChangeListenerManager.INSTANCE;
+    private final MnsChangeListenerManager
+            mnsChangeListenerManager = MnsChangeListenerManager.INSTANCE;
 
     public static final int WEIGHT_DEFAULT = 1;
 
@@ -105,7 +105,7 @@ public class MnsRegistry implements Registry {
         protocolRequest.setRemoteAppkey(remoteAppkey);
         List<SGService> sgServices = MnsInvoker.getServiceList(protocolRequest);
         // 添加listener，注意去重
-        serviceListChangeListenerManager.registerListener(protocolRequest);
+        mnsChangeListenerManager.registerListener(protocolRequest);
 
         for (SGService sgService : sgServices) {
             // 剔除掉octo的旧服务端
