@@ -38,7 +38,7 @@ import java.util.*;
 public class TestController {
 
     private Logger logger = LogManager.getLogger();
-    @Autowired
+
     private CheckAndSyncServiceDB checkAndSyncServiceDB;
     @Autowired
     private CheckAndSyncServiceNodeDB checkAndSyncServiceNodeDB;

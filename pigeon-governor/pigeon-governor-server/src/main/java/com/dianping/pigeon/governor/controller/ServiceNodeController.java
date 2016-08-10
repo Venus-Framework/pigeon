@@ -1,6 +1,7 @@
 package com.dianping.pigeon.governor.controller;
 
 import com.dianping.pigeon.governor.bean.Result;
+import com.dianping.pigeon.governor.bean.ServiceHostsBean;
 import com.dianping.pigeon.governor.bean.ServiceUpdateBean;
 import com.dianping.pigeon.governor.bean.ServiceWithGroup;
 import com.dianping.pigeon.governor.model.*;
@@ -88,7 +89,7 @@ public class ServiceNodeController extends BaseController {
         modelMap.addAttribute("projectId", project.getId());
 
         List<ServiceNode> serviceNodeList = serviceNodeService.retrieveAllByProjectName(projectName);
-        Map<ServiceWithGroup, Service> serviceMap = Maps.newHashMap();
+        Map<ServiceWithGroup, ServiceHostsBean> serviceMap = Maps.newHashMap();
 
         for (ServiceNode serviceNode : serviceNodeList) {
             String serviceName = serviceNode.getServiceName();
@@ -97,12 +98,12 @@ public class ServiceNodeController extends BaseController {
 
             ServiceWithGroup serviceWithGroup
                     = new ServiceWithGroup(serviceNode.getServiceName(), serviceNode.getGroup());
-            Service service = serviceMap.get(serviceWithGroup);
+            ServiceHostsBean service = serviceMap.get(serviceWithGroup);
 
             if (service != null) {
                 service.setHosts(service.getHosts() + "," + host);
             } else {
-                Service newService = new Service();
+                ServiceHostsBean newService = new ServiceHostsBean();
                 newService.setHosts(host);
                 newService.setName(serviceName);
                 newService.setGroup(group);
