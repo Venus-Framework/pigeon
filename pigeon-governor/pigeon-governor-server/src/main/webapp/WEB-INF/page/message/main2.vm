@@ -35,10 +35,9 @@
     <![endif]-->
 
     <!-- inline styles related to this page -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/chosen.css"/>
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/daterangepicker.css"/>
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/sumoSelect.css"/>
-    <!--Used for data table-->
-    <link rel="stylesheet" href="${rc.contextPath}/resources/style/dataTable.button.css"/>
 
     <style>
         .chosen-single div b:before {
@@ -64,21 +63,6 @@
         }
         div button{
             height: 34px;
-        }
-
-
-        .aceTableRow{
-            border-bottom: 1px solid #e0e0e0;
-            padding-top: 12px;
-            padding-bottom: 12px;
-            background-color: #EFF3F8;
-        }
-        .myRow{
-            width: 100%;
-            overflow:auto;
-        }
-        .value-size {
-            word-break:break-all;
         }
     </style>
 
@@ -115,7 +99,7 @@
                     </li>
 
                     <li class="active">
-                        <a href="#">告警中心</a>
+                        <a href="#">消息中心</a>
                     </li>
                 </ul>
             </div>
@@ -125,7 +109,7 @@
             <div class="page-content-area">
                 <div class="page-header">
                     <h1>
-                        告警中心
+                        消息中心
                         <small>
                             <i class="ace-icon fa fa-angle-double-right"></i>
                             Gather & Deliver
@@ -138,58 +122,105 @@
                             <div class="col-xs-12">
                                 <div class="col-xs-2" style="padding-left: 0px">
                                     <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="glyphicon glyphicon-calendar fa fa-info"></i>
-                                        </span>
+                            <span class="input-group-addon">
+                                <i class="glyphicon glyphicon-calendar fa fa-info"></i>
+                            </span>
                                         <div>
-                                            <select id="levelSelect" multiple="multiple" data-placeholder="消息级别">
-                                                <option value="1">常规</option>
-                                                <option value="2">重要</option>
-                                                <option value="3">紧急</option>
+                                            <select multiple="multiple" name="myselect" data-placeholder="告警级别" class="test">
+                                                <option value="1">Option#1</option>
+                                                <option value="2">Option#2</option>
+                                                <option value="2">Option#3</option>
+                                                <option value="2">Option#3</option>
+                                                <option value="2">Option#3</option>
+                                                <option value="1">Option#1</option>
+                                                <option value="2">Option#2</option>
+                                                <option value="2">Option#3</option>
+                                                <option value="2">Option#3</option>
+                                                <option value="2">Option#3</option>
+                                                <option value="1">Option#1</option>
+                                                <option value="2">Option#2</option>
+                                                <option value="2">Option#3</option>
+                                                <option value="2">Option#3</option>
+                                                <option value="2">Option#3</option>
                                             </select>
                                         </div>
+
                                     </div>
                                 </div>
                                 <div class="col-xs-2">
                                     <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="glyphicon glyphicon-calendar fa fa-tags"></i>
-                                        </span>
+                            <span class="input-group-addon">
+                                <i class="glyphicon glyphicon-calendar fa fa-tags"></i>
+                            </span>
                                         <div>
-                                            <select id="typeSelect" multiple="multiple" data-placeholder="消息类型">
-                                                <option value="1">ServerSkew</option>
-                                                <option value="2">ClientSkew</option>
+                                            <select name="myselect" data-placeholder="告警类型" class="chosen-select">
+                                                <option value=""></option>
+                                                <option value="1">Option#1</option>
+                                                <option value="2">Option#2</option>
+                                                <option value="2">Option#3</option>
+                                                <option value="1">Option#1</option>
+                                                <option value="2">Option#2</option>
+                                                <option value="2">Option#3</option>
+                                                <option value="1">Option#1</option>
+                                                <option value="2">Option#2</option>
+                                                <option value="2">Option#3</option>
                                             </select>
                                         </div>
+
                                     </div>
                                 </div>
                                 <div class="col-xs-3">
                                     <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="ace-icon fa fa-search"></i>
-                                        </span>
-                                        <input id="projectName" placeholder="输入应用名" type="text" class="form-control" name="message" autocomplete="off">
+                            <span class="input-group-addon">
+                                    <i class="ace-icon fa fa-search"></i>
+                                    查询
+                            </span>
+                                        <input id="searchInput" placeholder="输入服务,方法,描述搜索文档" type="text" class="form-control" name="message" autocomplete="off">
                                     </div>
                                 </div>
                                 <div class="col-xs-4">
                                     <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                                        </span>
-                                        <input type="text" id="dateTimeRangePicker" class="form-control">
+                            <span class="input-group-addon">
+                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                日期
+                            </span>
+                                        <input type="text" id="config-demo" class="form-control">
                                     </div>
                                 </div>
                                 <div class="col-xs-1" style="padding-right: 0px">
                                     <button id="search" class="btn btn-primary btn-xs">
-                                        <i class="ace-icon fa fa-search"></i>
-                                        过滤
+                                        <i class="ace-icon fa fa-flask align-top bigger-125"></i>
+                                        Primary
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <hr/>
                         <div class="row">
-                            <div id="tableWidget"class="col-xs-12">
+                            <div class="col-xs-12">
+                                <div class="widget-box transparent">
+                                    <div class="widget-header widget-header-flat">
+                                        <h4 class="widget-title lighter">
+                                            <i class="ace-icon fa fa-star orange"></i>
+                                        </h4>
+                                        <div class="widget-toolbar">
+                                <span class="label label-success">
+                                    Filter 367098/100000000
+                                </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="widget-body">
+                                        <div class="widget-main no-padding">
+                                            <div id ="graphContainer" class="col-xs-12 no-padding"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div id="table-holder"></div>
                             </div>
                         </div>
                     </div>
@@ -200,10 +231,18 @@
     <div class="footer">
         #parse("common/sub-footer.vm")
     </div>
+
     <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
         <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
     </a>
 </div>
+
+
+
+
+
+
+
 <!-- basic scripts -->
 
 <!--[if !IE]> -->
@@ -227,25 +266,15 @@
 <!-- page specific plugin scripts -->
 <script src="${rc.contextPath}/resources/js/my-ajax-wrapper.js"></script>
 <script src="${rc.contextPath}/resources/assets/js/spin.min.js"></script>
+<script src="${rc.contextPath}/resources/js/chosen.jquery.js"></script>
 <script src="${rc.contextPath}/resources/js/moment.js"></script>
 <script src="${rc.contextPath}/resources/js/daterangepicker.js"></script>
 <script src="${rc.contextPath}/resources/js/sumoSelect.js"></script>
-<script src="${rc.contextPath}/resources/js/dataTable.min.js"></script>
-<script src="${rc.contextPath}/resources/js/Pigeon.dataTables.bootstrap.js"></script>
-<script src="${rc.contextPath}/resources/js/bootstrap-typeahead.js"></script>
 <script>
     jQuery(function($) {
-        $('#search').addClass('disabled');
-        $('#tableWidget').ajaxLoad({
-            url:'/message/table',
-            data:'',
-            successCallback:function(){
-                $('#search').removeClass('disabled');
-            }
-        });
-        var startTime=moment().startOf('day').format('YYYY-MM-DD HH:mm');
-        var endTime=moment().format('YYYY-MM-DD HH:mm');
-        var dataRangePicker = $('#dateTimeRangePicker').daterangepicker({
+        var startTime;
+        var endTime;
+        var dataRangePicker = $('#config-demo').daterangepicker({
             parentEl:"#demo",
             timePicker: true,
             timePicker24Hour: true,
@@ -280,11 +309,18 @@
             startTime = start.format('YYYY-MM-DD HH:mm');
             endTime = end.format('YYYY-MM-DD HH:mm');
         });
-        $('#levelSelect').SumoSelect(
+        //redefine dateRangePicker time select style.
+        $('.chosen-select').each(function(){
+            var width = $(this).parent().width();
+            $(this).width(width);
+            $(this).chosen({allow_single_deselect:true});
+        });
+        var size = $('.test').children().size();
+        $('.test').SumoSelect(
                 {
                     placeholder: '过滤告警级别',
-                    csvDispCount: 1,
-                    captionFormat: '{0}/3 告警级别选中',
+                    csvDispCount: 3,
+                    captionFormat: '{0}/'+size+'告警级别选中',
                     floatWidth: 500,
                     captionFormatAllSelected:'<span class="blue">选中全部级别</span>',
                     forceCustomRendering: false,
@@ -301,61 +337,27 @@
                     locale :  ['过滤', '放弃', '全部选取']
                 }
         );
-        $('#levelSelect').width($('#levelSelect').parent().width());
-        $('#typeSelect').SumoSelect({
-            placeholder: '过滤告警类型',
-            csvDispCount: 1,
-            captionFormat: '{0}/2 告警类型选中',
-            floatWidth: 500,
-            captionFormatAllSelected:'<span class="blue">选中全部类型</span>',
-            forceCustomRendering: false,
-            nativeOnDevice: ['Android', 'BlackBerry', 'iPhone', 'iPad', 'iPod', 'Opera Mini', 'IEMobile', 'Silk'],
-            outputAsCSV : false,
-            csvSepChar : ',',
-            okCancelInMulti: true,
-            triggerChangeCombined : true,
-            selectAll : true,
-            search : true,
-            searchText : '搜索...',
-            noMatch : '无法匹配"{0}"',
-            prefix : '',
-            locale :  ['过滤', '放弃', '全部选取']
-        });
-        $('#typeSelect').width($('#typeSelect').parent().width());
-
-        var projects = ${projects};
-        $('#projectName').typeahead({
-            source: projects
-        });
-
-
-
+        $('.SumoSelect').width($('.SumoSelect').parent().width())
+        var MySelect = $('.test')[0].sumo;
+        console.log(MySelect);
         $('#search').click(function () {
-            var level  = JSON.stringify($('#levelSelect').val());
-            var type = JSON.stringify($('#typeSelect').val());
+            console.log($('.test').val());
             console.log(startTime);
             console.log(endTime);
-            $(this).addClass("disabled");
-            $('#tableWidget').ajaxLoad({
-                url:'/message/table',
-                data:{
-                    "level":level,
-                    "type":type,
-                    "projectName":$('#projectName').val(),
-                    "startTime":startTime,
-                    "endTime":endTime
-                },
-                successCallback:function () {
-                    $('#search').removeClass('disabled');
-                }
-            });
         })
 //        {
 //            var width = $('.chosen-select').parent().width();
 //            $('.chosen-select').width(width);
 //        }
 //        $('.chosen-select').chosen({allow_single_deselect: true});
+        $('#table-holder').ajaxLoad({
+            url:'/message/table',
+            data:''
+        });
     });
+    function changeJsonObject(data){
+        alert(data);
+    }
 </script>
 <!-- ace scripts -->
 <script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>

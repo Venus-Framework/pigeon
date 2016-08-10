@@ -13,7 +13,8 @@
             {
                 type:"post",
                 dataType:"html",
-                async:true
+                async:true,
+                successCallback:function(){}
             },
             options);
         var opts = {
@@ -35,6 +36,7 @@
         };
         return this.each(function() {
             var wrapperObject = $(this);
+            wrapperObject.html('');
             var originWidth = wrapperObject.width();
             var ajaxType = settings.type;
             var ajaxUrl = settings.url;
@@ -52,6 +54,7 @@
                 dataType:ajaxDataType,
                 async:ajaxAsync,
                 success:function(data){
+                    settings.successCallback();
                     wrapperObject.html(data);
                 }
             });

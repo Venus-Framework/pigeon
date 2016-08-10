@@ -53,7 +53,7 @@
 		<table schema="" tableName="project_owner" domainObjectName="ProjectOwner" />
 		
 		<table schema="" tableName="host" domainObjectName="Host" />
-		<table schema="" tableName="oplog" domainObjectName="OpLog" /> -->
+		<table schema="" tableName="oplog" domainObjectName="OpLogBean" /> -->
 		<!--<table schema="" tableName="process" domainObjectName="Process">
 			<columnOverride column="%" delimitedColumnName="true" />
 			<ignoreColumn column="modifyTime"/>
