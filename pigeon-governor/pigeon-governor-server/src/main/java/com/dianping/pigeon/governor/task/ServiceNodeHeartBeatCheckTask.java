@@ -13,7 +13,6 @@ import com.dianping.pigeon.governor.model.ServiceNode;
 import com.dianping.pigeon.governor.service.OpLogService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceNodeService;
-import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.util.IPUtils;
 import com.dianping.pigeon.governor.util.OpType;
 import com.dianping.pigeon.registry.Registry;
@@ -47,8 +46,6 @@ public class ServiceNodeHeartBeatCheckTask extends Thread {
     @Autowired
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
     @Autowired
-    private ServiceService serviceService;
-    @Autowired
     private ServiceNodeService serviceNodeService;
     @Autowired
     private CheckAndSyncServiceNodeDB checkAndSyncServiceNodeDB;
@@ -57,7 +54,6 @@ public class ServiceNodeHeartBeatCheckTask extends Thread {
     @Autowired
     private ProjectService projectService;
 
-    private CuratorRegistry registry;
     private CuratorClient client;
 
     private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();

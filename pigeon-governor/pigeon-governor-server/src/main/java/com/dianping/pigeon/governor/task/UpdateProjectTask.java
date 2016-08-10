@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by chenchongze on 15/10/28.
  */
+@Deprecated
 public class UpdateProjectTask implements Runnable {
 
     private ExecutorService proOwnerThreadPool = new ThreadPoolExecutor(2, 4, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
