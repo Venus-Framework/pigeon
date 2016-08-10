@@ -67,7 +67,7 @@ public class MnsServiceChangeListener implements IServiceListChangeListener {
                 for (SGService sgService : modifiedList) {
                     String host = sgService.getIp() + ":" + sgService.getPort();
                     //weight
-                    int weightNew = MnsUtils.getPigeonWeight(sgService.getStatus(), sgService.getWeight());
+                    int weightNew = MnsUtils.getWeight(sgService.getStatus(), sgService.getWeight());
                     int weightCached = RegistryManager.getInstance().getServiceWeightFromCache(host);
 
                     if(weightNew != weightCached) {
