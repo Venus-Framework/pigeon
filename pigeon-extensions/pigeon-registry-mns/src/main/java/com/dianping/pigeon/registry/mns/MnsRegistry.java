@@ -11,6 +11,7 @@ import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.Maps;
 import com.sankuai.inf.octo.mns.MnsInvoker;
+import com.sankuai.inf.octo.mns.sentinel.CustomizedManager;
 import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import com.sankuai.sgagent.thrift.model.ServiceDetail;
@@ -50,7 +51,7 @@ public class MnsRegistry implements Registry {
                             .getStringValue("pigeon.mns.sgagent.customized.address.snapshot", "");
 
                     if (StringUtils.isNotBlank(specifySgAgent)) {
-                        MnsInvoker.setCustomizedSGAgents(specifySgAgent);
+                        CustomizedManager.setCustomizedSGAgents(specifySgAgent);
                     }
 
                     inited = true;
