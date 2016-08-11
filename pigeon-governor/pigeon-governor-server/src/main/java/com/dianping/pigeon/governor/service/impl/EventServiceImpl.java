@@ -1,8 +1,11 @@
 package com.dianping.pigeon.governor.service.impl;
 
 import com.dianping.pigeon.governor.bean.Event.EventBean;
+import com.dianping.pigeon.governor.bean.Event.EventDetailBean;
 import com.dianping.pigeon.governor.bean.Event.FilterBean;
+import com.dianping.pigeon.governor.bean.Event.FlowSkewEventBean;
 import com.dianping.pigeon.governor.dao.CustomEventModelMapper;
+import com.dianping.pigeon.governor.dao.EventModelMapper;
 import com.dianping.pigeon.governor.message.SendResult;
 import com.dianping.pigeon.governor.model.EventModelWithBLOBs;
 import com.dianping.pigeon.governor.model.Project;
@@ -27,6 +30,8 @@ public class EventServiceImpl implements EventService {
     private CustomEventModelMapper customEventModelMapper;
     @Autowired
     private CacheService cacheService;
+    @Autowired
+    private EventModelMapper eventModelMapper;
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 
 
@@ -78,6 +83,12 @@ public class EventServiceImpl implements EventService {
         return customEventModelMapper.getTotalCount();
     }
 
+//    @Override
+//    public EventDetailBean getEventDetail(int eventId) {
+//        EventModelWithBLOBs model = eventModelMapper.selectByPrimaryKey(eventId);
+//
+//    }
+
 
     private EventBean modelConvert(EventModelWithBLOBs model){
         EventBean bean = new EventBean();
@@ -92,6 +103,10 @@ public class EventServiceImpl implements EventService {
         bean.setTime(updateTimeFormat(model.getUpdatetime()));
         return bean;
     }
+
+
+
+
     private String getProjectName(EventModelWithBLOBs model){
         if(model.getProjectId()==null)
             return "-";

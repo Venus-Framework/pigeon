@@ -1,6 +1,7 @@
 package com.dianping.pigeon.governor.controller;
 
 import com.dianping.pigeon.governor.bean.Event.EventBean;
+import com.dianping.pigeon.governor.bean.Event.EventDetailBean;
 import com.dianping.pigeon.governor.bean.Event.EventTableContainerBean;
 import com.dianping.pigeon.governor.bean.Event.FilterBean;
 import com.dianping.pigeon.governor.model.Project;
@@ -32,14 +33,14 @@ import static com.dianping.pigeon.governor.util.GsonUtils.gson;
  * Created by shihuashen on 16/7/29.
  */
 @Controller
-public class MessageController extends BaseController{
+public class EventController extends BaseController{
     @Autowired
     private EventService eventService;
     @Autowired
     private ProjectService projectService;
 
 
-    @RequestMapping(value = {"/message"},method = RequestMethod.GET)
+    @RequestMapping(value = {"/event"},method = RequestMethod.GET)
     public String mainEntrance(HttpServletRequest request,
                                HttpServletResponse response,
                                ModelMap modelMap){
@@ -48,27 +49,11 @@ public class MessageController extends BaseController{
         modelMap.addAttribute("projects",GsonUtils.toJson(projects));
         return "/message/main";
     }
-    @RequestMapping(value = {"/message/table"},method = RequestMethod.POST)
+    @RequestMapping(value = {"/event/table"},method = RequestMethod.POST)
     public String loadTable(HttpServletRequest request,
                             HttpServletResponse response,
                             ModelMap modelMap) throws ParseException {
-        String level = request.getParameter("level");
-        String type = request.getParameter("type");
-        String projectName = request.getParameter("projectName");
-        String startTime = request.getParameter("startTime");
-        String endTime = request.getParameter("endTime");
-        if(startTime==null||startTime.equals("null")){
-            List<EventBean> list = eventService.getRecentEvents(500);
-            EventTableContainerBean container = new EventTableContainerBean(1,list,eventService.getTotalCount());
-            modelMap.put("container",container);
-            return "/message/table";
-        }
-        Project project = projectService.findProject(projectName);
-        int projectId = -1;
-        if(project!=null){
-            projectId = project.getId();
-        }
-        FilterBean filterBean = new FilterBean(level,type,projectId,startTime,endTime);
+        FilterBean filterBean = new FilterBean(request,projectService);
         List<EventBean> list = eventService.filterEvents(filterBean);
         EventTableContainerBean container =  new EventTableContainerBean(1,list,eventService.getTotalCount());
         modelMap.put("container",container);
@@ -76,42 +61,44 @@ public class MessageController extends BaseController{
     }
 
 
-    @RequestMapping(value = {"/message/{messageId}"},method = RequestMethod.GET)
-    public String messageDetail(HttpServletRequest request,
-                                HttpServletResponse response,
-                                ModelMap modelMap,
-                                @PathVariable final int messageId){
-        return "/message/detail";
-    }
-    @RequestMapping(value = {"/message/id/content"},method = RequestMethod.POST)
-    public String messageContent(HttpServletRequest request,
-                                 HttpServletResponse response,
-                                 ModelMap modelMap){
-        //TODO switch when we need to support different event type;
-        List<GraphData> datas =  new LinkedList<GraphData>();
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        datas.add(new GraphData("192.168.0.1",5));
-        modelMap.put("data", GsonUtils.toJson(datas));
-        return "/message/content/serverSkew";
-    }
+//    @RequestMapping(value = {"/event/{eventId}"},method = RequestMethod.GET)
+//    public String messageDetail(HttpServletRequest request,
+//                                HttpServletResponse response,
+//                                ModelMap modelMap,
+//                                @PathVariable final int eventId){
+//        EventDetailBean bean = eventService.getEventDetail(eventId);
+//        return "/message/detail";
+//    }
+//    @RequestMapping(value = {"/message/id/content"},method = RequestMethod.POST)
+//    public String messageContent(HttpServletRequest request,
+//                                 HttpServletResponse response,
+//                                 ModelMap modelMap){
+//        EventBean bean = eventService.getEventDetails();
+//        //TODO switch when we need to support different event type;
+//        List<GraphData> datas =  new LinkedList<GraphData>();
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        datas.add(new GraphData("192.168.0.1",5));
+//        modelMap.put("data", GsonUtils.toJson(datas));
+//        return "/message/content/serverSkew";
+//    }
 
 
 

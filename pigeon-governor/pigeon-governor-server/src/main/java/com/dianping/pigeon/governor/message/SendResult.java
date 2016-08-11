@@ -45,5 +45,25 @@ public class SendResult {
         public boolean isSuccess(){
             return this.isSuccess;
         }
+
+        public String getAddress() {
+            return address;
+        }
+
+        public void setAddress(String address) {
+            this.address = address;
+        }
+
+        public SenderType getType() {
+            return type;
+        }
+
+        public void setType(SenderType type) {
+            this.type = type;
+        }
+
+        public void setSuccess(boolean success) {
+            isSuccess = success;
+        }
     }
 }

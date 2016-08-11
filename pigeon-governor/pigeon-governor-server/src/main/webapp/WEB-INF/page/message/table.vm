@@ -2,7 +2,6 @@
 <div class="widget-box transparent">
     <div class="widget-header widget-header-flat">
         <h4 class="widget-title lighter">
-            <i class="ace-icon fa fa-star orange"></i>
         </h4>
         <div class="widget-toolbar">
             <span class="label label-success">
@@ -32,7 +31,8 @@
                         #foreach ($data in $container.getData())
                         <tr>
                             <td data-order="$data.getEventId()" data-search="$data.getEventId()">
-                                <a href="/message/$data.getEventId()">$data.getEventId()</a>
+##                                <a href="/event/$data.getEventId()" target="_blank">$data.getEventId()</a>
+                                <span>$data.getEventId()</span>
                             </td>
                             <td data-order="$data.getType()" data-search="$data.getType()">
                                 #if($data.getType()=="ClientSkew")
@@ -60,13 +60,13 @@
                                 $data.getTitle()
                             </td>
                             <td data-order="$data.getProjectName()" data-search="$data.getProjectName()">
-                                <a href="/services/$data.getProjectName()">$data.getProjectName()</a>
+                                <a href="/services/$data.getProjectName()" target="_blank">$data.getProjectName()</a>
                             </td>
                             <td data-order="$data.getRelatedProjectName()" data-search="$data.getRelatedProjectName()">
                                 #if($data.getRelatedProjectName()=='-')
                                     -
                                 #else
-                                    <a href="/services/$data.getRelatedProjectName">$data.getRelatedProjectName()</a>
+                                    <a href="/services/$data.getRelatedProjectName" target="_blank">$data.getRelatedProjectName()</a>
                                 #end
                             </td>
                             <td data-order="$data.getSummary()" data-search="$data.getSummary()">

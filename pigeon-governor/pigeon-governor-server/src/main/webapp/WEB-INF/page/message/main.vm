@@ -5,7 +5,7 @@
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <meta charset="utf-8" />
-    <title>Pigeon</title>
+    <title>消息日志</title>
 
     <meta name="description" content="Pigeon message"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
@@ -39,7 +39,6 @@
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/sumoSelect.css"/>
     <!--Used for data table-->
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/dataTable.button.css"/>
-
     <style>
         .chosen-single div b:before {
             content: "\f0d7";
@@ -115,7 +114,7 @@
                     </li>
 
                     <li class="active">
-                        <a href="#">告警中心</a>
+                        <a href="#">消息日志</a>
                     </li>
                 </ul>
             </div>
@@ -125,7 +124,7 @@
             <div class="page-content-area">
                 <div class="page-header">
                     <h1>
-                        告警中心
+                        消息日志
                         <small>
                             <i class="ace-icon fa fa-angle-double-right"></i>
                             Gather & Deliver
@@ -235,16 +234,24 @@
 <script src="${rc.contextPath}/resources/js/bootstrap-typeahead.js"></script>
 <script>
     jQuery(function($) {
+        $('li[id="log_center"]').addClass("active open");
+        $('li[id="event_log"]').addClass("active");
         $('#search').addClass('disabled');
+        var startTime=moment().startOf('day').format('YYYY-MM-DD HH:mm');
+        var endTime=moment().format('YYYY-MM-DD HH:mm');
         $('#tableWidget').ajaxLoad({
-            url:'/message/table',
-            data:'',
+            url:'/event/table',
+            data:{
+                "level":"",
+                "type":"",
+                "projectName":"",
+                "startTime":startTime,
+                "endTime":endTime
+            },
             successCallback:function(){
                 $('#search').removeClass('disabled');
             }
         });
-        var startTime=moment().startOf('day').format('YYYY-MM-DD HH:mm');
-        var endTime=moment().format('YYYY-MM-DD HH:mm');
         var dataRangePicker = $('#dateTimeRangePicker').daterangepicker({
             parentEl:"#demo",
             timePicker: true,
@@ -331,13 +338,17 @@
 
 
         $('#search').click(function () {
-            var level  = JSON.stringify($('#levelSelect').val());
-            var type = JSON.stringify($('#typeSelect').val());
-            console.log(startTime);
-            console.log(endTime);
+            var level="";
+            if($('#levelSelect').val()!=null){
+                level = JSON.stringify($("#levelSelect").val());
+            }
+            var type ="";
+            if($("#typeSelect").val()!=null){
+                type = JSON.stringify($("#typeSelect").val());
+            }
             $(this).addClass("disabled");
             $('#tableWidget').ajaxLoad({
-                url:'/message/table',
+                url:'/event/table',
                 data:{
                     "level":level,
                     "type":type,

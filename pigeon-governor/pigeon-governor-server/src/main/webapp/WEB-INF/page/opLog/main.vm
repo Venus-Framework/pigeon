@@ -237,6 +237,8 @@
 <script src="${rc.contextPath}/resources/js/chosen.jquery.js"></script>
 <script>
     jQuery(function($) {
+        $('li[id="log_center"]').addClass("active open");
+        $('li[id="op_log"]').addClass("active");
         var startTime=moment().startOf('day').format('YYYY-MM-DD HH:mm');
         var endTime=moment().format('YYYY-MM-DD HH:mm');
         $('#search').addClass('disabled');
