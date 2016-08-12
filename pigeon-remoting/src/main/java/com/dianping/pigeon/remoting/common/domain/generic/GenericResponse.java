@@ -43,6 +43,8 @@ public class GenericResponse implements UnifiedResponse {
 
     private int seqId;
 
+    private int port;
+
     public GenericResponse() {
 
     }
@@ -209,6 +211,16 @@ public class GenericResponse implements UnifiedResponse {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    @Override
+    public int getPort() {
+        return port;
     }
 
     @Override

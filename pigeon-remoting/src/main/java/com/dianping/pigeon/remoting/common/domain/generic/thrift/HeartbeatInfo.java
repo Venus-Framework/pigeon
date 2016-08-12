@@ -33,6 +33,7 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
   private static final org.apache.thrift.protocol.TField APPKEY_FIELD_DESC = new org.apache.thrift.protocol.TField("appkey", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField SEND_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("sendTime", org.apache.thrift.protocol.TType.I64, (short)2);
   private static final org.apache.thrift.protocol.TField LOAD_INFO_FIELD_DESC = new org.apache.thrift.protocol.TField("loadInfo", org.apache.thrift.protocol.TType.STRUCT, (short)3);
+  private static final org.apache.thrift.protocol.TField STATUS_FIELD_DESC = new org.apache.thrift.protocol.TField("status", org.apache.thrift.protocol.TType.BOOL, (short)4);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -43,12 +44,14 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
   public String appkey; // optional
   public long sendTime; // optional
   public LoadInfo loadInfo; // optional
+  public boolean status; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     APPKEY((short)1, "appkey"),
     SEND_TIME((short)2, "sendTime"),
-    LOAD_INFO((short)3, "loadInfo");
+    LOAD_INFO((short)3, "loadInfo"),
+    STATUS((short)4, "status");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -69,6 +72,8 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
           return SEND_TIME;
         case 3: // LOAD_INFO
           return LOAD_INFO;
+        case 4: // STATUS
+          return STATUS;
         default:
           return null;
       }
@@ -110,7 +115,8 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
 
   // isset id assignments
   private static final int __SENDTIME_ISSET_ID = 0;
-  private BitSet __isset_bit_vector = new BitSet(1);
+  private static final int __STATUS_ISSET_ID = 1;
+  private BitSet __isset_bit_vector = new BitSet(2);
   private _Fields optionals[] = {_Fields.APPKEY,_Fields.SEND_TIME,_Fields.LOAD_INFO};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
@@ -121,11 +127,21 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.LOAD_INFO, new org.apache.thrift.meta_data.FieldMetaData("loadInfo", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, LoadInfo.class)));
+    tmpMap.put(_Fields.STATUS, new org.apache.thrift.meta_data.FieldMetaData("status", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(HeartbeatInfo.class, metaDataMap);
   }
 
   public HeartbeatInfo() {
+  }
+
+  public HeartbeatInfo(
+    boolean status)
+  {
+    this();
+    this.status = status;
+    setStatusIsSet(true);
   }
 
   /**
@@ -141,6 +157,7 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
     if (other.isSetLoadInfo()) {
       this.loadInfo = new LoadInfo(other.loadInfo);
     }
+    this.status = other.status;
   }
 
   public HeartbeatInfo deepCopy() {
@@ -153,6 +170,8 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
     setSendTimeIsSet(false);
     this.sendTime = 0;
     this.loadInfo = null;
+    setStatusIsSet(false);
+    this.status = false;
   }
 
   public String getAppkey() {
@@ -226,6 +245,29 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
     }
   }
 
+  public boolean isStatus() {
+    return this.status;
+  }
+
+  public HeartbeatInfo setStatus(boolean status) {
+    this.status = status;
+    setStatusIsSet(true);
+    return this;
+  }
+
+  public void unsetStatus() {
+    __isset_bit_vector.clear(__STATUS_ISSET_ID);
+  }
+
+  /** Returns true if field status is set (has been assigned a value) and false otherwise */
+  public boolean isSetStatus() {
+    return __isset_bit_vector.get(__STATUS_ISSET_ID);
+  }
+
+  public void setStatusIsSet(boolean value) {
+    __isset_bit_vector.set(__STATUS_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case APPKEY:
@@ -252,6 +294,14 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
       }
       break;
 
+    case STATUS:
+      if (value == null) {
+        unsetStatus();
+      } else {
+        setStatus((Boolean)value);
+      }
+      break;
+
     }
   }
 
@@ -265,6 +315,9 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
 
     case LOAD_INFO:
       return getLoadInfo();
+
+    case STATUS:
+      return Boolean.valueOf(isStatus());
 
     }
     throw new IllegalStateException();
@@ -283,6 +336,8 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
       return isSetSendTime();
     case LOAD_INFO:
       return isSetLoadInfo();
+    case STATUS:
+      return isSetStatus();
     }
     throw new IllegalStateException();
   }
@@ -324,6 +379,15 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
       if (!(this_present_loadInfo && that_present_loadInfo))
         return false;
       if (!this.loadInfo.equals(that.loadInfo))
+        return false;
+    }
+
+    boolean this_present_status = true;
+    boolean that_present_status = true;
+    if (this_present_status || that_present_status) {
+      if (!(this_present_status && that_present_status))
+        return false;
+      if (this.status != that.status)
         return false;
     }
 
@@ -373,6 +437,16 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetStatus()).compareTo(typedOther.isSetStatus());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetStatus()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.status, typedOther.status);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -418,12 +492,17 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
       }
       first = false;
     }
+    if (!first) sb.append(", ");
+    sb.append("status:");
+    sb.append(this.status);
+    first = false;
     sb.append(")");
     return sb.toString();
   }
 
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
+    // alas, we cannot check 'status' because it's a primitive and you chose the non-beans generator.
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -487,6 +566,14 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 4: // STATUS
+            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
+              struct.status = iprot.readBool();
+              struct.setStatusIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -495,6 +582,9 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
       iprot.readStructEnd();
 
       // check for required fields of primitive type, which can't be checked in the validate method
+      if (!struct.isSetStatus()) {
+        throw new org.apache.thrift.protocol.TProtocolException("Required field 'status' was not found in serialized data! Struct: " + toString());
+      }
       struct.validate();
     }
 
@@ -521,6 +611,9 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
           oprot.writeFieldEnd();
         }
       }
+      oprot.writeFieldBegin(STATUS_FIELD_DESC);
+      oprot.writeBool(struct.status);
+      oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -538,6 +631,7 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
     @Override
     public void write(org.apache.thrift.protocol.TProtocol prot, HeartbeatInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
+      oprot.writeBool(struct.status);
       BitSet optionals = new BitSet();
       if (struct.isSetAppkey()) {
         optionals.set(0);
@@ -563,6 +657,8 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, HeartbeatInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
+      struct.status = iprot.readBool();
+      struct.setStatusIsSet(true);
       BitSet incoming = iprot.readBitSet(3);
       if (incoming.get(0)) {
         struct.appkey = iprot.readString();

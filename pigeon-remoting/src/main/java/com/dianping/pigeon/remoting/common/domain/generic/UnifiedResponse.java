@@ -17,4 +17,8 @@ public interface UnifiedResponse extends InvocationResponse, UnifiedInvocation {
     void setMethodName(String methodName);
 
     boolean hasException();
+
+    void setPort(int port);
+
+    int getPort();
 }

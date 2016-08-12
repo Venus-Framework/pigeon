@@ -1,10 +1,15 @@
 package com.dianping.pigeon.remoting.provider.process.statistics;
 
+import com.dianping.pigeon.config.ConfigManager;
+import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.google.common.collect.Maps;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
@@ -17,9 +22,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by chenchongze on 16/7/26.
  */
-public enum LoadInfoCollector {
+public enum ProviderSystemInfoCollector {
 
     INSTANCE;
+
+    private final Logger logger = LoggerLoader.getLogger(this.getClass());
 
     private final List<GarbageCollectorMXBean> gcMXBeans = ManagementFactory.getGarbageCollectorMXBeans();
     private final OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
@@ -28,7 +35,7 @@ public enum LoadInfoCollector {
     private volatile int currentOldGcCount;
     private volatile double avgLoad;
 
-    private LoadInfoCollector () {
+    private ProviderSystemInfoCollector() {
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -123,6 +130,18 @@ public enum LoadInfoCollector {
         }
 
         return methodQpsMap;
+    }
+
+    public boolean getStatus(int port) {
+        Integer weight = ServicePublisher.getServerWeight().get(ConfigManagerLoader.getConfigManager().getLocalIp()
+                + ":" + port);
+
+        if (weight == null) {
+            logger.warn("failed to get local weight cache, return default weight: " + Constants.WEIGHT_DEFAULT);
+            weight = Constants.WEIGHT_DEFAULT;
+        }
+
+        return weight == Constants.DEFAULT_WEIGHT_DEFAULT;
     }
 
     public static void main(String[] args) {
