@@ -59,6 +59,9 @@ public class CallbackFuture implements Callback, CallFuture {
     }
 
     public InvocationResponse get(long timeoutMillis) throws InterruptedException {
+    	if (response != null && response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+    		return this.response;
+    	}
         synchronized (this) {
             long start = request.getCreateMillisTime();
             while (!this.done) {

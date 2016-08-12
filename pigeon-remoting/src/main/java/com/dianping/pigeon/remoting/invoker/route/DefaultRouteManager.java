@@ -7,9 +7,6 @@ package com.dianping.pigeon.remoting.invoker.route;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dianping.pigeon.config.ConfigManager;
-import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
-import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
@@ -31,6 +28,8 @@ import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.remoting.invoker.route.balance.RandomLoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.WeightedAutoawareLoadBalance;
+import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
+import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 
 public class DefaultRouteManager implements RouteManager, Disposable {
 
@@ -41,8 +40,6 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	private final RegionPolicyManager regionPolicyManager = RegionPolicyManager.INSTANCE;
 
 	private final RequestQualityManager requestQualityManager = RequestQualityManager.INSTANCE;
-
-	private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private static final ClusterListenerManager clusterListenerManager = ClusterListenerManager.getInstance();
 
@@ -56,7 +53,10 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	private static boolean isWriteBufferLimit = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT, Constants.DEFAULT_WRITE_BUFF_LIMIT);
 
+	private static final String KEY_LOG_DEBUG_ENABLE = "pigeon.log.debug.enable";
+
 	private DefaultRouteManager() {
+		ConfigManagerLoader.getConfigManager().getBooleanValue(KEY_LOG_DEBUG_ENABLE, false);
 		RegistryEventListener.addListener(providerChangeListener);
 		if (enablePreferAddresses) {
 			preferAddresses = new ArrayList<String>();
@@ -102,8 +102,8 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	}
 
 	/**
-	 * 按照权重、分组、region规则、服务质量过滤客户端选择
-	 * 加入对oneway调用模式的优化判断
+	 * 按照权重、分组、region规则、服务质量过滤客户端选择 加入对oneway调用模式的优化判断
+	 * 
 	 * @param clientList
 	 * @param invokerConfig
 	 * @param request
@@ -118,10 +118,13 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 
 		} else if (requestQualityManager.isEnableRequestQualityRoute()) {
 
-			float least = configManager.getFloatValue("pigeon.invoker.quality.leastratio", 0.5f) * clientList.size();
-			List<Client> qualityFilterClients = requestQualityManager.getQualityPreferClients(clientList, request, least);
+			float least = ConfigManagerLoader.getConfigManager().getFloatValue("pigeon.invoker.quality.leastratio",
+					0.5f)
+					* clientList.size();
+			List<Client> qualityFilterClients = requestQualityManager.getQualityPreferClients(clientList, request,
+					least);
 
-			if(qualityFilterClients.size() >= least) {
+			if (qualityFilterClients.size() >= least) {
 				clientList = qualityFilterClients;
 			}
 
@@ -133,12 +136,15 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 		for (Client client : clientList) {
 			if (client != null) {
 				String address = client.getAddress();
-				if (client.isActive() && RegistryManager.getInstance().getServiceWeightFromCache(address) > 0) {
+				int weight = RegistryManager.getInstance().getServiceWeightFromCache(address);
+				if (client.isActive() && weight > 0) {
 					if (!isWriteLimit || client.isWritable()) {
 						filteredClients.add(client);
 					} else {
 						existClientBuffToLimit = true;
 					}
+				} else if (ConfigManagerLoader.getConfigManager().getBooleanValue(KEY_LOG_DEBUG_ENABLE, false)) {
+					logger.info("provider status:" + client.isActive() + "," + weight);
 				}
 			}
 		}
