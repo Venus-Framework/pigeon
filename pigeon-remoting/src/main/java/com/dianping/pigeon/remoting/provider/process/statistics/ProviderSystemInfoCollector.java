@@ -10,6 +10,7 @@ import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
 import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.google.common.collect.Maps;
 import org.apache.logging.log4j.Logger;
+import org.apache.thrift.TEnum;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
@@ -132,7 +133,7 @@ public enum ProviderSystemInfoCollector {
         return methodQpsMap;
     }
 
-    public boolean getStatus(int port) {
+    public int getStatus(int port) {
         Integer weight = ServicePublisher.getServerWeight().get(ConfigManagerLoader.getConfigManager().getLocalIp()
                 + ":" + port);
 
@@ -141,7 +142,40 @@ public enum ProviderSystemInfoCollector {
             weight = Constants.WEIGHT_DEFAULT;
         }
 
-        return weight == Constants.DEFAULT_WEIGHT_DEFAULT;
+        return weightToStatus(weight);
+    }
+
+    private int weightToStatus(int weight) {
+        int status;
+
+        if (weight == Constants.DEFAULT_WEIGHT_INITIAL) {
+            status = Status.DEAD.getValue();//dead
+        } else if (weight > Constants.DEFAULT_WEIGHT_INITIAL) {
+            status = Status.ALIVE.getValue();//alive
+        } else {
+            status = Status.ALIVE.getValue();
+        }
+
+        return status;
+    }
+
+    private enum Status implements TEnum {
+        DEAD(0),
+        STARTING(1),
+        ALIVE(2),
+        STOPPING(3),
+        STOPPED(4),
+        WARNING(5);
+
+        private final int value;
+
+        private Status(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return this.value;
+        }
     }
 
     public static void main(String[] args) {

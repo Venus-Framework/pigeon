@@ -33,7 +33,7 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
   private static final org.apache.thrift.protocol.TField APPKEY_FIELD_DESC = new org.apache.thrift.protocol.TField("appkey", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField SEND_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("sendTime", org.apache.thrift.protocol.TType.I64, (short)2);
   private static final org.apache.thrift.protocol.TField LOAD_INFO_FIELD_DESC = new org.apache.thrift.protocol.TField("loadInfo", org.apache.thrift.protocol.TType.STRUCT, (short)3);
-  private static final org.apache.thrift.protocol.TField STATUS_FIELD_DESC = new org.apache.thrift.protocol.TField("status", org.apache.thrift.protocol.TType.BOOL, (short)4);
+  private static final org.apache.thrift.protocol.TField STATUS_FIELD_DESC = new org.apache.thrift.protocol.TField("status", org.apache.thrift.protocol.TType.I32, (short)4);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -44,7 +44,7 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
   public String appkey; // optional
   public long sendTime; // optional
   public LoadInfo loadInfo; // optional
-  public boolean status; // required
+  public int status; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -128,7 +128,7 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
     tmpMap.put(_Fields.LOAD_INFO, new org.apache.thrift.meta_data.FieldMetaData("loadInfo", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, LoadInfo.class)));
     tmpMap.put(_Fields.STATUS, new org.apache.thrift.meta_data.FieldMetaData("status", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(HeartbeatInfo.class, metaDataMap);
   }
@@ -137,7 +137,7 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
   }
 
   public HeartbeatInfo(
-    boolean status)
+    int status)
   {
     this();
     this.status = status;
@@ -171,7 +171,7 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
     this.sendTime = 0;
     this.loadInfo = null;
     setStatusIsSet(false);
-    this.status = false;
+    this.status = 0;
   }
 
   public String getAppkey() {
@@ -245,11 +245,11 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
     }
   }
 
-  public boolean isStatus() {
+  public int getStatus() {
     return this.status;
   }
 
-  public HeartbeatInfo setStatus(boolean status) {
+  public HeartbeatInfo setStatus(int status) {
     this.status = status;
     setStatusIsSet(true);
     return this;
@@ -298,7 +298,7 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
       if (value == null) {
         unsetStatus();
       } else {
-        setStatus((Boolean)value);
+        setStatus((Integer)value);
       }
       break;
 
@@ -317,7 +317,7 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
       return getLoadInfo();
 
     case STATUS:
-      return Boolean.valueOf(isStatus());
+      return Integer.valueOf(getStatus());
 
     }
     throw new IllegalStateException();
@@ -567,8 +567,8 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
             }
             break;
           case 4: // STATUS
-            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
-              struct.status = iprot.readBool();
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.status = iprot.readI32();
               struct.setStatusIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -612,7 +612,7 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
         }
       }
       oprot.writeFieldBegin(STATUS_FIELD_DESC);
-      oprot.writeBool(struct.status);
+      oprot.writeI32(struct.status);
       oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -631,7 +631,7 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
     @Override
     public void write(org.apache.thrift.protocol.TProtocol prot, HeartbeatInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
-      oprot.writeBool(struct.status);
+      oprot.writeI32(struct.status);
       BitSet optionals = new BitSet();
       if (struct.isSetAppkey()) {
         optionals.set(0);
@@ -657,7 +657,7 @@ public class HeartbeatInfo implements org.apache.thrift.TBase<HeartbeatInfo, Hea
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, HeartbeatInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      struct.status = iprot.readBool();
+      struct.status = iprot.readI32();
       struct.setStatusIsSet(true);
       BitSet incoming = iprot.readBitSet(3);
       if (incoming.get(0)) {
