@@ -149,6 +149,7 @@ public class MnsRegistry implements Registry {
 
         sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
         sgService.setFweight(MnsUtils.getMtthriftFWeight(weight));
+        sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
 
         sgService.setProtocol("thrift");
         sgService.setLastUpdateTime((int) (System.currentTimeMillis() / 1000));
@@ -327,6 +328,8 @@ public class MnsRegistry implements Registry {
 
         sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
         sgService.setFweight(MnsUtils.getMtthriftFWeight(weight));
+        int status = MnsUtils.getMtthriftStatus(weight);
+        sgService.setStatus(status);
         sgService.setServiceInfo(null);
         sgService.setAppkey(remoteAppkey);
         sgService.setVersion(VersionUtils.VERSION);
