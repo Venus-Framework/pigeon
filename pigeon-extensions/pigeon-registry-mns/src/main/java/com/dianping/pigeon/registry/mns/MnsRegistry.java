@@ -235,7 +235,7 @@ public class MnsRegistry implements Registry {
      * @throws RegistryException
      */
     @Override
-    public String getServerApp(String serverAddress) throws RegistryException {
+    public String getServerApp(String serverAddress) {
         try {
             String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
 
@@ -247,7 +247,7 @@ public class MnsRegistry implements Registry {
             return "";
         } catch (Throwable e) {
             logger.error("failed to get app for " + serverAddress);
-            throw new RegistryException(e);
+            return "";
         }
     }
 
@@ -258,7 +258,7 @@ public class MnsRegistry implements Registry {
      * @throws RegistryException
      */
     @Override
-    public String getServerVersion(String serverAddress) throws RegistryException {
+    public String getServerVersion(String serverAddress) {
         try {
             String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
 
@@ -270,7 +270,7 @@ public class MnsRegistry implements Registry {
             return "";
         } catch (Throwable e) {
             logger.error("failed to get version for " + serverAddress);
-            throw new RegistryException(e);
+            return "";
         }
     }
 

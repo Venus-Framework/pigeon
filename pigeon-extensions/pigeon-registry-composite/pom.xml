@@ -8,8 +8,27 @@
         <version>2.8.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <groupId>com.dianping</groupId>
+    <name>pigeon-registry-composite</name>
+    <version>2.8.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <artifactId>pigeon-registry-composite</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>com.dianping</groupId>
+            <artifactId>pigeon-registry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
+    </dependencies>
 
 </project>

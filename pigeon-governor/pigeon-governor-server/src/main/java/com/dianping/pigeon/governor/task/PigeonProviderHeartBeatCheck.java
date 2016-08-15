@@ -44,12 +44,7 @@ public class PigeonProviderHeartBeatCheck extends Thread {
     private volatile static String isCheckEnable = Lion.get("pigeon.heartbeat.enable","false");
 
     public PigeonProviderHeartBeatCheck() {
-        for (Registry registry : RegistryManager.getInstance().getRegistryList()) {
-            if(registry instanceof CuratorRegistry) {
-                client = ((CuratorRegistry) registry).getCuratorClient();
-                break;
-            }
-        }
+        client = ((CuratorRegistry) RegistryManager.getInstance().getRegistry()).getCuratorClient();
     }
 
     public void init() {
