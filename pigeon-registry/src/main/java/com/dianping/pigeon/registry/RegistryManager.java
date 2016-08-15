@@ -316,10 +316,8 @@ public class RegistryManager {
     public void addServiceAddress(String serviceName, String host, int port, int weight) {
         Utils.validateWeight(host, port, weight);
 
-        HostInfo hostInfo = new HostInfo(host, port, weight);
-        String serviceAddress = hostInfo.getConnect();
-
         Set<HostInfo> hostInfos = referencedServiceAddresses.get(serviceName);
+
         if (hostInfos == null) {
             hostInfos = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo, Boolean>());
             Set<HostInfo> oldHostInfos = referencedServiceAddresses.putIfAbsent(serviceName, hostInfos);
@@ -327,7 +325,11 @@ public class RegistryManager {
                 hostInfos = oldHostInfos;
             }
         }
+
+        HostInfo hostInfo = new HostInfo(host, port, weight);
+        hostInfos.remove(hostInfo);
         hostInfos.add(hostInfo);
+        String serviceAddress = hostInfo.getConnect();
 
         // 添加服务端是否支持新协议的缓存
         Map<String, Boolean> protocolInfoMap = referencedServiceProtocols.get(serviceAddress);
