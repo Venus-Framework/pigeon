@@ -2,6 +2,7 @@ package com.dianping.pigeon.registry.zookeeper;
 
 import java.util.*;
 
+import com.dianping.pigeon.registry.util.HeartBeatSupport;
 import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
@@ -374,7 +375,8 @@ public class CuratorRegistry implements Registry {
 
 	@Override
 	public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
-		return 0;
+
+		return HeartBeatSupport.BOTH.getValue();
 	}
 
 	@Override

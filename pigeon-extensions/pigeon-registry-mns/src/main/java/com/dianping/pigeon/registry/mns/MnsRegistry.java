@@ -12,6 +12,7 @@ import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.Maps;
 import com.sankuai.inf.octo.mns.MnsInvoker;
 import com.sankuai.inf.octo.mns.sentinel.CustomizedManager;
+import com.sankuai.sgagent.thrift.model.HeartbeatSupportType;
 import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import com.sankuai.sgagent.thrift.model.ServiceDetail;
@@ -435,7 +436,8 @@ public class MnsRegistry implements Registry {
 
     @Override
     public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
-        return 0;
+
+        return (byte) HeartbeatSupportType.BothSupport.getValue();
     }
 
     @Override
@@ -469,7 +471,7 @@ public class MnsRegistry implements Registry {
 
         for (String host : hosts.split(",")) {
             SGService sgService = getSGService(null, serviceName, host);
-            //sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
+            sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
             sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
             sgService.setFweight(MnsUtils.getMtthriftFWeight(weight));
             sgService.setServiceInfo(null);

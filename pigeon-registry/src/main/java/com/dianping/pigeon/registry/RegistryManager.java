@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
+import com.dianping.pigeon.registry.util.HeartBeatSupport;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -533,6 +534,22 @@ public class RegistryManager {
         if (registry != null) {
             registry.deleteHeartBeat(serviceAddress);
         }
+    }
+
+    /**
+     * for invoker
+     * @param serviceAddress
+     * @return
+     * @throws RegistryException
+     */
+    public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
+        byte heartBeatSupport = HeartBeatSupport.UNSUPPORT.getValue();
+
+        if (registry != null) {
+            heartBeatSupport = registry.getServerHeartBeatSupport(serviceAddress);
+        }
+
+        return heartBeatSupport;
     }
 
     public boolean isSupportNewProtocol(String serviceAddress) throws RegistryException {

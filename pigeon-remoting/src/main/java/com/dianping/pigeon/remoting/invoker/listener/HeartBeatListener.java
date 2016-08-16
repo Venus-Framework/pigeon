@@ -13,6 +13,8 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.registry.util.HeartBeatSupport;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -177,6 +179,11 @@ public class HeartBeatListener implements Runnable, ClusterListener {
     }
 
     private void sendHeartBeatRequest(Client client) {
+        if (!checkIfNeedSend(client.getAddress())) {
+            // not support p2p heartbeat
+            return ;
+        }
+
         HeartBeatStat heartBeatStat = getHeartBeatStatWithCreate(client.getAddress());
         InvocationRequest heartRequest = createHeartRequest0(client);
         try {
@@ -196,6 +203,31 @@ public class HeartBeatListener implements Runnable, ClusterListener {
                 logger.info("[heartbeat] send heartbeat to server[" + client.getAddress() + "] failed");
             }
         }
+    }
+
+    private boolean checkIfNeedSend(String address) {
+        boolean support = false;
+        byte heartBeatSupport = HeartBeatSupport.UNSUPPORT.getValue();
+
+        try {
+            heartBeatSupport = RegistryManager.getInstance().getServerHeartBeatSupport(address);
+        } catch (RegistryException e) {
+            e.printStackTrace();
+        }
+
+        switch (HeartBeatSupport.findByValue(heartBeatSupport)) {
+            case CLIENTTOSERVER:
+            case BOTH:
+                support = true;
+                break;
+            case UNSUPPORT:
+            case SCANNER:
+            default:
+                support = false;
+                break;
+        }
+
+        return support;
     }
 
     private boolean isSupportNewProtocol(Client client) {

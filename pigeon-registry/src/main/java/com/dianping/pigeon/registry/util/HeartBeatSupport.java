@@ -5,18 +5,33 @@ package com.dianping.pigeon.registry.util;
  */
 public enum HeartBeatSupport {
 
-    UNSUPPORT((short) 0),
-    CLIENTTOSERVER((short) 1),
-    SCANNER((short) 2),
-    BOTH((short) 3);
+    UNSUPPORT((byte)0),
+    CLIENTTOSERVER((byte)1),
+    SCANNER((byte)2),
+    BOTH((byte)3);
 
-    private final short value;
+    private final byte value;
 
-    private HeartBeatSupport(short value) {
+    private HeartBeatSupport(byte value) {
         this.value = value;
     }
 
-    public short getValue() {
+    public byte getValue() {
         return value;
+    }
+
+    public static HeartBeatSupport findByValue(byte value) {
+        switch(value) {
+            case 0:
+                return UNSUPPORT;
+            case 1:
+                return CLIENTTOSERVER;
+            case 2:
+                return SCANNER;
+            case 3:
+                return BOTH;
+            default:
+                return null;
+        }
     }
 }
