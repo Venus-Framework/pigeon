@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.dianping.pigeon.monitor.MonitorConstants;
 import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.StringUtils;
 
@@ -188,11 +189,11 @@ public class InvokeJsonServlet extends ServiceServlet {
 				result = new ResponseError(e.toString(), null, 400);
 			}
 		}
-		String currentMessageId = (String) ContextUtils.getLocalContext("CurrentMessageId");
+		String currentMessageId = (String) ContextUtils.getLocalContext(MonitorConstants.CURRENT_MSG_ID);
 		if (currentMessageId != null) {
 			Map localContext = ContextUtils.getLocalContext();
-			if (localContext != null && localContext.containsKey("CurrentMessageId")) {
-				response.addHeader("CurrentMessageId", (String) localContext.remove("CurrentMessageId"));
+			if (localContext != null && localContext.containsKey(MonitorConstants.CURRENT_MSG_ID)) {
+				response.addHeader(MonitorConstants.CURRENT_MSG_ID, (String) localContext.remove(MonitorConstants.CURRENT_MSG_ID));
 			}
 		}
 		writeResponse(response, result);
