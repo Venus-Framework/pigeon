@@ -430,7 +430,7 @@ public class MnsRegistry implements Registry {
 
     @Override
     public String getStatistics() {
-        return getName();
+        return getName() + ": NULL";
     }
 
     @Override

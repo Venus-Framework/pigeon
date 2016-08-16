@@ -369,7 +369,7 @@ public class CuratorRegistry implements Registry {
 
 	@Override
 	public String getStatistics() {
-		return "curator:" + client.getStatistics();
+		return getName() + ":" + client.getStatistics();
 	}
 
 	@Override

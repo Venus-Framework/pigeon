@@ -40,7 +40,7 @@ public class RegistryManager {
 
     private static RegistryConfigManager registryConfigManager = new MultiRegistryConfigManager();
 
-    private static Registry registry = null;
+    private static volatile Registry registry = null;
 
     private static final String KEY_PIGEON_REGISTRY_CUSTOMIZED = "pigeon.registry.customized.snapshot";
 
