@@ -9,7 +9,8 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceDegradedException;
 import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
-import com.dianping.pigeon.remoting.provider.process.statistics.LoadInfoCollector;
+import com.dianping.pigeon.remoting.provider.process.statistics.ProviderSystemInfoCollector;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,14 +92,15 @@ public class ThriftMapper {
             HeartbeatInfo heartbeatInfo = new HeartbeatInfo();
             heartbeatInfo.setAppkey(ConfigManagerLoader.getConfigManager().getAppName());
             heartbeatInfo.setSendTime(response.getCreateMillisTime());
+            ProviderSystemInfoCollector providerSystemInfoCollector = ProviderSystemInfoCollector.INSTANCE;
+            heartbeatInfo.setStatus(providerSystemInfoCollector.getStatus(response.getPort()));
 
             LoadInfo loadInfo = new LoadInfo();
-            LoadInfoCollector loadInfoCollector = LoadInfoCollector.INSTANCE;
-            loadInfo.setAverageLoad(loadInfoCollector.getSystemLoadAverage());
-            loadInfo.setOldGC(loadInfoCollector.getOldGC());
-            loadInfo.setThreadNum(loadInfoCollector.getThreadNum());
-            loadInfo.setQueueSize(loadInfoCollector.getQueueSize());
-            loadInfo.setMethodQpsMap(loadInfoCollector.getQpsMap());
+            loadInfo.setAverageLoad(providerSystemInfoCollector.getSystemLoadAverage());
+            loadInfo.setOldGC(providerSystemInfoCollector.getOldGC());
+            loadInfo.setThreadNum(providerSystemInfoCollector.getThreadNum());
+            loadInfo.setQueueSize(providerSystemInfoCollector.getQueueSize());
+            loadInfo.setMethodQpsMap(providerSystemInfoCollector.getQpsMap());
 
             heartbeatInfo.setLoadInfo(loadInfo);
             header.setHeartbeatInfo(heartbeatInfo);

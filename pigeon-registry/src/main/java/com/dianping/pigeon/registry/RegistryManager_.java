@@ -8,6 +8,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -26,9 +28,9 @@ import com.dianping.pigeon.registry.listener.ServerInfoListener;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.util.Utils;
 
-public class RegistryManager {
+public class RegistryManager_ {
 
-    private static final Logger logger = LoggerLoader.getLogger(RegistryManager.class);
+    private static final Logger logger = LoggerLoader.getLogger(RegistryManager_.class);
 
     private Properties props = new Properties();
 
@@ -36,13 +38,13 @@ public class RegistryManager {
 
     private static Throwable initializeException = null;
 
-    private static RegistryManager instance = new RegistryManager();
+    private static RegistryManager_ instance = new RegistryManager_();
 
     private static RegistryConfigManager registryConfigManager = new MultiRegistryConfigManager();
 
-    private static volatile Registry registry = null;
+    private volatile static List<Registry> registryList = ExtensionLoader.getExtensionList(Registry.class);
 
-    private static final String KEY_PIGEON_REGISTRY_CUSTOMIZED = "pigeon.registry.customized.snapshot";
+    private static final String KEY_PIGEON_REGISTRY_PREFER = "pigeon.registry.prefer.snapshot";
 
     private static ConcurrentHashMap<String, Set<HostInfo>> referencedServiceAddresses = new ConcurrentHashMap<String, Set<HostInfo>>();
 
@@ -64,7 +66,7 @@ public class RegistryManager {
     private static boolean enableLocalConfig = ConfigManagerLoader.getConfigManager().getBooleanValue(
             "pigeon.registry.config.local", false);
 
-    private RegistryManager() {
+    private RegistryManager_() {
     }
 
     public static boolean isInitialized() {
@@ -75,9 +77,9 @@ public class RegistryManager {
         return initializeException;
     }
 
-    public static RegistryManager getInstance() {
+    public static RegistryManager_ getInstance() {
         if (!isInit) {
-            synchronized (RegistryManager.class) {
+            synchronized (RegistryManager_.class) {
                 if (!isInit) {
                     instance.init(registryConfigManager.getRegistryConfig());
                     initializeException = null;
@@ -96,40 +98,55 @@ public class RegistryManager {
         if (!Constants.REGISTRY_TYPE_LOCAL.equalsIgnoreCase(registryType)) {
             List<Registry> _registryList = ExtensionLoader.getExtensionList(Registry.class);
 
-            try {
+            if (_registryList.size() > 0) {
+                try {
+                    parseRegistryConfig(_registryList,
+                            configManager.getStringValue(KEY_PIGEON_REGISTRY_PREFER, Constants.REGISTRY_CURATOR_NAME));
+                    configManager.registerConfigChangeListener(new InnerConfigChangeListener());
 
-                if (_registryList.size() > 0) {
-                    String customizedRegistryName = configManager.getStringValue(KEY_PIGEON_REGISTRY_CUSTOMIZED,
-                            Constants.REGISTRY_CURATOR_NAME);
-
-                    for (Registry registry : _registryList) {
-                        if(registry.getName().equals(customizedRegistryName)) {
-                            registry.init(properties);
-                            RegistryManager.registry = registry;
-                            logger.info(registry.getName() + " registry started.");
-                        }
+                    for (Registry registry : registryList) {
+                        registry.init(properties);
                     }
 
-                } else {
-                    throw new RegistryException("failed to find registry extension type, please check dependencies!");
+                } catch (Throwable t) {
+                    initializeException = t;
+                    throw new RuntimeException(t);
                 }
-
-                configManager.registerConfigChangeListener(new InnerConfigChangeListener());
-
-            } catch (Throwable t) {
-                initializeException = t;
-                throw new RuntimeException(t);
             }
-
-
 
         } else {
         }
 
     }
 
-    public Registry getRegistry() {
-        return registry;
+    private void parseRegistryConfig(List<Registry> _registryList, String registryPreferConfig) {
+        Map<String, Registry> registryMapByName = Maps.newHashMap();
+        for (Registry registry : _registryList) {
+            registryMapByName.put(registry.getName(), registry);
+        }
+
+        List<String> registryPrefer = Arrays.asList(registryPreferConfig.split(","));
+        List<Registry> orderedRegistryList = Lists.newArrayList();
+
+        for (String registryName : registryPrefer) {
+            if (registryMapByName.containsKey(registryName)) {
+                orderedRegistryList.add(registryMapByName.get(registryName));
+            } else {
+                logger.error("pigeon.registry.prefer config error! no registry: " + registryName);
+                return;
+            }
+        }
+
+        if (orderedRegistryList.size() > 0) {
+            registryList = orderedRegistryList;
+        } else {
+            logger.error("pigeon.registry.prefer config error! registry num is 0!");
+        }
+
+    }
+
+    public List<Registry> getRegistryList() {
+        return registryList;
     }
 
     public void setProperty(String key, String value) {
@@ -158,39 +175,41 @@ public class RegistryManager {
         return Utils.getAddressList(serviceName, serviceAddress);
     }
 
-	public String getServiceAddress(String remoteAppkey, String serviceName, String group) throws RegistryException {
-		String serviceKey = getServiceKey(serviceName, group);
-		if (props.containsKey(serviceKey)) {
-			if (logger.isInfoEnabled()) {
-				logger.info("get service address from local properties, service name:" + serviceName + "  address:"
-						+ props.getProperty(serviceKey));
-			}
-			return props.getProperty(serviceKey);
-		}
-		if (enableLocalConfig) {
-			String addr = configManager.getLocalStringValue(Utils.escapeServiceName(serviceKey));
-			if (addr == null) {
-				try {
-					addr = configManager.getLocalStringValue(serviceKey);
-				} catch (Throwable e) {
-				}
-			}
-			if (!StringUtils.isBlank(addr)) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("get service address from local properties, service name:" + serviceName
-							+ "  address:" + addr);
-				}
-				return addr;
-			}
-		}
-
-        if (registry != null) {
-            String addr = registry.getServiceAddress(remoteAppkey, serviceName, group, fallbackDefaultGroup);
-            return addr;
+    public String getServiceAddress(String remoteAppkey, String serviceName, String group) throws RegistryException {
+        String serviceKey = getServiceKey(serviceName, group);
+        if (props.containsKey(serviceKey)) {
+            if (logger.isInfoEnabled()) {
+                logger.info("get service address from local properties, service name:" + serviceName + "  address:"
+                        + props.getProperty(serviceKey));
+            }
+            return props.getProperty(serviceKey);
+        }
+        if (enableLocalConfig) {
+            String addr = configManager.getLocalStringValue(Utils.escapeServiceName(serviceKey));
+            if (addr == null) {
+                try {
+                    addr = configManager.getLocalStringValue(serviceKey);
+                } catch (Throwable e) {
+                }
+            }
+            if (!StringUtils.isBlank(addr)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("get service address from local properties, service name:" + serviceName
+                            + "  address:" + addr);
+                }
+                return addr;
+            }
         }
 
-        return "";
-	}
+        String addr = "";
+        for (Registry registry : registryList) { // merge registry addr
+            // 多个注册中心获取到本地内存 目前采取合并地址方式
+            addr = mergeAddress(addr,
+                    registry.getServiceAddress(remoteAppkey, serviceName, group, fallbackDefaultGroup));
+        }
+
+        return addr;
+    }
 
     public String getServiceAddress(String serviceName, String group) throws RegistryException {
         String serviceKey = getServiceKey(serviceName, group);
@@ -218,12 +237,14 @@ public class RegistryManager {
             }
         }
 
-        if (registry != null) {
-            String addr = registry.getServiceAddress(serviceName, group, fallbackDefaultGroup);
-            return addr;
+        String addr = "";
+        for (Registry registry : registryList) { // merge registry addr
+            // 多个注册中心获取到本地内存 目前采取合并地址方式
+            addr = mergeAddress(addr,
+                    registry.getServiceAddress(serviceName, group, fallbackDefaultGroup));
         }
 
-        return "";
+        return addr;
     }
 
     private String getServiceKey(String serviceName, String group) {
@@ -251,19 +272,46 @@ public class RegistryManager {
         }
         int weight = Constants.DEFAULT_WEIGHT;
 
-        if (registry != null) {
+        List<Integer> checkList = Lists.newArrayList();
+        for (Registry registry : registryList) {
+            // 多个注册中心获取到本地内存
             try {
-                weight = registry.getServerWeight(serverAddress);
-                HostInfo hostInfo = referencedAddresses.get(serverAddress);
-                if (hostInfo != null) {
-                    hostInfo.setWeight(weight);
-                }
+                checkList.add(registry.getServerWeight(serverAddress));
             } catch (Throwable e) {
                 logger.error("failed to get weight for " + serverAddress, e);
             }
         }
+        if (checkList.size() > 0) {
+            weight = checkValueConsistency(checkList);
+        }
+
+        HostInfo hostInfo = referencedAddresses.get(serverAddress);
+        if (hostInfo != null) {
+            hostInfo.setWeight(weight);
+        }
 
         return weight;
+    }
+
+    private <T> T checkValueConsistency(List<T> checkList) {
+        T result = checkList.get(0);
+
+        for (T t : checkList) {
+            if (t != null && !t.equals(result)) {
+                String errorMsg = "result not same in different registries! value1: " + result + ", value2: " + t;
+
+                if (configManager.getBooleanValue("pigeon.registry.check.value.consistency.exception", false)) {
+                    throw new RuntimeException(errorMsg);
+                }
+
+                if (configManager.getBooleanValue(LoggerLoader.KEY_LOG_DEBUG_ENABLE, false)) {
+                    logger.warn(errorMsg);
+                }
+                break;
+            }
+        }
+
+        return result;
     }
 
     public int getServiceWeight(String serverAddress) {
@@ -287,18 +335,20 @@ public class RegistryManager {
 
     public void registerService(String serviceName, String group, String serviceAddress, int weight)
             throws RegistryException {
-        if (registry != null) {
+        for (Registry registry : registryList) {
             registry.registerService(serviceName, group, serviceAddress, weight);
-            registeredServices.putIfAbsent(serviceName, serviceAddress);
-            monitor.logEvent("PigeonService.register", serviceName, "weight=" + weight + "&group=" + group);
         }
+
+        registeredServices.putIfAbsent(serviceName, serviceAddress);
+        monitor.logEvent("PigeonService.register", serviceName, "weight=" + weight + "&group=" + group);
     }
 
     public void setServerWeight(String serverAddress, int weight) throws RegistryException {
-        if (registry != null) {
+        for (Registry registry : registryList) {
             registry.setServerWeight(serverAddress, weight);
-            monitor.logEvent("PigeonService.weight", weight + "", "");
         }
+
+        monitor.logEvent("PigeonService.weight", weight + "", "");
     }
 
     public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
@@ -306,18 +356,21 @@ public class RegistryManager {
     }
 
     public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
-        if (registry != null) {
+        for (Registry registry : registryList) {
             registry.unregisterService(serviceName, group, serviceAddress);
-            registeredServices.remove(serviceName);
-            monitor.logEvent("PigeonService.unregister", serviceName, "group=" + group);
         }
+
+        registeredServices.remove(serviceName);
+        monitor.logEvent("PigeonService.unregister", serviceName, "group=" + group);
     }
 
     public void addServiceAddress(String serviceName, String host, int port, int weight) {
         Utils.validateWeight(host, port, weight);
 
-        Set<HostInfo> hostInfos = referencedServiceAddresses.get(serviceName);
+        HostInfo hostInfo = new HostInfo(host, port, weight);
+        String serviceAddress = hostInfo.getConnect();
 
+        Set<HostInfo> hostInfos = referencedServiceAddresses.get(serviceName);
         if (hostInfos == null) {
             hostInfos = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo, Boolean>());
             Set<HostInfo> oldHostInfos = referencedServiceAddresses.putIfAbsent(serviceName, hostInfos);
@@ -325,11 +378,7 @@ public class RegistryManager {
                 hostInfos = oldHostInfos;
             }
         }
-
-        HostInfo hostInfo = new HostInfo(host, port, weight);
-        hostInfos.remove(hostInfo);
         hostInfos.add(hostInfo);
-        String serviceAddress = hostInfo.getConnect();
 
         // 添加服务端是否支持新协议的缓存
         Map<String, Boolean> protocolInfoMap = referencedServiceProtocols.get(serviceAddress);
@@ -352,12 +401,36 @@ public class RegistryManager {
 
         if (!referencedAddresses.containsKey(serviceAddress)) {
             referencedAddresses.put(serviceAddress, hostInfo);
-            if (registry != null) {
-                String app = registry.getServerApp(hostInfo.getConnect());
-                hostInfo.setApp(app);
-                String version = registry.getServerVersion(hostInfo.getConnect());
-                hostInfo.setVersion(version);
+            String app = null;
+            String version = null;
+
+            List<String> checkAppList = Lists.newArrayList();
+            List<String> checkVersionList = Lists.newArrayList();
+
+            for (Registry registry : registryList) {
+                // 多个注册中心获取到本地内存
+                try {
+                    checkAppList.add(registry.getServerApp(serviceAddress));
+                } catch (Throwable e) {
+                    logger.error("failed to get appname for " + serviceAddress, e);
+                }
+
+                try {
+                    checkVersionList.add(registry.getServerVersion(serviceAddress));
+                } catch (Throwable e) {
+                    logger.error("failed to get version for " + serviceAddress, e);
+                }
             }
+
+            if (checkAppList.size() > 0) {
+                app = checkValueConsistency(checkAppList);
+            }
+            if (checkVersionList.size() > 0) {
+                version = checkValueConsistency(checkVersionList);
+            }
+
+            hostInfo.setVersion(version);
+            hostInfo.setApp(app);
         }
     }
 
@@ -428,11 +501,22 @@ public class RegistryManager {
     }
 
     public String getReferencedApp(String serverAddress) {
-        String app = "";
-        if (registry != null) {
-            app = registry.getServerApp(serverAddress);
-            setReferencedApp(serverAddress, app);
+        String app = null;
+
+        List<String> checkList = Lists.newArrayList();
+        for (Registry registry : registryList) {
+            // 多个注册中心获取到本地内存
+            try {
+                checkList.add(registry.getServerApp(serverAddress));
+            } catch (Throwable e) {
+                logger.error("failed to get appname for " + serverAddress, e);
+            }
         }
+        if (checkList.size() > 0) {
+            app = checkValueConsistency(checkList);
+        }
+
+        setReferencedApp(serverAddress, app);
         return app;
     }
 
@@ -444,13 +528,13 @@ public class RegistryManager {
     }
 
     public void setServerApp(String serverAddress, String app) {
-        if (registry != null) {
+        for (Registry registry : registryList) {
             registry.setServerApp(serverAddress, app);
         }
     }
 
     public void unregisterServerApp(String serverAddress) {
-        if (registry != null) {
+        for (Registry registry : registryList) {
             registry.unregisterServerApp(serverAddress);
         }
     }
@@ -470,11 +554,23 @@ public class RegistryManager {
     }
 
     public String getReferencedVersion(String serverAddress) {
-        String version = "";
-        if (registry != null) {
-            version = registry.getServerVersion(serverAddress);
-            setReferencedVersion(serverAddress, version);
+        String version = null;
+
+
+        List<String> checkList = Lists.newArrayList();
+        for (Registry registry : registryList) {
+            // 多个注册中心获取到本地内存
+            try {
+                checkList.add(registry.getServerVersion(serverAddress));
+            } catch (Throwable e) {
+                logger.error("failed to get version for " + serverAddress, e);
+            }
         }
+        if (checkList.size() > 0) {
+            version = checkValueConsistency(checkList);
+        }
+
+        setReferencedVersion(serverAddress, version);
         return version;
     }
 
@@ -486,13 +582,13 @@ public class RegistryManager {
     }
 
     public void setServerVersion(String serverAddress, String version) {
-        if (registry != null) {
+        for (Registry registry : registryList) {
             registry.setServerVersion(serverAddress, version);
         }
     }
 
     public void unregisterServerVersion(String serverAddress) {
-        if (registry != null) {
+        for (Registry registry : registryList) {
             registry.unregisterServerVersion(serverAddress);
         }
     }
@@ -524,24 +620,45 @@ public class RegistryManager {
     }
 
     public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
-        if (registry != null) {
+        for (Registry registry : registryList) {
             registry.updateHeartBeat(serviceAddress, heartBeatTimeMillis);
         }
     }
 
     public void deleteHeartBeat(String serviceAddress) {
-        if (registry != null) {
+        for (Registry registry : registryList) {
             registry.deleteHeartBeat(serviceAddress);
         }
     }
 
+    private String mergeAddress(String address, String anotherAddress) {
+
+        Set<String> result = new HashSet<String>();
+        if (StringUtils.isNotBlank(address)) {
+            result.addAll(Arrays.asList(address.split(",")));
+        }
+        if (StringUtils.isNotBlank(anotherAddress)) {
+            result.addAll(Arrays.asList(anotherAddress.split(",")));
+        }
+
+        return StringUtils.join(result, ",");
+    }
+
     public boolean isSupportNewProtocol(String serviceAddress) throws RegistryException {
+        //todo 查机器级别的支持
         boolean support = false;
 
-        try {
-            support = registry.isSupportNewProtocol(serviceAddress);
-        } catch (Throwable e) {
-            logger.error("failed to get protocol for " + serviceAddress, e);
+        List<Boolean> checkList = Lists.newArrayList();
+        for (Registry registry : registryList) {
+            // 多个注册中心获取到本地内存
+            try {
+                checkList.add(registry.isSupportNewProtocol(serviceAddress));
+            } catch (Throwable e) {
+                logger.error("failed to get protocol for " + serviceAddress, e);
+            }
+        }
+        if (checkList.size() > 0) {
+            support = checkValueConsistency(checkList);
         }
 
         return support;
@@ -562,10 +679,17 @@ public class RegistryManager {
 
         boolean support = false;
 
-        try {
-            support= registry.isSupportNewProtocol(serviceAddress, serviceName);
-        } catch (Throwable e) {
-            logger.error("failed to get protocol for " + serviceAddress + "#" + serviceName, e);
+        List<Boolean> checkList = Lists.newArrayList();
+        for (Registry registry : registryList) {
+            // 多个注册中心获取到本地内存
+            try {
+                checkList.add(registry.isSupportNewProtocol(serviceAddress, serviceName));
+            } catch (Throwable e) {
+                logger.error("failed to get protocol for " + serviceAddress + "#" + serviceName, e);
+            }
+        }
+        if (checkList.size() > 0) {
+            support = checkValueConsistency(checkList);
         }
 
         Map<String, Boolean> protocolInfoMap = referencedServiceProtocols.get(serviceAddress);
@@ -586,7 +710,7 @@ public class RegistryManager {
      */
     public void registerSupportNewProtocol(String serviceAddress, String serviceName, boolean support)
             throws RegistryException {
-        if (registry != null) {
+        for (Registry registry : registryList) {
             registry.setSupportNewProtocol(serviceAddress, serviceName, support);
         }
         monitor.logEvent("PigeonService.protocol", serviceName, "support=" + support);
@@ -594,7 +718,7 @@ public class RegistryManager {
 
     public void unregisterSupportNewProtocol(String serviceAddress, String serviceName,
                                              boolean support) throws RegistryException {
-        if (registry != null) {
+        for (Registry registry : registryList) {
             registry.unregisterSupportNewProtocol(serviceAddress, serviceName, support);
         }
         monitor.logEvent("PigeonService.protocol", serviceName, "unregister");
@@ -603,10 +727,17 @@ public class RegistryManager {
     public boolean getReferencedProtocol(String serverAddress, String serviceName) {
         boolean support = false;
 
-        try {
-            support = registry.isSupportNewProtocol(serverAddress, serviceName);
-        } catch (Throwable e) {
-            logger.error("failed to get protocol for " + serverAddress + "#" + serviceName, e);
+        List<Boolean> checkList = Lists.newArrayList();
+        for (Registry registry : registryList) {
+            // 多个注册中心获取到本地内存
+            try {
+                checkList.add(registry.isSupportNewProtocol(serverAddress, serviceName));
+            } catch (Throwable e) {
+                logger.error("failed to get protocol for " + serverAddress + "#" + serviceName, e);
+            }
+        }
+        if (checkList.size() > 0) {
+            support = checkValueConsistency(checkList);
         }
 
         setReferencedProtocol(serverAddress, serviceName, support);
@@ -629,7 +760,8 @@ public class RegistryManager {
      * @author chenchongze
      */
     public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
-        if (registry != null) {
+        //TODO 待验证
+        for (Registry registry : registryList) {
             registry.setServerService(serviceName, group, hosts);
         }
 
@@ -638,7 +770,7 @@ public class RegistryManager {
 
     public void setHostsWeight(String serviceName, String group,
                                String hosts, int weight) throws RegistryException {
-        if (registry != null) {
+        for (Registry registry : registryList) {
             registry.setHostsWeight(serviceName, group, hosts, weight);
         }
 
@@ -652,7 +784,8 @@ public class RegistryManager {
      * @throws RegistryException
      */
     public void delServerService(String serviceName, String group) throws RegistryException {
-        if (registry != null) {
+        //TODO 待验证
+        for (Registry registry : registryList) {
             registry.delServerService(serviceName, group);
         }
 
@@ -669,13 +802,21 @@ public class RegistryManager {
     public String getServiceHosts(String serviceName, String group) throws RegistryException {
         String addr = "";
 
-        try {
-            addr = registry.getServiceAddress(serviceName, group, false);
-        } catch (Throwable e) {
-            logger.error("failed to get service hosts for "
-                    + serviceName + "#" + group + ", msg: " + e.getMessage());
-
-            throw new RegistryException(e);
+        List<String> checkList = Lists.newArrayList();
+        for (Registry registry : registryList) {
+            // 多个注册中心获取到本地内存
+            try {
+                checkList.add(registry.getServiceAddress(serviceName, group, false));
+            } catch (Throwable e) {
+                logger.error("failed to get service hosts for "
+                        + serviceName + "#" + group + ", msg: " + e.getMessage());
+                if (checkList.size() == 0) {
+                    throw new RegistryException(e);
+                }
+            }
+        }
+        if (checkList.size() > 0) {
+            addr = checkValueConsistency(checkList);
         }
 
         return addr;
@@ -685,17 +826,13 @@ public class RegistryManager {
 
         @Override
         public void onKeyUpdated(String key, String value) {
-            if (key.endsWith(KEY_PIGEON_REGISTRY_CUSTOMIZED)) {
+            if (key.endsWith(KEY_PIGEON_REGISTRY_PREFER)) {
                 try {
+                    parseRegistryConfig(ExtensionLoader.getExtensionList(Registry.class), value);
 
-                    for (Registry registry : ExtensionLoader.getExtensionList(Registry.class)) {
-                        if(registry.getName().equals(value)) {
-                            registry.init(props);
-                            RegistryManager.registry = registry;
-                            logger.info("change to registry: " + value);
-                        }
+                    for (Registry registry : registryList) {
+                        registry.init(props);
                     }
-
                 } catch (Throwable t) {
                     logger.error(t);
                 }

@@ -34,7 +34,7 @@ public interface Registry {
 
 	void setServerWeight(String serverAddress, int weight) throws RegistryException;
 
-	String getServerApp(String serverAddress) throws RegistryException;
+	String getServerApp(String serverAddress);
 
 	void setServerApp(String serverAddress, String app);
 
@@ -42,7 +42,7 @@ public interface Registry {
 
 	void setServerVersion(String serverAddress, String version);
 
-	String getServerVersion(String serverAddress) throws RegistryException;
+	String getServerVersion(String serverAddress);
 
 	void unregisterServerVersion(String serverAddress);
 

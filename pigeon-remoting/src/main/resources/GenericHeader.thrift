@@ -12,6 +12,7 @@ struct HeartbeatInfo {
     1: optional string appkey;      // 解决重复注册，修改错误appkey状态的问题
     2: optional i64 sendTime;       // 发送心跳时间，微秒，方便业务剔除历史心跳
     3: optional LoadInfo loadInfo;  // 负载信息
+    4: required i32 status;        // 节点状态
 }
 
 struct RequestInfo {                // 请求信息

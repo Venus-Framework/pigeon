@@ -8,14 +8,11 @@ import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.task.CheckAndSyncServiceDB;
 import com.dianping.pigeon.governor.task.CheckAndSyncServiceNodeDB;
 import com.dianping.pigeon.governor.util.IPUtils;
-import com.dianping.pigeon.governor.util.OpType;
-import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.zookeeper.CuratorClient;
 import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
 import com.dianping.pigeon.registry.zookeeper.Utils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +25,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by chenchongze on 16/1/26.
@@ -52,12 +52,7 @@ public class TestController {
     private CuratorClient client;
 
     public TestController() {
-        for (Registry registry : RegistryManager.getInstance().getRegistryList()) {
-            if(registry instanceof CuratorRegistry) {
-                client = ((CuratorRegistry) registry).getCuratorClient();
-                break;
-            }
-        }
+        client = ((CuratorRegistry) RegistryManager.getInstance().getRegistry()).getCuratorClient();
     }
 
     @RequestMapping(value = "/syncdb2zk", method = {RequestMethod.POST})

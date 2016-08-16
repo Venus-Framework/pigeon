@@ -4,20 +4,13 @@
  */
 package com.dianping.pigeon.demo.typical;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.dianping.dpsf.async.ServiceCallback;
+import com.dianping.dpsf.async.ServiceFuture;
+import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.container.SpringContainer;
-import com.dianping.pigeon.demo.DealBaseDTO;
-import com.dianping.pigeon.demo.DealGroupBaseDTO;
 import com.dianping.pigeon.demo.EchoService;
-import com.dianping.pigeon.demo.EchoService.Gender;
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.util.ContextUtils;
 
 public class Client {
 
@@ -88,7 +81,12 @@ public class Client {
 				// gb.setEndDate(new Date());
 				// gb.setThirdPartVerify(false);
 				//
-				System.out.println(echoService.echoWithException(""));
+//				echoServiceWithFuture.echo("scott");
+//				ServiceFuture future = ServiceFutureFactory.getFuture();
+//				System.out.println(future._get());
+//				echoServiceWithCallback.echo("scott");
+//				Thread.sleep(2);
+				System.out.println(echoService.echo("scott"));
 				// System.out.println(echoService.echo(Gender.FEMALE));
 				// System.out.println(echoService.isMale());
 				// System.out.println(echoService.findUsers(1));
@@ -103,7 +101,7 @@ public class Client {
 				// System.out.println("response:" +
 				// ContextUtils.getResponseContext("key1"));
 			} catch (Exception e) {
-				// e.printStackTrace();
+				e.printStackTrace();
 			}
 		}
 	}

@@ -13,4 +13,6 @@ public interface ProviderChannel {
 	String getRemoteAddress();
 
 	String getProtocol();
+
+	int getPort();
 }

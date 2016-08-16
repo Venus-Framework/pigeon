@@ -46,4 +46,10 @@ public class NettyChannel implements ProviderChannel {
 	public String getProtocol() {
 		return protocol;
 	}
+
+	@Override
+	public int getPort() {
+		InetSocketAddress address = (InetSocketAddress) this.channel.getLocalAddress();
+		return address.getPort();
+	}
 }

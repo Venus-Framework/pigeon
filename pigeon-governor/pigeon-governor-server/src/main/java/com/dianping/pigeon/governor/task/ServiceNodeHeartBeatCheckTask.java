@@ -65,12 +65,7 @@ public class ServiceNodeHeartBeatCheckTask extends Thread {
     private final static long pickOffHeartBeatNodeInternal = 28800000L;
 
     public ServiceNodeHeartBeatCheckTask() {
-        for (Registry registry : RegistryManager.getInstance().getRegistryList()) {
-            if(registry instanceof CuratorRegistry) {
-                client = ((CuratorRegistry) registry).getCuratorClient();
-                break;
-            }
-        }
+        client = ((CuratorRegistry) RegistryManager.getInstance().getRegistry()).getCuratorClient();
     }
 
     public void init() {

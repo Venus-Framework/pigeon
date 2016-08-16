@@ -5,6 +5,7 @@
 package com.dianping.pigeon.remoting.http.provider;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -72,6 +73,11 @@ public class HttpChannel implements ProviderChannel {
 	@Override
 	public String getProtocol() {
 		return protocol;
+	}
+
+	@Override
+	public int getPort() {
+		return request.getLocalPort();
 	}
 
 }

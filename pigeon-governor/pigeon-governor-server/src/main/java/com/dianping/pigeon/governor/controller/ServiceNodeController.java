@@ -18,10 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -163,6 +160,34 @@ public class ServiceNodeController extends BaseController {
         }
 
         return result;
+    }
+
+    /**
+     * 获取服务地址
+     * @author chenchongze
+     * @param service
+     * @param group
+     * @return
+     */
+    @RequestMapping(value = "/service2/get", method = RequestMethod.GET)
+    @ResponseBody
+    public Result get(@RequestParam(value="service") String service,
+                      @RequestParam(value="group", required=false, defaultValue="") String group) {
+        List<ServiceNode> serviceNodeList = serviceNodeService.getServiceNode(service, group);
+
+        if(serviceNodeList.size() == 0) {
+
+            return Result.createErrorResult(String.format("Service %s for group [%s] does not exist", service, group));
+
+        } else {
+            String hosts = "";
+
+            for (ServiceNode serviceNode : serviceNodeList) {
+                hosts += IPUtils.getHost(serviceNode.getIp(), serviceNode.getPort()) + ",";
+            }
+
+            return Result.createSuccessResult(hosts);
+        }
     }
 
     private Set<String> updateDelHosts(Set<String> toDelHosts, String serviceName, String group, String projectName) {

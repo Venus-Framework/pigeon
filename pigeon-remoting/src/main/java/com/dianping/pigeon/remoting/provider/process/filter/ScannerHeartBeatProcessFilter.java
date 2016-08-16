@@ -2,6 +2,7 @@ package com.dianping.pigeon.remoting.provider.process.filter;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.generic.UnifiedResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -23,7 +24,11 @@ public class ScannerHeartBeatProcessFilter implements ServiceInvocationFilter<Pr
             logger.debug("invoke the ScannerHeartbeatProcessFilter, invocationContext:" + invocationContext);
         }
         if (invocationContext.getRequest().getMessageType() == Constants.MESSAGE_TYPE_SCANNER_HEART) {
-            return ProviderUtils.createScannerHeartResponse(invocationContext.getRequest());
+            UnifiedResponse response = (UnifiedResponse) ProviderUtils.createScannerHeartResponse(
+                    invocationContext.getRequest());
+            response.setPort(invocationContext.getChannel().getPort());
+
+            return response;
         }
         return handler.handle(invocationContext);
     }
