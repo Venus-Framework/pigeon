@@ -6,13 +6,13 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
+import com.dianping.pigeon.registry.util.HeartBeatSupport;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.Maps;
 import com.sankuai.inf.octo.mns.MnsInvoker;
 import com.sankuai.inf.octo.mns.sentinel.CustomizedManager;
-import com.sankuai.sgagent.thrift.model.HeartbeatSupportType;
 import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import com.sankuai.sgagent.thrift.model.ServiceDetail;
@@ -437,7 +437,7 @@ public class MnsRegistry implements Registry {
     @Override
     public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
 
-        return (byte) HeartbeatSupportType.BothSupport.getValue();
+        return HeartBeatSupport.BOTH.getValue();
     }
 
     @Override

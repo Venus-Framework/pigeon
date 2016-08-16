@@ -212,7 +212,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
         try {
             heartBeatSupport = RegistryManager.getInstance().getServerHeartBeatSupport(address);
         } catch (RegistryException e) {
-            e.printStackTrace();
+            //
         }
 
         switch (HeartBeatSupport.findByValue(heartBeatSupport)) {
