@@ -436,6 +436,17 @@ public class MnsRegistry implements Registry {
 
     @Override
     public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
+        try {
+            String remoteAppkey = hostRemoteAppkeyMapping.get(serviceAddress);
+
+            if (StringUtils.isNotBlank(remoteAppkey)) {
+                SGService sgService = getSGService(remoteAppkey, null, serviceAddress);
+                return sgService.getHeartbeatSupport();
+            }
+
+        } catch (Throwable e) {
+            logger.error("failed to get server heartbeat support for " + serviceAddress);
+        }
 
         return HeartBeatSupport.BOTH.getValue();
     }

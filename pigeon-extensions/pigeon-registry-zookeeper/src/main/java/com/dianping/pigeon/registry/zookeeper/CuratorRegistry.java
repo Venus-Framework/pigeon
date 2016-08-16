@@ -375,8 +375,11 @@ public class CuratorRegistry implements Registry {
 
 	@Override
 	public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
-
-		return HeartBeatSupport.BOTH.getValue();
+		if (isSupportNewProtocol(serviceAddress)) {
+			return HeartBeatSupport.BOTH.getValue();
+		} else {
+			return HeartBeatSupport.CLIENTTOSERVER.getValue();
+		}
 	}
 
 	@Override
