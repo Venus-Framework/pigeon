@@ -434,6 +434,11 @@ public class MnsRegistry implements Registry {
     }
 
     @Override
+    public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
+        return 0;
+    }
+
+    @Override
     public List<String> getChildren(String key) throws RegistryException {
         throw new RegistryException("unsupported interface in registry: " + getName());
     }

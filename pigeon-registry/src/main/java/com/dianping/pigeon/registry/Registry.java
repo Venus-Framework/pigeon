@@ -48,6 +48,8 @@ public interface Registry {
 
 	String getStatistics();
 
+	byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException;
+
 	boolean isSupportNewProtocol(String serviceAddress) throws RegistryException;
 
 	boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException;

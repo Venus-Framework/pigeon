@@ -323,6 +323,11 @@ public class CompositeRegistry implements Registry {
     }
 
     @Override
+    public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
+        return 0;
+    }
+
+    @Override
     public boolean isSupportNewProtocol(String serviceAddress) throws RegistryException {
         return false;
     }

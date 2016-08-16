@@ -373,6 +373,11 @@ public class CuratorRegistry implements Registry {
 	}
 
 	@Override
+	public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
+		return 0;
+	}
+
+	@Override
 	public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
 		String servicePath = Utils.getServicePath(serviceName, group);
 
