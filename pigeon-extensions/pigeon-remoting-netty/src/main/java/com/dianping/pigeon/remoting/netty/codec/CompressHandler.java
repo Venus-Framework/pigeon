@@ -136,6 +136,7 @@ public class CompressHandler extends SimpleChannelHandler {
             switch (compressType) {
                 case None:
                     command = command | 0x00;
+                    break;
                 case Snappy:
                     command = command | 0x20;
                     result = doCompress0(channel, frame, frameLength, snappyCompress);
