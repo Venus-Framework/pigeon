@@ -151,6 +151,7 @@ public class MnsRegistry implements Registry {
         sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
         sgService.setFweight(MnsUtils.getMtthriftFWeight(weight));
         sgService.setStatus(MnsUtils.getMtthriftStatus(weight));
+        sgService.setHeartbeatSupport(HeartBeatSupport.BOTH.getValue());
 
         sgService.setProtocol("thrift");
         sgService.setLastUpdateTime((int) (System.currentTimeMillis() / 1000));
