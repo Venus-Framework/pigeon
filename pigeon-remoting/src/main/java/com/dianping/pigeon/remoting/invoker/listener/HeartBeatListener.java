@@ -14,11 +14,11 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.registry.util.HeartBeatSupport;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
-import com.dianping.pigeon.remoting.common.exception.ServiceStatusException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
@@ -64,7 +64,6 @@ public class HeartBeatListener implements Runnable, ClusterListener {
     private static int heartBeatTimeout = configManager.getIntValue(Constants.KEY_HEARTBEAT_TIMEOUT,
             Constants.DEFAULT_HEARTBEAT_TIMEOUT);
     private static float pickoffRatio = configManager.getFloatValue("pigeon.heartbeat.pickoffratio", 0.5f);
-    private static boolean logPickOff = configManager.getBooleanValue("pigeon.heartbeat.logpickoff", true);
     private static final Monitor monitor = MonitorLoader.getMonitor();
 
     private static volatile Set<String> inactiveAddresses = new HashSet<String>();
@@ -79,12 +78,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
         @Override
         public void onKeyUpdated(String key, String value) {
-            if (key.endsWith("pigeon.heartbeat.logpickoff")) {
-                try {
-                    logPickOff = Boolean.valueOf(value);
-                } catch (RuntimeException e) {
-                }
-            } else if (key.endsWith("pigeon.heartbeat.pickoffratio")) {
+            if (key.endsWith("pigeon.heartbeat.pickoffratio")) {
                 try {
                     pickoffRatio = Float.valueOf(value);
                 } catch (RuntimeException e) {
@@ -155,7 +149,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
                         if (logger.isDebugEnabled()) {
                             logger.debug("[heartbeat] checking service provider:" + client);
                         }
-                        if (client != null) {
+                        if(client != null) {
                             boolean enable = Constants.PROTOCOL_DEFAULT.equals(client.getProtocol())
                                     && (RegistryManager.getInstance().getServiceWeight(client.getAddress()) > 0);
                             if (enable) {
@@ -185,6 +179,11 @@ public class HeartBeatListener implements Runnable, ClusterListener {
     }
 
     private void sendHeartBeatRequest(Client client) {
+        if (!checkIfNeedSend(client.getAddress())) {
+            // not support p2p heartbeat
+            return ;
+        }
+
         HeartBeatStat heartBeatStat = getHeartBeatStatWithCreate(client.getAddress());
         InvocationRequest heartRequest = createHeartRequest0(client);
         try {
@@ -204,6 +203,31 @@ public class HeartBeatListener implements Runnable, ClusterListener {
                 logger.info("[heartbeat] send heartbeat to server[" + client.getAddress() + "] failed");
             }
         }
+    }
+
+    private boolean checkIfNeedSend(String address) {
+        boolean support = false;
+        byte heartBeatSupport = HeartBeatSupport.UNSUPPORT.getValue();
+
+        try {
+            heartBeatSupport = RegistryManager.getInstance().getServerHeartBeatSupport(address);
+        } catch (RegistryException e) {
+            //
+        }
+
+        switch (HeartBeatSupport.findByValue(heartBeatSupport)) {
+            case CLIENTTOSERVER:
+            case BOTH:
+                support = true;
+                break;
+            case UNSUPPORT:
+            case SCANNER:
+            default:
+                support = false;
+                break;
+        }
+
+        return support;
     }
 
     private boolean isSupportNewProtocol(Client client) {
@@ -291,6 +315,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
                     inactiveAddresses.remove(client.getAddress());
                     logger.info("@service-activate:" + client + ", service:" + getServiceName(client)
                             + ", inactive addresses:" + inactiveAddresses);
+                    monitor.logEvent("PigeonCall.heartbeat", "Activate", client.getAddress());
                 }
                 heartStat.resetCounter();
             } else if (heartStat.failedCounter.longValue() >= heartBeatDeadCount) {
@@ -299,13 +324,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
                         client.setActive(false);
                         inactiveAddresses.add(client.getAddress());
                         logger.info("@service-deactivate:" + client + ", inactive addresses:" + inactiveAddresses);
-
-                        if (logPickOff) {
-                            ServiceStatusException ex = new ServiceStatusException("remote server " + client
-                                    + " unavailable");
-                            ex.setStackTrace(new StackTraceElement[]{});
-                            monitor.logError(ex);
-                        }
+                        monitor.logEvent("PigeonCall.heartbeat", "Deactivate", client.getAddress());
                     } else {
                         logger.info("@service-dieaway:" + client + ", inactive addresses:" + inactiveAddresses);
                     }
@@ -318,7 +337,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
     }
 
     private String getServiceName(Client client) {
-        for (Iterator<Entry<String, List<Client>>> iter = getWorkingClients().entrySet().iterator(); iter.hasNext(); ) {
+        for (Iterator<Entry<String, List<Client>>> iter = getWorkingClients().entrySet().iterator(); iter.hasNext();) {
             Entry<String, List<Client>> entry = iter.next();
             if (entry.getValue() != null && entry.getValue().contains(client)) {
                 return entry.getKey();

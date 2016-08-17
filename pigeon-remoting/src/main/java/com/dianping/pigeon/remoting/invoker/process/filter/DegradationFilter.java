@@ -5,40 +5,44 @@
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
-import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager.Quality;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
+import com.dianping.dpsf.async.ServiceCallback;
+import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.MonitorLoader;
+import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
-import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.RejectedException;
+import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
+import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.callback.ServiceFutureImpl;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
+import com.dianping.pigeon.remoting.invoker.config.InvokerMethodConfig;
+import com.dianping.pigeon.remoting.invoker.domain.DefaultInvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
 import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceDegradedException;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
+import com.dianping.pigeon.remoting.invoker.process.DegradationManager;
+import com.dianping.pigeon.remoting.invoker.process.DegradationManager.DegradeActionConfig;
+import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
-import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 
 /**
  * @author xiangwu
@@ -47,29 +51,14 @@ import com.dianping.pigeon.threadpool.DefaultThreadFactory;
 public class DegradationFilter extends InvocationInvokeFilter {
 
 	private static final Logger logger = LoggerLoader.getLogger(DegradationFilter.class);
-	private static volatile Map<String, DegradeAction> degradeMethodActions = new ConcurrentHashMap<String, DegradeAction>();
-	private static final String KEY_DEGRADE_FORCE = "pigeon.invoker.degrade.force";
-	private static final String KEY_DEGRADE_AUTO = "pigeon.invoker.degrade.auto";
+	private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 	private static final String KEY_DEGRADE_METHODS = "pigeon.invoker.degrade.methods";
 	private static final String KEY_DEGRADE_METHOD = "pigeon.invoker.degrade.method.return.";
+	private static final InvocationResponse NO_RETURN_RESPONSE = InvokerUtils.createNoReturnResponse();
+	private static volatile Map<String, DegradeAction> degradeMethodActions = new ConcurrentHashMap<String, DegradeAction>();
 	private static final JacksonSerializer jacksonSerializer = new JacksonSerializer();
-	private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
-	private static ConcurrentHashMap<String, ConcurrentHashMap<Integer, Count>> requestSecondCountMap = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, Count>>();
-	private static volatile Map<String, Count> requestCountMap = null;
-	private static final String KEY_DEGRADE_RECOVER_PERCENT = "pigeon.invoker.degrade.recover.percent";
-	private static final String KEY_DEGRADE_RECOVER_INTERVAL = "pigeon.invoker.degrade.recover.interval";
-	private static final String KEY_DEGRADE_THRESHOLD_INVOKE = "pigeon.invoker.degrade.threshold.invoke";
-	private static final String KEY_DEGRADE_THRESHOLD_TOTAL = "pigeon.invoker.degrade.threshold.total";
-	private static final String KEY_DEGRADE_PERCENT_MAX = "pigeon.invoker.degrade.percent.max";
-	private static final String KEY_DEGRADE_CHECK_SECONDS = "pigeon.invoker.degrade.check.seconds";
-	private static final String KEY_DEGRADE_CHECK_INTERVAL = "pigeon.invoker.degrade.check.interval";
-	private static final ExecutorService checkThreadPool = Executors.newFixedThreadPool(1, new DefaultThreadFactory(
-			"Pigeon-Client-Degrade-Checker"));
-	private static final Random random = new Random();
 
 	static {
-		configManager.getBooleanValue(KEY_DEGRADE_FORCE, false);
-		configManager.getBooleanValue(KEY_DEGRADE_AUTO, false);
 		String degradeMethodsConfig = configManager.getStringValue(KEY_DEGRADE_METHODS);
 		try {
 			parseDegradeMethodsConfig(degradeMethodsConfig);
@@ -79,14 +68,6 @@ public class DegradationFilter extends InvocationInvokeFilter {
 					t);
 		}
 		configManager.registerConfigChangeListener(new InnerConfigChangeListener());
-		configManager.getIntValue(KEY_DEGRADE_THRESHOLD_TOTAL, 100);
-		configManager.getIntValue(KEY_DEGRADE_THRESHOLD_INVOKE, 2);
-		configManager.getFloatValue(KEY_DEGRADE_RECOVER_PERCENT, 1);
-		configManager.getIntValue(KEY_DEGRADE_RECOVER_INTERVAL, 10);
-		configManager.getFloatValue(KEY_DEGRADE_PERCENT_MAX, 99.90f);
-		configManager.getIntValue(KEY_DEGRADE_CHECK_SECONDS, 10);
-		configManager.getIntValue(KEY_DEGRADE_CHECK_INTERVAL, 2);
-		checkThreadPool.execute(new Checker());
 	}
 
 	private static class InnerConfigChangeListener implements ConfigChangeListener {
@@ -176,20 +157,62 @@ public class DegradationFilter extends InvocationInvokeFilter {
 		}
 	}
 
+	protected InvocationResponse makeDefaultResponse(InvokerContext context, Object defaultResult) {
+		InvokerConfig<?> invokerConfig = context.getInvokerConfig();
+		String callType = invokerConfig.getCallType();
+		InvocationResponse response = null;
+		int timeout = invokerConfig.getTimeout();
+		Map<String, InvokerMethodConfig> methods = invokerConfig.getMethods();
+		if (!CollectionUtils.isEmpty(methods)) {
+			InvokerMethodConfig methodConfig = methods.get(context.getMethodName());
+			if (methodConfig != null && methodConfig.getTimeout() > 0) {
+				timeout = methodConfig.getTimeout();
+			}
+		}
+		Integer timeoutThreadLocal = InvokerHelper.getTimeout();
+		if (timeoutThreadLocal != null) {
+			timeout = timeoutThreadLocal;
+		}
+		MonitorTransaction transaction = MonitorLoader.getMonitor().getCurrentCallTransaction();
+		if (transaction != null) {
+			transaction.addData("CurrentTimeout", timeout);
+		}
+		if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
+			response = InvokerUtils.createDefaultResponse(defaultResult);
+		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
+			ServiceCallback callback = invokerConfig.getCallback();
+			ServiceCallback tlCallback = InvokerHelper.getCallback();
+			if (tlCallback != null) {
+				callback = tlCallback;
+				InvokerHelper.clearCallback();
+			}
+			callback.callback(defaultResult);
+			response = NO_RETURN_RESPONSE;
+		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
+			ServiceFutureImpl future = new ServiceFutureImpl(context, timeout);
+			ServiceFutureFactory.setFuture(future);
+			response = InvokerUtils.createFutureResponse(future);
+			future.callback(InvokerUtils.createDefaultResponse(defaultResult));
+			future.run();
+		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callType)) {
+			response = NO_RETURN_RESPONSE;
+		}
+		((DefaultInvokerContext) context).setResponse(response);
+		return response;
+	}
+
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext context) throws Throwable {
 		context.getTimeline().add(new TimePoint(TimePhase.D));
-		boolean isDegrade = configManager.getBooleanValue(KEY_DEGRADE_AUTO, false) && needDegrade(context)
-				|| configManager.getBooleanValue(KEY_DEGRADE_FORCE, false);
-		if (isDegrade) {
-			String key = getRequestUrl(context);
+		if (DegradationManager.INSTANCE.needDegrade(context)) {
+			String key = DegradationManager.INSTANCE.getRequestUrl(context);
 			if (degradeMethodActions.containsKey(key)) {
 				Object defaultResult = InvokerHelper.getDefaultResult();
 				if (defaultResult != null) {
 					try {
-						return InvokerUtils.createDefaultResponse(defaultResult);
+						return makeDefaultResponse(context, defaultResult);
 					} finally {
-						addRequest(context, false, true);
+						DegradationManager.INSTANCE.addDegradedRequest(context);
 					}
 				} else {
 					DegradeAction action = degradeMethodActions.get(key);
@@ -202,9 +225,9 @@ public class DegradationFilter extends InvocationInvokeFilter {
 									throw (Exception) action.getReturnObj();
 								}
 							}
-							return InvokerUtils.createDefaultResponse(action.getReturnObj());
+							return makeDefaultResponse(context, action.getReturnObj());
 						} finally {
-							addRequest(context, false, true);
+							DegradationManager.INSTANCE.addDegradedRequest(context);
 						}
 					}
 				}
@@ -213,88 +236,34 @@ public class DegradationFilter extends InvocationInvokeFilter {
 
 		boolean failed = false;
 		InvocationResponse response;
-
 		try {
 			response = handler.handle(context);
-			return response;
-		} catch (ServiceUnavailableException e) {
-			failed = true;
-			throw e;
-		} catch (NetTimeoutException e) {
-			failed = true;
-			throw e;
-		} catch (RequestTimeoutException e) {
-			failed = true;
-			throw e;
-		} catch (RemoteInvocationException e) {
-			failed = true;
-			throw e;
-		} catch (RejectedException e) {
-			failed = true;
-			throw e;
-		} finally {
-			addRequest(context, failed, false);
-			RequestQualityManager.INSTANCE.addClientRequest(context, failed);
-		}
-	}
-
-	private String getRequestUrl(InvokerContext context) {
-		return context.getInvokerConfig().getUrl() + "#" + context.getMethodName();
-	}
-
-	private boolean needDegrade(InvokerContext context) {
-		if (!CollectionUtils.isEmpty(requestCountMap)) {
-			String requestUrl = getRequestUrl(context);
-			Count count = requestCountMap.get(requestUrl);
-			if (count != null) {
-				if (count.getTotalValue() > configManager.getIntValue(KEY_DEGRADE_THRESHOLD_TOTAL, 100)) {
-					if ((count.getTotalValue() - count.getDegradedValue()) > configManager.getIntValue(
-							KEY_DEGRADE_THRESHOLD_INVOKE, 2)
-							&& count.getFailedPercent() < configManager.getFloatValue(KEY_DEGRADE_RECOVER_PERCENT, 1)) {
-						return random(count.getDegradedPercent()
-								- configManager.getIntValue(KEY_DEGRADE_RECOVER_INTERVAL, 10));
-					} else {
-						return random(configManager.getFloatValue(KEY_DEGRADE_PERCENT_MAX, 99.90f));
+			Object responseReturn = response.getReturn();
+			if (responseReturn != null) {
+				int messageType = response.getMessageType();
+				if (messageType == Constants.MESSAGE_TYPE_EXCEPTION) {
+					RpcException rpcException = InvokerUtils.toRpcException(response);
+					if (rpcException instanceof RemoteInvocationException || rpcException instanceof RejectedException) {
+						failed = true;
+						DegradationManager.INSTANCE.addFailedRequest(context, rpcException);
 					}
 				}
 			}
-		}
-		return false;
-	}
-
-	private boolean random(float percent) {
-		return random.nextInt(10000) < percent * 100;
-	}
-
-	private void addRequest(InvokerContext context, boolean failed, boolean degraded) {
-		if (configManager.getBooleanValue(KEY_DEGRADE_AUTO, false)
-				|| configManager.getBooleanValue(KEY_DEGRADE_FORCE, false)) {
-			int currentSecond = Calendar.getInstance().get(Calendar.SECOND);
-			String requestUrl = getRequestUrl(context);
-			ConcurrentHashMap<Integer, Count> secondCount = requestSecondCountMap.get(requestUrl);
-			if (secondCount == null) {
-				secondCount = new ConcurrentHashMap<Integer, Count>();
-				ConcurrentHashMap<Integer, Count> last = requestSecondCountMap.putIfAbsent(requestUrl, secondCount);
-				if (last != null) {
-					secondCount = last;
-				}
-			}
-			Count count = secondCount.get(currentSecond);
-			if (count == null) {
-				count = new Count(0, 0, 0);
-				Count last = secondCount.putIfAbsent(currentSecond, count);
-				if (last != null) {
-					count = last;
-				}
-			}
-			count.total.incrementAndGet();
-			if (failed) {
-				count.failed.incrementAndGet();
-			}
-			if (degraded) {
-				count.degraded.incrementAndGet();
-				context.setDegraded();
-			}
+			return response;
+		} catch (ServiceUnavailableException e) {
+			failed = true;
+			DegradationManager.INSTANCE.addFailedRequest(context, e);
+			throw e;
+		} catch (NetTimeoutException e) {
+			failed = true;
+			DegradationManager.INSTANCE.addFailedRequest(context, e);
+			throw e;
+		} catch (RequestTimeoutException e) {
+			failed = true;
+			DegradationManager.INSTANCE.addFailedRequest(context, e);
+			throw e;
+		} finally {
+			RequestQualityManager.INSTANCE.addClientRequest(context, failed);
 		}
 	}
 
@@ -316,245 +285,6 @@ public class DegradationFilter extends InvocationInvokeFilter {
 
 		public void setReturnObj(Object returnObj) {
 			this.returnObj = returnObj;
-		}
-
-	}
-
-	public static class DegradeActionConfig implements Serializable {
-
-		private static final long serialVersionUID = 1L;
-
-		private String returnClass;
-		private String componentClass;
-		private String keyClass;
-		private String valueClass;
-		private String content;
-		private boolean throwException = false;
-
-		public boolean getThrowException() {
-			return throwException;
-		}
-
-		public void setThrowException(boolean throwException) {
-			this.throwException = throwException;
-		}
-
-		public DegradeActionConfig() {
-		}
-
-		public String getReturnClass() {
-			return returnClass;
-		}
-
-		public void setReturnClass(String returnClass) {
-			this.returnClass = returnClass;
-		}
-
-		public String getComponentClass() {
-			return componentClass;
-		}
-
-		public void setComponentClass(String componentClass) {
-			this.componentClass = componentClass;
-		}
-
-		public String getKeyClass() {
-			return keyClass;
-		}
-
-		public void setKeyClass(String keyClass) {
-			this.keyClass = keyClass;
-		}
-
-		public String getValueClass() {
-			return valueClass;
-		}
-
-		public void setValueClass(String valueClass) {
-			this.valueClass = valueClass;
-		}
-
-		public String getContent() {
-			return content;
-		}
-
-		public void setContent(String content) {
-			this.content = content;
-		}
-
-	}
-
-	private static class Count {
-		private AtomicInteger failed = new AtomicInteger();
-		private AtomicInteger total = new AtomicInteger();
-		private AtomicInteger degraded = new AtomicInteger();
-
-		public Count() {
-		}
-
-		public Count(int total, int failed, int degraded) {
-			this.total.set(total);
-			this.failed.set(failed);
-			this.degraded.set(degraded);
-		}
-
-		public AtomicInteger getFailed() {
-			return failed;
-		}
-
-		public int getFailedValue() {
-			return failed.get();
-		}
-
-		public void setFailed(int failed) {
-			this.failed.set(failed);
-		}
-
-		public AtomicInteger getDegraded() {
-			return degraded;
-		}
-
-		public int getDegradedValue() {
-			return degraded.get();
-		}
-
-		public void setDegraded(int degraded) {
-			this.degraded.set(degraded);
-		}
-
-		public AtomicInteger getTotal() {
-			return total;
-		}
-
-		public int getTotalValue() {
-			return total.get();
-		}
-
-		public void setTotal(int total) {
-			this.total.set(total);
-		}
-
-		public Count merge(Count count) {
-			Count n = new Count();
-			n.total.set(this.total.get() + count.total.get());
-			n.failed.set(this.failed.get() + count.failed.get());
-			n.degraded.set(this.degraded.get() + count.degraded.get());
-			return n;
-		}
-
-		public float getFailedPercent() {
-			if (total.get() > 0) {
-				return failed.get() * 100 / (total.get() - degraded.get());
-			} else {
-				return 0;
-			}
-		}
-
-		public float getDegradedPercent() {
-			if (total.get() > 0) {
-				return degraded.get() * 100 / total.get();
-			} else {
-				return 0;
-			}
-		}
-
-		public void clear() {
-			total.set(0);
-			failed.set(0);
-			degraded.set(0);
-		}
-	}
-
-	static class Checker implements Runnable {
-
-		@Override
-		public void run() {
-			while (true) {
-				try {
-					Thread.sleep(1000 * configManager.getIntValue(KEY_DEGRADE_CHECK_INTERVAL, 2));
-					checkRequestSecondCount();
-				} catch (Exception e) {
-					logger.error("", e);
-				}
-			}
-		}
-
-		private void checkRequestSecondCount() {
-			Map<String, Count> countMap = new ConcurrentHashMap<String, Count>();
-			final int recentSeconds = configManager.getIntValue(KEY_DEGRADE_CHECK_SECONDS, 10);
-			final int currentSecond = Calendar.getInstance().get(Calendar.SECOND);
-
-			for (String url : requestSecondCountMap.keySet()) {
-				Map<Integer, Count> secondCount = requestSecondCountMap.get(url);
-				int total = 0, failed = 0, degraded = 0;
-				for (int i = 1; i <= recentSeconds; i++) {
-					int prevSec = currentSecond - i;
-					prevSec = prevSec >= 0 ? prevSec : prevSec + 60;
-					Count ct = secondCount.get(prevSec);
-					if (ct != null) {
-						total += ct.getTotalValue();
-						failed += ct.getFailedValue();
-						degraded += ct.getDegradedValue();
-					}
-				}
-				countMap.put(url, new Count(total, failed, degraded));
-				// clear previous seconds
-				for (int i = recentSeconds + 1; i <= recentSeconds + 20; i++) {
-					int prevSec = currentSecond - i;
-					prevSec = prevSec >= 0 ? prevSec : prevSec + 60;
-					Count ct = secondCount.get(prevSec);
-					if (ct != null) {
-						ct.clear();
-					}
-				}
-			}
-
-			requestCountMap = countMap;
-
-			// 复用降级统计和清空的线程，用于服务质量统计和清空（窗口默认为10秒）
-			ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Integer, Quality>>>
-					addrReqUrlSecondQualities = RequestQualityManager.INSTANCE.getAddrReqUrlSecondQualities();
-			ConcurrentHashMap<String, ConcurrentHashMap<String, Quality>>
-					addrReqUrlQualities = new ConcurrentHashMap<String, ConcurrentHashMap<String, Quality>>();
-
-			for(String address : addrReqUrlSecondQualities.keySet()) {
-				ConcurrentHashMap<String, ConcurrentHashMap<Integer, Quality>>
-						reqUrlSecondQualities = addrReqUrlSecondQualities.get(address);
-
-				ConcurrentHashMap<String, Quality> reqUrlQualities = new ConcurrentHashMap<String, Quality>();
-				for(String requestUrl : reqUrlSecondQualities.keySet()) {
-					ConcurrentHashMap<Integer, Quality>
-							secondQualities = reqUrlSecondQualities.get(requestUrl);
-					int total = 0, failed = 0;
-					for (int i = 1; i <= recentSeconds; i++) {
-						int prevSec = currentSecond - i;
-						prevSec = prevSec >= 0 ? prevSec : prevSec + 60;
-						Quality quality = secondQualities.get(prevSec);
-
-						if(quality != null) {
-							total += quality.getTotalValue();
-							failed += quality.getFailedValue();
-						}
-					}
-
-					reqUrlQualities.put(requestUrl, new Quality(total, failed));
-
-					// clear previous seconds
-					for (int i = recentSeconds + 1; i <= recentSeconds + 20; i++) {
-						int prevSec = currentSecond - i;
-						prevSec = prevSec >= 0 ? prevSec : prevSec + 60;
-						Quality quality = secondQualities.get(prevSec);
-
-						if(quality != null) {
-							quality.clear();
-						}
-					}
-				}
-
-				addrReqUrlQualities.put(address, reqUrlQualities);
-			}
-
-			RequestQualityManager.INSTANCE.setAddrReqUrlQualities(addrReqUrlQualities);
 		}
 
 	}

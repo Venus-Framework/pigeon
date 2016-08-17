@@ -46,12 +46,6 @@ public class ProjectController extends BaseController {
 	@Autowired
 	private ProjectService projectService;
 	@Autowired
-	private UserService userService;
-	@Autowired
-	private ProjectOwnerService projectOwnerService;
-	@Autowired
-	private ServiceService serviceService;
-	@Autowired
 	private ServiceNodeService serviceNodeService;
 
 	/**
@@ -67,11 +61,9 @@ public class ProjectController extends BaseController {
 								   HttpServletResponse response) {
 		commonnav(modelMap, request);
 		List<Project> projects = projectService.retrieveAllIdNamesByCache();
-		//List<Service> services = serviceService.retrieveAllIdNamesByCache();
 		List<ServiceNode> serviceNodes = serviceNodeService.retrieveAllIdNamesByCache();
 
 		modelMap.addAttribute("projects", gson.toJson(projects));
-		//modelMap.addAttribute("services", gson.toJson(services));
 		modelMap.addAttribute("serviceNodes", gson.toJson(serviceNodes));
 
 		return "/index";
@@ -218,24 +210,6 @@ public class ProjectController extends BaseController {
 		
 		return jqGridTableBean;
 		
-	}
-
-	@RequestMapping(value = {"/projects.search"}, method = RequestMethod.POST)
-	@ResponseBody
-	public Result allinonejson(@RequestParam(value="service", required = true) String serviceName,
-							   HttpServletRequest request,
-							   HttpServletResponse response) {
-		Service service = serviceService.getService(serviceName, "");
-		if(service != null) {
-			Project project = projectService.retrieveProjectById(service.getProjectid());
-			if(project != null) {
-				return Result.createSuccessResult(project);
-			} else {
-				return Result.createErrorResult("project not found of " + serviceName);
-			}
-		} else {
-			return Result.createErrorResult("service not found: " + serviceName);
-		}
 	}
 
 	@RequestMapping(value = {"/projects.find"}, method = RequestMethod.POST)

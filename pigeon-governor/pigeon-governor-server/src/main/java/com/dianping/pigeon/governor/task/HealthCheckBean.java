@@ -6,6 +6,7 @@ import com.dianping.pigeon.governor.util.IPUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@Deprecated
 public class HealthCheckBean {
 
 	private Logger logger = LogManager.getLogger(HealthCheckBean.class);

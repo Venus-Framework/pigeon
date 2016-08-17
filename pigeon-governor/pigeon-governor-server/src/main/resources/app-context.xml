@@ -51,38 +51,11 @@
 		</property>
 	</bean>
 
-	<!--<bean id="zebraDataSource" class="com.dianping.zebra.group.jdbc.GroupDataSource" init-method="init">
-		&lt;!&ndash; 唯一确定数据库的key，请咨询DBA使用哪个key &ndash;&gt;
-		<property name="jdbcRef" value="pigeongovernor" />
-		&lt;!&ndash; 只走写库 &ndash;&gt;
-		&lt;!&ndash;<property name="routerType" value="fail-over" />&ndash;&gt;
-		&lt;!&ndash; 选择使用背后使用哪种数据源，"c3p0"或者"tomcat-jdbc"，可以不配，默认值为"c3p0" &ndash;&gt;
-		<property name="poolType" value="c3p0" />
-		&lt;!&ndash; 该值对应tomcat-jdbc的"minIdle" &ndash;&gt;
-		<property name="minPoolSize" value="${pigeon-governor-server.zebra.minPoolSize}" />
-		&lt;!&ndash; 该值对应tomcat-jdbc的"maxActive" &ndash;&gt;
-		<property name="maxPoolSize" value="${pigeon-governor-server.zebra.maxPoolSize}" />
-		&lt;!&ndash; 该值对应tomcat-jdbc的"initialSize" &ndash;&gt;
-		<property name="initialPoolSize" value="${pigeon-governor-server.zebra.initialPoolSize}" />
-		&lt;!&ndash; 该值对应tomcat-jdbc的"maxWait" &ndash;&gt;
-		<property name="checkoutTimeout" value="1000" />
-		<property name="maxIdleTime" value="1800" />
-		<property name="idleConnectionTestPeriod" value="60" />
-		<property name="acquireRetryAttempts" value="3" />
-		<property name="acquireRetryDelay" value="300" />
-		<property name="maxStatements" value="0" />
-		<property name="maxStatementsPerConnection" value="100" />
-		<property name="numHelperThreads" value="6" />
-		<property name="maxAdministrativeTaskTime" value="5" />
-		<property name="preferredTestQuery" value="SELECT 1" />
-	</bean>-->
-
 	<!-- MyBatis Mappers -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="com.dianping.pigeon.governor.dao,com.dianping.pigeon.governor.message.depenedencies.dao" />
 	</bean>
 
-    
     <!-- SessionFactory -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="tomcatDataSource" />
@@ -100,32 +73,20 @@
 	<!-- enable autowire -->
 	<context:annotation-config />
 
+	<pigeon:annotation />
+	<pigeon:reference id="masterDataEmployeeService"  timeout="5000"
+					  url="http://service.dianping.com/ba/hris/masterdata/EmployeeService_1.0.0"
+					  interface="com.dianping.ba.hris.md.api.service.EmployeeService" />
+
 	<!-- enable component scanning (beware that this does not enable mapper 
 		scanning!) -->
 	<context:component-scan base-package="com.dianping.pigeon.governor.service,com.dianping.pigeon.governor.message,com.dianping.pigeon.governor.monitor" />
 
-	<bean id="healthCheck" class="com.dianping.pigeon.governor.task.HealthCheckBean"
-		lazy-init="false" init-method="init">
-	</bean>
 	<!--TODO need to re-construct configure-->
-
-
-
-	<bean id="heartBeatCheckTask"
-		  class="com.dianping.pigeon.governor.task.HeartBeatCheckTask"
-		  init-method="init" />
 
 	<bean id="serviceNodeHeartBeatCheckTask"
 		  class="com.dianping.pigeon.governor.task.ServiceNodeHeartBeatCheckTask"
 		  init-method="init" />
-
-	
-	<!--<task:scheduled-tasks>
-		<task:scheduled ref="checkAndSyncServiceDB" method="schedule" cron="0 0 0/8 * * ?"/>
-	</task:scheduled-tasks>-->
-	<bean id="checkAndSyncServiceDB"
-		  class="com.dianping.pigeon.governor.task.CheckAndSyncServiceDB" />
-
 
 	<task:scheduled-tasks>
 		<task:scheduled ref="checkAndSyncServiceNodeDB" method="schedule" cron="0 30 2 * * ? "/>
@@ -149,16 +110,6 @@
 	<!--<task:scheduled-tasks>-->
 		<!--<task:scheduled ref="flowMonitorTask" method="start" cron=""/>-->
 	<!--</task:scheduled-tasks>-->
-	<pigeon:annotation />
-
-	<pigeon:reference id="masterDataEmployeeService"  timeout="5000"
-					  url="http://service.dianping.com/ba/hris/masterdata/EmployeeService_1.0.0"
-					  interface="com.dianping.ba.hris.md.api.service.EmployeeService" />
-
-	<!-- 临时 -->
-	<!--<bean id="hostDbProcess" class="com.dianping.pigeon.governor.lion.registry.HostDbProcess" />-->
-
-	<bean id="dailyTaskBean" class="com.dianping.pigeon.governor.task.DailyTaskBean" />
 
 	<!-- core bean -->
 	<bean id="taskExecutor"  class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">

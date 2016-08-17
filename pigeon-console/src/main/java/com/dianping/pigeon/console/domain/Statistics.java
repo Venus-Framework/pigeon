@@ -3,6 +3,7 @@ package com.dianping.pigeon.console.domain;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager.WeightFactor;
 
 public class Statistics {
@@ -13,9 +14,11 @@ public class Statistics {
 
 	public Map<String, String> appRequestsOfInvoker = new HashMap<String, String>();
 
-	Map<String, String> serverProcessorStatistics = new HashMap<String, String>();
+	private Map<String, String> serverProcessorStatistics = new HashMap<String, String>();
 
-	Map<String, WeightFactor> weightFactors = new HashMap<String, WeightFactor>();
+	private Map<String, WeightFactor> weightFactors = new HashMap<String, WeightFactor>();
+
+	private Map<String, InvokerConfig> invokerConfigs = new HashMap<String, InvokerConfig>();
 
 	public Map<String, String> others = new HashMap<String, String>();
 
@@ -65,6 +68,14 @@ public class Statistics {
 
 	public void setAppRequestsOfInvoker(Map<String, String> appRequestsOfInvoker) {
 		this.appRequestsOfInvoker = appRequestsOfInvoker;
+	}
+
+	public Map<String, InvokerConfig> getInvokerConfigs() {
+		return invokerConfigs;
+	}
+
+	public void setInvokerConfigs(Map<String, InvokerConfig> invokerConfigs) {
+		this.invokerConfigs = invokerConfigs;
 	}
 
 }

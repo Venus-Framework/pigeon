@@ -61,53 +61,6 @@ public class ServiceApiController extends BaseController {
 	public static final String SUCCESS_CODE = "0|";		//正确返回码
 	public static final String ERROR_CODE = "1|";		//错误返回码
 	
-	/**
-	 * 获取服务列表
-	 * @author chenchongze
-	 * @param project
-	 * @return
-	 */
-	@RequestMapping(value = "/service2/list", method = RequestMethod.GET)
-    @ResponseBody
-    public Result list(@RequestParam(value="project") String project) {
-        if(project==null) {
-            return Result.createErrorResult("Project is null");
-        }
-        
-        Project prj = projectService.findProject(project);
-        if(prj == null) {
-            return Result.createErrorResult(String.format("Project %s does not exist", project));
-        }
-        
-        List<Service> serviceList = serviceService.getServiceList(prj.getId());
-        List<String> srvNameList = new ArrayList<String>();
-        for(Service service : serviceList) {
-            srvNameList.add(service.getName());
-        }
-        
-        return Result.createSuccessResult(srvNameList);
-    }
-    
-	/**
-	 * 获取服务地址
-	 * @author chenchongze
-	 * @param service
-	 * @param group
-	 * @return
-	 */
-    @RequestMapping(value = "/service2/get", method = RequestMethod.GET)
-    @ResponseBody
-    public Result get(@RequestParam(value="service") String service,
-                      @RequestParam(value="group", required=false, defaultValue="") String group) {
-        
-        Service srv = serviceService.getService(service, group);
-        if(srv == null) {
-            return Result.createErrorResult(String.format("Service %s for group [%s] does not exist", service, group));
-        } else {
-            return Result.createSuccessResult(srv.getHosts());
-        }
-    }
-    
     @RequestMapping(value = "/service/publish", method = RequestMethod.GET)
     public void publish(HttpServletRequest request,
                         HttpServletResponse response,
@@ -206,6 +159,54 @@ public class ServiceApiController extends BaseController {
         }
     }
 
+
+    /**
+     * 获取服务列表
+     * @author chenchongze
+     * @param project
+     * @return
+     */
+    @RequestMapping(value = "/old/service2/list", method = RequestMethod.GET)
+    @ResponseBody
+    public Result list(@RequestParam(value="project") String project) {
+        if(project==null) {
+            return Result.createErrorResult("Project is null");
+        }
+
+        Project prj = projectService.findProject(project);
+        if(prj == null) {
+            return Result.createErrorResult(String.format("Project %s does not exist", project));
+        }
+
+        List<Service> serviceList = serviceService.getServiceList(prj.getId());
+        List<String> srvNameList = new ArrayList<String>();
+        for(Service service : serviceList) {
+            srvNameList.add(service.getName());
+        }
+
+        return Result.createSuccessResult(srvNameList);
+    }
+
+    /**
+     * 获取服务地址
+     * @author chenchongze
+     * @param service
+     * @param group
+     * @return
+     */
+    @RequestMapping(value = "/old/service2/get", method = RequestMethod.GET)
+    @ResponseBody
+    public Result get(@RequestParam(value="service") String service,
+                      @RequestParam(value="group", required=false, defaultValue="") String group) {
+
+        Service srv = serviceService.getService(service, group);
+        if(srv == null) {
+            return Result.createErrorResult(String.format("Service %s for group [%s] does not exist", service, group));
+        } else {
+            return Result.createSuccessResult(srv.getHosts());
+        }
+    }
+
     /**
      * 设置服务地址
      * @author chenchongze
@@ -217,7 +218,7 @@ public class ServiceApiController extends BaseController {
      * @return
      */
     @Deprecated
-    @RequestMapping(value = "/service2/set", method = RequestMethod.POST)
+    @RequestMapping(value = "/old/service2/set", method = RequestMethod.POST)
     @ResponseBody
     public Result set(HttpServletRequest request,
                       @RequestParam(value="id") int id,

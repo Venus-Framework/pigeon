@@ -106,17 +106,6 @@
                         </div>
                     </div>
 
-                    #*<div class="col-xs-12" style="margin-top: 10px">
-                        <label class="col-xs-1 control-label no-padding-right" for="serviceSearch">旧服务搜索</label>
-                        <div class="col-xs-8">
-                            <input id="serviceSearch" type="text" placeholder="Search for services..."
-                                   data-provide="typeahead" style="min-width: 100%" oldautocomplete="off">
-                        </div>
-                        <div class="col-xs-3">
-                            <button class="btn btn-primary" style="height: 34px" onclick="gotoService()">Go!</button>
-                        </div>
-                    </div>*#
-
                     <div class="col-xs-12" style="margin-top: 10px">
                         <label class="col-xs-1 control-label no-padding-right" for="serviceNodeSearch">服务搜索</label>
                         <div class="col-xs-6">
@@ -185,7 +174,6 @@
 
 <script>
     var projects = ${projects};
-    //var services = ${services};
     var serviceNodes = ${serviceNodes};
 
     $(function(){
@@ -194,16 +182,6 @@
         $('#projectSearch').typeahead({
             source: projects
         });
-
-        /*$('#serviceSearch').typeahead({
-            source: services,
-            display: "name",     // 默认的对象属性名称为 name 属性
-            val: "id",           // 默认的标识属性名称为 id 属性
-            itemSelected: function (item, val, text) {      // 当选中一个项目的时候，回调函数
-                *//*serviceId = val;
-                serviceName = text;*//*
-            }
-        });*/
 
         $('#serviceNodeName').typeahead({
             source: serviceNodes,
@@ -220,35 +198,6 @@
     function gotoProject() {
         window.location = "/services/" + $('#projectSearch').val();
     }
-
-    /*function gotoService() {
-        //TODO 参考http://www.cnblogs.com/haogj/p/3378508.html
-        //怎么拿到object对象里的另外一个参数
-        //window.location = "/services?service=" + $('#serviceSearch').val();
-
-        var data = { "service" : $('#serviceSearch').val() };
-        $.ajax({
-            url: '/projects.search',
-            type: 'POST',
-            data: data,
-            error: function(){
-                console.log("server error!");
-            },
-            success: function(response, textStatus) {
-                if(response.status == "success") {
-                    window.location = "/services/" + response.result.name;
-                } else {
-                    //console.log(response);
-                    $.gritter.add({
-                        title: response.status,
-                        text: response.message,
-                        class_name: 'gritter-error gritter-center gritter-light'
-                    });
-                }
-
-            }
-        });
-    }*/
 
     function gotoServicePage() {
         //TODO 参考http://www.cnblogs.com/haogj/p/3378508.html

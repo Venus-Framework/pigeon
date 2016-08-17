@@ -50,9 +50,34 @@ public class JettyConsoleProcessor implements JettyHttpServerProcessor {
 		String staticsDir = url.toExternalForm();
 		holder.setInitParameter("resourceBase", staticsDir);
 		holder.setInitParameter("gzip", "false");
-		context.addServlet(holder, "/jquery/*");
-		context.addServlet(holder, "/ztree/*");
-		context.addServlet(holder, "/bootstrap/*");
+//		context.addServlet(holder, "/jquery/*");
+//		context.addServlet(holder, "/ztree/*");
+//		context.addServlet(holder, "/bootstrap/*");
+		context.addServlet(holder, "/bootstrap/css/bootstrap-responsive.min.css");
+		context.addServlet(holder, "/bootstrap/css/bootstrap.min.css");
+		context.addServlet(holder, "/bootstrap/img/glyphicons-halflings-white.png");
+		context.addServlet(holder, "/bootstrap/img/glyphicons-halflings.png");
+		context.addServlet(holder, "/bootstrap/js/bootstrap.min.js");
+		context.addServlet(holder, "/jquery/jquery-1.7.2.min.js");
+		context.addServlet(holder, "/jquery/jquery-ui.css");
+		context.addServlet(holder, "/jquery/jquery-ui.js");
+		context.addServlet(holder, "/jquery/jquery.easy-confirm-dialog.js");
+		context.addServlet(holder, "/ztree/img/diy/1_close.png");
+		context.addServlet(holder, "/ztree/img/diy/1_open.png");
+		context.addServlet(holder, "/ztree/img/diy/2.png");
+		context.addServlet(holder, "/ztree/img/diy/3.png");
+		context.addServlet(holder, "/ztree/img/diy/4.png");
+		context.addServlet(holder, "/ztree/img/diy/5.png");
+		context.addServlet(holder, "/ztree/img/diy/6.png");
+		context.addServlet(holder, "/ztree/img/diy/7.png");
+		context.addServlet(holder, "/ztree/img/diy/8.png");
+		context.addServlet(holder, "/ztree/img/diy/9.png");
+		context.addServlet(holder, "/ztree/img/line_conn.gif");
+		context.addServlet(holder, "/ztree/img/loading.gif");
+		context.addServlet(holder, "/ztree/img/zTreeStandard.gif");
+		context.addServlet(holder, "/ztree/img/zTreeStandard.png");
+		context.addServlet(holder, "/ztree/jquery.ztree.core-3.3.min.js");
+		context.addServlet(holder, "/ztree/ztree.css");
 	}
 
 }

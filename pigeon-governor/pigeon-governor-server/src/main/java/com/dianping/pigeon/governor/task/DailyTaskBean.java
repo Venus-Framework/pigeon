@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 /**
  * Created by chenchongze on 15/10/28.
  */
+@Deprecated
 public class DailyTaskBean {
 
     private ExecutorService taskPool;
@@ -28,7 +29,7 @@ public class DailyTaskBean {
     public void init() {
         taskPool = Executors.newCachedThreadPool(new NamedThreadFactory("Pigeon-Governor-CustomTask"));
         //taskPool.submit(new UpdateProjectTask(projectService, projectOwnerService));
-        taskPool.submit(new ClearInvalidHostsInDB(hostService));
+        //taskPool.submit(new ClearInvalidHostsInDB(hostService));
     }
 
 }

@@ -4,7 +4,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.dianping.lion.Environment;
 import com.dianping.pigeon.governor.model.User;
 import org.springframework.ui.ModelMap;
 

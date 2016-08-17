@@ -32,6 +32,7 @@ import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.threadpool.NamedThreadFactory;
 import com.dianping.pigeon.util.NetUtils;
 
+@Deprecated
 public class HealthCheckManager extends Thread {
 
 	private static final Logger logger = LogManager.getLogger(HealthCheckManager.class);

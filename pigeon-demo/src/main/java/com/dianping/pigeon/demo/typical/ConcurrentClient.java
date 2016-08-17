@@ -34,9 +34,9 @@ public class ConcurrentClient {
 				public void run() {
 					while (true) {
 						try {
-							echoService.echo("scott");
+							//echoService.echo("scott");
 							System.out.println(echoService.echo("scott"));
-							System.out.println(echoService.echo(2005));
+							//System.out.println(echoService.echo(2005));
 
 							// System.out.println("getUserDetailArray="
 							// +
@@ -48,6 +48,7 @@ public class ConcurrentClient {
 							// System.out.println("getUserDetail=" +
 							// userService.getUserDetail(new User("jack")));
 						} catch (Exception e) {
+							e.printStackTrace();
 						}
 					}
 				}

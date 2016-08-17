@@ -26,6 +26,7 @@ import com.dianping.pigeon.registry.zookeeper.CuratorClient;
 import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
 import com.dianping.pigeon.registry.zookeeper.Utils;
 
+@Deprecated
 public class DisposeTask implements Runnable {
 
 	private static final Logger logger = LogManager.getLogger(DisposeTask.class);

@@ -28,6 +28,7 @@ import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
+import com.dianping.pigeon.remoting.invoker.process.DegradationManager;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.util.ContextUtils;
 
@@ -57,7 +58,6 @@ public class ServiceCallbackWrapper implements Callback {
 		MonitorTransaction transaction = null;
 		long currentTime = System.currentTimeMillis();
 		try {
-
 			if (Constants.INVOKER_CALLBACK_MONITOR_ENABLE) {
 				String callInterface = InvocationUtils.getRemoteCallFullName(invokerConfig.getUrl(),
 						invocationContext.getMethodName(), invocationContext.getParameterTypes());
@@ -83,6 +83,7 @@ public class ServiceCallbackWrapper implements Callback {
 				msg.append("request callback timeout:").append(request);
 				Exception te = new RequestTimeoutException(msg.toString());
 				te.setStackTrace(new StackTraceElement[] {});
+				DegradationManager.INSTANCE.addFailedRequest(invocationContext, te);
 				if (Constants.INVOKER_LOG_TIMEOUT_EXCEPTION) {
 					logger.error(msg);
 				}
@@ -112,6 +113,7 @@ public class ServiceCallbackWrapper implements Callback {
 				this.callback.callback(response.getReturn());
 			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 				RpcException cause = InvokerUtils.toRpcException(response);
+				DegradationManager.INSTANCE.addFailedRequest(invocationContext, cause);
 				StringBuilder sb = new StringBuilder();
 				sb.append("callback service exception\r\n").append("seq:").append(request.getSequence())
 						.append(",callType:").append(request.getCallType()).append("\r\nservice:")

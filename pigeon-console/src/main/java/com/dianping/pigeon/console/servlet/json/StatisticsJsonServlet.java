@@ -14,6 +14,8 @@ import com.dianping.pigeon.console.domain.Statistics;
 import com.dianping.pigeon.console.listener.StatusListener;
 import com.dianping.pigeon.console.servlet.ServiceServlet;
 import com.dianping.pigeon.console.status.StatusInfo;
+import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.process.statistics.InvokerCapacityBucket;
 import com.dianping.pigeon.remoting.invoker.process.statistics.InvokerStatisticsHolder;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
@@ -74,6 +76,10 @@ public class StatisticsJsonServlet extends ServiceServlet {
 			}
 		}
 		stat.setWeightFactors(LoadBalanceManager.getWeightFactors());
+
+		for (InvokerConfig<?> invokerConfig : ServiceFactory.getAllServiceInvokers().keySet()) {
+			stat.getInvokerConfigs().put(invokerConfig.getUrl(), invokerConfig);
+		}
 
 		List<StatusInfo> infoList = StatusListener.getStatusInfoList();
 		for (StatusInfo info : infoList) {

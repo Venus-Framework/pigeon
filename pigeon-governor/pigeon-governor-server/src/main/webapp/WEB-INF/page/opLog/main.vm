@@ -1,0 +1,358 @@
+#set($layout="layoutblank.vm")
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta charset="utf-8" />
+    <title>Pigeon</title>
+
+    <meta name="description" content="Pigeon message"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/font-awesome.min.css" />
+
+    <!-- page specific plugin styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery-ui.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/datepicker.css" />
+
+    <!-- text fonts -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-fonts.css" />
+
+    <!-- ace styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace.min.css" id="main-ace-style"/>
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-part2.min.css" />
+    <![endif]-->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-rtl.min.css" />
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-ie.min.css" />
+    <![endif]-->
+
+    <!-- inline styles related to this page -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/daterangepicker.css"/>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/sumoSelect.css"/>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/chosen.css"/>
+    <!--Used for data table-->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/dataTable.button.css"/>
+
+    <style>
+        .chosen-single div b:before {
+            content: "\f0d7";
+            display: inline-block;
+            color: #888;
+            font-family: FontAwesome;
+            font-size: 12px;
+            position: relative;
+            top: 2px;
+            left: 1px;
+        }
+
+        .chosen-container-single .chosen-search:after {
+            content: "\f002";
+            display: inline-block;
+            color: #888;
+            font-family: FontAwesome;
+            font-size: 14px;
+            position: absolute;
+            top: 5px;
+            right: 12px;
+        }
+        div button{
+            height: 34px;
+        }
+
+
+        .aceTableRow{
+            border-bottom: 1px solid #e0e0e0;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            background-color: #EFF3F8;
+        }
+        .myRow{
+            width: 100%;
+            overflow:auto;
+        }
+        .value-size {
+            word-break:break-all;
+        }
+    </style>
+
+
+    <!-- ace settings handler -->
+    <script src="${rc.contextPath}/resources/assets/js/ace-extra.min.js"></script>
+
+</head>
+<body class="no-skin">
+
+<!-- #section:basics/navbar.layout -->
+<div id="navbar" class="navbar navbar-default">
+    #parse("common/navbar.vm")
+</div>
+<div class="main-container" id="main-container">
+
+    <script type="text/javascript">
+        try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+    </script>
+    <!-- #section:basics/sidebar -->
+    <div id="sidebar" class="sidebar   responsive">
+        #parse("common/sidebar.vm")
+    </div>
+    <div class="main-content">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <script type="text/javascript">
+                try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+            </script>
+            <div class="col-xs-6">
+                <ul class="breadcrumb">
+                    <li>
+                        <i class="ace-icon fa fa-home home-icon"></i>
+                        <a href="/">主页</a>
+                    </li>
+                    <li class="active">
+                        <a href="#">日志中心</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="page-content-area">
+                <div class="page-header">
+                    <h1>
+                        日志中心
+                        <small>
+                            <i class="ace-icon fa fa-angle-double-right"></i>
+                            Log & Recall
+                        </small>
+                    </h1>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="col-xs-2" style="padding-left: 0px">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="glyphicon glyphicon-calendar fa fa-info"></i>
+                                        </span>
+                                        <div>
+                                            <select id="typeSelect" data-placeholder="操作类型" class="chosen-select">
+                                                <option value=""></option>
+                                                <option value="1">新增服务</option>
+                                                <option value="2">更新服务</option>
+                                                <option value="3">删除服务</option>
+                                                <option value="4">心跳摘除</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-2">
+##                                    <div class="input-group">
+##                                        <span class="input-group-addon">
+##                                            <i class="glyphicon glyphicon-calendar fa fa-tags"></i>
+##                                        </span>
+##                                        <div>
+##                                            <select id="typeSelect" multiple="multiple" data-placeholder="消息类型">
+##                                                <option value="1">ServerSkew</option>
+##                                                <option value="2">ClientSkew</option>
+##                                            </select>
+##                                        </div>
+##                                    </div>
+                                </div>
+                                <div class="col-xs-3">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="ace-icon fa fa-search"></i>
+                                        </span>
+                                        <input id="projectName" placeholder="输入应用名" type="text" class="form-control" name="message" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="col-xs-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                        </span>
+                                        <input type="text" id="dateTimeRangePicker" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-xs-1" style="padding-right: 0px">
+                                    <button id="search" class="btn btn-primary btn-xs">
+                                        <i class="ace-icon fa fa-search"></i>
+                                        过滤
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <hr/>
+                        <div class="row">
+                            <div id="tableWidget"class="col-xs-12">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        #parse("common/sub-footer.vm")
+    </div>
+    <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+        <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+    </a>
+</div>
+<!-- basic scripts -->
+
+<!--[if !IE]> -->
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.min.js'>"+"<"+"/script>");
+</script>
+
+<!-- <![endif]-->
+
+<!--[if IE]>
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery1x.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+<script type="text/javascript">
+    if('ontouchstart' in document.documentElement)
+        document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
+<!-- page specific plugin scripts -->
+<script src="${rc.contextPath}/resources/js/my-ajax-wrapper.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/spin.min.js"></script>
+<script src="${rc.contextPath}/resources/js/moment.js"></script>
+<script src="${rc.contextPath}/resources/js/daterangepicker.js"></script>
+<script src="${rc.contextPath}/resources/js/sumoSelect.js"></script>
+<script src="${rc.contextPath}/resources/js/dataTable.min.js"></script>
+<script src="${rc.contextPath}/resources/js/Pigeon.dataTables.bootstrap.js"></script>
+<script src="${rc.contextPath}/resources/js/bootstrap-typeahead.js"></script>
+<script src="${rc.contextPath}/resources/js/chosen.jquery.js"></script>
+<script>
+    jQuery(function($) {
+        $('li[id="log_center"]').addClass("active open");
+        $('li[id="op_log"]').addClass("active");
+        var startTime=moment().startOf('day').format('YYYY-MM-DD HH:mm');
+        var endTime=moment().format('YYYY-MM-DD HH:mm');
+        $('#search').addClass('disabled');
+        $('#tableWidget').ajaxLoad({
+            url:'/oplog/table',
+            data:{"type":"","startTime":startTime,"endTime":endTime,"projectName":""},
+            successCallback:function(){
+                $('#search').removeClass('disabled');
+            }
+        });
+        var dataRangePicker = $('#dateTimeRangePicker').daterangepicker({
+            parentEl:"#demo",
+            timePicker: true,
+            timePicker24Hour: true,
+            autoApply: true,
+            dateLimit: {
+                "days": 20
+            },
+            alwaysShowCalendars: true,
+            maxDate:moment(),
+            ranges : {
+                '最近1小时': [moment().subtract('hours',1), moment()],
+                '今日': [moment().startOf('day'), moment()],
+                '昨日': [moment().subtract('days', 1).startOf('day'), moment().subtract('days', 1).endOf('day')],
+                '最近7日': [moment().subtract('days', 6), moment()],
+                '最近30日': [moment().subtract('days', 29), moment()]
+            },
+            opens: "left",
+            locale : {
+                applyLabel : '确定',
+                cancelLabel : '取消',
+                fromLabel : '起始时间',
+                toLabel : '结束时间',
+                customRangeLabel : '自定义',
+                daysOfWeek : [ '日', '一', '二', '三', '四', '五', '六' ],
+                monthNames : [ '一月', '二月', '三月', '四月', '五月', '六月',
+                    '七月', '八月', '九月', '十月', '十一月', '十二月' ],
+                firstDay : 1,
+                format:'YY/MM/DD HH:mm',
+                separator:' 至 '
+            }
+        }, function(start, end, label) {
+            startTime = start.format('YYYY-MM-DD HH:mm');
+            endTime = end.format('YYYY-MM-DD HH:mm');
+        });
+        $('.chosen-select').each(function(){
+            var width = $(this).parent().width();
+            $(this).width(width);
+            $(this).chosen({allow_single_deselect:true});
+        });
+
+
+
+//        $('#levelSelect').SumoSelect(
+//                {
+//                    placeholder: ''
+//                }
+//        );
+//        $('#levelSelect').width($('#levelSelect').parent().width());
+##        $('#typeSelect').SumoSelect({
+##            placeholder: '过滤消息类型',
+##            csvDispCount: 1,
+##            captionFormat: '{0}/2 消息类型选中',
+##            floatWidth: 500,
+##            captionFormatAllSelected:'<span class="blue">选中全部类型</span>',
+##            forceCustomRendering: false,
+##            nativeOnDevice: ['Android', 'BlackBerry', 'iPhone', 'iPad', 'iPod', 'Opera Mini', 'IEMobile', 'Silk'],
+##            outputAsCSV : false,
+##            csvSepChar : ',',
+##            okCancelInMulti: true,
+##            triggerChangeCombined : true,
+##            selectAll : true,
+##            search : true,
+##            searchText : '搜索...',
+##            noMatch : '无法匹配"{0}"',
+##            prefix : '',
+##            locale :  ['过滤', '放弃', '全部选取']
+##        });
+##        $('#typeSelect').width($('#typeSelect').parent().width());
+##
+        var projects = ${projects};
+        $('#projectName').typeahead({
+            source: projects
+        });
+##
+##
+##
+        $('#search').click(function () {
+            console.log($("#typeSelect").val());
+            var type  = $('#typeSelect').val();
+            $(this).addClass("disabled");
+            $('#tableWidget').ajaxLoad({
+                url:'/oplog/table',
+                data:{
+                    "type":type,
+                    "projectName":$('#projectName').val(),
+                    "startTime":startTime,
+                    "endTime":endTime
+                },
+                successCallback:function () {
+                    $('#search').removeClass('disabled');
+                }
+            });
+        });
+//        {
+//            var width = $('.chosen-select').parent().width();
+//            $('.chosen-select').width(width);
+//        }
+//        $('.chosen-select').chosen({allow_single_deselect: true});
+    });
+</script>
+<!-- ace scripts -->
+<script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
+
+</body>
+</html>

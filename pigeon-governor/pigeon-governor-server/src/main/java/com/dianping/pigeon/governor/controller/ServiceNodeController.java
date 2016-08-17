@@ -1,6 +1,7 @@
 package com.dianping.pigeon.governor.controller;
 
 import com.dianping.pigeon.governor.bean.Result;
+import com.dianping.pigeon.governor.bean.ServiceHostsBean;
 import com.dianping.pigeon.governor.bean.ServiceUpdateBean;
 import com.dianping.pigeon.governor.bean.ServiceWithGroup;
 import com.dianping.pigeon.governor.model.*;
@@ -17,10 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -88,7 +86,7 @@ public class ServiceNodeController extends BaseController {
         modelMap.addAttribute("projectId", project.getId());
 
         List<ServiceNode> serviceNodeList = serviceNodeService.retrieveAllByProjectName(projectName);
-        Map<ServiceWithGroup, Service> serviceMap = Maps.newHashMap();
+        Map<ServiceWithGroup, ServiceHostsBean> serviceMap = Maps.newHashMap();
 
         for (ServiceNode serviceNode : serviceNodeList) {
             String serviceName = serviceNode.getServiceName();
@@ -97,12 +95,12 @@ public class ServiceNodeController extends BaseController {
 
             ServiceWithGroup serviceWithGroup
                     = new ServiceWithGroup(serviceNode.getServiceName(), serviceNode.getGroup());
-            Service service = serviceMap.get(serviceWithGroup);
+            ServiceHostsBean service = serviceMap.get(serviceWithGroup);
 
             if (service != null) {
                 service.setHosts(service.getHosts() + "," + host);
             } else {
-                Service newService = new Service();
+                ServiceHostsBean newService = new ServiceHostsBean();
                 newService.setHosts(host);
                 newService.setName(serviceName);
                 newService.setGroup(group);
@@ -162,6 +160,34 @@ public class ServiceNodeController extends BaseController {
         }
 
         return result;
+    }
+
+    /**
+     * 获取服务地址
+     * @author chenchongze
+     * @param service
+     * @param group
+     * @return
+     */
+    @RequestMapping(value = "/service2/get", method = RequestMethod.GET)
+    @ResponseBody
+    public Result get(@RequestParam(value="service") String service,
+                      @RequestParam(value="group", required=false, defaultValue="") String group) {
+        List<ServiceNode> serviceNodeList = serviceNodeService.getServiceNode(service, group);
+
+        if(serviceNodeList.size() == 0) {
+
+            return Result.createErrorResult(String.format("Service %s for group [%s] does not exist", service, group));
+
+        } else {
+            String hosts = "";
+
+            for (ServiceNode serviceNode : serviceNodeList) {
+                hosts += IPUtils.getHost(serviceNode.getIp(), serviceNode.getPort()) + ",";
+            }
+
+            return Result.createSuccessResult(hosts);
+        }
     }
 
     private Set<String> updateDelHosts(Set<String> toDelHosts, String serviceName, String group, String projectName) {

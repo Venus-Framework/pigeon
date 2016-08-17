@@ -22,6 +22,7 @@ import com.dianping.pigeon.governor.util.Constants.Service;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
 
+@Deprecated
 public class GenerateTask implements Runnable {
 
 	private static final Logger logger = LogManager.getLogger(GenerateTask.class);
