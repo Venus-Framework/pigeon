@@ -86,7 +86,7 @@ public class ServiceApiController extends BaseController {
     	
     	String appname = StringUtils.isBlank(project) ? app : project;
         if(StringUtils.isBlank(appname)) {
-            appname = "NULL";
+            appname = Constants.defaultNullAppName;
         }
 
         //todo 暂时双写
