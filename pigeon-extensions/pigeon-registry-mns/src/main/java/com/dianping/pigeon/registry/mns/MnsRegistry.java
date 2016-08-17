@@ -335,6 +335,7 @@ public class MnsRegistry implements Registry {
         sgService.setServiceInfo(null);
         sgService.setAppkey(remoteAppkey);
         sgService.setVersion(VersionUtils.VERSION);
+        sgService.setHeartbeatSupport(HeartBeatSupport.BOTH.getValue());
 
         try {
             MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);

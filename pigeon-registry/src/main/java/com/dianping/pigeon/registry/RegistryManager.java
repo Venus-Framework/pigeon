@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.registry.util.HeartBeatSupport;
+import com.dianping.pigeon.util.VersionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -553,6 +554,14 @@ public class RegistryManager {
     }
 
     public boolean isSupportNewProtocol(String serviceAddress) throws RegistryException {
+        // 1. load from cache
+        String version = getReferencedVersionFromCache(serviceAddress);
+
+        if(version != null) {
+            return VersionUtils.isThriftSupported(version);
+        }
+
+        // 2. load from registry
         boolean support = false;
 
         try {
