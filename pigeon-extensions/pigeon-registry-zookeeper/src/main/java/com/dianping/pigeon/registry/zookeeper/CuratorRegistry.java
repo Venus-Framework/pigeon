@@ -136,9 +136,6 @@ public class CuratorRegistry implements Registry {
 		String weightPath = Utils.getWeightPath(serviceAddress);
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
-			if (weight >= 0) {
-				client.set(weightPath, "" + weight);
-			}
 			if (client.exists(servicePath, false)) {
 				Stat stat = new Stat();
 				String addressValue = client.get(servicePath, stat);
@@ -157,6 +154,9 @@ public class CuratorRegistry implements Registry {
 				}
 			} else {
 				client.create(servicePath, serviceAddress);
+			}
+			if (weight >= 0) {
+				client.set(weightPath, "" + weight);
 			}
 			if (logger.isInfoEnabled()) {
 				logger.info("registered service to persistent node: " + servicePath);
