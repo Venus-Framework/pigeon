@@ -211,7 +211,7 @@ public class CompositeRegistry implements Registry {
             }
         }
 
-        weight = checkValueConsistency(checkList);
+        weight = checkValueConsistency(checkList, "weight");
 
         return weight;
     }
@@ -245,7 +245,7 @@ public class CompositeRegistry implements Registry {
             }
         }
 
-        app = checkValueConsistency(checkList);
+        app = checkValueConsistency(checkList, "app");
 
         return app;
     }
@@ -296,7 +296,7 @@ public class CompositeRegistry implements Registry {
             }
         }
 
-        version = checkValueConsistency(checkList);
+        version = checkValueConsistency(checkList, "version");
 
         return version;
     }
@@ -336,7 +336,7 @@ public class CompositeRegistry implements Registry {
             }
         }
 
-        support = checkValueConsistency(checkList);
+        support = checkValueConsistency(checkList, "server heartbeat support");
 
         return support;
     }
@@ -354,7 +354,7 @@ public class CompositeRegistry implements Registry {
             }
         }
 
-        support = checkValueConsistency(checkList);
+        support = checkValueConsistency(checkList, "host protocol support");
 
         return support;
     }
@@ -372,7 +372,7 @@ public class CompositeRegistry implements Registry {
             }
         }
 
-        support = checkValueConsistency(checkList);
+        support = checkValueConsistency(checkList, "service protocol support");
 
         return support;
     }
@@ -468,7 +468,7 @@ public class CompositeRegistry implements Registry {
         return StringUtils.join(result, ",");
     }
 
-    private <T> T checkValueConsistency(List<T> checkList) {
+    private <T> T checkValueConsistency(List<T> checkList, String msg) {
         T result = null;
 
         if(checkList.size() > 0) {
@@ -479,7 +479,7 @@ public class CompositeRegistry implements Registry {
             T t = checkList.get(i);
 
             if (t != null && !t.equals(result)) {
-                String errorMsg = "result not same in different registries! index0: "
+                String errorMsg = msg + "result not same in different registries! index0: "
                         + result + ", index" + i + ": " + t;
 
                 if (configManager.getBooleanValue("pigeon.registry.check.value.consistency.exception", false)) {

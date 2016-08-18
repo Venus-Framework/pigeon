@@ -103,6 +103,9 @@ public class MnsServiceChangeListener implements IServiceListChangeListener {
                         protocolChanged(host, serviceName, supportedNew);
                     }
 
+                    //heartbeat support
+                    //todo
+
                 }
             }
 
