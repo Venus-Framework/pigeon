@@ -66,6 +66,16 @@ public class ReferenceBean implements FactoryBean {
 
     private String remoteAppKey;
 
+    private String mock;
+
+    public String getMock() {
+        return mock;
+    }
+
+    public void setMock(String mock) {
+        this.mock = mock;
+    }
+
     public String getSecret() {
         return secret;
     }
@@ -265,8 +275,31 @@ public class ReferenceBean implements FactoryBean {
                 methodMap.put(method.getName(), method);
             }
         }
+
+        checkMock(); // 降级配置检查
+
         this.obj = ServiceFactory.getService(invokerConfig);
         configLoadBalance(invokerConfig);
+    }
+
+    private void checkMock() throws Exception {
+        if (StringUtils.isNotBlank(mock)) {
+            Class<?> mockClass = ClassUtils.loadClass(this.classLoader, mock.trim());
+
+            // 检查是否实现了interface
+            if (! objType.isAssignableFrom(mockClass)) {
+                throw new IllegalStateException("The mock implemention class "
+                        + mockClass.getName() + " not implement interface " + objType.getName());
+            }
+
+            // 检查是否存在默认构造方法
+            try {
+                mockClass.getConstructor(new Class<?>[0]);
+            } catch (NoSuchMethodException e) {
+                throw new IllegalStateException("No such empty constructor \"public "
+                        + mockClass.getSimpleName() + "()\" in mock implemention class " + mockClass.getName());
+            }
+        }
     }
 
     private void configLoadBalance(InvokerConfig invokerConfig) {

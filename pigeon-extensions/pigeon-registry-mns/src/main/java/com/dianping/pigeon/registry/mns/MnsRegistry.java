@@ -184,6 +184,7 @@ public class MnsRegistry implements Registry {
         Map<String, ServiceDetail> serviceDetailMap = Maps.newHashMap();
         serviceDetailMap.put(serviceName, new ServiceDetail(isSupport));
         sgService.setServiceInfo(serviceDetailMap);
+        sgService.setHeartbeatSupport(HeartBeatSupport.BOTH.getValue());
 
         int index = serviceAddress.lastIndexOf(":");
         try {
@@ -488,6 +489,7 @@ public class MnsRegistry implements Registry {
             sgService.setWeight(MnsUtils.getMtthriftWeight(weight));
             sgService.setFweight(MnsUtils.getMtthriftFWeight(weight));
             sgService.setServiceInfo(null);
+            sgService.setHeartbeatSupport(HeartBeatSupport.BOTH.getValue());
 
             try {
                 MnsInvoker.registServiceWithCmd(MnsUtils.UPT_CMD_ADD, sgService);
