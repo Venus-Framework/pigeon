@@ -13,7 +13,6 @@ import java.util.Map;
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.lion.client.Lion;
-import com.dianping.pigeon.demo.EchoService.Gender;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;

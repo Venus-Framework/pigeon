@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.text.Format;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -101,6 +102,7 @@ public class ClassUtils {
 										} catch (ClassNotFoundException e) {
 											// log
 											// .error("添加用户自定义视图类错误 找不到此类的.class文件");
+											System.out.println(packageName + '.' + className);
 											e.printStackTrace();
 										}
 									}

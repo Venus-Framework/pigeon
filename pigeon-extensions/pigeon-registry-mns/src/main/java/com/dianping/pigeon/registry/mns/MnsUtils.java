@@ -5,7 +5,7 @@ import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.Maps;
 import com.sankuai.sgagent.thrift.model.fb_status;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import java.util.ArrayList;
 import java.util.List;

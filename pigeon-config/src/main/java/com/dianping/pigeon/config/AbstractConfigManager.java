@@ -12,7 +12,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.util.AppUtils;

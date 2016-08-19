@@ -5,7 +5,7 @@ import java.util.*;
 import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.apache.zookeeper.KeeperException.NodeExistsException;
 import org.apache.zookeeper.KeeperException.BadVersionException;
 import org.apache.zookeeper.KeeperException.NoNodeException;

@@ -8,7 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.dpsf.exception.NetTimeoutException;

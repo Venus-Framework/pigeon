@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedResponse;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;

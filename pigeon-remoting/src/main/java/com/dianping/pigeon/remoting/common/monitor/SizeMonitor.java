@@ -1,13 +1,12 @@
 package com.dianping.pigeon.remoting.common.monitor;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
 
 public class SizeMonitor {
 
-	private static Logger logger = LogManager.getLogger(SizeMonitor.class);
+	private static Logger logger = LoggerLoader.getLogger(SizeMonitor.class);
 
 	private static final String sizeRangeConfig = ConfigManagerLoader.getConfigManager().getStringValue(
 			"pigeon.monitor.size.range", "1,2,4,8,16,32,64,128,256,512,1024");

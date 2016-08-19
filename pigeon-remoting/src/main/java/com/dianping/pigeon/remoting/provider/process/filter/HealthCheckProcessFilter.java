@@ -4,8 +4,7 @@
  */
 package com.dianping.pigeon.remoting.provider.process.filter;
 
-import org.apache.logging.log4j.Logger;
-
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
@@ -21,9 +20,6 @@ public class HealthCheckProcessFilter implements ServiceInvocationFilter<Provide
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
-		if (logger.isDebugEnabled()) {
-			logger.debug("invoke the HealthCheckProcessFilter, invocationContext:" + invocationContext);
-		}
 		if (invocationContext.getRequest().getMessageType() == Constants.MESSAGE_TYPE_HEALTHCHECK) {
 			return ProviderUtils.createHealthCheckResponse(invocationContext.getRequest());
 		}

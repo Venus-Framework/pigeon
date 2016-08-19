@@ -11,7 +11,7 @@ public class LangUtils {
 	public static String toString(float value, int maxFactionDigits) {
 		NumberFormat nf = DecimalFormat.getInstance();
 		nf.setMaximumFractionDigits(maxFactionDigits);
-		return nf.format(new BigDecimal(value).setScale(maxFactionDigits, BigDecimal.ROUND_HALF_UP));
+		return nf.format(BigDecimal.valueOf(value).setScale(maxFactionDigits, BigDecimal.ROUND_HALF_UP));
 	}
 
 	public static int hash(String str, int mid, int range) {

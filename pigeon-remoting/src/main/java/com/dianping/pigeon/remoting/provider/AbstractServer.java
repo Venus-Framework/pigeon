@@ -8,7 +8,7 @@ import java.util.Properties;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -105,7 +105,7 @@ public abstract class AbstractServer implements Server {
 					if (StringUtils.isNotBlank(strLastPort)) {
 						lastPort = Integer.parseInt(strLastPort);
 					}
-				} catch (Throwable e) {
+				} catch (Exception e) {
 				}
 			}
 		} catch (RuntimeException e) {

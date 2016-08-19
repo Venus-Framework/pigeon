@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.monitor.cat;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Event;

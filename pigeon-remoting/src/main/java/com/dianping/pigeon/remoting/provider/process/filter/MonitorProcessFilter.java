@@ -9,7 +9,7 @@ import java.util.Calendar;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.springframework.util.CollectionUtils;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;

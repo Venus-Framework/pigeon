@@ -13,7 +13,7 @@ import java.util.Properties;
 
 public class FileUtils {
 
-	public static Properties readFile(InputStream is) {
+	public static Properties readFile(InputStream is) throws IOException {
 		Properties properties = new Properties();
 		BufferedReader br = null;
 		if (is != null) {
@@ -28,8 +28,6 @@ public class FileUtils {
 						properties.put(key.trim(), value.trim());
 					}
 				}
-			} catch (Throwable e) {
-				e.printStackTrace();
 			} finally {
 				if (br != null) {
 					try {

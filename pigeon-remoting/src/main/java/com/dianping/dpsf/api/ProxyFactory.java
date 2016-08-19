@@ -2,7 +2,7 @@ package com.dianping.dpsf.api;
 
 import java.util.Set;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.config.ConfigManager;

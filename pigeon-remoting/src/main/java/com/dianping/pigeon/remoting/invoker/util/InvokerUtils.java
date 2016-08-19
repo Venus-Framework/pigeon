@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.dpsf.async.ServiceFuture;
 import com.dianping.dpsf.exception.DPSFException;

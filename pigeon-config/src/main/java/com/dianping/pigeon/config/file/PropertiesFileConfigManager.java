@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.config.AbstractConfigManager;
 import com.dianping.pigeon.config.ConfigChangeListener;
@@ -32,7 +32,7 @@ public class PropertiesFileConfigManager extends AbstractConfigManager {
 		Map<String, Object> config = new HashMap<String, Object>();
 		try {
 			LocalConfigLoader.loadProperties(config, FileUtils.readFile(new FileInputStream(ENV_FILE)));
-		} catch (Throwable e) {
+		} catch (Exception e) {
 		}
 		env = (String) config.get("environment");
 		if (StringUtils.isBlank(env)) {

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.springframework.util.CollectionUtils;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -53,10 +53,7 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 	private static boolean isWriteBufferLimit = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			Constants.KEY_DEFAULT_WRITE_BUFF_LIMIT, Constants.DEFAULT_WRITE_BUFF_LIMIT);
 
-	private static final String KEY_LOG_DEBUG_ENABLE = "pigeon.log.debug.enable";
-
 	private DefaultRouteManager() {
-		ConfigManagerLoader.getConfigManager().getBooleanValue(KEY_LOG_DEBUG_ENABLE, false);
 		RegistryEventListener.addListener(providerChangeListener);
 		if (enablePreferAddresses) {
 			preferAddresses = new ArrayList<String>();
@@ -143,8 +140,8 @@ public class DefaultRouteManager implements RouteManager, Disposable {
 					} else {
 						existClientBuffToLimit = true;
 					}
-				} else if (ConfigManagerLoader.getConfigManager().getBooleanValue(KEY_LOG_DEBUG_ENABLE, false)) {
-					logger.info("provider status:" + client.isActive() + "," + weight);
+				} else if (logger.isDebugEnabled()) {
+					logger.debug("provider status:" + client.isActive() + "," + weight);
 				}
 			}
 		}

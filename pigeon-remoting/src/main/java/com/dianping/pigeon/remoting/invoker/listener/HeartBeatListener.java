@@ -25,7 +25,7 @@ import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import java.util.*;
 import java.util.Map.Entry;

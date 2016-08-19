@@ -9,14 +9,13 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public final class SpringContainer {
 
-	public String DEFAULT_SPRING_CONFIG = "classpath*:META-INF/spring/*.xml";
+	private String DEFAULT_SPRING_CONFIG = "classpath*:META-INF/spring/*.xml";
 
 	private static ClassPathXmlApplicationContext context;
 
 	private static volatile boolean isStartup = false;
 
 	public SpringContainer() {
-
 	}
 
 	public SpringContainer(String path) {
@@ -58,7 +57,7 @@ public final class SpringContainer {
 				context.close();
 				context = null;
 			}
-		} catch (Throwable e) {
+		} catch (Exception e) {
 		}
 	}
 

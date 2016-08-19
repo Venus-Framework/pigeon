@@ -1,5 +1,16 @@
 package com.dianping.pigeon.governor.bean.scanServiceDesc;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Transaction;
 import com.dianping.lion.client.Lion;
@@ -10,16 +21,6 @@ import com.dianping.pigeon.governor.service.ServiceDescService;
 import com.dianping.pigeon.governor.util.IPUtils;
 import com.google.common.base.Stopwatch;
 import com.google.gson.Gson;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by shihuashen on 16/6/8.

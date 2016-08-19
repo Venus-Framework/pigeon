@@ -3,7 +3,7 @@ package com.dianping.pigeon.remoting.invoker.cluster;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.LoggerLoader;

@@ -7,7 +7,7 @@ package com.dianping.pigeon.remoting.invoker.callback;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.exception.DPSFException;

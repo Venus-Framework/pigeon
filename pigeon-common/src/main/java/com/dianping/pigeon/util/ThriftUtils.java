@@ -3,7 +3,7 @@ package com.dianping.pigeon.util;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.facebook.swift.codec.metadata.ReflectionHelper;
 import com.facebook.swift.service.ThriftService;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import java.util.HashSet;
 import java.util.Set;

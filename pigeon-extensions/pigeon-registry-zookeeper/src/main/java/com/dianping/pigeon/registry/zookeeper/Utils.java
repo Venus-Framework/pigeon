@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.util.Constants;

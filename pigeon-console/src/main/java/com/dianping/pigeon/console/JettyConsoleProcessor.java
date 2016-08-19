@@ -7,7 +7,7 @@ package com.dianping.pigeon.console;
 import java.net.URL;
 
 import com.dianping.pigeon.console.servlet.json.*;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;

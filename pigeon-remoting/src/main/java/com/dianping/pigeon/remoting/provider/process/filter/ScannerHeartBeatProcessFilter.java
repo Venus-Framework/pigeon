@@ -8,7 +8,7 @@ import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 /**
  * Created by chenchongze on 16/7/25.

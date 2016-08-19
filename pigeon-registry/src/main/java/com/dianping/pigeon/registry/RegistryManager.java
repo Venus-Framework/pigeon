@@ -11,7 +11,7 @@ import com.dianping.pigeon.config.ConfigChangeListener;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -304,8 +304,8 @@ public class RegistryManager {
                     throw new RuntimeException(errorMsg);
                 }
 
-                if (configManager.getBooleanValue(LoggerLoader.KEY_LOG_DEBUG_ENABLE, false)) {
-                    logger.warn(errorMsg);
+                if (logger.isDebugEnabled()) {
+                    logger.debug(errorMsg);
                 }
                 break;
             }

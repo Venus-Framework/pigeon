@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.dianping.pigeon.log.LoggerLoader;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;

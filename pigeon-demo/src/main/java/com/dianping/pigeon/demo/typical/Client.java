@@ -5,8 +5,6 @@
 package com.dianping.pigeon.demo.typical;
 
 import com.dianping.dpsf.async.ServiceCallback;
-import com.dianping.dpsf.async.ServiceFuture;
-import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
@@ -101,7 +99,6 @@ public class Client {
 				// System.out.println("response:" +
 				// ContextUtils.getResponseContext("key1"));
 			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 	}

@@ -7,7 +7,7 @@ package com.dianping.pigeon.remoting.provider.listener;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;

@@ -2,7 +2,7 @@ package com.dianping.pigeon.remoting.test;
 
 import com.dianping.pigeon.log.LoggerLoader;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.junit.Test;
 
 public class RoundRobinLoadBalanceTest extends LoadBalanceBaseTest {

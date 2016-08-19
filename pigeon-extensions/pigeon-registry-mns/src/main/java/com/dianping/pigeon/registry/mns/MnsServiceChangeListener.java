@@ -11,7 +11,7 @@ import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import com.sankuai.sgagent.thrift.model.ServiceDetail;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import java.util.List;
 import java.util.Map;
