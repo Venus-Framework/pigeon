@@ -350,8 +350,8 @@
             + '</div>';
         }
 
-        $('#edit_hosts_info #host_line').html(host_line);
-        $('#edit_hosts_info').modal('show');
+        $('#add_hosts_info #host_line').html(host_line);
+        $('#add_hosts_info').modal('show');
     }
 
     function editService(dom) {// 点击编辑 host 信息
