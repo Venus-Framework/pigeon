@@ -74,7 +74,14 @@ public class AnnotationThriftSerializer extends AbstractThriftSerializer {
 
         //body
         if (message.type == TMessageType.REPLY) {
-            Object result = methodHandler.readResponse(protocol);
+            Object result = null;
+            try {
+                result = methodHandler.readResponse(protocol);
+            } catch (TApplicationException e) {
+                if (e.getType() == TApplicationException.MISSING_RESULT) {
+                    result = null;
+                }
+            }
             response.setReturn(result);
         } else if (message.type == TMessageType.EXCEPTION) {
             TApplicationException exception = TApplicationException.read(protocol);
