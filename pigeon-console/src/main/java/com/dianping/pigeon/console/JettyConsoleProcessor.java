@@ -30,17 +30,34 @@ public class JettyConsoleProcessor implements JettyHttpServerProcessor {
 	public void preStart(ServerConfig serverConfig, Server server, Context context) {
 		int port = server.getConnectors()[0].getPort();
 		context.addServlet(new ServletHolder(new ServiceServlet(serverConfig, port)), "/services");
-		context.addServlet(new ServletHolder(new ServiceJsonServlet(serverConfig, port)), "/services.json");
-		context.addServlet(new ServletHolder(new InvokeJsonServlet(serverConfig, port)), "/invoke.json");
-		context.addServlet(new ServletHolder(new ServiceStatusJsonServlet(serverConfig, port)), "/services.status");
 		context.addServlet(new ServletHolder(new ServicePublishServlet(serverConfig, port)), "/services.publish");
 		context.addServlet(new ServletHolder(new ServiceUnpublishServlet(serverConfig, port)), "/services.unpublish");
-		context.addServlet(new ServletHolder(new DependencyJsonServlet(serverConfig, port)), "/dependencies.json");
 		context.addServlet(new ServletHolder(new ServiceOnlineServlet(serverConfig, port)), "/services.online");
 		context.addServlet(new ServletHolder(new ServiceOfflineServlet(serverConfig, port)), "/services.offline");
-		context.addServlet(new ServletHolder(new StatisticsJsonServlet(serverConfig, port)), "/stats.json");
-		context.addServlet(new ServletHolder(new RegionStatusServlet(serverConfig, port)), "/region.status");
-		context.addServlet(new ServletHolder(new RequestQualityServlet(serverConfig, port)), "/requestQuality.status");
+
+		context.addServlet(new ServletHolder(new RegionStatusServlet(serverConfig, port)), "/region");
+		context.addServlet(new ServletHolder(new RequestQualityServlet(serverConfig, port)), "/requestQuality");
+
+		ServiceJsonServlet serviceJsonServlet = new ServiceJsonServlet(serverConfig, port);
+		context.addServlet(new ServletHolder(serviceJsonServlet), "/services.json");
+		context.addServlet(new ServletHolder(serviceJsonServlet), "/meta");
+
+		InvokeJsonServlet invokeJsonServlet = new InvokeJsonServlet(serverConfig, port);
+		context.addServlet(new ServletHolder(invokeJsonServlet), "/invoke.json");
+		context.addServlet(new ServletHolder(invokeJsonServlet), "/invoke");
+
+		DependencyJsonServlet dependencyJsonServlet = new DependencyJsonServlet(serverConfig, port);
+		context.addServlet(new ServletHolder(dependencyJsonServlet), "/dependencies.json");
+		context.addServlet(new ServletHolder(dependencyJsonServlet), "/dependencies");
+
+		StatisticsJsonServlet statisticsJsonServlet = new StatisticsJsonServlet(serverConfig, port);
+		context.addServlet(new ServletHolder(statisticsJsonServlet), "/stats.json");
+		context.addServlet(new ServletHolder(statisticsJsonServlet), "/stats");
+
+		ServiceStatusJsonServlet serviceStatusJsonServlet = new ServiceStatusJsonServlet(serverConfig, port);
+		context.addServlet(new ServletHolder(serviceStatusJsonServlet), "/services.status");
+		context.addServlet(new ServletHolder(serviceStatusJsonServlet), "/status");
+
 		ServletHolder holder = new ServletHolder(new DefaultServlet());
 		URL url = JettyConsoleProcessor.class.getClassLoader().getResource("statics");
 		if (url == null) {
@@ -50,9 +67,9 @@ public class JettyConsoleProcessor implements JettyHttpServerProcessor {
 		String staticsDir = url.toExternalForm();
 		holder.setInitParameter("resourceBase", staticsDir);
 		holder.setInitParameter("gzip", "false");
-//		context.addServlet(holder, "/jquery/*");
-//		context.addServlet(holder, "/ztree/*");
-//		context.addServlet(holder, "/bootstrap/*");
+		// context.addServlet(holder, "/jquery/*");
+		// context.addServlet(holder, "/ztree/*");
+		// context.addServlet(holder, "/bootstrap/*");
 		context.addServlet(holder, "/bootstrap/css/bootstrap-responsive.min.css");
 		context.addServlet(holder, "/bootstrap/css/bootstrap.min.css");
 		context.addServlet(holder, "/bootstrap/img/glyphicons-halflings-white.png");
