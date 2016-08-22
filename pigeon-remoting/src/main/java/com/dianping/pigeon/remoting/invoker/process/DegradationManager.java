@@ -162,6 +162,15 @@ public enum DegradationManager {
 		private String valueClass;
 		private String content;
 		private boolean throwException = false;
+		private boolean useMockClass = false;
+
+		public boolean getUseMockClass() {
+			return useMockClass;
+		}
+
+		public void setUseMockClass(boolean useMockClass) {
+			this.useMockClass = useMockClass;
+		}
 
 		public boolean getThrowException() {
 			return throwException;

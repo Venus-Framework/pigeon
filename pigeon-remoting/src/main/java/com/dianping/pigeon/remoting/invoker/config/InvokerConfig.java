@@ -81,6 +81,8 @@ public class InvokerConfig<T> {
 
     private String remoteAppKey;
 
+    private Object mock;
+
     public String getSecret() {
         return secret;
     }
@@ -342,6 +344,14 @@ public class InvokerConfig<T> {
         if (!StringUtils.isBlank(group)) {
             this.group = group.trim();
         }
+    }
+
+    public Object getMock() {
+        return mock;
+    }
+
+    public void setMock(Object mock) {
+        this.mock = mock;
     }
 
     public boolean equals(Object obj) {
