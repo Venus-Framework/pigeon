@@ -77,7 +77,7 @@ public class InvokerConfig<T> {
 
     private ClassLoader classLoader;
 
-    private String secret;
+    private transient String secret;
 
     private String remoteAppKey;
 

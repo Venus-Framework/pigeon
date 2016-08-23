@@ -36,19 +36,7 @@
 ],"invokerConfigStatistics": [
 <#list invokerConfigs as x>
 	{
-		"service": "${x.url}",
-		"timeout": "${x.timeout}",
-		"callType": "${x.callType}",
-		"InvokerMethodConfigs" : [
-		<#if x.methods?exists>
-		<#list x.methods?keys as mKey>
-			{
-				"method": "${mKey}",
-				"timeout": "${(x.methods)[mKey].timeout}"
-			}<#if mKey_has_next>,</#if>
-		</#list>
-		</#if>
-		]
+		"config": "${x}"
 	}<#if x_has_next>,</#if>
 </#list>
 ],"otherStatistics": [
