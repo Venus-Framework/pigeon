@@ -83,11 +83,11 @@
 			<artifactId>pigeon-registry-zookeeper</artifactId>
 			<version>${pigeon.version}</version>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>com.dianping</groupId>
 			<artifactId>pigeon-registry-mns</artifactId>
 			<version>${pigeon.version}</version>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>com.dianping</groupId>
 			<artifactId>pigeon-registry-composite</artifactId>
@@ -142,7 +142,7 @@
 									<include>com.dianping:pigeon-remoting</include>
 									<include>com.dianping:pigeon-monitor</include>
 									<include>com.dianping:pigeon-registry-zookeeper</include>
-									<include>com.dianping:pigeon-registry-mns</include>
+									<!--<include>com.dianping:pigeon-registry-mns</include>-->
 									<include>com.dianping:pigeon-registry-composite</include>
 									<include>com.dianping:pigeon-remoting-netty</include>
 									<include>com.dianping:pigeon-remoting-http</include>
