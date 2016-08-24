@@ -504,7 +504,7 @@ public class CompositeRegistry implements Registry {
             T t = checkList.get(i);
 
             if (t != null && !t.equals(result)) {
-                String errorMsg = msg + "result not same in different registries! index0: "
+                String errorMsg = msg + " result not same in different registries! index0: "
                         + result + ", index" + i + ": " + t;
 
                 if (configManager.getBooleanValue("pigeon.registry.check.value.consistency.exception", false)) {
