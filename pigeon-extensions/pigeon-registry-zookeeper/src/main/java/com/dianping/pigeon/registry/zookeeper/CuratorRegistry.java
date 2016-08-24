@@ -296,7 +296,7 @@ public class CuratorRegistry implements Registry {
 	}
 
 	@Override
-	public String getServerApp(String serverAddress) {
+	public String getServerApp(String serverAddress) throws RegistryException {
 		String path = Utils.getAppPath(serverAddress);
 		String strApp;
 		try {
@@ -307,7 +307,7 @@ public class CuratorRegistry implements Registry {
 			return strApp;
 		} catch (Throwable e) {
 			logger.error("failed to get app for " + serverAddress);
-			return "";
+			throw new RegistryException(e);
 		}
 	}
 
@@ -347,13 +347,13 @@ public class CuratorRegistry implements Registry {
 	}
 
 	@Override
-	public String getServerVersion(String serverAddress) {
+	public String getServerVersion(String serverAddress) throws RegistryException {
 		String path = Utils.getVersionPath(serverAddress);
 		try {
 			return client.get(path);
 		} catch (Throwable e) {
 			logger.error("failed to get version for " + serverAddress);
-			return "";
+			throw new RegistryException(e);
 		}
 	}
 

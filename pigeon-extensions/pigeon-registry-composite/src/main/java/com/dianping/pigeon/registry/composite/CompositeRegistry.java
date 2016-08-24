@@ -211,6 +211,10 @@ public class CompositeRegistry implements Registry {
             }
         }
 
+        if (checkList.size() == 0) {
+            throw new RegistryException("failed to get weight for " + serverAddress);
+        }
+
         weight = checkValueConsistency(checkList, "weight");
 
         return weight;
@@ -233,7 +237,7 @@ public class CompositeRegistry implements Registry {
     }
 
     @Override
-    public String getServerApp(String serverAddress) {
+    public String getServerApp(String serverAddress) throws RegistryException {
         String app = "";
         List<String> checkList = Lists.newArrayList();
 
@@ -241,11 +245,15 @@ public class CompositeRegistry implements Registry {
             try {
                 checkList.add(registry.getServerApp(serverAddress));
             } catch (Throwable e) {
-                logger.warn("failed to get appname from registry: " + registry.getName());
+                logger.warn("failed to get app from registry: " + registry.getName());
             }
         }
 
         app = checkValueConsistency(checkList, "app");
+
+        if (app == null) {
+            throw new RegistryException("failed to get app for " + serverAddress);
+        }
 
         return app;
     }
@@ -284,7 +292,7 @@ public class CompositeRegistry implements Registry {
     }
 
     @Override
-    public String getServerVersion(String serverAddress) {
+    public String getServerVersion(String serverAddress) throws RegistryException {
         String version = "";
         List<String> checkList = Lists.newArrayList();
 
@@ -297,6 +305,10 @@ public class CompositeRegistry implements Registry {
         }
 
         version = checkValueConsistency(checkList, "version");
+
+        if (version == null) {
+            throw new RegistryException("failed to get version for " + serverAddress);
+        }
 
         return version;
     }
@@ -336,6 +348,10 @@ public class CompositeRegistry implements Registry {
             }
         }
 
+        if (checkList.size() == 0) {
+            throw new RegistryException("failed to get heartbeat support for " + serviceAddress);
+        }
+
         support = checkValueConsistency(checkList, "server heartbeat support");
 
         return support;
@@ -354,6 +370,10 @@ public class CompositeRegistry implements Registry {
             }
         }
 
+        if (checkList.size() == 0) {
+            throw new RegistryException("failed to get protocol support for " + serviceAddress);
+        }
+
         support = checkValueConsistency(checkList, "host protocol support");
 
         return support;
@@ -370,6 +390,11 @@ public class CompositeRegistry implements Registry {
             } catch (Throwable e) {
                 logger.warn("failed to get support new protocol from registry: " + registry.getName());
             }
+        }
+
+        if (checkList.size() == 0) {
+            throw new RegistryException("failed to get service protocol support for "
+                    + serviceAddress + ", " + serviceName);
         }
 
         support = checkValueConsistency(checkList, "service protocol support");

@@ -4,6 +4,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
+import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.util.HeartBeatSupport;
@@ -37,8 +38,6 @@ public class MnsRegistry implements Registry {
             mnsChangeListenerManager = MnsChangeListenerManager.INSTANCE;
 
     public static final int WEIGHT_DEFAULT = 1;
-
-    private static final Map<String, String> hostRemoteAppkeyMapping = MnsUtils.getHostRemoteAppkeyMapping();
 
     private volatile boolean inited = false;
 
@@ -114,7 +113,6 @@ public class MnsRegistry implements Registry {
                     remoteAppkeyReal = "";
                 }
 
-                hostRemoteAppkeyMapping.put(host, remoteAppkeyReal);
             }
         }
 
@@ -212,19 +210,15 @@ public class MnsRegistry implements Registry {
      */
     @Override
     public int getServerWeight(String serverAddress) throws RegistryException {
-        // 北京侧的最小单位不是serverAddress
-        // client建立连接时候，带上host和remoteAppkey的映射
-        // host ---> remoteAppkey
-        // 存在的问题，高度依赖于连接client时序，是否一定是先建立client连接
         try {
-            String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
+            String remoteAppkey = RegistryManager.getInstance().getReferencedAppFromCache(serverAddress);
 
             if (StringUtils.isNotBlank(remoteAppkey)) {
                 SGService sgService = getSGService(remoteAppkey, null, serverAddress);
                 return MnsUtils.getWeight(sgService.getStatus(), sgService.getWeight());
             }
 
-            return WEIGHT_DEFAULT;
+            throw new RegistryException("failed to get weight for " + serverAddress);
         } catch (Throwable e) {
             logger.error("failed to get weight for " + serverAddress);
             throw new RegistryException(e);
@@ -238,19 +232,19 @@ public class MnsRegistry implements Registry {
      * @throws RegistryException
      */
     @Override
-    public String getServerApp(String serverAddress) {
+    public String getServerApp(String serverAddress) throws RegistryException {
         try {
-            String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
+            String remoteAppkey = RegistryManager.getInstance().getReferencedAppFromCache(serverAddress);
 
             if (StringUtils.isNotBlank(remoteAppkey)) {
                 SGService sgService = getSGService(remoteAppkey, null, serverAddress);
                 return sgService.getAppkey();
             }
 
-            return "";
+            throw new RegistryException("failed to get app for " + serverAddress);
         } catch (Throwable e) {
             logger.error("failed to get app for " + serverAddress);
-            return "";
+            throw new RegistryException(e);
         }
     }
 
@@ -261,19 +255,19 @@ public class MnsRegistry implements Registry {
      * @throws RegistryException
      */
     @Override
-    public String getServerVersion(String serverAddress) {
+    public String getServerVersion(String serverAddress) throws RegistryException {
         try {
-            String remoteAppkey = hostRemoteAppkeyMapping.get(serverAddress);
+            String remoteAppkey = RegistryManager.getInstance().getReferencedAppFromCache(serverAddress);
 
             if (StringUtils.isNotBlank(remoteAppkey)) {
                 SGService sgService = getSGService(remoteAppkey, null, serverAddress);
                 return sgService.getVersion();
             }
 
-            return "";
+            throw new RegistryException("failed to get version for " + serverAddress);
         } catch (Throwable e) {
             logger.error("failed to get version for " + serverAddress);
-            return "";
+            throw new RegistryException(e);
         }
     }
 
@@ -306,6 +300,11 @@ public class MnsRegistry implements Registry {
 
         if(serviceDetail != null) {
             return serviceDetail.isUnifiedProto();
+        }
+
+        // 判断是否是新版mtthrift服务节点
+        if (VersionUtils.isThriftSupported(sgService.getVersion())) {
+            return true;
         }
 
         throw new RegistryException("service detail not existed for " + serviceAddress + "#" + serviceName);
@@ -440,7 +439,7 @@ public class MnsRegistry implements Registry {
     @Override
     public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
         try {
-            String remoteAppkey = hostRemoteAppkeyMapping.get(serviceAddress);
+            String remoteAppkey = RegistryManager.getInstance().getReferencedAppFromCache(serviceAddress);
 
             if (StringUtils.isNotBlank(remoteAppkey)) {
                 SGService sgService = getSGService(remoteAppkey, null, serviceAddress);

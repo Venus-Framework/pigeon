@@ -160,6 +160,7 @@ public class RegistryManager {
         return Utils.getAddressList(serviceName, serviceAddress);
     }
 
+    // invoker
 	public String getServiceAddress(String remoteAppkey, String serviceName, String group) throws RegistryException {
 		String serviceKey = getServiceKey(serviceName, group);
 		if (props.containsKey(serviceKey)) {
@@ -194,6 +195,7 @@ public class RegistryManager {
         return "";
 	}
 
+    // invoker
     public String getServiceAddress(String serviceName, String group) throws RegistryException {
         String serviceKey = getServiceKey(serviceName, group);
         if (props.containsKey(serviceKey)) {
@@ -236,6 +238,7 @@ public class RegistryManager {
         }
     }
 
+    // invoker
     public int getServiceWeightFromCache(String serverAddress) {
         HostInfo hostInfo = referencedAddresses.get(serverAddress);
         if (hostInfo != null) {
@@ -244,6 +247,7 @@ public class RegistryManager {
         return Constants.DEFAULT_WEIGHT;
     }
 
+    // invoker
     public int getServiceWeight(String serverAddress, boolean readCache) {
         if (readCache) {
             HostInfo hostInfo = referencedAddresses.get(serverAddress);
@@ -268,12 +272,17 @@ public class RegistryManager {
         return weight;
     }
 
+    // invoker
     public int getServiceWeight(String serverAddress) {
         return getServiceWeight(serverAddress, true);
     }
 
-    /*
-     * Update service weight in local cache. Will not update to registry center.
+
+    /**
+     * For invoker to update service weight in local cache.
+     * Will not update to registry center.
+     * @param serviceAddress
+     * @param weight
      */
     public void setServiceWeight(String serviceAddress, int weight) {
         HostInfo hostInfo = referencedAddresses.get(serviceAddress);
@@ -287,6 +296,7 @@ public class RegistryManager {
         logger.info("set " + serviceAddress + " weight to " + weight);
     }
 
+    // provider
     public void registerService(String serviceName, String group, String serviceAddress, int weight)
             throws RegistryException {
         if (registry != null) {
@@ -296,6 +306,7 @@ public class RegistryManager {
         }
     }
 
+    // provider
     public void setServerWeight(String serverAddress, int weight) throws RegistryException {
         if (registry != null) {
             registry.setServerWeight(serverAddress, weight);
@@ -303,10 +314,12 @@ public class RegistryManager {
         }
     }
 
+    // provider
     public void unregisterService(String serviceName, String serviceAddress) throws RegistryException {
         unregisterService(serviceName, Constants.DEFAULT_GROUP, serviceAddress);
     }
 
+    //provider
     public void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException {
         if (registry != null) {
             registry.unregisterService(serviceName, group, serviceAddress);
@@ -315,6 +328,7 @@ public class RegistryManager {
         }
     }
 
+    // invoker
     public void addServiceAddress(String serviceName, String host, int port, int weight) {
         Utils.validateWeight(host, port, weight);
 
@@ -355,10 +369,21 @@ public class RegistryManager {
         if (!referencedAddresses.containsKey(serviceAddress)) {
             referencedAddresses.put(serviceAddress, hostInfo);
             if (registry != null) {
-                String app = registry.getServerApp(hostInfo.getConnect());
-                hostInfo.setApp(app);
-                String version = registry.getServerVersion(hostInfo.getConnect());
-                hostInfo.setVersion(version);
+
+                try {
+                    String app = registry.getServerApp(hostInfo.getConnect());
+                    hostInfo.setApp(app);
+                } catch (RegistryException e) {
+                    logger.error("failed to update app in cache for: " + serviceAddress);
+                }
+
+                try {
+                    String version = registry.getServerVersion(hostInfo.getConnect());
+                    hostInfo.setVersion(version);
+                } catch (RegistryException e) {
+                    logger.error("failed to update version in cache for: " + serviceAddress);
+                }
+
             }
         }
     }
@@ -403,12 +428,13 @@ public class RegistryManager {
 
     public String getReferencedAppFromCache(String serverAddress) {
         HostInfo hostInfo = referencedAddresses.get(serverAddress);
-        String app = null;
+        String app = "";
+
         if (hostInfo != null) {
             app = hostInfo.getApp();
-            return app;
         }
-        return "";
+
+        return app;
     }
 
     public Map<String, Boolean> getProtocolInfoFromCache(String serviceAddress) {
@@ -431,10 +457,16 @@ public class RegistryManager {
 
     public String getReferencedApp(String serverAddress) {
         String app = "";
+
         if (registry != null) {
-            app = registry.getServerApp(serverAddress);
-            setReferencedApp(serverAddress, app);
+            try {
+                app = registry.getServerApp(serverAddress);
+                setReferencedApp(serverAddress, app);
+            } catch (RegistryException e) {
+                logger.error("failed to update app in cache for: " + serverAddress);
+            }
         }
+
         return app;
     }
 
@@ -474,8 +506,12 @@ public class RegistryManager {
     public String getReferencedVersion(String serverAddress) {
         String version = "";
         if (registry != null) {
-            version = registry.getServerVersion(serverAddress);
-            setReferencedVersion(serverAddress, version);
+            try {
+                version = registry.getServerVersion(serverAddress);
+                setReferencedVersion(serverAddress, version);
+            } catch (RegistryException e) {
+                logger.error("failed to update version in cache for: " + serverAddress);
+            }
         }
         return version;
     }
@@ -590,14 +626,15 @@ public class RegistryManager {
 
         try {
             support= registry.isSupportNewProtocol(serviceAddress, serviceName);
+            Map<String, Boolean> protocolInfoMap = referencedServiceProtocols.get(serviceAddress);
+
+            if (protocolInfoMap != null) {
+                protocolInfoMap.put(serviceName, support);
+            }
         } catch (Throwable e) {
             logger.error("failed to get protocol for " + serviceAddress + "#" + serviceName, e);
         }
 
-        Map<String, Boolean> protocolInfoMap = referencedServiceProtocols.get(serviceAddress);
-        if (protocolInfoMap != null) {
-            protocolInfoMap.put(serviceName, support);
-        }
 
         return support;
     }
@@ -631,11 +668,11 @@ public class RegistryManager {
 
         try {
             support = registry.isSupportNewProtocol(serverAddress, serviceName);
+            setReferencedProtocol(serverAddress, serviceName, support);
         } catch (Throwable e) {
             logger.error("failed to get protocol for " + serverAddress + "#" + serviceName, e);
         }
 
-        setReferencedProtocol(serverAddress, serviceName, support);
         return support;
     }
 
