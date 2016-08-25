@@ -580,7 +580,7 @@ public class RegistryManager {
      * @throws RegistryException
      */
     public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
-        byte heartBeatSupport = HeartBeatSupport.UNSUPPORT.getValue();
+        byte heartBeatSupport = HeartBeatSupport.BOTH.getValue();
 
         if (registry != null) {
             heartBeatSupport = registry.getServerHeartBeatSupport(serviceAddress);

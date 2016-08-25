@@ -158,6 +158,12 @@ public class HeartBeatListener implements Runnable, ClusterListener {
                                             && serverPorts.contains(client.getPort())) {
                                         continue;
                                     }
+
+                                    if (!checkIfNeedSend(client.getAddress())) {
+                                        // not support p2p heartbeat
+                                        continue;
+                                    }
+
                                     sendHeartBeatRequest(client);
                                 } else {
                                     logger.info("[heartbeat] remove connect:" + client.getAddress());
@@ -179,11 +185,6 @@ public class HeartBeatListener implements Runnable, ClusterListener {
     }
 
     private void sendHeartBeatRequest(Client client) {
-        if (!checkIfNeedSend(client.getAddress())) {
-            // not support p2p heartbeat
-            return ;
-        }
-
         HeartBeatStat heartBeatStat = getHeartBeatStatWithCreate(client.getAddress());
         InvocationRequest heartRequest = createHeartRequest0(client);
         try {
@@ -206,8 +207,8 @@ public class HeartBeatListener implements Runnable, ClusterListener {
     }
 
     private boolean checkIfNeedSend(String address) {
-        boolean support = false;
-        byte heartBeatSupport = HeartBeatSupport.UNSUPPORT.getValue();
+        boolean support = true;
+        byte heartBeatSupport = HeartBeatSupport.BOTH.getValue();
 
         try {
             heartBeatSupport = RegistryManager.getInstance().getServerHeartBeatSupport(address);
@@ -216,14 +217,15 @@ public class HeartBeatListener implements Runnable, ClusterListener {
         }
 
         switch (HeartBeatSupport.findByValue(heartBeatSupport)) {
-            case CLIENTTOSERVER:
-            case BOTH:
-                support = true;
-                break;
             case UNSUPPORT:
             case SCANNER:
-            default:
                 support = false;
+                break;
+
+            case CLIENTTOSERVER:
+            case BOTH:
+            default:
+                support = true;
                 break;
         }
 
