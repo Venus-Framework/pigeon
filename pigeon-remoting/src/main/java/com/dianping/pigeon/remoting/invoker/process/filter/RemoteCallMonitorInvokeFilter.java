@@ -250,10 +250,9 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
             if (transaction != null) {
                 try {
                     InvocationRequest _request = invocationContext.getRequest();
-                    if (_request != request) {
-                        if (_request.getSerialize() != request.getSerialize()) {
-                            transaction.addData("CurrentSerialize", _request.getSerialize());
-                        }
+                    InvokerConfig config = invocationContext.getInvokerConfig();
+                    if (_request.getSerialize() != config.getSerialize()) {
+                        transaction.addData("CurrentSerialize", _request.getSerialize());
                     }
                     if (!Constants.CALL_FUTURE.equals(invokerConfig.getCallType()) || error) {
                         invocationContext.getTimeline().add(new TimePoint(TimePhase.E, System.currentTimeMillis()));
