@@ -117,7 +117,6 @@ public class ThriftMethodProcessor {
                 }
             }
             reader.readStructEnd();
-
             int argumentPosition = 0;
             for (ThriftFieldMetadata argument : parameters) {
                 if (args[argumentPosition] == null) {
