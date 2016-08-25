@@ -4,7 +4,6 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
-import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.util.HeartBeatSupport;
@@ -38,6 +37,8 @@ public class MnsRegistry implements Registry {
             mnsChangeListenerManager = MnsChangeListenerManager.INSTANCE;
 
     public static final int WEIGHT_DEFAULT = 1;
+
+    private static final Map<String, String> hostRemoteAppkeyMapping = MnsUtils.getHostRemoteAppkeyMapping();
 
     private volatile boolean inited = false;
 
@@ -113,6 +114,7 @@ public class MnsRegistry implements Registry {
                     remoteAppkeyReal = "";
                 }
 
+                hostRemoteAppkeyMapping.put(host, remoteAppkeyReal);
             }
         }
 
@@ -211,7 +213,7 @@ public class MnsRegistry implements Registry {
     @Override
     public int getServerWeight(String serverAddress) throws RegistryException {
         try {
-            String remoteAppkey = RegistryManager.getInstance().getReferencedAppFromCache(serverAddress);
+            String remoteAppkey = getRemoteAppkeyMapping(serverAddress);
 
             if (StringUtils.isNotBlank(remoteAppkey)) {
                 SGService sgService = getSGService(remoteAppkey, null, serverAddress);
@@ -234,7 +236,7 @@ public class MnsRegistry implements Registry {
     @Override
     public String getServerApp(String serverAddress) throws RegistryException {
         try {
-            String remoteAppkey = RegistryManager.getInstance().getReferencedAppFromCache(serverAddress);
+            String remoteAppkey = getRemoteAppkeyMapping(serverAddress);
 
             if (StringUtils.isNotBlank(remoteAppkey)) {
                 SGService sgService = getSGService(remoteAppkey, null, serverAddress);
@@ -257,7 +259,7 @@ public class MnsRegistry implements Registry {
     @Override
     public String getServerVersion(String serverAddress) throws RegistryException {
         try {
-            String remoteAppkey = RegistryManager.getInstance().getReferencedAppFromCache(serverAddress);
+            String remoteAppkey = getRemoteAppkeyMapping(serverAddress);
 
             if (StringUtils.isNotBlank(remoteAppkey)) {
                 SGService sgService = getSGService(remoteAppkey, null, serverAddress);
@@ -439,7 +441,7 @@ public class MnsRegistry implements Registry {
     @Override
     public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
         try {
-            String remoteAppkey = RegistryManager.getInstance().getReferencedAppFromCache(serviceAddress);
+            String remoteAppkey = getRemoteAppkeyMapping(serviceAddress);
 
             if (StringUtils.isNotBlank(remoteAppkey)) {
                 SGService sgService = getSGService(remoteAppkey, null, serviceAddress);
@@ -509,6 +511,16 @@ public class MnsRegistry implements Registry {
     @Override
     public void deleteHeartBeat(String serviceAddress) {
         // keep blank
+    }
+
+    private String getRemoteAppkeyMapping(String serverAddress) {
+        String app = hostRemoteAppkeyMapping.get(serverAddress);
+
+        if (StringUtils.isBlank(app) && serverAddress.startsWith(configManager.getLocalIp())) {
+            app = configManager.getAppName();
+        }
+
+        return StringUtils.isNotBlank(app) ? app : "";
     }
 
     private boolean checkSupport(String serviceName, String group) {
