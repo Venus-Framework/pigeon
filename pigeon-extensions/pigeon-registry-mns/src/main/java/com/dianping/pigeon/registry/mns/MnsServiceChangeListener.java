@@ -122,6 +122,10 @@ public class MnsServiceChangeListener implements IServiceListChangeListener {
                     //heartbeat support
                     //todo
 
+                    if (appNew == null) {
+                        appNew = "";
+                    }
+
                     hostRemoteAppkeyMapping.put(host, appNew);
                 }
             }
