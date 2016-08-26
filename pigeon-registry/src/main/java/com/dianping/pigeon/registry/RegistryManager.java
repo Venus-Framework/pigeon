@@ -44,7 +44,7 @@ public class RegistryManager {
 
     private static volatile Registry registry = null;
 
-    private static final String KEY_PIGEON_REGISTRY_CUSTOMIZED = "pigeon.registry.customized.snapshot";
+    private static final String KEY_PIGEON_REGISTRY_CUSTOMIZED = "pigeon.registry.customized";
 
     private static ConcurrentHashMap<String, Set<HostInfo>> referencedServiceAddresses = new ConcurrentHashMap<String, Set<HostInfo>>();
 

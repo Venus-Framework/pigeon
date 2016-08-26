@@ -49,7 +49,7 @@ public class MnsRegistry implements Registry {
             synchronized (this) {
                 if (!inited) {
                     String specifySgAgent = configManager
-                            .getStringValue("pigeon.mns.sgagent.customized.address.snapshot", "");
+                            .getStringValue("pigeon.mns.sgagent.customized.address", "");
 
                     if (StringUtils.isNotBlank(specifySgAgent)) {
                         CustomizedManager.setCustomizedSGAgents(specifySgAgent);

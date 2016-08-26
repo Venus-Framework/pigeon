@@ -238,7 +238,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
         try {
             supported = RegistryManager.getInstance().isSupportNewProtocol(client.getAddress());
         } catch (Throwable t) {
-            supported = configManager.getBooleanValue("pigeon.mns.host.support.new.protocol.snapshot", true);
+            supported = configManager.getBooleanValue("pigeon.mns.host.support.new.protocol", true);
             logger.warn("get protocol support failed, set support to: " + supported);
         }
 

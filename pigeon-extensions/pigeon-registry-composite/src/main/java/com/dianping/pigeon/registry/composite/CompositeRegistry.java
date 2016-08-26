@@ -32,7 +32,7 @@ public class CompositeRegistry implements Registry {
 
     private volatile boolean inited = false;
 
-    private static final String KEY_PIGEON_REGISTRY_PREFER = "pigeon.registry.prefer.snapshot";
+    private static final String KEY_PIGEON_REGISTRY_PREFER = "pigeon.registry.prefer";
 
     @Override
     public void init(Properties properties) {
