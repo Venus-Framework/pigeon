@@ -217,7 +217,7 @@ public class MnsRegistry implements Registry {
 
             if (StringUtils.isNotBlank(remoteAppkey)) {
                 SGService sgService = getSGService(remoteAppkey, null, serverAddress);
-                return MnsUtils.getWeight(sgService.getStatus(), sgService.getWeight());
+                return MnsUtils.getWeight(sgService.getStatus());
             }
 
             throw new RegistryException("failed to get weight for " + serverAddress);

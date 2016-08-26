@@ -86,6 +86,18 @@ public class MnsUtils {
         return status;
     }
 
+    public static int getWeight(int mtthriftStatus) {
+        int weight;
+
+        if (mtthriftStatus == fb_status.ALIVE.getValue()) {
+            weight = WEIGHT_ACTIVE;
+        } else {
+            weight = WEIGHT_INACTIVE;
+        }
+
+        return weight;
+    }
+
     public static int getWeight(int mtthriftStatus, int mtthriftWeight) {
         int weight;
 
