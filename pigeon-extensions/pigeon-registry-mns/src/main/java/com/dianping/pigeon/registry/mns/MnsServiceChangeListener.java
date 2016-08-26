@@ -37,7 +37,9 @@ public class MnsServiceChangeListener implements IServiceListChangeListener {
         String remoteAppkey = req.getRemoteAppkey();
         String serviceName = req.getServiceName();
 
-        logger.info(req + "changed, new count: " + newList.size() + ", modified count: " + modifiedList.size());
+        logger.info(req + "changed, add count: " + addList.size()
+                + ", deleted count: " + deletedList.size()
+                + ", modified count: " + modifiedList.size());
 
         try {
             if (addList.size() > 0 || deletedList.size() > 0) { // 通知addressChanged

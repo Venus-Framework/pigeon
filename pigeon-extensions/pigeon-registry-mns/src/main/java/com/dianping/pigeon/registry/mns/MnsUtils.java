@@ -45,31 +45,13 @@ public class MnsUtils {
     }
 
     public static int getMtthriftWeight(int weight) {
-        int mtThriftWeight;
 
-        if (weight == WEIGHT_INACTIVE) {
-            mtThriftWeight = MNS_WEIGHT_INACTIVE_DEFAULT;//inactive
-        }  else if (weight > WEIGHT_INACTIVE) {
-            mtThriftWeight = MNS_WEIGHT_ACTIVE_DEFAULT;//active
-        } else {
-            mtThriftWeight = MNS_WEIGHT_ACTIVE_DEFAULT;//active
-        }
-
-        return mtThriftWeight;
+        return MNS_WEIGHT_ACTIVE_DEFAULT;
     }
 
     public static double getMtthriftFWeight(int weight) {
-        double mtThriftWeight;
 
-        if (weight == WEIGHT_INACTIVE) {
-            mtThriftWeight = MNS_FWEIGHT_INACTIVE_DEFAULT;//inactive
-        }  else if (weight > WEIGHT_INACTIVE) {
-            mtThriftWeight = MNS_FWEIGHT_ACTIVE_DEFAULT;//active
-        } else {
-            mtThriftWeight = MNS_FWEIGHT_ACTIVE_DEFAULT;//active
-        }
-
-        return mtThriftWeight;
+        return MNS_FWEIGHT_ACTIVE_DEFAULT;
     }
 
     public static int getMtthriftStatus(int weight) {
