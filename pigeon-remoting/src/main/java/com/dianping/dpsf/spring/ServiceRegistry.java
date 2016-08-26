@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;

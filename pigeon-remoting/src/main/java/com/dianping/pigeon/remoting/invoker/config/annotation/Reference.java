@@ -42,5 +42,7 @@ public @interface Reference {
 	String version() default "";
 
 	String group() default "";
+	
+	String secret() default "";
 
 }

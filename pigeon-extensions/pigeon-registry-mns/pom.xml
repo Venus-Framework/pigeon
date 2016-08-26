@@ -32,12 +32,12 @@
         <dependency>
             <groupId>com.sankuai.octo</groupId>
             <artifactId>mns-invoker</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <version>1.7.1</version>
         </dependency>
         <dependency>
             <groupId>com.sankuai.octo</groupId>
             <artifactId>idl-common</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <version>1.7.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.thrift</groupId>

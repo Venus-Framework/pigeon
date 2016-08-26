@@ -1,6 +1,8 @@
 package com.dianping.pigeon.console.domain;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
@@ -18,7 +20,7 @@ public class Statistics {
 
 	private Map<String, WeightFactor> weightFactors = new HashMap<String, WeightFactor>();
 
-	private Map<String, InvokerConfig> invokerConfigs = new HashMap<String, InvokerConfig>();
+	private List<InvokerConfig> invokerConfigs = new ArrayList<InvokerConfig>();
 
 	public Map<String, String> others = new HashMap<String, String>();
 
@@ -70,11 +72,11 @@ public class Statistics {
 		this.appRequestsOfInvoker = appRequestsOfInvoker;
 	}
 
-	public Map<String, InvokerConfig> getInvokerConfigs() {
+	public List<InvokerConfig> getInvokerConfigs() {
 		return invokerConfigs;
 	}
 
-	public void setInvokerConfigs(Map<String, InvokerConfig> invokerConfigs) {
+	public void setInvokerConfigs(List<InvokerConfig> invokerConfigs) {
 		this.invokerConfigs = invokerConfigs;
 	}
 

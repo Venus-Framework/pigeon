@@ -4,7 +4,7 @@
  */
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.pigeon.log.LoggerLoader;

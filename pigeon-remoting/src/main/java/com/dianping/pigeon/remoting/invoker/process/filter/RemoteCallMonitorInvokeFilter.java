@@ -6,17 +6,16 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import java.util.Calendar;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
@@ -49,9 +48,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 
     private static final String KEY_LOG_TIMEOUT_PERIOD = "pigeon.invoker.log.timeout.period.apps";
 
-    private static final Random random = new Random();
-
-    private static class InnerConfigChangeListener implements ConfigChangeListener {
+	private static class InnerConfigChangeListener implements ConfigChangeListener {
 
         @Override
         public void onKeyUpdated(String key, String value) {
@@ -123,11 +120,6 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
                     transaction.addData("Serialize", invokerConfig.getSerialize());
 
                     transaction.logEvent("PigeonCall.QPS", "S" + Calendar.getInstance().get(Calendar.SECOND), "");
-                    /*boolean logTimeout = random.nextInt(Constants.INVOKER_LOG_TIMEOUT_PERCENT) < 1;
-                    if (logTimeout) {
-						transaction
-								.logEvent("PigeonCall.timeout." + callInterface, invokerConfig.getTimeout() + "", "");
-					}*/
                     transaction.readMonitorContext();
                 }
             } catch (Throwable e) {

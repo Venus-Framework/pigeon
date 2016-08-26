@@ -7,7 +7,7 @@ package com.dianping.pigeon.remoting.provider.config.spring;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;

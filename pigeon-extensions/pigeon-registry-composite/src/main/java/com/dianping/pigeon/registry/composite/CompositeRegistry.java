@@ -4,6 +4,7 @@ import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
@@ -13,7 +14,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -511,8 +511,8 @@ public class CompositeRegistry implements Registry {
                     throw new RuntimeException(errorMsg);
                 }
 
-                if (configManager.getBooleanValue(LoggerLoader.KEY_LOG_DEBUG_ENABLE, false)) {
-                    logger.warn(errorMsg);
+                if (logger.isDebugEnabled()) {
+                    logger.debug(errorMsg);
                 }
 
                 break;

@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedRequest;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;

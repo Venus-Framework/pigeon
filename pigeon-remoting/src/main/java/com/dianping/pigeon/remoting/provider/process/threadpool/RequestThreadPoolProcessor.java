@@ -17,7 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManagerLoader;

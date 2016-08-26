@@ -22,6 +22,9 @@ public final class ExtensionLoader {
 
 	private static Map<Class<?>, List<?>> extensionListMap = new ConcurrentHashMap<Class<?>, List<?>>();
 
+	private ExtensionLoader() {
+	}
+
 	public static <T> T getExtension(Class<T> clazz) {
 		T extension = (T) extensionMap.get(clazz);
 		if (extension == null) {

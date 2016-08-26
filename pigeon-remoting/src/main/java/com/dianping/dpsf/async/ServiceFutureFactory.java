@@ -5,7 +5,7 @@ package com.dianping.dpsf.async;
 
 import com.dianping.pigeon.log.LoggerLoader;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 /**
  * <p>

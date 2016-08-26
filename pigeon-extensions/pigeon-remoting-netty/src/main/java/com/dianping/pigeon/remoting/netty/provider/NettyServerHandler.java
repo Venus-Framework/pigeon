@@ -7,7 +7,7 @@ import com.dianping.pigeon.remoting.netty.codec.CodecEvent;
 import com.dianping.pigeon.remoting.provider.domain.DefaultProviderContext;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.jboss.netty.channel.*;
 
 import java.util.List;

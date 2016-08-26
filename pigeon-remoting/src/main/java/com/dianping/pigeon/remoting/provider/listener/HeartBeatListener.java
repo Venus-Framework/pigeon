@@ -10,7 +10,7 @@ import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import java.util.Collections;
 import java.util.Date;

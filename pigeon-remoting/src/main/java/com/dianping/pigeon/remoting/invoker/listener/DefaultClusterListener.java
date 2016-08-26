@@ -19,7 +19,7 @@ import com.dianping.pigeon.util.CollectionUtils;
 import com.dianping.pigeon.util.ThreadPoolUtils;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import java.util.Arrays;
 import java.util.Iterator;

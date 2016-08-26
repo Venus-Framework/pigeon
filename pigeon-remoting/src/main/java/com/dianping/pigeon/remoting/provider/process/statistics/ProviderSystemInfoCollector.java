@@ -9,7 +9,7 @@ import com.dianping.pigeon.remoting.provider.Server;
 import com.dianping.pigeon.remoting.provider.process.RequestProcessor;
 import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.google.common.collect.Maps;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.apache.thrift.TEnum;
 
 import java.lang.management.GarbageCollectorMXBean;

@@ -12,7 +12,7 @@ import com.dianping.pigeon.remoting.invoker.proxy.MockProxyWrapper;
 import com.dianping.pigeon.util.ClassUtils;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.springframework.util.CollectionUtils;
 
 import com.dianping.dpsf.async.ServiceCallback;

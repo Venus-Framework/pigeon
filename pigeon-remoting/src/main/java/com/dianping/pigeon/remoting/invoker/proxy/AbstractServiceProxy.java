@@ -12,7 +12,7 @@ import com.dianping.pigeon.remoting.invoker.exception.RegionException;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

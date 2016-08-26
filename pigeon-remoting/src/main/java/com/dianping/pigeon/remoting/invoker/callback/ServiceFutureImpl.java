@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.callback;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.dpsf.async.ServiceFuture;
 import com.dianping.dpsf.exception.DPSFException;
