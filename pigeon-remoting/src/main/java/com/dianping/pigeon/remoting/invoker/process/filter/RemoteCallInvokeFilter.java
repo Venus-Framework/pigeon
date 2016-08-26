@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.async.ServiceFutureFactory;

@@ -12,7 +12,7 @@ import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 import com.google.common.collect.Lists;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import java.util.*;
 
@@ -86,8 +86,8 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
                             return filterClients;
                         }
                     } else {
-                        if (configManager.getBooleanValue(LoggerLoader.KEY_LOG_DEBUG_ENABLE, false)) {
-                            logger.info("b: " + sizeBefore + ", a:" + regionClientList.size());
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("b: " + sizeBefore + ", a:" + regionClientList.size());
                         }
                         return regionClientList;
                     }

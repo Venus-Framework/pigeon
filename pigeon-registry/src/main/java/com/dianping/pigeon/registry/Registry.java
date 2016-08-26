@@ -13,53 +13,75 @@ public interface Registry {
 
 	String getValue(String key);
 
+	// for invoker
 	String getServiceAddress(String serviceName) throws RegistryException;
 
+	// for invoker
 	String getServiceAddress(String serviceName, String group) throws RegistryException;
 
+	// for invoker
 	String getServiceAddress(String serviceName, String group, boolean fallbackDefaultGroup) throws RegistryException;
 
+	// for invoker
 	String getServiceAddress(String remoteAppkey, String serviceName, String group,
 							 boolean fallbackDefaultGroup) throws RegistryException;
 
+	// for provider
 	void registerService(String serviceName, String group, String serviceAddress, int weight) throws RegistryException;
 
+	// for provider
 	void unregisterService(String serviceName, String serviceAddress) throws RegistryException;
 
+	// for provider
 	void unregisterService(String serviceName, String group, String serviceAddress) throws RegistryException;
 
+	// for invoker
 	int getServerWeight(String serverAddress) throws RegistryException;
 
-	List<String> getChildren(String key) throws RegistryException;
-
+	// for provider
 	void setServerWeight(String serverAddress, int weight) throws RegistryException;
 
-	String getServerApp(String serverAddress);
+	// for invoker
+	String getServerApp(String serverAddress) throws RegistryException;
 
+	// for provider
 	void setServerApp(String serverAddress, String app);
 
+	// for provider
 	void unregisterServerApp(String serverAddress);
 
+	// for invoker
+	String getServerVersion(String serverAddress) throws RegistryException;
+
+	// for provider
 	void setServerVersion(String serverAddress, String version);
 
-	String getServerVersion(String serverAddress);
-
+	// for provider
 	void unregisterServerVersion(String serverAddress);
+
+	// for invoker
+	byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException;
+
+	// for invoker
+	boolean isSupportNewProtocol(String serviceAddress) throws RegistryException;
+
+	// for invoker
+	boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException;
+
+	// for provider
+	void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException;
+
+	// for provider
+	void unregisterSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException;
 
 	String getStatistics();
 
-	boolean isSupportNewProtocol(String serviceAddress) throws RegistryException;
+	List<String> getChildren(String key) throws RegistryException;
 
-	boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException;
-
-	void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException;
-
-	void unregisterSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException;
-
-	//for provider
+	// for provider
 	void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis);
 
-	//for provider
+	// for provider
 	void deleteHeartBeat(String serviceAddress);
 
 	// for governor

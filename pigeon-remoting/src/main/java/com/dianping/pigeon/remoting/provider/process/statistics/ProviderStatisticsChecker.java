@@ -2,7 +2,7 @@ package com.dianping.pigeon.remoting.provider.process.statistics;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 

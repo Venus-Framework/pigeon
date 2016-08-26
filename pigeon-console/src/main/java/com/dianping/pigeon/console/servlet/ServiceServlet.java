@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.util.Constants;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;

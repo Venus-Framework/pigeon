@@ -131,6 +131,10 @@
                                                 <a class="red" href="javascript:void(0)" onclick="adminApplyFunc(event)">
                                                     <i class="ace-icon fa fa-user red bigger-130"></i>
                                                 </a>
+                                            #else
+                                                <a class="red" href="javascript:void(0)" onclick="addService(this)">
+                                                    <i class="ace-icon fa fa-plus bigger-130"></i>
+                                                </a>
                                             #end
                                             </th>
                                         </tr>
@@ -317,6 +321,39 @@
 
     // ******************************
     // 编辑服务地址相关方法 begins
+    function addService(dom) {// 点击编辑 host 信息
+        var onEditServiceTr = $(dom).closest('tr');
+        var serviceNameDom = dataTable.cell(onEditServiceTr.find('td')[0]).data();
+        var groupDom = dataTable.cell(onEditServiceTr.find('td')[1]).data();
+        var hosts = dataTable.cell(onEditServiceTr.find('td')[2]).data();
+        var serviceName = $(serviceNameDom).html();
+        var group = $(groupDom).html();
+
+        //保存下当前行的值
+        $('#add_hosts_info').attr("data-serviceid", onEditServiceTr.attr('id'));
+        $('#add_hosts_info').attr("data-hosts", hosts);
+        $('#add_hosts_info').attr("data-servicename", serviceName);
+        $('#add_hosts_info').attr("data-group", group);
+        $('#add_hosts_info #service_name').html(serviceName);
+        $('#add_hosts_info #group').html('分组：' + groupDom);
+
+        var hostArr = hosts.split(",");
+        var host_line = '';
+
+        for (var i = 0; i < hostArr.length; ++i) {
+            host_line += '<div class="form-group">'
+            + '<input class="input-large" type="text" value="'
+            + hostArr[i]
+            + '" />'
+            + '&nbsp;&nbsp;'
+            + '<img src="${rc.contextPath}/resources/img/del.png" onclick="delsinglerow(this)">'
+            + '</div>';
+        }
+
+        $('#add_hosts_info #host_line').html(host_line);
+        $('#add_hosts_info').modal('show');
+    }
+
     function editService(dom) {// 点击编辑 host 信息
         var onEditServiceTr = $(dom).closest('tr');
         var serviceNameDom = dataTable.cell(onEditServiceTr.find('td')[0]).data();

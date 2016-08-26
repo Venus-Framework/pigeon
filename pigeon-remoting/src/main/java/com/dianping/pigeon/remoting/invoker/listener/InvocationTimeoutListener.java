@@ -6,7 +6,7 @@ package com.dianping.pigeon.remoting.invoker.listener;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;

@@ -3,6 +3,8 @@
  */
 package com.dianping.pigeon.remoting.invoker.config;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
  * @author xiangwu
@@ -58,6 +60,11 @@ public class InvokerMethodConfig {
 
 	public void setActives(int actives) {
 		this.actives = actives;
+	}
+
+	@Override
+	public String toString() {
+		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 
 }

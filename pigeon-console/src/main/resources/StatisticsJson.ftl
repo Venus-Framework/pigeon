@@ -34,19 +34,10 @@
 	}<#if key_has_next>,</#if>
 </#list>
 ],"invokerConfigStatistics": [
-<#list invokerConfigs?keys as key>
+<#list invokerConfigs as x>
 	{
-		"service": "${key}",
-		"timeout": "${invokerConfigs[key].timeout}",
-		"InvokerMethodConfigs" : [
-		<#list invokerConfigs[key].methods?keys as mKey>
-			{
-				"method": "${mKey}",
-				"timeout": "${(invokerConfigs[key].methods)[mKey].timeout}"
-			}<#if mKey_has_next>,</#if>
-		</#list>
-		]
-	}<#if key_has_next>,</#if>
+		"config": "${x}"
+	}<#if x_has_next>,</#if>
 </#list>
 ],"otherStatistics": [
 <#list others?keys as key>

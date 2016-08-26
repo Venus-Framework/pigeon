@@ -83,8 +83,7 @@ public class ServiceApiController extends BaseController {
     	
     	String appname = StringUtils.isBlank(project) ? app : project;
         if(StringUtils.isBlank(appname)) {
-            writer.write(ERROR_CODE + String.format("Service %s for group [%s]'s appname is blank!", service, group));
-            return;
+            appname = Constants.defaultNullAppName;
         }
 
         //todo 暂时双写

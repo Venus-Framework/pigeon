@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.dianping.lion.Environment;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
@@ -141,7 +141,7 @@ public class LionConfigManager extends AbstractConfigManager {
 					Map<String, Object> config = new HashMap<String, Object>();
 					try {
 						LocalConfigLoader.loadProperties(config, FileUtils.readFile(new FileInputStream(ENV_FILE)));
-					} catch (Throwable e) {
+					} catch (Exception e) {
 					}
 					ip = (String) config.get("ip");
 					try {

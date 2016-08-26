@@ -71,14 +71,13 @@ public class StatisticsJsonServlet extends ServiceServlet {
 		for (Server server : servers.values()) {
 			RequestProcessor processor = server.getRequestProcessor();
 			if (processor != null) {
-				serverProcessorStatistics.put(server.toString(),
-						processor.getProcessorStatistics());
+				serverProcessorStatistics.put(server.toString(), processor.getProcessorStatistics());
 			}
 		}
 		stat.setWeightFactors(LoadBalanceManager.getWeightFactors());
 
 		for (InvokerConfig<?> invokerConfig : ServiceFactory.getAllServiceInvokers().keySet()) {
-			stat.getInvokerConfigs().put(invokerConfig.getUrl(), invokerConfig);
+			stat.getInvokerConfigs().add(invokerConfig);
 		}
 
 		List<StatusInfo> infoList = StatusListener.getStatusInfoList();

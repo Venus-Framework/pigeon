@@ -1,7 +1,7 @@
 package com.dianping.pigeon.util;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import java.lang.reflect.Field;
 

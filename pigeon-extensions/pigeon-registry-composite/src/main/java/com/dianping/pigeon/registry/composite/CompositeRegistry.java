@@ -4,15 +4,16 @@ import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
+import com.dianping.pigeon.registry.util.HeartBeatSupport;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -31,7 +32,7 @@ public class CompositeRegistry implements Registry {
 
     private volatile boolean inited = false;
 
-    private static final String KEY_PIGEON_REGISTRY_PREFER = "pigeon.registry.prefer.snapshot";
+    private static final String KEY_PIGEON_REGISTRY_PREFER = "pigeon.registry.prefer";
 
     @Override
     public void init(Properties properties) {
@@ -210,7 +211,11 @@ public class CompositeRegistry implements Registry {
             }
         }
 
-        weight = checkValueConsistency(checkList);
+        if (checkList.size() == 0) {
+            throw new RegistryException("failed to get weight for " + serverAddress);
+        }
+
+        weight = checkValueConsistency(checkList, "weight");
 
         return weight;
     }
@@ -232,7 +237,7 @@ public class CompositeRegistry implements Registry {
     }
 
     @Override
-    public String getServerApp(String serverAddress) {
+    public String getServerApp(String serverAddress) throws RegistryException {
         String app = "";
         List<String> checkList = Lists.newArrayList();
 
@@ -240,11 +245,15 @@ public class CompositeRegistry implements Registry {
             try {
                 checkList.add(registry.getServerApp(serverAddress));
             } catch (Throwable e) {
-                logger.warn("failed to get appname from registry: " + registry.getName());
+                logger.warn("failed to get app from registry: " + registry.getName());
             }
         }
 
-        app = checkValueConsistency(checkList);
+        app = checkValueConsistency(checkList, "app");
+
+        if (app == null) {
+            throw new RegistryException("failed to get app for " + serverAddress);
+        }
 
         return app;
     }
@@ -283,7 +292,7 @@ public class CompositeRegistry implements Registry {
     }
 
     @Override
-    public String getServerVersion(String serverAddress) {
+    public String getServerVersion(String serverAddress) throws RegistryException {
         String version = "";
         List<String> checkList = Lists.newArrayList();
 
@@ -295,7 +304,11 @@ public class CompositeRegistry implements Registry {
             }
         }
 
-        version = checkValueConsistency(checkList);
+        version = checkValueConsistency(checkList, "version");
+
+        if (version == null) {
+            throw new RegistryException("failed to get version for " + serverAddress);
+        }
 
         return version;
     }
@@ -323,48 +336,147 @@ public class CompositeRegistry implements Registry {
     }
 
     @Override
+    public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
+        byte support = HeartBeatSupport.BOTH.getValue();
+        List<Byte> checkList = Lists.newArrayList();
+
+        for (Registry registry : registryList) {
+            try {
+                checkList.add(registry.getServerHeartBeatSupport(serviceAddress));
+            } catch (Throwable e) {
+                logger.warn("failed to get heartbeat support from registry: " + registry.getName());
+            }
+        }
+
+        if (checkList.size() == 0) {
+            throw new RegistryException("failed to get heartbeat support for " + serviceAddress);
+        }
+
+        support = checkValueConsistency(checkList, "server heartbeat support");
+
+        return support;
+    }
+
+    @Override
     public boolean isSupportNewProtocol(String serviceAddress) throws RegistryException {
-        return false;
+        boolean support = false;
+        List<Boolean> checkList = Lists.newArrayList();
+
+        for (Registry registry : registryList) {
+            try {
+                checkList.add(registry.isSupportNewProtocol(serviceAddress));
+            } catch (Throwable e) {
+                logger.warn("failed to get support new protocol from registry: " + registry.getName());
+            }
+        }
+
+        if (checkList.size() == 0) {
+            throw new RegistryException("failed to get protocol support for " + serviceAddress);
+        }
+
+        support = checkValueConsistency(checkList, "host protocol support");
+
+        return support;
     }
 
     @Override
     public boolean isSupportNewProtocol(String serviceAddress, String serviceName) throws RegistryException {
-        return false;
+        boolean support = false;
+        List<Boolean> checkList = Lists.newArrayList();
+
+        for (Registry registry : registryList) {
+            try {
+                checkList.add(registry.isSupportNewProtocol(serviceAddress, serviceName));
+            } catch (Throwable e) {
+                logger.warn("failed to get support new protocol from registry: " + registry.getName());
+            }
+        }
+
+        if (checkList.size() == 0) {
+            throw new RegistryException("failed to get service protocol support for "
+                    + serviceAddress + ", " + serviceName);
+        }
+
+        support = checkValueConsistency(checkList, "service protocol support");
+
+        return support;
     }
 
     @Override
     public void setSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException {
-
+        for (Registry registry : registryList) {
+            try {
+                registry.setSupportNewProtocol(serviceAddress, serviceName, support);
+            } catch (Throwable e) {
+                logger.warn("failed to set support new protocol to registry: " + registry.getName());
+            }
+        }
     }
 
     @Override
     public void unregisterSupportNewProtocol(String serviceAddress, String serviceName, boolean support) throws RegistryException {
-
+        for (Registry registry : registryList) {
+            try {
+                registry.unregisterSupportNewProtocol(serviceAddress, serviceName, support);
+            } catch (Throwable e) {
+                logger.warn("failed to unregister support new protocol to registry: " + registry.getName());
+            }
+        }
     }
 
     @Override
     public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
-
+        for (Registry registry : registryList) {
+            try {
+                registry.updateHeartBeat(serviceAddress, heartBeatTimeMillis);
+            } catch (Throwable e) {
+                logger.warn("failed to update heartbeat to registry: " + registry.getName());
+            }
+        }
     }
 
     @Override
     public void deleteHeartBeat(String serviceAddress) {
-
+        for (Registry registry : registryList) {
+            try {
+                registry.deleteHeartBeat(serviceAddress);
+            } catch (Throwable e) {
+                logger.warn("failed to delete heartbeat to registry: " + registry.getName());
+            }
+        }
     }
 
     @Override
     public void setServerService(String serviceName, String group, String hosts) throws RegistryException {
-
+        for (Registry registry : registryList) {
+            try {
+                registry.setServerService(serviceName, group, hosts);
+            } catch (Throwable e) {
+                logger.warn("failed to set server service to registry: " + registry.getName());
+            }
+        }
     }
 
     @Override
     public void delServerService(String serviceName, String group) throws RegistryException {
-
+        for (Registry registry : registryList) {
+            try {
+                registry.delServerService(serviceName, group);
+            } catch (Throwable e) {
+                logger.warn("failed to delete server service to registry: " + registry.getName());
+            }
+        }
     }
 
     @Override
     public void setHostsWeight(String serviceName, String group, String hosts, int weight) throws RegistryException {
-
+        for (Registry registry : registryList) {
+            try {
+                registry.setHostsWeight(serviceName, group, hosts, weight);
+            } catch (Throwable e) {
+                logger.warn("failed to set hosts weight to registry: " + registry.getName());
+            }
+        }
     }
 
     private String mergeAddress(String address, String anotherAddress) {
@@ -381,7 +493,7 @@ public class CompositeRegistry implements Registry {
         return StringUtils.join(result, ",");
     }
 
-    private <T> T checkValueConsistency(List<T> checkList) {
+    private <T> T checkValueConsistency(List<T> checkList, String msg) {
         T result = null;
 
         if(checkList.size() > 0) {
@@ -392,15 +504,15 @@ public class CompositeRegistry implements Registry {
             T t = checkList.get(i);
 
             if (t != null && !t.equals(result)) {
-                String errorMsg = "result not same in different registries! index0: "
+                String errorMsg = msg + " result not same in different registries! index0: "
                         + result + ", index" + i + ": " + t;
 
                 if (configManager.getBooleanValue("pigeon.registry.check.value.consistency.exception", false)) {
                     throw new RuntimeException(errorMsg);
                 }
 
-                if (configManager.getBooleanValue(LoggerLoader.KEY_LOG_DEBUG_ENABLE, false)) {
-                    logger.warn(errorMsg);
+                if (logger.isDebugEnabled()) {
+                    logger.debug(errorMsg);
                 }
 
                 break;

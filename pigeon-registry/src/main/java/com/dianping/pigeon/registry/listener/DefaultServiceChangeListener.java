@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.domain.HostInfo;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -36,6 +36,28 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 				toAddHpSet.addAll(newHpSet);
 				toAddHpSet.removeAll(oldHpSet);
 			}
+			if (logger.isInfoEnabled()) {
+				logger.info("service hosts changed, to added hosts:" + toAddHpSet);
+				logger.info("service hosts changed, to removed hosts:" + toRemoveHpSet);
+			}
+			for (HostInfo hostPort : toAddHpSet) {
+				RegistryEventListener.providerAdded(serviceName, hostPort.getHost(), hostPort.getPort(),
+						hostPort.getWeight());
+			}
+			for (HostInfo hostPort : toRemoveHpSet) {
+				RegistryEventListener.providerRemoved(serviceName, hostPort.getHost(), hostPort.getPort());
+			}
+		} catch (Throwable e) {
+			logger.error("error with service host change", e);
+		}
+	}
+
+	@Override
+	public void onServiceHostChange(String serviceName, List<String[]> toAddHostList, List<String[]> toDelHostList) {
+		try {
+			Set<HostInfo> toAddHpSet = parseHostPortList(serviceName, toAddHostList);
+			Set<HostInfo> toRemoveHpSet = parseHostPortList(serviceName, toDelHostList);
+
 			if (logger.isInfoEnabled()) {
 				logger.info("service hosts changed, to added hosts:" + toAddHpSet);
 				logger.info("service hosts changed, to removed hosts:" + toRemoveHpSet);

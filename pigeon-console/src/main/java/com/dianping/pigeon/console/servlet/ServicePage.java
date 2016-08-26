@@ -50,6 +50,8 @@ public class ServicePage {
 
 	private String governorUrl = "";
 
+	private String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+
 	public Map<String, Set<HostInfo>> getServiceAddresses() {
 		return serviceAddresses;
 	}
@@ -243,4 +245,13 @@ public class ServicePage {
 	public void setGovernorUrl(String governorUrl) {
 		this.governorUrl = governorUrl;
 	}
+
+	public String getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(String timestamp) {
+		this.timestamp = timestamp;
+	}
+
 }

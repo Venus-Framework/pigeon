@@ -21,7 +21,7 @@ import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 public class InvokerConfig<T> {
     private static final Logger logger = LoggerLoader.getLogger(InvokerConfig.class);
@@ -77,9 +77,11 @@ public class InvokerConfig<T> {
 
     private ClassLoader classLoader;
 
-    private String secret;
+    private transient String secret;
 
     private String remoteAppKey;
+
+    private Object mock;
 
     public String getSecret() {
         return secret;
@@ -342,6 +344,14 @@ public class InvokerConfig<T> {
         if (!StringUtils.isBlank(group)) {
             this.group = group.trim();
         }
+    }
+
+    public Object getMock() {
+        return mock;
+    }
+
+    public void setMock(Object mock) {
+        this.mock = mock;
     }
 
     public boolean equals(Object obj) {

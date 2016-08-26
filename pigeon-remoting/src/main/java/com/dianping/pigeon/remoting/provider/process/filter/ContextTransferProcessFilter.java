@@ -10,8 +10,8 @@ import java.util.Map;
 
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedResponse;
-import org.apache.logging.log4j.Logger;
-
+import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -71,8 +71,8 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
 
         ContextUtils.setGlobalContext(request.getGlobalValues());
 
-        ContextUtils.putLocalContext("CLIENT_IP", processContext.getChannel().getRemoteAddress());
-        ContextUtils.putLocalContext("CLIENT_APP", request.getApp());
+        ContextUtils.putLocalContext(Constants.CONTEXT_KEY_CLIENT_IP, processContext.getChannel().getRemoteAddress());
+        ContextUtils.putLocalContext(Constants.CONTEXT_KEY_CLIENT_APP, request.getApp());
         Map<String, Serializable> requestValues = request.getRequestValues();
         if (requestValues != null) {
             for (String key : requestValues.keySet()) {
@@ -84,8 +84,8 @@ public class ContextTransferProcessFilter implements ServiceInvocationFilter<Pro
     private void transferContextValueToProcessor0(final ProviderContext processContext, final UnifiedRequest request) {
         ContextUtils.setGlobalContext((Map) request.getGlobalContext());
 
-        ContextUtils.putLocalContext("CLIENT_IP", processContext.getChannel().getRemoteAddress());
-        ContextUtils.putLocalContext("CLIENT_APP", request.getApp());
+        ContextUtils.putLocalContext(Constants.CONTEXT_KEY_CLIENT_IP, processContext.getChannel().getRemoteAddress());
+        ContextUtils.putLocalContext(Constants.CONTEXT_KEY_CLIENT_APP, request.getApp());
         Map<String, String> requestValues = request.getLocalContext();
         if (requestValues != null) {
             for (String key : requestValues.keySet()) {

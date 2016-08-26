@@ -1,11 +1,9 @@
 package com.dianping.pigeon.registry.zookeeper;
 
 import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import com.dianping.pigeon.threadpool.DefaultThreadPool;
-import com.dianping.pigeon.threadpool.ThreadPool;
 import org.apache.commons.lang.StringUtils;
 import org.apache.curator.CuratorZookeeperClient;
 import org.apache.curator.framework.CuratorFramework;
@@ -13,7 +11,7 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.RetryNTimes;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
@@ -68,14 +66,12 @@ public class CuratorClient {
 
 	private boolean newCuratorClient() throws InterruptedException {
 		logger.info("begin to create zookeeper client");
-//		CuratorFramework client = CuratorFrameworkFactory.newClient(address, sessionTimeout, connectionTimeout,
-//				new MyRetryPolicy(retries, retryInterval));
-		CuratorFramework client = CuratorFrameworkFactory.builder()
-				.connectString(address)
-				.sessionTimeoutMs(sessionTimeout)
-				.connectionTimeoutMs(connectionTimeout)
-				.retryPolicy(new MyRetryPolicy(retries, retryInterval))
-				.build();
+		// CuratorFramework client = CuratorFrameworkFactory.newClient(address,
+		// sessionTimeout, connectionTimeout,
+		// new MyRetryPolicy(retries, retryInterval));
+		CuratorFramework client = CuratorFrameworkFactory.builder().connectString(address)
+				.sessionTimeoutMs(sessionTimeout).connectionTimeoutMs(connectionTimeout)
+				.retryPolicy(new MyRetryPolicy(retries, retryInterval)).build();
 		client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
 			@Override
 			public void stateChanged(CuratorFramework client, ConnectionState newState) {
@@ -298,8 +294,8 @@ public class CuratorClient {
 
 	public List<String> getChildren(String path, boolean watch) throws Exception {
 		try {
-			List<String> children = watch ? client.getChildren().watched().forPath(path) : client.getChildren()
-					.forPath(path);
+			List<String> children = watch ? client.getChildren().watched().forPath(path)
+					: client.getChildren().forPath(path);
 			if (logger.isDebugEnabled()) {
 				logger.debug("get children of node " + path + ": " + StringUtils.join(children.iterator(), ','));
 			}
@@ -391,49 +387,4 @@ public class CuratorClient {
 				.append(((MyRetryPolicy) client.getRetryPolicy()).getRetryCount()).toString();
 	}
 
-	public static void main(String[] args) {
-		Properties properties = new Properties();
-		properties.setProperty("pigeon.registry.address", "127.0.0.1:2181");
-		final CuratorRegistry registry = new CuratorRegistry();
-		registry.init(properties);
-
-		ThreadPool threadPool = new DefaultThreadPool("Pigeon-Test-Pool",
-				10, 10, new LinkedBlockingQueue<Runnable>(20),
-				new ThreadPoolExecutor.CallerRunsPolicy());
-
-		final String url = "com.ccz.test.service";
-
-		String[] ips = new String[] {
-				"1.1.1.1", "2.2.2.2", "3.3.3.3", "4.4.4.4", "5.5.5.5",
-				"6.6.6.6", "7.7.7.7", "8.8.8.8", "9.9.9.9", "10.10.10.10"
-		};
-
-		final CountDownLatch latch = new CountDownLatch(ips.length);
-		final CountDownLatch end = new CountDownLatch(ips.length);
-
-		for(final String ip: ips) {
-			Runnable r = new Runnable() {
-				@Override
-				public void run() {
-					try {
-						latch.await();
-						registry.registerPersistentNode(url,null,ip,1);
-						//registry.unregisterPersistentNode(url,null,ip);
-						end.countDown();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-
-				}
-			};
-			threadPool.submit(r);
-			latch.countDown();
-		}
-
-		try {
-			end.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
 }

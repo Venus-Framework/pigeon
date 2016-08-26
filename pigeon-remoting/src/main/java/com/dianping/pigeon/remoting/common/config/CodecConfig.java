@@ -4,7 +4,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.generic.CompressType;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 /**
  * @author qi.yin

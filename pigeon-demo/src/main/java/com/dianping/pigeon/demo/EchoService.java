@@ -40,7 +40,7 @@ public interface EchoService {
 	String test(Map<User, String> values);
 
 	DealGroupBaseDTO test(DealGroupBaseDTO dto);
-
+	
 	enum Grade {
 		low, high
 	}

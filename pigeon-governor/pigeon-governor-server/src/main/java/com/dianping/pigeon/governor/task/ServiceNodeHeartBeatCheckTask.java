@@ -247,7 +247,9 @@ public class ServiceNodeHeartBeatCheckTask extends Thread {
                             String hosts_zk = client.get(serviceHostAddress, false);
 
                             if(StringUtils.isBlank(hosts_zk)) {
-                                logger.warn("no data exists in zk: " + serviceName + "#" + group);
+                                logger.warn("no data exists in zk: " + serviceName + "#" + group
+                                        + ", pick off from db!");
+                                serviceNodeService.deleteServiceNode(serviceName, group, ip, port);
                                 continue;
                             }
 

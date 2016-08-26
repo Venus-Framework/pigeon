@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.springframework.util.CollectionUtils;
 
 import com.dianping.dpsf.exception.NetTimeoutException;
@@ -162,6 +162,15 @@ public enum DegradationManager {
 		private String valueClass;
 		private String content;
 		private boolean throwException = false;
+		private boolean useMockClass = false;
+
+		public boolean getUseMockClass() {
+			return useMockClass;
+		}
+
+		public void setUseMockClass(boolean useMockClass) {
+			this.useMockClass = useMockClass;
+		}
 
 		public boolean getThrowException() {
 			return throwException;

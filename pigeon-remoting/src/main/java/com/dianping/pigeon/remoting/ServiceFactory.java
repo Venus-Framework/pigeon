@@ -19,7 +19,7 @@ import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.remoting.provider.publish.ServiceOnlineTask;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import java.util.List;
 import java.util.Map;

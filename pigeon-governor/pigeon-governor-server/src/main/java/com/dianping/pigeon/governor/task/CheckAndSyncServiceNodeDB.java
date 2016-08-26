@@ -7,6 +7,7 @@ import com.dianping.pigeon.governor.bean.ServiceNodeBean;
 import com.dianping.pigeon.governor.exception.DbException;
 import com.dianping.pigeon.governor.model.ServiceNode;
 import com.dianping.pigeon.governor.service.ServiceNodeService;
+import com.dianping.pigeon.governor.util.Constants;
 import com.dianping.pigeon.governor.util.IPUtils;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.zookeeper.CuratorClient;
@@ -138,7 +139,7 @@ public class CheckAndSyncServiceNodeDB {
                 }
 
                 if(StringUtils.isBlank(tmp_app)) {
-                    tmp_app = "NULL";
+                    tmp_app = Constants.defaultNullAppName;
                 }
 
                 tmp_hostAppMapping.put(hostZk, tmp_app);

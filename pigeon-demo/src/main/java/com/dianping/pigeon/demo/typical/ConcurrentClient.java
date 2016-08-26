@@ -24,7 +24,7 @@ public class ConcurrentClient {
 		EchoService echoServiceWithCallback = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithCallback");
 		UserService userService = (UserService) CLIENT_CONTAINER.getBean("userService");
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 300; i++) {
 			// Thread.sleep(1000);
 			// InvokerHelper.setCancel(true);
 			// InvokerHelper.setDefaultResult("hello, scott");
@@ -48,7 +48,7 @@ public class ConcurrentClient {
 							// System.out.println("getUserDetail=" +
 							// userService.getUserDetail(new User("jack")));
 						} catch (Exception e) {
-							e.printStackTrace();
+							//e.printStackTrace();
 						}
 					}
 				}

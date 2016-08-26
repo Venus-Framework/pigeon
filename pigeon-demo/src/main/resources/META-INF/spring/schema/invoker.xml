@@ -8,8 +8,9 @@
 				http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
                 http://code.dianping.com/schema/pigeon http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd">
 
-	<pigeon:reference id="echoService" timeout="200"
+	<pigeon:reference id="echoService" timeout="200" secret="sssswwwe322rweefwe2434g4g341"
 		interface="com.dianping.pigeon.demo.EchoService">
+		<pigeon:method name="echo" timeout="600"></pigeon:method>
 	</pigeon:reference>
 
 	<bean id="echoServiceCallback" class="com.dianping.pigeon.demo.EchoServiceCallback" />

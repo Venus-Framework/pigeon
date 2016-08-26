@@ -27,6 +27,7 @@ import com.dianping.pigeon.util.ContextUtils;
 public class CatMonitorTransaction implements MonitorTransaction {
 
     private CatMonitor monitor = null;
+    private CatContext context = null;
     private Transaction transaction = null;
     private InvocationContext invocationContext = null;
     private static boolean resetStarttime = ConfigManagerLoader.getConfigManager().getBooleanValue(
@@ -34,8 +35,11 @@ public class CatMonitorTransaction implements MonitorTransaction {
     private static boolean resetDuration = ConfigManagerLoader.getConfigManager().getBooleanValue(
             "pigeon.monitor.cat.transaction.duration.reset", true);
 
-    public CatMonitorTransaction(CatMonitor monitor, Transaction transaction, InvocationContext invocationContext) {
+    private String appName = ConfigManagerLoader.getConfigManager().getAppName();
+
+    public CatMonitorTransaction(CatMonitor monitor, CatContext context, Transaction transaction, InvocationContext invocationContext) {
         this.monitor = monitor;
+        this.context = context;
         this.transaction = transaction;
         this.invocationContext = invocationContext;
     }
@@ -115,52 +119,18 @@ public class CatMonitorTransaction implements MonitorTransaction {
     @Override
     public void readMonitorContext() {
         InvocationContext invocationContext = getInvocationContext();
+
         if (invocationContext != null) {
-            MessageProducer producer = monitor.getMessageProducer();
-            MessageManager messageManager = Cat.getManager();
-            MessageTree tree = messageManager.getThreadLocalMessageTree();
-            if (tree == null) {
-                Cat.setup(null);
-                tree = Cat.getManager().getThreadLocalMessageTree();
-            }
-            String currentMessageId = tree.getMessageId();
-            if (currentMessageId == null) {
-                currentMessageId = producer.createMessageId();
-                tree.setMessageId(currentMessageId);
-            }
-            String serverMessageId = monitor.getMessageProducer().createMessageId();
-            String rootMsgId = tree.getRootMessageId();
-            String rootMessageId = rootMsgId == null ? currentMessageId : rootMsgId;
-
-            ContextUtils.putRequestContext(MonitorConstants.ROOT_MSG_ID, rootMessageId);
-            ContextUtils.putRequestContext(MonitorConstants.CURRENT_MSG_ID, currentMessageId);
-            ContextUtils.putRequestContext(MonitorConstants.SERVER_MSG_ID, serverMessageId);
-            ContextUtils.putLocalContext(MonitorConstants.CURRENT_MSG_ID, currentMessageId);
-
-            producer.logEvent(CatConstants.TYPE_REMOTE_CALL, CatConstants.NAME_REQUEST, Transaction.SUCCESS,
-                    serverMessageId);
+            Cat.logRemoteCallClient(context, appName);
+            String messageId = (String) ContextUtils.getRequestContext(MonitorConstants.CURRENT_MSG_ID);
+            ContextUtils.putLocalContext(MonitorConstants.CURRENT_MSG_ID, messageId);
         }
-
     }
 
     public void writeMonitorContext() {
         InvocationContext invocationContext = getInvocationContext();
         if (invocationContext != null) {
-            String rootMessageId = (String) ContextUtils.getLocalContext(MonitorConstants.ROOT_MSG_ID);
-            String serverMessageId = (String) ContextUtils.getLocalContext(MonitorConstants.CURRENT_MSG_ID);
-            String currentMessageId = (String) ContextUtils.getLocalContext(MonitorConstants.SERVER_MSG_ID);
-
-            MessageManager messageManager = Cat.getManager();
-            MessageTree tree = messageManager.getThreadLocalMessageTree();
-            if (tree == null) {
-                Cat.setup(null);
-                tree = Cat.getManager().getThreadLocalMessageTree();
-            }
-            if (tree != null) {
-                tree.setRootMessageId(rootMessageId);
-                tree.setParentMessageId(serverMessageId);
-                tree.setMessageId(currentMessageId);
-            }
+            Cat.logRemoteCallServer(context);
         }
     }
 

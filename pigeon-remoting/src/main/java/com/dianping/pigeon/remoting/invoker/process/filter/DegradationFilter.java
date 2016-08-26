@@ -8,8 +8,11 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dianping.pigeon.remoting.invoker.proxy.MockProxyWrapper;
+import com.dianping.pigeon.util.ClassUtils;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.springframework.util.CollectionUtils;
 
 import com.dianping.dpsf.async.ServiceCallback;
@@ -57,6 +60,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 	private static final InvocationResponse NO_RETURN_RESPONSE = InvokerUtils.createNoReturnResponse();
 	private static volatile Map<String, DegradeAction> degradeMethodActions = new ConcurrentHashMap<String, DegradeAction>();
 	private static final JacksonSerializer jacksonSerializer = new JacksonSerializer();
+	private final static Map<String, MockProxyWrapper> mocks = Maps.newConcurrentMap();
 
 	static {
 		String degradeMethodsConfig = configManager.getStringValue(KEY_DEGRADE_METHODS);
@@ -107,17 +111,24 @@ public class DegradationFilter extends InvocationInvokeFilter {
 						DegradeAction degradeAction = new DegradeAction();
 						if (StringUtils.isNotBlank(key)) {
 							String config = configManager.getStringValue(KEY_DEGRADE_METHOD + key);
+
 							if (StringUtils.isNotBlank(config)) {
 								config = config.trim();
 								config = "{\"@class\":\"" + DegradeActionConfig.class.getName() + "\","
 										+ config.substring(1);
+
 								DegradeActionConfig degradeActionConfig = (DegradeActionConfig) jacksonSerializer
 										.toObject(DegradeActionConfig.class, config);
+
+								degradeAction.setUseMockClass(degradeActionConfig.getUseMockClass());
 								boolean throwEx = degradeActionConfig.getThrowException();
 								degradeAction.setThrowException(throwEx);
 								String content = degradeActionConfig.getContent();
 								Object returnObj = null;
-								if (degradeAction.isThrowException()) {
+
+								if (degradeAction.isUseMockClass()) {
+									// 使用mock接口类的方法
+								} else if (degradeAction.isThrowException()) {
 									if (StringUtils.isNotBlank(degradeActionConfig.getReturnClass())) {
 										returnObj = jacksonSerializer.toObject(
 												Class.forName(degradeActionConfig.getReturnClass()), content);
@@ -218,14 +229,28 @@ public class DegradationFilter extends InvocationInvokeFilter {
 					DegradeAction action = degradeMethodActions.get(key);
 					if (action != null) {
 						try {
-							if (action.isThrowException()) {
+							defaultResult = action.getReturnObj();
+
+							if (action.isUseMockClass()) {
+
+								if (context.getInvokerConfig().getMock() != null) {
+									defaultResult = getMockResult(context);
+								} else {
+									logger.warn("no mock obj defined in invoker config, return null instead!");
+								}
+
+							} else if (action.isThrowException()) {
+
 								if (action.getReturnObj() == null) {
 									throw new ServiceDegradedException("Degraded method:" + key);
 								} else {
 									throw (Exception) action.getReturnObj();
 								}
+
 							}
-							return makeDefaultResponse(context, action.getReturnObj());
+
+							return makeDefaultResponse(context, defaultResult);
+
 						} finally {
 							DegradationManager.INSTANCE.addDegradedRequest(context);
 						}
@@ -267,9 +292,31 @@ public class DegradationFilter extends InvocationInvokeFilter {
 		}
 	}
 
+	private Object getMockResult(InvokerContext context) throws Throwable {
+		InvokerConfig invokerConfig = context.getInvokerConfig();
+		String mockService = invokerConfig.getUrl();
+		MockProxyWrapper mockProxyWrapper = mocks.get(mockService);
+
+		if (mockProxyWrapper == null) {
+			mockProxyWrapper = new MockProxyWrapper(invokerConfig.getMock());
+		}
+
+		return mockProxyWrapper.invoke(context.getMethodName(),
+				context.getParameterTypes(), context.getArguments());
+	}
+
 	private static class DegradeAction implements Serializable {
 		private boolean throwException = false;
 		private Object returnObj;
+		private boolean useMockClass = false;
+
+		public boolean isUseMockClass() {
+			return useMockClass;
+		}
+
+		public void setUseMockClass(boolean useMockClass) {
+			this.useMockClass = useMockClass;
+		}
 
 		public boolean isThrowException() {
 			return throwException;

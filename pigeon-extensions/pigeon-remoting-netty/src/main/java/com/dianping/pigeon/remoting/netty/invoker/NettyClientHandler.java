@@ -9,7 +9,7 @@ import com.dianping.pigeon.remoting.netty.codec.CodecEvent;
 import com.dianping.pigeon.remoting.netty.codec.NettyCodecUtils;
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.jboss.netty.channel.*;
 
 import java.io.IOException;
