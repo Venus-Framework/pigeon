@@ -479,6 +479,36 @@ public class CompositeRegistry implements Registry {
         }
     }
 
+    @Override
+    public String getServiceAddress(String remoteAppkey, String serviceName, String group, boolean fallbackDefaultGroup, boolean needListener) throws RegistryException {
+        String addr = "";
+
+        for (Registry registry : registryList) { // merge registry addr
+            try {
+                addr = mergeAddress(addr, registry.getServiceAddress(remoteAppkey, serviceName, group, fallbackDefaultGroup, needListener));
+            } catch (Throwable e) {
+                logger.warn("failed to get service address from registry: " + registry.getName());
+            }
+        }
+
+        return addr;
+    }
+
+    @Override
+    public String getServiceAddress(String serviceName, String group, boolean fallbackDefaultGroup, boolean needListener) throws RegistryException {
+        String addr = "";
+
+        for (Registry registry : registryList) { // merge registry addr
+            try {
+                addr = mergeAddress(addr, registry.getServiceAddress(serviceName, group, fallbackDefaultGroup, needListener));
+            } catch (Throwable e) {
+                logger.warn("failed to get service address from registry: " + registry.getName());
+            }
+        }
+
+        return addr;
+    }
+
     private String mergeAddress(String address, String anotherAddress) {
         Set<String> result = Sets.newHashSet();
 

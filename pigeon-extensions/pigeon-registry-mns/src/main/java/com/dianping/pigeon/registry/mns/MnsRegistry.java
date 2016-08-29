@@ -88,37 +88,7 @@ public class MnsRegistry implements Registry {
 
     @Override
     public String getServiceAddress(String remoteAppkey, String serviceName, String group, boolean fallbackDefaultGroup) throws RegistryException {
-        String result = "";
-
-        if (!checkSupport(serviceName, group)) {
-            return result;
-        }
-
-        ProtocolRequest protocolRequest = new ProtocolRequest();
-        protocolRequest.setProtocol("thrift");
-        protocolRequest.setLocalAppkey(configManager.getAppName());
-        protocolRequest.setServiceName(serviceName);
-        protocolRequest.setRemoteAppkey(remoteAppkey);
-        List<SGService> sgServices = MnsInvoker.getServiceList(protocolRequest);
-        // 添加listener，注意去重
-        mnsChangeListenerManager.registerListener(protocolRequest);
-
-        for (SGService sgService : sgServices) {
-            // 剔除掉octo的旧服务端
-            if (MnsUtils.checkVersion(sgService.getVersion())) {
-                String host = sgService.getIp() + ":" + sgService.getPort();
-                result += host + ",";
-                String remoteAppkeyReal = sgService.getAppkey();
-
-                if (remoteAppkeyReal == null) {
-                    remoteAppkeyReal = "";
-                }
-
-                hostRemoteAppkeyMapping.put(host, remoteAppkeyReal);
-            }
-        }
-
-        return result;
+        return getServiceAddress(remoteAppkey, serviceName, group, fallbackDefaultGroup, true);
     }
 
     @Override
@@ -501,6 +471,49 @@ public class MnsRegistry implements Registry {
             }
         }
 
+    }
+
+    @Override
+    public String getServiceAddress(String remoteAppkey, String serviceName, String group, boolean fallbackDefaultGroup, boolean needListener) throws RegistryException {
+        String result = "";
+
+        if (!checkSupport(serviceName, group)) {
+            return result;
+        }
+
+        ProtocolRequest protocolRequest = new ProtocolRequest();
+        protocolRequest.setProtocol("thrift");
+        protocolRequest.setLocalAppkey(configManager.getAppName());
+        protocolRequest.setServiceName(serviceName);
+        protocolRequest.setRemoteAppkey(remoteAppkey);
+        List<SGService> sgServices = MnsInvoker.getServiceList(protocolRequest);
+
+        // 添加listener，注意去重
+        if (needListener) {
+            mnsChangeListenerManager.registerListener(protocolRequest);
+        }
+
+        for (SGService sgService : sgServices) {
+            // 剔除掉octo的旧服务端
+            if (MnsUtils.checkVersion(sgService.getVersion())) {
+                String host = sgService.getIp() + ":" + sgService.getPort();
+                result += host + ",";
+                String remoteAppkeyReal = sgService.getAppkey();
+
+                if (remoteAppkeyReal == null) {
+                    remoteAppkeyReal = "";
+                }
+
+                hostRemoteAppkeyMapping.put(host, remoteAppkeyReal);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public String getServiceAddress(String serviceName, String group, boolean fallbackDefaultGroup, boolean needListener) throws RegistryException {
+        return getServiceAddress(null, serviceName, group, fallbackDefaultGroup, needListener);
     }
 
     @Override

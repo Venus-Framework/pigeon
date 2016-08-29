@@ -150,10 +150,10 @@ public class ServiceNodeHeartBeatCheckTask extends Thread {
             }
 
             heartBeatsMap = tmp_heartBeatsMap;
-
             transaction.setStatus(Transaction.SUCCESS);
         } catch (Throwable t) {
             logger.error("refresh heartbeats info error", t);
+            heartBeatsMap = Maps.newConcurrentMap();
             transaction.setStatus(t);
         } finally {
             transaction.complete();

@@ -202,6 +202,46 @@
 
     <!-- page hidden elements begins -->
 
+    <div id="add_hosts_info" class="modal fade" tabindex="-1"
+         aria-hidden="true" data-backdrop="static" data-keyboard="false"
+         data-hosts="" data-serviceid="" data-servicename="" data-group="" >
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="blue bigger">添加服务信息</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+
+                        <div class="col-xs-12" id="host_line">
+                            <!-- 这里面的动态画 -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button id="add_one_host" class="btn btn-sm btn-primary">
+                        <i class="ace-icon fa fa-circle-o"></i>
+                        添加
+                    </button>
+
+                    <button class="btn btn-sm" data-dismiss="modal">
+                        <i class="ace-icon fa fa-times"></i>
+                        取消
+                    </button>
+
+                    <button id="submit_add_hosts" class="btn btn-sm btn-primary">
+                        <i class="ace-icon fa fa-check"></i>
+                        提交
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div id="edit_hosts_info" class="modal fade" tabindex="-1"
          aria-hidden="true" data-backdrop="static" data-keyboard="false"
          data-hosts="" data-serviceid="" data-servicename="" data-group="" >
@@ -321,36 +361,18 @@
 
     // ******************************
     // 编辑服务地址相关方法 begins
-    function addService(dom) {// 点击编辑 host 信息
-        var onEditServiceTr = $(dom).closest('tr');
-        var serviceNameDom = dataTable.cell(onEditServiceTr.find('td')[0]).data();
-        var groupDom = dataTable.cell(onEditServiceTr.find('td')[1]).data();
-        var hosts = dataTable.cell(onEditServiceTr.find('td')[2]).data();
-        var serviceName = $(serviceNameDom).html();
-        var group = $(groupDom).html();
+    function addService(dom) {// 点击添加服务信息
 
-        //保存下当前行的值
-        $('#add_hosts_info').attr("data-serviceid", onEditServiceTr.attr('id'));
-        $('#add_hosts_info').attr("data-hosts", hosts);
-        $('#add_hosts_info').attr("data-servicename", serviceName);
-        $('#add_hosts_info').attr("data-group", group);
-        $('#add_hosts_info #service_name').html(serviceName);
-        $('#add_hosts_info #group').html('分组：' + groupDom);
+        //填充服务名和组名
+        var htmlData = '';
+        htmlData += '<div class="form-group col-xs-9">' +
+                    '<input class="input-large" style="width: 100%" type="text" placeholder="service name" />' +
+                    '</div>' +
+                    '<div class="form-group col-xs-3">' +
+                    '<input class="input-large" type="text" placeholder="group name" />' +
+                    '</div>';
 
-        var hostArr = hosts.split(",");
-        var host_line = '';
-
-        for (var i = 0; i < hostArr.length; ++i) {
-            host_line += '<div class="form-group">'
-            + '<input class="input-large" type="text" value="'
-            + hostArr[i]
-            + '" />'
-            + '&nbsp;&nbsp;'
-            + '<img src="${rc.contextPath}/resources/img/del.png" onclick="delsinglerow(this)">'
-            + '</div>';
-        }
-
-        $('#add_hosts_info #host_line').html(host_line);
+        $('#add_hosts_info #host_line').html(htmlData);
         $('#add_hosts_info').modal('show');
     }
 
@@ -374,7 +396,7 @@
         var host_line = '';
 
         for (var i = 0; i < hostArr.length; ++i) {
-            host_line += '<div class="form-group">'
+            host_line += '<div class="form-group col-xs-12">'
                         + '<input class="input-large" type="text" value="'
                         + hostArr[i]
                         + '" />'
@@ -386,6 +408,87 @@
         $('#edit_hosts_info #host_line').html(host_line);
         $('#edit_hosts_info').modal('show');
     }
+
+    $('#submit_add_hosts').on('click',function(e){
+        var inputArr = $('#add_hosts_info input');
+        if (inputArr.length < 3) {
+            $.gritter.add({
+                title: "至少添加一台服务器!",
+                text: "请确认后再次提交!",
+                class_name: 'gritter-error gritter-center gritter-light'
+            });
+
+            return false;
+        }
+
+        var serviceName = $.trim(inputArr[0].value);
+        if(serviceName == "") {
+            $.gritter.add({
+                title: "服务名不允许为空!",
+                text: "请补充后再次提交!",
+                class_name: 'gritter-error gritter-center gritter-light'
+            });
+
+            return false;
+        }
+
+        var group = $.trim(inputArr[1].value);
+        var newHostArr = new Array();
+        for (var i = 2; i < inputArr.length; ++i) {
+            var host = $.trim(inputArr[i].value);
+
+            if(host == "") { // 判空操作，返回false
+                $.gritter.add({
+                    title: "服务器列表不允许为空!",
+                    text: "请补充或删除空行后再次提交!",
+                    class_name: 'gritter-error gritter-center gritter-light'
+                });
+
+                return false;
+            }
+
+            if (!newHostArr.contains(host)) {
+                newHostArr.push(host);
+            }
+        }
+
+        var data = {
+            "serviceName" : serviceName,
+            "group" : group,
+            "toAddHosts" : newHostArr.join(",")
+        };
+
+        // 服务器提交修改成功后，返回最新hosts，再修改页面缓存
+        $.ajax({
+            url: '${rc.contextPath}/services/add/${projectName}',
+            type: 'POST',
+            data: data,
+            error: function(response, textStatus){ // 500 etc.
+                $.gritter.add({
+                    title: response.status,
+                    text: response.statusText,
+                    class_name: 'gritter-error gritter-center gritter-light'
+                });
+            },
+            success: function(response, textStatus) {
+                if(response.status == "success") {
+
+                    //更新本地缓存还是直接刷新？
+                    window.location.reload();
+
+                } else { // 报个错
+                    $.gritter.add({
+                        title: response.status,
+                        text: response.message,
+                        class_name: 'gritter-error gritter-center gritter-light'
+                    });
+                }
+
+            }
+        });
+        // 各个按钮置为不可用
+
+    });
 
     $('#submit_edit_hosts').on('click',function(e){ // 提交 host 修改请求
         var serviceName = $('#edit_hosts_info').attr("data-servicename");
@@ -460,15 +563,15 @@
     });
 
     $('#add_one_host').on('click',function(e){ // 添加一行 host 编辑框
-        //console.log(e.relatedTarget);
+        //console.log(e);
 
-        var host_line = '<div class="form-group">'
+        var host_line = '<div class="form-group col-xs-12">'
                 + '<input class="input-large" type="text" placeholder="ip:port, e.g. 10.1.77.131:5060" value="" />'
                 + '&nbsp;&nbsp;'
                 + '<img src="${rc.contextPath}/resources/img/del.png" onclick="delsinglerow(this)" />'
                 + '</div>';
 
-        $('#edit_hosts_info #host_line').append(host_line);
+        $(e.currentTarget).closest('.modal-dialog').find('#host_line').append(host_line);
     });
 
     function delsinglerow(dom) { //删除所在行 host 编辑框

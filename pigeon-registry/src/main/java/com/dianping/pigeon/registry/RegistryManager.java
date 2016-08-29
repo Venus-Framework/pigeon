@@ -733,7 +733,7 @@ public class RegistryManager {
         String addr = "";
 
         try {
-            addr = registry.getServiceAddress(serviceName, group, false);
+            addr = registry.getServiceAddress(serviceName, group, false, false);
         } catch (Throwable e) {
             logger.error("failed to get service hosts for "
                     + serviceName + "#" + group + ", msg: " + e.getMessage());
