@@ -216,79 +216,81 @@ public class DegradationFilter extends InvocationInvokeFilter {
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext context) throws Throwable {
 		context.getTimeline().add(new TimePoint(TimePhase.D));
 		if (DegradationManager.INSTANCE.needDegrade(context)) {
-			String key = DegradationManager.INSTANCE.getRequestUrl(context);
-			if (degradeMethodActions.containsKey(key)) {
-				Object defaultResult = InvokerHelper.getDefaultResult();
-				if (defaultResult != null) {
-					try {
-						return makeDefaultResponse(context, defaultResult);
-					} finally {
-						DegradationManager.INSTANCE.addDegradedRequest(context);
-					}
-				} else {
-					DegradeAction action = degradeMethodActions.get(key);
-					if (action != null) {
-						try {
-							defaultResult = action.getReturnObj();
-
-							if (action.isUseMockClass()) {
-
-								if (context.getInvokerConfig().getMock() != null) {
-									defaultResult = getMockResult(context);
-								} else {
-									logger.warn("no mock obj defined in invoker config, return null instead!");
-								}
-
-							} else if (action.isThrowException()) {
-
-								if (action.getReturnObj() == null) {
-									throw new ServiceDegradedException("Degraded method:" + key);
-								} else {
-									throw (Exception) action.getReturnObj();
-								}
-
-							}
-
-							return makeDefaultResponse(context, defaultResult);
-
-						} finally {
-							DegradationManager.INSTANCE.addDegradedRequest(context);
+			return mockResponse(context);
+		} else {
+			boolean failed = false;
+			InvocationResponse response;
+			try {
+				response = handler.handle(context);
+				Object responseReturn = response.getReturn();
+				if (responseReturn != null) {
+					int messageType = response.getMessageType();
+					if (messageType == Constants.MESSAGE_TYPE_EXCEPTION) {
+						RpcException rpcException = InvokerUtils.toRpcException(response);
+						if (rpcException instanceof RemoteInvocationException || rpcException instanceof RejectedException) {
+							failed = true;
+							DegradationManager.INSTANCE.addFailedRequest(context, rpcException);
 						}
 					}
 				}
+
+				return response;
+
+			} catch (ServiceUnavailableException | NetTimeoutException | RequestTimeoutException e) {
+				failed = true;
+
+				if (DegradationManager.INSTANCE.needFailureDegrade()) {
+					return mockResponse(context);
+				} else {
+					DegradationManager.INSTANCE.addFailedRequest(context, e);
+					throw e;
+				}
+			} finally {
+				RequestQualityManager.INSTANCE.addClientRequest(context, failed);
 			}
 		}
+	}
 
-		boolean failed = false;
-		InvocationResponse response;
-		try {
-			response = handler.handle(context);
-			Object responseReturn = response.getReturn();
-			if (responseReturn != null) {
-				int messageType = response.getMessageType();
-				if (messageType == Constants.MESSAGE_TYPE_EXCEPTION) {
-					RpcException rpcException = InvokerUtils.toRpcException(response);
-					if (rpcException instanceof RemoteInvocationException || rpcException instanceof RejectedException) {
-						failed = true;
-						DegradationManager.INSTANCE.addFailedRequest(context, rpcException);
+	private InvocationResponse mockResponse(InvokerContext context) throws Throwable {
+		String key = DegradationManager.INSTANCE.getRequestUrl(context);
+		Object defaultResult = InvokerHelper.getDefaultResult();
+		DegradeAction action = degradeMethodActions.get(key);
+
+		if (defaultResult == null && action != null) {
+			try {
+				defaultResult = action.getReturnObj();
+
+				if (action.isUseMockClass()) {
+
+					if (context.getInvokerConfig().getMock() != null) {
+						defaultResult = getMockResult(context);
+					} else {
+						logger.warn("no mock obj defined in invoker config, return null instead!");
 					}
+
+				} else if (action.isThrowException()) {
+
+					if (action.getReturnObj() == null) {
+						throw new ServiceDegradedException("Degraded method:" + key);
+					} else {
+						throw (Exception) action.getReturnObj();
+					}
+
 				}
+
+				return makeDefaultResponse(context, defaultResult);
+
+			} finally {
+				DegradationManager.INSTANCE.addDegradedRequest(context);
 			}
-			return response;
-		} catch (ServiceUnavailableException e) {
-			failed = true;
-			DegradationManager.INSTANCE.addFailedRequest(context, e);
-			throw e;
-		} catch (NetTimeoutException e) {
-			failed = true;
-			DegradationManager.INSTANCE.addFailedRequest(context, e);
-			throw e;
-		} catch (RequestTimeoutException e) {
-			failed = true;
-			DegradationManager.INSTANCE.addFailedRequest(context, e);
-			throw e;
+		} else if(defaultResult == null) {
+			logger.warn("no degrade method action found, return null instead!");
+		}
+
+		try {
+			return makeDefaultResponse(context, defaultResult);
 		} finally {
-			RequestQualityManager.INSTANCE.addClientRequest(context, failed);
+			DegradationManager.INSTANCE.addDegradedRequest(context);
 		}
 	}
 
