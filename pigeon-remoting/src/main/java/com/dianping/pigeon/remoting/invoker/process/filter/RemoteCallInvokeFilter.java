@@ -6,18 +6,17 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import java.util.Map;
 
-import com.dianping.pigeon.log.Logger;
-
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.async.ServiceFutureFactory;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
-import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
-import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
-import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.BadRequestException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
@@ -102,7 +101,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 				response = NO_RETURN_RESPONSE;
 				invocationContext.getTimeline().add(new TimePoint(TimePhase.Q));
 			} else {
-				throw new InvalidParameterException("Call type[" + callType + "] is not supported!");
+				throw new BadRequestException("Call type[" + callType + "] is not supported!");
 			}
 			((DefaultInvokerContext) invocationContext).setResponse(response);
 			afterInvoke(invocationContext);

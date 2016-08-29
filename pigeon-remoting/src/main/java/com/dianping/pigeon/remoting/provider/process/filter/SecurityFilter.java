@@ -11,17 +11,16 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
-import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
-import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.SecurityException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
@@ -120,7 +119,7 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 							String app = pair[0].trim();
 							String secret = pair[1].trim();
 							if (secret.length() < 16) {
-								throw new InvalidParameterException("Secret length must not be less than 16");
+								throw new IllegalArgumentException("Secret length must not be less than 16");
 							}
 							map.put(app, secret);
 						}

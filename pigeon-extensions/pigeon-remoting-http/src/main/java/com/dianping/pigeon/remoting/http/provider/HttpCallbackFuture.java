@@ -1,17 +1,18 @@
 package com.dianping.pigeon.remoting.http.provider;
 
+import java.util.concurrent.TimeUnit;
+
 import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.callback.CallFuture;
 import com.dianping.pigeon.remoting.invoker.callback.Callback;
+import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
-import com.dianping.pigeon.log.Logger;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by chenchongze on 16/1/13.
@@ -48,7 +49,7 @@ public class HttpCallbackFuture implements Callback, CallFuture {
                     StringBuilder sb = new StringBuilder();
                     sb.append("request timeout, current time:").append(System.currentTimeMillis())
                             .append("\r\nrequest:").append(request);
-                    NetTimeoutException e = new NetTimeoutException("invoke timeout");
+                    RequestTimeoutException e = new RequestTimeoutException("invoke timeout");
                     invocationContext.getChannel().write(ProviderUtils.createFailResponse(request, e));
                     logger.warn(sb.toString(), e);
                 } else {

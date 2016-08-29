@@ -8,10 +8,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dianping.pigeon.log.Logger;
-
 import com.dianping.dpsf.async.ServiceFutureFactory;
-import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -22,6 +20,7 @@ import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.DefaultInvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
+import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils.FutureResponse;
 import com.dianping.pigeon.threadpool.NamedThreadFactory;
@@ -74,7 +73,7 @@ public class ForkingCluster implements Cluster {
 				&& Constants.CALL_FUTURE.equalsIgnoreCase(invokerConfig.getCallType())) {
 			ServiceFutureFactory.setFuture(((FutureResponse) ret).getServiceFuture());
 		} else if (ret == null) {
-			throw new NetTimeoutException("timeout while waiting forking response:" + request);
+			throw new RequestTimeoutException("timeout while waiting forking response:" + request);
 		}
 		return (InvocationResponse) ret;
 	}

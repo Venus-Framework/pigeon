@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dianping.pigeon.remoting.common.exception.BadRequestException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
 import com.dianping.pigeon.util.ClassUtils;
@@ -89,12 +90,12 @@ public class ServiceMethodCache {
 			throws InvocationFailureException {
 		Map<Integer, List<ServiceMethod>> methodMap = this.methods.get(methodName);
 		if (methodMap == null) {
-			throw new InvocationFailureException("the service " + this.service + " is not matched with method:"
+			throw new BadRequestException("the service " + this.service + " is not matched with method:"
 					+ methodName);
 		}
 		List<ServiceMethod> methodList = methodMap.get(paramNames.getLength());
 		if (methodList == null || methodList.size() == 0) {
-			throw new InvocationFailureException("the service " + this.service + " is not matched with method:"
+			throw new BadRequestException("the service " + this.service + " is not matched with method:"
 					+ methodName + " for " + paramNames.getLength() + " parameters");
 		}
 		if (paramNames.getLength() == 0) {
@@ -122,7 +123,7 @@ public class ServiceMethodCache {
 			}
 		}
 		if (matchingValue < 0) {
-			throw new InvocationFailureException("the service " + this.service + " is not matched with method:"
+			throw new BadRequestException("the service " + this.service + " is not matched with method:"
 					+ methodName + " for parameter class types");
 		}
 		return bestMethod;
@@ -147,7 +148,7 @@ public class ServiceMethodCache {
 			try {
 				paramClass = ClassUtils.loadClass(paramClassNames[i]);
 			} catch (ClassNotFoundException e) {
-				throw new InvocationFailureException("no class found for parameter:" + paramClassNames[i]);
+				throw new BadRequestException("no class found for parameter:" + paramClassNames[i]);
 			}
 			if (paramClass == method.getParameterClasses()[i]) {
 				k++;

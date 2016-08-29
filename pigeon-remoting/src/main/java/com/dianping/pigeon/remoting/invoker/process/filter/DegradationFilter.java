@@ -9,15 +9,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.Logger;
 import org.springframework.util.CollectionUtils;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.async.ServiceFutureFactory;
-import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
@@ -119,11 +118,11 @@ public class DegradationFilter extends InvocationInvokeFilter {
 								Object returnObj = null;
 								if (degradeAction.isThrowException()) {
 									if (StringUtils.isNotBlank(degradeActionConfig.getReturnClass())) {
-										returnObj = jacksonSerializer.toObject(
-												Class.forName(degradeActionConfig.getReturnClass()), content);
+										returnObj = jacksonSerializer
+												.toObject(Class.forName(degradeActionConfig.getReturnClass()), content);
 										if (!(returnObj instanceof Exception)) {
-											throw new IllegalArgumentException("Invalid exception class:"
-													+ degradeActionConfig.getReturnClass());
+											throw new IllegalArgumentException(
+													"Invalid exception class:" + degradeActionConfig.getReturnClass());
 										}
 										degradeAction.setReturnObj(returnObj);
 									}
@@ -139,8 +138,8 @@ public class DegradationFilter extends InvocationInvokeFilter {
 												Class.forName(degradeActionConfig.getReturnClass()),
 												Class.forName(degradeActionConfig.getComponentClass()));
 									} else if (StringUtils.isNotBlank(degradeActionConfig.getReturnClass())) {
-										returnObj = jacksonSerializer.toObject(
-												Class.forName(degradeActionConfig.getReturnClass()), content);
+										returnObj = jacksonSerializer
+												.toObject(Class.forName(degradeActionConfig.getReturnClass()), content);
 									}
 									degradeAction.setReturnObj(returnObj);
 								}
@@ -243,7 +242,8 @@ public class DegradationFilter extends InvocationInvokeFilter {
 				int messageType = response.getMessageType();
 				if (messageType == Constants.MESSAGE_TYPE_EXCEPTION) {
 					RpcException rpcException = InvokerUtils.toRpcException(response);
-					if (rpcException instanceof RemoteInvocationException || rpcException instanceof RejectedException) {
+					if (rpcException instanceof RemoteInvocationException
+							|| rpcException instanceof RejectedException) {
 						failed = true;
 						DegradationManager.INSTANCE.addFailedRequest(context, rpcException);
 					}
@@ -254,11 +254,15 @@ public class DegradationFilter extends InvocationInvokeFilter {
 			failed = true;
 			DegradationManager.INSTANCE.addFailedRequest(context, e);
 			throw e;
-		} catch (NetTimeoutException e) {
+		} catch (RequestTimeoutException e) {
 			failed = true;
 			DegradationManager.INSTANCE.addFailedRequest(context, e);
 			throw e;
-		} catch (RequestTimeoutException e) {
+		} catch (RemoteInvocationException e) {
+			failed = true;
+			DegradationManager.INSTANCE.addFailedRequest(context, e);
+			throw e;
+		} catch (RejectedException e) {
 			failed = true;
 			DegradationManager.INSTANCE.addFailedRequest(context, e);
 			throw e;

@@ -2,38 +2,39 @@ package com.dianping.dpsf.exception;
 
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 
-/**    
-  * <p>    
-  * Title: NetException.java   
-  * </p>    
-  * <p>    
-  * Description: 描述  
-  * </p>   
-  * @author saber miao   
-  * @version 1.0    
-  * @created 2010-8-3 上午10:47:46   
-  */ 
-public class NetTimeoutException extends RpcException{
-	
+/**
+ * <p>
+ * Title: NetException.java
+ * </p>
+ * <p>
+ * Description: 描述
+ * </p>
+ * 
+ * @author saber miao
+ * @version 1.0
+ * @created 2010-8-3 上午10:47:46
+ */
+public class NetTimeoutException extends RpcException {
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1961488305051802648L;
 
-	public NetTimeoutException(){
+	public NetTimeoutException() {
 		super();
 	}
-	
-	public NetTimeoutException(String message){
+
+	public NetTimeoutException(String message) {
 		super(message);
 	}
-	
-	public NetTimeoutException(Throwable cause){
+
+	public NetTimeoutException(Throwable cause) {
 		super(cause);
 	}
-	
-	public NetTimeoutException(String message, Throwable cause){
-		super(message,cause);
+
+	public NetTimeoutException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
 }

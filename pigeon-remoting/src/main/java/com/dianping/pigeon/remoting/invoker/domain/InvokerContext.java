@@ -25,4 +25,8 @@ public interface InvokerContext extends InvocationContext {
 	void setDegraded();
 	
 	boolean isDegraded();
+	
+	void setLogCallException(boolean isLogCallException);
+	
+	boolean isLogCallException();
 }

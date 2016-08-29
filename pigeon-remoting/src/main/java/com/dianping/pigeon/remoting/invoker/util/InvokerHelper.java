@@ -17,6 +17,11 @@ public final class InvokerHelper {
 		}
 	};
 	private static ThreadLocal<Object> tlDefaultResult = new ThreadLocal<Object>();
+	private static ThreadLocal<Boolean> tlLogCallException = new ThreadLocal<Boolean>() {
+		protected Boolean initialValue() {
+			return true;
+		}
+	};
 
 	public static void setDefaultResult(Object defaultResult) {
 		tlDefaultResult.set(defaultResult);
@@ -26,6 +31,16 @@ public final class InvokerHelper {
 		Object result = tlDefaultResult.get();
 		tlDefaultResult.remove();
 		return result;
+	}
+
+	public static void setLogCallException(boolean logCallException) {
+		tlLogCallException.set(logCallException);
+	}
+
+	public static boolean getLogCallException() {
+		boolean logCallException = tlLogCallException.get();
+		tlLogCallException.remove();
+		return logCallException;
 	}
 
 	public static void setCancel(boolean cancel) {

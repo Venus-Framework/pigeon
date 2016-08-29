@@ -10,18 +10,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.util.ServiceUtils;
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeEvent;
 import com.dianping.pigeon.registry.listener.ServiceProviderChangeListener;
-import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
@@ -33,6 +31,7 @@ import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHo
 import com.dianping.pigeon.threadpool.DefaultThreadPool;
 import com.dianping.pigeon.threadpool.ThreadPool;
 import com.dianping.pigeon.util.ClassUtils;
+import com.dianping.pigeon.util.ServiceUtils;
 import com.dianping.pigeon.util.ThreadPoolUtils;
 
 public class LoadBalanceManager {
@@ -115,7 +114,7 @@ public class LoadBalanceManager {
 							.loadClass((String) loadBalance);
 					loadBlanceObj = loadbalanceClass.newInstance();
 				} catch (Throwable e) {
-					throw new InvalidParameterException("failed to register loadbalance[service=" + serviceId
+					throw new IllegalArgumentException("failed to register loadbalance[service=" + serviceId
 							+ ",class=" + loadBalance + "]", e);
 				}
 			} else {
@@ -126,7 +125,7 @@ public class LoadBalanceManager {
 				Class<? extends LoadBalance> loadbalanceClass = (Class<? extends LoadBalance>) loadBalance;
 				loadBlanceObj = loadbalanceClass.newInstance();
 			} catch (Throwable e) {
-				throw new InvalidParameterException("failed to register loadbalance[service=" + serviceId + ",class="
+				throw new IllegalArgumentException("failed to register loadbalance[service=" + serviceId + ",class="
 						+ loadBalance + "]", e);
 			}
 		}

@@ -27,7 +27,7 @@ public @interface Reference {
 
 	String callType() default "sync";
 
-	int timeout() default 5000;
+	int timeout() default 1000;
 
 	String callback() default "";
 

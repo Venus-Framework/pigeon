@@ -6,46 +6,36 @@ package com.dianping.pigeon.remoting.invoker.callback;
 
 import java.util.concurrent.TimeUnit;
 
-import com.dianping.pigeon.log.Logger;
-
 import com.dianping.dpsf.async.ServiceFuture;
-import com.dianping.dpsf.exception.DPSFException;
-import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLoader;
-import com.dianping.pigeon.monitor.MonitorTransaction;
-import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
-import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.ApplicationException;
+import com.dianping.pigeon.remoting.common.exception.BadResponseException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.process.DegradationManager;
-import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
+import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
 
 public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceFutureImpl.class);
 
-	private static final Monitor monitor = MonitorLoader.getMonitor();
-
 	private long timeout = Long.MAX_VALUE;
 
-	private Thread callerThread;
+	protected Thread callerThread;
 
-	private MonitorTransaction transaction;
-
-	private InvokerContext invocationContext;
+	protected InvokerContext invocationContext;
 
 	public ServiceFutureImpl(InvokerContext invocationContext, long timeout) {
 		super();
 		this.timeout = timeout;
 		this.invocationContext = invocationContext;
 		callerThread = Thread.currentThread();
-		transaction = monitor.getCurrentCallTransaction();
 	}
 
 	@Override
@@ -62,41 +52,52 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 			invocationContext.getTimeline().add(new TimePoint(TimePhase.F, start));
 		}
 		try {
-			response = super.get(timeoutMillis);
-			if (transaction != null && response != null) {
-				String size = SizeMonitor.getInstance().getLogSize(response.getSize());
-				if (size != null) {
-					transaction.logEvent("PigeonCall.responseSize", size, "" + response.getSize());
+			try {
+				response = super.getResponse(timeoutMillis);
+				if (transaction != null && response != null) {
+					String size = SizeMonitor.getInstance().getLogSize(response.getSize());
+					if (size != null) {
+						transaction.logEvent("PigeonCall.responseSize", size, "" + response.getSize());
+					}
+					invocationContext.getTimeline().add(new TimePoint(TimePhase.R, response.getCreateMillisTime()));
+					invocationContext.getTimeline().add(new TimePoint(TimePhase.F, System.currentTimeMillis()));
 				}
-				invocationContext.getTimeline().add(new TimePoint(TimePhase.R, response.getCreateMillisTime()));
-				invocationContext.getTimeline().add(new TimePoint(TimePhase.F, System.currentTimeMillis()));
-			}
-		} catch (Throwable e) {
-			RuntimeException rpcEx = null;
-			if (e instanceof DPSFException) {
-				rpcEx = (DPSFException) e;
-			} else if (e instanceof RpcException) {
+			} catch (RuntimeException e) {
 				DegradationManager.INSTANCE.addFailedRequest(invocationContext, e);
-				rpcEx = (RpcException) e;
-			} else {
-				rpcEx = new RpcException(e);
+				ExceptionManager.INSTANCE.logRpcException(client.getAddress(), request.getServiceName(),
+						request.getMethodName(), "error with future call", e, transaction);
+				throw e;
 			}
-			if (e instanceof NetTimeoutException) {
-				if (Constants.INVOKER_LOG_TIMEOUT_EXCEPTION) {
-					logger.error(rpcEx);
+
+			setResponseContext(response);
+
+			if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+				return response.getReturn();
+			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
+				StringBuilder msg = new StringBuilder();
+				msg.append("remote call error with future call\r\nrequest:").append(request).append("\r\nhost:")
+						.append(client.getHost()).append(":").append(client.getPort()).append("\r\nresponse:")
+						.append(response);
+				RpcException e = ExceptionManager.INSTANCE.logRemoteCallException(client.getAddress(),
+						request.getServiceName(), request.getMethodName(), msg.toString(), response, transaction);
+				if (e != null) {
+					throw e;
 				}
-			} else {
-				logger.error(rpcEx);
-			}
-			monitor.logError(rpcEx);
-			if (transaction != null) {
-				try {
-					transaction.setStatusError(e);
-				} catch (Throwable e2) {
-					monitor.logMonitorError(e2);
+			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
+				StringBuilder msg = new StringBuilder();
+				msg.append("remote service biz error with future call\r\nrequest:").append(request).append("\r\nhost:")
+						.append(client.getHost()).append(":").append(client.getPort()).append("\r\nresponse:")
+						.append(response);
+				Throwable e = ExceptionManager.INSTANCE.logRemoteServiceException(client.getAddress(),
+						request.getServiceName(), request.getMethodName(), msg.toString(), response);
+				if (e instanceof RuntimeException) {
+					throw (RuntimeException) e;
+				} else if (e != null) {
+					throw new ApplicationException(e);
 				}
 			}
-			throw rpcEx;
+			RpcException e = new BadResponseException(response.toString());
+			throw e;
 		} finally {
 			if (transaction != null) {
 				invocationContext.getTimeline().add(new TimePoint(TimePhase.E, System.currentTimeMillis()));
@@ -107,29 +108,6 @@ public class ServiceFutureImpl extends CallbackFuture implements ServiceFuture {
 				}
 			}
 		}
-		setResponseContext(response);
-
-		if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-			return response.getReturn();
-		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
-			RpcException cause = InvokerUtils.toRpcException(response);
-			logger.error("error with future call", cause);
-			monitor.logError("error with future call", cause);
-			throw cause;
-		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-			RuntimeException cause = InvokerUtils.toApplicationRuntimeException(response);
-			if (Constants.INVOKER_LOG_APP_EXCEPTION) {
-				logger.error("error with remote business future call", cause);
-				monitor.logError("error with remote business future call", cause);
-			}
-			throw cause;
-		} else {
-			RpcException e = new InvalidParameterException("unsupported response with message type:"
-					+ response.getMessageType());
-			monitor.logError(e);
-			throw e;
-		}
-
 	}
 
 	@Override

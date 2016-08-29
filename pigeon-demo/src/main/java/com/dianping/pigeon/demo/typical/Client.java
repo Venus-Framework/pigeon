@@ -5,6 +5,8 @@
 package com.dianping.pigeon.demo.typical;
 
 import com.dianping.dpsf.async.ServiceCallback;
+import com.dianping.dpsf.async.ServiceFuture;
+import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.demo.EchoService;
@@ -79,12 +81,12 @@ public class Client {
 				// gb.setEndDate(new Date());
 				// gb.setThirdPartVerify(false);
 				//
-//				echoServiceWithFuture.echo("scott");
-//				ServiceFuture future = ServiceFutureFactory.getFuture();
-//				System.out.println(future._get());
+				echoServiceWithFuture.echoWithException("scott");
+				ServiceFuture future = ServiceFutureFactory.getFuture();
+				System.out.println(future._get());
 //				echoServiceWithCallback.echo("scott");
 //				Thread.sleep(2);
-				System.out.println(echoService.echo("scott"));
+//				System.out.println(echoService.echo("scott"));
 				// System.out.println(echoService.echo(Gender.FEMALE));
 				// System.out.println(echoService.isMale());
 				// System.out.println(echoService.findUsers(1));
@@ -99,6 +101,7 @@ public class Client {
 				// System.out.println("response:" +
 				// ContextUtils.getResponseContext("key1"));
 			} catch (Exception e) {
+				//e.printStackTrace();
 			}
 		}
 	}

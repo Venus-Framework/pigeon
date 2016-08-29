@@ -7,10 +7,9 @@ package com.dianping.pigeon.remoting.invoker.callback;
 import java.io.Serializable;
 import java.util.Map;
 
-import com.dianping.pigeon.log.Logger;
-
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.exception.DPSFException;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
@@ -19,7 +18,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
-import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
+import com.dianping.pigeon.remoting.common.exception.BadResponseException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -29,7 +28,7 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.process.DegradationManager;
-import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
+import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class ServiceCallbackWrapper implements Callback {
@@ -53,12 +52,14 @@ public class ServiceCallbackWrapper implements Callback {
 		this.callback = callback;
 	}
 
-	private void addMonitorInfo() {
+	@Override
+	public void run() {
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		MonitorTransaction transaction = null;
 		long currentTime = System.currentTimeMillis();
 		try {
-			if (Constants.INVOKER_CALLBACK_MONITOR_ENABLE) {
+			setResponseContext(response);
+			if (Constants.MONITOR_ENABLE) {
 				String callInterface = InvocationUtils.getRemoteCallFullName(invokerConfig.getUrl(),
 						invocationContext.getMethodName(), invocationContext.getParameterTypes());
 				transaction = monitor.createTransaction("PigeonCallback", callInterface, invocationContext);
@@ -81,64 +82,62 @@ public class ServiceCallbackWrapper implements Callback {
 					&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
 				StringBuilder msg = new StringBuilder();
 				msg.append("request callback timeout:").append(request);
-				Exception te = new RequestTimeoutException(msg.toString());
-				te.setStackTrace(new StackTraceElement[] {});
-				DegradationManager.INSTANCE.addFailedRequest(invocationContext, te);
-				if (Constants.INVOKER_LOG_TIMEOUT_EXCEPTION) {
-					logger.error(msg);
-				}
-				if (monitor != null) {
-					monitor.logError(te);
-				}
+				Exception e = new RequestTimeoutException(msg.toString());
+				e.setStackTrace(new StackTraceElement[] {});
+				DegradationManager.INSTANCE.addFailedRequest(invocationContext, e);
+				ExceptionManager.INSTANCE.logRpcException(client.getAddress(), request.getServiceName(),
+						request.getMethodName(), msg.toString(), e, transaction);
 			}
-		} catch (Throwable e) {
-			monitor.logMonitorError(e);
 		} finally {
-			if (transaction != null) {
-				invocationContext.getTimeline().add(new TimePoint(TimePhase.E, System.currentTimeMillis()));
-				try {
-					transaction.complete();
-				} catch (Throwable e) {
-					monitor.logMonitorError(e);
+			try {
+				if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+					completeTransaction(transaction);
+
+					this.callback.callback(response.getReturn());
+				} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
+					StringBuilder msg = new StringBuilder();
+					msg.append("remote call error with callback\r\n").append("seq:").append(request.getSequence())
+							.append(",callType:").append(request.getCallType()).append("\r\nservice:")
+							.append(request.getServiceName()).append(",method:").append(request.getMethodName())
+							.append("\r\nhost:").append(client.getHost()).append(":").append(client.getPort());
+
+					RpcException e = ExceptionManager.INSTANCE.logRemoteCallException(client.getAddress(),
+							request.getServiceName(), request.getMethodName(), msg.toString(), response, transaction);
+					DegradationManager.INSTANCE.addFailedRequest(invocationContext, e);
+					completeTransaction(transaction);
+
+					this.callback.frameworkException(new DPSFException(e));
+				} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
+					StringBuilder msg = new StringBuilder();
+					msg.append("remote service biz error with callback\r\nrequest:").append(request).append("\r\nhost:")
+							.append(client.getHost()).append(":").append(client.getPort()).append("\r\nresponse:")
+							.append(response);
+					Exception e = ExceptionManager.INSTANCE.logRemoteServiceException(client.getAddress(),
+							request.getServiceName(), request.getMethodName(), msg.toString(), response);
+					completeTransaction(transaction);
+
+					this.callback.serviceException(e);
+				} else {
+					RpcException e = new BadResponseException(response.toString());
+					monitor.logError(e);
+
+					completeTransaction(transaction);
 				}
+			} catch (Throwable e) {
+				logger.error("error while executing service callback", e);
 			}
 		}
 	}
 
-	@Override
-	public void run() {
-		try {
-			if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-				addMonitorInfo();
-				this.callback.callback(response.getReturn());
-			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
-				RpcException cause = InvokerUtils.toRpcException(response);
-				DegradationManager.INSTANCE.addFailedRequest(invocationContext, cause);
-				StringBuilder sb = new StringBuilder();
-				sb.append("callback service exception\r\n").append("seq:").append(request.getSequence())
-						.append(",callType:").append(request.getCallType()).append("\r\nservice:")
-						.append(request.getServiceName()).append(",method:").append(request.getMethodName())
-						.append("\r\nhost:").append(client.getHost()).append(":").append(client.getPort());
-				logger.error(sb.toString(), cause);
-				monitor.logError(sb.toString(), cause);
-				this.callback.frameworkException(new DPSFException(cause));
-			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-				Throwable cause = InvokerUtils.toApplicationException(response);
-				Exception businessException = (Exception) cause;
-				if (Constants.INVOKER_LOG_APP_EXCEPTION) {
-					logger.error("error with remote business callback", businessException);
-					monitor.logError("error with remote business callback", businessException);
-				}
-				this.callback.serviceException(businessException);
-			} else {
-				RpcException e = new InvalidParameterException("unsupported response with message type:"
-						+ response.getMessageType());
-				monitor.logError(e);
+	private void completeTransaction(MonitorTransaction transaction) {
+		if (transaction != null) {
+			invocationContext.getTimeline().add(new TimePoint(TimePhase.E, System.currentTimeMillis()));
+			try {
+				transaction.complete();
+			} catch (Throwable e) {
+				monitor.logMonitorError(e);
 			}
-		} catch (Throwable e) {
-			logger.error("error while executing service callback", e);
 		}
-		setResponseContext(response);
 	}
 
 	protected void setResponseContext(InvocationResponse response) {

@@ -7,11 +7,10 @@ package com.dianping.pigeon.remoting.common.codec;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.dianping.pigeon.remoting.common.codec.thrift.ThriftSerializer;
 import org.apache.commons.lang.ClassUtils;
-import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.extension.ExtensionLoader;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.fst.FstSerializer;
 import com.dianping.pigeon.remoting.common.codec.hessian.Hessian1Serializer;
@@ -19,7 +18,7 @@ import com.dianping.pigeon.remoting.common.codec.hessian.HessianSerializer;
 import com.dianping.pigeon.remoting.common.codec.java.JavaSerializer;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.common.codec.protostuff.ProtostuffSerializer;
-import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
+import com.dianping.pigeon.remoting.common.codec.thrift.ThriftSerializer;
 
 /**
  * @author xiangwu
@@ -106,13 +105,13 @@ public final class SerializerFactory {
         if (result != null) {
             return result;
         } else {
-            throw new InvalidParameterException("Only registered serialize type supported");
+            throw new IllegalArgumentException("Only registered serialize type supported");
         }
     }
 
     public static void registerSerializer(String serializeName, byte serializerType, Serializer serializer) {
         if (serializer == null) {
-            throw new InvalidParameterException("the serializer is null");
+            throw new IllegalArgumentException("the serializer is null");
         }
 
         try {
@@ -128,7 +127,7 @@ public final class SerializerFactory {
     public static Serializer getSerializer(byte serializerType) {
         Serializer serializer = serializers.get(serializerType);
         if (serializer == null) {
-            throw new InvalidParameterException("no serializer found for type:" + serializerType);
+            throw new IllegalArgumentException("no serializer found for type:" + serializerType);
         } else {
             return serializer;
         }
@@ -138,7 +137,7 @@ public final class SerializerFactory {
         if (serializerType == SERIALIZE_THRIFT) {
             return UNIFIED_SERIALIZE_THRIFT;
         } else {
-            throw new InvalidParameterException("Invalid serializerType :" + serializerType);
+            throw new IllegalArgumentException("Invalid serializer type :" + serializerType);
         }
     }
 
@@ -146,7 +145,7 @@ public final class SerializerFactory {
         if (serializerType == UNIFIED_SERIALIZE_THRIFT) {
             return SERIALIZE_THRIFT;
         } else {
-            throw new InvalidParameterException("Invalid serializerType :" + serializerType);
+            throw new IllegalArgumentException("Invalid serializer type:" + serializerType);
         }
     }
 

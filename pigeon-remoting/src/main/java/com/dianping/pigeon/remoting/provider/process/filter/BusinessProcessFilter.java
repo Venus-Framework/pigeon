@@ -7,13 +7,12 @@ package com.dianping.pigeon.remoting.provider.process.filter;
 import java.util.List;
 
 import com.dianping.pigeon.log.Logger;
-
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
-import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
+import com.dianping.pigeon.remoting.common.exception.BadRequestException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -80,7 +79,7 @@ public class BusinessProcessFilter implements ServiceInvocationFilter<ProviderCo
 			}
 			return response;
 		}
-		throw new InvalidParameterException("message type[" + request.getMessageType() + "] is not supported!");
+		throw new BadRequestException("message type[" + request.getMessageType() + "] is not supported!");
 	}
 
 }
