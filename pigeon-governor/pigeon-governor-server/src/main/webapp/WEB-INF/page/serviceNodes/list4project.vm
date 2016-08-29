@@ -126,7 +126,7 @@
                                                 <i class="ace-icon fa fa-desktop bigger-110 hidden-480"></i>
                                                 hosts
                                             </th>
-                                            <th>
+                                            <th class="hidden-sm hidden-xs action-buttons">
                                             #if(!$isProjectOwner)
                                                 <a class="red" href="javascript:void(0)" onclick="adminApplyFunc(event)">
                                                     <i class="ace-icon fa fa-user red bigger-130"></i>
@@ -554,7 +554,11 @@
 
                     var onEditServiceTrId = $('#edit_hosts_info').attr("data-serviceid");
                     var onEditServiceTr = $('#' + onEditServiceTrId);
-                    dataTable.cell( onEditServiceTr.find('td')[2] ).data(newHostArr.join(",")).draw();
+                    if (newHostArr.length > 0) {
+                        dataTable.cell( onEditServiceTr.find('td')[2] ).data(newHostArr.join(",")).draw();
+                    } else {
+                        dataTable.row(onEditServiceTr).remove().draw();
+                    }
 
                     $('#edit_hosts_info').modal('hide');
 
