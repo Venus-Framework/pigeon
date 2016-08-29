@@ -215,14 +215,14 @@
                 <div class="modal-body">
                     <div class="row">
 
-                        <div class="col-xs-12" id="host_line">
+                        <div class="col-xs-12 host_line">
                             <!-- 这里面的动态画 -->
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button id="add_one_host" class="btn btn-sm btn-primary">
+                    <button class="btn btn-sm btn-primary" onclick="addsinglerow(this)">
                         <i class="ace-icon fa fa-circle-o"></i>
                         添加
                     </button>
@@ -258,14 +258,14 @@
                 <div class="modal-body">
                     <div class="row">
 
-                        <div class="col-xs-12" id="host_line">
+                        <div class="col-xs-12 host_line">
                             <!-- 这里面的动态画 -->
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button id="add_one_host" class="btn btn-sm btn-primary">
+                    <button class="btn btn-sm btn-primary" onclick="addsinglerow(this)">
                         <i class="ace-icon fa fa-circle-o"></i>
                         添加
                     </button>
@@ -372,7 +372,7 @@
                     '<input class="input-large" type="text" placeholder="group name" />' +
                     '</div>';
 
-        $('#add_hosts_info #host_line').html(htmlData);
+        $('#add_hosts_info .host_line').html(htmlData);
         $('#add_hosts_info').modal('show');
     }
 
@@ -405,7 +405,7 @@
                         + '</div>';
         }
 
-        $('#edit_hosts_info #host_line').html(host_line);
+        $('#edit_hosts_info .host_line').html(host_line);
         $('#edit_hosts_info').modal('show');
     }
 
@@ -472,9 +472,19 @@
             },
             success: function(response, textStatus) {
                 if(response.status == "success") {
-
-                    //更新本地缓存还是直接刷新？
-                    window.location.reload();
+                    var rowData = [
+                        '<a href="#">' + serviceName + '</a>',
+                        '<span class="label label-sm label-success">' + group + '</span>',
+                        newHostArr.join(","),
+                        '<div class="hidden-sm hidden-xs action-buttons">' +
+                        '<a class="green" href="javascript:void(0)" onclick="editService(this)">' +
+                        '<i class="ace-icon fa fa-pencil bigger-130"></i></a></div>'
+                    ];
+                    var rowNode = dataTable.row.add(rowData).draw().node();
+                    $(rowNode).attr('id', 'service_' + new Date().getTime());
+                    $($(rowNode).find('td')[2]).css('word-break', 'break-all');
+                    //$( rowNode ).css( 'color', 'red' ).animate( { color: 'black' } );
+                    $('#add_hosts_info').modal('hide');
 
                 } else { // 报个错
                     $.gritter.add({
@@ -562,8 +572,7 @@
 
     });
 
-    $('#add_one_host').on('click',function(e){ // 添加一行 host 编辑框
-        //console.log(e);
+    function addsinglerow(dom) { // 添加一行 host 编辑框
 
         var host_line = '<div class="form-group col-xs-12">'
                 + '<input class="input-large" type="text" placeholder="ip:port, e.g. 10.1.77.131:5060" value="" />'
@@ -571,8 +580,8 @@
                 + '<img src="${rc.contextPath}/resources/img/del.png" onclick="delsinglerow(this)" />'
                 + '</div>';
 
-        $(e.currentTarget).closest('.modal-dialog').find('#host_line').append(host_line);
-    });
+        $(dom).closest('.modal-content').find('.host_line').append(host_line);
+    }
 
     function delsinglerow(dom) { //删除所在行 host 编辑框
         $(dom).closest('div').remove();
