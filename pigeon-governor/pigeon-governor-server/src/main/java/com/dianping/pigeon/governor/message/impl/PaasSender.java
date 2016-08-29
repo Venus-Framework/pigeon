@@ -93,12 +93,14 @@ public class PaasSender implements EventSender{
             return true;
         return false;
     }
-
-
     private SendResult sendMail(Event event,List<String> addresses){
         SendResult result = new SendResult();
-        result.add(GsonUtils.toJson(addresses),SenderType.Mail,
-                sendMail(event.getTitle(),event.getSummary(),addresses));
+        boolean sendState = sendMail(event.getTitle(),event.getSummary(),addresses);
+        for(Iterator<String> iterator = addresses.iterator();
+                iterator.hasNext();){
+            String address = iterator.next();
+            result.add(address,SenderType.Mail,sendState);
+        }
         return result;
     }
     private SendResult sendWeiXin(Event event,List<String> addresses){

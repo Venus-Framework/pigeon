@@ -52,6 +52,28 @@ public class DefaultServiceChangeListener implements ServiceChangeListener {
 		}
 	}
 
+	@Override
+	public void onServiceHostChange(String serviceName, List<String[]> toAddHostList, List<String[]> toDelHostList) {
+		try {
+			Set<HostInfo> toAddHpSet = parseHostPortList(serviceName, toAddHostList);
+			Set<HostInfo> toRemoveHpSet = parseHostPortList(serviceName, toDelHostList);
+
+			if (logger.isInfoEnabled()) {
+				logger.info("service hosts changed, to added hosts:" + toAddHpSet);
+				logger.info("service hosts changed, to removed hosts:" + toRemoveHpSet);
+			}
+			for (HostInfo hostPort : toAddHpSet) {
+				RegistryEventListener.providerAdded(serviceName, hostPort.getHost(), hostPort.getPort(),
+						hostPort.getWeight());
+			}
+			for (HostInfo hostPort : toRemoveHpSet) {
+				RegistryEventListener.providerRemoved(serviceName, hostPort.getHost(), hostPort.getPort());
+			}
+		} catch (Throwable e) {
+			logger.error("error with service host change", e);
+		}
+	}
+
 	private Set<HostInfo> parseHostPortList(String serviceName, List<String[]> hostList) {
 		Set<HostInfo> hpSet = Collections.newSetFromMap(new ConcurrentHashMap<HostInfo, Boolean>());
 		if (hostList != null) {

@@ -68,6 +68,11 @@ beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:408
 
 拼写调用数据，查询ip为`80.2.1.23`的相关信息：
 
+注意：调用参数json中的`url`指的是所需要调用服务的服务名，
+例如`http://service.dianping.com/rankSearchService/rankRecommendService_1.0.0`，
+如果服务发布的时候没有特意指定服务名，则采用接口的路径名+包名作为服务名注册到注册中心，
+例如`com.dianping.iphub.service.IpService`
+
     {
     	"url":"com.dianping.iphub.service.IpService",
     	"methodName":"getIpInfo",
@@ -135,6 +140,11 @@ beta环境：`http://pigeon.51ping.com/应用名`    ——》    `http://ip:408
 用问号拼在一起得到完整url：
 
 `http://pigeon.51ping.com/iphub-service/invoke.json?url=com.dianping.iphub.service.IpService&method=getIpInfo&parameterTypes=java.lang.String&parameters=80.2.1.23`
+
+注意：调用链接参数中的`url`指的是所需要调用服务的服务名，
+例如`http://service.dianping.com/rankSearchService/rankRecommendService_1.0.0`，
+如果服务发布的时候没有特意指定服务名，则采用接口的路径名+包名作为服务名注册到注册中心，
+例如`com.dianping.iphub.service.IpService`
 
 调用成功将获得返回值：
 

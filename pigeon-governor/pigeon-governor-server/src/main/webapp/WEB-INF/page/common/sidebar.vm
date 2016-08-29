@@ -87,6 +87,28 @@
         </a>
         <b class="arrow"></b>
     </li>
+	<li id="log_center">
+		<a href="#" class="dropdown-toggle">
+            <i class="menu-icon fa fa-file-text-o"></i>
+			<span class="menu-text">日志中心</span>
+			<b class="arrow fa fa-angle-down"></b>
+		</a>
+		<b class="arrow"></b>
+		<ul class="submenu">
+			<li id="event_log">
+				<a href="${rc.contextPath}/event">
+					告警日志
+				</a>
+				<b class="arrow"></b>
+			</li>
+			<li id="op_log">
+				<a href="${rc.contextPath}/oplog">
+					操作日志
+				</a>
+				<b class="arrow"></b>
+			</li>
+		</ul>
+	</li>
 	<li id ="user_guide">
 		<a href="${rc.contextPath}/resources/mdwiki/index.html#!USER_GUIDE.md">
 			<i class="menu-icon fa fa-question"></i>

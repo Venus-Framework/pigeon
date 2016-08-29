@@ -66,6 +66,16 @@ public class ReferenceBean implements FactoryBean {
 
     private String remoteAppKey;
 
+    private Object mock;
+
+    public Object getMock() {
+        return mock;
+    }
+
+    public void setMock(Object mock) {
+        this.mock = mock;
+    }
+
     public String getSecret() {
         return secret;
     }
@@ -265,8 +275,23 @@ public class ReferenceBean implements FactoryBean {
                 methodMap.put(method.getName(), method);
             }
         }
+
+        checkMock(); // 降级配置检查
+        invokerConfig.setMock(mock);
+
         this.obj = ServiceFactory.getService(invokerConfig);
         configLoadBalance(invokerConfig);
+    }
+
+    private void checkMock() throws Exception {
+        if (mock != null) {
+
+            // 检查是否实现了interface
+            if (! objType.isAssignableFrom(mock.getClass())) {
+                throw new IllegalStateException("The mock implemention class "
+                        + mock.getClass().getName() + " not implement interface " + objType.getName());
+            }
+        }
     }
 
     private void configLoadBalance(InvokerConfig invokerConfig) {

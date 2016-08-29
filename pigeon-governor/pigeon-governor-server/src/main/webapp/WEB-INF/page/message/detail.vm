@@ -1,0 +1,287 @@
+#set($layout="layoutblank.vm")
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta charset="utf-8" />
+    <title>Pigeon</title>
+
+    <meta name="description" content="Pigeon message"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/font-awesome.min.css" />
+
+    <!-- page specific plugin styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery-ui.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/datepicker.css" />
+
+    <!-- text fonts -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-fonts.css" />
+
+    <!-- ace styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace.min.css" id="main-ace-style"/>
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-part2.min.css" />
+    <![endif]-->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-rtl.min.css" />
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-ie.min.css" />
+    <![endif]-->
+
+    <!-- inline styles related to this page -->
+    <style type="text/css">
+        .save {}
+        .value-size {
+            word-break:break-all;
+        }
+        .no-margin{
+            margin:0;
+        }
+        .width-full{
+            width:100%;
+        }
+        .left-text{
+            text-align: left;
+        }
+        .no-border{
+            border:none;
+        }
+    </style>
+
+
+    <!-- ace settings handler -->
+    <script src="${rc.contextPath}/resources/assets/js/ace-extra.min.js"></script>
+
+</head>
+<body class="no-skin">
+
+<!-- #section:basics/navbar.layout -->
+<div id="navbar" class="navbar navbar-default">
+    #parse("common/navbar.vm")
+</div>
+<div class="main-container" id="main-container">
+
+    <script type="text/javascript">
+        try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+    </script>
+    <!-- #section:basics/sidebar -->
+    <div id="sidebar" class="sidebar   responsive">
+        #parse("common/sidebar.vm")
+    </div>
+    <div class="main-content">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <script type="text/javascript">
+                try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+            </script>
+            <div class="col-xs-6">
+                <ul class="breadcrumb">
+                    <li>
+                        <i class="ace-icon fa fa-home home-icon"></i>
+                        <a href="/">主页</a>
+                    </li>
+                    <li>
+                        <a href="/message">消息中心</a>
+                    </li>
+                    <li class="active">
+                        <a href="#">消息详情</a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+        <div class="page-content">
+            <div class="page-content-area">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="col-xs-6">
+                            <div class="widget-box transparent">
+                                <div class="widget-header widget-header-flat">
+                                    <h4 class="widget-title lighter">
+                                        <i class="ace-icon fa fa-check-square-o bigger-110"></i>
+                                        Message Meta Info
+                                    </h4>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="widget-main no-padding">
+                                        <div class="profile-user-info no-margin width-full">
+                                            <div class="profile-info-row">
+                                                <div class="profile-info-name left-text no--border">消息ID</div>
+                                                <div class="profile-info-value no-border">
+                                                    <span>192</span>
+                                                </div>
+                                            </div>
+                                            <div class="profile-info-row ">
+                                                <div class="profile-info-name left-text no-border">消息类型</div>
+                                                <div class="profile-info-value no-border">
+##                                                    TODO 设置为一个label
+                                                    <span>服务端流量不均</span>
+                                                </div>
+                                            </div>
+                                            <div class="profile-info-row">
+                                                <div class="profile-info-name left-text no-border">告警级别</div>
+                                                <div class="profile-info-value no-border">
+##                                                   TODO 颜色区分
+                                                    <span>初级</span>
+                                                </div>
+                                            </div>
+                                            <div class="profile-info-row">
+                                                <div class="profile-info-name left-text no-border">所属项目</div>
+                                                <div class="profile-info-value no-border">
+                                                    <a href="#" target="_blank">Pigeon-Governor-Server</a>
+                                                </div>
+                                            </div>
+                                            <div class="profile-info-row">
+                                                <div class="profile-info-name left-text value-size no-border">关联项目</div>
+                                                <div class="profile-info-value no-border">
+                                                    <a href="#" target="_blank">Tena</a>
+                                                </div>
+                                            </div>
+                                            <div class="profile-info-row">
+                                                <div class="profile-info-name left-text value-size no-border">标题</div>
+                                                <div class="profile-info-value no-border">
+                                                    <span>Pigeon客户端调用流量不均告警</span>
+                                                </div>
+                                            </div>
+                                            <div class="profile-info-row">
+                                                <div class="profile-info-name left-text value-size no-border">摘要</div>
+                                                <div class="profile-info-value no-border">
+                                                    <span>Pigeon Caller review-web至Pigeon Server credit-antispider-price-service的调用量分布不均</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="widget-box transparent">
+                                <div class="widget-header widget-header-flat">
+                                    <h4 class="widget-title lighter">
+                                        <i class="ace-icon fa fa-star orange"></i>
+                                        发送状态
+                                    </h4>
+                                    <div class="widget-toolbar">
+                                        <a href="#" data-action="collapse">
+                                            <i class="ace-icon fa fa-chevron-up"></i>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="widget-body">
+                                    <div class="widget-main no-padding">
+                                        <table class="table table-bordered table-striped">
+                                            <thead class="thin-border-bottom">
+                                            <tr>
+                                                <th>
+                                                    <i class="ace-icon fa fa-caret-right blue"></i>发送地址
+                                                </th>
+
+                                                <th>
+                                                    <i class="ace-icon fa fa-caret-right blue"></i>发送方式
+                                                </th>
+
+                                                <th class="hidden-480">
+                                                    <i class="ace-icon fa fa-caret-right blue"></i>发送结果
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td>internet.com</td>
+                                                <td>
+                                                    <small>
+                                                        <s class="red">$29.99</s>
+                                                    </small>
+                                                    <b class="green">$19.99</b>
+                                                </td>
+                                                <td class="hidden-480">
+                                                    <span class="label label-info arrowed-right arrowed-in">on sale</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>online.com</td>
+                                                <td>
+                                                    <small>
+                                                        <s class="red"></s>
+                                                    </small>
+                                                    <b class="green">$16.45</b>
+                                                </td>
+                                                <td class="hidden-480">
+                                                    <span class="label label-success arrowed-in arrowed-in-right">approved</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>newnet.com</td>
+                                                <td>
+                                                    <small>
+                                                        <s class="red"></s>
+                                                    </small>
+                                                    <b class="green">$15.00</b>
+                                                </td>
+                                                <td class="hidden-480">
+                                                    <span class="label label-danger arrowed">pending</span>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+##                <h4 class="col-xs-12 header blue">节点信息</h4>
+                <div class="hr hr20 hr-dotted"></div>
+                <div class="row" id="messageContent">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        #parse("common/sub-footer.vm")
+    </div>
+
+    <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+        <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+    </a>
+</div>
+<!-- basic scripts -->
+<!--[if !IE]> -->
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.min.js'>"+"<"+"/script>");
+</script>
+<!-- <![endif]-->
+<!--[if IE]>
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery1x.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+<script type="text/javascript">
+    if('ontouchstart' in document.documentElement)
+        document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap.min.js"></script>
+<!-- page specific plugin scripts -->
+<script src="${rc.contextPath}/resources/js/my-ajax-wrapper.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/spin.min.js"></script>
+
+<script>
+    jQuery(function($) {
+        $('#messageContent').ajaxLoad({
+            url:'/message/id/content',
+            data:''
+        })
+    });
+</script>
+<!-- ace scripts -->
+<script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
+
+</body>
+</html>

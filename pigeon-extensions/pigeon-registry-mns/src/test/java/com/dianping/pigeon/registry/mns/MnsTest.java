@@ -1,5 +1,6 @@
 package com.dianping.pigeon.registry.mns;
 
+import com.dianping.pigeon.registry.util.HeartBeatSupport;
 import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.Maps;
 import com.sankuai.inf.octo.mns.MnsInvoker;
@@ -26,15 +27,19 @@ public class MnsTest {
     String testService = "hello.service";
     String protocol = "thrift";
     String localAppkey = "mns-test";
-    String remoteAppkey = "com.sankuai.octo.hellopigeon";
-    String ip = "10.4.245.3";
-    int port = 4040;
+    String remoteAppkey = "com.sankuai.inf.mtthrift.testServer";
+    String ip = "10.66.45.180";
+    int port = 7110;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         MnsTest test = new MnsTest();
 
         test.specifyMns();
         test.testModif();
+
+        test.mnsUnReg();
+
+        test.keepInRead();
 
         for (int i = 0; i < 100; ++i) {
             System.out.println(i);
@@ -78,7 +83,8 @@ public class MnsTest {
                 .setLastUpdateTime((int) (System.currentTimeMillis() / 1000))
                 .setStatus(status)
                 .setVersion(VersionUtils.VERSION)
-                .setServiceInfo(serviceDetailMap);
+                .setServiceInfo(serviceDetailMap)
+        ;//.setHeartbeatSupport(HeartBeatSupport.BOTH.getValue());
 
         reg(sgService);
     }
@@ -110,6 +116,7 @@ public class MnsTest {
 
         sgService.setIp(ip);
         sgService.setPort(port);
+        sgService.setVersion(VersionUtils.VERSION);
 
         //sgService.setWeight(0);
         //sgService.setFweight(0.d);
@@ -120,7 +127,8 @@ public class MnsTest {
         sgService.setLastUpdateTime((int) (System.currentTimeMillis() / 1000));
 
         try {
-            MnsInvoker.unRegisterService(sgService);
+            MnsInvoker.registServiceWithCmd(2, sgService);
+            //MnsInvoker.unRegisterService(sgService);
             System.out.println("unregisterProviderOnMns: " + sgService);
         } catch (TException e) {
             throw new RuntimeException("error while register service: hello.service", e);

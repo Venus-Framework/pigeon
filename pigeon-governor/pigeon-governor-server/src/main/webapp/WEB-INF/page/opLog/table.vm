@@ -1,0 +1,100 @@
+#set($layout="layoutblank.vm")
+<div class="modal fade" id="infoPage" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="bootbox-close-button close" data-dismiss="modal" aria-hidden="true" style="margin-top: -10px;">×</button>
+                <h4 class="modal-title blue">
+                    操作详情
+                </h4>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="widget-box transparent">
+    <div class="widget-header widget-header-flat">
+        <h4 class="widget-title lighter">
+        </h4>
+        <div class="widget-toolbar">
+            <span class="label label-success">
+                Filter $container.getRecordsFiltered()/$container.getTotalCount()
+            </span>
+        </div>
+    </div>
+    <div class="widget-body">
+        <div class="widget-main no-padding">
+            <div id="table-holder">
+                <table id="content" class="table table-striped table-bordered table-hover value-size">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>应用名</th>
+                        <th>操作类型</th>
+                        <th>发起地址</th>
+                        <th>发起用户</th>
+                        <th>时间</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                        #foreach ($data in $container.getData())
+                        <tr>
+                            <td>
+                                $data.getId()
+                            </td>
+                            <td data-order="$data.getProjectName()" data-search="$data.getProjectName()">
+                                <a href="/services/$data.getProjectName()">$data.getProjectName()</a>
+                            </td>
+                            <td class="opLogType" data-order="$data.getType()" data-search="$data.getType()">
+                                <span data-op-source="$data.getContent()">$data.getType()</span>
+                            </td>
+                            <td data-order="$data.getIpAddresses()" data-search="$data.getIpAddresses()">
+                                $data.getIpAddresses()
+                            </td>
+                            <td>$data.getUserName()</td>
+                            <td data-order="$data.getTime()" data-search="$data.getTime()">
+                                $data.getTime()
+                            </td>
+                        </tr>
+                        #end
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    jQuery(function($) {
+        $('#content').DataTable({
+            bAutoWidth: false,
+//            aoColumns: [
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null
+//            ],
+//            aaSorting: [],
+            dom: "<'myRow'<'col-xs-8'><'col-xs-4'B>>" +
+            "<'row aceTableRow'<'col-xs-3'l><'col-xs-9'fr>>" +
+            "t" +
+            "<'row'<'col-xs-3'i><'col-xs-9'p>>"
+        });
+        $('#content').delegate('.opLogType','click',function () {
+            var content = $(this).find('span').attr('data-op-source');
+            $('#infoPage').modal('show');
+            $('.modal-body').html("<p class='value-size'>"+content+"</p>");
+
+        });
+    });
+</script>

@@ -30,7 +30,7 @@ public class SendResult {
         return GsonUtils.prettyPrint(GsonUtils.toJson(this,false),false);
     }
 
-    class Tuple{
+    public class Tuple{
         private String address;
         private SenderType type;
         private boolean isSuccess;
@@ -41,6 +41,29 @@ public class SendResult {
         }
         public String toString(){
             return address+" "+type+" "+(isSuccess?"success":"fail");
+        }
+        public boolean isSuccess(){
+            return this.isSuccess;
+        }
+
+        public String getAddress() {
+            return address;
+        }
+
+        public void setAddress(String address) {
+            this.address = address;
+        }
+
+        public SenderType getType() {
+            return type;
+        }
+
+        public void setType(SenderType type) {
+            this.type = type;
+        }
+
+        public void setSuccess(boolean success) {
+            isSuccess = success;
         }
     }
 }

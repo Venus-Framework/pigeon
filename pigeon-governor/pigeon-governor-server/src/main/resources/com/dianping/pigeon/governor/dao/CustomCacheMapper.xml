@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dianping.pigeon.governor.dao.CustomCacheMapper">
+    <resultMap id="BaseResultMap" type="com.dianping.pigeon.governor.model.OpLog" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="content" property="content" jdbcType="VARCHAR" />
+        <result column="reqIp" property="reqip" jdbcType="VARCHAR" />
+        <result column="dpaccount" property="dpaccount" jdbcType="VARCHAR" />
+        <result column="opTime" property="optime" jdbcType="TIMESTAMP" />
+        <result column="opType" property="optype" jdbcType="SMALLINT" />
+        <result column="projectId" property="projectid" jdbcType="INTEGER" />
+    </resultMap>
+    <select id="getAllUser" resultType="com.dianping.pigeon.governor.model.User">
+        SELECT * FROM user
+    </select>
+
+</mapper>

@@ -11,7 +11,6 @@ import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceService;
 import com.dianping.pigeon.governor.util.CommonUtils;
 import com.dianping.pigeon.governor.util.IPUtils;
-import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.zookeeper.CuratorClient;
 import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
@@ -44,12 +43,7 @@ public class CheckAndSyncServiceDB {
     private static Map<ServiceWithGroup, Service> serviceGroupZkIndex = new ConcurrentHashMap<ServiceWithGroup, Service>();
 
     public CheckAndSyncServiceDB() {
-        for (Registry registry : RegistryManager.getInstance().getRegistryList()) {
-            if(registry instanceof CuratorRegistry) {
-                client = ((CuratorRegistry) registry).getCuratorClient();
-                break;
-            }
-        }
+        client = ((CuratorRegistry) RegistryManager.getInstance().getRegistry()).getCuratorClient();
     }
 
     public static Map<ServiceWithGroup, Service> getServiceGroupDbIndex() {

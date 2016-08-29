@@ -2,6 +2,7 @@ package com.dianping.pigeon.registry.zookeeper;
 
 import java.util.*;
 
+import com.dianping.pigeon.registry.util.HeartBeatSupport;
 import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
@@ -135,9 +136,6 @@ public class CuratorRegistry implements Registry {
 		String weightPath = Utils.getWeightPath(serviceAddress);
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
-			if (weight >= 0) {
-				client.set(weightPath, "" + weight);
-			}
 			if (client.exists(servicePath, false)) {
 				Stat stat = new Stat();
 				String addressValue = client.get(servicePath, stat);
@@ -156,6 +154,9 @@ public class CuratorRegistry implements Registry {
 				}
 			} else {
 				client.create(servicePath, serviceAddress);
+			}
+			if (weight >= 0) {
+				client.set(weightPath, "" + weight);
 			}
 			if (logger.isInfoEnabled()) {
 				logger.info("registered service to persistent node: " + servicePath);
@@ -369,7 +370,16 @@ public class CuratorRegistry implements Registry {
 
 	@Override
 	public String getStatistics() {
-		return "curator:" + client.getStatistics();
+		return getName() + ":" + client.getStatistics();
+	}
+
+	@Override
+	public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
+		if (isSupportNewProtocol(serviceAddress)) {
+			return HeartBeatSupport.BOTH.getValue();
+		} else {
+			return HeartBeatSupport.CLIENTTOSERVER.getValue();
+		}
 	}
 
 	@Override

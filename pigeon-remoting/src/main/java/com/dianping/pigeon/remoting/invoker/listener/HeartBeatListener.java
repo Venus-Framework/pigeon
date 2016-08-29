@@ -13,6 +13,8 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.registry.util.HeartBeatSupport;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -156,6 +158,12 @@ public class HeartBeatListener implements Runnable, ClusterListener {
                                             && serverPorts.contains(client.getPort())) {
                                         continue;
                                     }
+
+                                    if (!checkIfNeedSend(client.getAddress())) {
+                                        // not support p2p heartbeat
+                                        continue;
+                                    }
+
                                     sendHeartBeatRequest(client);
                                 } else {
                                     logger.info("[heartbeat] remove connect:" + client.getAddress());
@@ -198,13 +206,39 @@ public class HeartBeatListener implements Runnable, ClusterListener {
         }
     }
 
+    private boolean checkIfNeedSend(String address) {
+        boolean support = true;
+        byte heartBeatSupport = HeartBeatSupport.BOTH.getValue();
+
+        try {
+            heartBeatSupport = RegistryManager.getInstance().getServerHeartBeatSupport(address);
+        } catch (RegistryException e) {
+            //
+        }
+
+        switch (HeartBeatSupport.findByValue(heartBeatSupport)) {
+            case UNSUPPORT:
+            case SCANNER:
+                support = false;
+                break;
+
+            case CLIENTTOSERVER:
+            case BOTH:
+            default:
+                support = true;
+                break;
+        }
+
+        return support;
+    }
+
     private boolean isSupportNewProtocol(Client client) {
         boolean supported = false;
 
         try {
             supported = RegistryManager.getInstance().isSupportNewProtocol(client.getAddress());
         } catch (Throwable t) {
-            supported = configManager.getBooleanValue("pigeon.mns.host.support.new.protocol.snapshot", true);
+            supported = configManager.getBooleanValue("pigeon.mns.host.support.new.protocol", true);
             logger.warn("get protocol support failed, set support to: " + supported);
         }
 

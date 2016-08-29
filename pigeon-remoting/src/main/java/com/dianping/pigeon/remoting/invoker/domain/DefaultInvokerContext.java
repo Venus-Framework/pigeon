@@ -8,8 +8,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.dianping.pigeon.remoting.common.domain.AbstractInvocationContext;
-import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
-import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 
@@ -21,7 +19,6 @@ public class DefaultInvokerContext extends AbstractInvocationContext implements 
 	private Object[] arguments;
 	private Client client;
 	private boolean isDegraded = false;
-	private boolean isLogCallException = true;
 
 	public DefaultInvokerContext(InvokerConfig<?> invokerConfig, String methodName, Class<?>[] parameterTypes,
 			Object[] arguments) {
@@ -93,14 +90,6 @@ public class DefaultInvokerContext extends AbstractInvocationContext implements 
 	@Override
 	public boolean isDegraded() {
 		return isDegraded;
-	}
-
-	public boolean isLogCallException() {
-		return isLogCallException;
-	}
-
-	public void setLogCallException(boolean isLogCallException) {
-		this.isLogCallException = isLogCallException;
 	}
 
 }

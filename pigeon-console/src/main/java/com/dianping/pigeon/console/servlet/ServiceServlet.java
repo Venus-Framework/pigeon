@@ -167,12 +167,7 @@ public class ServiceServlet extends HttpServlet {
 		page.setGroup(configManager.getGroup());
 		page.setServiceWeights(ServicePublisher.getServerWeight());
 
-		for (Registry registry : RegistryManager.getInstance().getRegistryList()) {
-			if (Constants.REGISTRY_CURATOR_NAME.equals(registry.getName())) {
-				page.setRegistry(registry.getStatistics());
-				break;
-			}
-		}
+		page.setRegistry(RegistryManager.getInstance().getRegistry().getStatistics());
 
 		page.setAppName(configManager.getAppName());
 		page.setStartTime(ProviderBootStrap.getStartTime() + "");

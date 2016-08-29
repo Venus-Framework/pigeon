@@ -68,7 +68,7 @@ public class ServiceCallbackWrapper implements Callback {
 				transaction.setStatusOk();
 				transaction.addData("CallType", invokerConfig.getCallType());
 				transaction.addData("Timeout", invokerConfig.getTimeout());
-				transaction.addData("Serialize", invokerConfig.getSerialize());
+				transaction.addData("Serialize", request.getSerialize());
 				if (response != null && response.getSize() > 0) {
 					String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
 					if (respSize != null) {

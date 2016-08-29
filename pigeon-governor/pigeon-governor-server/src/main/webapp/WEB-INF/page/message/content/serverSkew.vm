@@ -1,0 +1,200 @@
+#set($layout="layoutblank.vm")
+<style type="text/css">
+</style>
+<div class="col-xs-7">
+    <div class="widget-box transparent">
+        <div class="widget-header widget-header-flat">
+            <h4 class="widget-title lighter">
+                <i class="ace-icon fa fa-star orange"></i>
+                客户端至服务端机器流量分布
+            </h4>
+            <div class="widget-toolbar">
+                <a href="#" data-action="collapse">
+                    <i class="ace-icon fa fa-chevron-up"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="widget-body">
+            <div class="widget-main no-padding">
+                <div id ="graphContainer" class="col-xs-12 no-padding"></div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="alert alert-block alert-info col-xs-12 ">
+        <strong>数据来源:</strong>&nbsp;<a href="http://cat.dp/cat/r/cross?domain=credit-antispider-price-service&ip=All&date=2016073008">http://cat.dp/cat/r/cross?domain=credit-antispider-price-service&ip=All&date=2016073008</a>
+    </div>
+</div>
+<div class="col-xs-5">
+    <div class="widget-box transparent">
+        <div class="widget-header widget-header-flat">
+            <h4 class="widget-title lighter">
+                <i class="ace-icon fa fa-star orange"></i>
+                原始数据
+            </h4>
+            <div class="widget-toolbar">
+                <a href="#" data-action="collapse">
+                    <i class="ace-icon fa fa-chevron-up"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="widget-body">
+            <div class="widget-main no-padding">
+                <table class="table table-bordered table-striped">
+                    <thead class="thin-border-bottom">
+                    <tr>
+                        <th>
+                            服务器地址
+                        </th>
+                        <th>
+                            访问次数
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>192.168.0.1</td>
+                        <td>4758</td>
+
+                    </tr>
+                    <tr>
+                        <td>online.com</td>
+                        <td>
+                            <small>
+                                <s class="red"></s>
+                            </small>
+                            <b class="green">$16.45</b>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>internet.com</td>
+                        <td>
+                            <small>
+                                <s class="red">$29.99</s>
+                            </small>
+                            <b class="green">$19.99</b>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>online.com</td>
+                        <td>
+                            <small>
+                                <s class="red"></s>
+                            </small>
+                            <b class="green">$16.45</b>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>internet.com</td>
+                        <td>
+                            <small>
+                                <s class="red">$29.99</s>
+                            </small>
+                            <b class="green">$19.99</b>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>online.com</td>
+                        <td>
+                            <small>
+                                <s class="red"></s>
+                            </small>
+                            <b class="green">$16.45</b>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>internet.com</td>
+                        <td>
+                            <small>
+                                <s class="red">$29.99</s>
+                            </small>
+                            <b class="green">$19.99</b>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>online.com</td>
+                        <td>
+                            <small>
+                                <s class="red"></s>
+                            </small>
+                            <b class="green">$16.45</b>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>internet.com</td>
+                        <td>
+                            <small>
+                                <s class="red">$29.99</s>
+                            </small>
+                            <b class="green">$19.99</b>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>online.com</td>
+                        <td>
+                            <small>
+                                <s class="red"></s>
+                            </small>
+                            <b class="green">$16.45</b>
+                        </td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="${rc.contextPath}/resources/js/highcharts.js"></script>
+<script>
+    jQuery(function($) {
+        var container = $("#graphContainer");
+        var width = container.width();
+        $("#graphContainer").height(width/2);
+        console.log(container.width());
+        console.log(container.height());
+        var options ={
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {
+                text: ''
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true
+                    },
+                    showInLegend: true
+                }
+            },
+            series: [{
+                name: '流量占比',
+                colorByPoint: true,
+                data: $data
+            }]
+        };
+        container.highcharts(options);
+    });
+</script>

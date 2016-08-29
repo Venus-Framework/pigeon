@@ -37,17 +37,20 @@ public class MnsServiceChangeListener implements IServiceListChangeListener {
         String remoteAppkey = req.getRemoteAppkey();
         String serviceName = req.getServiceName();
 
-        logger.info(req + "changed, new count: " + newList.size() + ", modified count: " + modifiedList.size());
+        logger.info(req + "changed, add count: " + addList.size()
+                + ", deleted count: " + deletedList.size()
+                + ", modified count: " + modifiedList.size());
 
         try {
-            if (newList.size() > 0) { //newList 通知addressChanged
-                String hosts = "";
+            if (addList.size() > 0 || deletedList.size() > 0) { // 通知addressChanged
+                String toAddHosts = "";
+                String toDelHosts = "";
 
-                for (SGService sgService : newList) {
+                for (SGService sgService : addList) {
                     // 剔除掉octo的旧服务端
                     if (MnsUtils.checkVersion(sgService.getVersion())) {
                         String host = sgService.getIp() + ":" + sgService.getPort();
-                        hosts += host + ",";
+                        toAddHosts += host + ",";
                         String remoteAppkeyReal = sgService.getAppkey();
 
                         if (remoteAppkeyReal == null) {
@@ -58,7 +61,22 @@ public class MnsServiceChangeListener implements IServiceListChangeListener {
                     }
                 }
 
-                addressChanged(serviceName, hosts);
+                for (SGService sgService : deletedList) {
+                    // 剔除掉octo的旧服务端
+                    if (MnsUtils.checkVersion(sgService.getVersion())) {
+                        String host = sgService.getIp() + ":" + sgService.getPort();
+                        toDelHosts += host + ",";
+                        String remoteAppkeyReal = sgService.getAppkey();
+
+                        if (remoteAppkeyReal == null) {
+                            remoteAppkeyReal = "";
+                        }
+
+                        hostRemoteAppkeyMapping.put(host, remoteAppkeyReal);
+                    }
+                }
+
+                addressChanged(serviceName, toAddHosts, toDelHosts);
             }
 
             if (modifiedList.size() > 0) { //modifiedList 检查修改的字段，通知不同的通知器
@@ -67,7 +85,7 @@ public class MnsServiceChangeListener implements IServiceListChangeListener {
                 for (SGService sgService : modifiedList) {
                     String host = sgService.getIp() + ":" + sgService.getPort();
                     //weight
-                    int weightNew = MnsUtils.getWeight(sgService.getStatus(), sgService.getWeight());
+                    int weightNew = MnsUtils.getWeight(sgService.getStatus());
                     int weightCached = RegistryManager.getInstance().getServiceWeightFromCache(host);
 
                     if(weightNew != weightCached) {
@@ -103,6 +121,14 @@ public class MnsServiceChangeListener implements IServiceListChangeListener {
                         protocolChanged(host, serviceName, supportedNew);
                     }
 
+                    //heartbeat support
+                    //todo
+
+                    if (appNew == null) {
+                        appNew = "";
+                    }
+
+                    hostRemoteAppkeyMapping.put(host, appNew);
                 }
             }
 
@@ -111,6 +137,19 @@ public class MnsServiceChangeListener implements IServiceListChangeListener {
             logger.error("failed to notify service list change...", e);
         }
 
+    }
+
+    private static void addressChanged(String serviceName, String toAddHosts, String toDelHosts)
+            throws RegistryException {
+        try {
+            logger.info("Service address changed, " + serviceName
+                    + ", add: " + toAddHosts + " del: " + toDelHosts);
+            List<String[]> toAddHostDetail = MnsUtils.getServiceIpPortList(toAddHosts);
+            List<String[]> toDelHostDetail = MnsUtils.getServiceIpPortList(toDelHosts);
+            serviceChangeListener.onServiceHostChange(serviceName, toAddHostDetail, toDelHostDetail);
+        } catch (Throwable e) {
+            throw new RegistryException(e);
+        }
     }
 
     private static void addressChanged(String serviceName, String hosts) throws RegistryException {

@@ -14,7 +14,6 @@ import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
-import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
@@ -24,7 +23,6 @@ import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
-import com.dianping.pigeon.remoting.invoker.process.DegradationManager;
 import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
 
 public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
@@ -56,6 +54,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 					transaction.addData("CallType", invokerConfig.getCallType());
 					transaction.addData("Timeout", invokerConfig.getTimeout());
 					transaction.addData("Serialize", invokerConfig.getSerialize());
+
 					transaction.logEvent("PigeonCall.QPS", "S" + Calendar.getInstance().get(Calendar.SECOND), "");
 					transaction.readMonitorContext();
 				}
@@ -121,8 +120,14 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 					invocationContext.getMethodName(), "", e, transaction);
 			throw e;
 		} finally {
+
 			if (transaction != null) {
 				try {
+					InvocationRequest _request = invocationContext.getRequest();
+					InvokerConfig config = invocationContext.getInvokerConfig();
+					if (_request.getSerialize() != config.getSerialize()) {
+						transaction.addData("CurrentSerialize", _request.getSerialize());
+					}
 					if (!Constants.CALL_FUTURE.equals(invokerConfig.getCallType()) || error) {
 						invocationContext.getTimeline().add(new TimePoint(TimePhase.E, System.currentTimeMillis()));
 						transaction.complete();

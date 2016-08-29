@@ -21,6 +21,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.generic.UnifiedRequest;
 import com.dianping.pigeon.remoting.common.exception.SecurityException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationFilter;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
@@ -31,7 +32,6 @@ import com.dianping.pigeon.util.ContextUtils;
 
 /**
  * @author xiangwu
- * 
  */
 public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> {
 
@@ -45,9 +45,11 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 	private static final String KEY_TOKEN_TIMESTAMP_DIFF = "pigeon.provider.token.timestamp.diff";
 	private static volatile ConcurrentHashMap<String, String> appSecrets = new ConcurrentHashMap<String, String>();
 
-	private static volatile Set<String> ipBlackSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+	private static volatile Set<String> ipBlackSet = Collections
+			.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
-	private static volatile Set<String> ipWhiteSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+	private static volatile Set<String> ipWhiteSet = Collections
+			.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
 	private static final String KEY_BLACKLIST = "pigeon.provider.access.ip.blacklist";
 	private static final String KEY_WHITELIST = "pigeon.provider.access.ip.whitelist";
@@ -184,8 +186,8 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 				} catch (RuntimeException e) {
 				}
 				if (time <= 0) {
-					throw new SecurityException("Request timestamp is invalid:" + timestamp + ", from:" + remoteAddress
-							+ "@" + app);
+					throw new SecurityException(
+							"Request timestamp is invalid:" + timestamp + ", from:" + remoteAddress + "@" + app);
 				}
 				long timediff = getCurrentTime() - time;
 				if (Math.abs(timediff) > configManager.getIntValue(KEY_TOKEN_TIMESTAMP_DIFF, 120)) {
@@ -194,8 +196,8 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 				String data = serviceName + "#" + methodName + "#" + time;
 				String expectToken = SecurityUtils.encrypt(data, secret);
 				if (!expectToken.equals(token)) {
-					throw new SecurityException("Invalid request token:" + token + ", from:" + remoteAddress + "@"
-							+ app);
+					throw new SecurityException(
+							"Invalid request token:" + token + ", from:" + remoteAddress + "@" + app);
 				}
 			} else {
 				throw new SecurityException("Secret not found for app:" + app);
@@ -219,24 +221,43 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 				isAuth = false;
 			}
 			if (isAuth) {
-				String remoteAddress = invocationContext.getChannel().getRemoteAddress();
-				Map<String, Serializable> requestValues = request.getRequestValues();
-				String token = null;
-				String timestamp = null;
-				String version = null;
-				if (requestValues != null) {
-					token = (String) requestValues.get(Constants.REQUEST_KEY_TOKEN);
-					if (requestValues.containsKey(Constants.REQUEST_KEY_TIMESTAMP)) {
-						timestamp = requestValues.get(Constants.REQUEST_KEY_TIMESTAMP).toString();
-					}
-					if (requestValues.containsKey(Constants.REQUEST_KEY_VERSION)) {
-						version = requestValues.get(Constants.REQUEST_KEY_VERSION).toString();
-					}
-				}
-				authenticateRequest(request.getApp(), remoteAddress, timestamp, version, token,
-						request.getServiceName(), request.getMethodName());
+				validateSecret(request, invocationContext);
 			}
 		}
 		return handler.handle(invocationContext);
 	}
+
+	private void validateSecret(InvocationRequest request, ProviderContext invocationContext) {
+        String remoteAddress = invocationContext.getChannel().getRemoteAddress();
+        String token = null;
+        String timestamp = null;
+        String version = null;
+        if (request instanceof UnifiedRequest) {
+            UnifiedRequest _request = (UnifiedRequest) request;
+            Map<String, String> localContext = _request.getLocalContext();
+            if (localContext != null) {
+                token = localContext.get(Constants.REQUEST_KEY_TOKEN);
+                if (localContext.containsKey(Constants.REQUEST_KEY_TIMESTAMP)) {
+                    timestamp = localContext.get(Constants.REQUEST_KEY_TIMESTAMP);
+                }
+                if (localContext.containsKey(Constants.REQUEST_KEY_VERSION)) {
+                    version = localContext.get(Constants.REQUEST_KEY_VERSION);
+                }
+            }
+        } else {
+            Map<String, Serializable> requestValues = request.getRequestValues();
+            if (requestValues != null) {
+                token = (String) requestValues.get(Constants.REQUEST_KEY_TOKEN);
+                if (requestValues.containsKey(Constants.REQUEST_KEY_TIMESTAMP)) {
+                    timestamp = requestValues.get(Constants.REQUEST_KEY_TIMESTAMP).toString();
+                }
+                if (requestValues.containsKey(Constants.REQUEST_KEY_VERSION)) {
+                    version = requestValues.get(Constants.REQUEST_KEY_VERSION).toString();
+                }
+            }
+        }
+        authenticateRequest(request.getApp(), remoteAddress, timestamp, version, token,
+                request.getServiceName(), request.getMethodName());
+    }
+
 }
