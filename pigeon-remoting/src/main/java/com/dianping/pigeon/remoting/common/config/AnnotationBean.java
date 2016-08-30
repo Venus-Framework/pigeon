@@ -110,7 +110,8 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 			return bean;
 		}
 		Class<?> beanClass = bean.getClass();
-		int idxCglib = beanClass.getName().indexOf("$$EnhancerByCGLIB");
+		int idxCglib = beanClass.getName().contains("$$EnhancerByCGLIB") ?
+				beanClass.getName().indexOf("$$EnhancerByCGLIB") : beanClass.getName().indexOf("$$EnhancerBySpringCGLIB");
 		if (idxCglib != -1) {
 			try {
 				beanClass = ClassUtils.loadClass(beanClass.getName().substring(0, idxCglib));
