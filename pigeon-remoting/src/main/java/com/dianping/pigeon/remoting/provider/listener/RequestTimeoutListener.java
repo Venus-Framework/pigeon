@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedRequest;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import com.dianping.pigeon.log.Logger;
 import org.springframework.util.CollectionUtils;
@@ -42,7 +43,7 @@ public class RequestTimeoutListener implements Runnable {
 	private static int requestQueueSize = configManager.getIntValue("pigeon.provider.timeout.requestqueue.size", 100);
 	private Queue<Map<String, Count>> timeoutRequestQueue = new ArrayBlockingQueue<Map<String, Count>>(
 			requestQueueSize);
-	private volatile Map<String, Count> timeoutRequestCountMap = null;
+	private volatile Map<String, Count> timeoutRequestCountMap = Maps.newConcurrentMap();
 	private static final String KEY_TIMEOUT_SLOW_PCT_THRESHOLD = "pigeon.provider.timeout.slow.pct.threshold";
 	private static final String KEY_TIMEOUT_SLOW_COUNT_THRESHOLD = "pigeon.provider.timeout.slow.count.threshold";
 	private static final String KEY_TIMEOUT_ISOLATION_APP = "pigeon.provider.timeout.isolation.app";
@@ -196,15 +197,12 @@ public class RequestTimeoutListener implements Runnable {
 	}
 
 	private void countTotalTimeoutRequests() {
-		Map<String, Count> countMap = null;
+		Map<String, Count> countMap = Maps.newConcurrentMap();
 		Iterator<Map<String, Count>> ir = timeoutRequestQueue.iterator();
 		while (ir.hasNext()) {
 			Map<String, Count> element = ir.next();
 			for (String key : element.keySet()) {
 				Count count = element.get(key);
-				if (countMap == null) {
-					countMap = new ConcurrentHashMap<String, Count>();
-				}
 				Count last = countMap.get(key);
 				if (last == null) {
 					countMap.put(key, count);
