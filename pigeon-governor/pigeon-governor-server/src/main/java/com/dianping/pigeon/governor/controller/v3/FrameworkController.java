@@ -60,7 +60,7 @@ public class FrameworkController extends BaseController{
         commonnav(modelMap,request);
         List<Project> projects = projectService.retrieveAllIdNamesByCache();
         modelMap.addAttribute("projects", GsonUtils.toJson(projects));
-        return "/v3/log/opLog/main";
+        return "/v3/log/oplog/main";
     }
 
 
