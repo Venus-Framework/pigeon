@@ -329,7 +329,7 @@ public class CompositeRegistry implements Registry {
         String stats = "";
 
         for (Registry registry : registryList) {
-            stats += registry.getStatistics() + "\n";
+            stats += registry.getStatistics() + ",";
         }
 
         return stats;
