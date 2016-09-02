@@ -3,9 +3,9 @@
  */
 package com.dianping.dpsf.async;
 
-import com.dianping.pigeon.log.LoggerLoader;
+import java.util.concurrent.Future;
 
-import com.dianping.pigeon.log.Logger;
+import com.dianping.pigeon.remoting.invoker.concurrent.FutureFactory;
 
 /**
  * <p>
@@ -21,27 +21,19 @@ import com.dianping.pigeon.log.Logger;
  */
 public class ServiceFutureFactory {
 
-	private static Logger log = LoggerLoader.getLogger(ServiceFutureFactory.class);
-	private static ThreadLocal<ServiceFuture> threadFuture = new ThreadLocal<ServiceFuture>();
-
 	public static ServiceFuture getFuture() {
-		ServiceFuture future = threadFuture.get();
-		threadFuture.remove();
-		return future;
+		Future future = FutureFactory.getFuture();
+		if (future != null) {
+			return new ServiceFutureWrapper(future);
+		}
+		return null;
 	}
 
 	public static void setFuture(ServiceFuture future) {
-//		if (threadFuture.get() != null) {
-//			threadFuture.remove();
-//			String msg = "you must call \"ServiceFutureFactory.getFuture()\" before second call service if you use future call";
-//			log.error(msg);
-//			throw new InvalidParameterException(msg);
-//		}
-		threadFuture.set(future);
 	}
 
 	public static void remove() {
-		threadFuture.remove();
+		FutureFactory.remove();
 	}
 
 	/**

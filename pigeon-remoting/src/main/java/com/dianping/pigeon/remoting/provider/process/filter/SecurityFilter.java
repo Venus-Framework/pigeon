@@ -208,56 +208,58 @@ public class SecurityFilter implements ServiceInvocationFilter<ProviderContext> 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, ProviderContext invocationContext)
 			throws Throwable {
-		invocationContext.getTimeline().add(new TimePoint(TimePhase.A));
-		InvocationRequest request = invocationContext.getRequest();
-		if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-			boolean isAuth = false;
-			String from = (String) ContextUtils.getLocalContext("RequestIp");
-			if (from == null) {
-				isAuth = true;
-			}
-			if (!configManager.getBooleanValue(KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE, false)
-					&& Constants.PROTOCOL_DEFAULT.equals(invocationContext.getChannel().getProtocol())) {
-				isAuth = false;
-			}
-			if (isAuth) {
-				validateSecret(request, invocationContext);
+		if (configManager.getBooleanValue(KEY_TOKEN_ENABLE, false)) {
+			invocationContext.getTimeline().add(new TimePoint(TimePhase.A));
+			InvocationRequest request = invocationContext.getRequest();
+			if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+				boolean isAuth = false;
+				String from = (String) ContextUtils.getLocalContext("RequestIp");
+				if (from == null) {
+					isAuth = true;
+				}
+				if (!configManager.getBooleanValue(KEY_TOKEN_PROTOCOL_DEFAULT_ENABLE, false)
+						&& Constants.PROTOCOL_DEFAULT.equals(invocationContext.getChannel().getProtocol())) {
+					isAuth = false;
+				}
+				if (isAuth) {
+					validateSecret(request, invocationContext);
+				}
 			}
 		}
 		return handler.handle(invocationContext);
 	}
 
 	private void validateSecret(InvocationRequest request, ProviderContext invocationContext) {
-        String remoteAddress = invocationContext.getChannel().getRemoteAddress();
-        String token = null;
-        String timestamp = null;
-        String version = null;
-        if (request instanceof UnifiedRequest) {
-            UnifiedRequest _request = (UnifiedRequest) request;
-            Map<String, String> localContext = _request.getLocalContext();
-            if (localContext != null) {
-                token = localContext.get(Constants.REQUEST_KEY_TOKEN);
-                if (localContext.containsKey(Constants.REQUEST_KEY_TIMESTAMP)) {
-                    timestamp = localContext.get(Constants.REQUEST_KEY_TIMESTAMP);
-                }
-                if (localContext.containsKey(Constants.REQUEST_KEY_VERSION)) {
-                    version = localContext.get(Constants.REQUEST_KEY_VERSION);
-                }
-            }
-        } else {
-            Map<String, Serializable> requestValues = request.getRequestValues();
-            if (requestValues != null) {
-                token = (String) requestValues.get(Constants.REQUEST_KEY_TOKEN);
-                if (requestValues.containsKey(Constants.REQUEST_KEY_TIMESTAMP)) {
-                    timestamp = requestValues.get(Constants.REQUEST_KEY_TIMESTAMP).toString();
-                }
-                if (requestValues.containsKey(Constants.REQUEST_KEY_VERSION)) {
-                    version = requestValues.get(Constants.REQUEST_KEY_VERSION).toString();
-                }
-            }
-        }
-        authenticateRequest(request.getApp(), remoteAddress, timestamp, version, token,
-                request.getServiceName(), request.getMethodName());
-    }
+		String remoteAddress = invocationContext.getChannel().getRemoteAddress();
+		String token = null;
+		String timestamp = null;
+		String version = null;
+		if (request instanceof UnifiedRequest) {
+			UnifiedRequest _request = (UnifiedRequest) request;
+			Map<String, String> localContext = _request.getLocalContext();
+			if (localContext != null) {
+				token = localContext.get(Constants.REQUEST_KEY_TOKEN);
+				if (localContext.containsKey(Constants.REQUEST_KEY_TIMESTAMP)) {
+					timestamp = localContext.get(Constants.REQUEST_KEY_TIMESTAMP);
+				}
+				if (localContext.containsKey(Constants.REQUEST_KEY_VERSION)) {
+					version = localContext.get(Constants.REQUEST_KEY_VERSION);
+				}
+			}
+		} else {
+			Map<String, Serializable> requestValues = request.getRequestValues();
+			if (requestValues != null) {
+				token = (String) requestValues.get(Constants.REQUEST_KEY_TOKEN);
+				if (requestValues.containsKey(Constants.REQUEST_KEY_TIMESTAMP)) {
+					timestamp = requestValues.get(Constants.REQUEST_KEY_TIMESTAMP).toString();
+				}
+				if (requestValues.containsKey(Constants.REQUEST_KEY_VERSION)) {
+					version = requestValues.get(Constants.REQUEST_KEY_VERSION).toString();
+				}
+			}
+		}
+		authenticateRequest(request.getApp(), remoteAddress, timestamp, version, token, request.getServiceName(),
+				request.getMethodName());
+	}
 
 }

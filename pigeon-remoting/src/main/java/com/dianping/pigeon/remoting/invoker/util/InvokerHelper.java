@@ -4,13 +4,16 @@
  */
 package com.dianping.pigeon.remoting.invoker.util;
 
-import com.dianping.dpsf.async.ServiceCallback;
+import java.util.concurrent.Future;
+
+import com.dianping.pigeon.remoting.invoker.concurrent.FutureFactory;
+import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
 
 public final class InvokerHelper {
 
 	private static ThreadLocal<String> tlAddress = new ThreadLocal<String>();
 	private static ThreadLocal<Integer> tlTimeout = new ThreadLocal<Integer>();
-	private static ThreadLocal<ServiceCallback> tlCallback = new ThreadLocal<ServiceCallback>();
+	private static ThreadLocal<InvocationCallback> tlCallback = new ThreadLocal<InvocationCallback>();
 	private static ThreadLocal<Boolean> tlCancel = new ThreadLocal<Boolean>() {
 		protected Boolean initialValue() {
 			return false;
@@ -73,16 +76,25 @@ public final class InvokerHelper {
 		return timeout;
 	}
 
-	public static void setCallback(ServiceCallback callback) {
+	public static void setCallback(InvocationCallback callback) {
 		tlCallback.set(callback);
 	}
 
-	public static ServiceCallback getCallback() {
-		ServiceCallback callback = tlCallback.get();
+	public static InvocationCallback getCallback() {
+		InvocationCallback callback = tlCallback.get();
 		return callback;
 	}
 
 	public static void clearCallback() {
 		tlCallback.remove();
 	}
+
+	public static Future<?> getFuture() {
+		return FutureFactory.getFuture();
+	}
+
+	public static <T> Future<T> getFuture(Class<T> type) {
+		return FutureFactory.getFuture(type);
+	}
+
 }

@@ -2,8 +2,8 @@ package com.dianping.pigeon.remoting.invoker.util;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.concurrent.Future;
 
-import com.dianping.dpsf.async.ServiceFuture;
 import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.log.Logger;
@@ -17,7 +17,7 @@ import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.callback.Callback;
+import com.dianping.pigeon.remoting.invoker.concurrent.Callback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
@@ -79,7 +79,13 @@ public class InvokerUtils {
 		return new NoReturnResponse(defaultResult);
 	}
 
-	public static InvocationResponse createFutureResponse(ServiceFuture serviceFuture) {
+	public static InvocationResponse createThrowableResponse(Throwable e) {
+		InvocationResponse response = new NoReturnResponse(e);
+		response.setMessageType(Constants.MESSAGE_TYPE_EXCEPTION);
+		return response;
+	}
+
+	public static InvocationResponse createFutureResponse(Future serviceFuture) {
 		FutureResponse resp = new FutureResponse();
 		resp.setServiceFuture(serviceFuture);
 		return resp;
@@ -164,6 +170,8 @@ public class InvokerUtils {
 
 		private Object result;
 
+		private int messageType = Constants.MESSAGE_TYPE_SERVICE;
+
 		public NoReturnResponse() {
 		}
 
@@ -205,11 +213,12 @@ public class InvokerUtils {
 
 		@Override
 		public void setMessageType(int messageType) {
+			this.messageType = messageType;
 		}
 
 		@Override
 		public int getMessageType() {
-			return Constants.MESSAGE_TYPE_SERVICE;
+			return messageType;
 		}
 
 		@Override
@@ -303,13 +312,13 @@ public class InvokerUtils {
 
 		private long providerResponseTime;
 
-		private ServiceFuture serviceFuture;
+		private Future serviceFuture;
 
-		public ServiceFuture getServiceFuture() {
+		public Future getServiceFuture() {
 			return serviceFuture;
 		}
 
-		public void setServiceFuture(ServiceFuture serviceFuture) {
+		public void setServiceFuture(Future serviceFuture) {
 			this.serviceFuture = serviceFuture;
 		}
 

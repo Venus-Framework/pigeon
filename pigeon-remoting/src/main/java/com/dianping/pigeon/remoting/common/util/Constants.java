@@ -169,27 +169,15 @@ public final class Constants {
 	public static final int WEIGHT_DEFAULT = ConfigManagerLoader.getConfigManager()
 			.getIntValue(Constants.KEY_WEIGHT_DEFAULT, Constants.DEFAULT_WEIGHT_DEFAULT);
 
-	public static final boolean RESET_TIMEOUT = ConfigManagerLoader.getConfigManager()
-			.getBooleanValue("pigeon.timeout.reset", true);
-
 	public static final boolean LOG_PARAMETERS = ConfigManagerLoader.getConfigManager()
 			.getBooleanValue("pigeon.log.parameters", false);
 
 	public static boolean REPLY_MANUAL = ConfigManagerLoader.getConfigManager()
 			.getBooleanValue("pigeon.provider.reply.manual", false);
 
-	public static final boolean INVOKER_RETRY_NETWORK_EXCEPTION = ConfigManagerLoader.getConfigManager()
-			.getBooleanValue("pigeon.invoker.retry.networkexception", true);
-
-	public static final boolean INVOKER_LOG_TIMEOUT_EXCEPTION = ConfigManagerLoader.getConfigManager()
-			.getBooleanValue("pigeon.invoker.log.timeout.exception", false);
-
-	public static final boolean INVOKER_STAT_ENABLE = ConfigManagerLoader.getConfigManager()
-			.getBooleanValue("pigeon.invoker.stat.enable", true);
-
 	public static boolean MONITOR_ENABLE = ConfigManagerLoader.getConfigManager()
 			.getBooleanValue("pigeon.monitor.enabled", true);
-
+	
 	public static final int PROVIDER_POOL_CORE_SIZE = ConfigManagerLoader.getConfigManager()
 			.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE, Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
 
@@ -198,9 +186,6 @@ public final class Constants {
 
 	public static final int PROVIDER_POOL_QUEUE_SIZE = ConfigManagerLoader.getConfigManager()
 			.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE, Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
-
-	public static final boolean TOKEN_ENABLE = ConfigManagerLoader.getConfigManager()
-			.getBooleanValue("pigeon.provider.token.enable", false);
 
 	public static final String KEY_SERVICE_SHARED = "pigeon.provider.service.shared";
 	public static final boolean DEFAULT_SERVICE_SHARED = true;

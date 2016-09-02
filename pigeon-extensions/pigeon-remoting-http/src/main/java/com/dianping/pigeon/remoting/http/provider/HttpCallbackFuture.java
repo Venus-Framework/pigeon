@@ -8,8 +8,8 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.callback.CallFuture;
-import com.dianping.pigeon.remoting.invoker.callback.Callback;
+import com.dianping.pigeon.remoting.invoker.concurrent.CallFuture;
+import com.dianping.pigeon.remoting.invoker.concurrent.Callback;
 import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
@@ -40,7 +40,7 @@ public class HttpCallbackFuture implements Callback, CallFuture {
     }
 
     @Override
-    public InvocationResponse get(long timeoutMillis) throws InterruptedException {
+    public InvocationResponse getResponse(long timeoutMillis) throws InterruptedException {
         synchronized (this) {
             long start = request.getCreateMillisTime();
             while (!this.done) {
@@ -61,13 +61,13 @@ public class HttpCallbackFuture implements Callback, CallFuture {
     }
 
     @Override
-    public InvocationResponse get() throws InterruptedException {
-        return get(Long.MAX_VALUE);
+    public InvocationResponse getResponse() throws InterruptedException {
+        return getResponse(Long.MAX_VALUE);
     }
 
     @Override
-    public InvocationResponse get(long timeout, TimeUnit unit) throws InterruptedException {
-        return get(unit.toMillis(timeout));
+    public InvocationResponse getResponse(long timeout, TimeUnit unit) throws InterruptedException {
+        return getResponse(unit.toMillis(timeout));
     }
 
     @Override

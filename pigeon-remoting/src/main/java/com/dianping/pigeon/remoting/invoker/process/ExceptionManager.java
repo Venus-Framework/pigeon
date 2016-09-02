@@ -22,6 +22,7 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.registry.RegistryManager;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
@@ -150,20 +151,20 @@ public enum ExceptionManager {
 	}
 
 	public RpcException logRemoteCallException(String remoteAddress, String serviceName, String method, String msg,
-			InvocationResponse response, MonitorTransaction transaction) {
+			InvocationRequest request, InvocationResponse response, MonitorTransaction transaction) {
 		if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
 			RpcException ex = InvokerUtils.toRpcException(response);
-			logRpcException(remoteAddress, serviceName, method, msg, ex, transaction);
+			logRpcException(remoteAddress, serviceName, method, msg, ex, request, response, transaction);
 			return ex;
 		}
 		return null;
 	}
 
-	public Exception logRemoteServiceException(String remoteAddress, String serviceName, String method, String msg,
-			InvocationResponse response) {
+	public Exception logRemoteServiceException(String msg, InvocationRequest request, InvocationResponse response) {
 		if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 			Exception cause = InvokerUtils.toApplicationException(response);
 			if (ConfigManagerLoader.getConfigManager().getBooleanValue(KEY_LOG_SERVICE_EXCEPTION, false)) {
+				msg = String.format("%s# request:\r\n%s,\r\n response:\r\n%s\r\n", msg, request, response);
 				logger.error(msg, cause);
 				if (monitor != null) {
 					monitor.logError(msg, cause);
@@ -175,11 +176,14 @@ public enum ExceptionManager {
 	}
 
 	public void logRpcException(String remoteAddress, String serviceName, String method, String msg, Throwable e,
-			MonitorTransaction transaction) {
+			InvocationRequest request, InvocationResponse response, MonitorTransaction transaction) {
 		boolean isLog = true;
 		if (!InvokerHelper.getLogCallException()) {
 			isLog = false;
 		} else if (ignoredLogExceptions.contains(e.getClass().getName())) {
+			isLog = false;
+		} else if (!(e instanceof RpcException)
+				&& !ConfigManagerLoader.getConfigManager().getBooleanValue(KEY_LOG_SERVICE_EXCEPTION, false)) {
 			isLog = false;
 		} else {
 			if (e instanceof RequestTimeoutException) {
@@ -209,6 +213,8 @@ public enum ExceptionManager {
 			}
 		}
 		if (isLog) {
+			msg = String.format("%s# service:%s#%s, address:%s, request:\r\n%s,\r\n response:\r\n%s\r\n", msg,
+					serviceName, method, remoteAddress, request, response);
 			logger.error(msg, e);
 			if (monitor != null) {
 				monitor.logError(msg, e);

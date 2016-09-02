@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -23,10 +22,12 @@ import org.springframework.context.ApplicationContextAware;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.ServiceConfigUtils;
+import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.config.annotation.Reference;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
@@ -210,7 +211,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 							+ referenceClass.getName() + " is not a interface.");
 		}
 		String callbackClassName = reference.callback();
-		ServiceCallback callback = null;
+		InvocationCallback callback = null;
 		if (StringUtils.isNotBlank(callbackClassName)) {
 			Class<?> clazz;
 			try {
@@ -224,7 +225,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 						+ ", is not a ServiceCallback interface.");
 			}
 			try {
-				callback = (ServiceCallback) clazz.newInstance();
+				callback = (InvocationCallback) clazz.newInstance();
 			} catch (InstantiationException e) {
 				throw new IllegalStateException("The @Reference undefined callback " + callbackClassName
 						+ ", is not a ServiceCallback interface.");

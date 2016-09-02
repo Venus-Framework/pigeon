@@ -50,6 +50,7 @@ public class RequestTimeoutListener implements Runnable {
 	private static final String KEY_TIMEOUT_CANCEL = "pigeon.provider.timeout.cancel";
 	private static final String KEY_TIMEOUT_INTERRUPT = "pigeon.provider.timeout.interruptbusy";
 	private static final String KEY_TIMEOUT_INTERVAL = "pigeon.provider.timeout.interval";
+	private static final String KEY_TIMEOUT_LOG_ENABLE = "pigeon.provider.timeout.log.enable";
 
 	public RequestTimeoutListener(RequestProcessor requestProcessor,
 			Map<InvocationRequest, ProviderContext> requestContextMap) {
@@ -62,6 +63,7 @@ public class RequestTimeoutListener implements Runnable {
 		configManager.getBooleanValue(KEY_TIMEOUT_ISOLATION_PARAMETERS, false);
 		configManager.getBooleanValue(KEY_TIMEOUT_CANCEL, Constants.DEFAULT_TIMEOUT_CANCEL);
 		configManager.getBooleanValue(KEY_TIMEOUT_INTERRUPT, true);
+		configManager.getBooleanValue(KEY_TIMEOUT_LOG_ENABLE, true);
 	}
 
 	private String getRequestUrl(InvocationRequest request) {
@@ -167,9 +169,11 @@ public class RequestTimeoutListener implements Runnable {
 										if (!(request instanceof UnifiedRequest)) {
 											ContextUtils.setContext(request.getContext());
 										}
-										logger.error(te.getMessage(), te);
-										if (monitor != null) {
-											monitor.logError(te);
+										if (configManager.getBooleanValue(KEY_TIMEOUT_LOG_ENABLE, true)) {
+											logger.error(te.getMessage(), te);
+											if (monitor != null) {
+												monitor.logError(te);
+											}
 										}
 									}
 									Future<?> future = rc.getFuture();

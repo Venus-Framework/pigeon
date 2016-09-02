@@ -2,14 +2,13 @@ package com.dianping.dpsf.api;
 
 import java.util.Set;
 
-import com.dianping.pigeon.log.Logger;
-
-import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
@@ -36,7 +35,7 @@ public class ProxyFactory<IFACE> {
 
 	private IFACE obj;
 
-	private ServiceCallback callback;
+	private InvocationCallback callback;
 
 	private String group = configManager.getGroup();
 
@@ -144,7 +143,7 @@ public class ProxyFactory<IFACE> {
 	/**
 	 * @return the callback
 	 */
-	public ServiceCallback getCallback() {
+	public InvocationCallback getCallback() {
 		return callback;
 	}
 
@@ -152,7 +151,7 @@ public class ProxyFactory<IFACE> {
 	 * @param callback
 	 *            the callback to set
 	 */
-	public void setCallback(ServiceCallback callback) {
+	public void setCallback(InvocationCallback callback) {
 		this.callback = callback;
 	}
 
