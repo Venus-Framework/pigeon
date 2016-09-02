@@ -20,7 +20,7 @@ import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.callback.CallbackFuture;
+import com.dianping.pigeon.remoting.invoker.concurrent.CallbackFuture;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.remoting.netty.invoker.NettyClient;
@@ -215,7 +215,7 @@ public class CheckTask implements Runnable {
 			future.setRequest(request);
 			future.setClient(client);
 			InvokerUtils.sendRequest(client, request, future);
-			InvocationResponse response = future.get(request.getTimeout());
+			InvocationResponse response = future.getResponse(request.getTimeout());
 			return response;
 		} finally {
 			try {

@@ -2,13 +2,11 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.callback;
+package com.dianping.pigeon.remoting.invoker.concurrent;
 
 import java.io.Serializable;
 import java.util.Map;
 
-import com.dianping.dpsf.async.ServiceCallback;
-import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
@@ -43,11 +41,11 @@ public class ServiceCallbackWrapper implements Callback {
 
 	private Client client;
 
-	private ServiceCallback callback;
+	private InvocationCallback callback;
 
 	private InvokerContext invocationContext;
 
-	public ServiceCallbackWrapper(InvokerContext invocationContext, ServiceCallback callback) {
+	public ServiceCallbackWrapper(InvokerContext invocationContext, InvocationCallback callback) {
 		this.invocationContext = invocationContext;
 		this.callback = callback;
 	}
@@ -57,6 +55,10 @@ public class ServiceCallbackWrapper implements Callback {
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		MonitorTransaction transaction = null;
 		long currentTime = System.currentTimeMillis();
+		String addr = null;
+		if (client != null) {
+			addr = client.getAddress();
+		}
 		try {
 			setResponseContext(response);
 			if (Constants.MONITOR_ENABLE) {
@@ -85,38 +87,30 @@ public class ServiceCallbackWrapper implements Callback {
 				Exception e = new RequestTimeoutException(msg.toString());
 				e.setStackTrace(new StackTraceElement[] {});
 				DegradationManager.INSTANCE.addFailedRequest(invocationContext, e);
-				ExceptionManager.INSTANCE.logRpcException(client.getAddress(), request.getServiceName(),
-						request.getMethodName(), msg.toString(), e, transaction);
+				ExceptionManager.INSTANCE.logRpcException(addr, invocationContext.getInvokerConfig().getUrl(),
+						invocationContext.getMethodName(), "request callback timeout", e, request, response,
+						transaction);
 			}
 		} finally {
 			try {
 				if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 					completeTransaction(transaction);
 
-					this.callback.callback(response.getReturn());
+					this.callback.onSuccess(response.getReturn());
 				} else if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
-					StringBuilder msg = new StringBuilder();
-					msg.append("remote call error with callback\r\n").append("seq:").append(request.getSequence())
-							.append(",callType:").append(request.getCallType()).append("\r\nservice:")
-							.append(request.getServiceName()).append(",method:").append(request.getMethodName())
-							.append("\r\nhost:").append(client.getHost()).append(":").append(client.getPort());
-
-					RpcException e = ExceptionManager.INSTANCE.logRemoteCallException(client.getAddress(),
-							request.getServiceName(), request.getMethodName(), msg.toString(), response, transaction);
+					RpcException e = ExceptionManager.INSTANCE.logRemoteCallException(addr,
+							invocationContext.getInvokerConfig().getUrl(), invocationContext.getMethodName(),
+							"remote call error with callback", request, response, transaction);
 					DegradationManager.INSTANCE.addFailedRequest(invocationContext, e);
 					completeTransaction(transaction);
 
-					this.callback.frameworkException(new DPSFException(e));
+					this.callback.onFailure(e);
 				} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-					StringBuilder msg = new StringBuilder();
-					msg.append("remote service biz error with callback\r\nrequest:").append(request).append("\r\nhost:")
-							.append(client.getHost()).append(":").append(client.getPort()).append("\r\nresponse:")
-							.append(response);
-					Exception e = ExceptionManager.INSTANCE.logRemoteServiceException(client.getAddress(),
-							request.getServiceName(), request.getMethodName(), msg.toString(), response);
+					Exception e = ExceptionManager.INSTANCE
+							.logRemoteServiceException("remote service biz error with callback", request, response);
 					completeTransaction(transaction);
 
-					this.callback.serviceException(e);
+					this.callback.onFailure(e);
 				} else {
 					RpcException e = new BadResponseException(response.toString());
 					monitor.logError(e);

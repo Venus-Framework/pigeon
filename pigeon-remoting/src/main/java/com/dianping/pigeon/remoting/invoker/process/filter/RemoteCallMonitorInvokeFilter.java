@@ -117,7 +117,7 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 
 			error = true;
 			ExceptionManager.INSTANCE.logRpcException(remoteAddress, invokerConfig.getUrl(),
-					invocationContext.getMethodName(), "", e, transaction);
+					invocationContext.getMethodName(), "", e, request, null, transaction);
 			throw e;
 		} finally {
 

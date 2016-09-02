@@ -8,21 +8,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.springframework.beans.factory.FactoryBean;
 
-import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.config.InvokerMethodConfig;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
+import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import com.dianping.pigeon.util.ClassUtils;
 import com.dianping.pigeon.util.CollectionUtils;
 
@@ -52,7 +52,7 @@ public class ReferenceBean implements FactoryBean {
 
     private Class<?> objType;
 
-    private ServiceCallback callback;
+    private InvocationCallback callback;
 
     private String version;
 
@@ -211,7 +211,7 @@ public class ReferenceBean implements FactoryBean {
     /**
      * @param callback the callback to set
      */
-    public void setCallback(ServiceCallback callback) {
+    public void setCallback(InvocationCallback callback) {
         this.callback = callback;
     }
 

@@ -2,7 +2,7 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.callback;
+package com.dianping.pigeon.remoting.invoker.concurrent;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class CallbackFuture implements Callback, CallFuture {
 	protected InvocationRequest request;
 	protected Client client;
 	protected MonitorTransaction transaction;
-	
+
 	public CallbackFuture() {
 		transaction = monitor.getCurrentCallTransaction();
 	}
@@ -56,13 +56,16 @@ public class CallbackFuture implements Callback, CallFuture {
 		this.response = response;
 	}
 
-	public InvocationResponse get() throws InterruptedException {
-		return get(Long.MAX_VALUE);
+	public InvocationResponse getResponse() throws InterruptedException {
+		return getResponse(Long.MAX_VALUE);
 	}
 
-	protected InvocationResponse getResponse(long timeoutMillis) throws InterruptedException {
+	protected InvocationResponse waitResponse(long timeoutMillis) throws InterruptedException {
 		if (response != null && response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 			return this.response;
+		}
+		if (request == null && response != null) {
+			return response;
 		}
 		synchronized (this) {
 			long start = request.getCreateMillisTime();
@@ -84,23 +87,15 @@ public class CallbackFuture implements Callback, CallFuture {
 		}
 	}
 
-	public InvocationResponse get(long timeoutMillis) throws InterruptedException {
-		getResponse(timeoutMillis);
+	public InvocationResponse getResponse(long timeoutMillis) throws InterruptedException {
+		waitResponse(timeoutMillis);
 		processContext();
 
 		if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
-			StringBuilder msg = new StringBuilder();
-			msg.append("remote call error\r\nrequest:").append(request).append("\r\nhost:").append(client.getHost())
-					.append(":").append(client.getPort()).append("\r\nresponse:").append(response);
 			ExceptionManager.INSTANCE.logRemoteCallException(client.getAddress(), request.getServiceName(),
-					request.getMethodName(), msg.toString(), response, transaction);
+					request.getMethodName(), "remote call error", request, response, transaction);
 		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-			StringBuilder msg = new StringBuilder();
-			msg.append("remote service biz error\r\nrequest:").append(request).append("\r\nhost:")
-					.append(client.getHost()).append(":").append(client.getPort()).append("\r\nresponse:")
-					.append(response);
-			ExceptionManager.INSTANCE.logRemoteServiceException(client.getAddress(), request.getServiceName(),
-					request.getMethodName(), msg.toString(), response);
+			ExceptionManager.INSTANCE.logRemoteServiceException("remote service biz error", request, response);
 		}
 
 		return this.response;
@@ -159,8 +154,8 @@ public class CallbackFuture implements Callback, CallFuture {
 		}
 	}
 
-	public InvocationResponse get(long timeout, TimeUnit unit) throws InterruptedException {
-		return get(unit.toMillis(timeout));
+	public InvocationResponse getResponse(long timeout, TimeUnit unit) throws InterruptedException {
+		return getResponse(unit.toMillis(timeout));
 	}
 
 	public boolean cancel() {
