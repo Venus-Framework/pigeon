@@ -228,7 +228,7 @@
             group: {
                 template: "{{group}}"
             },
-            maxItemPerGroup: 5,
+            maxItemPerGroup: 8,
             backdrop: {
                 "background-color": "#fff"
             },
@@ -239,7 +239,7 @@
             source: {
                 project: {
                     display:["name"],
-                    href:"/shs/main/#!/tree/{{name}}/summary/",
+                    href:"/#!/tree/{{name}}/summary/",
                     template: "<div style='width: 100%'><span>{{name}}</span></div><div style='width:100%'><small>产品线:{{product}}&nbsp部门:{{bu}}</small></div>",
                     ajax: {
                         method: "GET",
@@ -261,7 +261,7 @@
                 service: {
                     display: ["name"],
                     href:function(item){
-                        return "/shs/main/#!/tree/"+item.projectName+"/";
+                        return "/#!/tree/"+item.projectName+"/";
                     },
                     template: function (query, item) {
                         var template;
@@ -309,19 +309,19 @@
         });
 
         $("#tree-link").on('click',function(){
-            window.location = "/shs/main/#!/tree/";
+            window.location = "/#!/tree/";
         });
         $("#doc-link").on('click',function(){
-            window.location = "/shs/main/#!/doc/";
+            window.location = "/#!/doc/";
         });
         $("#op-link").on('click',function(){
-            window.location = "/shs/main/#!/oplog/";
+            window.location = "/#!/oplog/";
         });
         $("#event-link").on('click',function(){
-            window.location = "/shs/main/#!/eventlog";
+            window.location = "/#!/eventlog/";
         });
         $("#feedback-link").on('click',function(){
-            window.location = "/shs/main/#!/feedback";
+            window.location = "/#!/feedback/";
         });
         $("#help-link").on('click',function(){
         });

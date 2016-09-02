@@ -126,7 +126,7 @@
                     <div id="pageContent">
                     </div>
                 </div>
-                <div  id="other-page-content" class="row">
+                <div  id="other-page-content" class="row" style="padding: 20px">
                 </div>
             </div>
         </div>
@@ -169,13 +169,18 @@
 <script src="${rc.contextPath}/resources/js/router.js"></script>
 <script>
     jQuery(function($) {
+        var hash = window.location.hash;
+        if(hash==""){
+            window.location.hash = "#!/tree/";
+        }
         var router = new Router();
         router.register("#!/",function(params){
         });
         router.register("#!/tree/",function (params) {
-            //TODO refactor!!! Caused by the affix problem!!!
-            $("#doc-nav").removeClass("open");
             $("#tree-nav").addClass("open");
+            $("#doc-nav").removeClass("open");
+            $("#log-nav").removeClass("nav-hover");
+            $("#feedback-nav").removeClass("open");
             $("#sidebar").show();
             $("#pageContent").show();
             $("#other-page-content").html("");
@@ -239,11 +244,70 @@
         router.register("#!/doc/",function(params){
             $("#tree-nav").removeClass("open");
             $("#doc-nav").addClass("open");
+            $("#log-nav").removeClass("nav-hover");
+            $("#feedback-nav").removeClass("open");
             $("#sidebar").hide();
             $("#pageContent").hide();
             $.ajax({
                 type:"get",
                 url:"/framework/doc",
+                dataType:"html",
+                async:false,
+                success:function(data,status){
+                    if(status=="success"){
+                        $("#other-page-content").html(data);
+                    }
+                }
+            });
+        });
+        router.register("#!/oplog/",function (params) {
+            $("#tree-nav").removeClass("open");
+            $("#doc-nav").removeClass("open");
+            $("#log-nav").addClass("nav-hover");
+            $("#feedback-nav").removeClass("open");
+            $("#sidebar").hide();
+            $("#pageContent").hide();
+            $.ajax({
+                type:"get",
+                url:"/framework/oplog",
+                dataType:"html",
+                async:false,
+                success:function(data,status){
+                    if(status=="success"){
+                        $("#other-page-content").html(data);
+                    }
+                }
+            });
+        });
+        router.register("#!/eventlog/",function (params) {
+            $("#tree-nav").removeClass("open");
+            $("#doc-nav").removeClass("open");
+            $("#log-nav").addClass("nav-hover");
+            $("#feedback-nav").removeClass("open");
+            $("#sidebar").hide();
+            $("#pageContent").hide();
+            $.ajax({
+                type:"get",
+                url:"/framework/event",
+                dataType:"html",
+                async:false,
+                success:function(data,status){
+                    if(status=="success"){
+                        $("#other-page-content").html(data);
+                    }
+                }
+            });
+        });
+        router.register("#!/feedback/",function(params){
+            $("#tree-nav").removeClass("open");
+            $("#doc-nav").removeClass("open");
+            $("#log-nav").removeClass("nav-hover");
+            $("#feedback-nav").addClass("open");
+            $("#sidebar").hide();
+            $("#pageContent").hide();
+            $.ajax({
+                type:"get",
+                url:"/framework/feedback/",
                 dataType:"html",
                 async:false,
                 success:function(data,status){

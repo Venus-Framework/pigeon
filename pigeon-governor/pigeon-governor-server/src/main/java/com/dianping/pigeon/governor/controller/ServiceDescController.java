@@ -70,7 +70,7 @@ public class ServiceDescController extends BaseController{
                 modelMap.put("empowered",true);
             else
                 modelMap.put("empowered",false);
-            return "/v2/serviceDoc/serviceDoc";
+            return "/doc/serviceDoc";
         }else{
             return "/doc/emptyDoc";
         }
