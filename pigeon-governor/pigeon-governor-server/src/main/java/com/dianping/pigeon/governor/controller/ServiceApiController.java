@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +16,8 @@ import com.dianping.pigeon.governor.util.Constants;
 
 import com.dianping.pigeon.governor.util.IPUtils;
 import com.dianping.pigeon.governor.util.OpType;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -209,6 +212,25 @@ public class ServiceApiController extends BaseController {
             }
 
             return Result.createSuccessResult(hosts);
+        }
+    }
+
+    @RequestMapping(value = "/servicenode/app", method = RequestMethod.GET)
+    @ResponseBody
+    public Result getServiceApp(@RequestParam(value="service") String service,
+                      @RequestParam(value="group", required=false, defaultValue="") String group) {
+        List<ServiceNode> serviceNodeList = serviceNodeService.getServiceNode(service, group);
+
+        if(serviceNodeList.size() == 0) {
+            return Result.createErrorResult(String.format("Service %s for group [%s] does not exist", service, group));
+        } else {
+            Set<String> appSet = Sets.newHashSet();
+
+            for (ServiceNode serviceNode : serviceNodeList) {
+                appSet.add(serviceNode.getProjectName());
+            }
+
+            return Result.createSuccessResult(appSet);
         }
     }
 

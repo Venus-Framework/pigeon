@@ -59,4 +59,16 @@ public class UserServiceImpl implements UserService {
 		return false;
 	}
 
+	@Override
+	public boolean delete(String dpaccount) {
+		UserExample example = new UserExample();
+		example.createCriteria().andDpaccountEqualTo(dpaccount);
+		return userMapper.deleteByExample(example) > 0;
+	}
+
+	@Override
+	public boolean updateById(User user) {
+		return userMapper.updateByPrimaryKeySelective(user) > 0;
+	}
+
 }
