@@ -104,13 +104,14 @@ public class ThriftMethodHandler {
             throws Exception {
 
         out.writeMessageBegin(new TMessage(name, CALL, sequenceId));
-
         TProtocolWriter writer = new TProtocolWriter(out);
         writer.writeStructBegin(name + "_args");
-        for (int i = 0; i < args.length; i++) {
-            Object value = args[i];
-            ParameterHandler parameter = parameterCodecs.get(i);
-            writer.writeField(parameter.getName(), parameter.getId(), parameter.getCodec(), value);
+        if (args != null && args.length != 0) {
+            for (int i = 0; i < args.length; i++) {
+                Object value = args[i];
+                ParameterHandler parameter = parameterCodecs.get(i);
+                writer.writeField(parameter.getName(), parameter.getId(), parameter.getCodec(), value);
+            }
         }
         writer.writeStructEnd();
 

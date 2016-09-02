@@ -2,7 +2,7 @@ package com.dianping.pigeon.remoting.invoker.proxy;
 
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.log.LoggerLoader;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 /**
  * Created by chenchongze on 15/12/16.

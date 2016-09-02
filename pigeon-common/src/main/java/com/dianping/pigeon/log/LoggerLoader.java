@@ -3,10 +3,10 @@
  */
 package com.dianping.pigeon.log;
 
-import com.dianping.pigeon.util.AppUtils;
+import java.util.zip.Deflater;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Filter.Result;
@@ -18,21 +18,23 @@ import org.apache.logging.log4j.core.appender.rolling.TimeBasedTriggeringPolicy;
 import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.filter.BurstFilter;
 import org.apache.logging.log4j.core.filter.ThresholdFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
-import java.util.zip.Deflater;
+import com.dianping.pigeon.util.AppUtils;
 
 public class LoggerLoader {
 
 	private static LoggerContext context = null;
 
-	public static String LOG_ROOT = System.getProperty("pigeon.log.dir", "/data/applogs/pigeon");
-
-	public static final String KEY_LOG_DEBUG_ENABLE = "pigeon.log.debug.enable";
+	public static final String LOG_ROOT = System.getProperty("pigeon.log.dir", "/data/applogs/pigeon");
 
 	static {
 		init();
+	}
+	
+	private LoggerLoader() {
 	}
 
 	public static synchronized void init() {
@@ -52,6 +54,7 @@ public class LoggerLoader {
 				.withFooter(null)
 				.build();
 
+		
 		// file info
 		Filter fileInfoFilter = ThresholdFilter.createFilter(Level.ERROR, Result.DENY, Result.ACCEPT);
 		Appender fileInfoAppender = RollingFileAppender.createAppender(LOG_ROOT + "/pigeon." + appName + ".log",
@@ -64,18 +67,12 @@ public class LoggerLoader {
 		AppenderRef fileInfoRef = AppenderRef.createAppenderRef("FileInfo", null, fileInfoFilter);
 
 		// console error
-		Appender consoleErrorAppender = ConsoleAppender.createAppender(layout, null, "SYSTEM_ERR", "ConsoleError",
+		
+		Filter burstErrorFilter = BurstFilter.newBuilder().setLevel(Level.ERROR).setRate(50).setMaxBurst(250).build();
+		Appender consoleErrorAppender = ConsoleAppender.createAppender(layout, burstErrorFilter, "SYSTEM_ERR", "ConsoleError",
 				"false", "false");
 		config.addAppender(consoleErrorAppender);
 		consoleErrorAppender.start();
-//		AppenderRef consoleErrorAppenderRef = AppenderRef.createAppenderRef("ConsoleError", Level.ERROR, null);
-//		AsyncAppender asyncConsoleErrorAppender = AsyncAppender.createAppender(
-//				new AppenderRef[] { consoleErrorAppenderRef }, null, true, 128, "AsyncConsoleError", false, null,
-//				config, false);
-//		consoleErrorAppenderRef.start();
-//		config.addAppender(consoleErrorAppenderRef);
-//		config.addAppender(consoleErrorAppender);
-//		AppenderRef asyncConsoleErrorRef = AppenderRef.createAppenderRef("AsyncConsoleError", Level.ERROR, null);
 
 		// console warn
 		Filter consoleWarnFilter = ThresholdFilter.createFilter(Level.ERROR, Result.DENY, Result.NEUTRAL);
@@ -86,14 +83,14 @@ public class LoggerLoader {
 		AppenderRef consoleWarnAppenderRef = AppenderRef
 				.createAppenderRef("ConsoleWarn", Level.WARN, consoleWarnFilter);
 		AppenderRef consoleErrorAppenderRef = AppenderRef
-				.createAppenderRef("ConsoleError", Level.WARN, null);
+				.createAppenderRef("ConsoleError", Level.ERROR, burstErrorFilter);
 
-		AppenderRef[] refs = new AppenderRef[] { consoleErrorAppenderRef, consoleWarnAppenderRef, fileInfoRef };
-		LoggerConfig loggerConfig = LoggerConfig.createLogger("false", Level.INFO, "com.dianping.pigeon", "true", refs,
+		AppenderRef[] refs = new AppenderRef[] {consoleErrorAppenderRef, consoleWarnAppenderRef, fileInfoRef };
+		LoggerConfig loggerConfig = LoggerConfig.createLogger("false", Level.DEBUG, "com.dianping.pigeon", "true", refs,
 				null, config, null);
 		loggerConfig.addAppender(consoleErrorAppender, Level.ERROR, null);
 		loggerConfig.addAppender(consoleWarnAppender, Level.WARN, null);
-		loggerConfig.addAppender(fileInfoAppender, Level.INFO, null);
+		loggerConfig.addAppender(fileInfoAppender, Level.DEBUG, null);
 
 		config.addLogger("com.dianping.pigeon", loggerConfig);
 
@@ -131,7 +128,7 @@ public class LoggerLoader {
 		if (context == null) {
 			init();
 		}
-		return context.getLogger(name);
+		return new SimpleLogger(context.getLogger(name));
 	}
 
 	public static LoggerContext getLoggerContext() {

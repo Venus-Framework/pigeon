@@ -28,10 +28,10 @@ public class AppUtils {
 					properties = FileUtils.readFile(appProperties.openStream());
 					appName = properties.getProperty("app.name");
 				}
-			} catch (Throwable e) {
+			} catch (Exception e) {
 			}
 			if (appName == null) {
-				return "NULL";
+				return "";
 			}
 		}
 		return appName;

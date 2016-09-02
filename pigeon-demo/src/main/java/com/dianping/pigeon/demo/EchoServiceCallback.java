@@ -2,8 +2,12 @@ package com.dianping.pigeon.demo;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.exception.DPSFException;
+import com.dianping.pigeon.log.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
 
 public class EchoServiceCallback implements ServiceCallback {
+
+	private final Logger logger = LoggerLoader.getLogger(EchoServiceCallback.class);
 
 	@Override
 	public void callback(Object result) {
@@ -12,12 +16,12 @@ public class EchoServiceCallback implements ServiceCallback {
 
 	@Override
 	public void serviceException(Exception e) {
-		e.printStackTrace();
+		logger.error("", e);
 	}
 
 	@Override
 	public void frameworkException(DPSFException e) {
-		e.printStackTrace();
+		logger.error("", e);
 	}
 
 }

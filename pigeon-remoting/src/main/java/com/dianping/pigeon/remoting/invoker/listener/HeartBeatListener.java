@@ -14,11 +14,11 @@ import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
+import com.dianping.pigeon.registry.util.HeartBeatSupport;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
-import com.dianping.pigeon.remoting.common.exception.ServiceStatusException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
@@ -27,7 +27,7 @@ import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.Server;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -64,7 +64,6 @@ public class HeartBeatListener implements Runnable, ClusterListener {
     private static int heartBeatTimeout = configManager.getIntValue(Constants.KEY_HEARTBEAT_TIMEOUT,
             Constants.DEFAULT_HEARTBEAT_TIMEOUT);
     private static float pickoffRatio = configManager.getFloatValue("pigeon.heartbeat.pickoffratio", 0.5f);
-    private static boolean logPickOff = configManager.getBooleanValue("pigeon.heartbeat.logpickoff", true);
     private static final Monitor monitor = MonitorLoader.getMonitor();
 
     private static volatile Set<String> inactiveAddresses = new HashSet<String>();
@@ -79,12 +78,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
         @Override
         public void onKeyUpdated(String key, String value) {
-            if (key.endsWith("pigeon.heartbeat.logpickoff")) {
-                try {
-                    logPickOff = Boolean.valueOf(value);
-                } catch (RuntimeException e) {
-                }
-            } else if (key.endsWith("pigeon.heartbeat.pickoffratio")) {
+            if (key.endsWith("pigeon.heartbeat.pickoffratio")) {
                 try {
                     pickoffRatio = Float.valueOf(value);
                 } catch (RuntimeException e) {
@@ -155,7 +149,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
                         if (logger.isDebugEnabled()) {
                             logger.debug("[heartbeat] checking service provider:" + client);
                         }
-                        if (client != null) {
+                        if(client != null) {
                             boolean enable = Constants.PROTOCOL_DEFAULT.equals(client.getProtocol())
                                     && (RegistryManager.getInstance().getServiceWeight(client.getAddress()) > 0);
                             if (enable) {
@@ -164,6 +158,12 @@ public class HeartBeatListener implements Runnable, ClusterListener {
                                             && serverPorts.contains(client.getPort())) {
                                         continue;
                                     }
+
+                                    if (!checkIfNeedSend(client.getAddress())) {
+                                        // not support p2p heartbeat
+                                        continue;
+                                    }
+
                                     sendHeartBeatRequest(client);
                                 } else {
                                     logger.info("[heartbeat] remove connect:" + client.getAddress());
@@ -206,13 +206,39 @@ public class HeartBeatListener implements Runnable, ClusterListener {
         }
     }
 
+    private boolean checkIfNeedSend(String address) {
+        boolean support = true;
+        byte heartBeatSupport = HeartBeatSupport.BOTH.getValue();
+
+        try {
+            heartBeatSupport = RegistryManager.getInstance().getServerHeartBeatSupport(address);
+        } catch (RegistryException e) {
+            //
+        }
+
+        switch (HeartBeatSupport.findByValue(heartBeatSupport)) {
+            case UNSUPPORT:
+            case SCANNER:
+                support = false;
+                break;
+
+            case CLIENTTOSERVER:
+            case BOTH:
+            default:
+                support = true;
+                break;
+        }
+
+        return support;
+    }
+
     private boolean isSupportNewProtocol(Client client) {
         boolean supported = false;
 
         try {
             supported = RegistryManager.getInstance().isSupportNewProtocol(client.getAddress());
         } catch (Throwable t) {
-            supported = configManager.getBooleanValue("pigeon.mns.host.support.new.protocol.snapshot", true);
+            supported = configManager.getBooleanValue("pigeon.mns.host.support.new.protocol", true);
             logger.warn("get protocol support failed, set support to: " + supported);
         }
 
@@ -291,6 +317,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
                     inactiveAddresses.remove(client.getAddress());
                     logger.info("@service-activate:" + client + ", service:" + getServiceName(client)
                             + ", inactive addresses:" + inactiveAddresses);
+                    monitor.logEvent("PigeonCall.heartbeat", "Activate", client.getAddress());
                 }
                 heartStat.resetCounter();
             } else if (heartStat.failedCounter.longValue() >= heartBeatDeadCount) {
@@ -299,13 +326,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
                         client.setActive(false);
                         inactiveAddresses.add(client.getAddress());
                         logger.info("@service-deactivate:" + client + ", inactive addresses:" + inactiveAddresses);
-
-                        if (logPickOff) {
-                            ServiceStatusException ex = new ServiceStatusException("remote server " + client
-                                    + " unavailable");
-                            ex.setStackTrace(new StackTraceElement[]{});
-                            monitor.logError(ex);
-                        }
+                        monitor.logEvent("PigeonCall.heartbeat", "Deactivate", client.getAddress());
                     } else {
                         logger.info("@service-dieaway:" + client + ", inactive addresses:" + inactiveAddresses);
                     }
@@ -318,7 +339,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
     }
 
     private String getServiceName(Client client) {
-        for (Iterator<Entry<String, List<Client>>> iter = getWorkingClients().entrySet().iterator(); iter.hasNext(); ) {
+        for (Iterator<Entry<String, List<Client>>> iter = getWorkingClients().entrySet().iterator(); iter.hasNext();) {
             Entry<String, List<Client>> entry = iter.next();
             if (entry.getValue() != null && entry.getValue().contains(client)) {
                 return entry.getKey();

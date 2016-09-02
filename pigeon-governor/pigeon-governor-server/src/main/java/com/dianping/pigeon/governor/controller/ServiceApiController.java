@@ -5,17 +5,19 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.dianping.pigeon.governor.model.Host;
-import com.dianping.pigeon.governor.model.OpLog;
+import com.dianping.pigeon.governor.model.*;
 import com.dianping.pigeon.governor.service.*;
 import com.dianping.pigeon.governor.util.Constants;
 
 import com.dianping.pigeon.governor.util.IPUtils;
 import com.dianping.pigeon.governor.util.OpType;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,8 +32,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.dianping.pigeon.governor.bean.Result;
 import com.dianping.pigeon.governor.lion.ConfigHolder;
 import com.dianping.pigeon.governor.lion.LionKeys;
-import com.dianping.pigeon.governor.model.Project;
-import com.dianping.pigeon.governor.model.Service;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.mysql.jdbc.log.Log;
 
@@ -86,8 +86,7 @@ public class ServiceApiController extends BaseController {
     	
     	String appname = StringUtils.isBlank(project) ? app : project;
         if(StringUtils.isBlank(appname)) {
-            writer.write(ERROR_CODE + String.format("Service %s for group [%s]'s appname is blank!", service, group));
-            return;
+            appname = Constants.defaultNullAppName;
         }
 
         //todo 暂时双写
@@ -178,6 +177,7 @@ public class ServiceApiController extends BaseController {
             return Result.createErrorResult(String.format("Project %s does not exist", project));
         }
 
+
         List<Service> serviceList = serviceService.getServiceList(prj.getId());
         List<String> srvNameList = new ArrayList<String>();
         for(Service service : serviceList) {
@@ -194,16 +194,43 @@ public class ServiceApiController extends BaseController {
      * @param group
      * @return
      */
-    @RequestMapping(value = "/old/service2/get", method = RequestMethod.GET)
+    @RequestMapping(value = "/service2/get", method = RequestMethod.GET)
     @ResponseBody
     public Result get(@RequestParam(value="service") String service,
                       @RequestParam(value="group", required=false, defaultValue="") String group) {
+        List<ServiceNode> serviceNodeList = serviceNodeService.getServiceNode(service, group);
 
-        Service srv = serviceService.getService(service, group);
-        if(srv == null) {
+        if(serviceNodeList.size() == 0) {
+
+            return Result.createErrorResult(String.format("Service %s for group [%s] does not exist", service, group));
+
+        } else {
+            String hosts = "";
+
+            for (ServiceNode serviceNode : serviceNodeList) {
+                hosts += IPUtils.getHost(serviceNode.getIp(), serviceNode.getPort()) + ",";
+            }
+
+            return Result.createSuccessResult(hosts);
+        }
+    }
+
+    @RequestMapping(value = "/servicenode/app", method = RequestMethod.GET)
+    @ResponseBody
+    public Result getServiceApp(@RequestParam(value="service") String service,
+                      @RequestParam(value="group", required=false, defaultValue="") String group) {
+        List<ServiceNode> serviceNodeList = serviceNodeService.getServiceNode(service, group);
+
+        if(serviceNodeList.size() == 0) {
             return Result.createErrorResult(String.format("Service %s for group [%s] does not exist", service, group));
         } else {
-            return Result.createSuccessResult(srv.getHosts());
+            Set<String> appSet = Sets.newHashSet();
+
+            for (ServiceNode serviceNode : serviceNodeList) {
+                appSet.add(serviceNode.getProjectName());
+            }
+
+            return Result.createSuccessResult(appSet);
         }
     }
 

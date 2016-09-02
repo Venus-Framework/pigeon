@@ -5,6 +5,7 @@ import com.dianping.cat.message.Transaction;
 import com.dianping.lion.client.Lion;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.governor.bean.ServiceNodeBean;
 import com.dianping.pigeon.governor.exception.DbException;
 import com.dianping.pigeon.governor.lion.LionKeys;
@@ -65,12 +66,14 @@ public class ServiceNodeHeartBeatCheckTask extends Thread {
     private final static long pickOffHeartBeatNodeInternal = 28800000L;
 
     public ServiceNodeHeartBeatCheckTask() {
-        for (Registry registry : RegistryManager.getInstance().getRegistryList()) {
+
+        List<Registry> _registryList = ExtensionLoader.getExtensionList(Registry.class);
+        for (Registry registry : _registryList) {
             if(registry instanceof CuratorRegistry) {
                 client = ((CuratorRegistry) registry).getCuratorClient();
-                break;
             }
         }
+
     }
 
     public void init() {
@@ -155,10 +158,10 @@ public class ServiceNodeHeartBeatCheckTask extends Thread {
             }
 
             heartBeatsMap = tmp_heartBeatsMap;
-
             transaction.setStatus(Transaction.SUCCESS);
         } catch (Throwable t) {
             logger.error("refresh heartbeats info error", t);
+            heartBeatsMap = Maps.newConcurrentMap();
             transaction.setStatus(t);
         } finally {
             transaction.complete();
@@ -252,7 +255,9 @@ public class ServiceNodeHeartBeatCheckTask extends Thread {
                             String hosts_zk = client.get(serviceHostAddress, false);
 
                             if(StringUtils.isBlank(hosts_zk)) {
-                                logger.warn("no data exists in zk: " + serviceName + "#" + group);
+                                logger.warn("no data exists in zk: " + serviceName + "#" + group
+                                        + ", pick off from db!");
+                                serviceNodeService.deleteServiceNode(serviceName, group, ip, port);
                                 continue;
                             }
 

@@ -12,7 +12,7 @@
 		init-method="init">
 		<property name="url" value="com.dianping.pigeon.demo.EchoService" />
 		<property name="interfaceName" value="com.dianping.pigeon.demo.EchoService" />
-		<property name="serialize" value="fst" />
+		<property name="serialize" value="hessian" />
 		<property name="callType" value="sync" />
 		<property name="timeout" value="500" />
 	</bean>
@@ -22,7 +22,7 @@
 		init-method="init">
 		<property name="url" value="com.dianping.pigeon.demo.EchoService" />
 		<property name="interfaceName" value="com.dianping.pigeon.demo.EchoService" />
-		<property name="serialize" value="fst" />
+		<property name="serialize" value="hessian" />
 		<property name="callType" value="future" />
 		<property name="timeout" value="500" />
 	</bean>
@@ -32,7 +32,7 @@
 		init-method="init">
 		<property name="url" value="com.dianping.pigeon.demo.EchoService" />
 		<property name="interfaceName" value="com.dianping.pigeon.demo.EchoService" />
-		<property name="serialize" value="fst" />
+		<property name="serialize" value="hessian" />
 		<property name="callType" value="callback" />
 		<property name="timeout" value="1000" />
 		<property name="callback" ref="echoServiceCallback" />

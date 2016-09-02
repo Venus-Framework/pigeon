@@ -184,9 +184,6 @@ public final class Constants {
 	public static final boolean INVOKER_RETRY_NETWORK_EXCEPTION = ConfigManagerLoader.getConfigManager()
 			.getBooleanValue("pigeon.invoker.retry.networkexception", true);
 
-	public static int INVOKER_LOG_TIMEOUT_PERCENT = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.invoker.log.timeout.percent", 100);
-
 	public static final boolean INVOKER_LOG_TIMEOUT_EXCEPTION = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.invoker.log.timeout.exception", false);
 

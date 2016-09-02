@@ -1,5 +1,10 @@
 package com.dianping.pigeon.log;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.Deflater;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
@@ -16,7 +21,6 @@ package com.dianping.pigeon.log;
  * See the license for the specific language governing permissions and
  * limitations under the license.
  */
-
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.appender.rolling.RollingFileManager;
 import org.apache.logging.log4j.core.appender.rolling.RolloverDescription;
@@ -34,11 +38,6 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.lookup.StrSubstitutor;
 import org.apache.logging.log4j.core.util.Integers;
 import org.apache.logging.log4j.status.StatusLogger;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.Deflater;
 
 /**
  * When rolling over, <code>DefaultRolloverStrategy</code> renames files

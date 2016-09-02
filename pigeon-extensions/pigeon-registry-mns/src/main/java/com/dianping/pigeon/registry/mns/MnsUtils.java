@@ -5,7 +5,7 @@ import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.Maps;
 import com.sankuai.sgagent.thrift.model.fb_status;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,31 +45,13 @@ public class MnsUtils {
     }
 
     public static int getMtthriftWeight(int weight) {
-        int mtThriftWeight;
 
-        if (weight == WEIGHT_INACTIVE) {
-            mtThriftWeight = MNS_WEIGHT_INACTIVE_DEFAULT;//inactive
-        }  else if (weight > WEIGHT_INACTIVE) {
-            mtThriftWeight = MNS_WEIGHT_ACTIVE_DEFAULT;//active
-        } else {
-            mtThriftWeight = MNS_WEIGHT_ACTIVE_DEFAULT;//active
-        }
-
-        return mtThriftWeight;
+        return MNS_WEIGHT_ACTIVE_DEFAULT;
     }
 
     public static double getMtthriftFWeight(int weight) {
-        double mtThriftWeight;
 
-        if (weight == WEIGHT_INACTIVE) {
-            mtThriftWeight = MNS_FWEIGHT_INACTIVE_DEFAULT;//inactive
-        }  else if (weight > WEIGHT_INACTIVE) {
-            mtThriftWeight = MNS_FWEIGHT_ACTIVE_DEFAULT;//active
-        } else {
-            mtThriftWeight = MNS_FWEIGHT_ACTIVE_DEFAULT;//active
-        }
-
-        return mtThriftWeight;
+        return MNS_FWEIGHT_ACTIVE_DEFAULT;
     }
 
     public static int getMtthriftStatus(int weight) {
@@ -84,6 +66,18 @@ public class MnsUtils {
         }
 
         return status;
+    }
+
+    public static int getWeight(int mtthriftStatus) {
+        int weight;
+
+        if (mtthriftStatus == fb_status.ALIVE.getValue()) {
+            weight = WEIGHT_ACTIVE;
+        } else {
+            weight = WEIGHT_INACTIVE;
+        }
+
+        return weight;
     }
 
     public static int getWeight(int mtthriftStatus, int mtthriftWeight) {

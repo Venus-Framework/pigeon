@@ -12,7 +12,7 @@ import java.util.Map;
 
 import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.dpsf.exception.DPSFException;
-import com.dianping.pigeon.demo.EchoService.Gender;
+import com.dianping.lion.client.Lion;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
@@ -46,10 +46,11 @@ public class EchoServiceDefaultImpl implements EchoService {
 		// ContextUtils.getGlobalContext("SOURCE_APP"));
 		// System.out.println("SOURCE_IP:" +
 		// ContextUtils.getGlobalContext("SOURCE_IP"));
-		// try {
-		// Thread.sleep(10);
-		// } catch (InterruptedException e) {
-		// }
+		//throw new RuntimeException("aaaa");
+		 try {
+		 Thread.sleep(Lion.getIntValue("pigeon-test.echo.sleep"));
+		 } catch (InterruptedException e) {
+		 }
 		// System.out.println(msg);
 		// ContextUtils.putResponseContext("key1", "repsonse1");
 		// ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(),

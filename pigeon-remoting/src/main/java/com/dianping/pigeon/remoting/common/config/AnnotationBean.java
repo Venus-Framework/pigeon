@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -110,7 +110,8 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 			return bean;
 		}
 		Class<?> beanClass = bean.getClass();
-		int idxCglib = beanClass.getName().indexOf("$$EnhancerByCGLIB");
+		int idxCglib = beanClass.getName().contains("$$EnhancerByCGLIB") ?
+				beanClass.getName().indexOf("$$EnhancerByCGLIB") : beanClass.getName().indexOf("$$EnhancerBySpringCGLIB");
 		if (idxCglib != -1) {
 			try {
 				beanClass = ClassUtils.loadClass(beanClass.getName().substring(0, idxCglib));
@@ -242,7 +243,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 					reference.callType(), reference.serialize(), callback, reference.group(), false,
 					reference.loadbalance(), reference.cluster(), reference.retries(), reference.timeoutRetry(),
 					reference.vip(), reference.version(), reference.protocol());
-			invokerConfig.setSecret(reference.serialize());
+			invokerConfig.setSecret(reference.secret());
 			invokerConfigs.putIfAbsent(key, invokerConfig);
 			invokerConfig = invokerConfigs.get(key);
 		}

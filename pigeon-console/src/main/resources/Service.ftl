@@ -29,7 +29,7 @@
 						return;
 					}
 					if(treeNode.token=='true'){
-						content.append("<p>authentication token:<p><input type='text' id='token' value=''/></p>");
+						content.append("<p>authentication token (timestamp:${timestamp}):<p><input type='text' id='token' value=''/></p>");
 					} else if('${validate}'=='true'){
 						content.append("<p>verification code(from /data/applogs/pigeon/pigeon.*.log):<p><input type='text' id='token' value=''/></p>");
 					}
@@ -53,7 +53,7 @@
 						pdata.parameterTypes = treeNode.data_parameterTypes.split(',');
 
 						$.ajax({
-							url:"./invoke.json?validate=true&direct=${direct!"true"}&token=" + $("#token").val(),
+							url:"./invoke.json?validate=true&app=${appName}&timestamp=${timestamp}&direct=${direct!"true"}&token=" + $("#token").val(),
 							data: pdata,
 							success: function(m){
 								result.text(JSON.stringify(m)).show();

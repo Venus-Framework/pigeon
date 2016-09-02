@@ -5,7 +5,7 @@
 package com.dianping.pigeon.remoting.invoker;
 
 import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;

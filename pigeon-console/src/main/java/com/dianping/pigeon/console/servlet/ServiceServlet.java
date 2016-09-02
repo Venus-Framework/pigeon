@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.util.Constants;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -167,12 +167,7 @@ public class ServiceServlet extends HttpServlet {
 		page.setGroup(configManager.getGroup());
 		page.setServiceWeights(ServicePublisher.getServerWeight());
 
-		for (Registry registry : RegistryManager.getInstance().getRegistryList()) {
-			if (Constants.REGISTRY_CURATOR_NAME.equals(registry.getName())) {
-				page.setRegistry(registry.getStatistics());
-				break;
-			}
-		}
+		page.setRegistry(RegistryManager.getInstance().getRegistry().getStatistics());
 
 		page.setAppName(configManager.getAppName());
 		page.setStartTime(ProviderBootStrap.getStartTime() + "");

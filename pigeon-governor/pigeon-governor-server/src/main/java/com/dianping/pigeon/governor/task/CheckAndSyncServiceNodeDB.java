@@ -3,10 +3,12 @@ package com.dianping.pigeon.governor.task;
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Transaction;
 import com.dianping.lion.client.Lion;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.governor.bean.ServiceNodeBean;
 import com.dianping.pigeon.governor.exception.DbException;
 import com.dianping.pigeon.governor.model.ServiceNode;
 import com.dianping.pigeon.governor.service.ServiceNodeService;
+import com.dianping.pigeon.governor.util.Constants;
 import com.dianping.pigeon.governor.util.IPUtils;
 import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
@@ -50,10 +52,10 @@ public class CheckAndSyncServiceNodeDB {
     }
 
     public CheckAndSyncServiceNodeDB() {
-        for (Registry registry : RegistryManager.getInstance().getRegistryList()) {
+        List<Registry> _registryList = ExtensionLoader.getExtensionList(Registry.class);
+        for (Registry registry : _registryList) {
             if(registry instanceof CuratorRegistry) {
                 client = ((CuratorRegistry) registry).getCuratorClient();
-                break;
             }
         }
     }
@@ -144,7 +146,7 @@ public class CheckAndSyncServiceNodeDB {
                 }
 
                 if(StringUtils.isBlank(tmp_app)) {
-                    tmp_app = "NULL";
+                    tmp_app = Constants.defaultNullAppName;
                 }
 
                 tmp_hostAppMapping.put(hostZk, tmp_app);

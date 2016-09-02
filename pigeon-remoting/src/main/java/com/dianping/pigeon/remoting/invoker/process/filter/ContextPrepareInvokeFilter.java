@@ -14,7 +14,7 @@ import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedRequest;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -48,7 +48,7 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
     @Override
     public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
             throws Throwable {
-		invocationContext.getTimeline().add(new TimePoint(TimePhase.C));
+        invocationContext.getTimeline().add(new TimePoint(TimePhase.C));
         initRequest(invocationContext);
         transferContextValueToRequest(invocationContext, invocationContext.getRequest());
         try {
@@ -144,9 +144,9 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
             supported = false;
         }
         if (!supported) {
-            request.setSerialize(SerializerFactory.SERIALIZE_HESSIAN);
-            invokerContext.getInvokerConfig().setSerialize(SerializerFactory.HESSIAN);
-            invokerContext.setRequest(new DefaultRequest(invokerContext));
+            InvocationRequest _request = new DefaultRequest(invokerContext);
+            _request.setSerialize(SerializerFactory.SERIALIZE_HESSIAN);
+            invokerContext.setRequest(_request);
         }
     }
 

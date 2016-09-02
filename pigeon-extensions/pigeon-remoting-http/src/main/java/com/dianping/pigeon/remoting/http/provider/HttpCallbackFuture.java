@@ -9,7 +9,7 @@ import com.dianping.pigeon.remoting.invoker.callback.CallFuture;
 import com.dianping.pigeon.remoting.invoker.callback.Callback;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import java.util.concurrent.TimeUnit;
 

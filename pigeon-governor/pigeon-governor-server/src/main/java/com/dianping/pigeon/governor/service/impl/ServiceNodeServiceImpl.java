@@ -147,6 +147,24 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
     }
 
     @Override
+    public List<ServiceNode> getServiceNode(String serviceName, String group) {
+        ServiceNodeExample serviceNodeExample = new ServiceNodeExample();
+        serviceNodeExample.createCriteria()
+                .andServiceNameEqualTo(serviceName)
+                .andGroupEqualTo(group);
+
+        List<ServiceNode> serviceNodes = new ArrayList<ServiceNode>();
+
+        try {
+            serviceNodes = serviceNodeMapper.selectByExample(serviceNodeExample);
+        } catch (DataAccessException e) {
+            logger.error(e.getMessage());
+        }
+
+        return serviceNodes;
+    }
+
+    @Override
     public List<ServiceNode> retrieveAllByProjectName(String projectName) {
         List<ServiceNode> serviceNodes = new ArrayList<ServiceNode>();
 

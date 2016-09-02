@@ -17,7 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -54,13 +54,13 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 	private static ThreadPool sharedRequestProcessThreadPool = null;
 
 	private static final int SLOW_POOL_CORESIZE = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.pool.slow.coresize", 10);
+			"pigeon.provider.pool.slow.coresize", 30);
 
 	private static final int SLOW_POOL_MAXSIZE = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.pool.slow.maxsize", 50);
+			"pigeon.provider.pool.slow.maxsize", 200);
 
 	private static final int SLOW_POOL_QUEUESIZE = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.pool.slow.queuesize", 1000);
+			"pigeon.provider.pool.slow.queuesize", 500);
 
 	private static ThreadPool slowRequestProcessThreadPool = new DefaultThreadPool(
 			"Pigeon-Server-Slow-Request-Processor", SLOW_POOL_CORESIZE, SLOW_POOL_MAXSIZE,

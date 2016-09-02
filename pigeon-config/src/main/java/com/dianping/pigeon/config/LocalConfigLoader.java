@@ -32,7 +32,7 @@ public class LocalConfigLoader {
 		Map<String, Object> results = new HashMap<String, Object>();
 		try {
 			loadProperties(results, FileUtils.readFile(new FileInputStream(GLOBAL_PROPERTIES_PATH)));
-		} catch (Throwable e) {
+		} catch (Exception e) {
 		}
 		try {
 			loadProperties(

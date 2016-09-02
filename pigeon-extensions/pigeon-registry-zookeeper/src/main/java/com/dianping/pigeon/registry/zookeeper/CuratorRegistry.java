@@ -2,10 +2,11 @@ package com.dianping.pigeon.registry.zookeeper;
 
 import java.util.*;
 
+import com.dianping.pigeon.registry.util.HeartBeatSupport;
 import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
+import com.dianping.pigeon.log.Logger;
 import org.apache.zookeeper.KeeperException.NodeExistsException;
 import org.apache.zookeeper.KeeperException.BadVersionException;
 import org.apache.zookeeper.KeeperException.NoNodeException;
@@ -80,41 +81,7 @@ public class CuratorRegistry implements Registry {
 
 	public String getServiceAddress(String serviceName, String group, boolean fallbackDefaultGroup)
 			throws RegistryException {
-		try {
-			String path = Utils.getServicePath(serviceName, group);
-			String address = client.get(path);
-			if (!StringUtils.isBlank(group)) {
-				boolean needFallback = false;
-				if (StringUtils.isBlank(address)) {
-					needFallback = true;
-				} else {
-					String[] addressArray = address.split(",");
-					int weightCount = 0;
-					for (String addr : addressArray) {
-						addr = addr.trim();
-						if (addr.length() > 0) {
-							int weight = RegistryManager.getInstance().getServiceWeight(addr);
-							if (weight > 0) {
-								weightCount += weight;
-							}
-						}
-					}
-					if (weightCount == 0) {
-						needFallback = true;
-						logger.info("weight is 0 with address:" + address);
-					}
-				}
-				if (fallbackDefaultGroup && needFallback) {
-					logger.info("node " + path + " does not exist, fallback to default group");
-					path = Utils.getServicePath(serviceName, Constants.DEFAULT_GROUP);
-					address = client.get(path);
-				}
-			}
-			return address;
-		} catch (Exception e) {
-			logger.error("failed to get service address for " + serviceName + "/" + group, e);
-			throw new RegistryException(e);
-		}
+		return getServiceAddress(serviceName, group, fallbackDefaultGroup, true);
 	}
 
 	@Override
@@ -135,9 +102,6 @@ public class CuratorRegistry implements Registry {
 		String weightPath = Utils.getWeightPath(serviceAddress);
 		String servicePath = Utils.getServicePath(serviceName, group);
 		try {
-			if (weight >= 0) {
-				client.set(weightPath, "" + weight);
-			}
 			if (client.exists(servicePath, false)) {
 				Stat stat = new Stat();
 				String addressValue = client.get(servicePath, stat);
@@ -156,6 +120,9 @@ public class CuratorRegistry implements Registry {
 				}
 			} else {
 				client.create(servicePath, serviceAddress);
+			}
+			if (weight >= 0) {
+				client.set(weightPath, "" + weight);
 			}
 			if (logger.isInfoEnabled()) {
 				logger.info("registered service to persistent node: " + servicePath);
@@ -369,7 +336,16 @@ public class CuratorRegistry implements Registry {
 
 	@Override
 	public String getStatistics() {
-		return "curator:" + client.getStatistics();
+		return getName() + ":" + client.getStatistics();
+	}
+
+	@Override
+	public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
+		if (isSupportNewProtocol(serviceAddress)) {
+			return HeartBeatSupport.BOTH.getValue();
+		} else {
+			return HeartBeatSupport.CLIENTTOSERVER.getValue();
+		}
 	}
 
 	@Override
@@ -407,6 +383,51 @@ public class CuratorRegistry implements Registry {
 
 		for (String host : hosts.split(",")) {
 			setServerWeight(host, weight);
+		}
+	}
+
+	@Override
+	public String getServiceAddress(String remoteAppkey, String serviceName, String group, boolean fallbackDefaultGroup, boolean needListener) throws RegistryException {
+		// blank
+		return "";
+	}
+
+	@Override
+	public String getServiceAddress(String serviceName, String group, boolean fallbackDefaultGroup, boolean needListener) throws RegistryException {
+		try {
+			String path = Utils.getServicePath(serviceName, group);
+			String address = client.get(path, needListener);
+			if (!StringUtils.isBlank(group)) {
+				boolean needFallback = false;
+				if (StringUtils.isBlank(address)) {
+					needFallback = true;
+				} else {
+					String[] addressArray = address.split(",");
+					int weightCount = 0;
+					for (String addr : addressArray) {
+						addr = addr.trim();
+						if (addr.length() > 0) {
+							int weight = RegistryManager.getInstance().getServiceWeight(addr);
+							if (weight > 0) {
+								weightCount += weight;
+							}
+						}
+					}
+					if (weightCount == 0) {
+						needFallback = true;
+						logger.info("weight is 0 with address:" + address);
+					}
+				}
+				if (fallbackDefaultGroup && needFallback) {
+					logger.info("node " + path + " does not exist, fallback to default group");
+					path = Utils.getServicePath(serviceName, Constants.DEFAULT_GROUP);
+					address = client.get(path, needListener);
+				}
+			}
+			return address;
+		} catch (Exception e) {
+			logger.error("failed to get service address for " + serviceName + "/" + group, e);
+			throw new RegistryException(e);
 		}
 	}
 
