@@ -3,12 +3,14 @@ package com.dianping.pigeon.governor.task;
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Transaction;
 import com.dianping.lion.client.Lion;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.governor.bean.ServiceNodeBean;
 import com.dianping.pigeon.governor.exception.DbException;
 import com.dianping.pigeon.governor.model.ServiceNode;
 import com.dianping.pigeon.governor.service.ServiceNodeService;
 import com.dianping.pigeon.governor.util.Constants;
 import com.dianping.pigeon.governor.util.IPUtils;
+import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.zookeeper.CuratorClient;
 import com.dianping.pigeon.registry.zookeeper.CuratorRegistry;
@@ -50,7 +52,12 @@ public class CheckAndSyncServiceNodeDB {
     }
 
     public CheckAndSyncServiceNodeDB() {
-        client = ((CuratorRegistry) RegistryManager.getInstance().getRegistry()).getCuratorClient();
+        List<Registry> _registryList = ExtensionLoader.getExtensionList(Registry.class);
+        for (Registry registry : _registryList) {
+            if(registry instanceof CuratorRegistry) {
+                client = ((CuratorRegistry) RegistryManager.getInstance().getRegistry()).getCuratorClient();
+            }
+        }
     }
 
     /**
