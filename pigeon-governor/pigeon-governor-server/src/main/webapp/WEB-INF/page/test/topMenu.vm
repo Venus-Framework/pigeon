@@ -1,0 +1,549 @@
+#set($layout="layoutblank.vm")
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta charset="utf-8" />
+    <title>Pigeon</title>
+    <meta name="description" content="Pigeon message"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/font-awesome.min.css" />
+    <!-- page specific plugin styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery-ui.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/datepicker.css" />
+    <!-- text fonts -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-fonts.css" />
+    <!-- ace styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace.min.css" id="main-ace-style"/>
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-part2.min.css" />
+    <![endif]-->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-rtl.min.css" />
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-ie.min.css" />
+    <![endif]-->
+
+    <!-- inline styles related to this page -->
+    <style>
+        .affix-top
+        {
+            width:300px;
+        }
+        .affix
+        {
+            width:300px;
+        }
+        .affix-bottom
+        {
+            width: 300px;
+        }
+    </style>
+    <!-- ace settings handler -->
+    <script src="${rc.contextPath}/resources/assets/js/ace-extra.min.js"></script>
+
+</head>
+<body class="no-skin">
+<!-- #section:basics/navbar.layout -->
+<div id="navbar" class="navbar navbar-default    navbar-collapse       h-navbar  navbar-fixed-top">
+    <script type="text/javascript">
+        try{ace.settings.check('navbar' , 'fixed')}catch(e){}
+    </script>
+
+    <div class="navbar-container" id="navbar-container">
+        <div class="navbar-header pull-left">
+            <!-- #section:basics/navbar.layout.brand -->
+            <a href="#" class="navbar-brand">
+                <small>
+                    <i class="fa fa-leaf"></i>
+                    Pigeon
+                </small>
+            </a>
+
+            <!-- /section:basics/navbar.layout.brand -->
+
+            <!-- #section:basics/navbar.toggle -->
+            <button class="pull-right navbar-toggle navbar-toggle-img collapsed" type="button" data-toggle="collapse" data-target=".navbar-buttons,.navbar-menu">
+                <span class="sr-only">Toggle user menu</span>
+
+                <img src="../assets/avatars/user.jpg" alt="Jason's Photo" />
+            </button>
+
+            <button class="pull-right navbar-toggle collapsed" type="button" data-toggle="collapse" data-target=".sidebar">
+                <span class="sr-only">Toggle sidebar</span>
+
+                <span class="icon-bar"></span>
+
+                <span class="icon-bar"></span>
+
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- /section:basics/navbar.toggle -->
+        </div>
+
+        <!-- #section:basics/navbar.dropdown -->
+        <div class="navbar-buttons navbar-header pull-right  collapse navbar-collapse" role="navigation">
+            <ul class="nav ace-nav">
+##                <li class="transparent">
+##                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+##                        <i class="ace-icon fa fa-bell icon-animated-bell"></i>
+##                    </a>
+##
+##                    <div class="dropdown-menu-right dropdown-navbar dropdown-menu dropdown-caret dropdown-close">
+##                        <div class="tabbable">
+##                            <ul class="nav nav-tabs">
+##                                <li class="active">
+##                                    <a data-toggle="tab" href="#navbar-tasks">
+##                                        Tasks
+##                                        <span class="badge badge-danger">4</span>
+##                                    </a>
+##                                </li>
+##
+##                                <li>
+##                                    <a data-toggle="tab" href="#navbar-messages">
+##                                        Messages
+##                                        <span class="badge badge-danger">5</span>
+##                                    </a>
+##                                </li>
+##                            </ul><!-- .nav-tabs -->
+##
+##                            <div class="tab-content">
+##                                <div id="navbar-tasks" class="tab-pane in active">
+##                                    <ul class="dropdown-menu-right dropdown-navbar dropdown-menu">
+##                                        <li>
+##                                            <a href="#">
+##                                                <div class="clearfix">
+##                                                    <span class="pull-left">Software Update</span>
+##                                                    <span class="pull-right">65%</span>
+##                                                </div>
+##
+##                                                <div class="progress progress-mini">
+##                                                    <div style="width:65%" class="progress-bar"></div>
+##                                                </div>
+##                                            </a>
+##                                        </li>
+##
+##                                        <li>
+##                                            <a href="#">
+##                                                <div class="clearfix">
+##                                                    <span class="pull-left">Hardware Upgrade</span>
+##                                                    <span class="pull-right">35%</span>
+##                                                </div>
+##
+##                                                <div class="progress progress-mini">
+##                                                    <div style="width:35%" class="progress-bar progress-bar-danger"></div>
+##                                                </div>
+##                                            </a>
+##                                        </li>
+##
+##                                        <li>
+##                                            <a href="#">
+##                                                <div class="clearfix">
+##                                                    <span class="pull-left">Unit Testing</span>
+##                                                    <span class="pull-right">15%</span>
+##                                                </div>
+##
+##                                                <div class="progress progress-mini">
+##                                                    <div style="width:15%" class="progress-bar progress-bar-warning"></div>
+##                                                </div>
+##                                            </a>
+##                                        </li>
+##
+##                                        <li>
+##                                            <a href="#">
+##                                                <div class="clearfix">
+##                                                    <span class="pull-left">Bug Fixes</span>
+##                                                    <span class="pull-right">90%</span>
+##                                                </div>
+##
+##                                                <div class="progress progress-mini progress-striped active">
+##                                                    <div style="width:90%" class="progress-bar progress-bar-success"></div>
+##                                                </div>
+##                                            </a>
+##                                        </li>
+##
+##                                        <li class="dropdown-footer">
+##                                            <a href="#">
+##                                                See tasks with details
+##                                                <i class="ace-icon fa fa-arrow-right"></i>
+##                                            </a>
+##                                        </li>
+##                                    </ul>
+##                                </div><!-- /.tab-pane -->
+##
+##                                <div id="navbar-messages" class="tab-pane">
+##                                    <ul class="dropdown-menu-right dropdown-navbar dropdown-menu">
+##                                        <li class="dropdown-content">
+##                                            <ul class="dropdown-menu dropdown-navbar">
+##                                                <li>
+##                                                    <a href="#">
+##                                                        <img src="../assets/avatars/avatar.png" class="msg-photo" alt="Alex's Avatar" />
+##																<span class="msg-body">
+##																	<span class="msg-title">
+##																		<span class="blue">Alex:</span>
+##																		Ciao sociis natoque penatibus et auctor ...
+##																	</span>
+##
+##																	<span class="msg-time">
+##																		<i class="ace-icon fa fa-clock-o"></i>
+##																		<span>a moment ago</span>
+##																	</span>
+##																</span>
+##                                                    </a>
+##                                                </li>
+##
+##                                                <li>
+##                                                    <a href="#">
+##                                                        <img src="../assets/avatars/avatar3.png" class="msg-photo" alt="Susan's Avatar" />
+##																<span class="msg-body">
+##																	<span class="msg-title">
+##																		<span class="blue">Susan:</span>
+##																		Vestibulum id ligula porta felis euismod ...
+##																	</span>
+##
+##																	<span class="msg-time">
+##																		<i class="ace-icon fa fa-clock-o"></i>
+##																		<span>20 minutes ago</span>
+##																	</span>
+##																</span>
+##                                                    </a>
+##                                                </li>
+##
+##                                                <li>
+##                                                    <a href="#">
+##                                                        <img src="../assets/avatars/avatar4.png" class="msg-photo" alt="Bob's Avatar" />
+##																<span class="msg-body">
+##																	<span class="msg-title">
+##																		<span class="blue">Bob:</span>
+##																		Nullam quis risus eget urna mollis ornare ...
+##																	</span>
+##
+##																	<span class="msg-time">
+##																		<i class="ace-icon fa fa-clock-o"></i>
+##																		<span>3:15 pm</span>
+##																	</span>
+##																</span>
+##                                                    </a>
+##                                                </li>
+##
+##                                                <li>
+##                                                    <a href="#">
+##                                                        <img src="../assets/avatars/avatar2.png" class="msg-photo" alt="Kate's Avatar" />
+##																<span class="msg-body">
+##																	<span class="msg-title">
+##																		<span class="blue">Kate:</span>
+##																		Ciao sociis natoque eget urna mollis ornare ...
+##																	</span>
+##
+##																	<span class="msg-time">
+##																		<i class="ace-icon fa fa-clock-o"></i>
+##																		<span>1:33 pm</span>
+##																	</span>
+##																</span>
+##                                                    </a>
+##                                                </li>
+##
+##                                                <li>
+##                                                    <a href="#">
+##                                                        <img src="../assets/avatars/avatar5.png" class="msg-photo" alt="Fred's Avatar" />
+##																<span class="msg-body">
+##																	<span class="msg-title">
+##																		<span class="blue">Fred:</span>
+##																		Vestibulum id penatibus et auctor  ...
+##																	</span>
+##
+##																	<span class="msg-time">
+##																		<i class="ace-icon fa fa-clock-o"></i>
+##																		<span>10:09 am</span>
+##																	</span>
+##																</span>
+##                                                    </a>
+##                                                </li>
+##                                            </ul>
+##                                        </li>
+##
+##                                        <li class="dropdown-footer">
+##                                            <a href="inbox.html">
+##                                                See all messages
+##                                                <i class="ace-icon fa fa-arrow-right"></i>
+##                                            </a>
+##                                        </li>
+##                                    </ul>
+##                                </div><!-- /.tab-pane -->
+##                            </div><!-- /.tab-content -->
+##                        </div><!-- /.tabbable -->
+##                    </div><!-- /.dropdown-menu -->
+##                </li>
+                <!-- #section:basics/navbar.user_menu -->
+                <li class="light-blue">
+                    <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                        <i class="ace-icon glyphicon glyphicon-user smaller-50"></i>
+                        #if($userName)$userName#end
+                        <i class="ace-icon fa fa-caret-down"></i>
+                    </a>
+                    <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                        <li>
+                            <a href="/account/profile">
+                                <i class="ace-icon fa fa-file smaller-50"></i>
+                                个人信息
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/ssologout">
+                                <i class="ace-icon glyphicon glyphicon-off smaller-50"></i>
+                                注销
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- /section:basics/navbar.user_menu -->
+            </ul>
+        </div>
+
+        <!-- /section:basics/navbar.dropdown -->
+        <nav role="navigation" class="navbar-menu pull-left collapse navbar-collapse">
+            <!-- #section:basics/navbar.nav -->
+            <ul class="nav navbar-nav">
+                <li>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        应用树
+##                        &nbsp;
+##                        <i class="ace-icon fa fa-angle-down bigger-110"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        文档中心
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        日志中心
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        使用帮助
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        意见反馈
+                    </a>
+                </li>
+            </ul>
+
+            <!-- /section:basics/navbar.nav -->
+
+##            <!-- #section:basics/navbar.form -->
+##            <form class="navbar-form navbar-left form-search" role="search">
+##                <div class="form-group">
+##                    <input type="text" placeholder="search" />
+##                </div>
+##
+##                <button type="button" class="btn btn-xs btn-info2">
+##                    <i class="ace-icon fa fa-search icon-only bigger-110"></i>
+##                </button>
+##            </form>
+
+            <!-- /section:basics/navbar.form -->
+        </nav>
+    </div><!-- /.navbar-container -->
+</div>
+
+
+##<div class="widget-box">
+##    <div class="widget-header widget-hea1der-small">
+##        <h6 class="widget-title">Scroll Content</h6>
+##    </div>
+##    <div class="widget-body">
+##        <div class="widget-main padding-4">
+##            <!-- #section:custom/scrollbar -->
+##            <div class="scrollable ace-scroll scroll-active" style="position: relative;">
+##                <div class="scroll-track" >
+##                    <div class="scroll-bar"></div>
+##                </div>
+##                <div class="scroll-content" >
+##                    <div class="content">
+##                        <div class="alert alert-info">
+##                            Lorem ipsum dolor sit amet, consectetur adipiscing.
+##                        </div>
+##                        <div class="alert alert-danger">
+##                            Lorem ipsum dolor sit amet, consectetur adipiscing.
+##                        </div>
+##                        <div class="alert alert-success">
+##                            Lorem ipsum dolor sit amet, consectetur adipiscing.
+##                        </div>
+##                        <div class="alert">
+##                            Lorem ipsum dolor sit amet, consectetur adipiscing.
+##                        </div>
+##                    </div>
+##                </div>
+##            </div>
+##        </div>
+##    </div>
+##</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- /section:basics/navbar.layout -->
+<div class="main-container" id="main-container" style="margin-top: 20px">
+    <script type="text/javascript">
+        try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+    </script>
+    <div class="main-content">
+        <div class="page-content">
+            <div class="page-content-area">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <div id="sidebar hidden-xs hidden-sm" data-spy="affix" data-offset-top="0">
+                            <div id="tree1" class="tree tree-selectable"></div>
+                        </div>
+                    </div>
+                        <div class="col-xs-9">
+                            <div id="sidebar" class="sidebar      h-sidebar                navbar-collapse collapse">
+                                <script type="text/javascript">
+                                    try{ace.settings.check('sidebar' , 'fixed')}catch(e){}
+                                </script>
+                                <ul class="nav nav-list" style="top: 0px;">
+                                    <li class="active open hover">
+                                        <a>
+                                            <i class="menu-icon fa fa-tachometer"></i>
+                                            <span class="menu-text">应用概要</span>
+                                        </a>
+                                        <b class="arrow"></b>
+                                    </li>
+                                    <li class="">
+
+                                    </li>
+                                    <li class="hover">
+                                        <a>
+                                            <i class="menu-icon fa fa-desktop"></i>
+                                            <span class="menu-text">Region路由</span>
+                                        </a>
+                                    </li>
+                                    <li class="hover">
+                                        <a>
+                                            <i class="menu-icon fa fa-pencil-square-o"></i>
+                                            <span class="menu-text">服务降级</span>
+                                        </a>
+                                    </li>
+                                </ul><!-- /.nav-list -->
+
+                                <!-- #section:basics/sidebar.layout.minimize -->
+                                <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+                                    <i class="ace-icon fa fa-angle-double-left" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+                                </div>
+
+                                <!-- /section:basics/sidebar.layout.minimize -->
+                                <script type="text/javascript">
+                                    try{ace.settings.check('sidebar' , 'collapsed')}catch(e){}
+                                </script>
+                            </div>
+                        </div>
+                </div><!-- /.row -->
+            </div><!-- /.page-content-area -->
+        </div><!-- /.page-content -->
+    </div><!-- /.main-content -->
+</div><!-- /.main-container -->
+<!-- basic scripts -->
+<!--[if !IE]> -->
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.min.js'>"+"<"+"/script>");
+</script>
+
+<!-- <![endif]-->
+
+<!--[if IE]>
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery1x.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+<script type="text/javascript">
+    if('ontouchstart' in document.documentElement)
+        document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
+<!-- page specific plugin scripts -->
+<script src="${rc.contextPath}/resources/assets/js/fuelux/fuelux.tree.min.js"></script>
+<script src="${rc.contextPath}/resources/js/service-tree.js"></script>
+<script>
+    function dataFormat(root) {
+        var object={};
+        var rootObject = root;
+        var childrenCount = rootObject["childrenCount"];
+        if(childrenCount==0){
+            var name = rootObject["name"];
+            return {name:name,type:"item"};
+        }else{
+            var name = rootObject["name"];
+            object["name"]=name;
+            object["type"] = "folder";
+            var children = {};
+            $.each(rootObject["children"], function(index, content){
+                var childrenObj = dataFormat(content);
+                var childrenObjName = content["name"];
+                children[childrenObjName] = childrenObj;
+            });
+            object["additionalParameters"] = {"children":children};
+        }
+        return object;
+    }
+    jQuery(function($) {
+//        var height = $(window).height()-$('.navbar').height();
+//        $('#sidebar').ace_scroll({
+//            size:height
+//        });
+//        $(window).resize(function () {
+//            $("#sidebar").ace_scroll('update',{size:$(window).height()-$('.navbar').height()});
+//        });
+//        $('#my-content').ace_scroll('update', {size: 250});
+//        var height = $(window).height();
+//        $("#sidebar").height(height-45);
+//        $(window).resize(function(){
+//            $("#sidebar").height($(window).height()-$('.navbar').height());
+//        });
+        var treeData = dataFormat($data);
+        var treeDataSource = new DataSourceTree({data: treeData["additionalParameters"]["children"]});
+        $('#tree1').ace_tree({
+            dataSource: treeDataSource ,
+            multiSelect:false,
+            loadingHTML:'<div class="tree-loading"><i class="ace-icon fa fa-refresh fa-spin blue"></i></div>',
+            'open-icon' : 'ace-icon tree-minus',
+            'close-icon' : 'ace-icon tree-plus',
+            'selectable' : true,
+            'selected-icon' : 'ace-icon fa fa-check',
+            'unselected-icon' : 'ace-icon fa fa-times'
+        });
+        $("#tree1").height($(window).height()-20-45-8);
+        $(window).resize(function () {
+            $('#tree1').height($(window).height()-20-45-8);
+        });
+    });
+</script>
+<!-- ace scripts -->
+<script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
+
+</body>
+</html>

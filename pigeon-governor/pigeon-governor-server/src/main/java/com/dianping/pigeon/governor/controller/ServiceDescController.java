@@ -70,7 +70,7 @@ public class ServiceDescController extends BaseController{
                 modelMap.put("empowered",true);
             else
                 modelMap.put("empowered",false);
-            return "/doc/serviceDoc";
+            return "/v2/serviceDoc/serviceDoc";
         }else{
             return "/doc/emptyDoc";
         }
@@ -168,7 +168,7 @@ public class ServiceDescController extends BaseController{
                                   HttpServletResponse response,
                                    ModelMap modelMap){
         commonnav(modelMap, request);
-        return "/doc/esSearch";
+        return "/v2/serviceDoc/esSearch";
     }
 
 

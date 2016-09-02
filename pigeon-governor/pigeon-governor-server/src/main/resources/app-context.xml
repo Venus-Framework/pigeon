@@ -107,6 +107,10 @@
 	<task:scheduled-tasks>
 		<task:scheduled ref="flowMonitorTask" method="schedule" cron="0 20 * * * *"/>
 	</task:scheduled-tasks>
+	<bean id="orgUpdateTask" class="com.dianping.pigeon.governor.task.organization.OrgUpdateTask"/>
+	<!--<task:scheduled-tasks>-->
+		<!--<task:scheduled ref="orgUpdateTask" method="schedule" cron="0 55 * * * *"/>-->
+	<!--</task:scheduled-tasks>-->
 	<!--<task:scheduled-tasks>-->
 		<!--<task:scheduled ref="flowMonitorTask" method="start" cron=""/>-->
 	<!--</task:scheduled-tasks>-->

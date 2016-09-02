@@ -17,6 +17,16 @@ public class CmdbBuBean {
 	private String bu_owner_mobile;
 	
 	private Integer _id;
+	private String aaaa_group;
+
+
+	public String getAaaa_group() {
+		return aaaa_group;
+	}
+
+	public void setAaaa_group(String aaaa_group) {
+		this.aaaa_group = aaaa_group;
+	}
 
 	public String getCi_type() {
 		return ci_type;

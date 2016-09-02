@@ -17,7 +17,7 @@ DataSourceTree.prototype.data = function(options, callback) {
 			$data = options.additionalParameters.children;
 		else $data = {}//no data
 	}
-	
+
 	if($data != null)//this setTimeout is only for mimicking some random delay
 		setTimeout(function(){callback({ data: $data });} , parseInt(Math.random() * 500) + 200);
 

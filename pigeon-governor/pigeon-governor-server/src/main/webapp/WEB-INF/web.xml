@@ -71,7 +71,7 @@
         <init-param>
             <param-name>excludes</param-name>
 			<!-- First to aviod the sso bug. Later we need to prevent the filter /!-->
-            <param-value>/api/,/resources/,/images/,/error,/ssologout,/rocket/,/ruok,/test/,/shs/</param-value>
+            <param-value>/api/,/resources/,/images/,/error,/ssologout,/rocket/,/ruok,/test/</param-value>
         </init-param>
     </filter>
     <filter-mapping>

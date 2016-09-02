@@ -35,6 +35,7 @@ public class OpLogManageServiceImpl implements OpLogManageService{
         this.typeMap.put((short)2,"服务更新");
         this.typeMap.put((short)3,"服务删除");
         this.typeMap.put((short)4,"心跳摘除");
+        this.typeMap.put((short)5,"应用信息更新");
     }
 
     @Override
@@ -75,7 +76,7 @@ public class OpLogManageServiceImpl implements OpLogManageService{
             bean.setProjectName(cacheService.getProjectNameWithId(model.getProjectid()));
 
 
-        if(model.getDpaccount().equals("192.168.225.149")||model.getDpaccount().equals("192.168.217.155")){
+        if(model.getDpaccount().equals(Lion.get("pigeon-governor-server.node.heart.check.enable.ip"))){
             bean.setUserName(model.getDpaccount());
         }else{
             String userName = cacheService.getUserNameWithDpAccount(model.getDpaccount());

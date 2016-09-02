@@ -130,11 +130,11 @@ jQuery(function($) {
 		toggle_btn.toggleClass('btn-grey btn-info').parent().toggleClass('active');
 	}
 
-
+    //
 	$(window).on('hashchange.start_help', function(e) {
 		if(help == null && window.location.hash == '#help') {
 			startHelp();
-
+    
 			//add #help tag to sidebar links to enable help when navigating to the page
 			$(document).on('click.start_help', '.sidebar .nav-list a', function() {
 				var href = $(this).attr('href');
@@ -142,6 +142,8 @@ jQuery(function($) {
 			});
 		}
 	}).triggerHandler('hashchange.start_help');
+	// $(window).on('hashchange',function(){}).triggerHandler('hashchange');
+
 
 
 	//some buttons inside demo pages that launch a help section

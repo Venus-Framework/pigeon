@@ -47,7 +47,7 @@ public class EventController extends BaseController{
         commonnav(modelMap,request);
         List<Project> projects = projectService.retrieveAllIdNamesByCache();
         modelMap.addAttribute("projects",GsonUtils.toJson(projects));
-        return "/message/main";
+        return "/v2/message/main";
     }
     @RequestMapping(value = {"/event/table"},method = RequestMethod.POST)
     public String loadTable(HttpServletRequest request,
@@ -57,7 +57,7 @@ public class EventController extends BaseController{
         List<EventBean> list = eventService.filterEvents(filterBean);
         EventTableContainerBean container =  new EventTableContainerBean(1,list,eventService.getTotalCount());
         modelMap.put("container",container);
-        return "/message/table";
+        return "/v2/message/table";
     }
 
 
