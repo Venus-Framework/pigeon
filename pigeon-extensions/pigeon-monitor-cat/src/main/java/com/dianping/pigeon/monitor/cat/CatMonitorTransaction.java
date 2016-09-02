@@ -67,30 +67,34 @@ public class CatMonitorTransaction implements MonitorTransaction {
     @Override
     public void complete(long startTime) {
         if (this.transaction != null) {
-            long now = System.currentTimeMillis();
-            List<TimePoint> timeline = this.invocationContext.getTimeline();
-            StringBuilder s = new StringBuilder();
-            s.append(timeline.get(0));
-            for (int i = 1; i < timeline.size(); i++) {
-                TimePoint tp = timeline.get(i);
-                TimePoint tp2 = timeline.get(i - 1);
-                s.append(",").append(tp.getPhase()).append(tp.getTime() - tp2.getTime());
-            }
-            long duration = 0;
-            long start = startTime;
-            if (startTime <= 0) {
-                start = timeline.get(0).getTime();
-            }
-            duration = now - start;
-            if (resetStarttime && this.transaction instanceof DefaultTransaction) {
-                ((DefaultTransaction) this.transaction).setTimestamp(start);
-                //((DefaultTransaction) this.transaction).setDurationStart(start * 1000 * 1000);
-            }
-            this.transaction.addData("Timeline", s.toString());
-            this.transaction.complete();
-            if (resetDuration && this.transaction instanceof DefaultTransaction) {
-                ((DefaultTransaction) this.transaction).setDurationInMillis(duration);
-            }
+        	try {
+	            long now = System.currentTimeMillis();
+	            List<TimePoint> timeline = this.invocationContext.getTimeline();
+	            StringBuilder s = new StringBuilder();
+	            s.append(timeline.get(0));
+	            for (int i = 1; i < timeline.size(); i++) {
+	                TimePoint tp = timeline.get(i);
+	                TimePoint tp2 = timeline.get(i - 1);
+	                if(tp != null && tp2 != null) {
+	                	s.append(",").append(tp.getPhase()).append(tp.getTime() - tp2.getTime());
+	                }
+	            }
+	            long duration = 0;
+	            long start = startTime;
+	            if (startTime <= 0) {
+	                start = timeline.get(0).getTime();
+	            }
+	            duration = now - start;
+	            if (resetStarttime && this.transaction instanceof DefaultTransaction) {
+	                ((DefaultTransaction) this.transaction).setTimestamp(start);
+	            }
+	            this.transaction.addData("Timeline", s.toString());
+	            if (resetDuration && this.transaction instanceof DefaultTransaction) {
+	                ((DefaultTransaction) this.transaction).setDurationInMillis(duration);
+	            }
+        	} finally {
+        		this.transaction.complete();
+        	}
         }
     }
 
