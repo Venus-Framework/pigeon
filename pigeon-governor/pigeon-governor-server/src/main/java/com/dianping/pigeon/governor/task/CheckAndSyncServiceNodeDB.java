@@ -55,7 +55,7 @@ public class CheckAndSyncServiceNodeDB {
         List<Registry> _registryList = ExtensionLoader.getExtensionList(Registry.class);
         for (Registry registry : _registryList) {
             if(registry instanceof CuratorRegistry) {
-                client = ((CuratorRegistry) RegistryManager.getInstance().getRegistry()).getCuratorClient();
+                client = ((CuratorRegistry) registry).getCuratorClient();
             }
         }
     }
