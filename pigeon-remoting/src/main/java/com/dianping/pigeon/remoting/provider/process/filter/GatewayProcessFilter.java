@@ -4,11 +4,15 @@
  */
 package com.dianping.pigeon.remoting.provider.process.filter;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import com.dianping.pigeon.log.Logger;
 
@@ -47,9 +51,14 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 	private static final Logger logger = LoggerLoader.getLogger(GatewayProcessFilter.class);
 	private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 	private static final String KEY_APPLIMIT_ENABLE = "pigeon.provider.applimit.enable";
+	private static final String KEY_METHODAPPLIMIT_ENABLE = "pigeon.provider.methodapplimit.enable";
 	private static final String KEY_METHODLIMIT_ENABLE = "pigeon.provider.methodlimit.enable";
 	private static final String KEY_APPLIMIT = "pigeon.provider.applimit";
+	private static final String KEY_METHODAPPLIMIT = "pigeon.provider.methodapplimit";
 	private static volatile Map<String, Long> appLimitMap = new ConcurrentHashMap<String, Long>();
+	// api#method --> [app1 --> qpslimit, app2 --> qpslimit]
+	private static volatile Map<String, List<Map<String, Long>>> methodAppLimitMap = Maps.newConcurrentMap();
+	private static final JacksonSerializer jacksonSerializer = new JacksonSerializer();
 	private static ThreadPool statisticsCheckerPool = new DefaultThreadPool("Pigeon-Server-Statistics-Checker");
 	private static final ConcurrentHashMap<String, AtomicInteger> methodActives = new ConcurrentHashMap<String, AtomicInteger>();
 	private static final AtomicInteger total = new AtomicInteger();
@@ -69,6 +78,19 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 
 	public void destroy() throws Exception {
 		ThreadPoolUtils.shutdown(statisticsCheckerPool.getExecutor());
+	}
+
+	private static void parseMethodAppLimitConfig(String methodAppLimitConfig) {
+		if (StringUtils.isNotBlank(methodAppLimitConfig)) {
+			Map<String, List<Map<String, Long>>> map = Maps.newConcurrentMap();
+			try {
+				map = (HashMap) jacksonSerializer.toObject(HashMap.class, methodAppLimitConfig);
+				methodAppLimitMap.clear();
+				methodAppLimitMap = new ConcurrentHashMap<>(map);
+			} catch (Throwable t) {
+				logger.error("error while parsing method app limit configuration:" + methodAppLimitConfig, t);
+			}
+		}
 	}
 
 	private static void parseAppLimitConfig(String appLimitConfig) {
@@ -107,6 +129,8 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 				if (enableMethodLimit) {
 					incrementRequest(requestMethod);
 				}
+				//todo
+
 				if (configManager.getBooleanValue(KEY_APPLIMIT_ENABLE, false) && StringUtils.isNotBlank(fromApp)
 						&& appLimitMap.containsKey(fromApp)) {
 					Long limit = appLimitMap.get(fromApp);
