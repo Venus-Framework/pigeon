@@ -20,9 +20,9 @@
             options);
         return this.each(function () {
             $.fn.bootstrapSwitch.defaults.onText =
-                '<i class="ace-icon glyphicon glyphicon-play white"></i><span class="white">开启</span>';
+                '<i class="ace-icon glyphicon glyphicon-play white"></i><span class="white">已开启</span>';
             $.fn.bootstrapSwitch.defaults.offText =
-                '<i class="ace-icon glyphicon glyphicon-pause red"></i><span class="red">关闭</span>';
+                '<i class="ace-icon glyphicon glyphicon-pause red"></i><span class="red">已关闭</span>';
             $.fn.bootstrapSwitch.defaults.size='mini';
             var switcher = $(this).find("[name="+settings.name+"]");
             switcher.bootstrapSwitch();

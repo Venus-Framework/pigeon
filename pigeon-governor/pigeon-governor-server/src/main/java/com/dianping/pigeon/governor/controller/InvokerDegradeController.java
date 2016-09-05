@@ -53,8 +53,8 @@ public class InvokerDegradeController extends BaseController{
             failureState = invokerDegradeService.getFailureDegradeState(projectName);
         } catch (LionNullProjectException e) {
             e.printStackTrace();
-            modelMap.put("error","Project: "+projectName+" wasn't created in Lion");
-            return "/config/project/NotFound";
+            modelMap.put("error","Project: "+projectName+" wasn't created in Lion.");
+            return "/config/project/LionLack";
         }
         modelMap.put("forceState",forceState);
         modelMap.put("autoState",autoState);

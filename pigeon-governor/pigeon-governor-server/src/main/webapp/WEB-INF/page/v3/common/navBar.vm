@@ -24,7 +24,7 @@
     <div class="navbar-container" id="navbar-container">
         <div class="navbar-header pull-left">
             <!-- #section:basics/navbar.layout.brand -->
-            <a href="#" class="navbar-brand">
+            <a href="/#!/tree/" class="navbar-brand">
                 <small>
                     <i class="fa fa-leaf"></i>
                     Pigeon
@@ -116,8 +116,8 @@
                         </li>
                     </ul>
                 </li>
-                <li>
-                    <a id="help-link" href="http://code.dianpingoa.com/arch/pigeon2/blob/master/pigeon-governor/pigeon-governor-server/src/main/webapp/resources/mdwiki/USER_GUIDE.md" target="_blank">
+                <li id="help-nav">
+                    <a id="help-link">
                         使用帮助
                     </a>
                 </li>
@@ -261,7 +261,7 @@
                 service: {
                     display: ["name"],
                     href:function(item){
-                        return "/#!/tree/"+item.projectName+"/";
+                        return "/#!/tree/"+item.projectName+"/summary/";
                     },
                     template: function (query, item) {
                         var template;
@@ -324,7 +324,7 @@
             window.location = "/#!/feedback/";
         });
         $("#help-link").on('click',function(){
-
+            window.location = "/#!/help/";
         });
     });
 </script>

@@ -92,7 +92,7 @@
         <tr>
             <td>$config.getServiceName()</td>
             <td>$config.getMethodName()</td>
-            <td data-order="$config.getReturnPattern()" data-search="$config.getReturnPattern()">
+            <td data-order='$config.getReturnPattern()' data-search='$config.getReturnPattern()'>
                 #if($config.getReturnPattern()==0)
                     <span class="grey">默认方式</span>
                 #else
@@ -107,7 +107,7 @@
                     #end
                 #end
             </td>
-            <td data-order="$config.getReturnValue()" data-search="$config.getReturnValue()">
+            <td data-order='$config.getReturnValue()' data-search='$config.getReturnValue()'>
                 #if($config.getReturnPattern()==0)
                     <span class="grey">null</span>
                 #else

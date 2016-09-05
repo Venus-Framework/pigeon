@@ -1,15 +1,14 @@
 package com.dianping.pigeon.governor.controller.v3;
 
+import com.dianping.pigeon.governor.bean.serviceDesc.ServiceDescBean;
 import com.dianping.pigeon.governor.bean.serviceTree.TreeNode;
 import com.dianping.pigeon.governor.controller.BaseController;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.ProjectOrg;
 import com.dianping.pigeon.governor.model.User;
-import com.dianping.pigeon.governor.service.DBSearchService;
-import com.dianping.pigeon.governor.service.FeedbackService;
-import com.dianping.pigeon.governor.service.ProjectService;
-import com.dianping.pigeon.governor.service.ServiceTreeService;
+import com.dianping.pigeon.governor.service.*;
 import com.dianping.pigeon.governor.util.GsonUtils;
+import com.dianping.pigeon.governor.util.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -22,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,6 +35,10 @@ public class FrameworkController extends BaseController{
     private ServiceTreeService serviceTreeService;
     @Autowired
     private DBSearchService dbSearchService;
+    @Autowired
+    private ServiceDescService serviceDescService;
+    @Autowired
+    private ProjectOwnerService projectOwnerService;
 
 
     @RequestMapping(value={"/"},method = RequestMethod.GET)
@@ -52,6 +56,29 @@ public class FrameworkController extends BaseController{
                           ModelMap modelMap){
         commonnav(modelMap, request);
         return "/v3/serviceDoc/esSearch";
+    }
+    @RequestMapping(value={"/framework/doc/{serviceId}"},method = RequestMethod.GET)
+    public String docDetail(HttpServletRequest request,
+                            HttpServletResponse response,
+                            @PathVariable int serviceId,
+                            ModelMap modelMap){
+        commonnav(modelMap, request);
+        User user = getUserInfo(request);
+        ServiceDescBean bean = serviceDescService.getServiceDescBeanById(serviceId);
+        if(bean!=null){
+            String dpAccount = user!=null?user.getDpaccount():"null";
+            modelMap.put("serviceDescBean", bean);
+            Map<String,Object> metaInfo = serviceDescService.getServiceMetaInfoById(serviceId);
+            modelMap.addAllAttributes(metaInfo);
+            if(UserRole.USER_SCM.getValue().equals(user.getRoleid()) ||
+                    projectOwnerService.isProjectOwner(dpAccount,metaInfo.get("projectName").toString()))
+                modelMap.put("empowered",true);
+            else
+                modelMap.put("empowered",false);
+            return "/v3/serviceDoc/serviceDoc";
+        }else{
+            return "/doc/emptyDoc";
+        }
     }
     @RequestMapping(value = {"/framework/oplog"},method = RequestMethod.GET)
     public String mainPage(HttpServletRequest request,
@@ -78,6 +105,12 @@ public class FrameworkController extends BaseController{
     public String feedbackMainPage(HttpServletRequest request,HttpServletResponse response,ModelMap modelMap){
         commonnav(modelMap,request);
         return "/v3/feedback/main";
+    }
+    @RequestMapping(value={"/framework/help"},method = RequestMethod.GET)
+    public String helpMainPage(HttpServletRequest request,
+                               HttpServletResponse response,
+                               ModelMap modelMap){
+        return "/v3/help/main";
     }
 
     @RequestMapping(value={"/tree/sidebar"},method = RequestMethod.GET)

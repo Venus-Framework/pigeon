@@ -181,6 +181,7 @@
             $("#doc-nav").removeClass("open");
             $("#log-nav").removeClass("nav-hover");
             $("#feedback-nav").removeClass("open");
+            $("#help-nav").removeClass("open");
             $("#sidebar").show();
             $("#pageContent").show();
             $("#other-page-content").html("");
@@ -246,6 +247,7 @@
             $("#doc-nav").addClass("open");
             $("#log-nav").removeClass("nav-hover");
             $("#feedback-nav").removeClass("open");
+            $("#help-nav").removeClass("open");
             $("#sidebar").hide();
             $("#pageContent").hide();
             $.ajax({
@@ -260,11 +262,33 @@
                 }
             });
         });
+        router.register("#!/doc/*/",function(params){
+            $("#tree-nav").removeClass("open");
+            $("#tree-nav").removeClass("open");
+            $("#doc-nav").addClass("open");
+            $("#log-nav").removeClass("nav-hover");
+            $("#feedback-nav").removeClass("open");
+            $("#sidebar").hide();
+            $("#pageContent").hide();
+            var docId = params[0];
+            $.ajax({
+                type:"get",
+                url:"/framework/doc/"+docId+"/",
+                dataType:"html",
+                async:false,
+                success:function(data,status){
+                    if(status=="success"){
+                        $("#other-page-content").html(data);
+                    }
+                }
+            });
+        });
         router.register("#!/oplog/",function (params) {
             $("#tree-nav").removeClass("open");
             $("#doc-nav").removeClass("open");
             $("#log-nav").addClass("nav-hover");
             $("#feedback-nav").removeClass("open");
+            $("#help-nav").removeClass("open");
             $("#sidebar").hide();
             $("#pageContent").hide();
             $.ajax({
@@ -284,6 +308,7 @@
             $("#doc-nav").removeClass("open");
             $("#log-nav").addClass("nav-hover");
             $("#feedback-nav").removeClass("open");
+            $("#help-nav").removeClass("open");
             $("#sidebar").hide();
             $("#pageContent").hide();
             $.ajax({
@@ -298,11 +323,33 @@
                 }
             });
         });
+        router.register("#!/help/",function(params){
+            $("#tree-nav").removeClass("open");
+            $("#doc-nav").removeClass("open");
+            $("#log-nav").removeClass("nav-hover");
+            $("#feedback-nav").removeClass("open");
+            $("#help-nav").addClass("open");
+            $("#sidebar").hide();
+            $("#pageContent").hide();
+            $.ajax({
+                type:"get",
+                url:"/framework/help/",
+                dataType:"html",
+                async:false,
+                success:function(data,status){
+                    if(status=="success"){
+                        $("#other-page-content").html(data);
+                    }
+                }
+            });
+
+        });
         router.register("#!/feedback/",function(params){
             $("#tree-nav").removeClass("open");
             $("#doc-nav").removeClass("open");
             $("#log-nav").removeClass("nav-hover");
             $("#feedback-nav").addClass("open");
+            $("#help-nav").removeClass("open");
             $("#sidebar").hide();
             $("#pageContent").hide();
             $.ajax({
