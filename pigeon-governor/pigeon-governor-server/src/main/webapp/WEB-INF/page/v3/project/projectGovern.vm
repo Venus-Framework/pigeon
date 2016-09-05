@@ -57,12 +57,12 @@
                     </a>
                     <b class="arrow"></b>
                 </li>
-                <li id="region_router" href="#mainContent" data-toggle="tab">
-                    <a>
-                        <i class="menu-icon fa fa-desktop"></i>
-                        <span class="menu-text">Region路由</span>
-                    </a>
-                </li>
+##                <li id="region_router" href="#mainContent" data-toggle="tab">
+##                    <a>
+##                        <i class="menu-icon fa fa-desktop"></i>
+##                        <span class="menu-text">Region路由</span>
+##                    </a>
+##                </li>
                 <li id="degrad" href="#mainContent" data-toggle="tab">
                     <a>
                         <i class="menu-icon fa fa-pencil-square-o"></i>
@@ -96,11 +96,11 @@
 //                });
             }
         });
-        $("#region_router").bind("click",function () {
-            if(!$(this).hasClass("active")){
-                window.location.hash = "#!/tree/"+projectName+"/router/";
-            }
-        });
+//        $("#region_router").bind("click",function () {
+//            if(!$(this).hasClass("active")){
+//                window.location.hash = "#!/tree/"+projectName+"/router/";
+//            }
+//        });
         $("#degrad").bind("click",function () {
             if(!$(this).hasClass("active")){
                 window.location.hash = "#!/tree/"+projectName+"/degrade/";
