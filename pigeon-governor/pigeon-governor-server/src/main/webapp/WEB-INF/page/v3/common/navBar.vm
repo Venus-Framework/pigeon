@@ -117,7 +117,7 @@
                     </ul>
                 </li>
                 <li>
-                    <a id="help-link">
+                    <a id="help-link" href="http://code.dianpingoa.com/arch/pigeon2/blob/master/pigeon-governor/pigeon-governor-server/src/main/webapp/resources/mdwiki/USER_GUIDE.md" target="_blank">
                         使用帮助
                     </a>
                 </li>
@@ -136,7 +136,7 @@
         ##                    <i class="ace-icon fa fa-search icon-only bigger-110"></i>
         ##                </button>
         ##            </form>
-            <form class="navbar-form navbar-left form-search" id="form-beer_v1" name="form-beer_v1" style="width: 600px">
+            <form class="navbar-form navbar-left form-search" id="form-beer_v1" name="form-beer_v1" style="width: 400px">
                 <div class="form-group">
                     <div class="typeahead__container">
                         <div class="typeahead__field">
@@ -324,6 +324,7 @@
             window.location = "/#!/feedback/";
         });
         $("#help-link").on('click',function(){
+
         });
     });
 </script>
