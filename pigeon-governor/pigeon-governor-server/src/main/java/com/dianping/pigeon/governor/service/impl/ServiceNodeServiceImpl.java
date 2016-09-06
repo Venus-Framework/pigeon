@@ -81,9 +81,9 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
 
             return true;
         } catch (DataAccessException e) {
-            logger.error(e.getMessage());
+            logger.error(e);
         } catch (Throwable t) {
-            logger.error(t.getMessage());
+            logger.error(t);
         }
 
         return false;
@@ -106,9 +106,9 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
 
             return true;
         } catch (DataAccessException e) {
-            logger.error(e.getMessage());
+            logger.error(e);
         } catch (Throwable t) {
-            logger.error(t.getMessage());
+            logger.error(t);
         }
 
         return false;
@@ -136,7 +136,7 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
         try {
             serviceNodes = serviceNodeMapper.selectByExample(serviceNodeExample);
         } catch (DataAccessException e) {
-            logger.error(e.getMessage());
+            logger.error(e);
         }
 
         if(serviceNodes.size() > 0) {
@@ -158,7 +158,7 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
         try {
             serviceNodes = serviceNodeMapper.selectByExample(serviceNodeExample);
         } catch (DataAccessException e) {
-            logger.error(e.getMessage());
+            logger.error(e);
         }
 
         return serviceNodes;
@@ -175,7 +175,7 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
             try {
                 serviceNodes = serviceNodeMapper.selectByExample(serviceNodeExample);
             } catch (DataAccessException e) {
-                logger.error(e.getMessage());
+                logger.error(e);
             }
         }
 
@@ -195,7 +195,7 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
             try {
                 serviceNodes = serviceNodeMapper.selectByExample(serviceNodeExample);
             } catch (DataAccessException e) {
-                logger.error(e.getMessage());
+                logger.error(e);
             }
         }
 
@@ -209,7 +209,7 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
         try {
             sqlSucCount = serviceNodeMapper.insertSelective(serviceNode);
         } catch (DataAccessException e) {
-            logger.error(e.getMessage());
+            logger.error(e);
             sqlSucCount = -1;
         }
 
@@ -225,7 +225,7 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
             try {
                 sqlSucCount = serviceNodeMapper.deleteByPrimaryKey(id);
             } catch (DataAccessException e) {
-                logger.error(e.getMessage());
+                logger.error(e);
                 sqlSucCount = -1;
             }
         }
@@ -263,7 +263,7 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
         try {
             count = serviceNodeMapper.deleteByExample(serviceNodeExample);
         } catch (DataAccessException e) {
-            logger.error(e.getMessage());
+            logger.error(e);
             count = -1;
         }
 
@@ -293,7 +293,7 @@ public class ServiceNodeServiceImpl implements ServiceNodeService {
                 }
             });
         } catch (DataAccessException e) {
-            logger.error(e.getMessage());
+            logger.error(e);
         }
     }
 }
