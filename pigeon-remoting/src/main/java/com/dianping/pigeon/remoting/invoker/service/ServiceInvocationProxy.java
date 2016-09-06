@@ -8,10 +8,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import com.dianping.pigeon.log.Logger;
-
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
-import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
+import com.dianping.pigeon.remoting.common.exception.BadResponseException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
@@ -44,8 +43,7 @@ public class ServiceInvocationProxy implements InvocationHandler {
 		if ("equals".equals(methodName) && parameterTypes.length == 1) {
 			return handler.equals(args[0]);
 		}
-		return extractResult(
-				handler.handle(new DefaultInvokerContext(invokerConfig, methodName, parameterTypes, args)),
+		return extractResult(handler.handle(new DefaultInvokerContext(invokerConfig, methodName, parameterTypes, args)),
 				method.getReturnType());
 	}
 
@@ -60,7 +58,7 @@ public class ServiceInvocationProxy implements InvocationHandler {
 			} else if (messageType == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
 				throw InvokerUtils.toApplicationException(response);
 			}
-			throw new InvalidParameterException("unsupported response with message type:" + messageType);
+			throw new BadResponseException(response.toString());
 		}
 		return getReturn(returnType);
 	}

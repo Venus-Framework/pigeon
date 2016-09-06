@@ -25,4 +25,5 @@ public interface InvokerContext extends InvocationContext {
 	void setDegraded();
 	
 	boolean isDegraded();
+	
 }

@@ -6,7 +6,7 @@ import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
-import com.dianping.pigeon.remoting.invoker.callback.Callback;
+import com.dianping.pigeon.remoting.invoker.concurrent.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;
 import com.dianping.pigeon.remoting.invoker.process.ResponseProcessor;

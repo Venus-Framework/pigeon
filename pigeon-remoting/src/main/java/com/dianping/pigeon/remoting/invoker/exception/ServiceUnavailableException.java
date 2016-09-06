@@ -1,8 +1,6 @@
 package com.dianping.pigeon.remoting.invoker.exception;
 
-import com.dianping.pigeon.remoting.common.exception.RpcException;
-
-public class ServiceUnavailableException extends RpcException {
+public class ServiceUnavailableException extends RouteException {
 
 	/**
 	 * 

@@ -4,32 +4,30 @@
  */
 package com.dianping.pigeon.demo.thrift;
 
-import com.dianping.dpsf.async.ServiceCallback;
-import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.pigeon.container.SpringContainer;
 import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
 
 public class ClientBootstrap {
 
 	private static SpringContainer CLIENT_CONTAINER = new SpringContainer(
 			"classpath*:META-INF/spring/thrift/invoker.xml");
 
-	static ServiceCallback callback = new ServiceCallback() {
+	static InvocationCallback callback = new InvocationCallback() {
 
 		@Override
-		public void callback(Object result) {
+		public void onSuccess(Object result) {
+			// TODO Auto-generated method stub
+			
 		}
 
 		@Override
-		public void serviceException(Exception e) {
-
+		public void onFailure(Throwable exception) {
+			// TODO Auto-generated method stub
+			
 		}
 
-		@Override
-		public void frameworkException(DPSFException e) {
-
-		}
-
+		
 	};
 
 	static EchoService echoServiceCallback = ServiceFactory.getService(EchoService.class, callback, 1000);

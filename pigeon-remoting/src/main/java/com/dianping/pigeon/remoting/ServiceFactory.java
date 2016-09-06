@@ -4,25 +4,25 @@
  */
 package com.dianping.pigeon.remoting;
 
-import com.dianping.dpsf.async.ServiceCallback;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.proxy.ServiceProxy;
 import com.dianping.pigeon.remoting.invoker.proxy.ServiceProxyLoader;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
-import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.remoting.provider.publish.ServiceOnlineTask;
-
-import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.Logger;
-
-import java.util.List;
-import java.util.Map;
+import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 
 /**
  * @author xiangwu
@@ -77,13 +77,13 @@ public class ServiceFactory {
 		return getService(invokerConfig);
 	}
 
-	public static <T> T getService(Class<T> serviceInterface, ServiceCallback callback) throws RpcException {
+	public static <T> T getService(Class<T> serviceInterface, InvocationCallback callback) throws RpcException {
 		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(serviceInterface);
 		invokerConfig.setCallback(callback);
 		return getService(invokerConfig);
 	}
 
-	public static <T> T getService(Class<T> serviceInterface, ServiceCallback callback, int timeout)
+	public static <T> T getService(Class<T> serviceInterface, InvocationCallback callback, int timeout)
 			throws RpcException {
 		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(serviceInterface);
 		invokerConfig.setCallback(callback);
@@ -102,11 +102,11 @@ public class ServiceFactory {
 		return getService(invokerConfig);
 	}
 
-	public static <T> T getService(String url, Class<T> serviceInterface, ServiceCallback callback) throws RpcException {
+	public static <T> T getService(String url, Class<T> serviceInterface, InvocationCallback callback) throws RpcException {
 		return getService(url, serviceInterface, callback, Constants.DEFAULT_INVOKER_TIMEOUT);
 	}
 
-	public static <T> T getService(String url, Class<T> serviceInterface, ServiceCallback callback, int timeout)
+	public static <T> T getService(String url, Class<T> serviceInterface, InvocationCallback callback, int timeout)
 			throws RpcException {
 		InvokerConfig<T> invokerConfig = new InvokerConfig<T>(url, serviceInterface);
 		invokerConfig.setTimeout(timeout);

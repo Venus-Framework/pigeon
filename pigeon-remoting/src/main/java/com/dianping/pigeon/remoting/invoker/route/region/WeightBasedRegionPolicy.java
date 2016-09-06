@@ -4,7 +4,7 @@ import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.exception.RegionException;
+import com.dianping.pigeon.remoting.invoker.exception.RouteException;
 import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 import com.google.common.collect.Lists;
 
@@ -58,7 +58,7 @@ public class WeightBasedRegionPolicy implements RegionPolicy {
         }
 
         if (weightSum <= 0) {
-            throw new RegionException("Error: weightSum=" + weightSum.toString());
+            throw new RouteException("Error: weightSum=" + weightSum.toString());
         }
 
         // 权重随机算法

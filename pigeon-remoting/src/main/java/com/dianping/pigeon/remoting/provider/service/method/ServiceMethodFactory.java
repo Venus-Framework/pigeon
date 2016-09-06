@@ -11,12 +11,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.Logger;
 
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.CompactRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.ServiceId;
+import com.dianping.pigeon.remoting.common.exception.BadRequestException;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.exception.InvocationFailureException;
 import com.dianping.pigeon.remoting.provider.process.filter.ContextTransferProcessFilter;
@@ -64,7 +65,7 @@ public final class ServiceMethodFactory {
 			serviceMethodCache = getServiceMethodCache(serviceName);
 		}
 		if (serviceMethodCache == null) {
-			throw new InvocationFailureException("cannot find service for request:" + request);
+			throw new BadRequestException("cannot find service for request:" + request);
 		}
 		return serviceMethodCache.getMethod(methodName, new ServiceParam(paramClassNames));
 	}

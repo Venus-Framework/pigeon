@@ -26,7 +26,7 @@ import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.AbstractClient;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.callback.Callback;
+import com.dianping.pigeon.remoting.invoker.concurrent.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;

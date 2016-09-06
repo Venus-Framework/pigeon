@@ -22,7 +22,7 @@ import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
-import com.dianping.pigeon.remoting.invoker.callback.CallbackFuture;
+import com.dianping.pigeon.remoting.invoker.concurrent.CallbackFuture;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.remoting.provider.ProviderBootStrap;
@@ -192,7 +192,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
             CallbackFuture future = new CallbackFuture();
             response = InvokerUtils.sendRequest(client, heartRequest, future);
             if (response == null) {
-                response = future.get(heartBeatTimeout);
+                response = future.getResponse(heartBeatTimeout);
             }
             if (response != null) {
                 processResponse(heartRequest, response, client);

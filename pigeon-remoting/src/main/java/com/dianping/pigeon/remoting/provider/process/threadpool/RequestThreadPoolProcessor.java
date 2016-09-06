@@ -17,14 +17,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.Logger;
 
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.monitor.Monitor;
-import com.dianping.pigeon.monitor.MonitorLoader;
-import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -91,8 +88,6 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 
 	private static boolean enableSlowPool = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.provider.pool.slow.enable", true);
-
-	private static final Monitor monitor = MonitorLoader.getMonitor();
 
 	public RequestThreadPoolProcessor(ServerConfig serverConfig) {
 		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());

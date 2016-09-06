@@ -1,25 +1,31 @@
 package com.dianping.pigeon.remoting.invoker.route.region;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
-import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
-import com.dianping.pigeon.remoting.invoker.exception.RegionException;
+import com.dianping.pigeon.remoting.invoker.exception.RouteException;
 import com.dianping.pigeon.util.ClassUtils;
 import com.dianping.pigeon.util.ServiceUtils;
-import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.Logger;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by chenchongze on 16/4/14.
@@ -79,7 +85,7 @@ public enum RegionPolicyManager {
 
     private void checkClientsNotNull(List<Client> clientList, InvokerConfig<?> invokerConfig) {
         if(clientList == null) {
-            throw new RegionException("no available clientList in region policy for service[" + invokerConfig + "], env:"
+            throw new RouteException("no available clientList in region policy for service[" + invokerConfig + "], env:"
                     + ConfigManagerLoader.getConfigManager().getEnv());
         }
     }
@@ -141,7 +147,7 @@ public enum RegionPolicyManager {
                             .loadClass((String) regionPolicy);
                     regionPolicyObj = regionPolicyClass.newInstance();
                 } catch (Throwable e) {
-                    throw new InvalidParameterException("failed to register regionPolicy[service=" + serviceId
+                    throw new IllegalArgumentException("failed to register regionPolicy[service=" + serviceId
                             + ",class=" + regionPolicy + "]", e);
                 }
             } else {
@@ -152,7 +158,7 @@ public enum RegionPolicyManager {
                 Class<? extends RegionPolicy> regionPolicyClass = (Class<? extends RegionPolicy>) regionPolicy;
                 regionPolicyObj = regionPolicyClass.newInstance();
             } catch (Throwable e) {
-                throw new InvalidParameterException("failed to register regionPolicy[service=" + serviceId + ",class="
+                throw new IllegalArgumentException("failed to register regionPolicy[service=" + serviceId + ",class="
                         + regionPolicy + "]", e);
             }
         }

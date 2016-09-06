@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.dianping.pigeon.remoting.ServiceFactory;
-import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
@@ -118,7 +117,7 @@ public class ServiceRegistry {
 			this.services = new HashMap<String, Object>();
 		}
 		if (this.services.containsKey(serviceName)) {
-			throw new InvalidParameterException("existing service:" + serviceName);
+			throw new IllegalArgumentException("existing service:" + serviceName);
 		}
 		this.services.put(serviceName, service);
 	}

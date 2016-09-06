@@ -60,7 +60,7 @@ public final class InvokerStatisticsHolder {
 		if (request == null || request.getMessageType() != Constants.MESSAGE_TYPE_SERVICE) {
 			return false;
 		}
-		return Constants.INVOKER_STAT_ENABLE;
+		return true;
 	}
 
 	public static void removeCapacityBucket(String fromApp) {

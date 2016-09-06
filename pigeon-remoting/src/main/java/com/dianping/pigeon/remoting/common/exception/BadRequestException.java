@@ -1,6 +1,4 @@
-package com.dianping.pigeon.remoting.provider.exception;
-
-import com.dianping.pigeon.remoting.common.exception.RpcException;
+package com.dianping.pigeon.remoting.common.exception;
 
 /**
  * Created by chenchongze on 16/7/25.
