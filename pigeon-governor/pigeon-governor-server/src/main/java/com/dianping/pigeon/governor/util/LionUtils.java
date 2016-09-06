@@ -47,6 +47,14 @@ public class LionUtils {
             return result;
         }
     }
+    public class SetConfigLionResponse{
+        private String status;
+        private String message;
+        private String result;
+        public String getStatus(){
+            return this.status;
+        }
+    }
     
     
     //TODO parsing the json result. Check whether the create success or not.
@@ -58,10 +66,16 @@ public class LionUtils {
     }
 
     //TODO parsing the json result. Check whether the set success or not;
-    public static void setConfig(String env,String lionKey,String lionValue){
+    public static boolean setConfig(String env,String lionKey,String lionValue){
         String url = "http://lionapi.dp:8080/config2/set?env="+env+"&id=2&key="+lionKey+"&value="+lionValue;
         System.out.println(url);
-        HttpCallUtils.httpGet(url);
+        String response = HttpCallUtils.httpGet(url);
+        if(response!=null){
+            SetConfigLionResponse  setConfigLionResponse = GsonUtils.fromJson(response,SetConfigLionResponse.class);
+            if(setConfigLionResponse.getStatus().equals("success"))
+                return true;
+        }
+        return false;
     }
 
     public static boolean isExistKey(String env, String lionKey){

@@ -1,0 +1,84 @@
+#set($layout="layoutblank.vm")
+<div class="row">
+    <div class="col-xs-3">
+        <div id ="force-switcher" >
+            <span class="blue">强制服务降级: &nbsp;</span>
+            <input type="checkbox" name="force-checkbox" />
+        </div>
+    </div>
+    <div class="col-xs-3">
+        <div id ="auto-switcher" >
+            <span class="blue">自动服务降级: &nbsp;</span>
+            <input type="checkbox" name="auto-checkbox" />
+        </div>
+    </div>
+    <div class="col-xs-"3>
+        <div id="failure-switcher">
+            <span class="blue">失败服务降级</span>
+            <input type="checkbox" name="failure-checkbox"/>
+        </div>
+    </div>
+
+
+
+
+</div>
+<hr class="hr-dotted">
+<div id="configs"></div>
+
+<script>
+    jQuery(function($) {
+        var hash = window.location.hash;
+        var projectName = hash.split("/")[2];
+        $("#force-switcher").switcher({
+            enable:$switcherEnable,
+            initState:$forceState,
+            falseToTrueValidateText:"<span class='bigger-110'>是否开启强制服务降级</span>",
+            falseToTrueType:"post",
+            falseToTrueUrl:"/degrade/force/enable",
+            falseToTrueData:{"projectName":projectName},
+            falseToTrueDataType:"html",
+            trueToFalseValidateText:"<span class='bigger-110'>是否关闭强制服务降级</span>",
+            trueToFalseType:"post",
+            trueToFalseUrl:"/degrade/force/disable",
+            trueToFalseData:{"projectName":projectName},
+            trueToFalseDataType:"html",
+            name:"force-checkbox"
+        })
+        $("#auto-switcher").switcher({
+            enable:$switcherEnable,
+            initState:$autoState,
+            falseToTrueValidateText:"<span class='bigger-110'>是否开启自动服务降级</span>",
+            falseToTrueType:"post",
+            falseToTrueUrl:"/degrade/auto/enable",
+            falseToTrueData:{"projectName":projectName},
+            falseToTrueDataType:"html",
+            trueToFalseValidateText:"<span class='bigger-110'>是否关闭自动服务降级</span>",
+            trueToFalseType:"post",
+            trueToFalseUrl:"/degrade/auto/disable",
+            trueToFalseData:{"projectName":projectName},
+            trueToFalseDataType:"html",
+            name:"auto-checkbox"
+        });
+        $("#failure-switcher").switcher({
+            enable:$switcherEnable,
+            initState:$failureState,
+            falseToTrueValidateText:"<span class='bigger-110'>是否开启失败服务降级</span>",
+            falseToTrueType:"post",
+            falseToTrueUrl:"/degrade/failure/enable",
+            falseToTrueData:{"projectName":projectName},
+            falseToTrueDataType:"html",
+            trueToFalseValidateText:"<span class='bigger-110'>是否关闭失败服务降级</span>",
+            trueToFalseType:"post",
+            trueToFalseUrl:"/degrade/failure/disable",
+            trueToFalseData:{"projectName":projectName},
+            trueToFalseDataType:"html",
+            name:"failure-checkbox"
+        })
+        $("#configs").ajaxLoad({
+            url:"/degrade/configs",
+            type:"post",
+            data:{"projectName":projectName}
+        });
+    });
+</script>

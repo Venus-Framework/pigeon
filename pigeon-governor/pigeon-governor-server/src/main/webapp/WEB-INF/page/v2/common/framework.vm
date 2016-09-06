@@ -1,0 +1,514 @@
+#set($layout="layoutblank.vm")
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta charset="utf-8" />
+    <title>Pigeon</title>
+    <meta name="description" content="Pigeon message"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/font-awesome.min.css" />
+    <!-- page specific plugin styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery-ui.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/datepicker.css" />
+    <!-- text fonts -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-fonts.css" />
+    <!-- ace styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace.min.css" id="main-ace-style"/>
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-part2.min.css" />
+    <![endif]-->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-rtl.min.css" />
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-ie.min.css" />
+    <![endif]-->
+
+    <!-- inline styles related to this page -->
+    <link href="${rc.contextPath}/resources/style/bootstrap-switch.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/dataTable.button.css"/>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/chosen.css"/>
+
+    <style>
+        .vertical-center{
+            float: none !important;
+        }
+        .affix-top
+        {
+            width:300px;
+        }
+        .affix
+        {
+            width:300px;
+        }
+        .affix-bottom
+        {
+            width: 300px;
+        }
+        .aceTableRow{
+            border-bottom: 1px solid #e0e0e0;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            background-color: #EFF3F8;
+        }
+        .leftPosition{
+            float:right;
+            display: inline;
+        }
+        .myRow{
+            width: 100%;
+            overflow:auto;
+        }
+        .primary{
+            color: rgb(42, 139, 203);
+        }
+        .success{
+            color: rgb(133, 181, 88);
+        }
+        .danger {
+            color: rgb(211, 65, 59);
+        }
+        .main-container{
+            margin-top: 45px;
+            padding-top: 0px !important;
+            border-top: #e4e4e4;
+            border-top-width:20px;
+            border-top-style: solid;
+        }
+    </style>
+    <!-- ace settings handler -->
+    <script src="${rc.contextPath}/resources/assets/js/ace-extra.min.js"></script>
+
+</head>
+<body class="no-skin">
+<!-- #section:basics/navbar.layout -->
+<div id="navbar" class="navbar navbar-default    navbar-collapse       h-navbar  navbar-fixed-top">
+    <script type="text/javascript">
+        try{ace.settings.check('navbar' , 'fixed')}catch(e){}
+    </script>
+
+    <div class="navbar-container" id="navbar-container">
+        <div class="navbar-header pull-left">
+            <!-- #section:basics/navbar.layout.brand -->
+            <a href="#" class="navbar-brand">
+                <small>
+                    <i class="fa fa-leaf"></i>
+                    Pigeon
+                </small>
+            </a>
+
+            <!-- /section:basics/navbar.layout.brand -->
+
+            <!-- #section:basics/navbar.toggle -->
+            <button class="pull-right navbar-toggle navbar-toggle-img collapsed" type="button" data-toggle="collapse" data-target=".navbar-buttons,.navbar-menu">
+                <span class="sr-only">Toggle user menu</span>
+
+            </button>
+
+            <button class="pull-right navbar-toggle collapsed" type="button" data-toggle="collapse" data-target=".sidebar">
+                <span class="sr-only">Toggle sidebar</span>
+
+                <span class="icon-bar"></span>
+
+                <span class="icon-bar"></span>
+
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- /section:basics/navbar.toggle -->
+        </div>
+
+        <!-- #section:basics/navbar.dropdown -->
+        <div class="navbar-buttons navbar-header pull-right  collapse navbar-collapse" role="navigation">
+            <ul class="nav ace-nav">
+                <!-- #section:basics/navbar.user_menu -->
+                <li class="light-blue">
+                    <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                        <i class="ace-icon glyphicon glyphicon-user smaller-50"></i>
+                        #if($userName)$userName#end
+                        <i class="ace-icon fa fa-caret-down"></i>
+                    </a>
+                    <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                        <li>
+                            <a href="/account/profile">
+                                <i class="ace-icon fa fa-file smaller-50"></i>
+                                个人信息
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/ssologout">
+                                <i class="ace-icon glyphicon glyphicon-off smaller-50"></i>
+                                注销
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- /section:basics/navbar.user_menu -->
+            </ul>
+        </div>
+
+        <!-- /section:basics/navbar.dropdown -->
+        <nav role="navigation" class="navbar-menu pull-left collapse navbar-collapse">
+            <!-- #section:basics/navbar.nav -->
+            <ul class="nav navbar-nav">
+                <li>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        应用树
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        文档中心
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        日志中心
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        使用帮助
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        意见反馈
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div><!-- /.navbar-container -->
+</div>
+<!-- /section:basics/navbar.layout -->
+<div class="main-container" id="main-container">
+    <script type="text/javascript">
+        try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+    </script>
+    <div class="main-content">
+        <div class="page-content">
+            <div class="page-content-area">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <div id="sidebar" class="hidden-xs hidden-sm" data-spy="affix" data-offset-top="0">
+                            <div class="widget-box transparent">
+                                <div class="widget-header">
+                                    <h4 class="widget-title lighter smaller">
+                                        <i class="ace-icon fa fa-rss orange"></i>RECENT
+                                    </h4>
+
+                                    <div class="widget-toolbar no-border">
+                                        <ul class="nav nav-tabs">
+                                            <li class="active">
+                                                <a data-toggle="tab" href="#all-project">全部应用</a>
+                                            </li>
+                                            <li class="">
+                                                <a data-toggle="tab" href="#my-project">我的应用</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="widget-main padding-4">
+                                        <div class="tab-content padding-8">
+                                            <div id="all-project" class="tab-pane active">
+                                                <div id="tree1" class="tree tree-selectable"></div>
+                                            </div>
+                                            <div id="my-project" class="tab-pane">
+                                            </div><!-- /.#member-tab -->
+
+                                        ##                                            <div id="comment-tab" class="tab-pane">
+                                        ##                                                <!-- #section:pages/dashboard.comments -->
+                                        ##                                                <div class="comments ace-scroll" style="position: relative;"><div class="scroll-track" style="display: none;"><div class="scroll-bar"></div></div><div class="scroll-content" style="max-height: 300px;">
+                                        ##                                                    <div class="itemdiv commentdiv">
+                                        ##                                                        <div class="user">
+                                        ##                                                            <img alt="Bob Doe's Avatar" src="../assets/avatars/avatar.png">
+                                        ##                                                        </div>
+                                        ##
+                                        ##                                                        <div class="body">
+                                        ##                                                            <div class="name">
+                                        ##                                                                <a href="#">Bob Doe</a>
+                                        ##                                                            </div>
+                                        ##
+                                        ##                                                            <div class="time">
+                                        ##                                                                <i class="ace-icon fa fa-clock-o"></i>
+                                        ##                                                                <span class="green">6 min</span>
+                                        ##                                                            </div>
+                                        ##
+                                        ##                                                            <div class="text">
+                                        ##                                                                <i class="ace-icon fa fa-quote-left"></i>
+                                        ##                                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque commodo massa sed ipsum porttitor facilisis …
+                                        ##                                                            </div>
+                                        ##                                                        </div>
+                                        ##
+                                        ##                                                        <div class="tools">
+                                        ##                                                            <div class="inline position-relative">
+                                        ##                                                                <button class="btn btn-minier bigger btn-yellow dropdown-toggle" data-toggle="dropdown">
+                                        ##                                                                    <i class="ace-icon fa fa-angle-down icon-only bigger-120"></i>
+                                        ##                                                                </button>
+                                        ##
+                                        ##                                                                <ul class="dropdown-menu dropdown-only-icon dropdown-yellow dropdown-menu-right dropdown-caret dropdown-close">
+                                        ##                                                                    <li>
+                                        ##                                                                        <a href="#" class="tooltip-success" data-rel="tooltip" title="" data-original-title="Approve">
+                                        ##																						<span class="green">
+                                        ##																							<i class="ace-icon fa fa-check bigger-110"></i>
+                                        ##																						</span>
+                                        ##                                                                        </a>
+                                        ##                                                                    </li>
+                                        ##
+                                        ##                                                                    <li>
+                                        ##                                                                        <a href="#" class="tooltip-warning" data-rel="tooltip" title="" data-original-title="Reject">
+                                        ##																						<span class="orange">
+                                        ##																							<i class="ace-icon fa fa-times bigger-110"></i>
+                                        ##																						</span>
+                                        ##                                                                        </a>
+                                        ##                                                                    </li>
+                                        ##
+                                        ##                                                                    <li>
+                                        ##                                                                        <a href="#" class="tooltip-error" data-rel="tooltip" title="" data-original-title="Delete">
+                                        ##																						<span class="red">
+                                        ##																							<i class="ace-icon fa fa-trash-o bigger-110"></i>
+                                        ##																						</span>
+                                        ##                                                                        </a>
+                                        ##                                                                    </li>
+                                        ##                                                                </ul>
+                                        ##                                                            </div>
+                                        ##                                                        </div>
+                                        ##                                                    </div>
+                                        ##
+                                        ##                                                    <div class="itemdiv commentdiv">
+                                        ##                                                        <div class="user">
+                                        ##                                                            <img alt="Jennifer's Avatar" src="../assets/avatars/avatar1.png">
+                                        ##                                                        </div>
+                                        ##
+                                        ##                                                        <div class="body">
+                                        ##                                                            <div class="name">
+                                        ##                                                                <a href="#">Jennifer</a>
+                                        ##                                                            </div>
+                                        ##
+                                        ##                                                            <div class="time">
+                                        ##                                                                <i class="ace-icon fa fa-clock-o"></i>
+                                        ##                                                                <span class="blue">15 min</span>
+                                        ##                                                            </div>
+                                        ##
+                                        ##                                                            <div class="text">
+                                        ##                                                                <i class="ace-icon fa fa-quote-left"></i>
+                                        ##                                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque commodo massa sed ipsum porttitor facilisis …
+                                        ##                                                            </div>
+                                        ##                                                        </div>
+                                        ##
+                                        ##                                                        <div class="tools">
+                                        ##                                                            <div class="action-buttons bigger-125">
+                                        ##                                                                <a href="#">
+                                        ##                                                                    <i class="ace-icon fa fa-pencil blue"></i>
+                                        ##                                                                </a>
+                                        ##
+                                        ##                                                                <a href="#">
+                                        ##                                                                    <i class="ace-icon fa fa-trash-o red"></i>
+                                        ##                                                                </a>
+                                        ##                                                            </div>
+                                        ##                                                        </div>
+                                        ##                                                    </div>
+                                        ##
+                                        ##                                                    <div class="itemdiv commentdiv">
+                                        ##                                                        <div class="user">
+                                        ##                                                            <img alt="Joe's Avatar" src="../assets/avatars/avatar2.png">
+                                        ##                                                        </div>
+                                        ##
+                                        ##                                                        <div class="body">
+                                        ##                                                            <div class="name">
+                                        ##                                                                <a href="#">Joe</a>
+                                        ##                                                            </div>
+                                        ##
+                                        ##                                                            <div class="time">
+                                        ##                                                                <i class="ace-icon fa fa-clock-o"></i>
+                                        ##                                                                <span class="orange">22 min</span>
+                                        ##                                                            </div>
+                                        ##
+                                        ##                                                            <div class="text">
+                                        ##                                                                <i class="ace-icon fa fa-quote-left"></i>
+                                        ##                                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque commodo massa sed ipsum porttitor facilisis …
+                                        ##                                                            </div>
+                                        ##                                                        </div>
+                                        ##
+                                        ##                                                        <div class="tools">
+                                        ##                                                            <div class="action-buttons bigger-125">
+                                        ##                                                                <a href="#">
+                                        ##                                                                    <i class="ace-icon fa fa-pencil blue"></i>
+                                        ##                                                                </a>
+                                        ##
+                                        ##                                                                <a href="#">
+                                        ##                                                                    <i class="ace-icon fa fa-trash-o red"></i>
+                                        ##                                                                </a>
+                                        ##                                                            </div>
+                                        ##                                                        </div>
+                                        ##                                                    </div>
+                                        ##
+                                        ##                                                    <div class="itemdiv commentdiv">
+                                        ##                                                        <div class="user">
+                                        ##                                                            <img alt="Rita's Avatar" src="../assets/avatars/avatar3.png">
+                                        ##                                                        </div>
+                                        ##
+                                        ##                                                        <div class="body">
+                                        ##                                                            <div class="name">
+                                        ##                                                                <a href="#">Rita</a>
+                                        ##                                                            </div>
+                                        ##
+                                        ##                                                            <div class="time">
+                                        ##                                                                <i class="ace-icon fa fa-clock-o"></i>
+                                        ##                                                                <span class="red">50 min</span>
+                                        ##                                                            </div>
+                                        ##
+                                        ##                                                            <div class="text">
+                                        ##                                                                <i class="ace-icon fa fa-quote-left"></i>
+                                        ##                                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque commodo massa sed ipsum porttitor facilisis …
+                                        ##                                                            </div>
+                                        ##                                                        </div>
+                                        ##
+                                        ##                                                        <div class="tools">
+                                        ##                                                            <div class="action-buttons bigger-125">
+                                        ##                                                                <a href="#">
+                                        ##                                                                    <i class="ace-icon fa fa-pencil blue"></i>
+                                        ##                                                                </a>
+                                        ##
+                                        ##                                                                <a href="#">
+                                        ##                                                                    <i class="ace-icon fa fa-trash-o red"></i>
+                                        ##                                                                </a>
+                                        ##                                                            </div>
+                                        ##                                                        </div>
+                                        ##                                                    </div>
+                                        ##                                                </div></div>
+                                        ##
+                                        ##                                                <div class="hr hr8"></div>
+                                        ##
+                                        ##                                                <div class="center">
+                                        ##                                                    <i class="ace-icon fa fa-comments-o fa-2x green middle"></i>
+                                        ##
+                                        ##                                                    &nbsp;
+                                        ##                                                    <a href="#" class="btn btn-sm btn-white btn-info">
+                                        ##                                                        See all comments &nbsp;
+                                        ##                                                        <i class="ace-icon fa fa-arrow-right"></i>
+                                        ##                                                    </a>
+                                        ##                                                </div>
+                                        ##
+                                        ##                                                <div class="hr hr-double hr8"></div>
+                                        ##
+                                        ##                                                <!-- /section:pages/dashboard.comments -->
+                                        ##                                            </div>
+                                        </div>
+                                    </div><!-- /.widget-main -->
+                                </div><!-- /.widget-body -->
+                            </div><!-- /.widget-box -->
+
+                        </div>
+                    </div>
+                    <div id="pageContent" class="col-xs-9">
+                    </div>
+                </div><!-- /.row -->
+            </div><!-- /.page-content-area -->
+        </div><!-- /.page-content -->
+    </div><!-- /.main-content -->
+</div><!-- /.main-container -->
+<!-- basic scripts -->
+<!--[if !IE]> -->
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.min.js'>"+"<"+"/script>");
+</script>
+
+<!-- <![endif]-->
+
+<!--[if IE]>
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery1x.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+<script type="text/javascript">
+    if('ontouchstart' in document.documentElement)
+        document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
+<!-- page specific plugin scripts -->
+<script src="${rc.contextPath}/resources/assets/js/fuelux/fuelux.tree.min.js"></script>
+<script src="${rc.contextPath}/resources/js/service-tree.js"></script>
+<script src="${rc.contextPath}/resources/js/my-ajax-wrapper.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/spin.min.js"></script>
+##<script src="${rc.contextPath}/resources/assets/js/jquery.dataTables.min.js"></scripts>
+##<script src="${rc.contextPath}/resources/assets/js/jquery.dataTables.bootstrap.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery-ui.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.ui.touch-punch.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery-ui.custom.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.gritter.min.js"></script>
+<script src="${rc.contextPath}/resources/js/my-array-ext.js"></script>
+<script src="${rc.contextPath}/resources/js/bootstrap-switch.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/bootbox.min.js"></script>
+<script src="${rc.contextPath}/resources/js/config-switcher.js"></script>
+<script src="${rc.contextPath}/resources/js/dataTable.min.js"></script>
+<script src="${rc.contextPath}/resources/js/Pigeon.dataTables.bootstrap.js"></script>
+<script src="${rc.contextPath}/resources/js/dataTable.button.min.js"></script>
+<script src="${rc.contextPath}/resources/js/chosen.jquery.js"></script>
+<script src="${rc.contextPath}/resources/js/degrade/combined-selector-input.js"></script>
+<script>
+    function dataFormat(root) {
+        var object={};
+        var rootObject = root;
+        var childrenCount = rootObject["childrenCount"];
+        if(childrenCount==0){
+            var name = rootObject["name"];
+            return {name:name,type:"item"};
+        }else{
+            var name = rootObject["name"];
+            object["name"]=name;
+            object["type"] = "folder";
+            var children = {};
+            $.each(rootObject["children"], function(index, content){
+                var childrenObj = dataFormat(content);
+                var childrenObjName = content["name"];
+                children[childrenObjName] = childrenObj;
+            });
+            object["additionalParameters"] = {"children":children};
+        }
+        return object;
+    }
+    jQuery(function($) {
+        var treeData = dataFormat($data);
+        var treeDataSource = new DataSourceTree({data: treeData["additionalParameters"]["children"]});
+//        $('#tree1').ace_tree({
+//            dataSource: treeDataSource ,
+//            multiSelect:false,
+//            loadingHTML:'<div class="tree-loading"><i class="ace-icon fa fa-refresh fa-spin blue"></i></div>',
+//            'open-icon' : 'ace-icon tree-minus',
+//            'close-icon' : 'ace-icon tree-plus',
+//            'selectable' : true,
+//            'selected-icon' : 'ace-icon fa fa-check',
+//            'unselected-icon' : 'ace-icon fa fa-times'
+//        });
+        $("#tree1").height($(window).height()-20-45-8);
+        $(window).resize(function () {
+            $('#tree1').height($(window).height()-20-45-8);
+        });
+
+
+        $('#tree1').on('updated', function(e, result) {
+            if(result.eventType=="selected"){
+                var projectName = result.info[0].name;
+                $("#pageContent").attr("data-project-name",projectName);
+                $("#pageContent").ajaxLoad({
+                    url:'/shs/project',
+                    type:'get'
+                });
+            }
+        });
+    });
+</script>
+<!-- ace scripts -->
+<script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
+
+</body>
+</html>
+

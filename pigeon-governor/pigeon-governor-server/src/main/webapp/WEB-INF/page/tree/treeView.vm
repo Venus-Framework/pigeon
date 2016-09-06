@@ -1,0 +1,264 @@
+#set($layout="layoutblank.vm")
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta charset="utf-8" />
+    <title>消息日志</title>
+
+    <meta name="description" content="Pigeon message"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/font-awesome.min.css" />
+
+    <!-- page specific plugin styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery-ui.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/datepicker.css" />
+
+    <!-- text fonts -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-fonts.css" />
+
+    <!-- ace styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace.min.css" id="main-ace-style"/>
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-part2.min.css" />
+    <![endif]-->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-rtl.min.css" />
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-ie.min.css" />
+    <![endif]-->
+
+    <!-- inline styles related to this page -->
+    <!-- ace settings handler -->
+    <script src="${rc.contextPath}/resources/assets/js/ace-extra.min.js"></script>
+
+</head>
+<body class="no-skin">
+
+<!-- #section:basics/navbar.layout -->
+<div id="navbar" class="navbar navbar-default">
+    #parse("common/navbar.vm")
+</div>
+<div class="main-container" id="main-container">
+
+    <script type="text/javascript">
+        try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+    </script>
+    <!-- #section:basics/sidebar -->
+    <div id="sidebar" class="sidebar   responsive">
+        #parse("common/sidebar.vm")
+    </div>
+    <div class="main-content">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <script type="text/javascript">
+                try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+            </script>
+            <div class="col-xs-6">
+                <ul class="breadcrumb">
+                    <li>
+                        <i class="ace-icon fa fa-home home-icon"></i>
+                        <a href="/">主页</a>
+                    </li>
+
+                    <li class="active">
+                        <a href="#">消息日志</a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+        <div class="page-content">
+            <div class="page-content-area">
+                <div class="page-header">
+                    <h1>
+                        消息日志
+                        <small>
+                            <i class="ace-icon fa fa-angle-double-right"></i>
+                            Gather & Deliver
+                        </small>
+                    </h1>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+
+
+                        <div id="tree1" class="tree tree-selectable col-xs-6"></div>
+                        <div id="tree2" class="col-xs-6"></div>
+                    </div>
+
+                    <div class="col-xs-12">
+                        <div>
+                            <ul id="myTree" class="tree tree-folder-select" role="tree" id="myTree">
+                                <li class="tree-branch hide" data-template="treebranch" role="treeitem" aria-expanded="false">
+                                    <div class="tree-branch-header">
+                                        <button class="glyphicon icon-caret glyphicon-play"><span class="sr-only">Open</span></button>
+                                        <button class="tree-branch-name">
+                                            <span class="glyphicon icon-folder glyphicon-folder-close"></span>
+                                            <span class="tree-label"></span>
+                                        </button>
+                                    </div>
+                                    <ul class="tree-branch-children" role="group"></ul>
+                                    <div class="tree-loader" role="alert">Loading...</div>
+                                </li>
+                                <li class="tree-item hide" data-template="treeitem" role="treeitem">
+                                    <button class="tree-item-name">
+                                        <span class="glyphicon icon-item fueluxicon-bullet"></span>
+                                        <span class="tree-label"></span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        #parse("common/sub-footer.vm")
+    </div>
+    <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+        <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+    </a>
+</div>
+<!-- basic scripts -->
+
+<!--[if !IE]> -->
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.min.js'>"+"<"+"/script>");
+</script>
+
+<!-- <![endif]-->
+
+<!--[if IE]>
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery1x.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+<script type="text/javascript">
+    if('ontouchstart' in document.documentElement)
+        document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
+<!-- page specific plugin scripts -->
+##<script src="${rc.contextPath}/resources/assets/js/fuelux/data/fuelux.tree-sample-demo-data.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/fuelux/fuelux.tree.min.js"></script>
+<script src="${rc.contextPath}/resources/js/service-tree.js"></script>
+
+<script>
+//    function staticDataSource(openedParentData, callback) {
+//        childNodesArray = [
+//            { "name": "Ascending and Descending", "type": "folder" },
+//            { "name": "Sky and Water I", "type": "item" },
+//            { "name": "Drawing Hands", "type": "folder" },
+//            { "name": "waterfall", "type": "item" },
+//            { "name": "Belvedere", "type": "folder" },
+//            { "name": "Relativity", "type": "item" },
+//            { "name": "House of Stairs", "type": "folder" },
+//            { "name": "Convex and Concave", "type": "item" }
+//        ];
+//
+//        callback({
+//            data: childNodesArray
+//        });
+//    };
+function dataFormat(root) {
+    var object={};
+    var rootObject = root;
+    var childrenCount = rootObject["childrenCount"];
+    if(childrenCount==0){
+        var name = rootObject["name"];
+        return {name:name,type:"item"};
+    }else{
+        var name = rootObject["name"];
+        object["name"]=name;
+        object["type"] = "folder";
+        var children = {};
+        $.each(rootObject["children"], function(index, content){
+            var childrenObj = dataFormat(content);
+            var childrenObjName = content["name"];
+            children[childrenObjName] = childrenObj;
+        });
+        object["additionalParameters"] = {"children":children};
+    }
+    return object;
+}
+    jQuery(function($) {
+
+
+
+
+        var treeData = dataFormat($data);
+        console.log(treeData);
+        var treeDataSource = new DataSourceTree({data: treeData["additionalParameters"]["children"]});
+        $('#tree1').ace_tree({
+            dataSource: treeDataSource ,
+            multiSelect:false,
+            loadingHTML:'<div class="tree-loading"><i class="ace-icon fa fa-refresh fa-spin blue"></i></div>',
+            'open-icon' : 'ace-icon tree-minus',
+            'close-icon' : 'ace-icon tree-plus',
+            'selectable' : true,
+            'selected-icon' : 'ace-icon fa fa-check',
+            'unselected-icon' : 'ace-icon fa fa-times'
+        });
+//
+//        $('#tree2').ace_tree({
+//            dataSource: treeDataSource2 ,
+//            loadingHTML:'<div class="tree-loading"><i class="ace-icon fa fa-refresh fa-spin blue"></i></div>',
+//            'open-icon' : 'ace-icon fa fa-folder-open',
+//            'close-icon' : 'ace-icon fa fa-folder',
+//            'selectable' : false,
+//            'selected-icon' : null,
+//            'unselected-icon' : null
+//        });
+//
+//
+//        $('#tree1')
+//                .on('updated', function(e, result) {
+//                    //result.info  >> an array containing selected items
+//                    //result.item
+//                    //result.eventType >> (selected or unselected)
+//                })
+//                .on('selected', function(e) {
+//                })
+//                .on('unselected', function(e) {
+//                })
+//                .on('opened', function(e) {
+//                })
+//                .on('closed', function(e) {
+//                });
+
+//        $('#myTree').tree({
+//            dataSource: staticDataSource,
+//            multiSelect: false,
+//            folderSelect: true
+//        });
+
+        /**
+         $('#tree1').on('loaded', function (evt, data) {
+		});
+
+         $('#tree1').on('opened', function (evt, data) {
+		});
+
+         $('#tree1').on('closed', function (evt, data) {
+		});
+
+         $('#tree1').on('selected', function (evt, data) {
+		});
+         */
+    });
+</script>
+<!-- ace scripts -->
+<script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,380 @@
+#set($layout="layoutblank.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta charset="utf-8" />
+    <title>Pigeon</title>
+    <meta name="description" content="Pigeon message"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/font-awesome.min.css" />
+    <!-- page specific plugin styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery-ui.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/datepicker.css" />
+    <!-- text fonts -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-fonts.css" />
+    <!-- ace styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace.min.css" id="main-ace-style"/>
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-part2.min.css" />
+    <![endif]-->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-rtl.min.css" />
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-ie.min.css" />
+    <![endif]-->
+
+
+    <!-- inline styles related to this page -->
+    <link href="${rc.contextPath}/resources/style/bootstrap-switch.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/dataTable.button.css"/>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/chosen.css"/>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/jquery.mCustomScrollbar.min.css"/>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/jquery.typeahead.min.css"/>
+    <style>
+        .vertical-center{
+            float: none !important;
+        }
+        .affix-top
+        {
+            width:300px;
+        }
+        .affix
+        {
+            width:300px;
+        }
+        .affix-bottom
+        {
+            width:300px;
+        }
+        .aceTableRow{
+            border-bottom: 1px solid #e0e0e0;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            background-color: #EFF3F8;
+        }
+        .leftPosition{
+            float:right;
+            display: inline;
+        }
+        .myRow{
+            width: 100%;
+            overflow:auto;
+        }
+        .primary{
+            color: rgb(42, 139, 203);
+        }
+        .success{
+            color: rgb(133, 181, 88);
+        }
+        .danger {
+            color: rgb(211, 65, 59);
+        }
+        .main-container{
+            margin-top: 45px;
+            padding-top: 0px !important;
+        }
+        .my-navbar{
+            /*border-bottom: 20px !important;*/
+            /*border-bottom: #e4e4e4 !important;*/
+            /*border-bottom-width:20px !important;*/
+            /*border-bottom-style: solid !important;*/
+        }
+        .right-border{
+            border-right: 1px solid #DCE8F1 !important;
+        }
+        .page-content{
+            padding: 0px !important;
+        }
+        .no-top-border{
+            border-top: 0px;
+        }
+        .no-margin{
+            margin: 0px;
+        }
+
+        /*-- scroll style--*/
+    </style>
+    <!-- ace settings handler -->
+    <!--[if !IE]> -->
+    <script type="text/javascript">
+        window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.min.js'>"+"<"+"/script>");
+    </script>
+
+    <!-- <![endif]-->
+    <script src="${rc.contextPath}/resources/assets/js/ace-extra.min.js"></script>
+    <script src='${rc.contextPath}/resources/assets/js/jquery.min.js'></script>
+    <script src="${rc.contextPath}/resources/js/type-ahead/jquery.typeahead.min.js"></script>
+</head>
+<body class="no-skin">
+<!-- #section:basics/navbar.layout -->
+    #parse("v3/common/navBar.vm")
+<!-- /section:basics/navbar.layout -->
+<div class="main-container" id="main-container">
+    <script type="text/javascript">
+        try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+    </script>
+    <div id="out-main-content" class="main-content">
+        <div class="page-content">
+            <div class="page-content-area">
+                <div class="row no-margin">
+                    <div id="sidebar" class=" no-margin no-padding side-affix hidden-xs hidden-sm" data-spy="affix" data-offset-top="0" >
+                    </div>
+                    <div id="pageContent">
+                    </div>
+                </div>
+                <div  id="other-page-content" class="row" style="padding: 20px">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--[if IE]>
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery1x.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+<script type="text/javascript">
+    if('ontouchstart' in document.documentElement)
+        document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
+<!-- page specific plugin scripts -->
+<script src="${rc.contextPath}/resources/assets/js/fuelux/fuelux.tree.min.js"></script>
+<script src="${rc.contextPath}/resources/js/service-tree.js"></script>
+<script src="${rc.contextPath}/resources/js/my-ajax-wrapper.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/spin.min.js"></script>
+##<script src="${rc.contextPath}/resources/assets/js/jquery.dataTables.min.js"></scripts>
+##<script src="${rc.contextPath}/resources/assets/js/jquery.dataTables.bootstrap.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery-ui.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.ui.touch-punch.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery-ui.custom.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.gritter.min.js"></script>
+<script src="${rc.contextPath}/resources/js/my-array-ext.js"></script>
+<script src="${rc.contextPath}/resources/js/bootstrap-switch.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/bootbox.min.js"></script>
+<script src="${rc.contextPath}/resources/js/config-switcher.js"></script>
+<script src="${rc.contextPath}/resources/js/dataTable.min.js"></script>
+<script src="${rc.contextPath}/resources/js/Pigeon.dataTables.bootstrap.js"></script>
+<script src="${rc.contextPath}/resources/js/dataTable.button.min.js"></script>
+<script src="${rc.contextPath}/resources/js/chosen.jquery.js"></script>
+<script src="${rc.contextPath}/resources/js/degrade/combined-selector-input.js"></script>
+<script src="${rc.contextPath}/resources/js/scroll/jquery.mCustomScrollbar.concat.min.js"></script>
+<script src="${rc.contextPath}/resources/js/router.js"></script>
+<script>
+    jQuery(function($) {
+        var hash = window.location.hash;
+        if(hash==""){
+            window.location.hash = "#!/tree/";
+        }
+        var router = new Router();
+        router.register("#!/",function(params){
+        });
+        router.register("#!/tree/",function (params) {
+            $("#tree-nav").addClass("open");
+            $("#doc-nav").removeClass("open");
+            $("#log-nav").removeClass("nav-hover");
+            $("#feedback-nav").removeClass("open");
+            $("#help-nav").removeClass("open");
+            $("#sidebar").show();
+            $("#pageContent").show();
+            $("#other-page-content").html("");
+            $.ajax({
+                type:"get",
+                url:"/tree/sidebar",
+                dataType:"html",
+                async:false,
+                success:function(data,status){
+                    if(status=="success"){
+                        $("#sidebar").html(data);
+                    }
+                }
+            });
+        });
+        router.register("#!/tree/*/",function (params) {
+            var projectName = params[0];
+            $.ajax({
+                type:"get",
+                url:"/govern/"+projectName+"/",
+                dataType:"html",
+                async:false,
+                success:function(data,status){
+                    if(status=="success"){
+                        $("#pageContent").html(data);
+                    }
+                }
+            });
+        });
+        router.register("#!/tree/*/summary/",function(params){
+            $("#summary").parent().find('.active').removeClass('active');
+            $("#summary").addClass('active');
+            var projectName = params[0];
+            $("#mainContent").ajaxLoad({
+                url:"/transit/services/"+projectName,
+                type:"get"
+            });
+
+        });
+        router.register("#!/tree/*/router/",function(params){
+            $("#region_router").parent().find('.active').removeClass('active');
+            $("#region_router").addClass('active');
+            var projectName = params[0];
+            $("#mainContent").ajaxLoad({
+                url:"/v2/region/projectRegionRouter",
+                type:"post",
+                data:{"projectName":projectName}
+            });
+        });
+
+        router.register("#!/tree/*/degrade/",function(params){
+            var projectName = params[0];
+            $("#degrad").parent().find('.active').removeClass('active');
+            $("#degrad").addClass('active');
+            $("#mainContent").ajaxLoad({
+                url:"/config/degrade/",
+                type:"post",
+                data:{"projectName":projectName}
+            });
+        });
+        router.register("#!/doc/",function(params){
+            $("#tree-nav").removeClass("open");
+            $("#doc-nav").addClass("open");
+            $("#log-nav").removeClass("nav-hover");
+            $("#feedback-nav").removeClass("open");
+            $("#help-nav").removeClass("open");
+            $("#sidebar").hide();
+            $("#pageContent").hide();
+            $.ajax({
+                type:"get",
+                url:"/framework/doc",
+                dataType:"html",
+                async:false,
+                success:function(data,status){
+                    if(status=="success"){
+                        $("#other-page-content").html(data);
+                    }
+                }
+            });
+        });
+        router.register("#!/doc/*/",function(params){
+            $("#tree-nav").removeClass("open");
+            $("#tree-nav").removeClass("open");
+            $("#doc-nav").addClass("open");
+            $("#log-nav").removeClass("nav-hover");
+            $("#feedback-nav").removeClass("open");
+            $("#sidebar").hide();
+            $("#pageContent").hide();
+            var docId = params[0];
+            $.ajax({
+                type:"get",
+                url:"/framework/doc/"+docId+"/",
+                dataType:"html",
+                async:false,
+                success:function(data,status){
+                    if(status=="success"){
+                        $("#other-page-content").html(data);
+                    }
+                }
+            });
+        });
+        router.register("#!/oplog/",function (params) {
+            $("#tree-nav").removeClass("open");
+            $("#doc-nav").removeClass("open");
+            $("#log-nav").addClass("nav-hover");
+            $("#feedback-nav").removeClass("open");
+            $("#help-nav").removeClass("open");
+            $("#sidebar").hide();
+            $("#pageContent").hide();
+            $.ajax({
+                type:"get",
+                url:"/framework/oplog",
+                dataType:"html",
+                async:false,
+                success:function(data,status){
+                    if(status=="success"){
+                        $("#other-page-content").html(data);
+                    }
+                }
+            });
+        });
+        router.register("#!/eventlog/",function (params) {
+            $("#tree-nav").removeClass("open");
+            $("#doc-nav").removeClass("open");
+            $("#log-nav").addClass("nav-hover");
+            $("#feedback-nav").removeClass("open");
+            $("#help-nav").removeClass("open");
+            $("#sidebar").hide();
+            $("#pageContent").hide();
+            $.ajax({
+                type:"get",
+                url:"/framework/event",
+                dataType:"html",
+                async:false,
+                success:function(data,status){
+                    if(status=="success"){
+                        $("#other-page-content").html(data);
+                    }
+                }
+            });
+        });
+        router.register("#!/help/",function(params){
+            $("#tree-nav").removeClass("open");
+            $("#doc-nav").removeClass("open");
+            $("#log-nav").removeClass("nav-hover");
+            $("#feedback-nav").removeClass("open");
+            $("#help-nav").addClass("open");
+            $("#sidebar").hide();
+            $("#pageContent").hide();
+            $.ajax({
+                type:"get",
+                url:"/framework/help/",
+                dataType:"html",
+                async:false,
+                success:function(data,status){
+                    if(status=="success"){
+                        $("#other-page-content").html(data);
+                    }
+                }
+            });
+
+        });
+        router.register("#!/feedback/",function(params){
+            $("#tree-nav").removeClass("open");
+            $("#doc-nav").removeClass("open");
+            $("#log-nav").removeClass("nav-hover");
+            $("#feedback-nav").addClass("open");
+            $("#help-nav").removeClass("open");
+            $("#sidebar").hide();
+            $("#pageContent").hide();
+            $.ajax({
+                type:"get",
+                url:"/framework/feedback/",
+                dataType:"html",
+                async:false,
+                success:function(data,status){
+                    if(status=="success"){
+                        $("#other-page-content").html(data);
+                    }
+                }
+            });
+        });
+        router.start();
+    });
+</script>
+<!-- ace scripts -->
+<script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
+
+
+
+##Corlated with the router. Reason unkonwn!!!
+<script src="${rc.contextPath}/resources/assets/js/ace/ace.onpage-help.js"></script>
+</body>
+</html>
+

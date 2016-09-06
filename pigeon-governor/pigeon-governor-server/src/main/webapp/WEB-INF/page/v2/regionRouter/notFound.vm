@@ -1,0 +1,31 @@
+#set($layout="layoutblank.vm")
+<div class="error-container">
+    <div class="well">
+        <h1 class="grey lighter smaller">
+            <span class="blue bigger-125">
+                <i class="ace-icon fa fa-sitemap"></i>
+                Project hasn't been created in <a href="http://lion.dp/" target="_blank">Lion</a>!
+            </span>
+        </h1>
+        <hr>
+        <h3 class="lighter smaller">$error</h3>
+
+        <div>
+            <div class="space"></div>
+            <h4 class="smaller red">Try one of the following:</h4>
+
+            <ul class="list-unstyled spaced inline bigger-110 margin-15">
+                <li>
+                    <i class="ace-icon fa fa-hand-o-right blue"></i>
+                    Add the project in <a href="http://lion.dp/" target="_blank">Lion</a>
+                </li>
+                <li>
+                    <i class="ace-icon fa fa-hand-o-right blue"></i>
+                    Tell us about it
+                </li>
+            </ul>
+        </div>
+        <hr>
+        <div class="space"></div>
+    </div>
+</div>

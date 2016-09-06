@@ -1,0 +1,319 @@
+#set($layout="layoutblank.vm")
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta charset="utf-8" />
+    <title>Pigeon</title>
+    <meta name="description" content="Pigeon message"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <!-- bootstrap & fontawesome -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/font-awesome.min.css" />
+    <!-- page specific plugin styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery-ui.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/datepicker.css" />
+    <!-- text fonts -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-fonts.css" />
+    <!-- ace styles -->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace.min.css" id="main-ace-style"/>
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-part2.min.css" />
+    <![endif]-->
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-rtl.min.css" />
+
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/ace-ie.min.css" />
+    <![endif]-->
+
+
+    <!-- inline styles related to this page -->
+    <link href="${rc.contextPath}/resources/style/bootstrap-switch.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/dataTable.button.css"/>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/chosen.css"/>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/jquery.mCustomScrollbar.min.css"/>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/jquery.typeahead.min.css"/>
+    <style>
+        .vertical-center{
+            float: none !important;
+        }
+        .affix-top
+        {
+            width:300px;
+        }
+        .affix
+        {
+            width:300px;
+        }
+        .affix-bottom
+        {
+            width:300px;
+        }
+        .aceTableRow{
+            border-bottom: 1px solid #e0e0e0;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            background-color: #EFF3F8;
+        }
+        .leftPosition{
+            float:right;
+            display: inline;
+        }
+        .myRow{
+            width: 100%;
+            overflow:auto;
+        }
+        .primary{
+            color: rgb(42, 139, 203);
+        }
+        .success{
+            color: rgb(133, 181, 88);
+        }
+        .danger {
+            color: rgb(211, 65, 59);
+        }
+        .main-container{
+            margin-top: 45px;
+            padding-top: 0px !important;
+        }
+        .my-navbar{
+            /*border-bottom: 20px !important;*/
+            /*border-bottom: #e4e4e4 !important;*/
+            /*border-bottom-width:20px !important;*/
+            /*border-bottom-style: solid !important;*/
+        }
+        .right-border{
+            border-right: 1px solid #DCE8F1 !important;
+        }
+        .page-content{
+            padding: 0px !important;
+        }
+        .no-top-border{
+            border-top: 0px;
+        }
+        .no-margin{
+            margin: 0px;
+        }
+
+        /*-- scroll style--*/
+    </style>
+    <!-- ace settings handler -->
+    <script src="${rc.contextPath}/resources/assets/js/ace-extra.min.js"></script>
+    <script src='${rc.contextPath}/resources/assets/js/jquery.min.js'></script>
+    <script src="${rc.contextPath}/resources/js/type-ahead/jquery.typeahead.min.js"></script>
+</head>
+<body class="no-skin">
+<!-- #section:basics/navbar.layout -->
+    #parse("v2/common/topNavBar.vm")
+<!-- /section:basics/navbar.layout -->
+<div class="main-container" id="main-container">
+    <script type="text/javascript">
+        try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+    </script>
+    <div class="main-content">
+        <div class="page-content">
+            <div class="page-content-area">
+                <div class="row no-margin">
+                    <div class="no-padding">
+                        <div class="hidden-xs hidden-sm" data-spy="affix" data-offset-top="0">
+##                        <div class="hidden-xs hidden-sm side-affix">
+                            <div class="widget-box no-top-border">
+                                <div class="widget-header">
+                                    <h4 class="widget-title lighter smaller">
+                                        <i class="ace-icon fa fa-rss orange"></i>
+                                    </h4>
+                                    <div class="widget-toolbar no-border">
+                                        <ul class="nav nav-tabs">
+                                            <li class="active">
+                                                <a data-toggle="tab" href="#all-project">全部应用</a>
+                                            </li>
+                                            <li class="">
+                                                <a data-toggle="tab" href="#my-project">我的应用</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="widget-main padding-4">
+                                        <div class="tab-content padding-8">
+                                            <div id="all-project" class="tab-pane active">
+                                                <div id="test-scroll">
+                                                    <div style="width: 450px" id="tree1" class="tree tree-selectable"></div>
+                                                </div>
+                                            </div>
+                                            <div id="my-project" class="tab-pane">
+                                               <div id="my-scroll">
+                                                   <div style="width:450px">
+                                                       #foreach ($project in $projects)
+                                                       <p><a>$project</a></p>
+                                                       #end
+                                                   </div>
+                                               </div>
+                                            </div><!-- /.#member-tab -->
+                                        </div>
+                                    </div><!-- /.widget-main -->
+                                </div><!-- /.widget-body -->
+                            </div><!-- /.widget-box -->
+
+                        </div>
+                    </div>
+                    <div id="pageContent">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--[if !IE]> -->
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.min.js'>"+"<"+"/script>");
+</script>
+
+<!-- <![endif]-->
+
+<!--[if IE]>
+<script type="text/javascript">
+    window.jQuery || document.write("<script src='${rc.contextPath}/resources/assets/js/jquery1x.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+<script type="text/javascript">
+    if('ontouchstart' in document.documentElement)
+        document.write("<script src='${rc.contextPath}/resources/assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="${rc.contextPath}/resources/assets/js/bootstrap.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/date-time/bootstrap-datepicker.min.js"></script>
+<!-- page specific plugin scripts -->
+<script src="${rc.contextPath}/resources/assets/js/fuelux/fuelux.tree.min.js"></script>
+<script src="${rc.contextPath}/resources/js/service-tree.js"></script>
+<script src="${rc.contextPath}/resources/js/my-ajax-wrapper.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/spin.min.js"></script>
+##<script src="${rc.contextPath}/resources/assets/js/jquery.dataTables.min.js"></scripts>
+##<script src="${rc.contextPath}/resources/assets/js/jquery.dataTables.bootstrap.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery-ui.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.ui.touch-punch.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery-ui.custom.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/jquery.gritter.min.js"></script>
+<script src="${rc.contextPath}/resources/js/my-array-ext.js"></script>
+<script src="${rc.contextPath}/resources/js/bootstrap-switch.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/bootbox.min.js"></script>
+<script src="${rc.contextPath}/resources/js/config-switcher.js"></script>
+<script src="${rc.contextPath}/resources/js/dataTable.min.js"></script>
+<script src="${rc.contextPath}/resources/js/Pigeon.dataTables.bootstrap.js"></script>
+<script src="${rc.contextPath}/resources/js/dataTable.button.min.js"></script>
+<script src="${rc.contextPath}/resources/js/chosen.jquery.js"></script>
+<script src="${rc.contextPath}/resources/js/degrade/combined-selector-input.js"></script>
+<script src="${rc.contextPath}/resources/js/scroll/jquery.mCustomScrollbar.concat.min.js"></script>
+<script>
+    function dataFormat(root) {
+        var object={};
+        var rootObject = root;
+        var childrenCount = rootObject["childrenCount"];
+        if(childrenCount==0){
+            var name = rootObject["name"];
+            return {name:name,type:"item"};
+        }else{
+            var name = rootObject["name"];
+            object["name"]=name;
+            object["type"] = "folder";
+            var children = {};
+            $.each(rootObject["children"], function(index, content){
+                var childrenObj = dataFormat(content);
+                var childrenObjName = content["name"];
+                children[childrenObjName] = childrenObj;
+            });
+            object["additionalParameters"] = {"children":children};
+        }
+        return object;
+    }
+    window.onload = function() {
+        $('tree-nav').addClass("open");
+        console.log(window.location.hash);
+        console.log(window.location);
+    };
+    jQuery(function($) {
+//                $(".side-affix").affix({
+//            offset: {
+//                top: 0
+//            }
+//        });
+        $("#search-button").bind('click',function () {
+            var param = $("#main-search").val();
+            $.ajax({
+                url:"/shs/search",
+                data:{"value":param},
+                success:function (data) {
+                    if(data==""){
+                        $("#pageContent").ajaxLoad({
+                            url:'/shs/empty',
+                            type:'get'
+                        });
+                    }else{
+                        $("#pageContent").attr("data-project-name",data);
+                        $("#pageContent").ajaxLoad({
+                            url:'/shs/project',
+                            type:'get'
+                        });
+                    }
+                }
+            })
+        });
+        window.onhashchange = function(){
+            console.log(window.location.hash);
+        };
+        $('#tree-nav').addClass("nav-hover");
+        $('#test-scroll').height($(window).height()-$("#test-scroll").offset().top-12);
+        $('#my-scroll').height($(window).height()-$("#test-scroll").offset().top-12);
+        $("#pageContent").width($(window).width()-300);
+        $("#pageContent").offset({left:300});
+        $(window).resize(function () {
+            $('#test-scroll').height($(window).height()-$("#test-scroll").offset().top-12);
+            $('#my-scroll').height($(window).height()-$("#my-scroll").offset().top-12);
+            $("#pageContent").width($(window).width()-300);
+            $("#pageContent").offset({left:300});
+        });
+        var treeData = dataFormat($data);
+        var treeDataSource = new DataSourceTree({data: treeData["additionalParameters"]["children"]});
+        $('#tree1').ace_tree({
+            dataSource: treeDataSource ,
+            multiSelect:false,
+            loadingHTML:'<div class="tree-loading"><i class="ace-icon fa fa-refresh fa-spin blue"></i></div>',
+            'open-icon' : 'ace-icon tree-minus',
+            'close-icon' : 'ace-icon tree-plus',
+            'selectable' : true,
+            'selected-icon' : 'ace-icon fa fa-check',
+            'unselected-icon' : 'ace-icon fa fa-times'
+        });
+        $("#test-scroll").mCustomScrollbar({
+            theme:"rounded-dark",
+            axis:"yx"
+        });
+        $("#my-scroll").mCustomScrollbar({
+            theme:"rounded-dark",
+            axis:"yx"
+        });
+
+        $('#tree1').on('updated', function(e, result) {
+            if(result.eventType=="selected"){
+                var projectName = result.info[0].name;
+                {
+                    window.location = "#/tree/"+projectName;
+                }
+                $("#pageContent").attr("data-project-name",projectName);
+                $("#pageContent").ajaxLoad({
+                    url:'/shs/project',
+                    type:'get'
+                });
+            }
+        });
+
+
+    });
+</script>
+<!-- ace scripts -->
+<script src="${rc.contextPath}/resources/assets/js/ace-elements.min.js"></script>
+<script src="${rc.contextPath}/resources/assets/js/ace.min.js"></script>
+
+</body>
+</html>
+
