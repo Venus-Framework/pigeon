@@ -1,4 +1,14 @@
 #set($layout="layoutblank.vm")
+
+
+<style>
+
+    .modal-body{overflow-y: inherit;}
+
+    .modal-open .dropdown-menu {
+        z-index: 2050;
+    }
+</style>
 <div class="modal fade" id="modal" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -9,7 +19,22 @@
                 <h4 class="modal-title blue" id="modal-title"></h4>
             </div>
             <div class="modal-body">
-                <div class="form-group row">
+                <div id="form-0" class="form-group row">
+##                    <label class="col-sm-2 control-label blue" for="select-service-name">服务名</label>
+##                    <div class="col-sm-9">
+##                        <select id="select-service-name" data-placeholder="选取服务名" class="chosen-select">
+##                            <option value></option>
+##                            #foreach($serviceName in $serviceNames)
+##                                <option value="$velocityCount">$serviceName</option>
+##                            #end
+##                        </select>
+##                    </div>
+                    <label class="col-sm-2 blue" for="typeahead-service-name">服务名</label>
+                    <div class="col-sm-9">
+                        <input id="typeahead-service-name" placeholder="输入服务名" type="text" class="form-control" name="message" autocomplete="off">
+                    </div>
+                </div>
+                <div id="form-service-name" class="form-group row">
                     <label class="col-sm-2 control-label blue" for="service-name">服务名</label>
                     <div class="col-sm-9">
                         <input type="text" placeholder="" id="service-name" class="col-xs-12 col-sm-12" />
@@ -45,12 +70,20 @@
                         <div class="col-sm-9">
                             <input type="text" placeholder="" id="class-name" class="col-xs-12 col-sm-12" />
                         </div>
+                        <label class="col-xs-2">类型示例</label>
+                        <label class="col-xs-9" style="word-break: break-all">
+                            返回String: java.lang.String <br/>返回对象: com.dianping.pigeon.demo.User
+                        </label>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-2 control-label blue" for="return-content">Content</label>
                         <div class="col-sm-9">
                             <input type="text" placeholder="" id="return-content" class="col-xs-12 col-sm-12" />
                         </div>
+                        <label class="col-xs-2">返回值示例</label>
+                        <label class="col-xs-9" style="word-break: break-all">
+                            返回String: hello world!<br/>返回对象: {"username":"user-1","id":"12"}
+                        </label>
                     </div>
                 </div>
                 <div id ="form-3" class="form-group row">
@@ -58,12 +91,16 @@
                     <div class="col-sm-9">
                         <input type="text" disabled placeholder='{"throwException":"true"}' id="exception-value" class="col-xs-12 col-sm-12" />
                     </div>
+                    <label class="col-xs-2"></label>
+                    <label class="col-xs-9" style="word-break: break-all">(pigeon默认会抛出<span class="red">com.dianping.pigeon.remoting.invoker.exception.ServiceDegradedException</span>)</label>
                 </div>
                 <div id ="form-4" class="form-group row">
-                    <label class="col-sm-2 control-label blue" for="mock-name">Mock impl name</label>
+                    <label class="col-sm-2 control-label blue" for="mock-name">Mock信息</label>
                     <div class="col-sm-9">
                         <input type="text" placeholder='{"useMockClass":"true"}' id="mock-name" class="col-xs-12 col-sm-12" />
                     </div>
+                    <label class="col-xs-2"></label>
+                    <label class="col-xs-9">(Pigeon会采用Spring配置的Mock实现返回对应方法的调用)</label>
                 </div>
 
             </div>
@@ -75,67 +112,69 @@
 </div>
 
 
-
-
-<table id="editable-configs"  class="table table-striped table-bordered table-hover">
-    <thead>
-    <tr>
-        <th>服务名</th>
-        <th>方法名</th>
-        <th>方式</th>
-        <th>返回值</th>
-        <th>操作</th>
-    </tr>
-    </thead>
-    <tbody>
-        #foreach ($config in $configs)
-        <tr>
-            <td>$config.getServiceName()</td>
-            <td>$config.getMethodName()</td>
-            <td data-order='$config.getReturnPattern()' data-search='$config.getReturnPattern()'>
-                #if($config.getReturnPattern()==0)
-                    <span class="grey">默认方式</span>
-                #else
-                    #if($config.getReturnPattern()==1)
-                        <span class="blue">指定返回值</span>
-                    #else
-                        #if($config.getReturnPattern()==2)
-                            <span class="red">抛出异常</span>
+<div class="row">
+    <div class="col-xs-12">
+        <table id="editable-configs"  class="table table-striped table-bordered table-hover">
+            <thead>
+            <tr>
+                <th>服务名</th>
+                <th>方法名</th>
+                <th>方式</th>
+                <th>返回值</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+                #foreach ($config in $configs)
+                <tr>
+                    <td style="word-break: break-all;">$config.getServiceName()</td>
+                    <td style="word-break: break-all;">$config.getMethodName()</td>
+                    <td data-order='$config.getReturnPattern()' data-search='$config.getReturnPattern()'>
+                        #if($config.getReturnPattern()==0)
+                            <span class="grey">默认方式</span>
                         #else
-                            <span class="green">Mock</span>
+                            #if($config.getReturnPattern()==1)
+                                <span class="blue">指定返回值</span>
+                            #else
+                                #if($config.getReturnPattern()==2)
+                                    <span class="red">抛出异常</span>
+                                #else
+                                    <span class="green">Mock</span>
+                                #end
+                            #end
                         #end
-                    #end
-                #end
-            </td>
-            <td data-order='$config.getReturnValue()' data-search='$config.getReturnValue()'>
-                #if($config.getReturnPattern()==0)
-                    <span class="grey">null</span>
-                #else
-                    #if($config.getReturnPattern()==1)
-                        <span class="blue">$config.getReturnValue()</span>
-                    #else
-                        #if($config.getReturnPattern()==2)
-                            <span class="red">{"throwException":"true"}</span>
+                    </td>
+                    <td style="word-break: break-all" data-order='$config.getReturnValue()' data-search='$config.getReturnValue()'>
+                        #if($config.getReturnPattern()==0)
+                            <span class="grey">null</span>
                         #else
-                            <span class="green">{"useMockClass":"true"}</span>
+                            #if($config.getReturnPattern()==1)
+                                <span class="blue">$config.getReturnValue()</span>
+                            #else
+                                #if($config.getReturnPattern()==2)
+                                    <span class="red">{"throwException":"true"}</span>
+                                #else
+                                    <span class="green">{"useMockClass":"true"}</span>
+                                #end
+                            #end
                         #end
-                    #end
+                    </td>
+                    <td>
+                        <div class="hidden-sm hidden-xs action-buttons">
+                            <a  class="primary config-update">
+                                <i class="ace-icon fa fa-pencil bigger-130"></i>
+                            </a>
+                            <a class="red config-delete">
+                                <i class="ace-icon fa fa-times bigger-130"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
                 #end
-            </td>
-            <td>
-                <div class="hidden-sm hidden-xs action-buttons">
-                    <a  class="primary config-update">
-                        <i class="ace-icon fa fa-pencil bigger-130"></i>
-                    </a>
-                    <a class="red config-delete">
-                        <i class="ace-icon fa fa-times bigger-130"></i>
-                    </a>
-                </div>
-            </td>
-        </tr>
-        #end
-    </tbody>
-</table>
+            </tbody>
+        </table>
+    </div>
+</div>
 <script>
     function updateConfig(ajaxContent){
         var projectName = ajaxContent.data.projectName;
@@ -184,6 +223,16 @@
             }
         });
     }
+    function escape(str){
+        var s = "";
+        for(var i = 0 ;i<str.length;i++){
+            if(str.charAt(i)=='"'){
+                s=s+'\\';
+            }
+            s = s +str.charAt(i);
+        }
+        return s;
+    }
     jQuery(function($) {
         function modalInit(options){
             var settings = $.extend(
@@ -199,10 +248,19 @@
                         disableSelector:false,
                         disableClassNameInput:false,
                         disableContentInput:false,
-                        disableMockInput:false
+                        disableMockInput:false,
+                        showServiceNameSelect:false
                     },
                     options);
             $("#modal-title").html(settings.title);
+            if(settings.showServiceNameSelect){
+                $("#form-service-name").hide();
+                $("#form-0").show();
+            }
+            else {
+                $("#form-service-name").show();
+                $("#form-0").hide();
+            }
             $("#service-name").attr('placeholder',settings.serviceName);
             $("#method-name").attr('placeholder',settings.methodName);
             if(settings.disableServiceName){
@@ -229,7 +287,8 @@
         }
         var hash = window.location.hash;
         var projectName = hash.split("/")[2];
-        $(document).ready(function () {
+        var services = $serviceNames;
+
             $('#editable-configs').DataTable({
                 bAutoWidth: false,
                 aoColumns: [
@@ -246,15 +305,26 @@
                 "<'row'<'col-xs-3'i><'col-xs-9'p>>",
                 buttons: [
                     {
-                        text: '<i class="ace-icon fa fa-pencil-square-o bigger-150 danger"></i>',
+                        text: '<i class="ace-icon fa fa-plus bigger-150 red"></i>',
                         action: function (e, dt, node, config) {
                             modalInit({
                                 title:"新建服务降级配置",
+                                methodName:"输入方法名",
                                 returnPattern:0,
-                                disableMockInput:true
+                                disableMockInput:true,
+                                showServiceNameSelect:true
                             });
                             var selector = $("#select-type");
                             $('#modal').modal('show');
+                            $('#typeahead-service-name').typeahead({
+                                source:services,
+                                display: "serviceName",
+                                val: "id",
+                                itemSelected: function (item, val, text) {      // 当选中一个项目的时候，回调函数
+                                    /*serviceId = val;
+                                    serviceName = text;*/
+                                }
+                            });
                             selector.selector_input({
                                 submitObj: $("#submit"),
                                 selectorObj: selector,
@@ -264,7 +334,7 @@
                                     function () {
                                         var data = {
                                             "projectName":projectName,
-                                            "serviceName":$("#service-name").val(),
+                                            "serviceName":$("#typeahead-service-name").val(),
                                             "methodName":$("#method-name").val()
                                         };
                                         var rawValue="null";
@@ -275,20 +345,21 @@
                                     function () {
                                         var data = {
                                             "projectName":projectName,
-                                            "serviceName":$("#service-name").val(),
+                                            "serviceName":$("#typeahead-service-name").val(),
                                             "methodName":$("#method-name").val()
                                         };
                                         var className = $("#class-name").val();
                                         var content = $("#return-content").val();
-                                        var rawValue = '{"returnClass":"'+className+'","content":"'+content+'"}';
-                                        data.value=rawValue;
+                                        content = escape(content);
+                                        console.log(content);
+                                        data.value= '{"returnClass":"'+className+'","content":"'+content+'"}';
                                         var ajaxContent={'url':'/config/degrade/add','data':data};
                                         updateConfig(ajaxContent);
                                     },
                                     function () {
                                         var data = {
                                             "projectName":projectName,
-                                            "serviceName":$("#service-name").val(),
+                                            "serviceName":$("#typeahead-service-name").val(),
                                             "methodName":$("#method-name").val()
                                         };
                                         var rawValue='{"throwException":"true"}';
@@ -299,7 +370,7 @@
                                     function () {
                                         var data = {
                                             "projectName":projectName,
-                                            "serviceName":$("#service-name").val(),
+                                            "serviceName":$("#typeahead-service-name").val(),
                                             "methodName":$("#method-name").val()
                                         };
                                         var rawValue='{"useMockClass":"true"}';
@@ -313,11 +384,16 @@
                     }
                 ]
             });
-        });
+
         $("#select-type").chosen({
             allow_single_deselect: false
         });
         $("#select-type").next().width("120px");
+//        $("#select-service-name").chosen({
+//           allow_single_deselect:true
+//        });
+//        $("#select-service-name").next().width(420);
+
         $('table').delegate('.config-update','click',function () {
             var tr = $(this).parents("tr");
             var serviceName = $(tr.children()[0]).html();

@@ -11,8 +11,8 @@
     <tbody>
         #foreach ($config in $configs)
         <tr>
-            <td>$config.getServiceName()</td>
-            <td>$config.getMethodName()</td>
+            <td style="word-break: break-all">$config.getServiceName()</td>
+            <td style="word-break: break-all">$config.getMethodName()</td>
             <td data-order="$config.getReturnPattern()" data-search="$config.getReturnPattern()">
                 #if($config.getReturnPattern()==0)
                     <span class="grey">默认方式</span>
@@ -28,7 +28,7 @@
                     #end
                 #end
             </td>
-            <td data-order="$config.getReturnValue()" data-search="$config.getReturnValue()">
+            <td style="word-break: break-all" data-order="$config.getReturnValue()" data-search="$config.getReturnValue()">
                 #if($config.getReturnPattern()==0)
                     <span class="grey">null</span>
                 #else

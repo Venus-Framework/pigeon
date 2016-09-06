@@ -3,12 +3,15 @@ package com.dianping.pigeon.governor.controller.v3;
 import com.dianping.pigeon.governor.bean.serviceDesc.ServiceDescBean;
 import com.dianping.pigeon.governor.bean.serviceTree.TreeNode;
 import com.dianping.pigeon.governor.controller.BaseController;
+import com.dianping.pigeon.governor.message.depenedencies.service.EventReceiverService;
+import com.dianping.pigeon.governor.model.EventReceiverModel;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.ProjectOrg;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.*;
 import com.dianping.pigeon.governor.util.GsonUtils;
 import com.dianping.pigeon.governor.util.UserRole;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -16,13 +19,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by shihuashen on 16/9/2.
@@ -39,8 +45,48 @@ public class FrameworkController extends BaseController{
     private ServiceDescService serviceDescService;
     @Autowired
     private ProjectOwnerService projectOwnerService;
-
-
+    private InnerCache cache;
+    @PostConstruct
+    public void init(){
+        this.cache = new InnerCache(2,5);
+    }
+    class InnerCache implements Runnable{
+        private volatile TreeNode projectTree;
+        private volatile JSONArray projectTypeAhead;
+        private volatile JSONArray serviceTypeAhead;
+        private ScheduledExecutorService service;
+        private int delayTime;
+        public InnerCache(int poolSize,int delayTime){
+            this.projectTree = serviceTreeService.getFullTree();
+            this.projectTypeAhead = dbSearchService.getProjectTypeAheadInfo();
+            this.serviceTypeAhead = dbSearchService.getServiceTypeAheadInfo();
+            this.service = Executors.newScheduledThreadPool(poolSize);
+            this.delayTime = delayTime;
+        }
+        public void schedule(){
+            service.scheduleAtFixedRate(
+                    this,0,
+                    delayTime, TimeUnit.MINUTES);
+        }
+        public TreeNode getProjectTree(){
+            return this.projectTree;
+        }
+        public JSONArray getProjectTypeAhead(){
+            return this.projectTypeAhead;
+        }
+        public JSONArray getServiceTypeAhead(){
+            return this.serviceTypeAhead;
+        }
+        @Override
+        public void run() {
+            TreeNode treeNode = serviceTreeService.getFullTree();
+            JSONArray projectTypeAhead = dbSearchService.getProjectTypeAheadInfo();
+            JSONArray serviceTypeAhead = dbSearchService.getServiceTypeAheadInfo();
+            this.projectTree = treeNode;
+            this.projectTypeAhead = projectTypeAhead;
+            this.serviceTypeAhead = serviceTypeAhead;
+        }
+    }
     @RequestMapping(value={"/"},method = RequestMethod.GET)
     public String entrance(HttpServletRequest request,
                            HttpServletResponse response,
@@ -120,7 +166,7 @@ public class FrameworkController extends BaseController{
         commonnav(modelMap,request);
         User user = getUserInfo(request);
         String dpAccount = user.getDpaccount();
-        TreeNode root = serviceTreeService.getFullTree();
+        TreeNode root = cache.getProjectTree();
         modelMap.put("data",GsonUtils.toJson(root));
         Set<String> projects = serviceTreeService.getMyProject(dpAccount);
         modelMap.put("projects",projects);
@@ -144,7 +190,7 @@ public class FrameworkController extends BaseController{
         PrintWriter pw = null;
         try {
             pw = response.getWriter();
-            pw.write(dbSearchService.getProjectTypeAheadInfo().toString());
+            pw.write(cache.getProjectTypeAhead().toString());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -159,7 +205,7 @@ public class FrameworkController extends BaseController{
         PrintWriter pw = null;
         try {
             pw = response.getWriter();
-            pw.write(dbSearchService.getServiceTypeAheadInfo().toString());
+            pw.write(cache.getServiceTypeAhead().toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
