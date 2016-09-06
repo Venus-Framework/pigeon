@@ -4,7 +4,6 @@
  */
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
-import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;

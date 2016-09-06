@@ -56,8 +56,8 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 	private static final String KEY_APPLIMIT = "pigeon.provider.applimit";
 	private static final String KEY_METHODAPPLIMIT = "pigeon.provider.methodapplimit";
 	private static volatile Map<String, Long> appLimitMap = new ConcurrentHashMap<String, Long>();
-	// api#method --> [app1 --> qpslimit, app2 --> qpslimit]
-	private static volatile Map<String, List<Map<String, Long>>> methodAppLimitMap = Maps.newConcurrentMap();
+	// api#method --> {app1 --> qpslimit, app2 --> qpslimit}
+	private static volatile Map<String, Map<String, Long>> methodAppLimitMap = Maps.newConcurrentMap();
 	private static final JacksonSerializer jacksonSerializer = new JacksonSerializer();
 	private static ThreadPool statisticsCheckerPool = new DefaultThreadPool("Pigeon-Server-Statistics-Checker");
 	private static final ConcurrentHashMap<String, AtomicInteger> methodActives = new ConcurrentHashMap<String, AtomicInteger>();
@@ -66,6 +66,10 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 			"pigeon.provider.pool.method.maxthreads", 100);
 
 	static {
+		String methodAppLimitConfig = configManager.getStringValue(KEY_METHODAPPLIMIT);
+		parseMethodAppLimitConfig(methodAppLimitConfig);
+		configManager.getBooleanValue(KEY_METHODAPPLIMIT_ENABLE, false);
+
 		String appLimitConfig = configManager.getStringValue(KEY_APPLIMIT);
 		parseAppLimitConfig(appLimitConfig);
 		configManager.getBooleanValue(KEY_APPLIMIT_ENABLE, false);
@@ -82,7 +86,7 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 
 	private static void parseMethodAppLimitConfig(String methodAppLimitConfig) {
 		if (StringUtils.isNotBlank(methodAppLimitConfig)) {
-			Map<String, List<Map<String, Long>>> map = Maps.newConcurrentMap();
+			Map<String, Map<String, Long>> map = Maps.newConcurrentMap();
 			try {
 				map = (HashMap) jacksonSerializer.toObject(HashMap.class, methodAppLimitConfig);
 				methodAppLimitMap.clear();
@@ -129,7 +133,21 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 				if (enableMethodLimit) {
 					incrementRequest(requestMethod);
 				}
-				//todo
+
+				if (configManager.getBooleanValue(KEY_METHODAPPLIMIT_ENABLE, false)
+						&& methodAppLimitMap.containsKey(requestMethod) && StringUtils.isNotBlank(fromApp)) {
+					Long limit = methodAppLimitMap.get(requestMethod).get(fromApp);
+
+					if(limit != null && limit >= 0) {
+						long requests = ProviderStatisticsHolder
+								.getMethodAppCapacityBucket(request).getRequestsInCurrentSecond();
+						if (requests + 1 > limit) {
+							throw new RejectedException(String.format(
+									"Max requests limit %s reached for request %s from app:%s"
+									, limit, requestMethod, fromApp));
+						}
+					}
+				}
 
 				if (configManager.getBooleanValue(KEY_APPLIMIT_ENABLE, false) && StringUtils.isNotBlank(fromApp)
 						&& appLimitMap.containsKey(fromApp)) {
@@ -220,6 +238,10 @@ public class GatewayProcessFilter implements ServiceInvocationFilter<ProviderCon
 		public void onKeyUpdated(String key, String value) {
 			if (key.endsWith(KEY_APPLIMIT)) {
 				parseAppLimitConfig(value);
+			}
+
+			if(key.endsWith(KEY_METHODAPPLIMIT)) {
+				parseMethodAppLimitConfig(value);
 			}
 		}
 
