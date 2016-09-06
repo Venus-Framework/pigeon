@@ -7,7 +7,9 @@ import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.util.HeartBeatSupport;
+import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
+import com.dianping.pigeon.remoting.provider.exception.ServiceNotifyException;
 import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.Maps;
@@ -16,10 +18,18 @@ import com.sankuai.inf.octo.mns.sentinel.CustomizedManager;
 import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import com.sankuai.sgagent.thrift.model.ServiceDetail;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnectionManager;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.lang.StringUtils;
 import com.dianping.pigeon.log.Logger;
 import org.apache.thrift.TException;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 
 /**
@@ -32,6 +42,7 @@ public class MnsRegistry implements Registry {
     private Properties properties;
 
     private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+    private static final JacksonSerializer jacksonSerializer = new JacksonSerializer();
 
     private final MnsChangeListenerManager
             mnsChangeListenerManager = MnsChangeListenerManager.INSTANCE;
@@ -41,6 +52,7 @@ public class MnsRegistry implements Registry {
     private static final Map<String, String> hostRemoteAppkeyMapping = MnsUtils.getHostRemoteAppkeyMapping();
 
     private volatile boolean inited = false;
+    private volatile boolean enable = true;
 
     @Override
     public void init(Properties properties) {
@@ -55,10 +67,65 @@ public class MnsRegistry implements Registry {
                         CustomizedManager.setCustomizedSGAgents(specifySgAgent);
                     }
 
+                    if (!checkAppExist()) {
+                        enable = false;
+                        logger.warn("can not find APPKEY: [" + configManager.getAppName()
+                                + "] in mns, set mns registry to DISABLED!");
+                    }
+
                     inited = true;
                 }
             }
         }
+    }
+
+    @Override
+    public boolean isEnable() {
+        return enable;
+    }
+
+    private boolean checkAppExist() {
+        String checkAppExistUri = configManager.getStringValue("pigeon.registry.mns.checkexist.api")
+                .replace("{APPKEY}", configManager.getAppName());
+        HttpClient httpClient = getHttpClient();
+        GetMethod getMethod = null;
+        String response = null;
+        logger.debug("check appkey exist uri: " + checkAppExistUri);
+        try {
+            getMethod = new GetMethod(checkAppExistUri);
+            httpClient.executeMethod(getMethod);
+            if (getMethod.getStatusCode() >= 300) {
+                throw new IllegalStateException("Did not receive successful HTTP response: status code = "
+                        + getMethod.getStatusCode() + ", status message = [" + getMethod.getStatusText() + "]");
+            }
+            InputStream inputStream = getMethod.getResponseBodyAsStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder sb = new StringBuilder();
+            String str = null;
+            while ((str = br.readLine()) != null) {
+                sb.append(str);
+            }
+            response = sb.toString();
+            br.close();
+        } catch (Throwable t) {
+            logger.error("failed to get result while call uri: " + checkAppExistUri, t);
+        } finally {
+            if (getMethod != null) {
+                getMethod.releaseConnection();
+            }
+        }
+
+        CheckResult checkResult = new CheckResult();
+
+        if (StringUtils.isNotBlank(response)) {
+            try {
+                checkResult = (CheckResult) jacksonSerializer.toObject(CheckResult.class, response);
+            } catch (Throwable t) {
+                logger.error("failed to deserialize result!", t);
+            }
+        }
+
+        return checkResult.getData();
     }
 
     @Override
@@ -548,5 +615,43 @@ public class MnsRegistry implements Registry {
         }
 
         return true;
+    }
+
+    private static class CheckResult {
+
+        private boolean data = false;
+        private boolean isSuccess = false;
+
+        public boolean getData() {
+            return data;
+        }
+
+        public void setData(boolean data) {
+            this.data = data;
+        }
+
+        public boolean getIsSuccess() {
+            return isSuccess;
+        }
+
+        public void setIsSuccess(boolean isSuccess) {
+            this.isSuccess = isSuccess;
+        }
+    }
+
+    private HttpClient getHttpClient() {
+        HttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
+        HttpConnectionManagerParams params = new HttpConnectionManagerParams();
+        params.setMaxTotalConnections(300);
+        params.setDefaultMaxConnectionsPerHost(50);
+        params.setConnectionTimeout(3000);
+        params.setTcpNoDelay(true);
+        params.setSoTimeout(3000);
+        params.setStaleCheckingEnabled(true);
+        connectionManager.setParams(params);
+        HttpClient httpClient = new HttpClient();
+        httpClient.setHttpConnectionManager(connectionManager);
+
+        return httpClient;
     }
 }

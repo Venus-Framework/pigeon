@@ -9,6 +9,8 @@ public interface Registry {
 
 	void init(Properties properties);
 
+	boolean isEnable();
+
 	String getName();
 
 	String getValue(String key);
