@@ -15,6 +15,7 @@ package com.dianping.dpsf.exception;
  * @version 1.0
  * @created 2010-8-30 上午10:26:08
  */
+@Deprecated
 public class DPSFException extends RuntimeException {
 
 	private static final long serialVersionUID = 8197156489093927276L;

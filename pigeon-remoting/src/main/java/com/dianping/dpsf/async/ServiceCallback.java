@@ -18,7 +18,10 @@ import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
  * @author saber miao
  * @version 1.0
  * @created 2011-3-22 上午12:12:51
+ * @deprecated
+ * @see com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback
  */
+@Deprecated
 public abstract class ServiceCallback implements InvocationCallback {
 
 	public void onSuccess(Object result) {

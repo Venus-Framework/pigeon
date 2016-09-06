@@ -16,7 +16,10 @@ import java.util.concurrent.TimeUnit;
  * @author saber miao
  * @version 1.0
  * @created 2011-3-22 上午12:17:02
+ * @deprecated
+ * @see java.util.concurrent.Future
  */
+@Deprecated
 public interface ServiceFuture {
 
 	/**
