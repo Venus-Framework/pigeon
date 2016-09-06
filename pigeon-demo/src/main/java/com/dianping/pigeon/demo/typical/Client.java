@@ -103,7 +103,7 @@ public class Client {
 					// System.out.println("response:" +
 					// ContextUtils.getResponseContext("key1"));
 				} catch (Exception e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 			t.setStatus(Message.SUCCESS);
