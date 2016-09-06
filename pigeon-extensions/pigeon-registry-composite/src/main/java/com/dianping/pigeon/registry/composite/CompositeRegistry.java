@@ -31,6 +31,7 @@ public class CompositeRegistry implements Registry {
     private volatile List<Registry> registryList = Lists.newArrayList();
 
     private volatile boolean inited = false;
+    private volatile boolean enable = true;
 
     private static final String KEY_PIGEON_REGISTRY_PREFER = "pigeon.registry.prefer";
 
@@ -43,13 +44,9 @@ public class CompositeRegistry implements Registry {
                     try {
                         String registryPreferConfig = configManager.getStringValue(KEY_PIGEON_REGISTRY_PREFER,
                                 Constants.REGISTRY_CURATOR_NAME);
+                        logger.info("composite registry prefer is " + registryPreferConfig);
                         parseRegistryConfig(registryPreferConfig);
 
-                        for (Registry registry : registryList) {
-                            registry.init(properties);
-                        }
-
-                        logger.info("composite registry prefer is " + registryPreferConfig);
                         configManager.registerConfigChangeListener(new InnerConfigChangeListener());
                         inited = true;
                     } catch (Throwable t) {
@@ -59,6 +56,11 @@ public class CompositeRegistry implements Registry {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean isEnable() {
+        return enable;
     }
 
     private void parseRegistryConfig(String registryPreferConfig) {
@@ -87,12 +89,21 @@ public class CompositeRegistry implements Registry {
             }
         }
 
-        if (orderedRegistryList.size() > 0) {
-            registryList = orderedRegistryList;
-        } else {
-            logger.error("pigeon.registry.prefer config error! registry num is 0!");
+        List<Registry> candidateRegistryList = Lists.newArrayList();
+
+        for (Registry registry : orderedRegistryList) {
+            registry.init(properties);
+
+            if (registry.isEnable()) {
+                candidateRegistryList.add(registry);
+            }
         }
 
+        if (candidateRegistryList.size() > 0) {
+            registryList = candidateRegistryList;
+        } else {
+            logger.error("candidate registry num is 0! use old registry list.");
+        }
     }
 
     @Override
