@@ -4,23 +4,10 @@
  */
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import com.dianping.pigeon.remoting.invoker.proxy.MockProxyWrapper;
-import com.dianping.pigeon.util.ClassUtils;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
-import com.dianping.pigeon.log.Logger;
-import org.springframework.util.CollectionUtils;
-
-import com.dianping.dpsf.async.ServiceCallback;
-import com.dianping.dpsf.async.ServiceFutureFactory;
-import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
@@ -32,7 +19,9 @@ import com.dianping.pigeon.remoting.common.exception.RejectedException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
-import com.dianping.pigeon.remoting.invoker.callback.ServiceFutureImpl;
+import com.dianping.pigeon.remoting.invoker.concurrent.FutureFactory;
+import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
+import com.dianping.pigeon.remoting.invoker.concurrent.ServiceFutureImpl;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.config.InvokerMethodConfig;
 import com.dianping.pigeon.remoting.invoker.domain.DefaultInvokerContext;
@@ -43,13 +32,22 @@ import com.dianping.pigeon.remoting.invoker.exception.ServiceDegradedException;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.process.DegradationManager;
 import com.dianping.pigeon.remoting.invoker.process.DegradationManager.DegradeActionConfig;
+import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
+import com.dianping.pigeon.remoting.invoker.proxy.MockProxyWrapper;
 import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.CollectionUtils;
+
+import java.io.Serializable;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author xiangwu
- * 
+ *
  */
 public class DegradationFilter extends InvocationInvokeFilter {
 
@@ -127,7 +125,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 								Object returnObj = null;
 
 								if (degradeAction.isUseMockClass()) {
-									// 使用mock接口类的方法
+									// ä½¿ç”¨mockæŽ¥å£ç±»çš„æ–¹æ³•
 								} else if (degradeAction.isThrowException()) {
 									if (StringUtils.isNotBlank(degradeActionConfig.getReturnClass())) {
 										returnObj = jacksonSerializer.toObject(
@@ -191,17 +189,17 @@ public class DegradationFilter extends InvocationInvokeFilter {
 		if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
 			response = InvokerUtils.createDefaultResponse(defaultResult);
 		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
-			ServiceCallback callback = invokerConfig.getCallback();
-			ServiceCallback tlCallback = InvokerHelper.getCallback();
+			InvocationCallback callback = invokerConfig.getCallback();
+			InvocationCallback tlCallback = InvokerHelper.getCallback();
 			if (tlCallback != null) {
 				callback = tlCallback;
 				InvokerHelper.clearCallback();
 			}
-			callback.callback(defaultResult);
+			callback.onSuccess(defaultResult);
 			response = NO_RETURN_RESPONSE;
 		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
 			ServiceFutureImpl future = new ServiceFutureImpl(context, timeout);
-			ServiceFutureFactory.setFuture(future);
+			FutureFactory.setFuture(future);
 			response = InvokerUtils.createFutureResponse(future);
 			future.callback(InvokerUtils.createDefaultResponse(defaultResult));
 			future.run();
@@ -236,7 +234,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 
 				return response;
 
-			} catch (ServiceUnavailableException | NetTimeoutException | RequestTimeoutException e) {
+			} catch (ServiceUnavailableException | RemoteInvocationException | RequestTimeoutException | RejectedException e) {
 				failed = true;
 
 				if (DegradationManager.INSTANCE.needFailureDegrade()) {
@@ -270,12 +268,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 
 				} else if (action.isThrowException()) {
 
-					if (action.getReturnObj() == null) {
-						throw new ServiceDegradedException("Degraded method:" + key);
-					} else {
-						throw (Exception) action.getReturnObj();
-					}
-
+					return throwException(key, context, action);
 				}
 
 				return makeDefaultResponse(context, defaultResult);
@@ -305,6 +298,60 @@ public class DegradationFilter extends InvocationInvokeFilter {
 
 		return mockProxyWrapper.invoke(context.getMethodName(),
 				context.getParameterTypes(), context.getArguments());
+	}
+
+	protected InvocationResponse throwException(String key, InvokerContext context, DegradeAction action)
+			throws Exception {
+		Exception exception;
+		if (action.getReturnObj() == null) {
+			exception = new ServiceDegradedException("Degraded method:" + key);
+		} else {
+			exception = (Exception) action.getReturnObj();
+		}
+
+		InvokerConfig<?> invokerConfig = context.getInvokerConfig();
+		String callType = invokerConfig.getCallType();
+		InvocationResponse response = null;
+		int timeout = invokerConfig.getTimeout();
+		Map<String, InvokerMethodConfig> methods = invokerConfig.getMethods();
+		if (!CollectionUtils.isEmpty(methods)) {
+			InvokerMethodConfig methodConfig = methods.get(context.getMethodName());
+			if (methodConfig != null && methodConfig.getTimeout() > 0) {
+				timeout = methodConfig.getTimeout();
+			}
+		}
+		Integer timeoutThreadLocal = InvokerHelper.getTimeout();
+		if (timeoutThreadLocal != null) {
+			timeout = timeoutThreadLocal;
+		}
+		MonitorTransaction transaction = MonitorLoader.getMonitor().getCurrentCallTransaction();
+		if (transaction != null) {
+			transaction.addData("CurrentTimeout", timeout);
+		}
+		if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
+			throw exception;
+		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
+			InvocationCallback callback = invokerConfig.getCallback();
+			InvocationCallback tlCallback = InvokerHelper.getCallback();
+			if (tlCallback != null) {
+				callback = tlCallback;
+				InvokerHelper.clearCallback();
+			}
+			callback.onFailure(exception);
+			ExceptionManager.INSTANCE.logRpcException(null, invokerConfig.getUrl(), context.getMethodName(),
+					"callback degraded", exception, null, response, transaction);
+			response = NO_RETURN_RESPONSE;
+		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
+			ServiceFutureImpl future = new ServiceFutureImpl(context, timeout);
+			FutureFactory.setFuture(future);
+			response = InvokerUtils.createFutureResponse(future);
+			future.callback(InvokerUtils.createThrowableResponse(exception));
+			future.run();
+		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callType)) {
+			response = NO_RETURN_RESPONSE;
+		}
+		((DefaultInvokerContext) context).setResponse(response);
+		return response;
 	}
 
 	private static class DegradeAction implements Serializable {

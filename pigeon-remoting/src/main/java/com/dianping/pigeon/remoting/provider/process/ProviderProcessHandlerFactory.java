@@ -45,7 +45,7 @@ public final class ProviderProcessHandlerFactory {
 			return heartBeatInvocationHandler;
 		} else if (Constants.MESSAGE_TYPE_HEALTHCHECK == messageType) {
 			return healthCheckInvocationHandler;
-		} else if(Constants.MESSAGE_TYPE_SCANNER_HEART == messageType) {
+		} else if (Constants.MESSAGE_TYPE_SCANNER_HEART == messageType) {
 			return scannerHeartBeatInvocationHandler;
 		} else {
 			return bizInvocationHandler;
@@ -59,9 +59,7 @@ public final class ProviderProcessHandlerFactory {
 		registerBizProcessFilter(new WriteResponseProcessFilter());
 		registerBizProcessFilter(new ContextTransferProcessFilter());
 		registerBizProcessFilter(new ExceptionProcessFilter());
-		if (Constants.TOKEN_ENABLE) {
-			registerBizProcessFilter(new SecurityFilter());
-		}
+		registerBizProcessFilter(new SecurityFilter());
 		registerBizProcessFilter(new GatewayProcessFilter());
 		registerBizProcessFilter(new BusinessProcessFilter());
 		bizInvocationHandler = createInvocationHandler(bizProcessFilters);

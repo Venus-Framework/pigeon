@@ -2,34 +2,32 @@
  * Dianping.com Inc.
  * Copyright (c) 2003-2013 All Rights Reserved.
  */
-package com.dianping.pigeon.remoting.invoker.callback;
+package com.dianping.pigeon.remoting.invoker.concurrent;
 
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.dianping.pigeon.log.Logger;
-
 import com.dianping.avatar.tracker.TrackerContext;
-import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.Monitor;
 import com.dianping.pigeon.monitor.MonitorLoader;
+import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedResponse;
-import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
+import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
-import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class CallbackFuture implements Callback, CallFuture {
 
 	private static final Logger logger = LoggerLoader.getLogger(CallbackFuture.class);
-
-	private static final Monitor monitor = MonitorLoader.getMonitor();
+	protected static final Monitor monitor = MonitorLoader.getMonitor();
 
 	protected InvocationResponse response;
 	private CallFuture future;
@@ -38,6 +36,11 @@ public class CallbackFuture implements Callback, CallFuture {
 	private boolean success = false;
 	protected InvocationRequest request;
 	protected Client client;
+	protected MonitorTransaction transaction;
+
+	public CallbackFuture() {
+		transaction = monitor.getCurrentCallTransaction();
+	}
 
 	public void run() {
 		synchronized (this) {
@@ -53,13 +56,16 @@ public class CallbackFuture implements Callback, CallFuture {
 		this.response = response;
 	}
 
-	public InvocationResponse get() throws InterruptedException {
-		return get(Long.MAX_VALUE);
+	public InvocationResponse getResponse() throws InterruptedException {
+		return getResponse(Long.MAX_VALUE);
 	}
 
-	public InvocationResponse get(long timeoutMillis) throws InterruptedException {
+	protected InvocationResponse waitResponse(long timeoutMillis) throws InterruptedException {
 		if (response != null && response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
 			return this.response;
+		}
+		if (request == null && response != null) {
+			return response;
 		}
 		synchronized (this) {
 			long start = request.getCreateMillisTime();
@@ -71,35 +77,28 @@ public class CallbackFuture implements Callback, CallFuture {
 							.append("\r\nrequest:").append(request).append("\r\nhost:").append(client.getHost())
 							.append(":").append(client.getPort());
 					ServiceStatisticsHolder.flowOut(request, client.getAddress());
-					NetTimeoutException e = new NetTimeoutException(sb.toString());
+					RequestTimeoutException e = new RequestTimeoutException(sb.toString());
 					throw e;
 				} else {
 					this.wait(timeoutMillis_);
 				}
 			}
-			processContext();
-
-			if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
-				RpcException cause = InvokerUtils.toRpcException(response);
-				StringBuilder sb = new StringBuilder();
-				sb.append("remote call exception\r\nrequest:").append(request).append("\r\nhost:")
-						.append(client.getHost()).append(":").append(client.getPort()).append("\r\nresponse:")
-						.append(response);
-				logger.error(sb.toString(), cause);
-				monitor.logError(sb.toString(), cause);
-			} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-				if (Constants.INVOKER_LOG_APP_EXCEPTION) {
-					Throwable cause = InvokerUtils.toApplicationException(response);
-					StringBuilder sb = new StringBuilder();
-					sb.append("remote service exception\r\nrequest:").append(request).append("\r\nhost:")
-							.append(client.getHost()).append(":").append(client.getPort()).append("\r\nresponse:")
-							.append(response);
-					logger.error(sb.toString(), cause);
-					monitor.logError(sb.toString(), cause);
-				}
-			}
 			return this.response;
 		}
+	}
+
+	public InvocationResponse getResponse(long timeoutMillis) throws InterruptedException {
+		waitResponse(timeoutMillis);
+		processContext();
+
+		if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
+			ExceptionManager.INSTANCE.logRemoteCallException(client.getAddress(), request.getServiceName(),
+					request.getMethodName(), "remote call error", request, response, transaction);
+		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
+			ExceptionManager.INSTANCE.logRemoteServiceException("remote service biz error", request, response);
+		}
+
+		return this.response;
 	}
 
 	protected void processContext() {
@@ -155,8 +154,8 @@ public class CallbackFuture implements Callback, CallFuture {
 		}
 	}
 
-	public InvocationResponse get(long timeout, TimeUnit unit) throws InterruptedException {
-		return get(unit.toMillis(timeout));
+	public InvocationResponse getResponse(long timeout, TimeUnit unit) throws InterruptedException {
+		return getResponse(unit.toMillis(timeout));
 	}
 
 	public boolean cancel() {

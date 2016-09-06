@@ -10,11 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.dianping.dpsf.async.ServiceCallback;
-import com.dianping.dpsf.exception.DPSFException;
 import com.dianping.lion.client.Lion;
 import com.dianping.pigeon.remoting.ServiceFactory;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
+import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
@@ -47,10 +46,11 @@ public class EchoServiceDefaultImpl implements EchoService {
 		// System.out.println("SOURCE_IP:" +
 		// ContextUtils.getGlobalContext("SOURCE_IP"));
 		//throw new RuntimeException("aaaa");
-		 try {
-		 Thread.sleep(Lion.getIntValue("pigeon-test.echo.sleep"));
-		 } catch (InterruptedException e) {
-		 }
+		try {
+			int time = Lion.getIntValue("pigeon-test.echo.sleep");
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+		}
 		// System.out.println(msg);
 		// ContextUtils.putResponseContext("key1", "repsonse1");
 		// ProviderHelper.writeSuccessResponse(ProviderHelper.getContext(),
@@ -109,11 +109,11 @@ public class EchoServiceDefaultImpl implements EchoService {
 
 	@Override
 	public String asyncEcho(String msg) {
-		ServiceCallback callback = new ServiceCallback() {
+		InvocationCallback callback = new InvocationCallback() {
 			private ProviderContext context = ProviderHelper.getContext();
 
 			@Override
-			public void callback(Object result) {
+			public void onSuccess(Object result) {
 				try {
 					Thread.sleep(60);
 				} catch (InterruptedException e) {
@@ -122,12 +122,8 @@ public class EchoServiceDefaultImpl implements EchoService {
 			}
 
 			@Override
-			public void serviceException(Exception e) {
-
-			}
-
-			@Override
-			public void frameworkException(DPSFException e) {
+			public void onFailure(Throwable exception) {
+				// TODO Auto-generated method stub
 
 			}
 

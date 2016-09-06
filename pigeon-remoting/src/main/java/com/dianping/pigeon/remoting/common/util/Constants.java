@@ -119,7 +119,7 @@ public final class Constants {
 	public static final String KEY_PROVIDER_HEARTBEAT_INTERNAL = "pigeon.provider.heartbeat.internal";
 	public static final String KEY_REGIONPOLICY = "pigeon.regionpolicy.defaulttype";
 
-	public static final int DEFAULT_INVOKER_TIMEOUT = 5000;
+	public static final int DEFAULT_INVOKER_TIMEOUT = 1000;
 	public static final int DEFAULT_PROVIDER_COREPOOLSIZE = 60;
 	public static final int DEFAULT_PROVIDER_MAXPOOLSIZE = 500;
 	public static final int DEFAULT_PROVIDER_WORKQUEUESIZE = 1000;
@@ -163,53 +163,29 @@ public final class Constants {
 	public static final String KEY_AUTOPUBLISH_ENABLE = "pigeon.autopublish.enable";
 	public static final String KEY_AUTOUNPUBLISH_ENABLE = "pigeon.autounpublish.enable";
 
-	public static final int WEIGHT_INITIAL = ConfigManagerLoader.getConfigManager().getIntValue(
-			Constants.KEY_WEIGHT_INITIAL, Constants.DEFAULT_WEIGHT_INITIAL);
+	public static final int WEIGHT_INITIAL = ConfigManagerLoader.getConfigManager()
+			.getIntValue(Constants.KEY_WEIGHT_INITIAL, Constants.DEFAULT_WEIGHT_INITIAL);
 
-	public static final int WEIGHT_DEFAULT = ConfigManagerLoader.getConfigManager().getIntValue(
-			Constants.KEY_WEIGHT_DEFAULT, Constants.DEFAULT_WEIGHT_DEFAULT);
+	public static final int WEIGHT_DEFAULT = ConfigManagerLoader.getConfigManager()
+			.getIntValue(Constants.KEY_WEIGHT_DEFAULT, Constants.DEFAULT_WEIGHT_DEFAULT);
 
-	public static final boolean RESET_TIMEOUT = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.timeout.reset", true);
+	public static final boolean LOG_PARAMETERS = ConfigManagerLoader.getConfigManager()
+			.getBooleanValue("pigeon.log.parameters", false);
 
-	public static final boolean LOG_PARAMETERS = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.log.parameters", false);
+	public static boolean REPLY_MANUAL = ConfigManagerLoader.getConfigManager()
+			.getBooleanValue("pigeon.provider.reply.manual", false);
 
-	public static boolean REPLY_MANUAL = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.provider.reply.manual", false);
+	public static boolean MONITOR_ENABLE = ConfigManagerLoader.getConfigManager()
+			.getBooleanValue("pigeon.monitor.enabled", true);
+	
+	public static final int PROVIDER_POOL_CORE_SIZE = ConfigManagerLoader.getConfigManager()
+			.getIntValue(Constants.KEY_PROVIDER_COREPOOLSIZE, Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
 
-	public static final boolean INVOKER_LOG_APP_EXCEPTION = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.invoker.logserviceexception", false);
+	public static final int PROVIDER_POOL_MAX_SIZE = ConfigManagerLoader.getConfigManager()
+			.getIntValue(Constants.KEY_PROVIDER_MAXPOOLSIZE, Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
 
-	public static final boolean INVOKER_RETRY_NETWORK_EXCEPTION = ConfigManagerLoader.getConfigManager()
-			.getBooleanValue("pigeon.invoker.retry.networkexception", true);
-
-	public static final boolean INVOKER_LOG_TIMEOUT_EXCEPTION = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.invoker.log.timeout.exception", false);
-
-	public static final boolean INVOKER_STAT_ENABLE = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.invoker.stat.enable", true);
-
-	public static boolean MONITOR_ENABLE = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.monitor.enabled", true);
-
-	public static boolean INVOKER_CALLBACK_MONITOR_ENABLE = MONITOR_ENABLE
-			&& ConfigManagerLoader.getConfigManager().getBooleanValue("pigeon.invoker.callback.monitor.enabled", true);
-
-	public static boolean PROVIDER_CALLBACK_MONITOR_ENABLE = MONITOR_ENABLE
-			&& ConfigManagerLoader.getConfigManager().getBooleanValue("pigeon.provider.callback.monitor.enabled", true);
-
-	public static final int PROVIDER_POOL_CORE_SIZE = ConfigManagerLoader.getConfigManager().getIntValue(
-			Constants.KEY_PROVIDER_COREPOOLSIZE, Constants.DEFAULT_PROVIDER_COREPOOLSIZE);
-
-	public static final int PROVIDER_POOL_MAX_SIZE = ConfigManagerLoader.getConfigManager().getIntValue(
-			Constants.KEY_PROVIDER_MAXPOOLSIZE, Constants.DEFAULT_PROVIDER_MAXPOOLSIZE);
-
-	public static final int PROVIDER_POOL_QUEUE_SIZE = ConfigManagerLoader.getConfigManager().getIntValue(
-			Constants.KEY_PROVIDER_WORKQUEUESIZE, Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
-
-	public static final boolean TOKEN_ENABLE = ConfigManagerLoader.getConfigManager().getBooleanValue(
-			"pigeon.provider.token.enable", false);
+	public static final int PROVIDER_POOL_QUEUE_SIZE = ConfigManagerLoader.getConfigManager()
+			.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE, Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
 
 	public static final String KEY_SERVICE_SHARED = "pigeon.provider.service.shared";
 	public static final boolean DEFAULT_SERVICE_SHARED = true;
@@ -235,15 +211,15 @@ public final class Constants {
 			}
 		}
 
-        @Override
-        public void onKeyAdded(String key, String value) {
+		@Override
+		public void onKeyAdded(String key, String value) {
 
-        }
+		}
 
-        @Override
-        public void onKeyRemoved(String key) {
+		@Override
+		public void onKeyRemoved(String key) {
 
-        }
+		}
 
-    }
+	}
 }

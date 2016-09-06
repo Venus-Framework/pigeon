@@ -109,7 +109,7 @@ public class HttpServerHandler implements HttpHandler {
 			invocationResponse = server.processRequest(invocationRequest, invocationContext);
 			if (invocationResponse != null) {
 				if(Constants.REPLY_MANUAL) {
-					callbacks.get(invocationRequest.getSequence()).get(invocationRequest.getTimeout());
+					callbacks.get(invocationRequest.getSequence()).getResponse(invocationRequest.getTimeout());
 				}
 				invocationResponse.get();
 			}

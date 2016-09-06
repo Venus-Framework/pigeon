@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -17,17 +18,17 @@ public class JacksonTest {
 
     @Test
     public void test1() {
-        parseMethodAppLimitConfig("{ \"api#method\" : [ {\"invoker1\" : 100}, {\"invoker2\" : 50} ] }");
+        parseMethodAppLimitConfig("{\"api#method\" : {\"invoker1\":50, \"invoker2\":100}}");
 
         System.out.println("ok");
     }
 
-    // api#method --> [app1 --> qpslimit, app2 --> qpslimit]
-    private static volatile Map<String, List<Map<String, Long>>> methodAppLimitMap = Maps.newConcurrentMap();
+    // api#method --> {app1 --> qpslimit, app2 --> qpslimit}
+    private static volatile Map<String, Map<String, Long>> methodAppLimitMap = Maps.newConcurrentMap();
     private static final JacksonSerializer jacksonSerializer = new JacksonSerializer();
     private static void parseMethodAppLimitConfig(String methodAppLimitConfig) {
         if (StringUtils.isNotBlank(methodAppLimitConfig)) {
-            Map<String, List<Map<String, Long>>> map = Maps.newConcurrentMap();
+            Map<String, Map<String, Long>> map = Maps.newConcurrentMap();
             try {
                 map = (HashMap) jacksonSerializer.toObject(HashMap.class, methodAppLimitConfig);
                 methodAppLimitMap.clear();

@@ -54,7 +54,7 @@ public final class ProviderHelper {
 			context.getTimeline().add(new TimePoint(TimePhase.B, System.currentTimeMillis()));
 			ProviderChannel channel = context.getChannel();
 			MonitorTransaction transaction = null;
-			if (Constants.PROVIDER_CALLBACK_MONITOR_ENABLE) {
+			if (Constants.MONITOR_ENABLE) {
 				MonitorTransaction currentTransaction = monitor.getCurrentServiceTransaction();
 				try {
 					if (currentTransaction == null) {
@@ -76,7 +76,7 @@ public final class ProviderHelper {
 				try {
 					channel.write(response);
 				} finally {
-					if (Constants.PROVIDER_CALLBACK_MONITOR_ENABLE) {
+					if (Constants.MONITOR_ENABLE) {
 						if (response != null && response.getSize() > 0) {
 							String respSize = SizeMonitor.getInstance().getLogSize(response.getSize());
 							if (respSize != null) {

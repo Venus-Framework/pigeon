@@ -1,8 +1,7 @@
 package com.dianping.pigeon.remoting.invoker.cluster;
 
-import com.dianping.pigeon.log.Logger;
-
 import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -36,13 +35,9 @@ public class FailfastCluster implements Cluster {
 			try {
 				return handler.handle(invocationContext);
 			} catch (NetworkException e) {
-				if (Constants.INVOKER_RETRY_NETWORK_EXCEPTION) {
-					remoteClient = clientManager.getClient(invokerConfig, request, null);
-					invocationContext.setClient(remoteClient);
-					return handler.handle(invocationContext);
-				} else {
-					throw e;
-				}
+				remoteClient = clientManager.getClient(invokerConfig, request, null);
+				invocationContext.setClient(remoteClient);
+				return handler.handle(invocationContext);
 			}
 		} else {
 			int retry = invokerConfig.getRetries();
@@ -69,13 +64,10 @@ public class FailfastCluster implements Cluster {
 					try {
 						response = handler.handle(invocationContext);
 					} catch (NetworkException e) {
-						if (Constants.INVOKER_RETRY_NETWORK_EXCEPTION) {
-							clientSelected = clientManager.getClient(invokerConfig, request, null);
-							invocationContext.setClient(clientSelected);
-							response = handler.handle(invocationContext);
-						} else {
-							throw e;
-						}
+						clientSelected = clientManager.getClient(invokerConfig, request, null);
+						invocationContext.setClient(clientSelected);
+						response = handler.handle(invocationContext);
+						logger.info("Retry while network exception:" + e.getMessage());
 					}
 
 					if (lastError != null) {
@@ -91,10 +83,11 @@ public class FailfastCluster implements Cluster {
 			if (lastError != null) {
 				throw lastError;
 			} else {
-				throw new RemoteInvocationException("Invoke method[" + invocationContext.getMethodName()
-						+ "] on service[" + invokerConfig.getUrl() + "] failed with " + invokeTimes
-						+ " times, last error: " + (lastError != null ? lastError.getMessage() : ""), lastError != null
-						&& lastError.getCause() != null ? lastError.getCause() : lastError);
+				throw new RemoteInvocationException(
+						"Invoke method[" + invocationContext.getMethodName() + "] on service[" + invokerConfig.getUrl()
+								+ "] failed with " + invokeTimes + " times, last error: "
+								+ (lastError != null ? lastError.getMessage() : ""),
+						lastError != null && lastError.getCause() != null ? lastError.getCause() : lastError);
 			}
 		}
 	}

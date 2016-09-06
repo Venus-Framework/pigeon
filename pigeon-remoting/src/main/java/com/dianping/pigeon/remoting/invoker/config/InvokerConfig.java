@@ -6,22 +6,22 @@ package com.dianping.pigeon.remoting.invoker.config;
 
 import java.util.Map;
 
-import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
-import com.dianping.pigeon.util.ThriftUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
-import com.dianping.pigeon.log.Logger;
+import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
+import com.dianping.pigeon.util.ThriftUtils;
 
 public class InvokerConfig<T> {
     private static final Logger logger = LoggerLoader.getLogger(InvokerConfig.class);
@@ -53,7 +53,7 @@ public class InvokerConfig<T> {
 
     private int timeout = configManager.getIntValue(Constants.KEY_INVOKER_TIMEOUT, Constants.DEFAULT_INVOKER_TIMEOUT);
 
-    private ServiceCallback callback;
+    private InvocationCallback callback;
 
     private String group = configManager.getGroup();
 
@@ -207,7 +207,7 @@ public class InvokerConfig<T> {
     }
 
     public InvokerConfig(Class<T> serviceInterface, String url, int timeout, String callMethod, String serialize,
-                         ServiceCallback callback, String group, boolean writeBufferLimit, String loadbalance, String cluster,
+    		InvocationCallback callback, String group, boolean writeBufferLimit, String loadbalance, String cluster,
                          int retries, boolean timeoutRetry, String vip, String version, String protocol) {
         this.setServiceInterface(serviceInterface);
         this.setUrl(url);
@@ -316,14 +316,14 @@ public class InvokerConfig<T> {
     /**
      * @return the callback
      */
-    public ServiceCallback getCallback() {
+    public InvocationCallback getCallback() {
         return callback;
     }
 
     /**
      * @param callback the callback to set
      */
-    public void setCallback(ServiceCallback callback) {
+    public void setCallback(InvocationCallback callback) {
         this.callback = callback;
         if (callback != null) {
             setCallType(InvokerConfig.CALL_CALLBACK);

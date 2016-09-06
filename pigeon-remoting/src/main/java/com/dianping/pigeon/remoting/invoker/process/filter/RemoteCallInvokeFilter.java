@@ -7,23 +7,22 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 import java.util.Map;
 
 import com.dianping.pigeon.log.Logger;
-
-import com.dianping.dpsf.async.ServiceCallback;
-import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.monitor.MonitorTransaction;
-import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
-import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
-import com.dianping.pigeon.remoting.common.exception.InvalidParameterException;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.exception.BadRequestException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.callback.CallbackFuture;
-import com.dianping.pigeon.remoting.invoker.callback.ServiceCallbackWrapper;
-import com.dianping.pigeon.remoting.invoker.callback.ServiceFutureImpl;
+import com.dianping.pigeon.remoting.invoker.concurrent.CallbackFuture;
+import com.dianping.pigeon.remoting.invoker.concurrent.FutureFactory;
+import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
+import com.dianping.pigeon.remoting.invoker.concurrent.ServiceCallbackWrapper;
+import com.dianping.pigeon.remoting.invoker.concurrent.ServiceFutureImpl;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.config.InvokerMethodConfig;
 import com.dianping.pigeon.remoting.invoker.domain.DefaultInvokerContext;
@@ -78,11 +77,11 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 				response = InvokerUtils.sendRequest(client, invocationContext.getRequest(), future);
 				invocationContext.getTimeline().add(new TimePoint(TimePhase.Q));
 				if (response == null) {
-					response = future.get(timeout);
+					response = future.getResponse(timeout);
 				}
 			} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
-				ServiceCallback callback = invokerConfig.getCallback();
-				ServiceCallback tlCallback = InvokerHelper.getCallback();
+				InvocationCallback callback = invokerConfig.getCallback();
+				InvocationCallback tlCallback = InvokerHelper.getCallback();
 				if (tlCallback != null) {
 					callback = tlCallback;
 					InvokerHelper.clearCallback();
@@ -94,7 +93,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 			} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
 				ServiceFutureImpl future = new ServiceFutureImpl(invocationContext, timeout);
 				InvokerUtils.sendRequest(client, invocationContext.getRequest(), future);
-				ServiceFutureFactory.setFuture(future);
+				FutureFactory.setFuture(future);
 				response = InvokerUtils.createFutureResponse(future);
 				invocationContext.getTimeline().add(new TimePoint(TimePhase.Q));
 			} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callType)) {
@@ -102,7 +101,7 @@ public class RemoteCallInvokeFilter extends InvocationInvokeFilter {
 				response = NO_RETURN_RESPONSE;
 				invocationContext.getTimeline().add(new TimePoint(TimePhase.Q));
 			} else {
-				throw new InvalidParameterException("Call type[" + callType + "] is not supported!");
+				throw new BadRequestException("Call type[" + callType + "] is not supported!");
 			}
 			((DefaultInvokerContext) invocationContext).setResponse(response);
 			afterInvoke(invocationContext);
