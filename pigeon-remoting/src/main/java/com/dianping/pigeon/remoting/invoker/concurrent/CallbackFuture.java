@@ -74,8 +74,7 @@ public class CallbackFuture implements Callback, CallFuture {
 				if (timeoutMillis_ <= 0) {
 					StringBuilder sb = new StringBuilder();
 					sb.append("request timeout, current time:").append(System.currentTimeMillis())
-							.append("\r\nrequest:").append(request).append("\r\nhost:").append(client.getHost())
-							.append(":").append(client.getPort());
+							.append("\r\nrequest:").append(request);
 					ServiceStatisticsHolder.flowOut(request, client.getAddress());
 					RequestTimeoutException e = new RequestTimeoutException(sb.toString());
 					throw e;

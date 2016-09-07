@@ -11,6 +11,7 @@ import java.util.concurrent.TimeoutException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 
+@Deprecated
 public class ServiceFutureWrapper implements ServiceFuture {
 
 	private Future future;

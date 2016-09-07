@@ -13,6 +13,11 @@ import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 
+/**
+ * @deprecated
+ * @see com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean
+ */
+@Deprecated
 public class ProxyFactory<IFACE> {
 
 	private static Logger logger = LoggerLoader.getLogger(ProxyFactory.class);

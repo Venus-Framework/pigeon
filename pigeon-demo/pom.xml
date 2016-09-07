@@ -59,7 +59,7 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<plugins>
+		<!-- <plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -71,12 +71,12 @@
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>../pigeon-test-benchmark/pigeon-test-benchmark-2/lib</outputDirectory>
+							<outputDirectory>../pigeon-test-benchmark/lib</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-		</plugins>
+		</plugins> -->
 		<pluginManagement>
 			<plugins>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
