@@ -5,6 +5,7 @@ import com.dianping.cat.message.Transaction;
 import com.dianping.lion.client.Lion;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.governor.bean.ServiceNodeBean;
 import com.dianping.pigeon.governor.exception.DbException;
 import com.dianping.pigeon.governor.lion.LionKeys;
@@ -65,7 +66,14 @@ public class ServiceNodeHeartBeatCheckTask extends Thread {
     private final static long pickOffHeartBeatNodeInternal = 28800000L;
 
     public ServiceNodeHeartBeatCheckTask() {
-        client = ((CuratorRegistry) RegistryManager.getInstance().getRegistry()).getCuratorClient();
+
+        List<Registry> _registryList = ExtensionLoader.getExtensionList(Registry.class);
+        for (Registry registry : _registryList) {
+            if(registry instanceof CuratorRegistry) {
+                client = ((CuratorRegistry) registry).getCuratorClient();
+            }
+        }
+
     }
 
     public void init() {
@@ -150,10 +158,10 @@ public class ServiceNodeHeartBeatCheckTask extends Thread {
             }
 
             heartBeatsMap = tmp_heartBeatsMap;
-
             transaction.setStatus(Transaction.SUCCESS);
         } catch (Throwable t) {
             logger.error("refresh heartbeats info error", t);
+            heartBeatsMap = Maps.newConcurrentMap();
             transaction.setStatus(t);
         } finally {
             transaction.complete();

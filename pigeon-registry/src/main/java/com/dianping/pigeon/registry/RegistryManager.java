@@ -374,14 +374,21 @@ public class RegistryManager {
                     String app = registry.getServerApp(hostInfo.getConnect());
                     hostInfo.setApp(app);
                 } catch (RegistryException e) {
-                    logger.error("failed to update app in cache for: " + serviceAddress);
+                    logger.info("failed to update app in cache for: " + serviceAddress);
                 }
 
                 try {
                     String version = registry.getServerVersion(hostInfo.getConnect());
                     hostInfo.setVersion(version);
                 } catch (RegistryException e) {
-                    logger.error("failed to update version in cache for: " + serviceAddress);
+                    logger.info("failed to update version in cache for: " + serviceAddress);
+                }
+
+                try {
+                    byte heartBeatSupport = registry.getServerHeartBeatSupport(hostInfo.getConnect());
+                    hostInfo.setHeartBeatSupport(heartBeatSupport);
+                } catch (RegistryException e) {
+                    logger.info("failed to update heartBeatSupport in cache for: " + serviceAddress);
                 }
 
             }
@@ -463,7 +470,7 @@ public class RegistryManager {
                 app = registry.getServerApp(serverAddress);
                 setReferencedApp(serverAddress, app);
             } catch (RegistryException e) {
-                logger.error("failed to update app in cache for: " + serverAddress);
+                logger.info("failed to update app in cache for: " + serverAddress);
             }
         }
 
@@ -510,7 +517,7 @@ public class RegistryManager {
                 version = registry.getServerVersion(serverAddress);
                 setReferencedVersion(serverAddress, version);
             } catch (RegistryException e) {
-                logger.error("failed to update version in cache for: " + serverAddress);
+                logger.info("failed to update version in cache for: " + serverAddress);
             }
         }
         return version;
@@ -559,6 +566,14 @@ public class RegistryManager {
             referencedServiceProtocols.put(serverAddress, protocolInfoMap);
         }
 
+        @Override
+        public void onServerHeartBeatSupportChange(String serverAddress, byte heartBeatSupport) {
+            HostInfo hostInfo = referencedAddresses.get(serverAddress);
+            if (hostInfo != null) {
+                hostInfo.setHeartBeatSupport(heartBeatSupport);
+            }
+        }
+
     }
 
     public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
@@ -573,20 +588,41 @@ public class RegistryManager {
         }
     }
 
-    /**
-     * for invoker
-     * @param serviceAddress
-     * @return
-     * @throws RegistryException
-     */
-    public byte getServerHeartBeatSupport(String serviceAddress) throws RegistryException {
+    // invoker
+    public byte getServerHeartBeatSupportFromCache(String serverAddress) {
+        HostInfo hostInfo = referencedAddresses.get(serverAddress);
+        byte heartBeatSupport;
+
+        if (hostInfo != null) {
+            heartBeatSupport = hostInfo.getHeartBeatSupport();
+            return heartBeatSupport;
+        }
+
+        return HeartBeatSupport.BOTH.getValue();
+    }
+
+    // invoker
+    public byte getServerHeartBeatSupport(String serviceAddress) {
         byte heartBeatSupport = HeartBeatSupport.BOTH.getValue();
 
         if (registry != null) {
-            heartBeatSupport = registry.getServerHeartBeatSupport(serviceAddress);
+            try {
+                heartBeatSupport = registry.getServerHeartBeatSupport(serviceAddress);
+                setServerHeartBeatSupport(serviceAddress, heartBeatSupport);
+            } catch (RegistryException e) {
+                logger.info("failed to update heartBeatSupport in cache for: " + serviceAddress);
+            }
         }
 
         return heartBeatSupport;
+    }
+
+    // invoker
+    public void setServerHeartBeatSupport(String serverAddress, byte heartBeatSupport) {
+        HostInfo hostInfo = referencedAddresses.get(serverAddress);
+        if (hostInfo != null) {
+            hostInfo.setHeartBeatSupport(heartBeatSupport);
+        }
     }
 
     public boolean isSupportNewProtocol(String serviceAddress) throws RegistryException {
@@ -733,7 +769,7 @@ public class RegistryManager {
         String addr = "";
 
         try {
-            addr = registry.getServiceAddress(serviceName, group, false);
+            addr = registry.getServiceAddress(serviceName, group, false, false);
         } catch (Throwable e) {
             logger.error("failed to get service hosts for "
                     + serviceName + "#" + group + ", msg: " + e.getMessage());

@@ -18,9 +18,17 @@ import com.dianping.pigeon.remoting.invoker.concurrent.FutureFactory;
  * @author saber miao
  * @version 1.0
  * @created 2011-3-22 上午09:45:27
+ * @deprecated
+ * @see com.dianping.pigeon.remoting.invoker.util.InvokerHelper
  */
+@Deprecated
 public class ServiceFutureFactory {
 
+	/**
+	 * @deprecated
+	 * @see com.dianping.pigeon.remoting.invoker.util.InvokerHelper#getFuture()
+	 * @return
+	 */
 	public static ServiceFuture getFuture() {
 		Future future = FutureFactory.getFuture();
 		if (future != null) {

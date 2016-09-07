@@ -19,6 +19,11 @@ import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalance;
 import com.dianping.pigeon.remoting.invoker.route.balance.LoadBalanceManager;
 import com.dianping.pigeon.util.ClassUtils;
 
+/**
+ * @deprecated
+ * @see com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean
+ */
+@Deprecated
 public class ProxyBeanFactory implements FactoryBean {
 
 	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();

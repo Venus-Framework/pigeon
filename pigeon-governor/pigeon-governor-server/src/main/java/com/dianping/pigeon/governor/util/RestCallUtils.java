@@ -1,7 +1,5 @@
 package com.dianping.pigeon.governor.util;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +13,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
 
 /**
  * 
@@ -24,7 +21,9 @@ import java.io.IOException;
  */
 public class RestCallUtils {
 
-	private static Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogManager.getLogger();
+
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	public static <T> T postRestCall(String targetUrl, FormDataMultiPart formDataMultiPart, Class<T> responseType, Integer connectTimeout, Integer readTimeout) {
 		T result = null;
@@ -41,8 +40,8 @@ public class RestCallUtils {
 
 			String resStr = target.request().post(Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA), String.class);
 			result = getBeanFromJson(resStr, responseType);
-		} catch (Exception e) {
-			logger.error("Failed to POST: "+ targetUrl + "; " + e.getMessage());
+		} catch (Throwable t) {
+			logger.error("Failed to POST: "+ targetUrl, t);
 		}
 
 		return result;
@@ -61,35 +60,19 @@ public class RestCallUtils {
 			configuration.property(ClientProperties.READ_TIMEOUT, readTimeout);
 			Client client = ClientBuilder.newClient(configuration);
 			WebTarget target = client.target(targetUrl);
-
 			if(responseType == String.class) {
                 return target.request().get(responseType);
             }
-
 			String resStr = target.request().get(String.class);
 			result = getBeanFromJson(resStr, responseType);
-		} catch (Exception e) {
-			logger.error("Failed to GET: "+ targetUrl + "; " + e.getMessage());
+		} catch (Throwable t) {
+			logger.error("Failed to GET: "+ targetUrl, t);
 		}
+
 		return result;
 	}
 	
-	public static <T> T getBeanFromJson(String json, Class<T> responseType) {
-		ObjectMapper objectMapper = new ObjectMapper();
-    	T result = null;
-    	try {
-			result = objectMapper.readValue(json, responseType);
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	
-    	return result;
+	public static <T> T getBeanFromJson(String json, Class<T> responseType) throws Throwable {
+    	return objectMapper.readValue(json, responseType);
 	}
 }

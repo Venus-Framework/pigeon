@@ -7,6 +7,7 @@ import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.util.HeartBeatSupport;
+import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.VersionUtils;
@@ -16,10 +17,18 @@ import com.sankuai.inf.octo.mns.sentinel.CustomizedManager;
 import com.sankuai.sgagent.thrift.model.ProtocolRequest;
 import com.sankuai.sgagent.thrift.model.SGService;
 import com.sankuai.sgagent.thrift.model.ServiceDetail;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnectionManager;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.lang.StringUtils;
 import com.dianping.pigeon.log.Logger;
 import org.apache.thrift.TException;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 
 /**
@@ -32,6 +41,7 @@ public class MnsRegistry implements Registry {
     private Properties properties;
 
     private final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+    private static final JacksonSerializer jacksonSerializer = new JacksonSerializer();
 
     private final MnsChangeListenerManager
             mnsChangeListenerManager = MnsChangeListenerManager.INSTANCE;
@@ -53,12 +63,75 @@ public class MnsRegistry implements Registry {
 
                     if (StringUtils.isNotBlank(specifySgAgent)) {
                         CustomizedManager.setCustomizedSGAgents(specifySgAgent);
+                        logger.info("set customized sgagent to " + specifySgAgent);
+                    }
+
+                    if (checkGroupUsed()) {
+                        logger.info("mns does not support group feature, set mns registry to DISABLED!");
+                    } else if (!checkAppExist()) {
+                        logger.info("can not find APPKEY: [" + configManager.getAppName()
+                                + "] in mns, set mns registry to DISABLED!");
+                    } else {
+                        logger.info("mns registry initialized!");
                     }
 
                     inited = true;
                 }
             }
         }
+    }
+
+    @Override
+    public boolean isEnable() {
+        return inited && !checkGroupUsed() && checkAppExist();
+    }
+
+    private boolean checkGroupUsed() {
+        return StringUtils.isNotBlank(configManager.getGroup());
+    }
+
+    private boolean checkAppExist() {
+        String checkAppExistUri = configManager.getStringValue("pigeon.registry.mns.checkexist.api")
+                .replace("{APPKEY}", configManager.getAppName());
+        HttpClient httpClient = getHttpClient();
+        GetMethod getMethod = null;
+        String response = null;
+        logger.debug("check appkey exist uri: " + checkAppExistUri);
+        try {
+            getMethod = new GetMethod(checkAppExistUri);
+            httpClient.executeMethod(getMethod);
+            if (getMethod.getStatusCode() >= 300) {
+                throw new IllegalStateException("Did not receive successful HTTP response: status code = "
+                        + getMethod.getStatusCode() + ", status message = [" + getMethod.getStatusText() + "]");
+            }
+            InputStream inputStream = getMethod.getResponseBodyAsStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder sb = new StringBuilder();
+            String str = null;
+            while ((str = br.readLine()) != null) {
+                sb.append(str);
+            }
+            response = sb.toString();
+            br.close();
+        } catch (Throwable t) {
+            logger.info("failed to get result while call uri: " + checkAppExistUri, t);
+        } finally {
+            if (getMethod != null) {
+                getMethod.releaseConnection();
+            }
+        }
+
+        CheckResult checkResult = new CheckResult();
+
+        if (StringUtils.isNotBlank(response)) {
+            try {
+                checkResult = (CheckResult) jacksonSerializer.toObject(CheckResult.class, response);
+            } catch (Throwable t) {
+                logger.info("failed to deserialize result!", t);
+            }
+        }
+
+        return checkResult.getData();
     }
 
     @Override
@@ -88,37 +161,7 @@ public class MnsRegistry implements Registry {
 
     @Override
     public String getServiceAddress(String remoteAppkey, String serviceName, String group, boolean fallbackDefaultGroup) throws RegistryException {
-        String result = "";
-
-        if (!checkSupport(serviceName, group)) {
-            return result;
-        }
-
-        ProtocolRequest protocolRequest = new ProtocolRequest();
-        protocolRequest.setProtocol("thrift");
-        protocolRequest.setLocalAppkey(configManager.getAppName());
-        protocolRequest.setServiceName(serviceName);
-        protocolRequest.setRemoteAppkey(remoteAppkey);
-        List<SGService> sgServices = MnsInvoker.getServiceList(protocolRequest);
-        // 添加listener，注意去重
-        mnsChangeListenerManager.registerListener(protocolRequest);
-
-        for (SGService sgService : sgServices) {
-            // 剔除掉octo的旧服务端
-            if (MnsUtils.checkVersion(sgService.getVersion())) {
-                String host = sgService.getIp() + ":" + sgService.getPort();
-                result += host + ",";
-                String remoteAppkeyReal = sgService.getAppkey();
-
-                if (remoteAppkeyReal == null) {
-                    remoteAppkeyReal = "";
-                }
-
-                hostRemoteAppkeyMapping.put(host, remoteAppkeyReal);
-            }
-        }
-
-        return result;
+        return getServiceAddress(remoteAppkey, serviceName, group, fallbackDefaultGroup, true);
     }
 
     @Override
@@ -222,7 +265,7 @@ public class MnsRegistry implements Registry {
 
             throw new RegistryException("failed to get weight for " + serverAddress);
         } catch (Throwable e) {
-            logger.error("failed to get weight for " + serverAddress);
+            logger.info("failed to get weight for " + serverAddress);
             throw new RegistryException(e);
         }
     }
@@ -245,7 +288,7 @@ public class MnsRegistry implements Registry {
 
             throw new RegistryException("failed to get app for " + serverAddress);
         } catch (Throwable e) {
-            logger.error("failed to get app for " + serverAddress);
+            logger.info("failed to get app for " + serverAddress);
             throw new RegistryException(e);
         }
     }
@@ -268,7 +311,7 @@ public class MnsRegistry implements Registry {
 
             throw new RegistryException("failed to get version for " + serverAddress);
         } catch (Throwable e) {
-            logger.error("failed to get version for " + serverAddress);
+            logger.info("failed to get version for " + serverAddress);
             throw new RegistryException(e);
         }
     }
@@ -326,7 +369,7 @@ public class MnsRegistry implements Registry {
         try {
             sgService = getSGService(remoteAppkey, null, serverAddress);
         } catch (RegistryException e) {
-            logger.warn("failed to set server weight! no sg_service found of " + serverAddress);
+            logger.info("failed to set server weight! no sg_service found of " + serverAddress);
             return ;
         }
 
@@ -449,7 +492,7 @@ public class MnsRegistry implements Registry {
             }
 
         } catch (Throwable e) {
-            logger.error("failed to get server heartbeat support for " + serviceAddress);
+            logger.info("failed to get server heartbeat support for " + serviceAddress);
         }
 
         return HeartBeatSupport.BOTH.getValue();
@@ -504,6 +547,49 @@ public class MnsRegistry implements Registry {
     }
 
     @Override
+    public String getServiceAddress(String remoteAppkey, String serviceName, String group, boolean fallbackDefaultGroup, boolean needListener) throws RegistryException {
+        String result = "";
+
+        if (!checkSupport(serviceName, group)) {
+            return result;
+        }
+
+        ProtocolRequest protocolRequest = new ProtocolRequest();
+        protocolRequest.setProtocol("thrift");
+        protocolRequest.setLocalAppkey(configManager.getAppName());
+        protocolRequest.setServiceName(serviceName);
+        protocolRequest.setRemoteAppkey(remoteAppkey);
+        List<SGService> sgServices = MnsInvoker.getServiceList(protocolRequest);
+
+        // 添加listener，注意去重
+        if (needListener) {
+            mnsChangeListenerManager.registerListener(protocolRequest);
+        }
+
+        for (SGService sgService : sgServices) {
+            // 剔除掉octo的旧服务端
+            if (MnsUtils.checkVersion(sgService.getVersion())) {
+                String host = sgService.getIp() + ":" + sgService.getPort();
+                result += host + ",";
+                String remoteAppkeyReal = sgService.getAppkey();
+
+                if (remoteAppkeyReal == null) {
+                    remoteAppkeyReal = "";
+                }
+
+                hostRemoteAppkeyMapping.put(host, remoteAppkeyReal);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public String getServiceAddress(String serviceName, String group, boolean fallbackDefaultGroup, boolean needListener) throws RegistryException {
+        return getServiceAddress(null, serviceName, group, fallbackDefaultGroup, needListener);
+    }
+
+    @Override
     public void updateHeartBeat(String serviceAddress, Long heartBeatTimeMillis) {
         // keep blank
     }
@@ -525,15 +611,53 @@ public class MnsRegistry implements Registry {
 
     private boolean checkSupport(String serviceName, String group) {
         if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
-            logger.warn("mns does not support @HTTP@ service!");
+            logger.info("mns does not support @HTTP@ service!");
             return false;
         }
 
         if(StringUtils.isNotBlank(group)) {
-            logger.warn("mns does not support group feature!");
+            logger.info("mns does not support group feature!");
             return false;
         }
 
         return true;
+    }
+
+    private static class CheckResult {
+
+        private boolean data = false;
+        private boolean isSuccess = false;
+
+        public boolean getData() {
+            return data;
+        }
+
+        public void setData(boolean data) {
+            this.data = data;
+        }
+
+        public boolean getIsSuccess() {
+            return isSuccess;
+        }
+
+        public void setIsSuccess(boolean isSuccess) {
+            this.isSuccess = isSuccess;
+        }
+    }
+
+    private HttpClient getHttpClient() {
+        HttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
+        HttpConnectionManagerParams params = new HttpConnectionManagerParams();
+        params.setMaxTotalConnections(300);
+        params.setDefaultMaxConnectionsPerHost(50);
+        params.setConnectionTimeout(3000);
+        params.setTcpNoDelay(true);
+        params.setSoTimeout(3000);
+        params.setStaleCheckingEnabled(true);
+        connectionManager.setParams(params);
+        HttpClient httpClient = new HttpClient();
+        httpClient.setHttpConnectionManager(connectionManager);
+
+        return httpClient;
     }
 }

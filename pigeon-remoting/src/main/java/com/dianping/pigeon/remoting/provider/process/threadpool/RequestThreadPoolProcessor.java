@@ -51,13 +51,13 @@ public class RequestThreadPoolProcessor extends AbstractRequestProcessor {
 	private static ThreadPool sharedRequestProcessThreadPool = null;
 
 	private static final int SLOW_POOL_CORESIZE = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.pool.slow.coresize", 20);
+			"pigeon.provider.pool.slow.coresize", 30);
 
 	private static final int SLOW_POOL_MAXSIZE = ConfigManagerLoader.getConfigManager().getIntValue(
 			"pigeon.provider.pool.slow.maxsize", 200);
 
 	private static final int SLOW_POOL_QUEUESIZE = ConfigManagerLoader.getConfigManager().getIntValue(
-			"pigeon.provider.pool.slow.queuesize", 1);
+			"pigeon.provider.pool.slow.queuesize", 500);
 
 	private static ThreadPool slowRequestProcessThreadPool = new DefaultThreadPool(
 			"Pigeon-Server-Slow-Request-Processor", SLOW_POOL_CORESIZE, SLOW_POOL_MAXSIZE,

@@ -44,6 +44,7 @@ public enum DegradationManager {
 	private static ConcurrentHashMap<String, ConcurrentHashMap<Integer, Count>> requestSecondCountMap = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, Count>>();
 	private static volatile Map<String, Count> requestCountMap = null;
 	private static final String KEY_DEGRADE_FORCE = "pigeon.invoker.degrade.force";
+	private static final String KEY_DEGRADE_FAILURE = "pigeon.invoker.degrade.failure";
 	private static final String KEY_DEGRADE_AUTO = "pigeon.invoker.degrade.auto";
 	private static final String KEY_DEGRADE_RECOVER_PERCENT = "pigeon.invoker.degrade.recover.percent";
 	private static final String KEY_DEGRADE_RECOVER_INTERVAL = "pigeon.invoker.degrade.recover.interval";
@@ -81,6 +82,11 @@ public enum DegradationManager {
 		if (configManager.getBooleanValue(KEY_DEGRADE_FORCE, false)) {
 			return true;
 		}
+
+		if (configManager.getBooleanValue(KEY_DEGRADE_FAILURE, false)) {
+			return false;
+		}
+
 		if (configManager.getBooleanValue(KEY_DEGRADE_AUTO, false)) {
 			if (!CollectionUtils.isEmpty(requestCountMap)) {
 				String requestUrl = getRequestUrl(context);
@@ -150,6 +156,10 @@ public enum DegradationManager {
 				context.setDegraded();
 			}
 		}
+	}
+
+	public boolean needFailureDegrade() {
+		return configManager.getBooleanValue(KEY_DEGRADE_FAILURE, false);
 	}
 
 	public static class DegradeActionConfig implements Serializable {

@@ -61,8 +61,9 @@ public class RegistryServiceImpl implements RegistryService {
 
 	@Override
 	public String getServiceHosts(String serviceName, String group) throws RegistryException {
+		String result = registryManager.getServiceHosts(serviceName, group);
 
-		return registryManager.getServiceHosts(serviceName, group);
+		return result != null? result : "";
 	}
 
 	/**

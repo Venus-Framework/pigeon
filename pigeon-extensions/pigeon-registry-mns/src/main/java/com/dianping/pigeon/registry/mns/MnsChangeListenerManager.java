@@ -28,7 +28,7 @@ public enum MnsChangeListenerManager {
         if (!protocolRequests.contains(protocolRequest)) {
 
             if (ADD_LISTENER_SUCCESS_FLAG == MnsInvoker
-                    .addServiceListener(protocolRequest, new MnsServiceChangeListener())) {
+                    .addServiceListener(protocolRequest, MnsServiceChangeListener.INSTANCE)) {
                 protocolRequests.add(protocolRequest);
             } else {
                 logger.error("add listener failed to " + protocolRequest);

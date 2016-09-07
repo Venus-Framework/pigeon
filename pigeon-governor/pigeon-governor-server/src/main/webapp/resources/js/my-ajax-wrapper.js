@@ -38,6 +38,7 @@
             var wrapperObject = $(this);
             wrapperObject.html('');
             var originWidth = wrapperObject.width();
+            wrapperObject.height(originWidth/2);
             var ajaxType = settings.type;
             var ajaxUrl = settings.url;
             var ajaxData = settings.data;
@@ -54,6 +55,7 @@
                 dataType:ajaxDataType,
                 async:ajaxAsync,
                 success:function(data){
+                    wrapperObject.height('auto');
                     settings.successCallback();
                     wrapperObject.html(data);
                 }

@@ -4,7 +4,6 @@
 package com.dianping.dpsf;
 
 import com.dianping.pigeon.log.Logger;
-
 import com.dianping.pigeon.log.LoggerLoader;
 
 /**
@@ -19,6 +18,7 @@ import com.dianping.pigeon.log.LoggerLoader;
  * @version 1.0
  * @created 2010-9-2 下午05:58:39
  */
+@Deprecated
 public class DPSFLog {
 	private DPSFLog() {
 	}

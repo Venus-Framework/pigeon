@@ -18,6 +18,12 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
 import com.dianping.pigeon.remoting.provider.config.ServerConfig;
 
+/**
+ * 
+ * @deprecated
+ * @see com.dianping.pigeon.remoting.provider.config.spring.ServiceBean
+ */
+@Deprecated
 public final class ServiceRegistry {
 
 	private static final Logger logger = LoggerLoader.getLogger(ServiceRegistry.class);
@@ -32,8 +38,8 @@ public final class ServiceRegistry {
 	private int corePoolSize = Constants.PROVIDER_POOL_CORE_SIZE;
 	private int maxPoolSize = Constants.PROVIDER_POOL_MAX_SIZE;
 	private int workQueueSize = Constants.PROVIDER_POOL_QUEUE_SIZE;
-	private boolean enableTest = configManager
-			.getBooleanValue(Constants.KEY_TEST_ENABLE, Constants.DEFAULT_TEST_ENABLE);
+	private boolean enableTest = configManager.getBooleanValue(Constants.KEY_TEST_ENABLE,
+			Constants.DEFAULT_TEST_ENABLE);
 	@Deprecated
 	private int enginePort = ServerConfig.DEFAULT_HTTP_PORT;
 	@Deprecated

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.dianping.pigeon.extension.ExtensionLoader;
 import org.apache.commons.lang.StringUtils;
 
 import com.dianping.pigeon.registry.Registry;
@@ -17,7 +18,16 @@ import com.dianping.pigeon.remoting.provider.config.annotation.Service;
 @Service
 public class RegistrationInfoServiceDefaultImpl implements RegistrationInfoService {
 
-	private static Registry registry = RegistryManager.getInstance().getRegistry();
+	private static Registry registry = null;
+
+	static {
+		List<Registry> _registryList = ExtensionLoader.getExtensionList(Registry.class);
+		for (Registry _registry : _registryList) {
+			if(_registry instanceof CuratorRegistry) {
+				registry = _registry;
+			}
+		}
+	}
 
 	@Override
 	public String getAppOfService(String url, String group) throws RegistryException {

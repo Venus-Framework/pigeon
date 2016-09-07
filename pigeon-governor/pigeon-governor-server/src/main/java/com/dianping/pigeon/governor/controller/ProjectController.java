@@ -55,19 +55,19 @@ public class ProjectController extends BaseController {
 	 * @param response
 	 * @return
 	 */
-	@RequestMapping(value = {"/","/index"}, method = RequestMethod.GET)
-	public String index(ModelMap modelMap,
-								   HttpServletRequest request,
-								   HttpServletResponse response) {
-		commonnav(modelMap, request);
-		List<Project> projects = projectService.retrieveAllIdNamesByCache();
-		List<ServiceNode> serviceNodes = serviceNodeService.retrieveAllIdNamesByCache();
-
-		modelMap.addAttribute("projects", gson.toJson(projects));
-		modelMap.addAttribute("serviceNodes", gson.toJson(serviceNodes));
-
-		return "/index";
-	}
+//	@RequestMapping(value = {"/","/index"}, method = RequestMethod.GET)
+//	public String index(ModelMap modelMap,
+//								   HttpServletRequest request,
+//								   HttpServletResponse response) {
+//		commonnav(modelMap, request);
+//		List<Project> projects = projectService.retrieveAllIdNamesByCache();
+//		List<ServiceNode> serviceNodes = serviceNodeService.retrieveAllIdNamesByCache();
+//
+//		modelMap.addAttribute("projects", gson.toJson(projects));
+//		modelMap.addAttribute("serviceNodes", gson.toJson(serviceNodes));
+//
+//		return "/index";
+//	}
 
 	/**
 	 * 显示我的应用

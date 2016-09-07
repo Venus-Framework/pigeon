@@ -24,7 +24,10 @@ import com.dianping.pigeon.remoting.provider.config.ServerConfig;
  * @author saber miao
  * @version 1.0
  * @created 2010-8-26 上午10:43:19
+ * @deprecated
+ * @see com.dianping.pigeon.remoting.provider.config.spring.ServiceBean
  */
+@Deprecated
 public class ServiceRegistry {
 
 	private Map<String, Object> services;

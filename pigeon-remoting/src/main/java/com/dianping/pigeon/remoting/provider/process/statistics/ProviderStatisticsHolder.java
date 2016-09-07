@@ -18,6 +18,9 @@ public final class ProviderStatisticsHolder {
 
 	private static ConcurrentHashMap<String, ProviderCapacityBucket> methodCapacityBuckets = new ConcurrentHashMap<String, ProviderCapacityBucket>();
 
+	private static ConcurrentHashMap<String, ConcurrentHashMap<String, ProviderCapacityBucket>>
+			methodAppCapacityBuckets = new ConcurrentHashMap<>();
+
 	public static final boolean statEnable = ConfigManagerLoader.getConfigManager().getBooleanValue(
 			"pigeon.providerstat.enable", true);
 
@@ -30,6 +33,38 @@ public final class ProviderStatisticsHolder {
 
 	public static ConcurrentHashMap<String, ProviderCapacityBucket> getMethodCapacityBuckets() {
 		return methodCapacityBuckets;
+	}
+
+	public static ConcurrentHashMap<String, ConcurrentHashMap<String, ProviderCapacityBucket>> getMethodAppCapacityBuckets() {
+		return methodAppCapacityBuckets;
+	}
+
+	public static ProviderCapacityBucket getMethodAppCapacityBucket(InvocationRequest request) {
+		final String requestMethod = request.getServiceName() + "#" + request.getMethodName();
+		ConcurrentHashMap<String, ProviderCapacityBucket> appBarrelMap = methodAppCapacityBuckets.get(requestMethod);
+		if (appBarrelMap == null) {
+			ConcurrentHashMap<String, ProviderCapacityBucket> newAppBarrelMap = new ConcurrentHashMap<>();
+			appBarrelMap = methodAppCapacityBuckets.putIfAbsent(requestMethod, newAppBarrelMap);
+			if (appBarrelMap == null) {
+				appBarrelMap = newAppBarrelMap;
+			}
+		}
+
+		String fromApp = request.getApp();
+		if (fromApp == null) {
+			fromApp = "";
+		}
+
+		ProviderCapacityBucket barrel = appBarrelMap.get(fromApp);
+		if (barrel == null) {
+			ProviderCapacityBucket newBarrel = new ProviderCapacityBucket(fromApp);
+			barrel = appBarrelMap.putIfAbsent(fromApp, newBarrel);
+			if (barrel == null) {
+				barrel = newBarrel;
+			}
+		}
+
+		return barrel;
 	}
 
 	public static ProviderCapacityBucket getCapacityBucket(InvocationRequest request) {
@@ -76,6 +111,12 @@ public final class ProviderStatisticsHolder {
 			if (methodBarrel != null) {
 				methodBarrel.flowIn(request);
 			}
+
+			// method app level
+			ProviderCapacityBucket methodAppBarrel = getMethodAppCapacityBucket(request);
+			if (methodAppBarrel != null) {
+				methodAppBarrel.flowIn(request);
+			}
 		}
 	}
 
@@ -92,6 +133,12 @@ public final class ProviderStatisticsHolder {
 			ProviderCapacityBucket methodBarrel = getCapacityBucket(requestMethod);
 			if (methodBarrel != null) {
 				methodBarrel.flowOut(request);
+			}
+
+			// method app level
+			ProviderCapacityBucket methodAppBarrel = getMethodAppCapacityBucket(request);
+			if (methodAppBarrel != null) {
+				methodAppBarrel.flowOut(request);
 			}
 		}
 	}

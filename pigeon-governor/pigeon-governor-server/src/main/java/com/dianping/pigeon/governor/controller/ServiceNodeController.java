@@ -114,12 +114,54 @@ public class ServiceNodeController extends BaseController {
         return "/serviceNodes/list4project";
     }
 
-    @RequestMapping(value = {"/services/edit/{projectName:.+}"}, method = RequestMethod.POST)
+    @RequestMapping(value = {"/services/add/{projectName:.+}"}, method = RequestMethod.POST)
     @ResponseBody
-    public Result servicesapi4project(ServiceUpdateBean serviceUpdateBean,
+    public Result servicesAdd(ServiceUpdateBean serviceUpdateBean,
                                       @PathVariable String projectName,
                                       HttpServletRequest request,
-                                      HttpServletResponse response) {//设置为void的时候要设置response参数
+                                      HttpServletResponse response) {
+        Result result = null;
+
+        try {
+            Set<String> toAddHosts = new HashSet<String>(serviceUpdateBean.getToAddHosts());
+            String serviceName = serviceUpdateBean.getServiceName();
+            String group = serviceUpdateBean.getGroup();
+
+            // 添加服务节点
+            Set<String> addHosts2db = updateAddHosts(toAddHosts, serviceName, group, projectName);
+
+            // 从zk拉取服务列表尝试更新
+            String hostsZk = registryService.getServiceHosts(serviceName, group);
+            Set<String> toUpdateHosts = Sets.newHashSet(hostsZk.split(","));
+            toUpdateHosts.addAll(addHosts2db);
+            registryService.registryUpdateService(serviceName, group, toUpdateHosts, addHosts2db);
+
+            //打数据库日志
+            String content = String.format("add srv=%s&grp=%s&hsts=%s",
+                    serviceName, group, StringUtils.join(toUpdateHosts, ","));
+            workThreadPool.submit(new LogOpRun(request, OpType.CREATE_PIGEON_SERVICE, content, null));
+
+            result = Result.createSuccessResult(toUpdateHosts);
+        } catch (RegistryException e) {
+            logger.error(e);
+            //response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            result = Result.createErrorResult("update zk error");
+            // todo zk更新失败要不要回滚？
+        } catch (Throwable t) {
+            logger.error(t);
+            //response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            result = Result.createErrorResult("add service node error! msg: " + t);
+        }
+
+        return result;
+    }
+
+    @RequestMapping(value = {"/services/edit/{projectName:.+}"}, method = RequestMethod.POST)
+    @ResponseBody
+    public Result servicesEdit(ServiceUpdateBean serviceUpdateBean,
+                                      @PathVariable String projectName,
+                                      HttpServletRequest request,
+                                      HttpServletResponse response) {
         Result result = null;
 
         try {
@@ -149,14 +191,14 @@ public class ServiceNodeController extends BaseController {
 
             result = Result.createSuccessResult(toUpdateHosts);
         } catch (RegistryException e) {
-            logger.error(e.getMessage());
+            logger.error(e);
             //response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             result = Result.createErrorResult("update zk error");
             // todo zk更新失败要不要回滚？
         } catch (Throwable t) {
-            logger.error(t.getMessage());
+            logger.error(t);
             //response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            result = Result.createErrorResult("edit service node error! msg: " + t.getMessage());
+            result = Result.createErrorResult("edit service node error! msg: " + t);
         }
 
         return result;

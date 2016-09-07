@@ -168,7 +168,7 @@ public class ServiceDescController extends BaseController{
                                   HttpServletResponse response,
                                    ModelMap modelMap){
         commonnav(modelMap, request);
-        return "/doc/esSearch";
+        return "/v2/serviceDoc/esSearch";
     }
 
 

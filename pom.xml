@@ -14,11 +14,32 @@
 	<inceptionYear>2010.08</inceptionYear>
 	<properties>
 		<pigeon.version>${project.version}</pigeon.version>
-		<spring_version>2.5.6</spring_version>
-		<jetty_version>6.1.26</jetty_version>
+		<spring.version>2.5.6</spring.version>
+		<jetty.version>6.1.26</jetty.version>
 		<swift.version>0.16.0-mt-SNAPSHOT</swift.version>
 		<thrift.version>0.8.0</thrift.version>
 		<snappy-java.version>1.1.1.6</snappy-java.version>
+		<hessian.version>3.1.5</hessian.version>
+		<guava.version>18.0</guava.version>
+		<zookeeper.version>3.4.6</zookeeper.version>
+		<protobuf-java.version>2.4.1</protobuf-java.version>
+		<junit.version>4.11</junit.version>
+		<commons-lang>2.6</commons-lang>
+		<log4j-api.version>2.3</log4j-api.version>
+		<log4j-core.version>2.3</log4j-core.version>
+		<netty.version>3.7.0.Final</netty.version>
+		<protostuff.version>1.1.0</protostuff.version>
+		<objenesis.version>2.1</objenesis.version>
+		<fst.version>1.63</fst.version>
+		<commons-httpclient.version>3.1</commons-httpclient.version>
+		<commons-codec.version>1.9</commons-codec.version>
+		<jackson-databind.version>2.1.4</jackson-databind.version>
+		<jetty-servlet-api.version>2.5-20081211</jetty-servlet-api.version>
+		<freemarker.version>2.3.19</freemarker.version>
+
+		<avatar-tracker.version>2.1.9</avatar-tracker.version>
+		<cat.version>1.5.0</cat.version>
+		<lion.version>0.6.1</lion.version>
 	</properties>
 	<modules>
 		<module>pigeon-common</module>
@@ -74,122 +95,128 @@
 				<role>Committer</role>
 			</roles>
 		</developer>
+		<developer>
+			<id>qi.yin</id>
+			<name>qi.yin</name>
+			<organization>dianping</organization>
+			<roles>
+				<role>Committer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>huasheng.shi</id>
+			<name>huasheng.shi</name>
+			<organization>dianping</organization>
+			<roles>
+				<role>Committer</role>
+			</roles>
+		</developer>
 	</developers>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>com.caucho</groupId>
 				<artifactId>hessian</artifactId>
-				<version>3.1.5</version>
+				<version>${hessian.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>18.0</version>
+				<version>${guava.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.protobuf</groupId>
 				<artifactId>protobuf-java</artifactId>
-				<version>2.4.1</version>
+				<version>${protobuf-java.version}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<version>4.11</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jmockit</groupId>
-				<artifactId>jmockit</artifactId>
-				<version>1.23</version>
+				<version>${junit.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-lang</groupId>
 				<artifactId>commons-lang</artifactId>
-				<version>2.6</version>
+				<version>${commons-lang}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-api</artifactId>
-				<version>2.3</version>
+				<version>${log4j-api.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-core</artifactId>
-				<version>2.3</version>
+				<version>${log4j-core.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.netty</groupId>
 				<artifactId>netty</artifactId>
-				<version>3.7.0.Final</version>
+				<version>${netty.version}</version>
 			</dependency>
 			<dependency>
 				<artifactId>protostuff-runtime</artifactId>
 				<groupId>io.protostuff</groupId>
-				<version>1.1.0</version>
+				<version>${protostuff.version}</version>
 			</dependency>
 			<dependency>
 				<artifactId>protostuff-core</artifactId>
 				<groupId>io.protostuff</groupId>
-				<version>1.1.0</version>
+				<version>${protostuff.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.objenesis</groupId>
 				<artifactId>objenesis</artifactId>
-				<version>2.1</version>
+				<version>${objenesis.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.ruedigermoeller</groupId>
 				<artifactId>fst</artifactId>
-				<version>1.63</version>
+				<version>${fst.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-httpclient</groupId>
 				<artifactId>commons-httpclient</artifactId>
-				<version>3.1</version>
+				<version>${commons-httpclient.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
-				<version>1.9</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-logging</groupId>
-				<artifactId>commons-logging-api</artifactId>
-				<version>1.1</version>
+				<version>${commons-codec.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
-				<version>${spring_version}</version>
+				<version>${spring.version}</version>
 				<optional>true</optional>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
-				<version>${spring_version}</version>
+				<version>${spring.version}</version>
 				<optional>true</optional>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
-				<version>${spring_version}</version>
+				<version>${spring.version}</version>
 				<optional>true</optional>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.zookeeper</groupId>
 				<artifactId>zookeeper</artifactId>
-				<version>3.4.6</version>
+				<version>${zookeeper.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.1.4</version>
+				<version>${jackson-databind.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>jetty</artifactId>
-				<version>${jetty_version}</version>
+				<version>${jetty.version}</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.mortbay.jetty</groupId>
@@ -200,36 +227,30 @@
 			<dependency>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>servlet-api</artifactId>
-				<version>2.5-20081211</version>
+				<version>${jetty-servlet-api.version}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.freemarker</groupId>
 				<artifactId>freemarker</artifactId>
-				<version>2.3.19</version>
+				<version>${freemarker.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.dianping.lion</groupId>
 				<artifactId>lion-client</artifactId>
-				<version>0.6.1</version>
+				<version>${lion.version}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.dianping</groupId>
 				<artifactId>avatar-tracker</artifactId>
-				<version>2.1.9</version>
+				<version>${avatar-tracker.version}</version>
 				<optional>true</optional>
 			</dependency>
 			<dependency>
 				<groupId>com.dianping.cat</groupId>
-				<artifactId>cat-core</artifactId>
-				<version>1.4.9</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.dianping.cat</groupId>
 				<artifactId>cat-client</artifactId>
-				<version>1.4.9</version>
+				<version>${cat.version}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>

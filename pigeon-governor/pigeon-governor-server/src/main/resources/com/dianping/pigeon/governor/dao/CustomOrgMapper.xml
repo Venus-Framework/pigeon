@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dianping.pigeon.governor.dao.CustomOrgMapper">
+
+
+    <resultMap id="ProjectResultMap" type="com.dianping.pigeon.governor.model.Project" >
+
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="level" property="level" jdbcType="INTEGER" />
+        <result column="bu" property="bu" jdbcType="VARCHAR" />
+        <result column="owner" property="owner" jdbcType="VARCHAR" />
+        <result column="email" property="email" jdbcType="VARCHAR" />
+        <result column="phone" property="phone" jdbcType="VARCHAR" />
+        <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <resultMap id="ProjectOrgResultMap" type="com.dianping.pigeon.governor.model.ProjectOrg">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="bu" jdbcType="VARCHAR" property="bu" />
+        <result column="product" jdbcType="VARCHAR" property="product" />
+        <result column="updateTime" jdbcType="TIMESTAMP" property="updatetime" />
+    </resultMap>
+    <update id="updateProject" parameterType="com.dianping.pigeon.governor.model.Project">
+        UPDATE project
+        <set>
+            <if test="record.level != null" >
+                level = #{record.level,jdbcType=INTEGER},
+            </if>
+            <if test="record.bu != null" >
+                bu = #{record.bu,jdbcType=VARCHAR},
+            </if>
+            <if test="record.owner != null" >
+                owner = #{record.owner,jdbcType=VARCHAR},
+            </if>
+            <if test="record.email != null" >
+                email = #{record.email,jdbcType=VARCHAR},
+            </if>
+            <if test="record.phone != null" >
+                phone = #{record.phone,jdbcType=VARCHAR},
+            </if>
+        </set>
+        WHERE project.name = #{record.name,jdbcType=VARCHAR}
+    </update>
+    <update id="updateProjectOrg" parameterType="com.dianping.pigeon.governor.model.ProjectOrg">
+        update organization
+        <set>
+            <if test="bu != null">
+                bu = #{bu,jdbcType=VARCHAR},
+            </if>
+            <if test="product != null">
+                product = #{product,jdbcType=VARCHAR},
+            </if>
+        </set>
+        WHERE organization.name = #{name,jdbcType=VARCHAR}
+    </update>
+    <select id="getAllProjectOrg" resultType="com.dianping.pigeon.governor.model.ProjectOrg">
+        SELECT * FROM organization
+    </select>
+</mapper>

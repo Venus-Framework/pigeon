@@ -1,0 +1,134 @@
+#set($layout="layoutblank.vm")
+##<div class="row">
+##    <div class="col-xs-3">
+##
+##    </div>
+##    <div class="col-xs-3">
+##        <div id ="auto-switcher" >
+##            <span class="blue">自动服务降级: &nbsp;</span>
+##            <input type="checkbox" name="auto-checkbox" />
+##        </div>
+##    </div>
+##    <div class="col-xs-3">
+##        <div id="failure-switcher">
+##            <span class="blue">失败服务降级</span>
+##            <input type="checkbox" name="failure-checkbox"/>
+##        </div>
+##    </div>
+##    <div class="col-xs-3">
+##        <div>
+##            <span class="my_tooltip" data-tooltip-content="#tooltip_content">This span has a tooltip with HTML when you hover over it!</span>
+##
+##            <div class="tooltip_templates" style="display: none;">
+##    <span id="tooltip_content">
+##      <p>nihaonihao</p>
+##    </span>
+##            </div>
+##        </div>
+##    </div>
+##    <script>
+##        $('.my_tooltip').tooltipster();
+##    </script>
+##</div>
+<div class="row">
+    <div class="alert alert-block alert-info">
+        <i class="ace-icon fa fa-check"></i>
+        <strong>Pigeon自<span class="green">2.8.1</span>版本起全面支持服务降级.</strong>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-3">
+        <div id ="auto-switcher" >
+            <span class="blue">自动服务降级: &nbsp;</span>
+            <input type="checkbox" name="auto-checkbox" />
+        </div>
+    </div>
+    <div class="col-xs-9">
+        <span>自动降级开关是在调用端设置.开启自动降级后，调用端如果调用某个服务出现连续的超时或不可用，当一段时间内（10秒内）失败率超过一定阀值（默认1%）会触发自动降级.调用端会根据配置的降级策略直接返回默认值、抛出降级异常或者采用配置的MOCK实现类返回具体调用值.</span>
+    </div>
+</div>
+<hr class="hr-dotted">
+<div class="row">
+    <div class="col-xs-3">
+        <div id="failure-switcher">
+            <span class="blue">失败服务降级: &nbsp;</span>
+            <input type="checkbox" name="failure-checkbox"/>
+        </div>
+    </div>
+    <div class="col-xs-9">
+        <span>失败服务降级开启后,客户端的所有调用请求都会发送至服务端.如果服务端返回调用失败,此时会根据配置的降级策略,选择相应的返回方式(抛出异常、返回配置降级返回值或交由MOCK类返回值).</span>
+    </div>
+</div>
+<hr class="hr-dotted">
+<div class="row">
+    <div class="col-xs-3">
+        <div id="force-switcher">
+            <span class="blue">强制服务降级: &nbsp;</span>
+            <input type="checkbox" name="force-checkbox"/>
+        </div>
+    </div>
+    <div class="col-xs-9">
+        <span>强制降级开关只是在远程服务大量超时或其他不可用情况，紧急时进行设置.开启后，调用端会根据配置的降级策略直接返回默认值,抛出降级异常或交由MOCK处理.当远程服务恢复后，建议关闭此开关.</span>
+        <span>pigeon.invoker.degrade.recover.percent</span>
+    </div>
+</div>
+<hr class="hr-dotted">
+<div class="row">
+    <div id="configs" class="col-xs-12"></div>
+</div>
+<script>
+    jQuery(function($) {
+        var hash = window.location.hash;
+        var projectName = hash.split("/")[2];
+        $("#force-switcher").switcher({
+            enable:$switcherEnable,
+            initState:$forceState,
+            falseToTrueValidateText:"<span class='bigger-110'>是否开启强制服务降级</span>",
+            falseToTrueType:"post",
+            falseToTrueUrl:"/degrade/force/enable",
+            falseToTrueData:{"projectName":projectName},
+            falseToTrueDataType:"html",
+            trueToFalseValidateText:"<span class='bigger-110'>是否关闭强制服务降级</span>",
+            trueToFalseType:"post",
+            trueToFalseUrl:"/degrade/force/disable",
+            trueToFalseData:{"projectName":projectName},
+            trueToFalseDataType:"html",
+            name:"force-checkbox"
+        })
+        $("#auto-switcher").switcher({
+            enable:$switcherEnable,
+            initState:$autoState,
+            falseToTrueValidateText:"<span class='bigger-110'>是否开启自动服务降级</span>",
+            falseToTrueType:"post",
+            falseToTrueUrl:"/degrade/auto/enable",
+            falseToTrueData:{"projectName":projectName},
+            falseToTrueDataType:"html",
+            trueToFalseValidateText:"<span class='bigger-110'>是否关闭自动服务降级</span>",
+            trueToFalseType:"post",
+            trueToFalseUrl:"/degrade/auto/disable",
+            trueToFalseData:{"projectName":projectName},
+            trueToFalseDataType:"html",
+            name:"auto-checkbox"
+        });
+        $("#failure-switcher").switcher({
+            enable:$switcherEnable,
+            initState:$failureState,
+            falseToTrueValidateText:"<span class='bigger-110'>是否开启失败服务降级</span>",
+            falseToTrueType:"post",
+            falseToTrueUrl:"/degrade/failure/enable",
+            falseToTrueData:{"projectName":projectName},
+            falseToTrueDataType:"html",
+            trueToFalseValidateText:"<span class='bigger-110'>是否关闭失败服务降级</span>",
+            trueToFalseType:"post",
+            trueToFalseUrl:"/degrade/failure/disable",
+            trueToFalseData:{"projectName":projectName},
+            trueToFalseDataType:"html",
+            name:"failure-checkbox"
+        })
+        $("#configs").ajaxLoad({
+            url:"/degrade/configs",
+            type:"post",
+            data:{"projectName":projectName}
+        });
+    });
+</script>

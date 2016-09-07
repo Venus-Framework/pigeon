@@ -4,13 +4,6 @@
  */
 package com.dianping.pigeon.remoting.invoker.process.filter;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.util.CollectionUtils;
-
 import com.dianping.pigeon.config.ConfigChangeListener;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -38,17 +31,23 @@ import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceDegradedException;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.process.DegradationManager;
-import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
 import com.dianping.pigeon.remoting.invoker.process.DegradationManager.DegradeActionConfig;
+import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
 import com.dianping.pigeon.remoting.invoker.proxy.MockProxyWrapper;
 import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.CollectionUtils;
+
+import java.io.Serializable;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author xiangwu
- * 
+ *
  */
 public class DegradationFilter extends InvocationInvokeFilter {
 
@@ -126,14 +125,14 @@ public class DegradationFilter extends InvocationInvokeFilter {
 								Object returnObj = null;
 
 								if (degradeAction.isUseMockClass()) {
-									// 使用mock接口类的方法
+									// ä½¿ç”¨mockæŽ¥å£ç±»çš„æ–¹æ³•
 								} else if (degradeAction.isThrowException()) {
 									if (StringUtils.isNotBlank(degradeActionConfig.getReturnClass())) {
-										returnObj = jacksonSerializer
-												.toObject(Class.forName(degradeActionConfig.getReturnClass()), content);
+										returnObj = jacksonSerializer.toObject(
+												Class.forName(degradeActionConfig.getReturnClass()), content);
 										if (!(returnObj instanceof Exception)) {
-											throw new IllegalArgumentException(
-													"Invalid exception class:" + degradeActionConfig.getReturnClass());
+											throw new IllegalArgumentException("Invalid exception class:"
+													+ degradeActionConfig.getReturnClass());
 										}
 										degradeAction.setReturnObj(returnObj);
 									}
@@ -149,8 +148,8 @@ public class DegradationFilter extends InvocationInvokeFilter {
 												Class.forName(degradeActionConfig.getReturnClass()),
 												Class.forName(degradeActionConfig.getComponentClass()));
 									} else if (StringUtils.isNotBlank(degradeActionConfig.getReturnClass())) {
-										returnObj = jacksonSerializer
-												.toObject(Class.forName(degradeActionConfig.getReturnClass()), content);
+										returnObj = jacksonSerializer.toObject(
+												Class.forName(degradeActionConfig.getReturnClass()), content);
 									}
 									degradeAction.setReturnObj(returnObj);
 								}
@@ -211,6 +210,96 @@ public class DegradationFilter extends InvocationInvokeFilter {
 		return response;
 	}
 
+	@Override
+	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext context) throws Throwable {
+		context.getTimeline().add(new TimePoint(TimePhase.D));
+		if (DegradationManager.INSTANCE.needDegrade(context)) {
+			return mockResponse(context);
+		} else {
+			boolean failed = false;
+			InvocationResponse response;
+			try {
+				response = handler.handle(context);
+				Object responseReturn = response.getReturn();
+				if (responseReturn != null) {
+					int messageType = response.getMessageType();
+					if (messageType == Constants.MESSAGE_TYPE_EXCEPTION) {
+						RpcException rpcException = InvokerUtils.toRpcException(response);
+						if (rpcException instanceof RemoteInvocationException || rpcException instanceof RejectedException) {
+							failed = true;
+							DegradationManager.INSTANCE.addFailedRequest(context, rpcException);
+						}
+					}
+				}
+
+				return response;
+
+			} catch (ServiceUnavailableException | RemoteInvocationException | RequestTimeoutException | RejectedException e) {
+				failed = true;
+
+				if (DegradationManager.INSTANCE.needFailureDegrade()) {
+					return mockResponse(context);
+				} else {
+					DegradationManager.INSTANCE.addFailedRequest(context, e);
+					throw e;
+				}
+			} finally {
+				RequestQualityManager.INSTANCE.addClientRequest(context, failed);
+			}
+		}
+	}
+
+	private InvocationResponse mockResponse(InvokerContext context) throws Throwable {
+		String key = DegradationManager.INSTANCE.getRequestUrl(context);
+		Object defaultResult = InvokerHelper.getDefaultResult();
+		DegradeAction action = degradeMethodActions.get(key);
+
+		if (defaultResult == null && action != null) {
+			try {
+				defaultResult = action.getReturnObj();
+
+				if (action.isUseMockClass()) {
+
+					if (context.getInvokerConfig().getMock() != null) {
+						defaultResult = getMockResult(context);
+					} else {
+						logger.warn("no mock obj defined in invoker config, return null instead!");
+					}
+
+				} else if (action.isThrowException()) {
+
+					return throwException(key, context, action);
+				}
+
+				return makeDefaultResponse(context, defaultResult);
+
+			} finally {
+				DegradationManager.INSTANCE.addDegradedRequest(context);
+			}
+		} else if(defaultResult == null) {
+			logger.warn("no degrade method action found, return null instead!");
+		}
+
+		try {
+			return makeDefaultResponse(context, defaultResult);
+		} finally {
+			DegradationManager.INSTANCE.addDegradedRequest(context);
+		}
+	}
+
+	private Object getMockResult(InvokerContext context) throws Throwable {
+		InvokerConfig invokerConfig = context.getInvokerConfig();
+		String mockService = invokerConfig.getUrl();
+		MockProxyWrapper mockProxyWrapper = mocks.get(mockService);
+
+		if (mockProxyWrapper == null) {
+			mockProxyWrapper = new MockProxyWrapper(invokerConfig.getMock());
+		}
+
+		return mockProxyWrapper.invoke(context.getMethodName(),
+				context.getParameterTypes(), context.getArguments());
+	}
+
 	protected InvocationResponse throwException(String key, InvokerContext context, DegradeAction action)
 			throws Exception {
 		Exception exception;
@@ -263,94 +352,6 @@ public class DegradationFilter extends InvocationInvokeFilter {
 		}
 		((DefaultInvokerContext) context).setResponse(response);
 		return response;
-	}
-
-	@Override
-	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext context) throws Throwable {
-		context.getTimeline().add(new TimePoint(TimePhase.D));
-		if (DegradationManager.INSTANCE.needDegrade(context)) {
-			String key = DegradationManager.INSTANCE.getRequestUrl(context);
-			if (degradeMethodActions.containsKey(key)) {
-				Object defaultResult = InvokerHelper.getDefaultResult();
-				if (defaultResult != null) {
-					try {
-						return makeDefaultResponse(context, defaultResult);
-					} finally {
-						DegradationManager.INSTANCE.addDegradedRequest(context);
-					}
-				} else {
-					DegradeAction action = degradeMethodActions.get(key);
-					if (action != null) {
-						try {
-							defaultResult = action.getReturnObj();
-							if (action.isUseMockClass()) {
-								if (context.getInvokerConfig().getMock() != null) {
-									defaultResult = getMockResult(context);
-								} else {
-									logger.warn("no mock obj defined in invoker config, return null instead!");
-								}
-								return makeDefaultResponse(context, defaultResult);
-							} else if (action.isThrowException()) {
-								return throwException(key, context, action);
-							} else {
-								return makeDefaultResponse(context, defaultResult);
-							}
-						} finally {
-							DegradationManager.INSTANCE.addDegradedRequest(context);
-						}
-					}
-				}
-			}
-		}
-
-		boolean failed = false;
-		InvocationResponse response;
-		try {
-			response = handler.handle(context);
-			Object responseReturn = response.getReturn();
-			if (responseReturn != null) {
-				int messageType = response.getMessageType();
-				if (messageType == Constants.MESSAGE_TYPE_EXCEPTION) {
-					RpcException rpcException = InvokerUtils.toRpcException(response);
-					if (rpcException instanceof RemoteInvocationException
-							|| rpcException instanceof RejectedException) {
-						failed = true;
-						DegradationManager.INSTANCE.addFailedRequest(context, rpcException);
-					}
-				}
-			}
-			return response;
-		} catch (ServiceUnavailableException e) {
-			failed = true;
-			DegradationManager.INSTANCE.addFailedRequest(context, e);
-			throw e;
-		} catch (RequestTimeoutException e) {
-			failed = true;
-			DegradationManager.INSTANCE.addFailedRequest(context, e);
-			throw e;
-		} catch (RemoteInvocationException e) {
-			failed = true;
-			DegradationManager.INSTANCE.addFailedRequest(context, e);
-			throw e;
-		} catch (RejectedException e) {
-			failed = true;
-			DegradationManager.INSTANCE.addFailedRequest(context, e);
-			throw e;
-		} finally {
-			RequestQualityManager.INSTANCE.addClientRequest(context, failed);
-		}
-	}
-
-	private Object getMockResult(InvokerContext context) throws Throwable {
-		InvokerConfig invokerConfig = context.getInvokerConfig();
-		String mockService = invokerConfig.getUrl();
-		MockProxyWrapper mockProxyWrapper = mocks.get(mockService);
-
-		if (mockProxyWrapper == null) {
-			mockProxyWrapper = new MockProxyWrapper(invokerConfig.getMock());
-		}
-
-		return mockProxyWrapper.invoke(context.getMethodName(), context.getParameterTypes(), context.getArguments());
 	}
 
 	private static class DegradeAction implements Serializable {

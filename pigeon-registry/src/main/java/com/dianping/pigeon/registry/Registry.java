@@ -9,6 +9,8 @@ public interface Registry {
 
 	void init(Properties properties);
 
+	boolean isEnable();
+
 	String getName();
 
 	String getValue(String key);
@@ -92,4 +94,12 @@ public interface Registry {
 
 	// for governor
 	void setHostsWeight(String serviceName, String group, String hosts, int weight) throws RegistryException;
+
+	// for governor
+	String getServiceAddress(String remoteAppkey, String serviceName, String group,
+							 boolean fallbackDefaultGroup, boolean needListener) throws RegistryException;
+
+	// for governor
+	String getServiceAddress(String serviceName, String group,
+							 boolean fallbackDefaultGroup, boolean needListener) throws RegistryException;
 }
