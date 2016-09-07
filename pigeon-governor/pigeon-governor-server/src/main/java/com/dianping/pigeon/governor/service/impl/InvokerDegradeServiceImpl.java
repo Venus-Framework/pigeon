@@ -298,7 +298,7 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
 
     //TODO better define.
     private int returnValueAnalysis(String returnValue){
-        if(returnValue==null||returnValue.equals("null")){
+        if(returnValue==null||returnValue.equals("null")||returnValue.equals("")){
             return 0;
         }
         if(returnValue.contains("returnClass")){
@@ -307,7 +307,9 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
         if(returnValue.contains("throwException")){
             return 2;
         }
-        return 3;
+        if(returnValue.equals("{\"useMockClass\":\"true\"}"))
+            return 3;
+        return 0;
     }
 
 

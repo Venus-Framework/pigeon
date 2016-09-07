@@ -9,6 +9,7 @@ import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.ProjectOrg;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.*;
+import com.dianping.pigeon.governor.task.organization.OrgUpdateTask;
 import com.dianping.pigeon.governor.util.GsonUtils;
 import com.dianping.pigeon.governor.util.UserRole;
 import org.json.JSONArray;
@@ -46,6 +47,8 @@ public class FrameworkController extends BaseController{
     @Autowired
     private ProjectOwnerService projectOwnerService;
     private InnerCache cache;
+    @Autowired
+    private OrgUpdateTask orgUpdateTask;
     @PostConstruct
     public void init(){
         this.cache = new InnerCache(2,5);
@@ -209,5 +212,12 @@ public class FrameworkController extends BaseController{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @RequestMapping(value={"/framework/startOrgFetch"},method = RequestMethod.GET)
+    public void startOrgFetch(HttpServletRequest request,
+                              HttpServletResponse response,
+                              ModelMap modelMap){
+        this.orgUpdateTask.start();
     }
 }

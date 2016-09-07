@@ -337,7 +337,7 @@
                                             "serviceName":$("#typeahead-service-name").val(),
                                             "methodName":$("#method-name").val()
                                         };
-                                        var rawValue="null";
+                                        var rawValue="";
                                         data.value=rawValue;
                                         ajaxContent={'url':'/config/degrade/add','data':data};
                                         updateConfig(ajaxContent);
@@ -423,7 +423,7 @@
                 inputObjs: [$("#form-1"), $("#form-2"), $("#form-3"), $("#form-4")],
                 callbacks: [
                     function () {
-                        var rawValue="null";
+                        var rawValue="";
                         data.value=rawValue;
                         ajaxContent={'url':'/config/degrade/update','data':data};
                         updateConfig(ajaxContent);
@@ -481,7 +481,7 @@
                 callbacks: [
 //                        in fact data doesn't need at all
                     function () {
-                        var rawValue="null";
+                        var rawValue="";
                         data.value=rawValue;
                         var ajaxContent={'url':'/config/degrade/delete','data':data};
                         updateConfig(ajaxContent);

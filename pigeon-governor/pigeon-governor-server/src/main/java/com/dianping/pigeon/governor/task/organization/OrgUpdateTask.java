@@ -52,7 +52,7 @@ public class OrgUpdateTask {
     private InfoFetcher infoFetcher = new InfoFetcher();
 
 
-    private void start(){
+    public void start(){
         this.exec =  Executors.newFixedThreadPool(poolSize);
         List<String> projectNames = projectService.retrieveAllName();
 
