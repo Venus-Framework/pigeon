@@ -39,7 +39,7 @@
 
 		<avatar-tracker.version>2.1.9</avatar-tracker.version>
 		<cat.version>1.5.0</cat.version>
-		<lion.version>0.6.1</lion.version>
+		<lion.version>0.6.2</lion.version>
 	</properties>
 	<modules>
 		<module>pigeon-common</module>
