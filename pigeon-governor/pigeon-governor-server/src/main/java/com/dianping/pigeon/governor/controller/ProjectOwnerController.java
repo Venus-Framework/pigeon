@@ -5,6 +5,7 @@ import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.util.CmdbUtils;
 import com.dianping.pigeon.governor.util.ThreadPoolFactory;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,12 @@ public class ProjectOwnerController extends BaseController {
         }
 
         final String emails = project.getEmail();
+
+        if(StringUtils.isBlank(emails)) {
+            String message = String.format("拉取CMDB项目邮件组出错，请联系架构开发人员处理");
+            return Result.createErrorResult(message);
+        }
+
         ThreadPoolFactory.getWorkThreadPool().execute(new Runnable() {
             @Override
             public void run() {
