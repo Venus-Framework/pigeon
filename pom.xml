@@ -38,7 +38,7 @@
 		<freemarker.version>2.3.19</freemarker.version>
 
 		<avatar-tracker.version>2.1.9</avatar-tracker.version>
-		<cat.version>1.4.9</cat.version>
+		<cat.version>1.5.0</cat.version>
 		<lion.version>0.6.1</lion.version>
 	</properties>
 	<modules>
