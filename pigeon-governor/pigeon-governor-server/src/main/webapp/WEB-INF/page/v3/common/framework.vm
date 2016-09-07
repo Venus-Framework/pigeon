@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/chosen.css"/>
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/jquery.mCustomScrollbar.min.css"/>
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/jquery.typeahead.min.css"/>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/tooltipster.bundle.min.css"/>
     <style>
         .vertical-center{
             float: none !important;
@@ -167,6 +168,8 @@
 <script src="${rc.contextPath}/resources/js/degrade/combined-selector-input.js"></script>
 <script src="${rc.contextPath}/resources/js/scroll/jquery.mCustomScrollbar.concat.min.js"></script>
 <script src="${rc.contextPath}/resources/js/router.js"></script>
+<script src="${rc.contextPath}/resources/js/tooltip/tooltipster.bundle.min.js"></script>
+<script src="${rc.contextPath}/resources/js/bootstrap-typeahead.js"></script>
 <script>
     jQuery(function($) {
         var hash = window.location.hash;

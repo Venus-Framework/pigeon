@@ -42,6 +42,26 @@ public class CmdbProjectBean {
     
     private String op_mobile;
 
+	private String proj_op_duty;
+
+	public String getProj_rd_duty() {
+		return proj_rd_duty;
+	}
+
+	public void setProj_rd_duty(String proj_rd_duty) {
+		this.proj_rd_duty = proj_rd_duty;
+	}
+
+	public String getProj_op_duty() {
+		return proj_op_duty;
+	}
+
+	public void setProj_op_duty(String proj_op_duty) {
+		this.proj_op_duty = proj_op_duty;
+	}
+
+	private String proj_rd_duty;
+
 	public String getCi_type() {
 		return ci_type;
 	}

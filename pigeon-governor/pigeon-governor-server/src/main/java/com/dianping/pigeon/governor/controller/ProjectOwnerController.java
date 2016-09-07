@@ -4,6 +4,7 @@ import com.dianping.pigeon.governor.bean.Result;
 import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.util.CmdbUtils;
+import com.dianping.pigeon.governor.util.GsonUtils;
 import com.dianping.pigeon.governor.util.ThreadPoolFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -42,7 +43,6 @@ public class ProjectOwnerController extends BaseController {
             String message = String.format("CMDB上找不到应用：" + projectName);
             return Result.createErrorResult(message);
         }
-
         final String emails = project.getEmail();
 
         if(StringUtils.isBlank(emails)) {

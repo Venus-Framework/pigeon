@@ -74,7 +74,6 @@ public class CmdbUtils {
 		//拉项目基本信息
     	String url = PROJECT_INFO_BASE.replace("{project_name}", projectName);
     	CmdbSingleProject cmdbSingleProject = RestCallUtils.getRestCall(url, CmdbSingleProject.class);
-    	
     	if(cmdbSingleProject != null) {
     		CmdbProjectBean cmdbProjectBean = cmdbSingleProject.getProject();
     		

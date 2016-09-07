@@ -2,9 +2,11 @@ package com.dianping.pigeon.governor.controller;
 
 import com.dianping.pigeon.governor.bean.degrade.DegradeConfig;
 import com.dianping.pigeon.governor.exception.LionNullProjectException;
+import com.dianping.pigeon.governor.model.ServiceNode;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.InvokerDegradeService;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
+import com.dianping.pigeon.governor.service.ServiceNodeService;
 import com.dianping.pigeon.governor.util.GsonUtils;
 import com.dianping.pigeon.governor.util.RandomUtils;
 import com.dianping.pigeon.governor.util.UserRole;
@@ -19,6 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -30,6 +34,8 @@ public class InvokerDegradeController extends BaseController{
     private InvokerDegradeService invokerDegradeService;
     @Autowired
     private ProjectOwnerService projectOwnerService;
+    @Autowired
+    private ServiceNodeService serviceNodeService;
 
     @RequestMapping(value = {"/config/degrade"},method = RequestMethod.POST)
     public String main(HttpServletRequest request,
@@ -122,8 +128,19 @@ public class InvokerDegradeController extends BaseController{
         List<DegradeConfig> configs = invokerDegradeService.getDegradeConfigs(projectName);
         modelMap.put("configs",configs);
         User user = getUserInfo(request);
+        List<ServiceNode> serviceNodes = serviceNodeService.retrieveAllIdNamesByCache();
+        HashSet<String> set = new HashSet<String>();
+        List<ServiceNode> serviceNames = new LinkedList<ServiceNode>();
+        for(ServiceNode serviceNode : serviceNodes){
+            String serviceName = serviceNode.getServiceName();
+            if(!set.contains(serviceName)){
+                set.add(serviceName);
+                serviceNames.add(serviceNode);
+            }
+        }
         if(UserRole.USER_SCM.getValue().equals(user.getRoleid()) ||
                 projectOwnerService.isProjectOwner(user.getDpaccount(),projectName)){
+            modelMap.put("serviceNames",GsonUtils.toJson(serviceNames));
             return "/v2/degrade/configs-test";
         }else
             return "/v2/degrade/readOnlyConfigs";

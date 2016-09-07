@@ -318,6 +318,8 @@
                     click: function() {
                         var currentUser = "${userName}";
                         var projectName = "${projectName}";
+                        console.log(currentUser);
+                        console.log(projectName);
                         $.ajax({
                             url: '/projectowners/cmdb',
                             type: 'POST',

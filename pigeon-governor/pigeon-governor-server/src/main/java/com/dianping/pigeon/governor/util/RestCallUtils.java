@@ -60,11 +60,9 @@ public class RestCallUtils {
 			configuration.property(ClientProperties.READ_TIMEOUT, readTimeout);
 			Client client = ClientBuilder.newClient(configuration);
 			WebTarget target = client.target(targetUrl);
-
 			if(responseType == String.class) {
                 return target.request().get(responseType);
             }
-
 			String resStr = target.request().get(String.class);
 			result = getBeanFromJson(resStr, responseType);
 		} catch (Throwable t) {
