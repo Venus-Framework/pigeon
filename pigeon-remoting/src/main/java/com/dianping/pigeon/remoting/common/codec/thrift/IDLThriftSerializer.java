@@ -201,7 +201,7 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
         protocol.getTransport().flush();
     }
 
-    protected void doDeserializeResponse(GenericResponse response, GenericRequest request,TProtocol protocol, Header header)
+    protected void doDeserializeResponse(GenericResponse response, GenericRequest request, TProtocol protocol, Header header)
             throws Exception {
         // body
         TMessage message = protocol.readMessageBegin();
@@ -256,6 +256,9 @@ public class IDLThriftSerializer extends AbstractThriftSerializer {
                 TFieldIdEnum fieldIdEnum = result.fieldForId(index++);
 
                 if (fieldIdEnum == null) {
+                    if (index == 1) {
+                        continue;
+                    }
                     break;
                 }
 
