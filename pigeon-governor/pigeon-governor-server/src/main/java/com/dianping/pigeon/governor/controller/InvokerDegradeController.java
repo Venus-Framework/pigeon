@@ -50,6 +50,7 @@ public class InvokerDegradeController extends BaseController{
         boolean forceState;
         boolean autoState;
         boolean failureState;
+        double recoverPercentage;
         if(UserRole.USER_SCM.getValue().equals(user.getRoleid()) ||
                 projectOwnerService.isProjectOwner(dpAccount,projectName))
             switcherEnable = true;
@@ -57,6 +58,7 @@ public class InvokerDegradeController extends BaseController{
             forceState = invokerDegradeService.getForceDegradeState(projectName);
             autoState = invokerDegradeService.getAutoDegradeState(projectName);
             failureState = invokerDegradeService.getFailureDegradeState(projectName);
+            recoverPercentage = invokerDegradeService.getRecoverPercentage(projectName);
         } catch (LionNullProjectException e) {
             e.printStackTrace();
             modelMap.put("error","Project: "+projectName+" wasn't created in Lion.");
@@ -66,7 +68,7 @@ public class InvokerDegradeController extends BaseController{
         modelMap.put("autoState",autoState);
         modelMap.put("failureState",failureState);
         modelMap.put("switcherEnable",switcherEnable);
-
+        modelMap.put("recoverPercentage",recoverPercentage);
         return "/v2/degrade/main";
     }
     @RequestMapping(value={"/degrade/failure/enable"},method = RequestMethod.POST)
@@ -117,6 +119,23 @@ public class InvokerDegradeController extends BaseController{
                             ModelMap modelMap){
         String projectName = request.getParameter("projectName");
         invokerDegradeService.setAutoDegradeState(projectName,"false");
+    }
+    @RequestMapping(value={"/degrade/recover/set"},method = RequestMethod.POST)
+    public void setRecoverPercentage(HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     ModelMap modelMap){
+        String projectName = request.getParameter("projectName");
+        String value = request.getParameter("value");
+        System.out.println(projectName);
+        System.out.println(value);
+        boolean setStatus =  invokerDegradeService.setRecoverPercentage(projectName,Double.valueOf(value));
+        response.setCharacterEncoding("UTF-8");
+        try {
+            PrintWriter out = response.getWriter();
+            out.write(String.valueOf(setStatus));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
