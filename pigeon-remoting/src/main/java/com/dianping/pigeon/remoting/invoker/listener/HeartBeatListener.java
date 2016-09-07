@@ -208,13 +208,7 @@ public class HeartBeatListener implements Runnable, ClusterListener {
 
     private boolean checkIfNeedSend(String address) {
         boolean support = true;
-        byte heartBeatSupport = HeartBeatSupport.BOTH.getValue();
-
-        try {
-            heartBeatSupport = RegistryManager.getInstance().getServerHeartBeatSupport(address);
-        } catch (RegistryException e) {
-            //
-        }
+        byte heartBeatSupport = RegistryManager.getInstance().getServerHeartBeatSupportFromCache(address);
 
         switch (HeartBeatSupport.findByValue(heartBeatSupport)) {
             case UNSUPPORT:

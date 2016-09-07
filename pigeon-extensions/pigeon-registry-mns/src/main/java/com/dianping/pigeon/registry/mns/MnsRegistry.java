@@ -9,7 +9,6 @@ import com.dianping.pigeon.registry.util.Constants;
 import com.dianping.pigeon.registry.util.HeartBeatSupport;
 import com.dianping.pigeon.remoting.common.codec.json.JacksonSerializer;
 import com.dianping.pigeon.remoting.provider.config.ProviderConfig;
-import com.dianping.pigeon.remoting.provider.exception.ServiceNotifyException;
 import com.dianping.pigeon.remoting.provider.publish.ServicePublisher;
 import com.dianping.pigeon.util.VersionUtils;
 import com.google.common.collect.Maps;
@@ -52,7 +51,6 @@ public class MnsRegistry implements Registry {
     private static final Map<String, String> hostRemoteAppkeyMapping = MnsUtils.getHostRemoteAppkeyMapping();
 
     private volatile boolean inited = false;
-    private volatile boolean enable = true;
 
     @Override
     public void init(Properties properties) {
@@ -65,12 +63,16 @@ public class MnsRegistry implements Registry {
 
                     if (StringUtils.isNotBlank(specifySgAgent)) {
                         CustomizedManager.setCustomizedSGAgents(specifySgAgent);
+                        logger.info("set customized sgagent to " + specifySgAgent);
                     }
 
-                    if (!checkAppExist()) {
-                        enable = false;
-                        logger.warn("can not find APPKEY: [" + configManager.getAppName()
+                    if (checkGroupUsed()) {
+                        logger.info("mns does not support group feature, set mns registry to DISABLED!");
+                    } else if (!checkAppExist()) {
+                        logger.info("can not find APPKEY: [" + configManager.getAppName()
                                 + "] in mns, set mns registry to DISABLED!");
+                    } else {
+                        logger.info("mns registry initialized!");
                     }
 
                     inited = true;
@@ -81,7 +83,11 @@ public class MnsRegistry implements Registry {
 
     @Override
     public boolean isEnable() {
-        return enable;
+        return inited && !checkGroupUsed() && checkAppExist();
+    }
+
+    private boolean checkGroupUsed() {
+        return StringUtils.isNotBlank(configManager.getGroup());
     }
 
     private boolean checkAppExist() {
@@ -108,7 +114,7 @@ public class MnsRegistry implements Registry {
             response = sb.toString();
             br.close();
         } catch (Throwable t) {
-            logger.error("failed to get result while call uri: " + checkAppExistUri, t);
+            logger.info("failed to get result while call uri: " + checkAppExistUri, t);
         } finally {
             if (getMethod != null) {
                 getMethod.releaseConnection();
@@ -121,7 +127,7 @@ public class MnsRegistry implements Registry {
             try {
                 checkResult = (CheckResult) jacksonSerializer.toObject(CheckResult.class, response);
             } catch (Throwable t) {
-                logger.error("failed to deserialize result!", t);
+                logger.info("failed to deserialize result!", t);
             }
         }
 
@@ -259,7 +265,7 @@ public class MnsRegistry implements Registry {
 
             throw new RegistryException("failed to get weight for " + serverAddress);
         } catch (Throwable e) {
-            logger.error("failed to get weight for " + serverAddress);
+            logger.info("failed to get weight for " + serverAddress);
             throw new RegistryException(e);
         }
     }
@@ -282,7 +288,7 @@ public class MnsRegistry implements Registry {
 
             throw new RegistryException("failed to get app for " + serverAddress);
         } catch (Throwable e) {
-            logger.error("failed to get app for " + serverAddress);
+            logger.info("failed to get app for " + serverAddress);
             throw new RegistryException(e);
         }
     }
@@ -305,7 +311,7 @@ public class MnsRegistry implements Registry {
 
             throw new RegistryException("failed to get version for " + serverAddress);
         } catch (Throwable e) {
-            logger.error("failed to get version for " + serverAddress);
+            logger.info("failed to get version for " + serverAddress);
             throw new RegistryException(e);
         }
     }
@@ -363,7 +369,7 @@ public class MnsRegistry implements Registry {
         try {
             sgService = getSGService(remoteAppkey, null, serverAddress);
         } catch (RegistryException e) {
-            logger.warn("failed to set server weight! no sg_service found of " + serverAddress);
+            logger.info("failed to set server weight! no sg_service found of " + serverAddress);
             return ;
         }
 
@@ -486,7 +492,7 @@ public class MnsRegistry implements Registry {
             }
 
         } catch (Throwable e) {
-            logger.error("failed to get server heartbeat support for " + serviceAddress);
+            logger.info("failed to get server heartbeat support for " + serviceAddress);
         }
 
         return HeartBeatSupport.BOTH.getValue();
@@ -605,12 +611,12 @@ public class MnsRegistry implements Registry {
 
     private boolean checkSupport(String serviceName, String group) {
         if (StringUtils.isNotBlank(serviceName) && serviceName.startsWith("@HTTP@")) {
-            logger.warn("mns does not support @HTTP@ service!");
+            logger.info("mns does not support @HTTP@ service!");
             return false;
         }
 
         if(StringUtils.isNotBlank(group)) {
-            logger.warn("mns does not support group feature!");
+            logger.info("mns does not support group feature!");
             return false;
         }
 

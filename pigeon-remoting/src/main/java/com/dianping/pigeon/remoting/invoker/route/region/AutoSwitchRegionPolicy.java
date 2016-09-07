@@ -92,7 +92,7 @@ public class AutoSwitchRegionPolicy implements RegionPolicy {
                         return regionClientList;
                     }
                 } else {
-                    logger.warn(request.getServiceName() + " skipped region " + region.getName()
+                    logger.info(request.getServiceName() + " skipped region " + region.getName()
                             + ", available clients less than " + least);
                     monitor.logEvent("PigeonCall.regionUnavailable",
                             request.getServiceName() + "#" + region.getName(), "");

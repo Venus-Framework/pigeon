@@ -32,7 +32,6 @@ public class CuratorRegistry implements Registry {
 	private Properties properties;
 
 	private volatile boolean inited = false;
-	private volatile boolean enable = true;
 
 	private final boolean delEmptyNode = configManager.getBooleanValue("pigeon.registry.delemptynode", true);
 
@@ -63,7 +62,7 @@ public class CuratorRegistry implements Registry {
 
 	@Override
 	public boolean isEnable() {
-		return enable;
+		return inited;
 	}
 
 	@Override

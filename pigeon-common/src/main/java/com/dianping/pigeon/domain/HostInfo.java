@@ -16,6 +16,7 @@ public class HostInfo {
 	private int weight;
 	private String app;
 	private String version;
+	private byte heartBeatSupport;
 
 	public String getVersion() {
 		return version;
@@ -79,4 +80,11 @@ public class HostInfo {
 		this.weight = weight;
 	}
 
+	public byte getHeartBeatSupport() {
+		return heartBeatSupport;
+	}
+
+	public void setHeartBeatSupport(byte heartBeatSupport) {
+		this.heartBeatSupport = heartBeatSupport;
+	}
 }

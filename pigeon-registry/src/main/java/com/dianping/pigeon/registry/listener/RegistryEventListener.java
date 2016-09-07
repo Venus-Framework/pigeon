@@ -88,15 +88,22 @@ public class RegistryEventListener {
 		}
 	}
 
-	public static void serverInfoChanged(String serviceName, String serverAddress) {
-		RegistryManager.getInstance().getReferencedApp(serverAddress);
-		RegistryManager.getInstance().getReferencedVersion(serverAddress);
-		RegistryManager.getInstance().getReferencedProtocol(serverAddress, serviceName);
+	public static void serverHeartBeatSupportChanged(String serverAddress, byte heartBeatSupport) {
+		for (ServerInfoListener listener : serverInfoListeners) {
+			listener.onServerHeartBeatSupportChange(serverAddress, heartBeatSupport);
+		}
 	}
 
 	public static void serverProtocolChanged(String serverAddress, Map<String, Boolean> protocolInfoMap) {
 		for (ServerInfoListener listener : serverInfoListeners) {
 			listener.onServerProtocolChange(serverAddress, protocolInfoMap);
 		}
+	}
+
+	public static void serverInfoChanged(String serviceName, String serverAddress) {
+		RegistryManager.getInstance().getReferencedApp(serverAddress);
+		RegistryManager.getInstance().getReferencedVersion(serverAddress);
+		RegistryManager.getInstance().getServerHeartBeatSupport(serverAddress);
+		RegistryManager.getInstance().getReferencedProtocol(serverAddress, serviceName);
 	}
 }

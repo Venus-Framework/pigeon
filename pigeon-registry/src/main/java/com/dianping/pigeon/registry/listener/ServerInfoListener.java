@@ -9,5 +9,7 @@ public interface ServerInfoListener {
 	void onServerVersionChange(String serverAddress, String version);
 
 	void onServerProtocolChange(String serverAddress, Map<String, Boolean> protocolInfoMap);
+
+	void onServerHeartBeatSupportChange(String serverAddress, byte heartBeatSupport);
 	
 }
