@@ -1,4 +1,9 @@
 #set($layout="layoutblank.vm")
+
+<style>
+    .widget-box.transparent>.widget-header {
+        padding-left: 0px;
+</style>
 ##<div class="row">
 ##    <div class="col-xs-3">
 ##
@@ -33,18 +38,60 @@
 <div class="row">
     <div class="alert alert-block alert-info">
         <i class="ace-icon fa fa-check"></i>
-        <strong>Pigeon自<span class="green">2.8.1</span>版本起全面支持服务降级.</strong>
+        <strong>Pigeon自<span class="green">2.8.1</span>版本起全面支持服务降级。</strong>
     </div>
 </div>
 <div class="row">
     <div class="col-xs-3">
-        <div id ="auto-switcher" >
-            <span class="blue">自动服务降级: &nbsp;</span>
-            <input type="checkbox" name="auto-checkbox" />
+        <div class="row">
+            <div id ="auto-switcher" class="col-xs-12">
+                <span class="blue">自动服务降级: &nbsp;</span>
+                <input type="checkbox" name="auto-checkbox" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="widget-box transparent ui-sortable-handle collapsed">
+                    <div class="widget-header">
+                        <h4 class="widget-title lighter"><font size="2">失败阈值: $recoverPercentage %</font></h4>
+
+                        <div class="widget-toolbar no-border">
+                            <a href="#" data-action="collapse">
+                                <i class="ace-icon fa fa-pencil red"><font size="2">点此修改</font></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="widget-body" style="display: none;">
+                        <div class="widget-main padding-6 no-padding-left no-padding-right">
+                            <div class="input-group">
+        <span class="input-group-btn">
+                            <button class="btn btn-sm btn-info no-radius" type="button">
+                                <i class="ace-icon fa fa-minus"></i>
+                            </button>
+        </span>
+                                <input id="testSpin" placeholder="输入失败率" type="text" class="form-control"  autocomplete="off">
+        <span class="input-group-btn">
+                            <button  class="btn btn-sm btn-info no-radius" type="button">
+                                <i class="ace-icon fa fa-plus"></i>
+                            </button>
+        </span>
+        <span class="input-group-btn">
+            <button id="search" class="btn btn-sm btn-success no-radius" type="button">
+                <i class="ace-icon fa fa-upload"></i>
+                修改
+            </button>
+        </span>
+                            </div>
+                            <div class="red">此处配置的取值范围为(0-100),为Float类型。若配置值为15.3,其对应失败率为15.3%。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="col-xs-9">
-        <span>自动降级开关是在调用端设置.开启自动降级后，调用端如果调用某个服务出现连续的超时或不可用，当一段时间内（10秒内）失败率超过一定阀值（默认1%）会触发自动降级.调用端会根据配置的降级策略直接返回默认值、抛出降级异常或者采用配置的MOCK实现类返回具体调用值.</span>
+        <span>自动降级开关是在调用端设置。开启自动降级后，调用端如果调用某个服务出现连续的超时或不可用，当一段时间内（10秒内）失败率超过一定阀值（<span class="red">默认1%,左侧控件提供用户自定义功能</span>）会触发自动降级。调用端会根据配置的降级策略直接返回默认值、抛出降级异常或者采用配置的MOCK实现类返回具体调用值。</span>
     </div>
 </div>
 <hr class="hr-dotted">
@@ -68,8 +115,7 @@
         </div>
     </div>
     <div class="col-xs-9">
-        <span>强制降级开关只是在远程服务大量超时或其他不可用情况，紧急时进行设置.开启后，调用端会根据配置的降级策略直接返回默认值,抛出降级异常或交由MOCK处理.当远程服务恢复后，建议关闭此开关.</span>
-        <span>pigeon.invoker.degrade.recover.percent</span>
+        <span>强制降级开关只是在远程服务大量超时或其他不可用情况，紧急时进行设置。开启后，调用端会根据配置的降级策略直接返回默认值、抛出降级异常或交由MOCK处理。当远程服务恢复后，建议关闭此开关。</span>
     </div>
 </div>
 <hr class="hr-dotted">
@@ -78,8 +124,59 @@
 </div>
 <script>
     jQuery(function($) {
+
         var hash = window.location.hash;
         var projectName = hash.split("/")[2];
+        $("#testSpin").my_spin({
+            enable:$switcherEnable,
+            initVal:$recoverPercentage,
+            callback:function(val){
+                var value = val;
+                $.ajax({
+                    type:"POST",
+                    url: "/degrade/recover/set",
+                    data: {"projectName":projectName,"value":value},
+                    dataType:"html",
+                    async: false,
+                    success: function (data,status) {
+                        if(status=="success" && data=='true'){
+                            bootbox.dialog({
+                                message: "操作成功!",
+                                buttons: {
+                                    "success": {
+                                        "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                        "className": "btn-sm btn-success",
+                                        "callback": function() {
+                                            $("#mainContent").ajaxLoad({
+                                                url:"/config/degrade/",
+                                                type:"post",
+                                                data:{"projectName":projectName}
+                                            });
+                                        }
+                                    }
+                                }
+                            });
+                        }else {
+                            bootbox.dialog({
+                                message:"操作失败!",
+                                buttons:{
+                                    "success":{
+                                        "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                        "className": "btn-sm btn-success",
+                                        "callback":function(){
+                                            $("#mainContent").ajaxLoad({
+                                                url:"/config/degrade/",
+                                                type:"post",
+                                                data:{"projectName":projectName}
+                                            });
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });}
+        });
         $("#force-switcher").switcher({
             enable:$switcherEnable,
             initState:$forceState,
@@ -125,6 +222,7 @@
             trueToFalseDataType:"html",
             name:"failure-checkbox"
         })
+        $(".bootstrap-switch").addClass('pull-right');
         $("#configs").ajaxLoad({
             url:"/degrade/configs",
             type:"post",
