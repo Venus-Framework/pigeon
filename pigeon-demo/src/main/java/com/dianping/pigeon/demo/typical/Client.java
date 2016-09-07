@@ -50,8 +50,8 @@ public class Client {
 		EchoService echoServiceWithFuture = (EchoService) CLIENT_CONTAINER.getBean("echoServiceWithFuture");
 
 		while (true) {
-			Transaction t = Cat.newTransaction("test", "");
-			for (int i = 0; i < 500; i++) {
+			//Transaction t = Cat.newTransaction("test", "");
+			//for (int i = 0; i < 500; i++) {
 				try {
 					// ContextUtils.putRequestContext("key1", "1");
 					// // echoService.echo("" + (i++));
@@ -87,7 +87,7 @@ public class Client {
 //					 Future future = FutureFactory.getFuture();
 //					 System.out.println(future.get());
 //					echoServiceWithCallback.echo("scott");
-//					Thread.sleep(5);
+					Thread.sleep(5);
 					System.out.println(echoService.echo("scott"));
 					// System.out.println(echoService.echo(Gender.FEMALE));
 					// System.out.println(echoService.isMale());
@@ -103,11 +103,11 @@ public class Client {
 					// System.out.println("response:" +
 					// ContextUtils.getResponseContext("key1"));
 				} catch (Exception e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
-			}
-			t.setStatus(Message.SUCCESS);
-			t.complete();
+			//}
+//			t.setStatus(Message.SUCCESS);
+//			t.complete();
 		}
 	}
 }

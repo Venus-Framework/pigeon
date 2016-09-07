@@ -11,12 +11,8 @@ import com.dianping.pigeon.remoting.common.domain.generic.thrift.LoadInfo;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.RequestInfo;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.ResponseInfo;
 import com.dianping.pigeon.remoting.common.domain.generic.thrift.TraceInfo;
-import com.dianping.pigeon.remoting.common.exception.BadRequestException;
-import com.dianping.pigeon.remoting.common.exception.NetworkException;
-import com.dianping.pigeon.remoting.common.exception.RejectedException;
-import com.dianping.pigeon.remoting.common.exception.RpcException;
+import com.dianping.pigeon.remoting.common.exception.*;
 import com.dianping.pigeon.remoting.common.exception.SecurityException;
-import com.dianping.pigeon.remoting.common.exception.SerializationException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceDegradedException;
@@ -271,7 +267,7 @@ public class ThriftMapper {
                 case ApplicationException:
                     break;
                 case RuntimeException:
-                    response.setReturn(new RuntimeException(expMessage));
+                    response.setReturn(new ApplicationException(expMessage));
                     break;
                 case RpcException:
                     response.setReturn(new RpcException(expMessage));

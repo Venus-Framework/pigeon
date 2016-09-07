@@ -13,7 +13,10 @@ import com.dianping.pigeon.remoting.common.exception.RpcException;
  * @author saber miao
  * @version 1.0
  * @created 2010-8-3 上午10:47:46
+ * @deprecated
+ * @see com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException
  */
+@Deprecated
 public class NetTimeoutException extends RpcException {
 
 	/**

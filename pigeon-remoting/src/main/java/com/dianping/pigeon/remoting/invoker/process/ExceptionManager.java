@@ -213,11 +213,26 @@ public enum ExceptionManager {
 			}
 		}
 		if (isLog) {
-			msg = String.format("%s# service:%s#%s, address:%s, request:\r\n%s,\r\n response:\r\n%s\r\n", msg,
-					serviceName, method, remoteAddress, request, response);
-			logger.error(msg, e);
+			StringBuilder error = new StringBuilder();
+			if (StringUtils.isNotBlank(msg)) {
+				error.append(msg).append(", ");
+			}
+			if (serviceName != null && request == null) {
+				error.append("call:").append(serviceName).append("#").append(method).append(", ");
+			}
+			if (remoteAddress != null) {
+				error.append("address:").append(remoteAddress).append(", ");
+			}
+			if (request != null) {
+				error.append("\r\nrequest:\r\n").append(request);
+			}
+			if (response != null) {
+				error.append("\r\nresponse:\r\n").append(response);
+			}
+			String s = error.toString();
+			logger.error(s, e);
 			if (monitor != null) {
-				monitor.logError(msg, e);
+				monitor.logError(s, e);
 			}
 			if (transaction != null) {
 				transaction.setStatusError(e);

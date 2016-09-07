@@ -1,6 +1,7 @@
 package com.dianping.pigeon.registry.mns;
 
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.registry.Registry;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.exception.RegistryException;
 import com.dianping.pigeon.registry.listener.DefaultServiceChangeListener;
@@ -21,11 +22,15 @@ import java.util.Map;
  */
 public class MnsServiceChangeListener implements IServiceListChangeListener {
 
+    public static final MnsServiceChangeListener INSTANCE = new MnsServiceChangeListener();
+
     private static final Logger logger = LoggerLoader.getLogger(MnsServiceChangeListener.class);
 
     private static final ServiceChangeListener serviceChangeListener = new DefaultServiceChangeListener();
 
     private static final Map<String, String> hostRemoteAppkeyMapping = MnsUtils.getHostRemoteAppkeyMapping();
+
+    private MnsServiceChangeListener(){}
 
     @Override
     public void changed(ProtocolRequest req,
@@ -122,7 +127,12 @@ public class MnsServiceChangeListener implements IServiceListChangeListener {
                     }
 
                     //heartbeat support
-                    //todo
+                    byte heartBeatSupportNew = sgService.getHeartbeatSupport();
+                    byte heartBeatSupportCached = RegistryManager.getInstance().getServerHeartBeatSupportFromCache(host);
+
+                    if (heartBeatSupportNew != heartBeatSupportCached) {
+                        heartBeatSupportChanged(host, heartBeatSupportNew);
+                    }
 
                     if (appNew == null) {
                         appNew = "";
@@ -142,7 +152,7 @@ public class MnsServiceChangeListener implements IServiceListChangeListener {
     private static void addressChanged(String serviceName, String toAddHosts, String toDelHosts)
             throws RegistryException {
         try {
-            logger.info("Service address changed, " + serviceName
+            logger.info("service address changed, " + serviceName
                     + ", add: " + toAddHosts + " del: " + toDelHosts);
             List<String[]> toAddHostDetail = MnsUtils.getServiceIpPortList(toAddHosts);
             List<String[]> toDelHostDetail = MnsUtils.getServiceIpPortList(toDelHosts);
@@ -154,7 +164,7 @@ public class MnsServiceChangeListener implements IServiceListChangeListener {
 
     private static void addressChanged(String serviceName, String hosts) throws RegistryException {
         try {
-            logger.info("Service address changed, " + serviceName +": " + hosts);
+            logger.info("service address changed, " + serviceName +": " + hosts);
             List<String[]> hostDetail = MnsUtils.getServiceIpPortList(hosts);
             serviceChangeListener.onServiceHostChange(serviceName, hostDetail);
         } catch (Throwable e) {
@@ -184,6 +194,15 @@ public class MnsServiceChangeListener implements IServiceListChangeListener {
         try {
             logger.info("version changed, value " + version);
             RegistryEventListener.serverVersionChanged(host, version);
+        } catch (Throwable e) {
+            throw new RegistryException(e);
+        }
+    }
+
+    private void heartBeatSupportChanged(String host, byte heartBeatSupportNew) throws RegistryException {
+        try {
+            logger.info("heartbeat support changed, " + host + ": " + heartBeatSupportNew);
+            RegistryEventListener.serverHeartBeatSupportChanged(host, heartBeatSupportNew);
         } catch (Throwable e) {
             throw new RegistryException(e);
         }
