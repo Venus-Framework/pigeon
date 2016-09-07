@@ -22,11 +22,15 @@ import java.util.Map;
  */
 public class MnsServiceChangeListener implements IServiceListChangeListener {
 
+    public static final MnsServiceChangeListener INSTANCE = new MnsServiceChangeListener();
+
     private static final Logger logger = LoggerLoader.getLogger(MnsServiceChangeListener.class);
 
     private static final ServiceChangeListener serviceChangeListener = new DefaultServiceChangeListener();
 
     private static final Map<String, String> hostRemoteAppkeyMapping = MnsUtils.getHostRemoteAppkeyMapping();
+
+    private MnsServiceChangeListener(){}
 
     @Override
     public void changed(ProtocolRequest req,
