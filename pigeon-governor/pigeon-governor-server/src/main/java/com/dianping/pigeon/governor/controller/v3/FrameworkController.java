@@ -52,6 +52,7 @@ public class FrameworkController extends BaseController{
     @PostConstruct
     public void init(){
         this.cache = new InnerCache(2,5);
+        this.cache.schedule();
     }
     class InnerCache implements Runnable{
         private volatile TreeNode projectTree;
