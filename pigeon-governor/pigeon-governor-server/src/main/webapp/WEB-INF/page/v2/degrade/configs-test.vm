@@ -100,7 +100,7 @@
                         <input type="text" placeholder='{"useMockClass":"true"}' id="mock-name" class="col-xs-12 col-sm-12" />
                     </div>
                     <label class="col-xs-2"></label>
-                    <label class="col-xs-9">(Pigeon会采用Spring配置的Mock实现返回对应方法的调用)</label>
+                    <label class="col-xs-9">(Pigeon会根据Spring配置的Mock实现调用对应方法)</label>
                 </div>
 
             </div>
