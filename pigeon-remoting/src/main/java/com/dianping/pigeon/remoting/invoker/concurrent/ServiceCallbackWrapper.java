@@ -16,6 +16,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.domain.generic.UnifiedResponse;
 import com.dianping.pigeon.remoting.common.exception.BadResponseException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
@@ -135,7 +136,17 @@ public class ServiceCallbackWrapper implements Callback {
 	}
 
 	protected void setResponseContext(InvocationResponse response) {
-		if (response != null) {
+		if (response == null) {
+			return;
+		}
+
+		if (response instanceof UnifiedResponse) {
+			UnifiedResponse _response = (UnifiedResponse) response;
+			Map<String, String> responseValues = _response.getLocalContext();
+			if (responseValues != null) {
+				ContextUtils.setResponseContext((Map) responseValues);
+			}
+		} else {
 			Map<String, Serializable> responseValues = response.getResponseValues();
 			if (responseValues != null) {
 				ContextUtils.setResponseContext(responseValues);
