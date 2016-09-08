@@ -70,10 +70,11 @@ public class CallbackFuture implements Callback, CallFuture {
 		synchronized (this) {
 			long start = request.getCreateMillisTime();
 			while (!this.done) {
-				long timeoutMillis_ = timeoutMillis - (System.currentTimeMillis() - start);
+				long currentTime = System.currentTimeMillis();
+				long timeoutMillis_ = timeoutMillis - (currentTime - start);
 				if (timeoutMillis_ <= 0) {
 					StringBuilder sb = new StringBuilder();
-					sb.append("request timeout, current time:").append(System.currentTimeMillis())
+					sb.append("request timeout, current time:").append(currentTime)
 							.append("\r\nrequest:").append(request);
 					ServiceStatisticsHolder.flowOut(request, client.getAddress());
 					RequestTimeoutException e = new RequestTimeoutException(sb.toString());

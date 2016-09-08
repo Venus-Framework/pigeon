@@ -124,7 +124,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>1.4</version>
+				<version>2.4.2</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -141,6 +141,7 @@
 									<include>com.dianping:pigeon-registry</include>
 									<include>com.dianping:pigeon-remoting</include>
 									<include>com.dianping:pigeon-monitor</include>
+									<include>com.dianping:pigeon-console</include>
 									<include>com.dianping:pigeon-registry-zookeeper</include>
 									<include>com.dianping:pigeon-registry-mns</include>
 									<include>com.dianping:pigeon-registry-composite</include>
@@ -148,7 +149,6 @@
 									<include>com.dianping:pigeon-remoting-http</include>
 									<include>com.dianping:pigeon-monitor-cat</include>
 									<include>com.dianping:pigeon-config-lion</include>
-									<include>com.dianping:pigeon-console</include>
 								</includes>
 							</artifactSet>
 							<transformers>
