@@ -904,6 +904,9 @@ xxx-service.pigeon.invoker.degrade.failure=true，默认为false
 提供了pigeon.invoker.degrade.auto配置开关，例如xxx-service项目要配置以下lion配置：
 xxx-service.pigeon.invoker.degrade.auto=true，默认为false
 
+6、降级开关的优先级(在同时打开的时候的有效性)
+强制降级 > 失败降级 > 自动降级
+
 ### 配置客户端调用模式
 
 在pigeon内部，客户端调用远程服务有4种模式（sync/future/callback/oneway），例如spring编程方式下只需要配置callType属性：
