@@ -840,9 +840,13 @@ deal-service.pigeon.provider.applimit.enable=true
 b、配置客户端应用对应的最大QPS：
 pigeon.provider.applimit=tuangou-web:100,xxx:50,yyy:100
 如果客户端请求QPS超过了设置的阀值，服务端会返回com.dianping.pigeon.remoting.common.exception.RejectedException给客户端，客户端会收到RejectedException
+c、配置某个接口方法对应的客户端应用的最大QPS:
+首先打开开关：xxx-service.pigeon.provider.methodapplimit.enable=true
+增加配置项：xxx-service.pigeon.provider.methodapplimit
+配置内容为json格式：{ "api#method" : { "app1": 100, "app2": 50} }
+例如：{ "http://service.dianping.com/com.dianping.pigeon.demo.EchoService#echo": { "account-service": 2000, "deal-server": 5000} }
 
 上面的客户端应用名称是标准统一的项目名称，以CMDB里为准
-目前只能限制客户端应用总的最大QPS，不能精确到某个应用的某个方法
 以上配置第一次配置了之后，均可以通过lion动态在线设置实时生效
 
 ### 服务降级
@@ -885,7 +889,7 @@ e、除了上述几种使用lion配置降级策略的方式，pigeon还提供了
 			<property name="mock" ref="echoServiceMock" /><!-- 添加mock类的引用 -->
 		</bean>
 
-		<bean id="echoServiceMock" class="com.dianping.pigeon.benchmark.service.EchoServiceMock"/><!-- 必须继承EchoService接口 -->
+		<bean id="echoServiceMock" class="com.dianping.pigeon.benchmark.service.EchoServiceMock"/><!-- 必须实现EchoService接口 -->
 
 
 3、强制降级开关
