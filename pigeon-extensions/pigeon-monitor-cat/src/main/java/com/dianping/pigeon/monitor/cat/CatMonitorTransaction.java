@@ -93,7 +93,7 @@ public class CatMonitorTransaction implements MonitorTransaction {
 	                ((DefaultTransaction) this.transaction).setDurationInMillis(duration);
 	            }
         	} finally {
-        		this.transaction.complete();
+    			this.transaction.complete();
         	}
         }
     }

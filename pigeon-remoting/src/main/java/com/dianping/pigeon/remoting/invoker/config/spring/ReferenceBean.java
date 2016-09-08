@@ -7,7 +7,12 @@ package com.dianping.pigeon.remoting.invoker.config.spring;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import com.dianping.pigeon.log.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -29,6 +34,8 @@ import com.dianping.pigeon.util.CollectionUtils;
 public class ReferenceBean implements FactoryBean {
 
     private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+
+    private static final Logger logger = LoggerLoader.getLogger(ReferenceBean.class);
 
     private String url;
 
@@ -266,7 +273,6 @@ public class ReferenceBean implements FactoryBean {
         invokerConfig.setClassLoader(classLoader);
         invokerConfig.setSecret(secret);
         invokerConfig.setRegionPolicy(regionPolicy);
-        invokerConfig.setRemoteAppKey(remoteAppKey);
 
         if (!CollectionUtils.isEmpty(methods)) {
             Map<String, InvokerMethodConfig> methodMap = new HashMap<String, InvokerMethodConfig>();
@@ -278,6 +284,8 @@ public class ReferenceBean implements FactoryBean {
 
         checkMock(); // 降级配置检查
         invokerConfig.setMock(mock);
+        checkRemoteAppkey();
+        invokerConfig.setRemoteAppKey(remoteAppKey);
 
         this.obj = ServiceFactory.getService(invokerConfig);
         configLoadBalance(invokerConfig);
@@ -290,6 +298,28 @@ public class ReferenceBean implements FactoryBean {
             if (! objType.isAssignableFrom(mock.getClass())) {
                 throw new IllegalStateException("The mock implemention class "
                         + mock.getClass().getName() + " not implement interface " + objType.getName());
+            }
+        }
+    }
+
+    private void checkRemoteAppkey() {
+        if (StringUtils.isNotBlank(remoteAppKey)) {
+            if (SerializerFactory.getSerialize(serialize) != SerializerFactory.SERIALIZE_THRIFT) {
+                remoteAppKey = "";
+                logger.info("not thrift serialize, set remoteAppKey to null");
+            }
+
+            String[] mtPackageBases = configManager
+                    .getStringValue("pigeon.mt.package.base", "com.sankuai,com.meituan").split(",");
+            boolean isMatch = false;
+            for (String mtPackageBase : mtPackageBases) {
+                if(interfaceName.startsWith(mtPackageBase)) {
+                    isMatch = true;
+                }
+            }
+            if (!isMatch) {
+                remoteAppKey = "";
+                logger.info("not match mt package base, set remoteAppKey to null");
             }
         }
     }

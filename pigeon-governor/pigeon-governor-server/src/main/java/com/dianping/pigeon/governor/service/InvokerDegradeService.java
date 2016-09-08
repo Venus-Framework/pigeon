@@ -19,4 +19,6 @@ public interface InvokerDegradeService {
     boolean updateDegradeConfig(DegradeConfig config);
     boolean deleteDegradeConfig(DegradeConfig config);
     List<DegradeConfig> getDegradeConfigs(String projectName);
+    double getRecoverPercentage(String project) throws LionNullProjectException;
+    boolean setRecoverPercentage(String project,double value);
 }

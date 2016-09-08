@@ -128,10 +128,8 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
 					if (_request.getSerialize() != config.getSerialize()) {
 						transaction.addData("CurrentSerialize", _request.getSerialize());
 					}
-					if (!Constants.CALL_FUTURE.equals(invokerConfig.getCallType()) || error) {
-						invocationContext.getTimeline().add(new TimePoint(TimePhase.E, System.currentTimeMillis()));
-						transaction.complete();
-					}
+					invocationContext.getTimeline().add(new TimePoint(TimePhase.E, System.currentTimeMillis()));
+					transaction.complete();
 				} catch (Throwable e) {
 					monitor.logMonitorError(e);
 				}

@@ -35,6 +35,7 @@
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/jquery.mCustomScrollbar.min.css"/>
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/jquery.typeahead.min.css"/>
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/tooltipster.bundle.min.css"/>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/jquery.bootstrap-touchspin.min.css"/>
     <style>
         .vertical-center{
             float: none !important;
@@ -170,6 +171,8 @@
 <script src="${rc.contextPath}/resources/js/router.js"></script>
 <script src="${rc.contextPath}/resources/js/tooltip/tooltipster.bundle.min.js"></script>
 <script src="${rc.contextPath}/resources/js/bootstrap-typeahead.js"></script>
+<script src="${rc.contextPath}/resources/js/spin/jquery.bootstrap-touchspin.min.js"></script>
+<script src="${rc.contextPath}/resources/js/spin/my-spin.js"></script>
 <script>
     jQuery(function($) {
         var hash = window.location.hash;

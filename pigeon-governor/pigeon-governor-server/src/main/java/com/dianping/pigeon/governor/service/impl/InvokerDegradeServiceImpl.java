@@ -22,6 +22,7 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
     private boolean defaultForceDegradeState =  false;
     private boolean defaultAutoDegradeState = false;
     private boolean defaultFailureDegradeState = false;
+    private double defaultRecoverPercentage = 1;
     private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
     @Override
     public boolean getForceDegradeState(String projectName) throws LionNullProjectException {
@@ -228,6 +229,27 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
             }
         }
         return degradeConfigs;
+    }
+
+    @Override
+    public double getRecoverPercentage(String projectName) throws LionNullProjectException {
+        String lionKey = projectName+".pigeon.invoker.degrade.recover.percent";
+        if(!LionUtils.isExistProject(projectName))
+            throw new LionNullProjectException();
+        if(LionUtils.isExistKey(configManager.getEnv(),lionKey)){
+            String lionValue = Lion.get(lionKey);
+            return Double.valueOf(lionValue);
+        }else{
+            LionUtils.createConfig(configManager.getEnv(),projectName,lionKey,"Degrade%20revover%20percentage");
+            LionUtils.setConfig(configManager.getEnv(),lionKey,String.valueOf(defaultRecoverPercentage));
+            return Double.valueOf(defaultRecoverPercentage);
+        }
+    }
+
+    @Override
+    public boolean setRecoverPercentage(String projectName, double value) {
+        String lionKey = projectName+".pigeon.invoker.degrade.recover.percent";
+        return LionUtils.setConfig(configManager.getEnv(),lionKey,String.valueOf(value));
     }
 
 
