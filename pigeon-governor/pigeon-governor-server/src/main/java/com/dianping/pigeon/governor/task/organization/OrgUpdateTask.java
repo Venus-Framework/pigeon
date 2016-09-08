@@ -51,7 +51,6 @@ public class OrgUpdateTask {
     private int poolSize = 20;
     private InfoFetcher infoFetcher = new InfoFetcher();
 
-
     public void start(){
         this.exec =  Executors.newFixedThreadPool(poolSize);
         List<String> projectNames = projectService.retrieveAllName();
@@ -65,7 +64,7 @@ public class OrgUpdateTask {
                     Project project = infoFetcher.getProject(projectName);
                     Project project1 = projectService.findProject(projectName);
                     if(project!=null){
-                        if(customOrgMapper.updateProject(project)!=0&&!equal(project1,project)){
+                        if(customOrgMapper.updateProject(project)!=0&&!infoEqual(project1,project)){
                             logOp(project,project1);
                         }
                     }
@@ -81,6 +80,7 @@ public class OrgUpdateTask {
             exec.awaitTermination(10, TimeUnit.MINUTES);
             System.out.println("Org update Finish");
         } catch (InterruptedException e) {
+            logger.error(e);
             e.printStackTrace();
         }
     }
@@ -129,7 +129,7 @@ public class OrgUpdateTask {
         opLog.setOptype(opType.getValue());
         opLogService.create(opLog);
     }
-    private boolean equal(Project origin,Project cmdb){
+    private boolean infoEqual(Project origin,Project cmdb){
         String bu = cmdb.getBu();
         String email = cmdb.getEmail();
         Integer level = cmdb.getLevel();

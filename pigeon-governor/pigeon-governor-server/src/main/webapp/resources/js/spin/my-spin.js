@@ -70,7 +70,16 @@
             submit.on('click',function(){
                 var val = parseFloat(input.val());
                 if(isNaN(val)||val>settings.max||val<settings.min){
-                    alert("error input!!!");
+                    bootbox.dialog({
+                        message: "非法输入!!!",
+                        buttons: {
+                            "success": {
+                                "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                "className": "btn-sm btn-success",
+                                "callback": function() {}
+                            }
+                        }
+                    });
                 }else{
                     settings.callback(val);
                 }

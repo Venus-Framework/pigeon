@@ -12,6 +12,8 @@ import com.dianping.pigeon.governor.service.*;
 import com.dianping.pigeon.governor.task.organization.OrgUpdateTask;
 import com.dianping.pigeon.governor.util.GsonUtils;
 import com.dianping.pigeon.governor.util.UserRole;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -54,6 +56,7 @@ public class FrameworkController extends BaseController{
         this.cache = new InnerCache(2,2);
         this.cache.schedule();
     }
+    private Logger logger = LogManager.getLogger(FrameworkController.class.getName());
     class InnerCache implements Runnable{
         private volatile TreeNode projectTree;
         private volatile JSONArray projectTypeAhead;
@@ -198,6 +201,7 @@ public class FrameworkController extends BaseController{
             pw.write(cache.getProjectTypeAhead().toString());
 
         } catch (IOException e) {
+            logger.error(e);
             e.printStackTrace();
         }
     }
@@ -212,6 +216,7 @@ public class FrameworkController extends BaseController{
             pw = response.getWriter();
             pw.write(cache.getServiceTypeAhead().toString());
         } catch (IOException e) {
+            logger.error(e);
             e.printStackTrace();
         }
     }

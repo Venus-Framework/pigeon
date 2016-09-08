@@ -8,6 +8,8 @@ import com.dianping.pigeon.governor.exception.LionNullProjectException;
 import com.dianping.pigeon.governor.service.InvokerDegradeService;
 import com.dianping.pigeon.governor.util.GsonUtils;
 import com.dianping.pigeon.governor.util.LionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
@@ -24,6 +26,7 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
     private boolean defaultFailureDegradeState = false;
     private double defaultRecoverPercentage = 1;
     private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
+    private Logger logger = LogManager.getLogger(InvokerDegradeServiceImpl.class.getName());
     @Override
     public boolean getForceDegradeState(String projectName) throws LionNullProjectException {
         String lionKey = projectName+".pigeon.invoker.degrade.force";
@@ -98,6 +101,7 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
         try{
             map = getRawMethodsInfo(config.getProjectName());
         } catch (LionNullProjectException e) {
+            logger.info(e);
             e.printStackTrace();
             return false;
         }catch(Throwable t){
@@ -112,7 +116,7 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
             Set<String> values = new HashSet<String>();
             values.addAll(map.values());
             String generateIndex = null;
-            for(int i = 0;;i++){
+            for(int i = 0;i<Integer.MAX_VALUE;i++){
                 String tmp = "value"+i;
                 if(!values.contains(tmp)){
                     generateIndex = tmp;
@@ -128,6 +132,7 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
                 methodsConfigValue = URLEncoder.encode(constructRawMethodsInfo(map),"UTF-8");
                 returnValue =  URLEncoder.encode(config.getReturnValue(),"UTF-8");
             } catch (UnsupportedEncodingException e) {
+                logger.error(e);
                 e.printStackTrace();
                 return false;
             }
@@ -146,6 +151,7 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
         try {
             map = getRawMethodsInfo(projectName);
         } catch (LionNullProjectException e) {
+            logger.info(e);
             e.printStackTrace();
             return false;
         }catch(Throwable t){
@@ -160,6 +166,7 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
             try{
                 returnConfigValue = URLEncoder.encode(config.getReturnValue(),"UTF-8");
             } catch (UnsupportedEncodingException e) {
+                logger.error(e);
                 e.printStackTrace();
                 return false;
             }
@@ -187,6 +194,7 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
             try {
                 methodsConfigValue = URLEncoder.encode(rawMethodsConfigValue,"UTF-8");
             } catch (UnsupportedEncodingException e) {
+                logger.error(e);
                 e.printStackTrace();
                 return false;
             }

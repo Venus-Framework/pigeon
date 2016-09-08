@@ -39,6 +39,7 @@ public class FlowMonitorTask {
         try {
             messageService.init();
         } catch (Exception e) {
+            logger.error(e);
             e.printStackTrace();
         }
         Stopwatch stopwatch = Stopwatch.createUnstarted();
@@ -63,6 +64,7 @@ public class FlowMonitorTask {
             GsonUtils.Print(stopwatch.elapsed(TimeUnit.SECONDS)+"s");
             GsonUtils.Print("一次扫描结束");
         } catch (InterruptedException e) {
+            logger.error(e);
             e.printStackTrace();
         }
     }

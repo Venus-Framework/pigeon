@@ -9,7 +9,8 @@ public enum OpType {
     UPDATE_PIGEON_SERVICE(2),
     DELETE_PIGEON_SERVICE(3),
     PICK_OFF_PROVIDER_HEARTBEAT(4),
-    PROJECT_INFO_UPDATE(5);
+    PROJECT_INFO_UPDATE(5),
+    SERVICE_DEGRADE(6);
 
 
     private Short value;

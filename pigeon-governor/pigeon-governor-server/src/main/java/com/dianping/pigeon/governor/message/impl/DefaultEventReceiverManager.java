@@ -34,7 +34,6 @@ public class DefaultEventReceiverManager implements EventReceiverManager{
         this.modelCache = new ModelCache(5,3);
         System.out.println(this.eventReceiverService);
         this.modelCache.setEventReceiverService(this.eventReceiverService);
-        this.modelCache.run();
         this.modelCache.schedule();
     }
 

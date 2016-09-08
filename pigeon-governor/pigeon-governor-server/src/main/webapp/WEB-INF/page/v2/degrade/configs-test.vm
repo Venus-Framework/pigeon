@@ -338,7 +338,16 @@
                                             "methodName":$("#method-name").val()
                                         };
                                         if(data.serviceName==''||data.methodName==''){
-                                            alert("error input!!!");
+                                            bootbox.dialog({
+                                                message: "非法输入!!!",
+                                                buttons: {
+                                                    "success": {
+                                                        "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                        "className": "btn-sm btn-success",
+                                                        "callback": function() {}
+                                                    }
+                                                }
+                                            });
                                             return;
                                         }
                                         var rawValue="";
@@ -353,7 +362,16 @@
                                             "methodName":$("#method-name").val()
                                         };
                                         if(data.serviceName==''||data.methodName==''){
-                                            alert("error input!!!");
+                                            bootbox.dialog({
+                                                message: "非法输入!!!",
+                                                buttons: {
+                                                    "success": {
+                                                        "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                        "className": "btn-sm btn-success",
+                                                        "callback": function() {}
+                                                    }
+                                                }
+                                            });
                                             return;
                                         }
                                         var className = $("#class-name").val();
@@ -371,7 +389,16 @@
                                             "methodName":$("#method-name").val()
                                         };
                                         if(data.serviceName==''||data.methodName==''){
-                                            alert("error input!!!");
+                                            bootbox.dialog({
+                                                message: "非法输入!!!",
+                                                buttons: {
+                                                    "success": {
+                                                        "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                        "className": "btn-sm btn-success",
+                                                        "callback": function() {}
+                                                    }
+                                                }
+                                            });
                                             return;
                                         }
                                         var rawValue='{"throwException":"true"}';
@@ -386,7 +413,16 @@
                                             "methodName":$("#method-name").val()
                                         };
                                         if(data.serviceName==''||data.methodName==''){
-                                            alert("error input!!!");
+                                            bootbox.dialog({
+                                                message: "非法输入!!!",
+                                                buttons: {
+                                                    "success": {
+                                                        "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                        "className": "btn-sm btn-success",
+                                                        "callback": function() {}
+                                                    }
+                                                }
+                                            });
                                             return;
                                         }
                                         var rawValue='{"useMockClass":"true"}';
