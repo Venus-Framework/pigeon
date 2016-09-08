@@ -874,12 +874,31 @@ d、增加lion配置：pigeon-test.pigeon.invoker.degrade.method.return.c对应g
 这里返回对象是数组，如果是返回集合，也类似，例如返回一个LinkedList：
 {"returnClass":"java.util.LinkedList","content":"[{\"@class\":\"com.dianping.pigeon.demo.UserService$User\",\"username\":\"list-1\"},{\"username\":\"list-2\"}]"}
 
-2、强制降级开关
-将至降级开关只是在远程服务大量超时或其他不可用情况时，紧急时候进行设置，开启后，调用端会根据上述降级策略直接返回默认值或抛出降级异常，当远程服务恢复后，建议关闭此开关
+e、除了上述几种使用lion配置降级策略的方式，pigeon还提供了一种使用mock类的降级配置方式。
+例如我们想修改pigeon-test.pigeon.invoker.degrade.method.return.a的降级策略方式为mock方式，只需修改配置为：
+{"useMockClass":"true"}
+打开mock开关，然后在spring的xml配置中添加mock类的引用对象：
+
+		<bean id="echoService" class="com.dianping.pigeon.remoting.invoker.config.spring.ReferenceBean" init-method="init">
+			<property name="url" value="com.dianping.pigeon.benchmark.service.EchoService" />
+			<property name="interfaceName" value="com.dianping.pigeon.benchmark.service.EchoService" />
+			<property name="mock" ref="echoServiceMock" /><!-- 添加mock类的引用 -->
+		</bean>
+
+		<bean id="echoServiceMock" class="com.dianping.pigeon.benchmark.service.EchoServiceMock"/><!-- 必须继承EchoService接口 -->
+
+
+3、强制降级开关
+强制降级开关只是在远程服务大量超时或其他不可用情况时，紧急时候进行设置，开启后，调用端会根据上述降级策略直接返回默认值或抛出降级异常，当远程服务恢复后，建议关闭此开关
 提供了pigeon.invoker.degrade.force配置开关，例如xxx-service项目要配置以下lion配置：
 xxx-service.pigeon.invoker.degrade.force=true，默认为false
 
-3、自动降级开关
+4、失败降级开关
+失败降级开关便于客户端在服务端出现非业务异常(比如网络失败，超时，无可用节点等)时进行降级容错，而在出现业务异常(比如登录用户名密码错误)时不需要降级。
+提供了pigeon.invoker.degrade.failure配置开关，例如xxx-service项目要配置以下lion配置：
+xxx-service.pigeon.invoker.degrade.failure=true，默认为false
+
+5、自动降级开关
 自动降级开关是在调用端设置，开启自动降级后，调用端如果调用某个服务出现连续的超时或不可用，当一段时间内（10秒内）失败率超过一定阀值（默认1%）会触发自动降级，调用端会根据上述降级策略直接返回默认值或抛出降级异常
 当服务端恢复后，调用端会自动解除降级模式，再次发起请求到远程服务
 提供了pigeon.invoker.degrade.auto配置开关，例如xxx-service项目要配置以下lion配置：
