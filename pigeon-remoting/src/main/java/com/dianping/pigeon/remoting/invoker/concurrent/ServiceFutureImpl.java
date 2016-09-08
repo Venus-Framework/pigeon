@@ -11,6 +11,7 @@ import java.util.concurrent.TimeoutException;
 
 import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.MonitorTransaction;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePoint;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -19,6 +20,7 @@ import com.dianping.pigeon.remoting.common.exception.BadResponseException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.monitor.SizeMonitor;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.process.DegradationManager;
@@ -48,14 +50,20 @@ public class ServiceFutureImpl extends CallbackFuture implements Future {
 
 	public Object get(long timeoutMillis) throws InterruptedException, ExecutionException {
 		InvocationResponse response = null;
-		long start = System.currentTimeMillis();
 		String addr = null;
 		if (client != null) {
 			addr = client.getAddress();
 		}
+		String callInterface = InvocationUtils.getRemoteCallFullName(invocationContext.getInvokerConfig().getUrl(),
+				invocationContext.getMethodName(), invocationContext.getParameterTypes());
+		transaction = monitor.createTransaction("PigeonFuture", callInterface, invocationContext);
 		if (transaction != null) {
+			transaction.setStatusOk();
+			transaction.addData("CallType", invocationContext.getInvokerConfig().getCallType());
+			transaction.addData("Timeout", invocationContext.getInvokerConfig().getTimeout());
+			transaction.addData("Serialize", request.getSerialize());
 			transaction.addData("FutureTimeout", timeoutMillis);
-			invocationContext.getTimeline().add(new TimePoint(TimePhase.F, start));
+			invocationContext.getTimeline().add(new TimePoint(TimePhase.F, System.currentTimeMillis()));
 		}
 		try {
 			try {
@@ -101,7 +109,7 @@ public class ServiceFutureImpl extends CallbackFuture implements Future {
 			if (transaction != null) {
 				invocationContext.getTimeline().add(new TimePoint(TimePhase.E, System.currentTimeMillis()));
 				try {
-					transaction.complete(start);
+					transaction.complete();
 				} catch (RuntimeException e) {
 					monitor.logMonitorError(e);
 				}
