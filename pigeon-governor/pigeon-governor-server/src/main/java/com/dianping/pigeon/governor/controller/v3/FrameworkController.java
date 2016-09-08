@@ -51,7 +51,7 @@ public class FrameworkController extends BaseController{
     private OrgUpdateTask orgUpdateTask;
     @PostConstruct
     public void init(){
-        this.cache = new InnerCache(2,5);
+        this.cache = new InnerCache(2,2);
         this.cache.schedule();
     }
     class InnerCache implements Runnable{
@@ -83,6 +83,7 @@ public class FrameworkController extends BaseController{
         }
         @Override
         public void run() {
+            GsonUtils.Print("start refresh cache");
             TreeNode treeNode = serviceTreeService.getFullTree();
             JSONArray projectTypeAhead = dbSearchService.getProjectTypeAheadInfo();
             JSONArray serviceTypeAhead = dbSearchService.getServiceTypeAheadInfo();

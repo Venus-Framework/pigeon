@@ -12,9 +12,9 @@
             },
             options);
         return this.each(function () {
-            var sub = $($(this).prev().children()[0]);
-            var plus =$($(this).next().children()[0]);
-            var submit = $($(this).next().next().children()[0]);
+            var sub = $($(this).parent().prev().children()[0]);
+            var plus =$($(this).parent().next().children()[0]);
+            var submit = $($(this).parent().next().next().children()[0]);
             var input = $(this);
             var step = parseFloat(settings.step);
             //Init

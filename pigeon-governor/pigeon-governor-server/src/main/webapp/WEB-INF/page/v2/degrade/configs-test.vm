@@ -337,6 +337,10 @@
                                             "serviceName":$("#typeahead-service-name").val(),
                                             "methodName":$("#method-name").val()
                                         };
+                                        if(data.serviceName==''||data.methodName==''){
+                                            alert("error input!!!");
+                                            return;
+                                        }
                                         var rawValue="";
                                         data.value=rawValue;
                                         ajaxContent={'url':'/config/degrade/add','data':data};
@@ -348,6 +352,10 @@
                                             "serviceName":$("#typeahead-service-name").val(),
                                             "methodName":$("#method-name").val()
                                         };
+                                        if(data.serviceName==''||data.methodName==''){
+                                            alert("error input!!!");
+                                            return;
+                                        }
                                         var className = $("#class-name").val();
                                         var content = $("#return-content").val();
                                         content = escape(content);
@@ -362,6 +370,10 @@
                                             "serviceName":$("#typeahead-service-name").val(),
                                             "methodName":$("#method-name").val()
                                         };
+                                        if(data.serviceName==''||data.methodName==''){
+                                            alert("error input!!!");
+                                            return;
+                                        }
                                         var rawValue='{"throwException":"true"}';
                                         data.value=rawValue;
                                         var ajaxContent={'url':'/config/degrade/add','data':data};
@@ -373,6 +385,10 @@
                                             "serviceName":$("#typeahead-service-name").val(),
                                             "methodName":$("#method-name").val()
                                         };
+                                        if(data.serviceName==''||data.methodName==''){
+                                            alert("error input!!!");
+                                            return;
+                                        }
                                         var rawValue='{"useMockClass":"true"}';
                                         data.value=rawValue;
                                         var ajaxContent={'url':'/config/degrade/add','data':data};

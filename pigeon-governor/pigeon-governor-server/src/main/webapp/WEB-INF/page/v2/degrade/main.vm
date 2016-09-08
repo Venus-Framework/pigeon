@@ -65,25 +65,28 @@
                     <div class="widget-body" style="display: none;">
                         <div class="widget-main padding-6 no-padding-left no-padding-right">
                             <div class="input-group">
-        <span class="input-group-btn">
-                            <button class="btn btn-sm btn-info no-radius" type="button">
-                                <i class="ace-icon fa fa-minus"></i>
-                            </button>
-        </span>
-                                <input id="testSpin" placeholder="输入失败率" type="text" class="form-control"  autocomplete="off">
-        <span class="input-group-btn">
-                            <button  class="btn btn-sm btn-info no-radius" type="button">
-                                <i class="ace-icon fa fa-plus"></i>
-                            </button>
-        </span>
-        <span class="input-group-btn">
-            <button id="search" class="btn btn-sm btn-success no-radius" type="button">
-                <i class="ace-icon fa fa-upload"></i>
-                修改
-            </button>
-        </span>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-sm btn-info no-radius" type="button">
+                                        <i class="ace-icon fa fa-minus"></i>
+                                    </button>
+                                </span>
+                                <span class="input-icon input-icon-right" style="padding-top: 4px">
+                                    <input id="testSpin" placeholder="输入失败率" type="text" class="form-control"  autocomplete="off">
+                                    <i class="ace-icon fa fa-percent green" style="padding-top: 6px"></i>
+                                </span>
+                                <span class="input-group-btn">
+                                    <button  class="btn btn-sm btn-info no-radius" type="button">
+                                        <i class="ace-icon fa fa-plus"></i>
+                                    </button>
+                                </span>
+                                <span class="input-group-btn">
+                                    <button id="search" class="btn btn-sm btn-success no-radius" type="button">
+                                        <i class="ace-icon fa fa-upload"></i>
+                                        修改
+                                    </button>
+                                </span>
                             </div>
-                            <div class="red">此处配置的取值范围为(0-100),为Float类型。若配置值为15.3,其对应失败率为15.3%。</div>
+                            <div class="red">此处配置的取值范围为(0-100)。</div>
                         </div>
                     </div>
                 </div>
@@ -130,6 +133,7 @@
         $("#testSpin").my_spin({
             enable:$switcherEnable,
             initVal:$recoverPercentage,
+            step:1,
             callback:function(val){
                 var value = val;
                 $.ajax({
