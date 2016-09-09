@@ -337,7 +337,20 @@
                                             "serviceName":$("#typeahead-service-name").val(),
                                             "methodName":$("#method-name").val()
                                         };
-                                        var rawValue="null";
+                                        if(data.serviceName==''||data.methodName==''){
+                                            bootbox.dialog({
+                                                message: "非法输入!!!",
+                                                buttons: {
+                                                    "success": {
+                                                        "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                        "className": "btn-sm btn-success",
+                                                        "callback": function() {}
+                                                    }
+                                                }
+                                            });
+                                            return;
+                                        }
+                                        var rawValue="";
                                         data.value=rawValue;
                                         ajaxContent={'url':'/config/degrade/add','data':data};
                                         updateConfig(ajaxContent);
@@ -348,6 +361,19 @@
                                             "serviceName":$("#typeahead-service-name").val(),
                                             "methodName":$("#method-name").val()
                                         };
+                                        if(data.serviceName==''||data.methodName==''){
+                                            bootbox.dialog({
+                                                message: "非法输入!!!",
+                                                buttons: {
+                                                    "success": {
+                                                        "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                        "className": "btn-sm btn-success",
+                                                        "callback": function() {}
+                                                    }
+                                                }
+                                            });
+                                            return;
+                                        }
                                         var className = $("#class-name").val();
                                         var content = $("#return-content").val();
                                         content = escape(content);
@@ -362,6 +388,19 @@
                                             "serviceName":$("#typeahead-service-name").val(),
                                             "methodName":$("#method-name").val()
                                         };
+                                        if(data.serviceName==''||data.methodName==''){
+                                            bootbox.dialog({
+                                                message: "非法输入!!!",
+                                                buttons: {
+                                                    "success": {
+                                                        "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                        "className": "btn-sm btn-success",
+                                                        "callback": function() {}
+                                                    }
+                                                }
+                                            });
+                                            return;
+                                        }
                                         var rawValue='{"throwException":"true"}';
                                         data.value=rawValue;
                                         var ajaxContent={'url':'/config/degrade/add','data':data};
@@ -373,6 +412,19 @@
                                             "serviceName":$("#typeahead-service-name").val(),
                                             "methodName":$("#method-name").val()
                                         };
+                                        if(data.serviceName==''||data.methodName==''){
+                                            bootbox.dialog({
+                                                message: "非法输入!!!",
+                                                buttons: {
+                                                    "success": {
+                                                        "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                        "className": "btn-sm btn-success",
+                                                        "callback": function() {}
+                                                    }
+                                                }
+                                            });
+                                            return;
+                                        }
                                         var rawValue='{"useMockClass":"true"}';
                                         data.value=rawValue;
                                         var ajaxContent={'url':'/config/degrade/add','data':data};
@@ -423,7 +475,7 @@
                 inputObjs: [$("#form-1"), $("#form-2"), $("#form-3"), $("#form-4")],
                 callbacks: [
                     function () {
-                        var rawValue="null";
+                        var rawValue="";
                         data.value=rawValue;
                         ajaxContent={'url':'/config/degrade/update','data':data};
                         updateConfig(ajaxContent);
@@ -481,7 +533,7 @@
                 callbacks: [
 //                        in fact data doesn't need at all
                     function () {
-                        var rawValue="null";
+                        var rawValue="";
                         data.value=rawValue;
                         var ajaxContent={'url':'/config/degrade/delete','data':data};
                         updateConfig(ajaxContent);

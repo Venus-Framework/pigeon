@@ -150,8 +150,7 @@ public class ProjectController extends BaseController {
 		try {
 			verifyIdentity(request, 2);
 		} catch (Exception e) {
-			
-			e.printStackTrace();
+			logger.warn(e);
 			return ;
 		}
 		

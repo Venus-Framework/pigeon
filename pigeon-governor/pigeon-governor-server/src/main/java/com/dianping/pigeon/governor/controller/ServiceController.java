@@ -236,7 +236,7 @@ public class ServiceController extends BaseController {
 				result = Result.createErrorResult("oper error");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e);
 			logger.error("update zk error");
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			result = Result.createErrorResult("update zk error");
@@ -482,13 +482,13 @@ public class ServiceController extends BaseController {
 				filters = objectMapper.readValue(jqGridReqBean.getFilters(), JqGridReqFilters.class);
 			} catch (JsonParseException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e);
 			} catch (JsonMappingException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e);
 			} catch (IOException e) {
+				logger.error(e);
 				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 		

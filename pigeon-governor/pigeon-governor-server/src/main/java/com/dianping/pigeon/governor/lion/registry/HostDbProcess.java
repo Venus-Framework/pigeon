@@ -102,6 +102,7 @@ public class HostDbProcess {
                                         try {
                                             appname = lionZkClient.get(apppath, false);
                                         } catch (Exception e) {
+                                            logger.error(e);
                                             e.printStackTrace();
                                         }
                                         String versionpath = finalPath.replace("WEIGHT", "VERSION");
@@ -109,6 +110,7 @@ public class HostDbProcess {
                                         try {
                                             version = lionZkClient.get(versionpath,false);
                                         } catch (Exception e) {
+                                            logger.error(e);
                                             e.printStackTrace();
                                         }
                                         Host host = new Host();

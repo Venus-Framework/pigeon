@@ -118,6 +118,7 @@ public class HttpCallUtils {
             }
             response = resBuffer.toString();
         }catch (IOException e){
+            logger.error(e);
             e.printStackTrace();
         }finally{
             postMethod.releaseConnection();//关闭连接
@@ -142,6 +143,7 @@ public class HttpCallUtils {
                 sb.append(ans);
             response = ans.toString();
         }catch(IOException e){
+            logger.error(e);
             e.printStackTrace();
         }
         return  response;
@@ -165,10 +167,13 @@ public class HttpCallUtils {
                 sb.append(ans);
             response = sb.toString();
         } catch (UnsupportedEncodingException e) {
+            logger.error(e);
             e.printStackTrace();
         } catch (HttpException e) {
+            logger.error(e);
             e.printStackTrace();
         } catch (IOException e) {
+            logger.error(e);
             e.printStackTrace();
         }
         return response;

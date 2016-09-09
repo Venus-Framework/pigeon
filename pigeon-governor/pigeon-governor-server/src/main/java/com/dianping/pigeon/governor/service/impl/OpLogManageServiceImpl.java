@@ -36,6 +36,7 @@ public class OpLogManageServiceImpl implements OpLogManageService{
         this.typeMap.put((short)3,"服务删除");
         this.typeMap.put((short)4,"心跳摘除");
         this.typeMap.put((short)5,"应用信息更新");
+        this.typeMap.put((short)6,"降级设置更新");
     }
 
     @Override

@@ -98,6 +98,7 @@ public class PigeonProviderHeartBeatCheck extends Thread {
                     try {
                         Thread.sleep(internal);
                     } catch (InterruptedException e) {
+                        logger.error(e);
                         e.printStackTrace();
                     }
                 }

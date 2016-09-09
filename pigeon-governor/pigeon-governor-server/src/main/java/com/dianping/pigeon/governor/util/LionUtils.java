@@ -2,6 +2,8 @@ package com.dianping.pigeon.governor.util;
 
 import com.dianping.pigeon.governor.bean.config.RouterInfo;
 import com.google.gson.Gson;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -11,7 +13,7 @@ import java.util.*;
 
 //TODO we need a better understand of the Lion http client response.
 public class LionUtils {
-
+    private static Logger logger = LogManager.getLogger();
     public static GetPrefixLionHttpResponse getLionConfigs(String prefix, String env){
         String url = "http://lionapi.dp:8080/config2/get?env="+env+"&id=2&prefix="+prefix;
         System.out.println(url);
@@ -113,6 +115,7 @@ public class LionUtils {
             try{
                 GetProjectLionResponse getPrefixLionHttpResponse = new Gson().fromJson(response,GetProjectLionResponse.class);
             }catch (Throwable t){
+                logger.error(t);
                 t.printStackTrace();
                 return false;
             }
