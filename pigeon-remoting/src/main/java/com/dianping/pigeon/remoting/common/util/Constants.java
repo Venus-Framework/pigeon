@@ -53,12 +53,10 @@ public final class Constants {
 
 	public static final byte MESSAGE_HEAD_FIRST = 57;
 	public static final byte MESSAGE_HEAD_SECOND = 58;
-	public static final byte[] MESSAGE_HEAD = new byte[] { MESSAGE_HEAD_FIRST, MESSAGE_HEAD_SECOND };
 
 	public static final byte EXPAND_FLAG_FIRST = 29;
 	public static final byte EXPAND_FLAG_SECOND = 30;
 	public static final byte EXPAND_FLAG_THIRD = 31;
-	public static final byte[] EXPAND_FLAG = new byte[] { EXPAND_FLAG_FIRST, EXPAND_FLAG_SECOND, EXPAND_FLAG_THIRD };
 
 	public static final int ATTACHMENT_RETRY = 1;
 	public static final int ATTACHMENT_BYTEBUFFER = 2;
@@ -175,7 +173,7 @@ public final class Constants {
 	public static boolean REPLY_MANUAL = ConfigManagerLoader.getConfigManager()
 			.getBooleanValue("pigeon.provider.reply.manual", false);
 
-	public static boolean MONITOR_ENABLE = ConfigManagerLoader.getConfigManager()
+	public static final boolean MONITOR_ENABLE = ConfigManagerLoader.getConfigManager()
 			.getBooleanValue("pigeon.monitor.enabled", true);
 	
 	public static final int PROVIDER_POOL_CORE_SIZE = ConfigManagerLoader.getConfigManager()

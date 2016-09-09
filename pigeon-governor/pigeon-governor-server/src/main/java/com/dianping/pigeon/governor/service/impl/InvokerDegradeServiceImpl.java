@@ -151,7 +151,7 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
             logger.info(e);
             return false;
         }catch(Throwable t){
-            t.printStackTrace();
+            logger.error(t);
             return false;
         }
         String configPrefix = config.getServiceName()+"#"+config.getMethodName();

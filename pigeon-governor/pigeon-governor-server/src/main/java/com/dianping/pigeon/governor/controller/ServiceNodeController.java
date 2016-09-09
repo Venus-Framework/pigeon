@@ -309,8 +309,4 @@ public class ServiceNodeController extends BaseController {
         }
 
     }
-
-    public static void main(String[] args) {
-        new HashSet<String>(null);
-    }
 }

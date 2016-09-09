@@ -40,13 +40,13 @@ public class ProjectOwnerController extends BaseController {
         Project project = CmdbUtils.getProjectInfo(projectName);
 
         if(project == null) {
-            String message = String.format("CMDB上找不到应用：" + projectName);
+            String message = "CMDB上找不到应用：" + projectName;
             return Result.createErrorResult(message);
         }
         final String emails = project.getEmail();
 
         if(StringUtils.isBlank(emails)) {
-            String message = String.format("拉取CMDB项目邮件组出错，请联系架构开发人员处理");
+            String message = "拉取CMDB项目邮件组出错，请联系架构开发人员处理";
             return Result.createErrorResult(message);
         }
 
@@ -59,7 +59,7 @@ public class ProjectOwnerController extends BaseController {
             }
         });
 
-        String message = String.format("管理员刷新成功：" + projectName);
+        String message = "管理员刷新成功：" + projectName;
         return Result.createSuccessResult(message);
 
     }

@@ -34,7 +34,6 @@ public class ServiceRegistry {
 	private int port = 20000;
 	private int httpPort = ServerConfig.DEFAULT_HTTP_PORT;
 	private boolean autoSelectPort = true;
-	public static boolean isInit = false;
 	private boolean cancelTimeout = Constants.DEFAULT_TIMEOUT_CANCEL;
 	private int corePoolSize = Constants.PROVIDER_POOL_CORE_SIZE;
 	private int maxPoolSize = Constants.PROVIDER_POOL_MAX_SIZE;
