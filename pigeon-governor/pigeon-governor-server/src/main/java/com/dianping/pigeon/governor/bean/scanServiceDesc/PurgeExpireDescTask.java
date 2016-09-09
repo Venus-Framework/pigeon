@@ -107,7 +107,7 @@ public class PurgeExpireDescTask {
             System.out.println(stopwatch.elapsed(TimeUnit.SECONDS));
             logger.info("Purge terminated");
         } catch (InterruptedException e) {
-            e.printStackTrace();
+           logger.warn(e);
         }
     }
 }

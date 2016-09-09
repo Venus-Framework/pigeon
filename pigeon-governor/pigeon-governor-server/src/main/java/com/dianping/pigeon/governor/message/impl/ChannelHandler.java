@@ -3,6 +3,8 @@ package com.dianping.pigeon.governor.message.impl;
 import com.dianping.pigeon.governor.message.Event;
 import com.dianping.pigeon.governor.message.EventChannel;
 import com.dianping.pigeon.governor.util.GsonUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +24,7 @@ public class ChannelHandler {
     private Thread channelManagerThread;
     //TODO refactor as interface.
     private MessageServiceImpl messageService;
+    private Logger logger = LogManager.getLogger(ChannelHandler.class.getName());
     public void init(int threadNum,EventChannel eventChannel,MessageServiceImpl messageService) throws Exception {
         this.threadNum = threadNum;
         this.eventChannel = eventChannel;
@@ -48,9 +51,10 @@ public class ChannelHandler {
                 //TODO
                 executor.submit(messageService.getEventLifeCycle(event));
             }catch (InterruptedException e){
+                logger.info(e);
                 Thread.currentThread().interrupt();
             }catch(Exception e){
-                e.printStackTrace();
+                logger.error(e);
             }
         }
     }

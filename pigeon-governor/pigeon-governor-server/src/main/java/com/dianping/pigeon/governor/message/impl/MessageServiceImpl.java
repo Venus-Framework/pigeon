@@ -3,6 +3,8 @@ package com.dianping.pigeon.governor.message.impl;
 import com.dianping.pigeon.governor.message.*;
 import com.dianping.pigeon.governor.message.persistence.MessagePersistenceService;
 import com.dianping.pigeon.governor.util.GsonUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,7 @@ public class MessageServiceImpl implements MessageService{
     private EventSender sender;
     @Autowired
     private MessagePersistenceService messagePersistenceService;
+    private Logger logger = LogManager.getLogger(MessageServiceImpl.class.getName());
     private volatile boolean isInited = false;
     public void init() throws Exception {
         if(!isInited){
@@ -41,7 +44,7 @@ public class MessageServiceImpl implements MessageService{
         try {
             channel.put(event);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
     }
     @Override

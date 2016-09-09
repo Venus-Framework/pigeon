@@ -10,6 +10,7 @@
     <!-- bootstrap & fontawesome -->
     <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/font-awesome.min.css"/>
     <!-- page specific plugin styles -->
     <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/jquery-ui.min.css" />
     <link rel="stylesheet" href="${rc.contextPath}/resources/assets/css/datepicker.css" />

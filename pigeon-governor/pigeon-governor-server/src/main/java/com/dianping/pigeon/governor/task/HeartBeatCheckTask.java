@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Deprecated
 public class HeartBeatCheckTask extends Thread {
 
-    private Logger logger = LogManager.getLogger(HeartBeatCheckTask.class);
+    static private Logger logger = LogManager.getLogger(HeartBeatCheckTask.class);
 
     @Autowired
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
@@ -126,7 +126,7 @@ public class HeartBeatCheckTask extends Thread {
                 try {
                     Thread.sleep(internal);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error(e);
                 }
             }
         }
@@ -210,7 +210,6 @@ public class HeartBeatCheckTask extends Thread {
 
         private final long startTime;
         private final String host;
-
         public DealHeartBeat(long startTime, String host) {
             this.startTime = startTime;
             this.host = host;
@@ -334,6 +333,7 @@ public class HeartBeatCheckTask extends Thread {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
+                    logger.error(e);
                     //e.printStackTrace();
                 }
                 return isPortAvailable(host, next);
@@ -347,6 +347,7 @@ public class HeartBeatCheckTask extends Thread {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
+                    logger.error(e);
                     //e.printStackTrace();
                 }
                 return isPortAvailable(host, next);
@@ -405,7 +406,7 @@ public class HeartBeatCheckTask extends Thread {
         try {
             hosts = client.getChildren("/DP/VERSION", false);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
             return ;
         }
 
@@ -421,7 +422,7 @@ public class HeartBeatCheckTask extends Thread {
                     try {
                         version = client.get("/DP/VERSION/" + host, false);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.error(e);
                     }
 
                     if(StringUtils.isNotBlank(version) && VersionUtils.compareVersion(version, "2.7.0") >= 0) {
@@ -447,7 +448,7 @@ public class HeartBeatCheckTask extends Thread {
         try {
             services = client.getChildren("/DP/SERVER", false);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
             return ;
         }
         Set<String> hostSet = new HashSet<String>();
@@ -460,7 +461,7 @@ public class HeartBeatCheckTask extends Thread {
                 try {
                     hosts = client.get("/DP/SERVER/" + service_zk, false);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error(e);
                     continue;
                 }
 
@@ -468,7 +469,7 @@ public class HeartBeatCheckTask extends Thread {
                     try {
                         hostSet.addAll(Arrays.asList(hosts.split(",")));
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.error(e);
                     }
                 }
 

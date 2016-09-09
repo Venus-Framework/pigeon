@@ -68,11 +68,11 @@ public class ProjectServiceImpl implements ProjectService {
 				id = Integer.parseInt(ids);
 				count = projectMapper.deleteByPrimaryKey(id);
 			} catch (NumberFormatException e) {
-				e.printStackTrace();
+				logger.error(e);
 			}finally{
 				sqlSucCount += count;
 			}
-			
+
 		}
 		
 		return sqlSucCount;

@@ -2,6 +2,8 @@ package com.dianping.pigeon.governor.service.impl;
 
 import com.dianping.lion.client.Lion;
 import com.dianping.pigeon.governor.service.EsService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexResponse;
@@ -29,6 +31,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class EsServiceImpl implements EsService {
     //TODO using XML to config the Client. Which aimed at the es server Ip and other client configs.
     private Client esClient;
+    private Logger logger = LogManager.getLogger(EsServiceImpl.class.getName());
     public EsServiceImpl(){
         String clusterName  = Lion.get("pigeon-governor-server.es.clustername","elasticsearch");
         String hostName = Lion.get("pigeon-governor-server.es.hostname","localhost");
@@ -40,7 +43,7 @@ public class EsServiceImpl implements EsService {
             esClient = TransportClient.builder().settings(setting).build().addTransportAddress(
                     new InetSocketTransportAddress(InetAddress.getByName(hostName),port));
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
     }
     @Override

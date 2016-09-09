@@ -127,10 +127,10 @@ public class ServiceDescServiceImpl implements ServiceDescService{
                 }
             }
         }catch(DataAccessException e){
-            e.printStackTrace();
+            logger.error(e);
             return UpdateResultState.DBFAIL;
         }catch(Exception e){
-            e.printStackTrace();
+            logger.error(e);
             return UpdateResultState.DBFAIL;
         }
     }

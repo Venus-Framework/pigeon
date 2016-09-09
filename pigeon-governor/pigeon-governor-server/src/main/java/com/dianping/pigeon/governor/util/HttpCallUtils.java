@@ -81,7 +81,6 @@ public class HttpCallUtils {
             doc = saxReader.read(resStream); //
         }catch (DocumentException e){
             //TODO fix when commit code
-            e.printStackTrace();
             logger.warn(e);
         }catch(HttpException e){
             logger.warn(e);
@@ -118,7 +117,7 @@ public class HttpCallUtils {
             }
             response = resBuffer.toString();
         }catch (IOException e){
-            e.printStackTrace();
+            logger.error(e);
         }finally{
             postMethod.releaseConnection();//关闭连接
         }
@@ -142,7 +141,7 @@ public class HttpCallUtils {
                 sb.append(ans);
             response = ans.toString();
         }catch(IOException e){
-            e.printStackTrace();
+            logger.error(e);
         }
         return  response;
     }
@@ -165,11 +164,11 @@ public class HttpCallUtils {
                 sb.append(ans);
             response = sb.toString();
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (HttpException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         return response;
     }

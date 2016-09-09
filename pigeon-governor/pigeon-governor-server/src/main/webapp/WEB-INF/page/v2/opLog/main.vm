@@ -127,6 +127,7 @@
                                                 <option value="3">删除服务</option>
                                                 <option value="4">心跳摘除</option>
                                                 <option value="5">应用信息更新</option>
+                                                <option value="6">降级信息更新</option>
                                             </select>
                                         </div>
                                     </div>

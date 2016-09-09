@@ -2,14 +2,13 @@ package com.dianping.pigeon.governor.controller;
 
 import com.dianping.pigeon.governor.bean.degrade.DegradeConfig;
 import com.dianping.pigeon.governor.exception.LionNullProjectException;
+import com.dianping.pigeon.governor.model.OpLog;
 import com.dianping.pigeon.governor.model.ServiceNode;
 import com.dianping.pigeon.governor.model.User;
-import com.dianping.pigeon.governor.service.InvokerDegradeService;
-import com.dianping.pigeon.governor.service.ProjectOwnerService;
-import com.dianping.pigeon.governor.service.ServiceNodeService;
-import com.dianping.pigeon.governor.util.GsonUtils;
-import com.dianping.pigeon.governor.util.RandomUtils;
-import com.dianping.pigeon.governor.util.UserRole;
+import com.dianping.pigeon.governor.service.*;
+import com.dianping.pigeon.governor.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,9 +20,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * Created by shihuashen on 16/8/17.
@@ -36,7 +37,13 @@ public class InvokerDegradeController extends BaseController{
     private ProjectOwnerService projectOwnerService;
     @Autowired
     private ServiceNodeService serviceNodeService;
+    @Autowired
+    private OpLogService opLogService;
+    @Autowired
+    private ProjectService projectService;
 
+
+    private Logger logger = LogManager.getLogger(InvokerDegradeController.class.getName());
     @RequestMapping(value = {"/config/degrade"},method = RequestMethod.POST)
     public String main(HttpServletRequest request,
                      HttpServletResponse response,
@@ -60,7 +67,7 @@ public class InvokerDegradeController extends BaseController{
             failureState = invokerDegradeService.getFailureDegradeState(projectName);
             recoverPercentage = invokerDegradeService.getRecoverPercentage(projectName);
         } catch (LionNullProjectException e) {
-            e.printStackTrace();
+            logger.info(e);
             modelMap.put("error","Project: "+projectName+" wasn't created in Lion.");
             return "/config/project/LionLack";
         }
@@ -76,14 +83,16 @@ public class InvokerDegradeController extends BaseController{
                               HttpServletResponse response,
                               ModelMap modelMap){
         String projectName = request.getParameter("projectName");
-        invokerDegradeService.setFailureDegradeState(projectName,"true");
+        boolean status = invokerDegradeService.setFailureDegradeState(projectName,"true");
+        logSwitch(request,projectName,"failure switcher","turn on ",status);
     }
     @RequestMapping(value={"/degrade/failure/disable"},method = RequestMethod.POST)
     public void disableFailure(HttpServletRequest request,
                                HttpServletResponse response,
                                ModelMap modelMap){
         String projectName = request.getParameter("projectName");
-        invokerDegradeService.setFailureDegradeState(projectName,"false");
+        boolean status = invokerDegradeService.setFailureDegradeState(projectName,"false");
+        logSwitch(request,projectName,"failure switcher","turn off ",status);
     }
 
 
@@ -93,7 +102,8 @@ public class InvokerDegradeController extends BaseController{
                             HttpServletResponse response,
                             ModelMap modelMap){
         String projectName = request.getParameter("projectName");
-        invokerDegradeService.setForceDegradeState(projectName,"true");
+        boolean status = invokerDegradeService.setForceDegradeState(projectName,"true");
+        logSwitch(request,projectName,"force switcher","turn on ",status);
     }
 
     @RequestMapping(value = {"/degrade/force/disable"},method = RequestMethod.POST)
@@ -102,7 +112,8 @@ public class InvokerDegradeController extends BaseController{
                              ModelMap modelMap){
         String projectName = request.getParameter("projectName");
         System.out.println(projectName);
-        invokerDegradeService.setForceDegradeState(projectName,"false");
+        boolean status = invokerDegradeService.setForceDegradeState(projectName,"false");
+        logSwitch(request,projectName,"force switcher","turn off ",status);
     }
 
     @RequestMapping(value={"/degrade/auto/enable"},method = RequestMethod.POST)
@@ -110,7 +121,8 @@ public class InvokerDegradeController extends BaseController{
                            HttpServletResponse response,
                            ModelMap modelMap){
         String projectName = request.getParameter("projectName");
-        invokerDegradeService.setAutoDegradeState(projectName,"true");
+        boolean status = invokerDegradeService.setAutoDegradeState(projectName,"true");
+        logSwitch(request,projectName,"auto switcher","turn on ",status);
     }
 
     @RequestMapping(value={"/degrade/auto/disable"},method = RequestMethod.POST)
@@ -118,7 +130,8 @@ public class InvokerDegradeController extends BaseController{
                             HttpServletResponse response,
                             ModelMap modelMap){
         String projectName = request.getParameter("projectName");
-        invokerDegradeService.setAutoDegradeState(projectName,"false");
+        boolean status = invokerDegradeService.setAutoDegradeState(projectName,"false");
+        logSwitch(request,projectName,"auto switcher","turn off ",status);
     }
     @RequestMapping(value={"/degrade/recover/set"},method = RequestMethod.POST)
     public void setRecoverPercentage(HttpServletRequest request,
@@ -129,12 +142,13 @@ public class InvokerDegradeController extends BaseController{
         System.out.println(projectName);
         System.out.println(value);
         boolean setStatus =  invokerDegradeService.setRecoverPercentage(projectName,Double.valueOf(value));
+        logRecoverSet(request,projectName,Double.valueOf(value),setStatus);
         response.setCharacterEncoding("UTF-8");
         try {
             PrintWriter out = response.getWriter();
             out.write(String.valueOf(setStatus));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn(e);
         }
     }
 
@@ -182,13 +196,13 @@ public class InvokerDegradeController extends BaseController{
         degradeConfig.setServiceName(serviceName);
         degradeConfig.setReturnValue(returnValue);
         boolean addStatus = invokerDegradeService.addDegradeConfig(degradeConfig);
-        System.out.println("add state: "+addStatus);
+        log(request,degradeConfig,"add",addStatus);
         response.setCharacterEncoding("UTF-8");
         try {
             PrintWriter out = response.getWriter();
             out.write(String.valueOf(addStatus));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn(e);
         }
     }
 
@@ -206,12 +220,12 @@ public class InvokerDegradeController extends BaseController{
         degradeConfig.setServiceName(serviceName);
         degradeConfig.setReturnValue(returnValue);
         boolean updateStatus = invokerDegradeService.updateDegradeConfig(degradeConfig);
-        System.out.println("update states: "+updateStatus);
+        log(request,degradeConfig,"update",updateStatus);
         try {
             PrintWriter out = response.getWriter();
             out.write(String.valueOf(updateStatus));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn(e);
         }
     }
 
@@ -227,12 +241,58 @@ public class InvokerDegradeController extends BaseController{
         degradeConfig.setMethodName(methodName);
         degradeConfig.setServiceName(serviceName);
         boolean deleteStatus = invokerDegradeService.deleteDegradeConfig(degradeConfig);
-        System.out.println("delete states:"+deleteStatus);
+        log(request,degradeConfig,"delete",deleteStatus);
         try {
             PrintWriter out = response.getWriter();
             out.write(String.valueOf(deleteStatus));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn(e);
         }
+    }
+
+    private Future<Integer> log(HttpServletRequest request,DegradeConfig config,String configOp,boolean status){
+        OpLog opLog = new OpLog();
+        User user = getUserInfo(request);
+        String currentUser = user.getDpaccount();
+        int projectId = projectService.findProject(config.getProjectName()).getId();
+        String reqIp = IPUtils.getUserIP(request);
+        OpType opType = OpType.SERVICE_DEGRADE;
+        opLog.setDpaccount(currentUser);
+        opLog.setProjectid(projectId);
+        opLog.setReqip(reqIp);
+        opLog.setOptime(new Date());
+        opLog.setContent("Degrade "+configOp+" with the user defined config :"+GsonUtils.toJson(config)+" The op return status is "+status);
+        opLog.setOptype(opType.getValue());
+        return opLogService.asyncCreate(opLog);
+    }
+    private Future<Integer> logSwitch(HttpServletRequest request,String projectName, String switcherName, String switchOp,boolean setStatus){
+        OpLog opLog = new OpLog();
+        User user = getUserInfo(request);
+        String currentUser = user.getDpaccount();
+        int projectId = projectService.findProject(projectName).getId();
+        String reqIp = IPUtils.getUserIP(request);
+        OpType opType = OpType.SERVICE_DEGRADE;
+        opLog.setDpaccount(currentUser);
+        opLog.setProjectid(projectId);
+        opLog.setReqip(reqIp);
+        opLog.setOptime(new Date());
+        opLog.setContent("Degrade "+switchOp+" "+switcherName+"# The op return status is "+setStatus);
+        opLog.setOptype(opType.getValue());
+        return opLogService.asyncCreate(opLog);
+    }
+    private Future<Integer> logRecoverSet(HttpServletRequest request,String projectName,double value,boolean setStatus){
+        OpLog opLog = new OpLog();
+        User user = getUserInfo(request);
+        String currentUser = user.getDpaccount();
+        int projectId = projectService.findProject(projectName).getId();
+        String reqIp = IPUtils.getUserIP(request);
+        OpType opType = OpType.SERVICE_DEGRADE;
+        opLog.setDpaccount(currentUser);
+        opLog.setProjectid(projectId);
+        opLog.setReqip(reqIp);
+        opLog.setOptime(new Date());
+        opLog.setContent("Set recover percentage to"+value+"# The op return status is "+setStatus);
+        opLog.setOptype(opType.getValue());
+        return opLogService.asyncCreate(opLog);
     }
 }

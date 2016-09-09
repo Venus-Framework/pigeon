@@ -3,6 +3,8 @@ package com.dianping.pigeon.governor.util;
 import com.dianping.cat.consumer.cross.model.entity.CrossReport;
 import com.dianping.cat.consumer.transaction.model.entity.TransactionReport;
 import com.dianping.cat.consumer.transaction.model.transform.DefaultSaxParser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
@@ -16,8 +18,8 @@ import java.util.Date;
  * Created by shihuashen on 16/6/29.
  */
 public class CatReportXMLUtils {
-
-    public static SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHH");
+    static private Logger logger = LogManager.getLogger(CatReportXMLUtils.class);
+    public final static SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHH");
     //Since the TransactionReport model differ from the real Cat XML, we need to convert to fit.
     //The java model is : <transaction-report></transaction-report>.
     //The XML format is : <transaction><report></report></transaction>.
@@ -35,9 +37,9 @@ public class CatReportXMLUtils {
         try {
             tr = DefaultSaxParser.parse(xml);
         } catch (SAXException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         return tr;
     }
@@ -51,9 +53,9 @@ public class CatReportXMLUtils {
         try{
             cr = com.dianping.cat.consumer.cross.model.transform.DefaultSaxParser.parse(fitXML);
         } catch (SAXException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         return cr;
     }

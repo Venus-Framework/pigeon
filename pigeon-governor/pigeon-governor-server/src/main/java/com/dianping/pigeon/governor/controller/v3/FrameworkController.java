@@ -9,8 +9,11 @@ import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.ProjectOrg;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.*;
+import com.dianping.pigeon.governor.task.organization.OrgUpdateTask;
 import com.dianping.pigeon.governor.util.GsonUtils;
 import com.dianping.pigeon.governor.util.UserRole;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -46,10 +49,14 @@ public class FrameworkController extends BaseController{
     @Autowired
     private ProjectOwnerService projectOwnerService;
     private InnerCache cache;
+    @Autowired
+    private OrgUpdateTask orgUpdateTask;
     @PostConstruct
     public void init(){
-        this.cache = new InnerCache(2,5);
+        this.cache = new InnerCache(2,2);
+        this.cache.schedule();
     }
+    private Logger logger = LogManager.getLogger(FrameworkController.class.getName());
     class InnerCache implements Runnable{
         private volatile TreeNode projectTree;
         private volatile JSONArray projectTypeAhead;
@@ -79,6 +86,7 @@ public class FrameworkController extends BaseController{
         }
         @Override
         public void run() {
+            GsonUtils.Print("start refresh cache");
             TreeNode treeNode = serviceTreeService.getFullTree();
             JSONArray projectTypeAhead = dbSearchService.getProjectTypeAheadInfo();
             JSONArray serviceTypeAhead = dbSearchService.getServiceTypeAheadInfo();
@@ -193,7 +201,7 @@ public class FrameworkController extends BaseController{
             pw.write(cache.getProjectTypeAhead().toString());
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 
@@ -207,7 +215,14 @@ public class FrameworkController extends BaseController{
             pw = response.getWriter();
             pw.write(cache.getServiceTypeAhead().toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
+    }
+
+    @RequestMapping(value={"/framework/startOrgFetch"},method = RequestMethod.GET)
+    public void startOrgFetch(HttpServletRequest request,
+                              HttpServletResponse response,
+                              ModelMap modelMap){
+        this.orgUpdateTask.start();
     }
 }

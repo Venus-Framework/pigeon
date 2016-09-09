@@ -37,7 +37,7 @@ public class UpdateProjectTask implements Runnable {
     @Override
     public void run() {
         try {
-            for(int page = 1; ; ++page) {
+            for(int page = 1;page<Integer.MAX_VALUE; ++page) {
                 List<Project> projects = CmdbUtils.getProjectsInfoByPage(page);
 
                 if(projects.size() == 0) {

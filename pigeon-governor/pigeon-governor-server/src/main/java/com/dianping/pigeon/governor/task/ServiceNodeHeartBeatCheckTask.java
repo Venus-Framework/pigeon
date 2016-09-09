@@ -135,7 +135,7 @@ public class ServiceNodeHeartBeatCheckTask extends Thread {
                 try {
                     Thread.sleep(internal);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error(e);
                 }
             }
         }

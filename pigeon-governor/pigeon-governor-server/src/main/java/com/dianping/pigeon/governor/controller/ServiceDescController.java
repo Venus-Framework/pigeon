@@ -13,6 +13,8 @@ import com.dianping.pigeon.governor.service.ServiceDescService;
 import com.dianping.pigeon.governor.util.Constants;
 import com.dianping.pigeon.governor.util.UserRole;
 import com.google.gson.Gson;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHits;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,7 @@ public class ServiceDescController extends BaseController{
     private String index = Lion.get("pigeon-governor-server.es.index","bean");
     private String type = Lion.get("pigeon-governor-server.es.type","camel");
 
+    private Logger logger = LogManager.getLogger(ServiceDescController.class.getName());
 
     @RequestMapping(value = {"/doc/{serviceId}"},method = RequestMethod.GET)
     public String CombinedMapper(ModelMap modelMap,
@@ -140,7 +143,7 @@ public class ServiceDescController extends BaseController{
             PrintWriter pw = response.getWriter();
             pw.write(new Gson().toJson(results));
         }catch (IOException e){
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 
@@ -159,7 +162,7 @@ public class ServiceDescController extends BaseController{
             PrintWriter pw = response.getWriter();
             pw.write(new Gson().toJson(result));
         }catch (IOException e){
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 

@@ -6,6 +6,8 @@ import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.CacheService;
 import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +26,7 @@ public class CacheServiceImpl implements CacheService{
     @Autowired
     private CustomCacheMapper customCacheMapper;
 
-
+    private Logger logger = LogManager.getLogger(CacheServiceImpl.class.getName());
 
     private volatile Map<Integer,String> projectNameMap;
     private volatile Map<String,String> userNameMap;
@@ -62,7 +64,7 @@ public class CacheServiceImpl implements CacheService{
             try {
                 Thread.currentThread().sleep(300000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error(e);
             }
         }
     }
