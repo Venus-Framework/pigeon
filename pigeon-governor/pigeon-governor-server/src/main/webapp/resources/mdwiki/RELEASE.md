@@ -1,6 +1,11 @@
 ## pigeon版本发布说明
 ------
 
+###2.8.2
+客户端调用超时阻塞方式由wait/notify方式改为lock/condition方式
+future调用模式的打点方式修改，新增PigeonFuture打点
+修复bugs
+
 ###2.8.1
 支持动态关闭mns注册中心模块，支持服务方法限流，mock类降级，失败降级，修复bugs
 
