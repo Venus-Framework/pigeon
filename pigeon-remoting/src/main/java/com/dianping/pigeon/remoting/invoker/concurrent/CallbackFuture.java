@@ -164,6 +164,9 @@ public class CallbackFuture implements Callback, CallFuture {
     }
 
     protected void processContext() {
+        if (response == null) {
+            return;
+        }
         if (response instanceof UnifiedResponse) {
             processContext0((UnifiedResponse) response);
         } else {
@@ -172,7 +175,11 @@ public class CallbackFuture implements Callback, CallFuture {
     }
 
     protected void processContext0() {
-        setResponseContext(response);
+        Map<String, Serializable> responseValues = response.getResponseValues();
+        if (responseValues != null) {
+            ContextUtils.setResponseContext(responseValues);
+        }
+
         Object context = ContextUtils.getContext();
         if (context != null) {
             Integer order = ContextUtils.getOrder(this.response.getContext());
@@ -208,7 +215,17 @@ public class CallbackFuture implements Callback, CallFuture {
     }
 
     protected void setResponseContext(InvocationResponse response) {
-        if (response != null) {
+        if (response == null) {
+            return;
+        }
+
+        if (response instanceof UnifiedResponse) {
+            UnifiedResponse _response = (UnifiedResponse) response;
+            Map<String, String> responseValues = _response.getLocalContext();
+            if (responseValues != null) {
+                ContextUtils.setResponseContext((Map) responseValues);
+            }
+        } else {
             Map<String, Serializable> responseValues = response.getResponseValues();
             if (responseValues != null) {
                 ContextUtils.setResponseContext(responseValues);

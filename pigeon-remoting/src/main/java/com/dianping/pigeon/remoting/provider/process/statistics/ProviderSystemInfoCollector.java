@@ -1,6 +1,5 @@
 package com.dianping.pigeon.remoting.provider.process.statistics;
 
-import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.util.Constants;

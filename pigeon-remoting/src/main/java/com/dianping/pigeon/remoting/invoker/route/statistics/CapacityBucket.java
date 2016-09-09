@@ -25,7 +25,7 @@ public class CapacityBucket implements Serializable {
 	private volatile float capacity = 0f;
 	private Set<Long> requestSeqs = Collections.newSetFromMap(new ConcurrentHashMap<Long, Boolean>());
 	// 桶中某些容量因某些意外因素导致没有释放, 可以用这个进行Check
-	public Map<Long, Object[]> requestSeqDetails = new ConcurrentHashMap<Long, Object[]>();
+	private transient Map<Long, Object[]> requestSeqDetails = new ConcurrentHashMap<Long, Object[]>();
 
 	private AtomicLong totalRequest = new AtomicLong(); // total request
 														// send
@@ -34,7 +34,7 @@ public class CapacityBucket implements Serializable {
 
 	private Map<Integer, AtomicInteger> totalRequestInSecond = new ConcurrentHashMap<Integer, AtomicInteger>();
 
-	private Lock capacityLock = new ReentrantLock();
+	private transient Lock capacityLock = new ReentrantLock();
 
 	public CapacityBucket(String address) {
 		this.address = address;
@@ -130,5 +130,9 @@ public class CapacityBucket implements Serializable {
 
 	public AtomicLong getOnewayRequest() {
 		return onewayRequest;
+	}
+
+	public Map<Long, Object[]> getRequestSeqDetails() {
+		return requestSeqDetails;
 	}
 }

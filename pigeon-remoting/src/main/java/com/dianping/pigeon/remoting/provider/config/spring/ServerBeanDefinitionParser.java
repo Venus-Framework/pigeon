@@ -71,21 +71,21 @@ public class ServerBeanDefinitionParser implements BeanDefinitionParser {
 			properties.addPropertyValue("corePoolSize", resolveReference(element, "corePoolSize"));
 			String value = element.getAttribute("corePoolSize");
 			if (value.startsWith(DEFAULT_PLACEHOLDER_PREFIX) && value.endsWith(DEFAULT_PLACEHOLDER_SUFFIX)) {
-				RequestThreadPoolProcessor.sharedPoolCoreSizeKey = value.substring(2, value.length() - 1);
+				RequestThreadPoolProcessor.setSharedPoolCoreSizeKey(value.substring(2, value.length() - 1));
 			}
 		}
 		if (element.hasAttribute("maxPoolSize")) {
 			properties.addPropertyValue("maxPoolSize", resolveReference(element, "maxPoolSize"));
 			String value = element.getAttribute("maxPoolSize");
 			if (value.startsWith(DEFAULT_PLACEHOLDER_PREFIX) && value.endsWith(DEFAULT_PLACEHOLDER_SUFFIX)) {
-				RequestThreadPoolProcessor.sharedPoolMaxSizeKey = value.substring(2, value.length() - 1);
+				RequestThreadPoolProcessor.setSharedPoolMaxSizeKey(value.substring(2, value.length() - 1));
 			}
 		}
 		if (element.hasAttribute("workQueueSize")) {
 			properties.addPropertyValue("workQueueSize", resolveReference(element, "workQueueSize"));
 			String value = element.getAttribute("workQueueSize");
 			if (value.startsWith(DEFAULT_PLACEHOLDER_PREFIX) && value.endsWith(DEFAULT_PLACEHOLDER_SUFFIX)) {
-				RequestThreadPoolProcessor.sharedPoolQueueSizeKey = value.substring(2, value.length() - 1);
+				RequestThreadPoolProcessor.setSharedPoolQueueSizeKey(value.substring(2, value.length() - 1));
 			}
 		}
 		parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
