@@ -1,12 +1,4 @@
-/**
- * Dianping.com Inc.
- * Copyright (c) 2003-2013 All Rights Reserved.
- */
 package com.dianping.pigeon.remoting.invoker.concurrent;
-
-import java.io.Serializable;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.pigeon.log.Logger;
@@ -24,175 +16,204 @@ import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.util.ContextUtils;
 
+import java.io.Serializable;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+/**
+ * Created by chenchongze on 16/9/9.
+ */
 public class CallbackFuture implements Callback, CallFuture {
 
-	private static final Logger logger = LoggerLoader.getLogger(CallbackFuture.class);
-	protected static final Monitor monitor = MonitorLoader.getMonitor();
+    private static final Logger logger = LoggerLoader.getLogger(CallbackFuture.class);
+    protected static final Monitor monitor = MonitorLoader.getMonitor();
 
-	protected InvocationResponse response;
-	private CallFuture future;
-	private boolean done = false;
-	private boolean concelled = false;
-	private boolean success = false;
-	protected InvocationRequest request;
-	protected Client client;
-	protected MonitorTransaction transaction;
+    protected InvocationResponse response;
+    private boolean done = false;
+    private boolean cancelled = false;
+    private boolean success = false;
+    protected InvocationRequest request;
+    protected Client client;
+    protected MonitorTransaction transaction;
 
-	public CallbackFuture() {
-		transaction = monitor.getCurrentCallTransaction();
-	}
+    private final Lock lock = new ReentrantLock();
+    private final Condition condition = lock.newCondition();
 
-	public void run() {
-		synchronized (this) {
-			this.done = true;
-			if (this.response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-				this.success = true;
-			}
-			this.notifyAll();
-		}
-	}
+    public CallbackFuture() {
+        transaction = monitor.getCurrentCallTransaction();
+    }
 
-	public void callback(InvocationResponse response) {
-		this.response = response;
-	}
+    @Override
+    public void callback(InvocationResponse response) {
+        this.response = response;
+    }
 
-	public InvocationResponse getResponse() throws InterruptedException {
-		return getResponse(Long.MAX_VALUE);
-	}
+    @Override
+    public void run() {
+        lock.lock();
+        try {
+            this.done = true;
+            if (this.response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+                this.success = true;
+            }
+            if (condition != null) {
+                condition.signal();
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
 
-	protected InvocationResponse waitResponse(long timeoutMillis) throws InterruptedException {
-		if (response != null && response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-			return this.response;
-		}
-		if (request == null && response != null) {
-			return response;
-		}
-		synchronized (this) {
-			long start = request.getCreateMillisTime();
-			while (!this.done) {
-				long currentTime = System.currentTimeMillis();
-				long timeoutMillis_ = timeoutMillis - (currentTime - start);
-				if (timeoutMillis_ <= 0) {
-					StringBuilder sb = new StringBuilder();
-					sb.append("request timeout, current time:").append(currentTime)
-							.append("\r\nrequest:").append(request);
-					ServiceStatisticsHolder.flowOut(request, client.getAddress());
-					RequestTimeoutException e = new RequestTimeoutException(sb.toString());
-					throw e;
-				} else {
-					this.wait(timeoutMillis_);
-				}
-			}
-			return this.response;
-		}
-	}
+    @Override
+    public boolean isDone() {
+        return this.done;
+    }
 
-	public InvocationResponse getResponse(long timeoutMillis) throws InterruptedException {
-		waitResponse(timeoutMillis);
-		processContext();
+    protected InvocationResponse waitResponse(long timeoutMillis) throws InterruptedException {
+        if (response != null && response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+            return response;
+        }
+        if (request == null && response != null) {
+            return response;
+        }
 
-		if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
-			ExceptionManager.INSTANCE.logRemoteCallException(client.getAddress(), request.getServiceName(),
-					request.getMethodName(), "remote call error", request, response, transaction);
-		} else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
-			ExceptionManager.INSTANCE.logRemoteServiceException("remote service biz error", request, response);
-		}
+        lock.lock();
+        try {
+            long start = request.getCreateMillisTime();
+            long timeoutLeft = timeoutMillis;
 
-		return this.response;
-	}
+            while (!isDone()) {
+                condition.await(timeoutLeft, TimeUnit.MILLISECONDS);
+                long timeoutPassed = System.currentTimeMillis() - start;
 
-	protected void processContext() {
-		if (response instanceof UnifiedResponse) {
-			processContext0((UnifiedResponse) response);
-		} else {
-			processContext0();
-		}
-	}
+                if (isDone() || timeoutPassed >= timeoutMillis) {
+                    break;
+                } else {
+                    timeoutLeft = timeoutMillis - timeoutPassed;
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
 
-	protected void processContext0() {
-		setResponseContext(response);
-		Object context = ContextUtils.getContext();
-		if (context != null) {
-			Integer order = ContextUtils.getOrder(this.response.getContext());
-			if (order != null && order > 0) {
-				ContextUtils.setOrder(context, order);
-			}
-			if (this.success) {
-				// 传递业务上下文
-				ContextUtils.addSuccessContext(this.response.getContext());
-			} else {
-				// 传递业务上下文
-				ContextUtils.addFailedContext(this.response.getContext());
-			}
-			TrackerContext currentContext = (TrackerContext) context;
-			TrackerContext responseContext = (TrackerContext) response.getContext();
-			if (responseContext != null && responseContext.getExtension() != null) {
-				if (currentContext.getExtension() == null)
-					currentContext.setExtension(responseContext.getExtension());
-				else
-					currentContext.getExtension().putAll(responseContext.getExtension());
-			}
-		}
-	}
+        if (!isDone()) {
+            ServiceStatisticsHolder.flowOut(request, client.getAddress());
+            throw new RequestTimeoutException("request timeout, current time:"
+                    + System.currentTimeMillis() + "\r\nrequest:" + request);
+        }
 
-	protected void setResponseContext(InvocationResponse response) {
-		if (response != null) {
-			Map<String, Serializable> responseValues = response.getResponseValues();
-			if (responseValues != null) {
-				ContextUtils.setResponseContext(responseValues);
-			}
-		}
-	}
+        return this.response;
+    }
 
-	protected void processContext0(UnifiedResponse response) {
-		if (response != null) {
-			UnifiedResponse _response = (UnifiedResponse) response;
-			Map<String, String> responseValues = _response.getLocalContext();
-			if (responseValues != null) {
-				ContextUtils.setResponseContext((Map) responseValues);
-			}
-		}
-	}
+    @Override
+    public InvocationResponse getResponse() throws InterruptedException {
+        return getResponse(Long.MAX_VALUE);
+    }
 
-	public InvocationResponse getResponse(long timeout, TimeUnit unit) throws InterruptedException {
-		return getResponse(unit.toMillis(timeout));
-	}
+    @Override
+    public InvocationResponse getResponse(long timeout, TimeUnit unit) throws InterruptedException {
+        return getResponse(unit.toMillis(timeout));
+    }
 
-	public boolean cancel() {
-		if (this.future != null) {
-			synchronized (this) {
-				this.concelled = this.future.cancel();
-				this.notifyAll();
-			}
-		}
-		return this.concelled;
-	}
+    @Override
+    public InvocationResponse getResponse(long timeoutMillis) throws InterruptedException {
+        waitResponse(timeoutMillis);
+        processContext();
 
-	public boolean isCancelled() {
-		return this.concelled;
-	}
+        if (response.getMessageType() == Constants.MESSAGE_TYPE_EXCEPTION) {
+            ExceptionManager.INSTANCE.logRemoteCallException(client.getAddress(), request.getServiceName(),
+                    request.getMethodName(), "remote call error", request, response, transaction);
+        } else if (response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE_EXCEPTION) {
+            ExceptionManager.INSTANCE.logRemoteServiceException("remote service biz error", request, response);
+        }
 
-	public boolean isDone() {
-		return this.done;
-	}
+        return this.response;
+    }
 
-	public void setRequest(InvocationRequest request) {
-		this.request = request;
-	}
+    @Override
+    public void setRequest(InvocationRequest request) {
+        this.request = request;
+    }
 
-	@Override
-	public void setClient(Client client) {
-		this.client = client;
-	}
+    @Override
+    public void setClient(Client client) {
+        this.client = client;
+    }
 
-	@Override
-	public Client getClient() {
-		return this.client;
-	}
+    @Override
+    public Client getClient() {
+        return this.client;
+    }
 
-	@Override
-	public void dispose() {
+    @Override
+    public void dispose() {
 
-	}
+    }
+
+    @Override
+    public boolean cancel() {
+        return this.cancelled;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return this.cancelled;
+    }
+
+    protected void processContext() {
+        if (response instanceof UnifiedResponse) {
+            processContext0((UnifiedResponse) response);
+        } else {
+            processContext0();
+        }
+    }
+
+    protected void processContext0() {
+        setResponseContext(response);
+        Object context = ContextUtils.getContext();
+        if (context != null) {
+            Integer order = ContextUtils.getOrder(this.response.getContext());
+            if (order != null && order > 0) {
+                ContextUtils.setOrder(context, order);
+            }
+            if (this.success) {
+                // 传递业务上下文
+                ContextUtils.addSuccessContext(this.response.getContext());
+            } else {
+                // 传递业务上下文
+                ContextUtils.addFailedContext(this.response.getContext());
+            }
+            TrackerContext currentContext = (TrackerContext) context;
+            TrackerContext responseContext = (TrackerContext) response.getContext();
+            if (responseContext != null && responseContext.getExtension() != null) {
+                if (currentContext.getExtension() == null)
+                    currentContext.setExtension(responseContext.getExtension());
+                else
+                    currentContext.getExtension().putAll(responseContext.getExtension());
+            }
+        }
+    }
+
+    protected void processContext0(UnifiedResponse response) {
+        if (response != null) {
+            UnifiedResponse _response = (UnifiedResponse) response;
+            Map<String, String> responseValues = _response.getLocalContext();
+            if (responseValues != null) {
+                ContextUtils.setResponseContext((Map) responseValues);
+            }
+        }
+    }
+
+    protected void setResponseContext(InvocationResponse response) {
+        if (response != null) {
+            Map<String, Serializable> responseValues = response.getResponseValues();
+            if (responseValues != null) {
+                ContextUtils.setResponseContext(responseValues);
+            }
+        }
+    }
 
 }
