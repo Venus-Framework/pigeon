@@ -66,7 +66,6 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
 
     @Override
     public boolean setAutoDegradeState(String projectName, String state) {
-        System.out.println(projectName);
         String lionkey = projectName+".pigeon.invoker.degrade.auto";
         return LionUtils.setConfig(configManager.getEnv(),lionkey,state);
     }
@@ -102,10 +101,9 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
             map = getRawMethodsInfo(config.getProjectName());
         } catch (LionNullProjectException e) {
             logger.info(e);
-            e.printStackTrace();
             return false;
         }catch(Throwable t){
-            t.printStackTrace();
+            logger.error(t);
             return false;
         }
         GsonUtils.Print(map);
@@ -133,7 +131,6 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
                 returnValue =  URLEncoder.encode(config.getReturnValue(),"UTF-8");
             } catch (UnsupportedEncodingException e) {
                 logger.error(e);
-                e.printStackTrace();
                 return false;
             }
             if(LionUtils.setConfig(configManager.getEnv(),methodsConfigKey,methodsConfigValue)){
@@ -152,7 +149,6 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
             map = getRawMethodsInfo(projectName);
         } catch (LionNullProjectException e) {
             logger.info(e);
-            e.printStackTrace();
             return false;
         }catch(Throwable t){
             t.printStackTrace();
@@ -167,7 +163,6 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
                 returnConfigValue = URLEncoder.encode(config.getReturnValue(),"UTF-8");
             } catch (UnsupportedEncodingException e) {
                 logger.error(e);
-                e.printStackTrace();
                 return false;
             }
             return LionUtils.setConfig(configManager.getEnv(),returnConfigKey,returnConfigValue);
@@ -182,7 +177,7 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
         try {
             map = getRawMethodsInfo(projectName);
         } catch (LionNullProjectException e) {
-            e.printStackTrace();
+            logger.info(e);
         }
         String key = config.getServiceName()+"#"+config.getMethodName();
         if(map.containsKey(key)){
@@ -195,7 +190,6 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
                 methodsConfigValue = URLEncoder.encode(rawMethodsConfigValue,"UTF-8");
             } catch (UnsupportedEncodingException e) {
                 logger.error(e);
-                e.printStackTrace();
                 return false;
             }
             if(LionUtils.setConfig(configManager.getEnv(),methodsConfigKey,methodsConfigValue)){
@@ -213,7 +207,7 @@ public class InvokerDegradeServiceImpl implements InvokerDegradeService{
         try {
            rawMap = getRawMethodsInfo(projectName);
         } catch (LionNullProjectException e) {
-            e.printStackTrace();
+            logger.info(e);
         }
         for(Iterator<String> iterator = rawMap.keySet().iterator();
                 iterator.hasNext();){

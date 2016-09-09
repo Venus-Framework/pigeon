@@ -116,7 +116,6 @@ public class LionUtils {
                 GetProjectLionResponse getPrefixLionHttpResponse = new Gson().fromJson(response,GetProjectLionResponse.class);
             }catch (Throwable t){
                 logger.error(t);
-                t.printStackTrace();
                 return false;
             }
             return true;

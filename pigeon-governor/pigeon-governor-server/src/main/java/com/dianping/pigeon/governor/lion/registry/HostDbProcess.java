@@ -103,7 +103,6 @@ public class HostDbProcess {
                                             appname = lionZkClient.get(apppath, false);
                                         } catch (Exception e) {
                                             logger.error(e);
-                                            e.printStackTrace();
                                         }
                                         String versionpath = finalPath.replace("WEIGHT", "VERSION");
                                         String version = null;
@@ -111,7 +110,6 @@ public class HostDbProcess {
                                             version = lionZkClient.get(versionpath,false);
                                         } catch (Exception e) {
                                             logger.error(e);
-                                            e.printStackTrace();
                                         }
                                         Host host = new Host();
                                         host.setIpport(ipPort);

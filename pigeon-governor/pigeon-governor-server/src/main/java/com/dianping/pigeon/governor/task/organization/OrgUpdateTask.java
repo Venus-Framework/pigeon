@@ -81,7 +81,6 @@ public class OrgUpdateTask {
             System.out.println("Org update Finish");
         } catch (InterruptedException e) {
             logger.error(e);
-            e.printStackTrace();
         }
     }
 

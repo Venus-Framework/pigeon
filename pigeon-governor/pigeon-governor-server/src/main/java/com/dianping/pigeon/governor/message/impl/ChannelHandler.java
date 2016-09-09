@@ -55,7 +55,6 @@ public class ChannelHandler {
                 Thread.currentThread().interrupt();
             }catch(Exception e){
                 logger.error(e);
-                e.printStackTrace();
             }
         }
     }

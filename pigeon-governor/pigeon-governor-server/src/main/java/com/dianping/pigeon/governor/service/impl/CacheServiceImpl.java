@@ -65,7 +65,6 @@ public class CacheServiceImpl implements CacheService{
                 Thread.currentThread().sleep(300000);
             } catch (InterruptedException e) {
                 logger.error(e);
-                e.printStackTrace();
             }
         }
     }

@@ -73,7 +73,6 @@
       <artifactId>aopalliance</artifactId>
       <version>1.0</version>
       <scope>compile</scope>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -136,7 +135,6 @@
       <artifactId>avatar-tracker</artifactId>
       <version>2.1.9</version>
       <scope>compile</scope>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.facebook.swift</groupId>

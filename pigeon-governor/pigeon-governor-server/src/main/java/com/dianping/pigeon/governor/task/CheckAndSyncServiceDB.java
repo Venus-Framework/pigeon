@@ -144,7 +144,7 @@ public class CheckAndSyncServiceDB {
                     }
                 }
             } catch (Throwable t) {
-                t.printStackTrace();
+                logger.error(t);
             } finally {
             }
         }

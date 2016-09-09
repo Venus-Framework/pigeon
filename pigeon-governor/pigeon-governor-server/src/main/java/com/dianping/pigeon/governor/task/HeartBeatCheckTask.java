@@ -127,7 +127,6 @@ public class HeartBeatCheckTask extends Thread {
                     Thread.sleep(internal);
                 } catch (InterruptedException e) {
                     logger.error(e);
-                    e.printStackTrace();
                 }
             }
         }
@@ -408,7 +407,6 @@ public class HeartBeatCheckTask extends Thread {
             hosts = client.getChildren("/DP/VERSION", false);
         } catch (Exception e) {
             logger.error(e);
-            e.printStackTrace();
             return ;
         }
 
@@ -425,7 +423,6 @@ public class HeartBeatCheckTask extends Thread {
                         version = client.get("/DP/VERSION/" + host, false);
                     } catch (Exception e) {
                         logger.error(e);
-                        e.printStackTrace();
                     }
 
                     if(StringUtils.isNotBlank(version) && VersionUtils.compareVersion(version, "2.7.0") >= 0) {
@@ -452,7 +449,6 @@ public class HeartBeatCheckTask extends Thread {
             services = client.getChildren("/DP/SERVER", false);
         } catch (Exception e) {
             logger.error(e);
-            e.printStackTrace();
             return ;
         }
         Set<String> hostSet = new HashSet<String>();
@@ -466,7 +462,6 @@ public class HeartBeatCheckTask extends Thread {
                     hosts = client.get("/DP/SERVER/" + service_zk, false);
                 } catch (Exception e) {
                     logger.error(e);
-                    e.printStackTrace();
                     continue;
                 }
 
@@ -475,7 +470,6 @@ public class HeartBeatCheckTask extends Thread {
                         hostSet.addAll(Arrays.asList(hosts.split(",")));
                     } catch (Exception e) {
                         logger.error(e);
-                        e.printStackTrace();
                     }
                 }
 

@@ -144,7 +144,6 @@ public class ServiceDescController extends BaseController{
             pw.write(new Gson().toJson(results));
         }catch (IOException e){
             logger.error(e);
-            e.printStackTrace();
         }
     }
 
@@ -164,7 +163,6 @@ public class ServiceDescController extends BaseController{
             pw.write(new Gson().toJson(result));
         }catch (IOException e){
             logger.error(e);
-            e.printStackTrace();
         }
     }
 

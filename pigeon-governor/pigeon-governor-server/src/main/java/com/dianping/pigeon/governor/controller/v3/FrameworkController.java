@@ -202,7 +202,6 @@ public class FrameworkController extends BaseController{
 
         } catch (IOException e) {
             logger.error(e);
-            e.printStackTrace();
         }
     }
 
@@ -217,7 +216,6 @@ public class FrameworkController extends BaseController{
             pw.write(cache.getServiceTypeAhead().toString());
         } catch (IOException e) {
             logger.error(e);
-            e.printStackTrace();
         }
     }
 

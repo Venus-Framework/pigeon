@@ -122,7 +122,6 @@ public class ServiceServiceImpl implements ServiceService {
 				
 			} catch (NumberFormatException e) {
 				logger.error(e);
-				e.printStackTrace();
 			}finally{
 				sqlSucCount += count;
 			}

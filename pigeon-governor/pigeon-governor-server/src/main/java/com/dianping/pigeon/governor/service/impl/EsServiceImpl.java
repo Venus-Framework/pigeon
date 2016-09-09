@@ -44,7 +44,6 @@ public class EsServiceImpl implements EsService {
                     new InetSocketTransportAddress(InetAddress.getByName(hostName),port));
         } catch (UnknownHostException e) {
             logger.error(e);
-            e.printStackTrace();
         }
     }
     @Override

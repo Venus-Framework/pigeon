@@ -45,7 +45,6 @@ public class MessageServiceImpl implements MessageService{
             channel.put(event);
         } catch (InterruptedException e) {
             logger.error(e);
-            e.printStackTrace();
         }
     }
     @Override

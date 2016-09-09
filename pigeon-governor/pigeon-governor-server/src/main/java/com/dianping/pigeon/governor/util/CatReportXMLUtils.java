@@ -38,10 +38,8 @@ public class CatReportXMLUtils {
             tr = DefaultSaxParser.parse(xml);
         } catch (SAXException e) {
             logger.error(e);
-            e.printStackTrace();
         } catch (IOException e) {
             logger.error(e);
-            e.printStackTrace();
         }
         return tr;
     }
@@ -56,10 +54,8 @@ public class CatReportXMLUtils {
             cr = com.dianping.cat.consumer.cross.model.transform.DefaultSaxParser.parse(fitXML);
         } catch (SAXException e) {
             logger.error(e);
-            e.printStackTrace();
         } catch (IOException e) {
             logger.error(e);
-            e.printStackTrace();
         }
         return cr;
     }

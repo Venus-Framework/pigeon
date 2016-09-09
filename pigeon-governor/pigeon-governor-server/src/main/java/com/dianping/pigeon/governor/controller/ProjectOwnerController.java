@@ -84,7 +84,6 @@ public class ProjectOwnerController extends BaseController {
                 projectOwnerService.create(userid, projectid);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             log.error("update projectOwner error");
         }
     }
