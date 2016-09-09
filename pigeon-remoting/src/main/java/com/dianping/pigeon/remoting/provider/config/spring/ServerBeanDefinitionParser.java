@@ -33,7 +33,7 @@ public class ServerBeanDefinitionParser implements BeanDefinitionParser {
 
 	private final boolean required;
 
-	public static AtomicInteger idCounter = new AtomicInteger();
+	private static AtomicInteger idCounter = new AtomicInteger();
 
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
