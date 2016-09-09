@@ -7,7 +7,14 @@ future调用模式的打点方式修改，新增PigeonFuture打点
 修复bugs
 
 ###2.8.1
-支持动态关闭mns注册中心模块，支持服务方法限流，mock类降级，失败降级，修复bugs
+支持动态关闭mns注册中心模块
+支持服务方法限流
+mock类降级，失败降级
+可配置某些异常不打日志和CAT
+ERROR日志输出配置了log4j2的QPS限流
+规范了异常
+规范了future接口和callback接口，dpsf包的类逐步废弃，做了deprecated标记
+修复bugs
 
 ###2.8.0
 支持与octo互通的新协议和thrift序列化方式
