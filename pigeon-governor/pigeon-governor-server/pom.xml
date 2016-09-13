@@ -18,7 +18,7 @@
 	<properties>
 		<skip_maven_deploy>false</skip_maven_deploy>
 		<cglib.version>2.2.2</cglib.version>
-		<spring.version>3.2.3.RELEASE</spring.version>
+		<!--<spring.version>3.2.3.RELEASE</spring.version>-->
 		<jersey.version>2.6</jersey.version>
 		<jackson.version>2.1.4</jackson.version>
 		<jaxb-api.version>2.2.11</jaxb-api.version>
@@ -164,47 +164,47 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>${spring.version}</version>
+			<!--<version>${spring.version}</version>-->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-beans</artifactId>
-			<version>${spring.version}</version>
+			<!--<version>${spring.version}</version>-->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
+			<!--<version>${spring.version}</version>-->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>${spring.version}</version>
+			<!--<version>${spring.version}</version>-->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>${spring.version}</version>
+			<!--<version>${spring.version}</version>-->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
-			<version>${spring.version}</version>
+			<!--<version>${spring.version}</version>-->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
-			<version>${spring.version}</version>
+			<!--<version>${spring.version}</version>-->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
-			<version>${spring.version}</version>
+			<!--<version>${spring.version}</version>-->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
-			<version>${spring.version}</version>
+			<!--<version>${spring.version}</version>-->
 			<scope>test</scope>
 		</dependency>
 		<dependency>
