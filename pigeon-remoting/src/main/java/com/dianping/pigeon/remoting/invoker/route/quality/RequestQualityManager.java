@@ -2,6 +2,8 @@ package com.dianping.pigeon.remoting.invoker.route.quality;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
@@ -17,9 +19,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public enum RequestQualityManager {
 
     INSTANCE;
+
     private RequestQualityManager() {
 
     }
+
+    private static final Logger logger = LoggerLoader.getLogger(RequestQualityManager.class);
 
     private static final ConfigManager configManager = ConfigManagerLoader.getConfigManager();
     private static final String KEY_REQUEST_QUALITY_AUTO = "pigeon.invoker.request.quality.auto";
@@ -54,7 +59,7 @@ public enum RequestQualityManager {
     }
 
     public void addClientRequest(InvokerContext context, boolean failed) {
-        if(configManager.getBooleanValue(KEY_REQUEST_QUALITY_AUTO, false) && context.getClient() != null) {
+        if (configManager.getBooleanValue(KEY_REQUEST_QUALITY_AUTO, false) && context.getClient() != null) {
 
             String address = context.getClient().getAddress();
             ConcurrentHashMap<String, ConcurrentHashMap<Integer, Quality>>
@@ -80,10 +85,10 @@ public enum RequestQualityManager {
 
             int currentSecond = Calendar.getInstance().get(Calendar.SECOND);
             Quality quality = secondQuality.get(currentSecond);
-            if(quality == null) {
+            if (quality == null) {
                 quality = new Quality(0, 0);
                 Quality last = secondQuality.putIfAbsent(currentSecond, quality);
-                if(last != null) {
+                if (last != null) {
                     quality = last;
                 }
             }
@@ -109,9 +114,10 @@ public enum RequestQualityManager {
 
     /**
      * 根据方法的服务质量过滤，优先保留服务质量good的clients，数量低于least时加入服务质量normal的clients
+     *
      * @param clientList
      * @param request
-     * @param least 最少保留个数
+     * @param least      最少保留个数
      * @return
      */
     public List<Client> getQualityPreferClients(List<Client> clientList, InvocationRequest request, float least) {
@@ -121,14 +127,14 @@ public enum RequestQualityManager {
             String requestUrl = getRequestUrl(request);
 
             Map<RequrlQuality, List<Client>> filterQualityClientsMap = new HashMap<RequrlQuality, List<Client>>();
-            for(RequrlQuality reqQuality : RequrlQuality.values()) {
+            for (RequrlQuality reqQuality : RequrlQuality.values()) {
                 filterQualityClientsMap.put(reqQuality, new ArrayList<Client>());
             }
 
-            for(Client client : clientList) {
-                if(addrReqUrlQualities.containsKey(client.getAddress())) {
+            for (Client client : clientList) {
+                if (addrReqUrlQualities.containsKey(client.getAddress())) {
                     ConcurrentHashMap<String, Quality> reqUrlQualities = addrReqUrlQualities.get(client.getAddress());
-                    if(reqUrlQualities.containsKey(requestUrl)) {
+                    if (reqUrlQualities.containsKey(requestUrl)) {
                         Quality quality = reqUrlQualities.get(requestUrl);
 
                         switch (quality.getQuality()) {
@@ -152,7 +158,7 @@ public enum RequestQualityManager {
             List<Client> filterQualityClients = new ArrayList<Client>();
             filterQualityClients.addAll(filterQualityClientsMap.get(RequrlQuality.REQURL_QUALITY_GOOD));
 
-            if(filterQualityClients.size() < least) {
+            if (filterQualityClients.size() < least) {
                 filterQualityClients.addAll(filterQualityClientsMap.get(RequrlQuality.REQURL_QUALITY_NORNAL));
             }
 
@@ -172,7 +178,8 @@ public enum RequestQualityManager {
         private AtomicInteger failed = new AtomicInteger();
         private AtomicInteger total = new AtomicInteger();
 
-        public Quality() {}
+        public Quality() {
+        }
 
         public Quality(int total, int failed) {
             this.total.set(total);
@@ -219,15 +226,15 @@ public enum RequestQualityManager {
 
         public RequrlQuality getQuality() {
 
-            if(getTotalValue() > configManager.getIntValue(KEY_REQUEST_QUALITY_THRESHOLD_TOTAL, 20)) {
+            if (getTotalValue() > configManager.getIntValue(KEY_REQUEST_QUALITY_THRESHOLD_TOTAL, 20)) {
                 float failedRate = getFailedPercent();
 
-                if(failedRate < configManager.getFloatValue(KEY_REQUEST_QUALITY_FAILED_PERCENT_GOOD, 1f)) {
+                if (failedRate < configManager.getFloatValue(KEY_REQUEST_QUALITY_FAILED_PERCENT_GOOD, 1f)) {
                     quality = RequrlQuality.REQURL_QUALITY_GOOD;
-                } else if(failedRate >= configManager.getFloatValue(KEY_REQUEST_QUALITY_FAILED_PERCENT_GOOD, 1f)
+                } else if (failedRate >= configManager.getFloatValue(KEY_REQUEST_QUALITY_FAILED_PERCENT_GOOD, 1f)
                         && failedRate < configManager.getFloatValue(KEY_REQUEST_QUALITY_FAILED_PERCENT_NORMAL, 5f)) {
                     quality = RequrlQuality.REQURL_QUALITY_NORNAL;
-                } else if(failedRate >= configManager.getFloatValue(KEY_REQUEST_QUALITY_FAILED_PERCENT_NORMAL, 5f)) {
+                } else if (failedRate >= configManager.getFloatValue(KEY_REQUEST_QUALITY_FAILED_PERCENT_NORMAL, 5f)) {
                     quality = RequrlQuality.REQURL_QUALITY_BAD;
                 }
             }
@@ -270,7 +277,7 @@ public enum RequestQualityManager {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.warn("[main] thread interupt", e);
         }
         System.out.println(RequestQualityManager.INSTANCE.getAddrReqUrlQualities());
     }

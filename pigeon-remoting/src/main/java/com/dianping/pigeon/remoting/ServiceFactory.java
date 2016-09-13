@@ -38,7 +38,6 @@ public class ServiceFactory {
 		try {
 			ProviderBootStrap.init();
 		} catch (Throwable t) {
-			t.printStackTrace();
 			logger.error("error while initializing service factory:", t);
 			System.exit(1);
 		}

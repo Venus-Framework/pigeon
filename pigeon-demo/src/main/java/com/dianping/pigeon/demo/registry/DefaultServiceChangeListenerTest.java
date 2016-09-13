@@ -61,7 +61,7 @@ public class DefaultServiceChangeListenerTest {
 										Utils.getServiceIpPortList("127.0.0.1:5008,127.0.0.1:5010"));
 							}
 						} catch (Exception e) {
-							e.printStackTrace();
+							System.out.println(e.toString());
 						}
 					}
 				}

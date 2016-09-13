@@ -1,12 +1,4 @@
-/**
- * Dianping.com Inc.
- * Copyright (c) 2003-2013 All Rights Reserved.
- */
 package com.dianping.pigeon.remoting.invoker.concurrent;
-
-import java.io.Serializable;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.pigeon.log.Logger;
@@ -24,69 +16,109 @@ import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.util.ContextUtils;
 
+import java.io.Serializable;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+/**
+ * Created by chenchongze on 16/9/9.
+ */
 public class CallbackFuture implements Callback, CallFuture {
 
     private static final Logger logger = LoggerLoader.getLogger(CallbackFuture.class);
     protected static final Monitor monitor = MonitorLoader.getMonitor();
 
     protected InvocationResponse response;
-    private CallFuture future;
     private boolean done = false;
-    private boolean concelled = false;
+    private boolean cancelled = false;
     private boolean success = false;
     protected InvocationRequest request;
     protected Client client;
     protected MonitorTransaction transaction;
 
+    private final Lock lock = new ReentrantLock();
+    private final Condition condition = lock.newCondition();
+
     public CallbackFuture() {
         transaction = monitor.getCurrentCallTransaction();
     }
 
-    public void run() {
-        synchronized (this) {
-            this.done = true;
-            if (this.response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-                this.success = true;
-            }
-            this.notifyAll();
-        }
-    }
-
+    @Override
     public void callback(InvocationResponse response) {
         this.response = response;
     }
 
-    public InvocationResponse getResponse() throws InterruptedException {
-        return getResponse(Long.MAX_VALUE);
+    @Override
+    public void run() {
+        lock.lock();
+        try {
+            this.done = true;
+            if (this.response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
+                this.success = true;
+            }
+            if (condition != null) {
+                condition.signal();
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public boolean isDone() {
+        return this.done;
     }
 
     protected InvocationResponse waitResponse(long timeoutMillis) throws InterruptedException {
         if (response != null && response.getMessageType() == Constants.MESSAGE_TYPE_SERVICE) {
-            return this.response;
+            return response;
         }
         if (request == null && response != null) {
             return response;
         }
-        synchronized (this) {
+
+        lock.lock();
+        try {
             long start = request.getCreateMillisTime();
-            while (!this.done) {
-                long currentTime = System.currentTimeMillis();
-                long timeoutMillis_ = timeoutMillis - (currentTime - start);
-                if (timeoutMillis_ <= 0) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("request timeout, current time:").append(currentTime)
-                            .append("\r\nrequest:").append(request);
-                    ServiceStatisticsHolder.flowOut(request, client.getAddress());
-                    RequestTimeoutException e = new RequestTimeoutException(sb.toString());
-                    throw e;
+            long timeoutLeft = timeoutMillis;
+
+            while (!isDone()) {
+                condition.await(timeoutLeft, TimeUnit.MILLISECONDS);
+                long timeoutPassed = System.currentTimeMillis() - start;
+
+                if (isDone() || timeoutPassed >= timeoutMillis) {
+                    break;
                 } else {
-                    this.wait(timeoutMillis_);
+                    timeoutLeft = timeoutMillis - timeoutPassed;
                 }
             }
-            return this.response;
+        } finally {
+            lock.unlock();
         }
+
+        if (!isDone()) {
+            ServiceStatisticsHolder.flowOut(request, client.getAddress());
+            throw new RequestTimeoutException("request timeout, current time:"
+                    + System.currentTimeMillis() + "\r\nrequest:" + request);
+        }
+
+        return this.response;
     }
 
+    @Override
+    public InvocationResponse getResponse() throws InterruptedException {
+        return getResponse(Long.MAX_VALUE);
+    }
+
+    @Override
+    public InvocationResponse getResponse(long timeout, TimeUnit unit) throws InterruptedException {
+        return getResponse(unit.toMillis(timeout));
+    }
+
+    @Override
     public InvocationResponse getResponse(long timeoutMillis) throws InterruptedException {
         waitResponse(timeoutMillis);
         processContext();
@@ -101,7 +133,40 @@ public class CallbackFuture implements Callback, CallFuture {
         return this.response;
     }
 
+    @Override
+    public void setRequest(InvocationRequest request) {
+        this.request = request;
+    }
+
+    @Override
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    @Override
+    public Client getClient() {
+        return this.client;
+    }
+
+    @Override
+    public void dispose() {
+
+    }
+
+    @Override
+    public boolean cancel() {
+        return this.cancelled;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return this.cancelled;
+    }
+
     protected void processContext() {
+        if (response == null) {
+            return;
+        }
         if (response instanceof UnifiedResponse) {
             processContext0((UnifiedResponse) response);
         } else {
@@ -110,7 +175,11 @@ public class CallbackFuture implements Callback, CallFuture {
     }
 
     protected void processContext0() {
-        setResponseContext(response);
+        Map<String, Serializable> responseValues = response.getResponseValues();
+        if (responseValues != null) {
+            ContextUtils.setResponseContext(responseValues);
+        }
+
         Object context = ContextUtils.getContext();
         if (context != null) {
             Integer order = ContextUtils.getOrder(this.response.getContext());
@@ -135,6 +204,16 @@ public class CallbackFuture implements Callback, CallFuture {
         }
     }
 
+    protected void processContext0(UnifiedResponse response) {
+        if (response != null) {
+            UnifiedResponse _response = (UnifiedResponse) response;
+            Map<String, String> responseValues = _response.getLocalContext();
+            if (responseValues != null) {
+                ContextUtils.setResponseContext((Map) responseValues);
+            }
+        }
+    }
+
     protected void setResponseContext(InvocationResponse response) {
         if (response == null) {
             return;
@@ -152,57 +231,6 @@ public class CallbackFuture implements Callback, CallFuture {
                 ContextUtils.setResponseContext(responseValues);
             }
         }
-    }
-
-    protected void processContext0(UnifiedResponse response) {
-        if (response != null) {
-            UnifiedResponse _response = (UnifiedResponse) response;
-            Map<String, String> responseValues = _response.getLocalContext();
-            if (responseValues != null) {
-                ContextUtils.setResponseContext((Map) responseValues);
-            }
-        }
-    }
-
-    public InvocationResponse getResponse(long timeout, TimeUnit unit) throws InterruptedException {
-        return getResponse(unit.toMillis(timeout));
-    }
-
-    public boolean cancel() {
-        if (this.future != null) {
-            synchronized (this) {
-                this.concelled = this.future.cancel();
-                this.notifyAll();
-            }
-        }
-        return this.concelled;
-    }
-
-    public boolean isCancelled() {
-        return this.concelled;
-    }
-
-    public boolean isDone() {
-        return this.done;
-    }
-
-    public void setRequest(InvocationRequest request) {
-        this.request = request;
-    }
-
-    @Override
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
-    @Override
-    public Client getClient() {
-        return this.client;
-    }
-
-    @Override
-    public void dispose() {
-
     }
 
 }

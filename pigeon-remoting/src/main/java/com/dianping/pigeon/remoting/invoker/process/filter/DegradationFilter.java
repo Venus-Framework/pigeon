@@ -125,7 +125,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 								Object returnObj = null;
 
 								if (degradeAction.isUseMockClass()) {
-									// ä½¿ç”¨mockæŽ¥å£ç±»çš„æ–¹æ³•
+									// use mock class
 								} else if (degradeAction.isThrowException()) {
 									if (StringUtils.isNotBlank(degradeActionConfig.getReturnClass())) {
 										returnObj = jacksonSerializer.toObject(

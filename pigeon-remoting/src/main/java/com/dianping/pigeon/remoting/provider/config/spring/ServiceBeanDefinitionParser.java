@@ -39,7 +39,7 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 
 	private final boolean required;
 
-	public static AtomicInteger idCounter = new AtomicInteger();
+	private static AtomicInteger idCounter = new AtomicInteger();
 
 	private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
@@ -129,7 +129,7 @@ public class ServiceBeanDefinitionParser implements BeanDefinitionParser {
 			properties.addPropertyValue("actives", resolveReference(element, "actives"));
 			String value = element.getAttribute("actives");
 			if (value.startsWith(DEFAULT_PLACEHOLDER_PREFIX) && value.endsWith(DEFAULT_PLACEHOLDER_SUFFIX)) {
-				RequestThreadPoolProcessor.methodPoolConfigKeys.put(url + "#" + methodName,
+				RequestThreadPoolProcessor.getMethodPoolConfigKeys().put(url + "#" + methodName,
 						value.substring(2, value.length() - 1));
 			}
 		}
