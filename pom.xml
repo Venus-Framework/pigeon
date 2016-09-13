@@ -31,7 +31,6 @@
 		<!--<jackson.version>2.6.1</jackson.version>-->
 		<!--<fastjson.version>1.1.43</fastjson.version>-->
 		<!--<httpclient.version>4.3.6</httpclient.version>-->
-		<!--<curator.version>2.7.1</curator.version>-->
 		<!--<commons-lang.version>2.6</commons-lang.version>-->
 		<!--<commons-pool.version>1.6</commons-pool.version>-->
 		<!--<commons-pool2.version>2.3</commons-pool2.version>-->
@@ -45,6 +44,7 @@
 		<netty.version>3.9.2.Final</netty.version>
 		<commons-httpclient.version>3.1</commons-httpclient.version>
 		<thrift.version>0.8.0</thrift.version>
+		<curator.version>2.7.1</curator.version>
 		<zookeeper.version>3.4.6</zookeeper.version>
 		<commons-lang.version>2.6</commons-lang.version>
 		<jackson-databind.version>2.6.1</jackson-databind.version>
@@ -233,6 +233,21 @@
 				<artifactId>spring-core</artifactId>
 				<version>${spring.version}</version>
 				<optional>true</optional>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.curator</groupId>
+				<artifactId>curator-framework</artifactId>
+				<version>${curator.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.curator</groupId>
+				<artifactId>curator-recipes</artifactId>
+				<version>${curator.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.curator</groupId>
+				<artifactId>curator-client</artifactId>
+				<version>${curator.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.zookeeper</groupId>
