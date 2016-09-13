@@ -16,7 +16,6 @@
 		<!-- Used common package -->
 		<!--<guava.version>18.0</guava.version>-->
 		<!--<spring.version>3.1.2.RELEASE</spring.version>-->
-		<!--<jetty.version>8.1.10.v20130312</jetty.version>-->
 		<!-- TODO: jackson  2.1.4, 2.6.1 待定-->
 		<!-- netty3、netty4版本的artifact、里面内容的包名不一样 -->
 		<!--<netty3.version>3.9.2.Final</netty3.version>-->
@@ -24,11 +23,13 @@
 		<!--<commons-httpclient.version>3.1</commons-httpclient.version>-->
 		<!--<libthrift.version>0.8.0</libthrift.version>-->
 		<!--<zookeeper.version>3.4.6</zookeeper.version>-->
+		<!--<jackson.version>2.6.1</jackson.version>-->
 
 
 
 		<!-- Unused common package -->
-		<!--<jackson.version>2.6.1</jackson.version>-->
+		<!--<jetty.version>8.1.10.v20130312</jetty.version>-->
+
 		<!--<fastjson.version>1.1.43</fastjson.version>-->
 		<!--<httpclient.version>4.3.6</httpclient.version>-->
 		<!--<commons-lang.version>2.6</commons-lang.version>-->
