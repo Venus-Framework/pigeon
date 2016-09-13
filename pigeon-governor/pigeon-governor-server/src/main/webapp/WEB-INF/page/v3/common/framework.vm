@@ -249,6 +249,16 @@
                 data:{"projectName":projectName}
             });
         });
+        router.register("#!/tree/*/limit/",function (params) {
+            var projectName = params[0];
+            $("#limit").parent().find(".active").removeClass("active");
+            $("#limit").addClass('active');
+            $("#mainContent").ajaxLoad({
+                url:"/config/limit/",
+                type:"post",
+                data:{"projectName":projectName}
+            });
+        });
         router.register("#!/doc/",function(params){
             $("#tree-nav").removeClass("open");
             $("#doc-nav").addClass("open");

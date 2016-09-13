@@ -69,6 +69,12 @@
                         <span class="menu-text">服务降级</span>
                     </a>
                 </li>
+                <li id="limit" href="#mainContent" data-toggle="tab">
+                    <a>
+                        <i class="menu-icon fa fa-pencil-square-o"></i>
+                        <span class="menu-text">服务限流</span>
+                    </a>
+                </li>
             </ul>
             <div  class="tab-content">
                 <div class="tab-pane fade in active" id="mainContent"></div>
@@ -104,6 +110,11 @@
         $("#degrad").bind("click",function () {
             if(!$(this).hasClass("active")){
                 window.location.hash = "#!/tree/"+projectName+"/degrade/";
+            }
+        });
+        $("#limit").bind("click",function(){
+            if(!$(this).hasClass("active")){
+                window.location.hash = "#!/tree/"+projectName+"/limit/";
             }
         });
     });

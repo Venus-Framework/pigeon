@@ -1,0 +1,94 @@
+#set($layout="layoutblank.vm")
+<style>
+    .widget-box.transparent>.widget-header {
+        padding-left: 0px;
+</style>
+<div class="row">
+    <div class="alert alert-block alert-info">
+        <i class="ace-icon fa fa-check"></i>
+        <strong>Pigeon自<span class="green">2.8.1</span>版本起全面支持服务降级。</strong>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-4">
+        <div id ="app-switcher" class="col-xs-12">
+            <span class="blue">客户端应用QPS限制: &nbsp;</span>
+            <input type="checkbox" name="app-checkbox" />
+        </div>
+    </div>
+    <div class="col-xs-8">
+        Pigeon支持在服务端配置某个客户端应用的最大请求QPS.如果客户端请求QPS超过了设置的阀值，服务端会返回com.dianping.pigeon.remoting.common.exception.RejectedException给客户端，客户端会收到RejectedException
+    </div>
+</div>
+<hr class="hr-dotted">
+<div class="row">
+    <div id="appLimitConfigs" class="col-xs-12">
+    </div>
+</div>
+<hr class="hr-dotted">
+<div class="row">
+    <div class="col-xs-4">
+        <div id ="method-switcher" class="col-xs-12">
+            <span class="blue">针对接口的QPS限制: &nbsp;</span>
+            <input type="checkbox" name="method-checkbox" />
+        </div>
+    </div>
+    <div class="col-xs-8">
+        Pigeon支持更细粒度的服务限流.用户可以在服务端,对其提供的某一个服务接口的某一个方法,针对不同的客户端应用请求进行流量限制.
+        每一条配置项形如:{service-name,method-name,app-name,MAX-QPS}.其中service-name是服务端接口名.method-name是该接口一个方法. app-name是客户端一个应用,MAX-QPS指定了相应客户端应用调用的QPS阈值.
+        当客户端应用对该服务相应方法的调用QPS超过阈值时,
+    </div>
+</div>
+<hr class="hr-dotted"/>
+<div class="row">
+    <div id="methodAppLimitConfigs" class="col-xs-12">
+    </div>
+</div>
+<script>
+    jQuery(function($) {
+
+        var hash = window.location.hash;
+        var projectName = hash.split("/")[2];
+        $("#app-switcher").switcher({
+            enable:$empowered,
+            initState:$appLimitState,
+            falseToTrueValidateText:"<span class='bigger-110'>是否开启强制服务降级</span>",
+            falseToTrueType:"post",
+            falseToTrueUrl:"/applimit/enable/",
+            falseToTrueData:{"projectName":projectName},
+            falseToTrueDataType:"html",
+            trueToFalseValidateText:"<span class='bigger-110'>是否关闭强制服务降级</span>",
+            trueToFalseType:"post",
+            trueToFalseUrl:"/applimit/disable/",
+            trueToFalseData:{"projectName":projectName},
+            trueToFalseDataType:"html",
+            name:"app-checkbox"
+        })
+        $("#method-switcher").switcher({
+            enable:$empowered,
+            initState:$methodLimitState,
+            falseToTrueValidateText:"<span class='bigger-110'>是否开启自动服务降级</span>",
+            falseToTrueType:"post",
+            falseToTrueUrl:"/methodapplimit/enable/",
+            falseToTrueData:{"projectName":projectName},
+            falseToTrueDataType:"html",
+            trueToFalseValidateText:"<span class='bigger-110'>是否关闭自动服务降级</span>",
+            trueToFalseType:"post",
+            trueToFalseUrl:"/methodapplimit/disable/",
+            trueToFalseData:{"projectName":projectName},
+            trueToFalseDataType:"html",
+            name:"method-checkbox"
+        });
+        $(".bootstrap-switch").addClass('pull-right');
+        $("#applimitconfigs").ajaxLoad({
+            url:"/degrade/configs",
+            type:"post",
+            data:{"projectName":projectName}
+        });
+        $("#methodAppLimitConfigs").ajaxLoad({
+            url:"/degrade/configs",
+            type:"post",
+            data:{"projectName":projectName}
+        });
+    });
+</script>
