@@ -56,7 +56,7 @@
 		<jetty-servlet-api.version>2.5-20081211</jetty-servlet-api.version>
 		<freemarker.version>2.3.19</freemarker.version>
 		<avatar-tracker.version>2.1.9</avatar-tracker.version>
-		<cat.version>1.5.0</cat.version>
+		<cat.version>1.5.1</cat.version>
 		<lion.version>0.6.2</lion.version>
 	</properties>
 	<modules>
@@ -265,6 +265,11 @@
 			<dependency>
 				<groupId>org.apache.curator</groupId>
 				<artifactId>curator-client</artifactId>
+				<version>${curator.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.curator</groupId>
+				<artifactId>curator-test</artifactId>
 				<version>${curator.version}</version>
 			</dependency>
 			<dependency>
