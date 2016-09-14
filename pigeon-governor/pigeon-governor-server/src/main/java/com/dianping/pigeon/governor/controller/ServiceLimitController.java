@@ -1,6 +1,7 @@
 package com.dianping.pigeon.governor.controller;
 
 import com.dianping.pigeon.governor.bean.providerFlowLimit.AppLimit;
+import com.dianping.pigeon.governor.bean.providerFlowLimit.MethodAppLimit;
 import com.dianping.pigeon.governor.exception.LionNullProjectException;
 import com.dianping.pigeon.governor.exception.LionValuePraseErrorException;
 import com.dianping.pigeon.governor.model.User;
@@ -118,21 +119,37 @@ public class ServiceLimitController extends BaseController{
     public String getTable(HttpServletRequest request,
                            HttpServletResponse response,
                            ModelMap modelMap) {
-        System.out.println("In table");
         String projectName = request.getParameter("projectName");
         AppLimit appLimit = null;
         try{
             appLimit = serviceLimitService.getAppLimit(projectName);
-            GsonUtils.Print(appLimit);
         } catch (LionNullProjectException e) {
             logger.info(e);
         } catch (LionValuePraseErrorException e) {
-            GsonUtils.Print(e);
             logger.error(e);
             modelMap.put("error","Project: "+projectName+" configs parse error!!");
-            return "/config/project/LionLack";
+            return "/v3/limitation/parse-error";
         }
         modelMap.put("appConfigs",appLimit);
         return "/v3/limitation/app-limit-table";
+    }
+
+    @RequestMapping(value = {"/methodlimit/table"},method = RequestMethod.POST)
+    public String getMethodsTable(HttpServletRequest request,
+                                  HttpServletResponse response,
+                                  ModelMap modelMap){
+        String projectName = request.getParameter("projectName");
+        MethodAppLimit methodAppLimit = null;
+        try{
+            methodAppLimit = serviceLimitService.getMethodAppLimit(projectName);
+        } catch (LionValuePraseErrorException e) {
+            logger.info(e);
+        } catch (LionNullProjectException e) {
+            logger.error(e);
+            modelMap.put("error","Project: "+projectName+" configs parse error!!");
+            return "/v3/limitation/parse-error";
+        }
+        modelMap.put("configs",methodAppLimit.getConfigs());
+        return "/v3/limitation/method-limit-table";
     }
 }

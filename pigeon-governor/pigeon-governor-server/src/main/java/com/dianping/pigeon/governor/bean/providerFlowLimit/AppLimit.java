@@ -20,6 +20,8 @@ public class AppLimit {
     public AppLimit(String raw) throws LionValuePraseErrorException {
         this();
         String trimRaw = raw.trim();
+        if(trimRaw.equals(""))
+            return;
         if(trimRaw!=null){
             String[] strs = trimRaw.split(",");
             for(String s : strs){

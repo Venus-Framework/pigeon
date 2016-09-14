@@ -41,7 +41,7 @@ public class TransitServiceNodeController extends BaseController {
     @Autowired
     private ServiceNodeService serviceNodeService;
     private Gson gson = new Gson();
-    @RequestMapping(value = {"/transit/services/{projectName}"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/transit/services/{projectName:.+}"}, method = RequestMethod.GET)
     public String projectInfo(ModelMap modelMap,
                               @PathVariable final String projectName,
                               HttpServletRequest request) {

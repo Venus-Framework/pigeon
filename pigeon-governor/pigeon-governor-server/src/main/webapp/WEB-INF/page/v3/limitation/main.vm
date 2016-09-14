@@ -85,10 +85,10 @@
             type:"post",
             data:{"projectName":projectName}
         });
-//        $("#methodAppLimitConfigs").ajaxLoad({
-//            url:"/degrade/configs",
-//            type:"post",
-//            data:{"projectName":projectName}
-//        });
+        $("#methodAppLimitConfigs").ajaxLoad({
+            url:"/methodlimit/table",
+            type:"post",
+            data:{"projectName":projectName}
+        });
     });
 </script>

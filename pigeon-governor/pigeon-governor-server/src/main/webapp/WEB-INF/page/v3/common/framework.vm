@@ -37,6 +37,7 @@
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/jquery.typeahead.min.css"/>
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/tooltipster.bundle.min.css"/>
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/jquery.bootstrap-touchspin.min.css"/>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/bootcss-button.css"/>
     <style>
         .vertical-center{
             float: none !important;
