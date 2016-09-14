@@ -1,0 +1,41 @@
+#set($layout="layoutblank.vm")
+<table id="app-limit-table" class="table table-striped table-bordered table-hover">
+    <thead>
+    <tr>
+        <th>应用名</th>
+        <th>MAX-QPS</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+        #foreach($data in $appConfigs.entrySet())
+            <tr>
+                <td>${data.key}</td>
+                <td>${data.value}</td>
+                <td>op</td>
+            </tr>
+        #end
+    </tbody>
+</table>
+<script>
+    jQuery(function($) {
+        var hash = window.location.hash;
+        var projectName = hash.split("/")[2];
+        $(document).ready(function () {
+            $('#app-limit-table').DataTable({
+                bAutoWidth: false,
+                aoColumns: [
+                    null,
+                    null,
+                    null
+                ],
+                "aaSorting": [],
+                dom: "<'myRow'<'col-xs-8'><'col-xs-4'B>>" +
+                "<'row aceTableRow'<'col-xs-3'l><'col-xs-9'fr>>" +
+                "t" +
+                "<'row'<'col-xs-3'i><'col-xs-9'p>>",
+                buttons:[]
+            });
+        });
+    });
+</script>

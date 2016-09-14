@@ -80,15 +80,15 @@
             name:"method-checkbox"
         });
         $(".bootstrap-switch").addClass('pull-right');
-        $("#applimitconfigs").ajaxLoad({
-            url:"/degrade/configs",
+        $("#appLimitConfigs").ajaxLoad({
+            url:"/applimit/table",
             type:"post",
             data:{"projectName":projectName}
         });
-        $("#methodAppLimitConfigs").ajaxLoad({
-            url:"/degrade/configs",
-            type:"post",
-            data:{"projectName":projectName}
-        });
+//        $("#methodAppLimitConfigs").ajaxLoad({
+//            url:"/degrade/configs",
+//            type:"post",
+//            data:{"projectName":projectName}
+//        });
     });
 </script>

@@ -1,9 +1,12 @@
 package com.dianping.pigeon.governor.controller;
 
+import com.dianping.pigeon.governor.bean.providerFlowLimit.AppLimit;
 import com.dianping.pigeon.governor.exception.LionNullProjectException;
+import com.dianping.pigeon.governor.exception.LionValuePraseErrorException;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
 import com.dianping.pigeon.governor.service.ServiceLimitService;
+import com.dianping.pigeon.governor.util.GsonUtils;
 import com.dianping.pigeon.governor.util.UserRole;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -108,5 +111,28 @@ public class ServiceLimitController extends BaseController{
         } catch (IOException e) {
             logger.warn(e);
         }
+    }
+
+
+    @RequestMapping(value = {"/applimit/table"},method = RequestMethod.POST)
+    public String getTable(HttpServletRequest request,
+                           HttpServletResponse response,
+                           ModelMap modelMap) {
+        System.out.println("In table");
+        String projectName = request.getParameter("projectName");
+        AppLimit appLimit = null;
+        try{
+            appLimit = serviceLimitService.getAppLimit(projectName);
+            GsonUtils.Print(appLimit);
+        } catch (LionNullProjectException e) {
+            logger.info(e);
+        } catch (LionValuePraseErrorException e) {
+            GsonUtils.Print(e);
+            logger.error(e);
+            modelMap.put("error","Project: "+projectName+" configs parse error!!");
+            return "/config/project/LionLack";
+        }
+        modelMap.put("appConfigs",appLimit);
+        return "/v3/limitation/app-limit-table";
     }
 }

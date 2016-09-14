@@ -75,4 +75,7 @@ public class AppLimit {
         }
         return sb.substring(0,sb.length()-1);
     }
+    public Map<String,Long> getConfigs(){
+        return this.configs;
+    }
 }
