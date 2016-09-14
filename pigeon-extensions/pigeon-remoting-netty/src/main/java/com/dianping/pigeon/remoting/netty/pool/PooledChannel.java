@@ -12,19 +12,13 @@ public interface PooledChannel {
 
     void connect() throws ChannelException;
 
-    boolean release();
+    void reconnect() throws ChannelException;
 
     ChannelFuture write(Object message) throws ChannelException;
 
+    boolean isWritable();
+
     boolean isActive();
-
-    void lock();
-
-    void unLock();
-
-    long getTimestamp();
-
-    void setTimestamp(long timestamp);
 
     InetSocketAddress getLocalAddress();
 

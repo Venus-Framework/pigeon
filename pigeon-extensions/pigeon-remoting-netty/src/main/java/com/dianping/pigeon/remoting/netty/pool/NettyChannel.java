@@ -19,11 +19,9 @@ public class NettyChannel implements PooledChannel {
 
     private static final Logger logger = LoggerLoader.getLogger(NettyChannel.class);
 
-    private ReentrantLock lock = new ReentrantLock();
+    private ReentrantLock connectLock = new ReentrantLock();
 
     private int timeout;
-
-    private long timestamp;
 
     private volatile Channel channel;
 
@@ -43,61 +41,64 @@ public class NettyChannel implements PooledChannel {
 
     @Override
     public void connect() throws ChannelException {
-        if (released.get()) {
-            throw new ChannelException("[connect] channel is released " + remoteAddress + ".");
-        }
-
-        if (isActive()) {
-            logger.warn("[connect] is connected to remote " + remoteAddress + ".");
-            return;
-        }
-
-        ChannelFuture future = bootstrap.connect(remoteAddress);
-
+        connectLock.lock();
         try {
-            if (future.awaitUninterruptibly(timeout, TimeUnit.MILLISECONDS)) {
+            if (isActive()) {
+                logger.warn("[connect] is connected to remote " + remoteAddress + ".");
+                return;
+            }
 
-                if (future.isSuccess()) {
-                    disConnect();
-                    this.channel = future.getChannel();
-                    localAddress = (InetSocketAddress) this.channel.getLocalAddress();
+            ChannelFuture future = bootstrap.connect(remoteAddress);
+
+            try {
+                if (future.awaitUninterruptibly(timeout, TimeUnit.MILLISECONDS)) {
+
+                    if (future.isSuccess()) {
+                        disConnect();
+                        this.channel = future.getChannel();
+                        localAddress = (InetSocketAddress) this.channel.getLocalAddress();
+                    } else {
+                        logger.error("[connect] connected to remote " + remoteAddress + " failed.");
+                        throw new ChannelException("connected to remote " + remoteAddress + " failed.");
+                    }
+
                 } else {
-                    logger.error("[connect] connected to remote " + remoteAddress + " failed.");
-                    throw new ChannelException("connected to remote " + remoteAddress + " failed.");
+                    logger.error("[connect] timeout connecting to remote " + remoteAddress + ".");
+                    throw new ChannelException("timeout connecting to remote " + remoteAddress + ".");
                 }
 
-            } else {
-                logger.error("[connect] timeout connecting to remote " + remoteAddress + ".");
-                throw new ChannelException("timeout connecting to remote " + remoteAddress + ".");
+            } catch (Throwable e) {
+                logger.error("[connect] error connecting to remote " + remoteAddress + ".", e);
+
+                throw new ChannelException("error connecting to remote " + remoteAddress + ".", e);
+            } finally {
+                if (!isConnected()) {
+                    future.cancel();
+                }
             }
-
-        } catch (Throwable e) {
-            logger.error("[connect] error connecting to remote " + remoteAddress + ".", e);
-
-            throw new ChannelException("error connecting to remote " + remoteAddress + ".", e);
         } finally {
-            if (!isConnected()) {
-                future.cancel();
-            }
+            connectLock.unlock();
         }
 
     }
 
+    @Override
+    public void reconnect() throws ChannelException {
+        disConnect();
+        connect();
+    }
+
     protected void disConnect() {
+        connectLock.lock();
         try {
             if (this.channel != null) {
                 this.channel.close();
             }
         } catch (Throwable e) {
             logger.error("[disConnect] error disConnecting channel. ", e);
+        } finally {
+            connectLock.lock();
         }
-    }
-
-    @Override
-    public boolean release() {
-        disConnect();
-
-        return released.compareAndSet(false, true);
     }
 
     @Override
@@ -121,24 +122,8 @@ public class NettyChannel implements PooledChannel {
         return !released.get() && channel != null && channel.isConnected();
     }
 
-    @Override
-    public void lock() {
-        lock.lock();
-    }
-
-    @Override
-    public void unLock() {
-        lock.unlock();
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public boolean isWritable() {
+        return channel.isWritable();
     }
 
     @Override

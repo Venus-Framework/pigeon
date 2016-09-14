@@ -23,13 +23,7 @@ public class NettyChannelFactory implements PooledChannelFactory {
                 client.getPort(),
                 client.getTimeout());
 
-        try {
-            channel.lock();
-
-            channel.connect();
-        } finally {
-            channel.unLock();
-        }
+        channel.connect();
 
         return channel;
     }

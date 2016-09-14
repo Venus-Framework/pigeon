@@ -1,5 +1,7 @@
 package com.dianping.pigeon.remoting.netty.pool;
 
+import java.util.List;
+
 /**
  * @author qi.yin
  *         2016/07/21  上午11:05.
@@ -10,11 +12,9 @@ public interface ChannelPool {
 
     int getActive();
 
-    int getIdle();
+    PooledChannel selectChannel() throws ChannelPoolException;
 
-    PooledChannel borrowChannel() throws ChannelPoolException;
-
-    void returnChannel(PooledChannel channel);
+    List<PooledChannel> getChannels();
 
     PoolProperties getPoolProperties();
 
