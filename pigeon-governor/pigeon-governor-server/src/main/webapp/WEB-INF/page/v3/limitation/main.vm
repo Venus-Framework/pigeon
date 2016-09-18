@@ -2,7 +2,52 @@
 <style>
     .widget-box.transparent>.widget-header {
         padding-left: 0px;
+    }
+    .modal-body{overflow-y: inherit;}
+
+    .modal-open .dropdown-menu {
+        z-index: 2050;
+    }
 </style>
+<div class="modal fade" id="app-limit-modal" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <button type="button" class="bootbox-close-button close" data-dismiss="modal" aria-hidden="true" style="margin-top: -10px;">×</button>
+                <h4 class="modal-title blue" id="app-limit-modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="app-name-form" class="form-group row">
+                    <label class="col-sm-2 blue" for="typeahead-app-name">应用名</label>
+                    <div class="col-sm-9">
+                        <input id="typeahead-app-name" placeholder="输入应用名" type="text" class="form-control" name="message" autocomplete="off">
+                    </div>
+                </div>
+                <div id="app-name-readonly" class="form-group row">
+                    <label class="col-sm-2 blue" for="app-name">应用名</label>
+                    <div class="col-sm-9">
+                        <input type="text" placeholder="" id="app-name" class="col-xs-12 col-sm-12 disabled" autocomplete="off">
+                    </div>
+                </div>
+                <div id="app-qps-form" class="form-group row">
+                    <label class="col-sm-2 control-label blue" for="app-qps">MAX-QPS</label>
+                    <div class="col-sm-9">
+                        <input type="text" placeholder="输入QPS限制" id="app-qps" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="app-submit" data-bb-handler="success" type="button" class="btn btn-sm btn-success" data-dismiss="modal"><i class="ace-icon fa fa-check"></i>Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
 <div class="row">
     <div class="alert alert-block alert-info">
         <i class="ace-icon fa fa-check"></i>
@@ -46,7 +91,16 @@
 </div>
 <script>
     jQuery(function($) {
-
+        var projects = ${projects};
+        $('#typeahead-app-name').typeahead({
+            source:projects
+//            display: "serviceName",
+//            val: "id",
+//            itemSelected: function (item, val, text) {      // 当选中一个项目的时候，回调函数
+//                /*serviceId = val;
+//                serviceName = text;*/
+//            }
+        });
         var hash = window.location.hash;
         var projectName = hash.split("/")[2];
         $("#app-switcher").switcher({

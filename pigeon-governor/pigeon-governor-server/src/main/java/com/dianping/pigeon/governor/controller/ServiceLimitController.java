@@ -4,8 +4,10 @@ import com.dianping.pigeon.governor.bean.providerFlowLimit.AppLimit;
 import com.dianping.pigeon.governor.bean.providerFlowLimit.MethodAppLimit;
 import com.dianping.pigeon.governor.exception.LionNullProjectException;
 import com.dianping.pigeon.governor.exception.LionValuePraseErrorException;
+import com.dianping.pigeon.governor.model.Project;
 import com.dianping.pigeon.governor.model.User;
 import com.dianping.pigeon.governor.service.ProjectOwnerService;
+import com.dianping.pigeon.governor.service.ProjectService;
 import com.dianping.pigeon.governor.service.ServiceLimitService;
 import com.dianping.pigeon.governor.util.GsonUtils;
 import com.dianping.pigeon.governor.util.UserRole;
@@ -21,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 /**
  * Created by shihuashen on 16/9/12.
@@ -32,6 +35,8 @@ public class ServiceLimitController extends BaseController{
     private ServiceLimitService serviceLimitService;
     @Autowired
     private ProjectOwnerService projectOwnerService;
+    @Autowired
+    private ProjectService projectService;
     @RequestMapping(value={"/config/limit/"},method = RequestMethod.POST)
     public String main(HttpServletRequest request,
                                HttpServletResponse response,
@@ -43,6 +48,8 @@ public class ServiceLimitController extends BaseController{
                 projectOwnerService.isProjectOwner(user.getDpaccount(),projectName))
             empowered = true;
         modelMap.put("empowered",empowered);
+        List<Project> projects = projectService.retrieveAllIdNamesByCache();
+        modelMap.addAttribute("projects", GsonUtils.toJson(projects));
         try {
             boolean appLimitState = serviceLimitService.getAppLimitState(projectName);
             boolean methodLimitState = serviceLimitService.getMethodLimitState(projectName);
@@ -151,5 +158,70 @@ public class ServiceLimitController extends BaseController{
         }
         modelMap.put("configs",methodAppLimit.getConfigs());
         return "/v3/limitation/method-limit-table";
+    }
+    @RequestMapping(value={"/applimit/add"},method = RequestMethod.POST)
+    public void  addAppLimit(HttpServletRequest request,
+                              HttpServletResponse response,
+                              ModelMap modelMap){
+        String projectName = request.getParameter("projectName");
+        String appName = request.getParameter("appName");
+        String qps = request.getParameter("qps");
+        boolean status = false;
+        try {
+           status =  serviceLimitService.addAppLimit(projectName,appName,Long.valueOf(qps));
+        } catch (LionValuePraseErrorException e) {
+            logger.error(e);
+        }
+        response.setCharacterEncoding("UTF-8");
+        try {
+            PrintWriter out = response.getWriter();
+            out.write(String.valueOf(status));
+        } catch (IOException e) {
+            logger.warn(e);
+        }
+    }
+
+    @RequestMapping(value={"/applimit/update"},method = RequestMethod.POST)
+    public void updateAppLimit(HttpServletRequest request,
+                               HttpServletResponse response,
+                               ModelMap modelMap){
+        String projectName = request.getParameter("projectName");
+        String appName = request.getParameter("appName");
+        String qps = request.getParameter("qps");
+        boolean status = false;
+        try{
+            status = serviceLimitService.updateAppLimit(projectName,appName,Long.valueOf(qps));
+        } catch (LionValuePraseErrorException e) {
+            logger.error(e);
+        }
+        response.setCharacterEncoding("UTF-8");
+        try {
+            PrintWriter out = response.getWriter();
+            out.write(String.valueOf(status));
+        } catch (IOException e) {
+            logger.warn(e);
+        }
+    }
+
+    @RequestMapping(value={"/applimit/delete"},method = RequestMethod.POST)
+    public void deleteAppLimit(HttpServletRequest request,
+                               HttpServletResponse response,
+                               ModelMap modelMap){
+        String projectName = request.getParameter("projectName");
+        String appName = request.getParameter("appName");
+        String qps = request.getParameter("qps");
+        boolean status = false;
+        try{
+            status = serviceLimitService.removeAppLimit(projectName,appName,Long.valueOf(qps));
+        } catch (LionValuePraseErrorException e) {
+            logger.error(e);
+        }
+        response.setCharacterEncoding("UTF-8");
+        try {
+            PrintWriter out = response.getWriter();
+            out.write(String.valueOf(status));
+        } catch (IOException e) {
+            logger.warn(e);
+        }
     }
 }
