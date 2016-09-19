@@ -224,4 +224,27 @@ public class ServiceLimitController extends BaseController{
             logger.warn(e);
         }
     }
+    @RequestMapping(value={"/methodlimit/add"},method = RequestMethod.POST)
+    public void  addMethodLimit(HttpServletRequest request,
+                             HttpServletResponse response,
+                             ModelMap modelMap){
+        String projectName = request.getParameter("projectName");
+        String serviceName = request.getParameter("serviceName");
+        String methodName = request.getParameter("methodName");
+        String appName = request.getParameter("appName");
+        String qps = request.getParameter("qps");
+        boolean status = false;
+        try {
+            status =  serviceLimitService.addMethodAppLimit(projectName,serviceName,methodName,appName,Long.valueOf(qps));
+        } catch (LionValuePraseErrorException e) {
+            logger.error(e);
+        }
+        response.setCharacterEncoding("UTF-8");
+        try {
+            PrintWriter out = response.getWriter();
+            out.write(String.valueOf(status));
+        } catch (IOException e) {
+            logger.warn(e);
+        }
+    }
 }

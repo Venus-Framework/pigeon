@@ -47,12 +47,11 @@
                         appTitle:"",
                         qpsPlaceHolder:"",
                         appName:"",
-                        disableQPS:"false"
+                        disableQPS:false
 
                     },
                     options);
             $("#app-limit-modal-title").html(settings.appTitle);
-            $("#typeahead-app-name").attr("placeholder",settings.appNameTypeAheadPlaceHolder);
             $("#typeahead-app-name").val("");
             if(settings.appNameShow){
                 $("#app-name-form").show();
@@ -65,9 +64,11 @@
             $("#app-name").val(settings.appName);
             $("#app-name").attr("disabled","disabled");
             if(settings.appNameShow){
+                $("#app-qps").removeAttr("placeholder");
                 $("#app-qps").val(settings.qpsPlaceHolder);
             }else{
                 $("#app-qps").val("");
+                $("#app-qps").removeAttr("placeholder");
                 $("#app-qps").attr("placeholder",settings.qpsPlaceHolder);
             }
             if(settings.disableQPS){
@@ -218,7 +219,8 @@
                         data:{
                             "projectName":projectName,
                             "appName":appName,
-                            "qps":appQps
+                            "qps":appQps,
+                            "disableQPS":false
                         },
                         dataType: "html",
                         async: true,
@@ -273,12 +275,12 @@
                 appTitle:"删除应用限流配置",
                 qpsPlaceHolder:qps,
                 appName:appName,
-                disableQPS:"true"
+                disableQPS:true
             });
             $('#app-limit-modal').modal('show');
             $("#app-submit").bind("click",function(){
                 var appName = $("#app-name").val();
-                var appQps = $("#app-qps").val();
+                var appQps = $("#app-qps").attr("placeholder");
                 $.ajax({
                     type: "post",
                     url:"applimit/delete",

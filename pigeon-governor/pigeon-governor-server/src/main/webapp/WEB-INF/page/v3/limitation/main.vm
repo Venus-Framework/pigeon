@@ -46,6 +46,88 @@
 </div>
 
 
+<div class="modal fade" id="new-method-limit-modal" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="bootbox-close-button close" data-dismiss="modal" aria-hidden="true" style="margin-top: -10px;">×</button>
+                <h4 class="modal-title blue">新建服务方法限流</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label class="col-sm-2 blue" for="typeahead-service-input">服务名</label>
+                    <div class="col-sm-9">
+                        <input id="typeahead-service-input" placeholder="输入服务名" type="text" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 blue" for="new-method-input">方法名</label>
+                    <div class="col-sm-9">
+                        <input id="new-method-input" placeholder="输入方法名" type="text" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 blue" for="new-app-name">应用名</label>
+                    <div class="col-sm-9">
+                        <input id="new-app-name" placeholder="输入应用名" type="text" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 blue" for="new-method-qps">MAX-QPS</label>
+                    <div class="col-sm-9">
+                        <input id="new-method-qps" placeholder="输入最大QPS" type="text" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="new-method-submit" data-bb-handler="success" type="button" class="btn btn-sm btn-success" data-dismiss="modal"><i class="ace-icon fa fa-check"></i>Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="method-limit-modal" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="bootbox-close-button close" data-dismiss="modal" aria-hidden="true" style="margin-top: -10px;">×</button>
+                <h4 class="modal-title blue" id="method-limit-title"</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label class="col-sm-2 blue" for="service-input">服务名</label>
+                    <div class="col-sm-9">
+                        <input id="service-input" disabled="disabled" type="text" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 blue" for="method-input">方法名</label>
+                    <div class="col-sm-9">
+                        <input id="method-input" disabled="disabled" type="text" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 blue" for="method-app-name">应用名</label>
+                    <div class="col-sm-9">
+                        <input id="method-app-name" disabled="disabled" type="text" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 blue" for="method-qps">MAX-QPS</label>
+                    <div class="col-sm-9">
+                        <input id="method-qps"  type="text" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="app-submit" data-bb-handler="success" type="button" class="btn btn-sm btn-success" data-dismiss="modal"><i class="ace-icon fa fa-check"></i>Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <div class="row">

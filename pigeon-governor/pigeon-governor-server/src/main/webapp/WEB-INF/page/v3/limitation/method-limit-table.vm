@@ -41,9 +41,93 @@
                 "t" +
                 "<'row'<'col-xs-3'i><'col-xs-9'p>>",
                 buttons:[
+
                     {
-                        text: ' <i class="ace-icon fa fa-trash-o bigger-120 danger"></i>',
+                        text: '<div class="button button-primary button-circle button-small"><i class="fa fa-plus "></i></div>',
                         action: function (e, dt, node, config) {
+                            $("#new-method-limit-modal").modal("show");
+                            $("#new-method-submit").unbind('click');
+                            $("#new-method-submit").bind('click',function(){
+                                var serviceName = $("#typeahead-service-input").val();
+                                var methodName = $("#new-method-inpu").val();
+                                var appName = $("#new-app-name").val();
+                                var qps = $("#new-method-qps").val();
+                                if(serviceName==""||methodName==""||appName==""){
+                                    bootbox.dialog({
+                                        message: "非法输入!!!",
+                                        buttons: {
+                                            "success": {
+                                                "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                "className": "btn-sm btn-success",
+                                                "callback": function() {}
+                                            }
+                                        }
+                                    });
+                                    return;
+                                }
+                                if(isNaN(qps)){
+                                    bootbox.dialog({
+                                        message: "QPS输入值非法!!!",
+                                        buttons: {
+                                            "success": {
+                                                "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                "className": "btn-sm btn-success",
+                                                "callback": function() {}
+                                            }
+                                        }
+                                    });
+                                    return;
+                                }else{
+                                    $.ajax({
+                                        type: "post",
+                                        url:"methodlimit/add",
+                                        data:{
+                                            "projectName":projectName,
+                                            "appName":appName,
+                                            "qps":appQps
+                                        },
+                                        dataType: "html",
+                                        async: true,
+                                        success: function (data,status) {
+                                            if(status=="success" && data=='true'){
+                                                bootbox.dialog({
+                                                    message: "操作成功!",
+                                                    buttons: {
+                                                        "success": {
+                                                            "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                            "className": "btn-sm btn-success",
+                                                            "callback": function() {
+                                                                $("#appLimitConfigs").ajaxLoad({
+                                                                    url:"/applimit/table",
+                                                                    type:"post",
+                                                                    data:{"projectName":projectName}
+                                                                });
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                            }else {
+                                                bootbox.dialog({
+                                                    message:"操作失败!",
+                                                    buttons:{
+                                                        "success":{
+                                                            "label": "<i class='ace-icon fa fa-check'></i> Confirm",
+                                                            "className": "btn-sm btn-success",
+                                                            "callback":function(){
+                                                                $("#appLimitConfigs").ajaxLoad({
+                                                                    url:"/applimit/table",
+                                                                    type:"post",
+                                                                    data:{"projectName":projectName}
+                                                                });
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                            });
 
                         }
                     }
