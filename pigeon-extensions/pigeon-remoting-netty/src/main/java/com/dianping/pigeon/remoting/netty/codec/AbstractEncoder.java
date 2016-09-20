@@ -6,6 +6,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationSerializable;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedInvocation;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
+import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import com.dianping.pigeon.log.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -88,7 +89,7 @@ public abstract class AbstractEncoder extends OneToOneEncoder {
         //bodyLength
         frame.setInt(CodecConstants.HEAD_LENGTH, frame.readableBytes() -
                 CodecConstants.FRONT_LENGTH);
-
+        doAfter(msg, frame.readableBytes());
         return frame;
     }
 
@@ -114,8 +115,25 @@ public abstract class AbstractEncoder extends OneToOneEncoder {
         //totalLength
         frame.setInt(CodecConstants._HEAD_LENGTH, frame.readableBytes() -
                 CodecConstants._FRONT_LENGTH_);
-
+        doAfter(msg, frame.readableBytes());
         return frame;
+    }
+
+    private void doAfter(Object msg,
+                         int frameLength)
+            throws IOException {
+
+        if (msg instanceof InvocationSerializable) {
+
+            InvocationSerializable msg_ = (InvocationSerializable) msg;
+            int msgType = msg_.getMessageType();
+
+            if (msgType == Constants.MESSAGE_TYPE_SERVICE && frameLength > 0) {
+                msg_.setSize(frameLength);
+            }
+
+        }
+
     }
 
     public abstract void doFailResponse(ChannelHandlerContext ctx, Channel channel, InvocationResponse response);
