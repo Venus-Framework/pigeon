@@ -243,6 +243,8 @@ public class ClientManager {
 							RegistryEventListener.providerAdded(url, hostInfo.getHost(), hostInfo.getPort(),
 									hostInfo.getWeight());
 							RegistryEventListener.serverInfoChanged(url, hostInfo.getConnect());
+						} catch(Throwable t) {
+							logger.error(t);
 						} finally {
 							latch.countDown();
 						}
