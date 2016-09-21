@@ -18,83 +18,83 @@ import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
 public class FailfastCluster implements Cluster {
 
-	private ClientManager clientManager = ClientManager.getInstance();
+    private ClientManager clientManager = ClientManager.getInstance();
 
-	private static final Logger logger = LoggerLoader.getLogger(FailfastCluster.class);
+    private static final Logger logger = LoggerLoader.getLogger(FailfastCluster.class);
 
-	@Override
-	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
-			throws Throwable {
-		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
-		InvocationRequest request = InvokerUtils.createRemoteCallRequest(invocationContext, invokerConfig);
+    @Override
+    public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
+            throws Throwable {
+        InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
+        InvocationRequest request = InvokerUtils.createRemoteCallRequest(invocationContext, invokerConfig);
 
-		boolean timeoutRetry = invokerConfig.isTimeoutRetry();
-		if (!timeoutRetry) {
-			Client remoteClient = clientManager.getClient(invokerConfig, request, null);
-			invocationContext.setClient(remoteClient);
-			try {
-				return handler.handle(invocationContext);
-			} catch (NetworkException e) {
-				remoteClient = clientManager.getClient(invokerConfig, request, null);
-				invocationContext.setClient(remoteClient);
-				return handler.handle(invocationContext);
-			}
-		} else {
-			int retry = invokerConfig.getRetries();
-			NetTimeoutException lastError = null;
-			int maxInvokeTimes = retry + 1;
-			int invokeTimes = 0;
-			for (int index = 0; index < maxInvokeTimes; index++) {
-				Client clientSelected = null;
-				try {
-					clientSelected = clientManager.getClient(invokerConfig, request, null);
-				} catch (ServiceUnavailableException e) {
-					if (invokeTimes > 0) {
-						logger.error("Invoke method[" + invocationContext.getMethodName() + "] on service["
-								+ invokerConfig.getUrl() + "] failed with " + invokeTimes + " times");
-						throw lastError;
-					} else {
-						throw e;
-					}
-				}
-				try {
-					invokeTimes++;
-					invocationContext.setClient(clientSelected);
-					InvocationResponse response = null;
-					try {
-						response = handler.handle(invocationContext);
-					} catch (NetworkException e) {
-						clientSelected = clientManager.getClient(invokerConfig, request, null);
-						invocationContext.setClient(clientSelected);
-						response = handler.handle(invocationContext);
-						logger.info("Retry while network exception:" + e.getMessage());
-					}
+        boolean timeoutRetry = invokerConfig.isTimeoutRetry();
+        if (!timeoutRetry) {
+            Client remoteClient = clientManager.getClient(invokerConfig, request, null);
+            invocationContext.setClient(remoteClient);
+            try {
+                return handler.handle(invocationContext);
+            } catch (NetworkException e) {
+                remoteClient = clientManager.getClient(invokerConfig, request, null);
+                invocationContext.setClient(remoteClient);
+                return handler.handle(invocationContext);
+            }
+        } else {
+            int retry = invokerConfig.getRetries(invocationContext.getMethodName());
+            NetTimeoutException lastError = null;
+            int maxInvokeTimes = retry + 1;
+            int invokeTimes = 0;
+            for (int index = 0; index < maxInvokeTimes; index++) {
+                Client clientSelected = null;
+                try {
+                    clientSelected = clientManager.getClient(invokerConfig, request, null);
+                } catch (ServiceUnavailableException e) {
+                    if (invokeTimes > 0) {
+                        logger.error("Invoke method[" + invocationContext.getMethodName() + "] on service["
+                                + invokerConfig.getUrl() + "] failed with " + invokeTimes + " times");
+                        throw lastError;
+                    } else {
+                        throw e;
+                    }
+                }
+                try {
+                    invokeTimes++;
+                    invocationContext.setClient(clientSelected);
+                    InvocationResponse response = null;
+                    try {
+                        response = handler.handle(invocationContext);
+                    } catch (NetworkException e) {
+                        clientSelected = clientManager.getClient(invokerConfig, request, null);
+                        invocationContext.setClient(clientSelected);
+                        response = handler.handle(invocationContext);
+                        logger.info("Retry while network exception:" + e.getMessage());
+                    }
 
-					if (lastError != null) {
-						logger.warn("Retry method[" + invocationContext.getMethodName() + "] on service["
-								+ invokerConfig.getUrl() + "] succeed after " + invokeTimes
-								+ " times, last failed error: " + lastError.getMessage(), lastError);
-					}
-					return response;
-				} catch (NetTimeoutException e) {
-					lastError = e;
-				}
-			}
-			if (lastError != null) {
-				throw lastError;
-			} else {
-				throw new RemoteInvocationException(
-						"Invoke method[" + invocationContext.getMethodName() + "] on service[" + invokerConfig.getUrl()
-								+ "] failed with " + invokeTimes + " times, last error: "
-								+ (lastError != null ? lastError.getMessage() : ""),
-						lastError != null && lastError.getCause() != null ? lastError.getCause() : lastError);
-			}
-		}
-	}
+                    if (lastError != null) {
+                        logger.warn("Retry method[" + invocationContext.getMethodName() + "] on service["
+                                + invokerConfig.getUrl() + "] succeed after " + invokeTimes
+                                + " times, last failed error: " + lastError.getMessage(), lastError);
+                    }
+                    return response;
+                } catch (NetTimeoutException e) {
+                    lastError = e;
+                }
+            }
+            if (lastError != null) {
+                throw lastError;
+            } else {
+                throw new RemoteInvocationException(
+                        "Invoke method[" + invocationContext.getMethodName() + "] on service[" + invokerConfig.getUrl()
+                                + "] failed with " + invokeTimes + " times, last error: "
+                                + (lastError != null ? lastError.getMessage() : ""),
+                        lastError != null && lastError.getCause() != null ? lastError.getCause() : lastError);
+            }
+        }
+    }
 
-	@Override
-	public String getName() {
-		return Constants.CLUSTER_FAILFAST;
-	}
+    @Override
+    public String getName() {
+        return Constants.CLUSTER_FAILFAST;
+    }
 
 }

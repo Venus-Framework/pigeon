@@ -31,7 +31,7 @@ public class FailoverCluster implements Cluster {
 		InvokerConfig<?> invokerConfig = invocationContext.getInvokerConfig();
 		List<Client> selectedClients = new ArrayList<Client>();
 		Throwable lastError = null;
-		int retry = invokerConfig.getRetries();
+		int retry = invokerConfig.getRetries(invocationContext.getMethodName());
 
 		int maxInvokeTimes = retry + 1;
 		boolean timeoutRetry = invokerConfig.isTimeoutRetry();

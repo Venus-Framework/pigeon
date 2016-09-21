@@ -107,6 +107,13 @@ public class InvokerConfig<T> {
         this.methods = methods;
     }
 
+    public InvokerMethodConfig getMethod(String methodName) {
+        if (methods != null && !methods.isEmpty()) {
+            return methods.get(methodName);
+        }
+        return null;
+    }
+
     public String getProtocol() {
         return protocol;
     }
@@ -194,6 +201,16 @@ public class InvokerConfig<T> {
         return retries;
     }
 
+    public int getRetries(String methodName){
+        InvokerMethodConfig methodConfig = getMethod(methodName);
+
+        if (methodConfig != null && methodConfig.getRetries() > 0) {
+            return methodConfig.getRetries();
+        }
+
+        return retries;
+    }
+
     public void setRetries(int retries) {
         this.retries = retries;
     }
@@ -207,7 +224,7 @@ public class InvokerConfig<T> {
     }
 
     public InvokerConfig(Class<T> serviceInterface, String url, int timeout, String callMethod, String serialize,
-    		InvocationCallback callback, String group, boolean writeBufferLimit, String loadbalance, String cluster,
+                         InvocationCallback callback, String group, boolean writeBufferLimit, String loadbalance, String cluster,
                          int retries, boolean timeoutRetry, String vip, String version, String protocol) {
         this.setServiceInterface(serviceInterface);
         this.setUrl(url);
@@ -258,6 +275,16 @@ public class InvokerConfig<T> {
         return timeout;
     }
 
+    public int getTimeout(String methodName) {
+        InvokerMethodConfig methodConfig = getMethod(methodName);
+
+        if (methodConfig != null && methodConfig.getTimeout() > 0) {
+            return methodConfig.getTimeout();
+        }
+
+        return timeout;
+    }
+
     /**
      * @param timeout the timeout to set
      */
@@ -269,6 +296,17 @@ public class InvokerConfig<T> {
      * @return the callType
      */
     public String getCallType() {
+        return callType;
+    }
+
+    public String getCallType(String methodName) {
+
+        InvokerMethodConfig methodConfig = getMethod(methodName);
+
+        if (methodConfig != null && methodConfig.getCallType() != null) {
+            return methodConfig.getCallType();
+        }
+
         return callType;
     }
 

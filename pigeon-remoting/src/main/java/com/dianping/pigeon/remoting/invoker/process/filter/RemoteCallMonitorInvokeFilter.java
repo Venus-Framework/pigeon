@@ -51,8 +51,8 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
                 if (transaction != null) {
                     monitor.setCurrentCallTransaction(transaction);
                     transaction.setStatusOk();
-                    transaction.addData("CallType", invokerConfig.getCallType());
-                    transaction.addData("Timeout", invokerConfig.getTimeout());
+                    transaction.addData("CallType", invokerConfig.getCallType(invocationContext.getMethodName()));
+                    transaction.addData("Timeout", invokerConfig.getTimeout(invocationContext.getMethodName()));
                     transaction.addData("Serialize", invokerConfig.getSerialize());
 
                     transaction.logEvent("PigeonCall.QPS", "S" + Calendar.getInstance().get(Calendar.SECOND), "");
@@ -115,7 +115,6 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
                 }
             }
 
-            error = true;
             ExceptionManager.INSTANCE.logRpcException(remoteAddress, invokerConfig.getUrl(),
                     invocationContext.getMethodName(), "", e, request, null, transaction);
             throw e;

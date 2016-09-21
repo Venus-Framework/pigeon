@@ -81,7 +81,8 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 
 		InvokerConfig<?> invokerConfig = invokerContext.getInvokerConfig();
 		if (invokerConfig != null) {
-			request.setTimeout(invokerConfig.getTimeout());
+			request.setTimeout(invokerConfig.getTimeout(invokerContext.getMethodName()));
+
 			if (ConfigManagerLoader.getConfigManager().getBooleanValue(KEY_TIMEOUT_RESET, true)) {
 				Object timeout = ContextUtils.getLocalContext(Constants.REQUEST_TIMEOUT);
 				if (timeout != null) {
