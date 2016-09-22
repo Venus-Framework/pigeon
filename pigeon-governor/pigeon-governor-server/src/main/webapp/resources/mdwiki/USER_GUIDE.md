@@ -878,7 +878,11 @@ d、增加lion配置：pigeon-test.pigeon.invoker.degrade.method.return.c对应g
 这里返回对象是数组，如果是返回集合，也类似，例如返回一个LinkedList：
 {"returnClass":"java.util.LinkedList","content":"[{\"@class\":\"com.dianping.pigeon.demo.UserService$User\",\"username\":\"list-1\"},{\"username\":\"list-2\"}]"}
 
-e、除了上述几种使用lion配置降级策略的方式，pigeon还提供了一种使用mock类的降级配置方式。
+e、使用groovy脚本的方式，增加lion配置:pigeon-test.pigeon.invoker.degrade.method.return.a，其中content对应echo方法的默认groovy脚本，配置为：
+可以执行任意脚本，例如抛出异常：{"useGroovyScript":"true", "content":"throw new RuntimeException('test groovy degrade');"}
+或者返回对象：{"useGroovyScript":"true", "content":"return new com.dianping.pigeon.remoting.test.Person(name:'zhangsan',age:1);"}
+
+f、除了上述几种使用lion配置降级策略的方式，pigeon还提供了一种使用mock类的降级配置方式。
 例如我们想修改pigeon-test.pigeon.invoker.degrade.method.return.a的降级策略方式为mock方式，只需修改配置为：
 {"useMockClass":"true"}
 打开mock开关，然后在spring的xml配置中添加mock类的引用对象：
@@ -891,6 +895,7 @@ e、除了上述几种使用lion配置降级策略的方式，pigeon还提供了
 
 		<bean id="echoServiceMock" class="com.dianping.pigeon.benchmark.service.EchoServiceMock"/><!-- 必须实现EchoService接口 -->
 
+g、降级配置方式的优先级为：mock > groovy script > json exception > json default value
 
 3、强制降级开关
 强制降级开关只是在远程服务大量超时或其他不可用情况时，紧急时候进行设置，开启后，调用端会根据上述降级策略直接返回默认值或抛出降级异常，当远程服务恢复后，建议关闭此开关
