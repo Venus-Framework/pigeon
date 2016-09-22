@@ -173,6 +173,15 @@ public enum DegradationManager {
 		private String content;
 		private boolean throwException = false;
 		private boolean useMockClass = false;
+		private boolean useGroovyScript = false;
+
+		public boolean getUseGroovyScript() {
+			return useGroovyScript;
+		}
+
+		public void setUseGroovyScript(boolean useGroovyScript) {
+			this.useGroovyScript = useGroovyScript;
+		}
 
 		public boolean getUseMockClass() {
 			return useMockClass;
