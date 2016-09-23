@@ -26,7 +26,7 @@
 		<dp.zebra.version>2.7.8</dp.zebra.version>
 		<dp.cat.version>1.5.1</dp.cat.version>
 		<dp.cache.version>2.8.0</dp.cache.version>
-		<dp.lion.version>0.6.2</dp.lion.version>
+		<dp.lion.version>0.6.3</dp.lion.version>
 		<webXmlPath>src/main/webapp/WEB-INF/web.xml</webXmlPath>
 		<env>dev</env>
 	</properties>
