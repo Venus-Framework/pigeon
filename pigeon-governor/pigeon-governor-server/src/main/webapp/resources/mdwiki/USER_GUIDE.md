@@ -881,6 +881,7 @@ d、增加lion配置：pigeon-test.pigeon.invoker.degrade.method.return.c对应g
 e、使用groovy脚本的方式，增加lion配置:pigeon-test.pigeon.invoker.degrade.method.return.a，其中content对应echo方法的默认groovy脚本，配置为：
 可以执行任意脚本，例如抛出异常：{"useGroovyScript":"true", "content":"throw new RuntimeException('test groovy degrade');"}
 或者返回对象：{"useGroovyScript":"true", "content":"return new com.dianping.pigeon.remoting.test.Person(name:'zhangsan',age:1);"}
+注意！脚本的最后一条执行语句，必须返回方法的返回值类型或抛出异常。
 
 f、除了上述几种使用lion配置降级策略的方式，pigeon还提供了一种使用mock类的降级配置方式。
 例如我们想修改pigeon-test.pigeon.invoker.degrade.method.return.a的降级策略方式为mock方式，只需修改配置为：
