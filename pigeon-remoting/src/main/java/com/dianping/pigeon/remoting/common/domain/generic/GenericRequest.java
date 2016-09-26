@@ -80,7 +80,7 @@ public class GenericRequest implements UnifiedRequest {
             if (invokerConfig != null) {
                 this.serviceName = invokerConfig.getUrl();
                 this.serialize = invokerConfig.getSerialize();
-                this.timeout = invokerConfig.getTimeout();
+                this.timeout = invokerConfig.getTimeout(invokerContext.getMethodName());
                 this.setVersion(invokerConfig.getVersion());
                 if (Constants.CALL_ONEWAY.equalsIgnoreCase(invokerConfig.getCallType())) {
                     this.setCallType(Constants.CALLTYPE_NOREPLY);

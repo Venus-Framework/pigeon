@@ -37,6 +37,7 @@
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/jquery.typeahead.min.css"/>
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/tooltipster.bundle.min.css"/>
     <link rel="stylesheet" href="${rc.contextPath}/resources/style/jquery.bootstrap-touchspin.min.css"/>
+    <link rel="stylesheet" href="${rc.contextPath}/resources/style/bootcss-button.css"/>
     <style>
         .vertical-center{
             float: none !important;
@@ -245,6 +246,16 @@
             $("#degrad").addClass('active');
             $("#mainContent").ajaxLoad({
                 url:"/config/degrade/",
+                type:"post",
+                data:{"projectName":projectName}
+            });
+        });
+        router.register("#!/tree/*/limit/",function (params) {
+            var projectName = params[0];
+            $("#limit").parent().find(".active").removeClass("active");
+            $("#limit").addClass('active');
+            $("#mainContent").ajaxLoad({
+                url:"/config/limit/",
                 type:"post",
                 data:{"projectName":projectName}
             });

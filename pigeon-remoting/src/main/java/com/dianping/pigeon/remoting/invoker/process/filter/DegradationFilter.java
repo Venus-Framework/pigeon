@@ -19,6 +19,7 @@ import com.dianping.pigeon.remoting.common.exception.RejectedException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.GroovyUtils;
 import com.dianping.pigeon.remoting.invoker.concurrent.FutureFactory;
 import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
 import com.dianping.pigeon.remoting.invoker.concurrent.ServiceFutureImpl;
@@ -38,6 +39,7 @@ import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.google.common.collect.Maps;
+import groovy.lang.Script;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -97,7 +99,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 
 	}
 
-	private static void parseDegradeMethodsConfig(String degradeMethodsConfig) throws ClassNotFoundException {
+	private static void parseDegradeMethodsConfig(String degradeMethodsConfig) throws Throwable {
 		if (StringUtils.isNotBlank(degradeMethodsConfig)) {
 			ConcurrentHashMap<String, DegradeAction> map = new ConcurrentHashMap<String, DegradeAction>();
 			String[] pairArray = degradeMethodsConfig.split(",");
@@ -119,13 +121,15 @@ public class DegradationFilter extends InvocationInvokeFilter {
 										.toObject(DegradeActionConfig.class, config);
 
 								degradeAction.setUseMockClass(degradeActionConfig.getUseMockClass());
-								boolean throwEx = degradeActionConfig.getThrowException();
-								degradeAction.setThrowException(throwEx);
+								degradeAction.setUseGroovyScript(degradeActionConfig.getUseGroovyScript());
+								degradeAction.setThrowException(degradeActionConfig.getThrowException());
 								String content = degradeActionConfig.getContent();
 								Object returnObj = null;
 
 								if (degradeAction.isUseMockClass()) {
 									// use mock class
+								} else if (degradeAction.isUseGroovyScript()) {
+									degradeAction.setGroovyScript(GroovyUtils.getScript(content));
 								} else if (degradeAction.isThrowException()) {
 									if (StringUtils.isNotBlank(degradeActionConfig.getReturnClass())) {
 										returnObj = jacksonSerializer.toObject(
@@ -266,6 +270,10 @@ public class DegradationFilter extends InvocationInvokeFilter {
 						logger.warn("no mock obj defined in invoker config, return null instead!");
 					}
 
+				} else if (action.isUseGroovyScript()) {
+
+					defaultResult = action.getGroovyScript().run();
+
 				} else if (action.isThrowException()) {
 
 					return throwException(key, context, action);
@@ -358,6 +366,24 @@ public class DegradationFilter extends InvocationInvokeFilter {
 		private boolean throwException = false;
 		private Object returnObj;
 		private boolean useMockClass = false;
+		private boolean useGroovyScript = false;
+		private Script groovyScript;
+
+		public Script getGroovyScript() {
+			return groovyScript;
+		}
+
+		public void setGroovyScript(Script groovyScript) {
+			this.groovyScript = groovyScript;
+		}
+
+		public boolean isUseGroovyScript() {
+			return useGroovyScript;
+		}
+
+		public void setUseGroovyScript(boolean useGroovyScript) {
+			this.useGroovyScript = useGroovyScript;
+		}
 
 		public boolean isUseMockClass() {
 			return useMockClass;

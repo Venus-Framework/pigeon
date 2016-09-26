@@ -129,7 +129,7 @@
 			<bean class = "java.util.concurrent.ThreadPoolExecutor$CallerRunsPolicy" />
 		</property>
 		<property name="WaitForTasksToCompleteOnShutdown" value="true" />
-		<property name="awaitTerminationSeconds" value="0x7fffffff" />
+		<!--<property name="awaitTerminationSeconds" value="0x7fffffff" />-->
 	</bean>
 
 </beans>

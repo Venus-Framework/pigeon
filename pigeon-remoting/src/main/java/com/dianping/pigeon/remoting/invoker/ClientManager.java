@@ -244,6 +244,8 @@ public class ClientManager {
 							RegistryEventListener.providerAdded(url, hostInfo.getHost(), hostInfo.getPort(),
 									hostInfo.getWeight());
 							RegistryEventListener.serverInfoChanged(url, hostInfo.getConnect());
+						} catch(Throwable t) {
+							logger.error("failed to add provider client:" + hostInfo, t);
 						} finally {
 							latch.countDown();
 						}
