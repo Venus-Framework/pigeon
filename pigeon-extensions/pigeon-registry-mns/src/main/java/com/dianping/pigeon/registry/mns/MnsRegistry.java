@@ -68,10 +68,10 @@ public class MnsRegistry implements Registry {
 
                     if (checkGroupUsed()) {
                         logger.info("mns does not support group feature, set mns registry to DISABLED!");
-                    } else if (!checkAppExist()) {
+                    } /*else if (!checkAppExist()) {
                         logger.info("can not find APPKEY: [" + configManager.getAppName()
                                 + "] in mns, set mns registry to DISABLED!");
-                    } else {
+                    }*/ else {
                         logger.info("mns registry initialized!");
                     }
 
@@ -83,7 +83,7 @@ public class MnsRegistry implements Registry {
 
     @Override
     public boolean isEnable() {
-        return inited && !checkGroupUsed() && checkAppExist();
+        return inited && !checkGroupUsed() /*&& checkAppExist()*/;
     }
 
     private boolean checkGroupUsed() {
