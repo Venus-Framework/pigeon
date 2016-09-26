@@ -20,8 +20,7 @@ import java.util.List;
 public class InvokerEncoder extends AbstractEncoder {
 
     public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
-        Object[] message = (Object[]) msg;
-        Object encoded = super.encode(ctx, channel, message[0]);
+        Object encoded = super.encode(ctx, channel, msg);
         return encoded;
     }
 

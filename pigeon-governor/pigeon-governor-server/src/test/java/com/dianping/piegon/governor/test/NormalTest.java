@@ -3,7 +3,6 @@ package com.dianping.piegon.governor.test;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import com.dianping.pigeon.governor.bean.ServiceBean;
 import com.dianping.pigeon.governor.bean.ServiceWithGroup;
@@ -18,7 +17,6 @@ import org.junit.Test;
 import com.dianping.pigeon.extension.ExtensionLoader;
 import com.dianping.pigeon.governor.bean.JqGridReqFilters;
 import com.dianping.pigeon.registry.Registry;
-import com.dianping.pigeon.registry.util.Constants;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

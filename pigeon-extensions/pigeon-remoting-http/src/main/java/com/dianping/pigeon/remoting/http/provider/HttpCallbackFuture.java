@@ -2,7 +2,6 @@ package com.dianping.pigeon.remoting.http.provider;
 
 import java.util.concurrent.TimeUnit;
 
-import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;

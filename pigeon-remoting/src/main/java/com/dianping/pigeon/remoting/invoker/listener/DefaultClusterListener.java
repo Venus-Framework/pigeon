@@ -10,7 +10,6 @@ import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.listener.RegistryEventListener;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientSelector;
-import com.dianping.pigeon.remoting.invoker.client.DefaultExchangeClient;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
@@ -102,7 +101,7 @@ public class DefaultClusterListener implements ClusterListener {
             }
         }
         if (client == null) {
-            client = new DefaultExchangeClient(connectInfo);
+            client = ClientSelector.selectClient(connectInfo);
         }
         if (!this.allClients.containsKey(connectInfo.getConnect())) {
             Client oldClient = this.allClients.putIfAbsent(connectInfo.getConnect(), client);

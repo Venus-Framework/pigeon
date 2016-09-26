@@ -55,7 +55,7 @@ public class DependencyJsonServlet extends ServiceServlet {
 		page.setInvokers(invokers);
 		page.setEnvironment(configManager.getEnv());
 		Map<String, List<ClientInfo>> heartbeatsResults = new HashMap<String, List<ClientInfo>>();
-		Map<String, List<Client>> heartbeats = clientManager.getHeartTask().getWorkingClients();
+		Map<String, List<Client>> heartbeats = clientManager.getClusterListener().getServiceClients();
 		if (heartbeats != null) {
 			for (String key : heartbeats.keySet()) {
 				List<Client> clients = heartbeats.get(key);
@@ -69,16 +69,16 @@ public class DependencyJsonServlet extends ServiceServlet {
 		}
 		page.setHeartbeats(heartbeatsResults);
 
-		Map<String, ClientInfo> reconnectsResults = new HashMap<String, ClientInfo>();
-		Map<String, Client> reconnects = clientManager.getReconnectTask().getClosedClients();
-		if (reconnects != null) {
-			for (String key : reconnects.keySet()) {
-				Client client = reconnects.get(key);
-				reconnectsResults.put(key,
-						new ClientInfo(client, RegistryManager.getInstance().getServiceWeight(client.getAddress())));
-			}
-		}
-		page.setReconnects(reconnectsResults);
+//		Map<String, ClientInfo> reconnectsResults = new HashMap<String, ClientInfo>();
+//		Map<String, Client> reconnects = clientManager.getReconnectTask().getClosedClients();
+//		if (reconnects != null) {
+//			for (String key : reconnects.keySet()) {
+//				Client client = reconnects.get(key);
+//				reconnectsResults.put(key,
+//						new ClientInfo(client, RegistryManager.getInstance().getServiceWeight(client.getAddress())));
+//			}
+//		}
+//		page.setReconnects(reconnectsResults);
 
 		page.setServiceAddresses(RegistryManager.getInstance().getAllReferencedServiceAddresses());
 

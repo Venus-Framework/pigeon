@@ -53,11 +53,11 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
 
     public DefaultChannelPool(PoolProperties properties, ChannelFactory channelFactory)
             throws ChannelPoolException {
-
-        this.properties = properties;
-        this.channelFactory = channelFactory;
-        init(properties);
-        isClosed.compareAndSet(true, false);
+        if (isClosed.compareAndSet(true, false)) {
+            this.properties = properties;
+            this.channelFactory = channelFactory;
+            init(properties);
+        }
     }
 
     private void init(PoolProperties properties) throws ChannelPoolException {
