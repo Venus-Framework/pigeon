@@ -141,4 +141,8 @@ public class NetUtils {
 				.append(".").append((ip & 0xFF));
 		return str.toString();
 	}
+
+	public static String toAddress(String host, int port) {
+		return host + ":" + port;
+	}
 }

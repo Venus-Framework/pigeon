@@ -1,4 +1,4 @@
-package com.dianping.pigeon.remoting.netty.pool;
+package com.dianping.pigeon.remoting.common.pool;
 
 /**
  * @author qi.yin

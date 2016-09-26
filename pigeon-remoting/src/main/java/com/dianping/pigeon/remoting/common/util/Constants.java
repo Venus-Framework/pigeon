@@ -91,6 +91,10 @@ public final class Constants {
 	public static final String REQUEST_KEY_TIMESTAMP = "@t";
 	public static final String REQUEST_KEY_VERSION = "@v";
 
+	public static final String HEART_TASK_SERVICE = "HeartbeatService/";
+
+	public static final String HEART_TASK_METHOD = "heartbeat";
+
 	public static final String KEY_LOADBALANCE = "pigeon.loadbalance.defaulttype";
 	public static final String KEY_RECONNECT_INTERVAL = "pigeon.reconnect.interval";
 	public static final String KEY_HEARTBEAT_INTERVAL = "pigeon.heartbeat.interval";
@@ -110,6 +114,11 @@ public final class Constants {
 	public static final String KEY_WRITE_BUFFER_HIGH_WATER = "pigeon.channel.writebuff.high";
 	public static final String KEY_WRITE_BUFFER_LOW_WATER = "pigeon.channel.writebuff.low";
 	public static final String KEY_DEFAULT_WRITE_BUFF_LIMIT = "pigeon.channel.writebuff.defaultlimit";
+	public static final String KEY_INVOKER_NETTY_BOSSCOUNT = "pigeon.invoker.netty.bosscount";
+	public static final String KEY_INVOKER_NETTY_WORKERCOUNT = "pigeon.invoker.netty.workercount";
+	public static final String KEY_CHANNEL_POOL_INITIAL_SIZE = "pigeon.channel.pool.initial.size";
+	public static final String KEY_CHANNEL_POOL_MAX_ACTIVE = "pigeon.channel.pool.max.active";
+	public static final String KEY_CHANNEL_POOL_MAX_WAIT = "pigeon.channel.pool.max.wait";
 	public static final String KEY_NOTIFY_ENABLE = "pigeon.notify.enable";
 	public static final String KEY_HEARTBEAT_ENABLE = "pigeon.heartbeat.enable";
 	public static final String KEY_TEST_ENABLE = "pigeon.test.enable";
@@ -133,6 +142,12 @@ public final class Constants {
 	public static final int DEFAULT_WRITE_BUFFER_HIGH_WATER = 35 * 1024 * 1024;
 	public static final int DEFAULT_WRITE_BUFFER_LOW_WATER = 25 * 1024 * 1024;
 	public static final boolean DEFAULT_WRITE_BUFF_LIMIT = false;
+	public static final int DEFAULT_INVOKER_NETTY_BOSSCOUNT = 1;
+	public static final int DEFAULT_INVOKER_NETTY_WORKERCOUNT = Runtime.getRuntime().availableProcessors() * 2;
+	public static final int DEFAULT_CHANNEL_POOL_INITIAL_SIZE = 1;
+
+	public static final int DEFAULT_CHANNEL_POOL_MAX_ACTIVE = 5;
+	public static final int DEFAULT_CHANNEL_POOL_MAX_WAIT = 2000;
 	public static final String DEFAULT_PROCESS_TYPE = "threadpool";
 	public static final boolean DEFAULT_NOTIFY_ENABLE = true;
 	public static final boolean DEFAULT_TEST_ENABLE = true;
@@ -185,6 +200,21 @@ public final class Constants {
 	public static final int PROVIDER_POOL_QUEUE_SIZE = ConfigManagerLoader.getConfigManager()
 			.getIntValue(Constants.KEY_PROVIDER_WORKQUEUESIZE, Constants.DEFAULT_PROVIDER_WORKQUEUESIZE);
 
+	public static final int CONNECT_TIMEOUT = ConfigManagerLoader.getConfigManager().getIntValue(
+			KEY_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+
+	public static final int INVOKER_NETTY_BOSSCOUNT = ConfigManagerLoader.getConfigManager().getIntValue(
+			KEY_INVOKER_NETTY_BOSSCOUNT, DEFAULT_INVOKER_NETTY_BOSSCOUNT);
+
+	public static final int INVOKER_NETTY_WORKERCOUNT = ConfigManagerLoader.getConfigManager().getIntValue(
+			KEY_INVOKER_NETTY_WORKERCOUNT, DEFAULT_INVOKER_NETTY_WORKERCOUNT);
+
+	public static final int WRITE_BUFFER_HIGH_WATER = ConfigManagerLoader.getConfigManager().getIntValue(
+			KEY_WRITE_BUFFER_HIGH_WATER, DEFAULT_WRITE_BUFFER_HIGH_WATER);
+
+	public static final int WRITE_BUFFER_LOW_WATER = ConfigManagerLoader.getConfigManager().getIntValue(
+			KEY_WRITE_BUFFER_LOW_WATER, DEFAULT_WRITE_BUFFER_LOW_WATER);
+
 	public static final String KEY_SERVICE_SHARED = "pigeon.provider.service.shared";
 	public static final boolean DEFAULT_SERVICE_SHARED = true;
 
@@ -192,6 +222,21 @@ public final class Constants {
 	public static final String CONTEXT_KEY_CLIENT_APP = "CLIENT_APP";
 	public static final String CONTEXT_KEY_SOURCE_IP = "SOURCE_IP";
 	public static final String CONTEXT_KEY_SOURCE_APP = "SOURCE_APP";
+
+	public static final int getChannelPoolInitialSize() {
+		return ConfigManagerLoader.getConfigManager().getIntValue(
+				KEY_CHANNEL_POOL_INITIAL_SIZE, DEFAULT_CHANNEL_POOL_INITIAL_SIZE);
+	}
+
+	public static final int getChannelPoolMaxActive() {
+		return ConfigManagerLoader.getConfigManager().getIntValue(
+				KEY_CHANNEL_POOL_MAX_ACTIVE, DEFAULT_CHANNEL_POOL_MAX_ACTIVE);
+	}
+
+	public static final int getChannelPoolMaxWait() {
+		return ConfigManagerLoader.getConfigManager().getIntValue(
+				KEY_CHANNEL_POOL_MAX_WAIT, DEFAULT_CHANNEL_POOL_MAX_WAIT);
+	}
 
 	static {
 		ConfigManagerLoader.getConfigManager().registerConfigChangeListener(new InnerConfigChangeListener());

@@ -1,70 +1,89 @@
 package com.dianping.pigeon.remoting.invoker;
 
-import java.util.Map;
+import java.util.List;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.dianping.pigeon.registry.listener.RegistryEventListener;
+import com.dianping.pigeon.log.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.channel.Channel;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
-import com.dianping.pigeon.remoting.invoker.concurrent.Callback;
-import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
-import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;
+import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.client.HeartbeatTask;
 import com.dianping.pigeon.remoting.invoker.process.ResponseProcessor;
 import com.dianping.pigeon.remoting.invoker.process.ResponseProcessorFactory;
 import com.dianping.pigeon.remoting.invoker.route.region.Region;
 import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
+import com.dianping.pigeon.threadpool.NamedThreadFactory;
 
 public abstract class AbstractClient implements Client {
 
-    private volatile boolean active = true;
-
-    ResponseProcessor responseProcessor = ResponseProcessorFactory.selectProcessor();
+    protected final Logger logger = LoggerLoader.getLogger(getClass());
 
     protected volatile Region region;
 
-    protected String localIp;
+    private boolean heartbeated = true;
 
-    @Override
-    public void connectionException(Object attachment, Throwable e) {
-        // TODO Auto-generated method stub
+    private ScheduledFuture<?> heatbeatTimer;
 
+    private int heartbeatTimeout = 2000;
+
+    private int maxFailedCount = 3;
+
+    private int heartbeatInterval = 3000;
+
+    protected AtomicBoolean isClosed = new AtomicBoolean(true);
+
+    private final ResponseProcessor responseProcessor = ResponseProcessorFactory.selectProcessor();
+
+    private static final ScheduledThreadPoolExecutor scheduled = new ScheduledThreadPoolExecutor(
+            4, new NamedThreadFactory("Pigeon-Client-HeartBeat-ThreadPool"));
+
+    public void open() {
+        if (isClosed.compareAndSet(true, false)) {
+            doOpen();
+            startHeatbeat();
+        }
     }
 
-    @Override
-    public void processResponse(InvocationResponse response) {
-        this.responseProcessor.processResponse(response, this);
+    public abstract void doOpen();
+
+    public void close() {
+        if (isClosed.compareAndSet(false, true)) {
+            doClose();
+            stopHeartbeat();
+        }
     }
 
+    public abstract void doClose();
+
+    @Override
     public InvocationResponse write(InvocationRequest request) throws NetworkException {
-        return write(request, null);
-    }
-
-    public InvocationResponse write(InvocationRequest request, Callback callback) throws NetworkException {
         ServiceStatisticsHolder.flowIn(request, this.getAddress());
         try {
-            return doWrite(request, callback);
+            return doWrite(request);
         } catch (NetworkException e) {
             ServiceStatisticsHolder.flowOut(request, this.getAddress());
             throw e;
         }
     }
 
-    public abstract InvocationResponse doWrite(InvocationRequest request, Callback callback) throws NetworkException;
+    public abstract InvocationResponse doWrite(InvocationRequest request) throws NetworkException;
 
-    public boolean isActive() {
-        return active && HeartBeatListener.isActiveAddress(getAddress());
+
+    @Override
+    public void processResponse(InvocationResponse response) {
+        this.responseProcessor.processResponse(response, this);
     }
 
-    public void setActive(boolean active) {
-        if (active) {
-            ConnectInfo connectInfo = getConnectInfo();
-            Map<String, Integer> services = connectInfo.getServiceNames();
-            for (String url : services.keySet()) {
-                RegistryEventListener.serverInfoChanged(url, connectInfo.getConnect());
-            }
-        }
-        this.active = active;
+    @Override
+    public boolean isClosed() {
+        return isClosed.get();
     }
 
     @Override
@@ -80,8 +99,28 @@ public abstract class AbstractClient implements Client {
         region = null;
     }
 
-    @Override
-    public String getLocalIp() {
-        return localIp;
+    private void startHeatbeat() {
+        stopHeartbeat();
+        if (heartbeated && Constants.PROTOCOL_DEFAULT.equals(getProtocol())) {
+            heatbeatTimer = scheduled.scheduleWithFixedDelay(
+                    new HeartbeatTask(new HeartbeatTask.ChannelProvider() {
+                        public List<Channel> getChannels() {
+                            return this.getChannels();
+                        }
+                    }, heartbeatTimeout, maxFailedCount),
+                    heartbeatInterval, heartbeatInterval, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private void stopHeartbeat() {
+        if (heatbeatTimer != null && !heatbeatTimer.isCancelled()) {
+            try {
+                heatbeatTimer.cancel(true);
+                scheduled.purge();
+            } catch (Throwable e) {
+                logger.warn(e.getMessage(), e);
+            }
+        }
+        heatbeatTimer = null;
     }
 }

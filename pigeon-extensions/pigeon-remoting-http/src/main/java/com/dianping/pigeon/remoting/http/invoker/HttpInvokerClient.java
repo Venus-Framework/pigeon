@@ -10,23 +10,18 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
-import com.dianping.pigeon.log.Logger;
 
 import com.dianping.dpsf.protocol.DefaultRequest;
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.AbstractClient;
-import com.dianping.pigeon.remoting.invoker.concurrent.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
-import com.dianping.pigeon.remoting.invoker.listener.HeartBeatListener;
 
 public class HttpInvokerClient extends AbstractClient {
 
-    private static final Logger logger = LoggerLoader.getLogger(HttpInvokerClient.class);
     private ConnectInfo connectInfo;
     private HttpInvokerExecutor httpInvokerExecutor;
     private String serviceUrlPrefix = null;
@@ -53,7 +48,7 @@ public class HttpInvokerClient extends AbstractClient {
         connectionManager.setParams(params);
         HttpClient httpClient = new HttpClient();
         httpClient.setHttpConnectionManager(connectionManager);
-        localIp = httpClient.getHostConfiguration().getLocalAddress().getHostAddress();
+//        localIp = httpClient.getHostConfiguration().getLocalAddress().getHostAddress();
         httpInvokerExecutor.setHttpClient(httpClient);
     }
 
@@ -63,9 +58,9 @@ public class HttpInvokerClient extends AbstractClient {
     }
 
     @Override
-    public void connect() {
-        InvocationRequest request = new DefaultRequest(HeartBeatListener.HEART_TASK_SERVICE,
-                HeartBeatListener.HEART_TASK_METHOD, null, SerializerFactory.SERIALIZE_HESSIAN,
+    public void doOpen() {
+        InvocationRequest request = new DefaultRequest(Constants.HEART_TASK_SERVICE,
+                Constants.HEART_TASK_METHOD, null, SerializerFactory.SERIALIZE_HESSIAN,
                 Constants.MESSAGE_TYPE_HEART, 5000, null);
         request.setSequence(0);
         request.setCreateMillisTime(System.currentTimeMillis());
@@ -77,16 +72,17 @@ public class HttpInvokerClient extends AbstractClient {
                 isConnected = true;
             }
         } catch (Throwable e) {
+            close();
             isConnected = false;
         }
     }
 
     @Override
-    public InvocationResponse doWrite(InvocationRequest invocationRequest, Callback callback) throws NetworkException {
-        return write(defaultServiceUrl, invocationRequest, callback);
+    public InvocationResponse doWrite(InvocationRequest invocationRequest) throws NetworkException {
+        return write(defaultServiceUrl, invocationRequest);
     }
 
-    public InvocationResponse write(String url, InvocationRequest request, Callback callback) throws NetworkException {
+    public InvocationResponse write(String url, InvocationRequest request) throws NetworkException {
         final int timeout = request.getTimeout();
         httpInvokerExecutor.setReadTimeout(timeout);
         try {
@@ -99,16 +95,6 @@ public class HttpInvokerClient extends AbstractClient {
         } catch (Throwable e) {
             throw new NetworkException("remote call failed:" + request, e);
         }
-    }
-
-    @Override
-    public boolean isConnected() {
-        return isConnected;
-    }
-
-    @Override
-    public boolean isWritable() {
-        return true;
     }
 
     @Override
@@ -127,8 +113,7 @@ public class HttpInvokerClient extends AbstractClient {
     }
 
     @Override
-    public void close() {
-
+    public void doClose() {
     }
 
     @Override
@@ -136,15 +121,6 @@ public class HttpInvokerClient extends AbstractClient {
         return this.getAddress();
     }
 
-    @Override
-    public boolean isDisposable() {
-        return false;
-    }
-
-    @Override
-    public void dispose() {
-
-    }
 
     public boolean equals(Object obj) {
         if (obj instanceof HttpInvokerClient) {
@@ -163,5 +139,10 @@ public class HttpInvokerClient extends AbstractClient {
     @Override
     public String getProtocol() {
         return Constants.PROTOCOL_HTTP;
+    }
+
+    @Override
+    public boolean isActive() {
+        return true;
     }
 }

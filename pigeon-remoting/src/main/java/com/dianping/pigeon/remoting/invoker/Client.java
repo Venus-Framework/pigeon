@@ -15,23 +15,17 @@ public interface Client {
 
     ConnectInfo getConnectInfo();
 
-    void connect();
+    void open();
 
-    InvocationResponse write(InvocationRequest request, Callback callback) throws NetworkException;
+    void close();
 
     InvocationResponse write(InvocationRequest request) throws NetworkException;
 
-    void connectionException(Object attachment, Throwable e);
-
     void processResponse(InvocationResponse response);
-
-    boolean isConnected();
 
     boolean isActive();
 
-    void setActive(boolean active);
-
-    boolean isWritable();
+    boolean isClosed();
 
     String getHost();
 
@@ -39,18 +33,10 @@ public interface Client {
 
     int getPort();
 
-    void close();
-
-    boolean isDisposable();
-
-    void dispose();
-
     String getProtocol();
 
     Region getRegion();
 
     void clearRegion();
-
-    String getLocalIp();
 
 }

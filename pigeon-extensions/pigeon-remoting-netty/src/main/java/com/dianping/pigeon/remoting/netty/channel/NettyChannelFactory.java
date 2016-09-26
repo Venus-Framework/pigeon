@@ -1,12 +1,14 @@
-package com.dianping.pigeon.remoting.netty.pool;
+package com.dianping.pigeon.remoting.netty.channel;
 
+import com.dianping.pigeon.remoting.common.channel.ChannelFactory;
+import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.netty.invoker.NettyClient;
 
 /**
  * @author qi.yin
- *         2016/07/22  下午12:00.
+ *         2016/09/23  上午10:47.
  */
-public class NettyChannelFactory implements PooledChannelFactory {
+public class NettyChannelFactory implements ChannelFactory<NettyChannel> {
 
     private NettyClient client;
 
@@ -15,9 +17,9 @@ public class NettyChannelFactory implements PooledChannelFactory {
     }
 
     @Override
-    public PooledChannel createChannel() throws ChannelException {
+    public NettyChannel createChannel() throws NetworkException {
 
-        PooledChannel channel = new NettyChannel(
+        NettyChannel channel = new DefaultNettyChannel(
                 client.getBootstrap(),
                 client.getHost(),
                 client.getPort(),
@@ -27,5 +29,4 @@ public class NettyChannelFactory implements PooledChannelFactory {
 
         return channel;
     }
-
 }

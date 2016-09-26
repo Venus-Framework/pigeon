@@ -70,7 +70,6 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 			UnifiedRequest _request = (UnifiedRequest) request;
 			_request.setServiceInterface(invokerContext.getInvokerConfig().getServiceInterface());
 			_request.setParameterTypes(invokerContext.getParameterTypes());
-			_request.setClientIp(invokerContext.getClient().getLocalIp());
 		}
 
 		checkSerialize(invokerContext);

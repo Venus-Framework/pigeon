@@ -2,10 +2,8 @@ package com.dianping.pigeon.remoting.netty.invoker.codec;
 
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
-import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.netty.codec.AbstractEncoder;
 import com.dianping.pigeon.remoting.netty.codec.CodecEvent;
-import com.dianping.pigeon.remoting.netty.codec.NettyCodecUtils;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.Channels;
@@ -22,7 +20,6 @@ import java.util.List;
 public class InvokerEncoder extends AbstractEncoder {
 
     public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
-        NettyCodecUtils.setAttachment(ctx, Constants.ATTACHMENT_RETRY, msg);
         Object[] message = (Object[]) msg;
         Object encoded = super.encode(ctx, channel, message[0]);
         return encoded;

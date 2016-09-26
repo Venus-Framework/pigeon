@@ -1,21 +1,21 @@
-package com.dianping.pigeon.remoting.netty.pool;
+package com.dianping.pigeon.remoting.netty.channel;
 
-import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.log.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author qi.yin
- *         2016/07/22  上午11:59.
+ *         2016/09/23  上午10:31.
  */
-public class NettyChannel implements PooledChannel {
+public class DefaultNettyChannel implements NettyChannel {
 
     private static final Logger logger = LoggerLoader.getLogger(NettyChannel.class);
 
@@ -31,16 +31,14 @@ public class NettyChannel implements PooledChannel {
 
     private InetSocketAddress remoteAddress;
 
-    private AtomicBoolean released = new AtomicBoolean(false);
-
-    public NettyChannel(ClientBootstrap bootstrap, String remoteHost, int remotePort, int timeout) {
+    public DefaultNettyChannel(ClientBootstrap bootstrap, String remoteHost, int remotePort, int timeout) {
         this.bootstrap = bootstrap;
         this.remoteAddress = new InetSocketAddress(remoteHost, remotePort);
         this.timeout = timeout;
     }
 
     @Override
-    public void connect() throws ChannelException {
+    public void connect() throws NetworkException {
         connectLock.lock();
         try {
             if (isActive()) {
@@ -59,18 +57,18 @@ public class NettyChannel implements PooledChannel {
                         localAddress = (InetSocketAddress) this.channel.getLocalAddress();
                     } else {
                         logger.error("[connect] connected to remote " + remoteAddress + " failed.");
-                        throw new ChannelException("connected to remote " + remoteAddress + " failed.");
+                        throw new NetworkException("connected to remote " + remoteAddress + " failed.");
                     }
 
                 } else {
                     logger.error("[connect] timeout connecting to remote " + remoteAddress + ".");
-                    throw new ChannelException("timeout connecting to remote " + remoteAddress + ".");
+                    throw new NetworkException("timeout connecting to remote " + remoteAddress + ".");
                 }
 
             } catch (Throwable e) {
                 logger.error("[connect] error connecting to remote " + remoteAddress + ".", e);
 
-                throw new ChannelException("error connecting to remote " + remoteAddress + ".", e);
+                throw new NetworkException("error connecting to remote " + remoteAddress + ".", e);
             } finally {
                 if (!isConnected()) {
                     future.cancel();
@@ -83,12 +81,7 @@ public class NettyChannel implements PooledChannel {
     }
 
     @Override
-    public void reconnect() throws ChannelException {
-        disConnect();
-        connect();
-    }
-
-    protected void disConnect() {
+    public void disConnect() {
         connectLock.lock();
         try {
             if (this.channel != null) {
@@ -102,12 +95,18 @@ public class NettyChannel implements PooledChannel {
     }
 
     @Override
-    public ChannelFuture write(Object message) throws ChannelException {
+    public ChannelFuture write0(Object message) throws NetworkException {
         if (!isActive()) {
-            throw new ChannelException("[write] channel is null or channel is close.");
+            throw new NetworkException("[write0] channel is null or channel is close.");
         }
 
         return channel.write(message);
+
+    }
+
+    @Override
+    public void write(Object message) throws NetworkException {
+        throw new UnsupportedOperationException("unsupported this operation");
     }
 
     private boolean isConnected() {
@@ -119,7 +118,7 @@ public class NettyChannel implements PooledChannel {
 
     @Override
     public boolean isActive() {
-        return !released.get() && channel != null && channel.isConnected();
+        return channel != null && channel.isConnected();
     }
 
     public boolean isWritable() {
@@ -139,6 +138,10 @@ public class NettyChannel implements PooledChannel {
 
     public int getTimeout() {
         return timeout;
+    }
+
+    public String toString() {
+        return "PooledChannel[ remoteAddress= " + remoteAddress.toString() + "]";
     }
 
 }

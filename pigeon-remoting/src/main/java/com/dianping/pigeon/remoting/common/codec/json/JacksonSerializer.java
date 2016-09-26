@@ -34,52 +34,9 @@ public class JacksonSerializer extends AbstractSerializer {
 
 	static {
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-		// mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-		// mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-		// mapper.enable(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY);
-		// mapper.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-		// mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
-		// mapper.disable(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
-		// mapper.disable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		mapper.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
 		mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-
-		// mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL,
-		// "@class");
-
-		// SimpleModule module = new SimpleModule();
-		// module.addKeySerializer(Object.class, new JsonSerializer<Object>() {
-		//
-		// @Override
-		// public void serialize(Object value, JsonGenerator jgen,
-		// SerializerProvider provider) throws IOException,
-		// JsonProcessingException {
-		// jgen.writeFieldName(mapper.writeValueAsString(value));
-		// }
-		//
-		// });
-		// module.addKeyDeserializer(Object.class, new KeyDeserializer() {
-		//
-		// @Override
-		// public Object deserializeKey(String key, DeserializationContext ctxt)
-		// throws IOException,
-		// JsonProcessingException {
-		// try {
-		// return JacksonObjectMapper.convertObject(key);
-		// } catch (SerializationException e) {
-		// throw new IOException("", e);
-		// } catch (ClassNotFoundException e) {
-		// throw new IOException("", e);
-		// } catch (InstantiationException e) {
-		// throw new IOException("", e);
-		// } catch (IllegalAccessException e) {
-		// throw new IOException("", e);
-		// }
-		// }
-		//
-		// });
-		// mapper.registerModule(module);
 
 		// initialize
 		JacksonSerializer serializer = new JacksonSerializer();
