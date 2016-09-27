@@ -34,11 +34,12 @@ import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableExceptio
 import com.dianping.pigeon.remoting.invoker.process.DegradationManager;
 import com.dianping.pigeon.remoting.invoker.process.DegradationManager.DegradeActionConfig;
 import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
+import com.dianping.pigeon.remoting.invoker.proxy.GroovyScriptInvocationProxy;
 import com.dianping.pigeon.remoting.invoker.proxy.MockProxyWrapper;
+import com.dianping.pigeon.remoting.invoker.proxy.MockInvocationUtils;
 import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
-import com.google.common.collect.Maps;
 import groovy.lang.Script;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
@@ -60,7 +61,8 @@ public class DegradationFilter extends InvocationInvokeFilter {
 	private static final InvocationResponse NO_RETURN_RESPONSE = InvokerUtils.createNoReturnResponse();
 	private static volatile Map<String, DegradeAction> degradeMethodActions = new ConcurrentHashMap<String, DegradeAction>();
 	private static final JacksonSerializer jacksonSerializer = new JacksonSerializer();
-	private final static Map<String, MockProxyWrapper> mocks = Maps.newConcurrentMap();
+	// service#method --> mockProxyWrapper
+	private final static ConcurrentHashMap<String, MockProxyWrapper> mocks = new ConcurrentHashMap<>();
 
 	static {
 		String degradeMethodsConfig = configManager.getStringValue(KEY_DEGRADE_METHODS);
@@ -168,50 +170,8 @@ public class DegradationFilter extends InvocationInvokeFilter {
 		} else {
 			degradeMethodActions.clear();
 		}
-	}
 
-	protected InvocationResponse makeDefaultResponse(InvokerContext context, Object defaultResult) {
-		InvokerConfig<?> invokerConfig = context.getInvokerConfig();
-		String callType = invokerConfig.getCallType();
-		InvocationResponse response = null;
-		int timeout = invokerConfig.getTimeout();
-		Map<String, InvokerMethodConfig> methods = invokerConfig.getMethods();
-		if (!CollectionUtils.isEmpty(methods)) {
-			InvokerMethodConfig methodConfig = methods.get(context.getMethodName());
-			if (methodConfig != null && methodConfig.getTimeout() > 0) {
-				timeout = methodConfig.getTimeout();
-			}
-		}
-		Integer timeoutThreadLocal = InvokerHelper.getTimeout();
-		if (timeoutThreadLocal != null) {
-			timeout = timeoutThreadLocal;
-		}
-		MonitorTransaction transaction = MonitorLoader.getMonitor().getCurrentCallTransaction();
-		if (transaction != null) {
-			transaction.addData("CurrentTimeout", timeout);
-		}
-		if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
-			response = InvokerUtils.createDefaultResponse(defaultResult);
-		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
-			InvocationCallback callback = invokerConfig.getCallback();
-			InvocationCallback tlCallback = InvokerHelper.getCallback();
-			if (tlCallback != null) {
-				callback = tlCallback;
-				InvokerHelper.clearCallback();
-			}
-			callback.onSuccess(defaultResult);
-			response = NO_RETURN_RESPONSE;
-		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
-			ServiceFutureImpl future = new ServiceFutureImpl(context, timeout);
-			FutureFactory.setFuture(future);
-			response = InvokerUtils.createFutureResponse(future);
-			future.callback(InvokerUtils.createDefaultResponse(defaultResult));
-			future.run();
-		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callType)) {
-			response = NO_RETURN_RESPONSE;
-		}
-		((DefaultInvokerContext) context).setResponse(response);
-		return response;
+		mocks.clear();
 	}
 
 	@Override
@@ -264,15 +224,21 @@ public class DegradationFilter extends InvocationInvokeFilter {
 
 				if (action.isUseMockClass()) {
 
-					if (context.getInvokerConfig().getMock() != null) {
-						defaultResult = getMockResult(context);
+					Object mockObj = context.getInvokerConfig().getMock();
+
+					if (mockObj != null) {
+						defaultResult = getMockProxyWrapper(key, mockObj).invoke(context.getMethodName(),
+								context.getParameterTypes(), context.getArguments());
 					} else {
 						logger.warn("no mock obj defined in invoker config, return null instead!");
 					}
 
 				} else if (action.isUseGroovyScript()) {
 
-					defaultResult = action.getGroovyScript().run();
+					defaultResult = getMockProxyWrapper(key, MockInvocationUtils.getProxy(
+							context.getInvokerConfig(),
+							new GroovyScriptInvocationProxy(action.getGroovyScript())))
+							.invoke(context.getMethodName(), context.getParameterTypes(), context.getArguments());
 
 				} else if (action.isThrowException()) {
 
@@ -295,17 +261,49 @@ public class DegradationFilter extends InvocationInvokeFilter {
 		}
 	}
 
-	private Object getMockResult(InvokerContext context) throws Throwable {
-		InvokerConfig invokerConfig = context.getInvokerConfig();
-		String mockService = invokerConfig.getUrl();
-		MockProxyWrapper mockProxyWrapper = mocks.get(mockService);
-
-		if (mockProxyWrapper == null) {
-			mockProxyWrapper = new MockProxyWrapper(invokerConfig.getMock());
+	protected InvocationResponse makeDefaultResponse(InvokerContext context, Object defaultResult) {
+		InvokerConfig<?> invokerConfig = context.getInvokerConfig();
+		String callType = invokerConfig.getCallType();
+		InvocationResponse response = null;
+		int timeout = invokerConfig.getTimeout();
+		Map<String, InvokerMethodConfig> methods = invokerConfig.getMethods();
+		if (!CollectionUtils.isEmpty(methods)) {
+			InvokerMethodConfig methodConfig = methods.get(context.getMethodName());
+			if (methodConfig != null && methodConfig.getTimeout() > 0) {
+				timeout = methodConfig.getTimeout();
+			}
 		}
-
-		return mockProxyWrapper.invoke(context.getMethodName(),
-				context.getParameterTypes(), context.getArguments());
+		Integer timeoutThreadLocal = InvokerHelper.getTimeout();
+		if (timeoutThreadLocal != null) {
+			timeout = timeoutThreadLocal;
+		}
+		MonitorTransaction transaction = MonitorLoader.getMonitor().getCurrentCallTransaction();
+		if (transaction != null) {
+			transaction.addData("CurrentTimeout", timeout);
+		}
+		if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
+			response = InvokerUtils.createDefaultResponse(defaultResult);
+		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
+			InvocationCallback callback = invokerConfig.getCallback();
+			InvocationCallback tlCallback = InvokerHelper.getCallback();
+			if (tlCallback != null) {
+				callback = tlCallback;
+				InvokerHelper.clearCallback();
+			}
+			callback.onSuccess(defaultResult);
+			response = NO_RETURN_RESPONSE;
+		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
+			ServiceFutureImpl future = new ServiceFutureImpl(context, timeout);
+			//ServiceFutureImpl future = new MockCallbackFuture(mocks.get(DegradationManager.INSTANCE.getRequestUrl(context)),context, timeout);
+			FutureFactory.setFuture(future);
+			response = InvokerUtils.createFutureResponse(future);
+			future.callback(InvokerUtils.createDefaultResponse(defaultResult));
+			future.run();
+		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callType)) {
+			response = NO_RETURN_RESPONSE;
+		}
+		((DefaultInvokerContext) context).setResponse(response);
+		return response;
 	}
 
 	protected InvocationResponse throwException(String key, InvokerContext context, DegradeAction action)
@@ -360,6 +358,20 @@ public class DegradationFilter extends InvocationInvokeFilter {
 		}
 		((DefaultInvokerContext) context).setResponse(response);
 		return response;
+	}
+
+	private MockProxyWrapper getMockProxyWrapper(String serviceMethod, Object proxy) throws Throwable {
+		MockProxyWrapper mockProxyWrapper = mocks.get(serviceMethod);
+
+		if (mockProxyWrapper == null) {
+			mockProxyWrapper = new MockProxyWrapper(proxy);
+			MockProxyWrapper oldMockProxyWrapper = mocks.putIfAbsent(serviceMethod, mockProxyWrapper);
+			if(oldMockProxyWrapper != null) {
+				mockProxyWrapper = oldMockProxyWrapper;
+			}
+		}
+
+		return mockProxyWrapper;
 	}
 
 	private static class DegradeAction implements Serializable {

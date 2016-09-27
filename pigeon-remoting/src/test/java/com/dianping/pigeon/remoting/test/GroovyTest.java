@@ -1,10 +1,15 @@
 package com.dianping.pigeon.remoting.test;
 
+import com.dianping.pigeon.remoting.invoker.proxy.GroovyScriptInvocationProxy;
+import com.dianping.pigeon.remoting.invoker.proxy.MockInvocationUtils;
+import com.dianping.pigeon.remoting.invoker.proxy.MockProxyWrapper;
+import com.dianping.pigeon.util.ClassUtils;
 import groovy.lang.*;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.junit.Test;
 
 import java.io.File;
+import java.lang.reflect.Proxy;
 
 /**
  * Created by chenchongze on 16/9/21.
@@ -17,6 +22,24 @@ public class GroovyTest {
             return new GroovyShell(Thread.currentThread().getContextClassLoader());
         }
     };
+
+    @Test
+    public void test0() {
+        //String script = "return 'mock groovy';";
+        String script = "throw new RuntimeException('run ex');";
+        try {
+            Script groovyScript = getGroovyScript(script);
+            EchoService echoService = (EchoService)Proxy.newProxyInstance(ClassUtils.getCurrentClassLoader(null),
+                    new Class[]{EchoService.class}, new GroovyScriptInvocationProxy(groovyScript));
+            //System.out.println(echoService.echo("ddd"));
+            MockProxyWrapper mockProxyWrapper = new MockProxyWrapper(echoService);
+            System.out.println(mockProxyWrapper.invoke("echo", new Class[]{String.class}, new Object[]{"ddd"}));
+            //System.out.println("cache script");
+            //System.out.println(groovyScript.run());
+        } catch (Throwable t) {
+            System.out.println(t.toString());
+        }
+    }
 
     @Test
     public void test1() {
@@ -51,6 +74,7 @@ public class GroovyTest {
 
         try {
             System.out.println(parse(script));
+            parse();
         } catch (Throwable t) {
             System.out.println(t.toString());
         }
