@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
  */
 public class GroovyScriptInvocationProxy implements InvocationHandler {
 
-    private Script script;
+    private final Script script;
 
     public GroovyScriptInvocationProxy(Script script) {
         this.script = script;

@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.lang.reflect.Proxy;
+import java.util.Random;
 
 /**
  * Created by chenchongze on 16/9/21.
@@ -22,6 +23,13 @@ public class GroovyTest {
             return new GroovyShell(Thread.currentThread().getContextClassLoader());
         }
     };
+
+    @Test
+    public void testRan() {
+        for (int i = 0; i < 50; i++) {
+            System.out.println(new Random().nextInt(2) < 1);
+        }
+    }
 
     @Test
     public void test0() {
