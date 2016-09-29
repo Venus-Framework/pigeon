@@ -7,6 +7,7 @@ package com.dianping.pigeon.remoting;
 import java.util.List;
 import java.util.Map;
 
+import com.dianping.pigeon.config.ConfigManagerLoader;
 import org.apache.commons.lang.StringUtils;
 
 import com.dianping.pigeon.log.Logger;
@@ -174,7 +175,14 @@ public class ServiceFactory {
 	public static <T> void addService(ProviderConfig<T> providerConfig) throws RpcException {
 		if (StringUtils.isBlank(providerConfig.getUrl())) {
 			providerConfig.setUrl(getServiceUrl(providerConfig));
+		} else if(providerConfig.isSupported() && !getServiceUrl(providerConfig).equals(providerConfig.getUrl())) {
+			logger.warn("customized [serviceName] cannot provide service to OCTO invoker "
+					+ "unless set the [serviceName] to canonical name of the interface class "
+					+ "or just keep [serviceName] config to blank. more help refer to: "
+					+ ConfigManagerLoader.getConfigManager().getStringValue("pigeon.help.provider.octo.url"
+					, "http://wiki.sankuai.com/pages/viewpage.action?pageId=606809899"));
 		}
+
 		try {
 			ServicePublisher.addService(providerConfig);
 			ServerConfig serverConfig = ProviderBootStrap.startup(providerConfig);
