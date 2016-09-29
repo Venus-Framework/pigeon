@@ -896,7 +896,10 @@ f、除了上述几种使用lion配置降级策略的方式，pigeon还提供了
 
 		<bean id="echoServiceMock" class="com.dianping.pigeon.benchmark.service.EchoServiceMock"/><!-- 必须实现EchoService接口 -->
 
-g、降级配置方式的优先级为：mock > groovy script > json exception > json default value
+g、若想在开启了降级总开关的基础上，开启或关闭部分接口的降级开关，可在json配置中添加配置项"enable":"false"或"enable":"true"，不填写则缺省为true
+例如{"enable":"false", "useGroovyScript":"true", "content":"if (new Random().nextInt(2) < 1) { return 'normal'; } else { throw new RuntimeException('test groovy degrade'); }"}
+
+h、降级配置方式的优先级为：mock > groovy script > json exception > json default value
 
 3、强制降级开关
 强制降级开关只是在远程服务大量超时或其他不可用情况时，紧急时候进行设置，开启后，调用端会根据上述降级策略直接返回默认值或抛出降级异常，当远程服务恢复后，建议关闭此开关
