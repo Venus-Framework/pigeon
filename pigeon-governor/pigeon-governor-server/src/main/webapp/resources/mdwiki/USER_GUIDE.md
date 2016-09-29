@@ -862,7 +862,7 @@ User[] getUserDetailArray(String[] usernames);
 配置可降级的方法，要配置以下lion配置：
 a、增加lion配置：xxx-service.pigeon.invoker.degrade.methods配置为：
 http://service.dianping.com/com.dianping.pigeon.demo.EchoService#echo=a,http://service.dianping.com/com.dianping.pigeon.demo.EchoService#getUserDetail=b,http://service.dianping.com/com.dianping.pigeon.demo.EchoService#getUserDetailArray=c
-上述配置内容包含多个方法的降级策略a、b、c，如果降级策略没有配置默认会返回null对象
+上述配置内容包含多个方法的降级策略a、b、c。如果某此调用需要降级，而降级策略没有配置则不降级，进行正常调用流程。
 
 b、增加lion配置：pigeon-test.pigeon.invoker.degrade.method.return.a对应echo方法的默认返回，配置为：
 {"returnClass":"java.lang.String","content":"echo,input"}
