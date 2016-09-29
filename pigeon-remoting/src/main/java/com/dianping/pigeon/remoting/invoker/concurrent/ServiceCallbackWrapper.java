@@ -28,6 +28,7 @@ import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.process.DegradationManager;
 import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
+import com.dianping.pigeon.remoting.invoker.process.filter.DegradationFilter;
 import com.dianping.pigeon.util.ContextUtils;
 
 public class ServiceCallbackWrapper implements Callback {
@@ -87,6 +88,13 @@ public class ServiceCallbackWrapper implements Callback {
 				msg.append("request callback timeout:").append(request);
 				Exception e = new RequestTimeoutException(msg.toString());
 				e.setStackTrace(new StackTraceElement[] {});
+				/*if (DegradationManager.INSTANCE.needFailureDegrade()) {
+					try {
+						DegradationFilter.degradeCall(invocationContext);
+					} catch (Throwable t) {
+						logger.warn("callback failure timeout exception degrade failed.", t);
+					}
+				}*/
 				DegradationManager.INSTANCE.addFailedRequest(invocationContext, e);
 				ExceptionManager.INSTANCE.logRpcException(addr, invocationContext.getInvokerConfig().getUrl(),
 						invocationContext.getMethodName(), "request callback timeout", e, request, response,
@@ -102,6 +110,9 @@ public class ServiceCallbackWrapper implements Callback {
 					RpcException e = ExceptionManager.INSTANCE.logRemoteCallException(addr,
 							invocationContext.getInvokerConfig().getUrl(), invocationContext.getMethodName(),
 							"remote call error with callback", request, response, transaction);
+					/*if (DegradationManager.INSTANCE.needFailureDegrade()) {
+						DegradationFilter.degradeCall(invocationContext);
+					}*/
 					DegradationManager.INSTANCE.addFailedRequest(invocationContext, e);
 					completeTransaction(transaction);
 
