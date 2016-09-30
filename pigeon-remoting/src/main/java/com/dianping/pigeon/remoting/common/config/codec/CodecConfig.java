@@ -1,4 +1,4 @@
-package com.dianping.pigeon.remoting.common.config;
+package com.dianping.pigeon.remoting.common.config.codec;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;

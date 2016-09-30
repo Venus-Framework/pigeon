@@ -1,7 +1,7 @@
 package com.dianping.pigeon.remoting.netty.codec;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.config.CodecConfig;
+import com.dianping.pigeon.remoting.common.config.codec.CodecConfig;
 import com.dianping.pigeon.log.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.DynamicChannelBuffer;
@@ -11,8 +11,6 @@ import java.net.InetSocketAddress;
 import java.util.zip.Adler32;
 
 import static org.jboss.netty.channel.Channels.write;
-
-import java.util.List;
 
 /**
  * @author qi.yin
