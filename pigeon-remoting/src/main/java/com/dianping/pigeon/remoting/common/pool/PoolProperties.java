@@ -12,25 +12,32 @@ public class PoolProperties {
 
     public static final int DEFAULT_MAX_WAIT = 3000;
 
+    public static final int DEFAULT_TIME_BETWEEN_CHECKER_MILLIS = 2000;
+
     private int initialSize;
 
     private int maxActive;
 
     private int maxWait;
 
+    private int timeBetweenCheckerMillis;
+
 
     public PoolProperties() {
         this(DEFAULT_INITIAL_SIZE,
                 DEFAULT_MAX_ACTIVE,
-                DEFAULT_MAX_WAIT);
+                DEFAULT_MAX_WAIT,
+                DEFAULT_TIME_BETWEEN_CHECKER_MILLIS);
     }
 
     public PoolProperties(int initialSize,
                           int maxActive,
-                          int maxWait) {
+                          int maxWait,
+                          int timeBetweenCheckerMillis) {
         this.initialSize = initialSize;
         this.maxActive = maxActive;
         this.maxWait = maxWait;
+        this.timeBetweenCheckerMillis = timeBetweenCheckerMillis;
     }
 
     public int getInitialSize() {
@@ -58,4 +65,11 @@ public class PoolProperties {
         this.maxWait = maxWait;
     }
 
+    public int getTimeBetweenCheckerMillis() {
+        return timeBetweenCheckerMillis;
+    }
+
+    public void setTimeBetweenCheckerMillis(int timeBetweenCheckerMillis) {
+        this.timeBetweenCheckerMillis = timeBetweenCheckerMillis;
+    }
 }

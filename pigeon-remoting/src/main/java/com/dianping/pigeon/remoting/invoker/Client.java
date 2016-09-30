@@ -4,14 +4,17 @@
  */
 package com.dianping.pigeon.remoting.invoker;
 
+import com.dianping.pigeon.remoting.common.channel.Channel;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
-import com.dianping.pigeon.remoting.invoker.concurrent.Callback;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 import com.dianping.pigeon.remoting.invoker.route.region.Region;
 
-public interface Client {
+import java.util.List;
+
+
+public interface Client<C extends Channel> {
 
     ConnectInfo getConnectInfo();
 
@@ -23,9 +26,13 @@ public interface Client {
 
     void processResponse(InvocationResponse response);
 
+    void setActive(boolean active);
+
     boolean isActive();
 
     boolean isClosed();
+
+    List<C> getChannels();
 
     String getHost();
 

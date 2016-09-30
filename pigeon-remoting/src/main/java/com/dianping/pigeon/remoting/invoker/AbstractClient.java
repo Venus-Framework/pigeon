@@ -1,6 +1,5 @@
 package com.dianping.pigeon.remoting.invoker;
 
-import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -8,14 +7,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.channel.Channel;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.client.HeartbeatTask;
 import com.dianping.pigeon.remoting.invoker.process.ResponseProcessor;
-import com.dianping.pigeon.remoting.invoker.process.ResponseProcessorFactory;
 import com.dianping.pigeon.remoting.invoker.route.region.Region;
 import com.dianping.pigeon.remoting.invoker.route.region.RegionPolicyManager;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
@@ -27,22 +24,40 @@ public abstract class AbstractClient implements Client {
 
     protected volatile Region region;
 
+    protected volatile boolean isActive = true;
+
     private boolean heartbeated = true;
 
-    private ScheduledFuture<?> heatbeatTimer;
+    private int heartbeatTimeout;
 
-    private int heartbeatTimeout = 2000;
+    private int channelThreshold;
 
-    private int maxFailedCount = 3;
+    private int clientThreshold;
 
-    private int heartbeatInterval = 3000;
+    private int heartbeatInterval;
 
     protected AtomicBoolean isClosed = new AtomicBoolean(true);
 
-    private final ResponseProcessor responseProcessor = ResponseProcessorFactory.selectProcessor();
+    private final ResponseProcessor responseProcessor;
+
+    private ScheduledFuture<?> heatbeatTimer;
 
     private static final ScheduledThreadPoolExecutor scheduled = new ScheduledThreadPoolExecutor(
             4, new NamedThreadFactory("Pigeon-Client-HeartBeat-ThreadPool"));
+
+    public AbstractClient(ResponseProcessor responseProcessor,
+                          boolean heartbeated,
+                          int heartbeatTimeout,
+                          int channelThreshold,
+                          int clientThreshold,
+                          int heartbeatInterval) {
+        this.responseProcessor = responseProcessor;
+        this.heartbeated = heartbeated;
+        this.heartbeatTimeout = heartbeatTimeout;
+        this.channelThreshold = channelThreshold;
+        this.clientThreshold = clientThreshold;
+        this.heartbeatInterval = heartbeatInterval;
+    }
 
     public void open() {
         if (isClosed.compareAndSet(true, false)) {
@@ -87,6 +102,16 @@ public abstract class AbstractClient implements Client {
     }
 
     @Override
+    public boolean isActive() {
+        return isActive;
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
+
+    @Override
     public Region getRegion() {
         if (region == null) {
             region = RegionPolicyManager.INSTANCE.getRegion(getHost());
@@ -103,11 +128,7 @@ public abstract class AbstractClient implements Client {
         stopHeartbeat();
         if (heartbeated && Constants.PROTOCOL_DEFAULT.equals(getProtocol())) {
             heatbeatTimer = scheduled.scheduleWithFixedDelay(
-                    new HeartbeatTask(new HeartbeatTask.ChannelProvider() {
-                        public List<Channel> getChannels() {
-                            return this.getChannels();
-                        }
-                    }, heartbeatTimeout, maxFailedCount),
+                    new HeartbeatTask(AbstractClient.this, heartbeatTimeout, channelThreshold, clientThreshold),
                     heartbeatInterval, heartbeatInterval, TimeUnit.MILLISECONDS);
         }
     }

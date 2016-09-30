@@ -3,10 +3,12 @@ package com.dianping.pigeon.remoting.netty.channel;
 import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
+import com.dianping.pigeon.util.NetUtils;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -31,9 +33,12 @@ public class DefaultNettyChannel implements NettyChannel {
 
     private InetSocketAddress remoteAddress;
 
+    private String remoteAddressString;
+
     public DefaultNettyChannel(ClientBootstrap bootstrap, String remoteHost, int remotePort, int timeout) {
         this.bootstrap = bootstrap;
         this.remoteAddress = new InetSocketAddress(remoteHost, remotePort);
+        this.remoteAddressString = NetUtils.toAddress(remoteHost, remotePort);
         this.timeout = timeout;
     }
 
@@ -106,7 +111,7 @@ public class DefaultNettyChannel implements NettyChannel {
 
     @Override
     public void write(Object message) throws NetworkException {
-        throw new UnsupportedOperationException("unsupported this operation");
+        write0(message);
     }
 
     private boolean isConnected() {
@@ -135,6 +140,10 @@ public class DefaultNettyChannel implements NettyChannel {
         return remoteAddress;
     }
 
+    @Override
+    public String getRemoteAddressString() {
+        return this.remoteAddressString;
+    }
 
     public int getTimeout() {
         return timeout;

@@ -1,7 +1,7 @@
 package com.dianping.pigeon.remoting.netty.codec;
 
 import com.dianping.pigeon.compress.*;
-import com.dianping.pigeon.remoting.common.config.codec.CodecConfig;
+import com.dianping.pigeon.remoting.common.codec.CodecConfig;
 import com.dianping.pigeon.remoting.common.domain.generic.CompressType;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.*;

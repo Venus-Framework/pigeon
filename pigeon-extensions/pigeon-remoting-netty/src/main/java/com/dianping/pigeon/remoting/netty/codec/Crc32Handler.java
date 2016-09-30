@@ -1,7 +1,7 @@
 package com.dianping.pigeon.remoting.netty.codec;
 
 import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.config.codec.CodecConfig;
+import com.dianping.pigeon.remoting.common.codec.CodecConfig;
 import com.dianping.pigeon.log.Logger;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.DynamicChannelBuffer;

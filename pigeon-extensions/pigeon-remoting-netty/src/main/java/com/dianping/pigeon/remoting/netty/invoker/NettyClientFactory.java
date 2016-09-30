@@ -13,12 +13,17 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientFactory;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
+import com.dianping.pigeon.remoting.invoker.process.ResponseProcessor;
 import com.dianping.pigeon.util.CollectionUtils;
+import com.dianping.pigeon.remoting.invoker.process.ResponseProcessorFactory;
 
 /**
  *
  */
 public class NettyClientFactory implements ClientFactory {
+
+    private final static ResponseProcessor responseProcessor =
+            ResponseProcessorFactory.selectProcessor();
 
     @Override
     public boolean support(ConnectInfo connectInfo) {
@@ -41,7 +46,15 @@ public class NettyClientFactory implements ClientFactory {
                 Constants.WRITE_BUFFER_LOW_WATER,
                 Constants.getChannelPoolInitialSize(),
                 Constants.getChannelPoolMaxActive(),
-                Constants.getChannelPoolMaxWait());
+                Constants.getChannelPoolMaxWait(),
+                Constants.getChannelPoolTimeBetweenCheckerMillis(),
+                responseProcessor,
+                Constants.getInvokerHeartbeatEnable(),
+                Constants.getInvokerHeartbeatTimeout(),
+                Constants.getDefaultInvokerChannelDeadthreshold(),
+                Constants.getDefaultInvokerClientDeadthreshold(),
+                Constants.getInvokerHeartbeatInterval()
+        );
     }
 
 }

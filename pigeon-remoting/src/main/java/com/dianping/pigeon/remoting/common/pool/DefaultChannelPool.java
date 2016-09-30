@@ -11,10 +11,7 @@ import com.dianping.pigeon.util.AtomicPositiveInteger;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,8 +35,13 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
 
     private ChannelFactory<C> channelFactory;
 
+    private ScheduledFuture<?> scheduledFuture = null;
+
     private static ExecutorService reconnectExecutor = Executors.newFixedThreadPool(
             4, new DefaultThreadFactory("Pigeon-ChannelPool-Reconnect-Pool"));
+
+    private static ScheduledThreadPoolExecutor checkScheduler = new ScheduledThreadPoolExecutor(
+            2, new DefaultThreadFactory("Pigeon-ChannelPool-Check-Pool"));
 
     private final static Object PRESENT = new Object();
 
@@ -78,9 +80,15 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
 
         } catch (ChannelPoolException e) {
             logger.error("[init] unable to create initial connections of pool.", e);
-//            close();
-//            throw e;
         }
+
+        initCheckScheduler();
+    }
+
+    private void initCheckScheduler() {
+        int interval = properties.getTimeBetweenCheckerMillis();
+
+        scheduledFuture = checkScheduler.scheduleWithFixedDelay(new CheckChannelTask(this), interval, interval, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -155,15 +163,14 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
 
     protected C createChannel() throws ChannelPoolException {
         C channel = null;
+
         try {
-
             channel = channelFactory.createChannel();
-
-        } catch (NetworkException e) {
-            throw new ChannelPoolException("[createChannel] failed.", e);
         } finally {
-            synchronized (pooledChannels) {
-                pooledChannels.add(channel);
+            if (channel != null) {
+                synchronized (pooledChannels) {
+                    pooledChannels.add(channel);
+                }
             }
         }
 
@@ -199,6 +206,13 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
                     pooledChannel.disConnect();
                 }
             }
+
+            if (scheduledFuture != null && !scheduledFuture.isCancelled()) {
+                scheduledFuture.cancel(true);
+                checkScheduler.purge();
+            }
+
+            scheduledFuture = null;
         }
     }
 
@@ -239,6 +253,35 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
             }
 
             DefaultChannelPool.this.reconnectChannels.remove(channel);
+        }
+    }
+
+    class CheckChannelTask implements Runnable {
+
+        private WeakReference<ChannelPool> poolRef;
+
+        public CheckChannelTask(ChannelPool channelPool) {
+            this.poolRef = new WeakReference<ChannelPool>(channelPool);
+        }
+
+        @Override
+        public void run() {
+            ChannelPool channelPool = poolRef.get();
+
+            if (channelPool != null && !channelPool.isClosed()) {
+
+                List<C> channels = channelPool.getChannels();
+
+                for (int index = 0; index < channels.size(); index++) {
+                    C channel = channels.get(index);
+
+                    if (!channel.isActive()) {
+                        reconnectChannel(channel);
+                    }
+                }
+
+            }
+
         }
     }
 }

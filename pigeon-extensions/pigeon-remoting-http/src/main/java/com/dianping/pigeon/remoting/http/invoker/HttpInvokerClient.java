@@ -6,6 +6,8 @@ package com.dianping.pigeon.remoting.http.invoker;
 
 import java.net.ConnectException;
 
+import com.dianping.pigeon.remoting.common.channel.Channel;
+import com.dianping.pigeon.remoting.invoker.process.ResponseProcessor;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -20,6 +22,8 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.AbstractClient;
 import com.dianping.pigeon.remoting.invoker.domain.ConnectInfo;
 
+import java.util.List;
+
 public class HttpInvokerClient extends AbstractClient {
 
     private ConnectInfo connectInfo;
@@ -29,7 +33,20 @@ public class HttpInvokerClient extends AbstractClient {
     private boolean isConnected = false;
     public static final String CONTENT_TYPE_SERIALIZED_OBJECT = "application/x-java-serialized-object";
 
-    public HttpInvokerClient(ConnectInfo connectInfo) {
+    public HttpInvokerClient(ConnectInfo connectInfo,
+                             ResponseProcessor responseProcessor,
+                             boolean heartbeated,
+                             int heartbeatTimeout,
+                             int channelThreshold,
+                             int clientThreshold,
+                             int heartbeatInterval) {
+        super(responseProcessor,
+                heartbeated,
+                heartbeatTimeout,
+                channelThreshold,
+                clientThreshold,
+                heartbeatInterval);
+
         this.connectInfo = connectInfo;
         if (logger.isInfoEnabled()) {
             logger.info("http client:" + connectInfo);
@@ -48,7 +65,6 @@ public class HttpInvokerClient extends AbstractClient {
         connectionManager.setParams(params);
         HttpClient httpClient = new HttpClient();
         httpClient.setHttpConnectionManager(connectionManager);
-//        localIp = httpClient.getHostConfiguration().getLocalAddress().getHostAddress();
         httpInvokerExecutor.setHttpClient(httpClient);
     }
 
@@ -117,6 +133,12 @@ public class HttpInvokerClient extends AbstractClient {
     }
 
     @Override
+    public List<Channel> getChannels() {
+        return null;
+    }
+
+
+    @Override
     public String toString() {
         return this.getAddress();
     }
@@ -141,8 +163,5 @@ public class HttpInvokerClient extends AbstractClient {
         return Constants.PROTOCOL_HTTP;
     }
 
-    @Override
-    public boolean isActive() {
-        return true;
-    }
+
 }

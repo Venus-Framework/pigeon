@@ -2,6 +2,7 @@ package com.dianping.pigeon.remoting.netty.channel;
 
 import com.dianping.pigeon.remoting.common.channel.ChannelFactory;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
+import com.dianping.pigeon.remoting.common.pool.ChannelPoolException;
 import com.dianping.pigeon.remoting.netty.invoker.NettyClient;
 
 /**
@@ -17,15 +18,18 @@ public class NettyChannelFactory implements ChannelFactory<NettyChannel> {
     }
 
     @Override
-    public NettyChannel createChannel() throws NetworkException {
+    public NettyChannel createChannel() {
 
         NettyChannel channel = new DefaultNettyChannel(
                 client.getBootstrap(),
                 client.getHost(),
                 client.getPort(),
                 client.getTimeout());
-
-        channel.connect();
+        try {
+            channel.connect();
+        } catch (NetworkException e) {
+            throw new ChannelPoolException("[createChannel] failed.", e);
+        }
 
         return channel;
     }

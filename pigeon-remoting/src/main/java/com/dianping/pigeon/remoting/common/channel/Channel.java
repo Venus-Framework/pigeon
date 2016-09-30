@@ -23,4 +23,6 @@ public interface Channel {
     InetSocketAddress getLocalAddress();
 
     InetSocketAddress getRemoteAddress();
+
+    String getRemoteAddressString();
 }

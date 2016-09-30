@@ -4,6 +4,7 @@
  */
 package com.dianping.pigeon.remoting.netty.invoker;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 
 import com.dianping.pigeon.remoting.common.channel.ChannelFactory;
@@ -12,6 +13,7 @@ import com.dianping.pigeon.remoting.common.pool.ChannelPool;
 import com.dianping.pigeon.remoting.common.pool.ChannelPoolException;
 import com.dianping.pigeon.remoting.common.pool.DefaultChannelPool;
 import com.dianping.pigeon.remoting.common.pool.PoolProperties;
+import com.dianping.pigeon.remoting.invoker.process.ResponseProcessor;
 import com.dianping.pigeon.remoting.netty.channel.NettyChannel;
 import com.dianping.pigeon.remoting.netty.channel.NettyChannelFactory;
 import com.dianping.pigeon.util.NetUtils;
@@ -65,7 +67,21 @@ public class NettyClient extends AbstractClient {
                        int lowWaterMark,
                        int initialSize,
                        int maxActive,
-                       int maxWait) {
+                       int maxWait,
+                       int timeBetweenCheckerMillis,
+                       ResponseProcessor responseProcessor,
+                       boolean heartbeated,
+                       int heartbeatTimeout,
+                       int channelThreshold,
+                       int clientThreshold,
+                       int heartbeatInterval) {
+        super(responseProcessor,
+                heartbeated,
+                heartbeatTimeout,
+                channelThreshold,
+                clientThreshold,
+                heartbeatInterval);
+
         this.timeout = timeout;
         this.connectInfo = connectInfo;
         this.remoteHost = connectInfo.getHost();
@@ -77,7 +93,7 @@ public class NettyClient extends AbstractClient {
         poolProperties = new PoolProperties(
                 initialSize,
                 maxActive,
-                maxWait);
+                maxWait, timeBetweenCheckerMillis);
     }
 
     @Override
@@ -164,6 +180,11 @@ public class NettyClient extends AbstractClient {
         } catch (Exception e) {
             logger.info("[close] client is close failed. remoteAddress: " + remoteAddressString);
         }
+    }
+
+    @Override
+    public List<NettyChannel> getChannels() {
+        return channelPool.getChannels();
     }
 
     @Override

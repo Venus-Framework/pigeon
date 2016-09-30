@@ -58,28 +58,22 @@ public class InvokerUtils {
         return response;
     }
 
-    public static InvocationResponse sendRequest(Channel channel, InvocationRequest request, Callback callback) {
+    public static void sendRequest(Client client, Channel channel, InvocationRequest request, Callback callback) {
         if (request.getCallType() == Constants.CALLTYPE_REPLY) {
             RemoteInvocationBean invocationBean = new RemoteInvocationBean();
             invocationBean.request = request;
             invocationBean.callback = callback;
             callback.setRequest(request);
-            callback.setClient(null);
+            callback.setClient(client);
             invocationRepository.put(request.getSequence(), invocationBean);
         }
-        InvocationResponse response = null;
         try {
             channel.write(request);
         } catch (NetworkException e) {
             invocationRepository.remove(request.getSequence());
             logger.warn("network exception ocurred:" + request, e);
             throw e;
-        } finally {
-            if (response != null) {
-                invocationRepository.remove(request.getSequence());
-            }
         }
-        return response;
     }
 
     public static InvocationRequest createRemoteCallRequest(InvokerContext invokerContext,

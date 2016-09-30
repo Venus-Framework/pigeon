@@ -13,8 +13,10 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.channel.Channel;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.concurrent.CallbackFuture;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
+import com.dianping.pigeon.util.NetUtils;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,69 +36,120 @@ public class HeartbeatTask implements Runnable {
 
     private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
-    private ChannelProvider channelProvider;
+    private Client client;
 
     private int timeout;
 
-    private int maxFailedCount;
+    private int channelThreshold;
+
+    private int clientThreshold;
+
+
+    private HeartbeatStats heartbeatStats = new HeartbeatStats();
 
     private ConcurrentMap<Channel, HeartbeatStats> heartbeatStatses =
             new ConcurrentHashMap<Channel, HeartbeatStats>();
 
 
-    public HeartbeatTask(ChannelProvider provider, int timeout, int maxFailedCount) {
-        this.channelProvider = provider;
+    public HeartbeatTask(Client client, int timeout, int channelThreshold, int clientThreshold) {
+        this.client = client;
         this.timeout = timeout;
-        this.maxFailedCount = maxFailedCount;
+        this.channelThreshold = channelThreshold;
+        this.clientThreshold = clientThreshold;
     }
 
     @Override
     public void run() {
-        List<Channel> channels = channelProvider.getChannels();
+        boolean allFailed = heartbeatChannel();
+        notifyClientStateChanged(allFailed);
+    }
 
-        for (int index = 0; index < channels.size(); index++) {
-            Channel channel = channels.get(index);
-            if (channel != null) {
-                if (channel.isActive()) {
-                    HeartbeatStats heartBeatStat = sendHeartBeat(channel);
+    private boolean heartbeatChannel() {
+        List<Channel> channels = this.client.getChannels();
 
-                    if (heartBeatStat.getFailedCount() > maxFailedCount) {
-                        channel.connect();
-                        heartBeatStat.resetFailedCount();
+        boolean allFailed = true;
+
+        if (channels != null) {
+
+            for (int index = 0; index < channels.size(); index++) {
+
+                Channel channel = channels.get(index);
+                if (channel != null) {
+                    try {
+                        if (channel.isActive()) {
+                            boolean isSuccess = sendHeartBeat(client, channel);
+
+                            if (isSuccess) {
+                                allFailed = false;
+                            }
+                            notifyChannelStateChanged(channel, isSuccess);
+                        }
+
+                    } catch (Exception e) {
+                        logger.warn("[run] heartbeat failed. Channel" + channel, e);
                     }
-                } else {
-                    channel.connect();
                 }
             }
-        }
 
+        }
+        return allFailed;
     }
 
 
-    public HeartbeatStats sendHeartBeat(Channel channel) {
+    private void notifyChannelStateChanged(Channel channel, boolean isSuccess) {
         HeartbeatStats heartBeatStat = getOrCreateStats(channel);
-        String address = channel.getRemoteAddress().getAddress().toString();
+        if (isSuccess) {
+            heartBeatStat.resetFailedCount();
+        } else {
+            heartBeatStat.incFailedCount();
+        }
+
+        if (heartBeatStat.getFailedCount() > channelThreshold) {
+            heartBeatStat.resetFailedCount();
+        }
+    }
+
+    private void notifyClientStateChanged(boolean allFailed) {
+        if (allFailed) {
+            heartbeatStats.incFailedCount();
+        } else {
+            heartbeatStats.resetFailedCount();
+        }
+
+        if (heartbeatStats.getFailedCount() > clientThreshold) {
+            client.setActive(false);
+        } else {
+            client.setActive(true);
+        }
+    }
+
+
+    public boolean sendHeartBeat(Client client, Channel channel) {
+        boolean isSuccess = true;
+        String address = channel.getRemoteAddressString();
 
         InvocationRequest request = createHeartRequest(address);
+
         try {
             InvocationResponse response = null;
             CallbackFuture future = new CallbackFuture();
-            response = InvokerUtils.sendRequest(channel, request, future);
-            if (response == null) {
-                response = future.getResponse(timeout);
-            }
-            if (response != null) {
-                if (request.getSequence() == response.getSequence()) {
-                    heartBeatStat.resetFailedCount();
-                }
+
+            InvokerUtils.sendRequest(client, channel, request, future);
+
+            response = future.getResponse(timeout);
+
+            if (response != null && !(response.getReturn() instanceof Exception)) {
+                isSuccess = true;
             } else {
-                heartBeatStat.resetFailedCount();
+                logger.info("[heartbeat] send heartbeat to server[" + address + "] failed");
+                isSuccess = false;
             }
         } catch (Throwable e) {
-            heartBeatStat.incFailedCount();
-            logger.info("[heartbeat] send heartbeat to server[" + address + "] failed");
+            logger.info("[heartbeat] send heartbeat to server[" + address + "] failed", e);
+            isSuccess = false;
         }
-        return heartBeatStat;
+
+        return isSuccess;
     }
 
     private boolean isSend(String address) {
@@ -165,7 +218,7 @@ public class HeartbeatTask implements Runnable {
         HeartbeatStats heartbeatStats = heartbeatStatses.get(channel);
 
         if (heartbeatStats == null) {
-            heartbeatStats = new HeartbeatStats(0);
+            heartbeatStats = new HeartbeatStats();
             heartbeatStatses.putIfAbsent(channel, heartbeatStats);
         }
 
@@ -173,13 +226,13 @@ public class HeartbeatTask implements Runnable {
     }
 
 
-    public interface ChannelProvider {
-        List<Channel> getChannels();
-    }
-
     class HeartbeatStats {
 
         private AtomicInteger failedCount;
+
+        public HeartbeatStats() {
+            this(0);
+        }
 
         public HeartbeatStats(int failedCount) {
             this.failedCount = new AtomicInteger(failedCount);
