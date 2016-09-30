@@ -4,7 +4,7 @@ import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.netty.codec.AbstractDecoder;
-import com.dianping.pigeon.remoting.netty.provider.NettyChannel;
+import com.dianping.pigeon.remoting.netty.provider.NettyServerChannel;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
@@ -28,7 +28,7 @@ public class ProviderDecoder extends AbstractDecoder {
 
     @Override
     public void doFailResponse(ChannelHandlerContext ctx, Channel channel, InvocationResponse response) {
-        NettyChannel nettyChannel = new NettyChannel(channel);
+        NettyServerChannel nettyChannel = new NettyServerChannel(channel);
         nettyChannel.write(response);
     }
 

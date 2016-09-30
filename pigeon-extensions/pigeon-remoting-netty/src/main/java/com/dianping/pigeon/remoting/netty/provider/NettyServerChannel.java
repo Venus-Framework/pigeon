@@ -13,13 +13,13 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.provider.domain.ProviderChannel;
 
-public class NettyChannel implements ProviderChannel {
+public class NettyServerChannel implements ProviderChannel {
 
 	private Channel channel = null;
 
 	private static final String protocol = "default";
 	
-	public NettyChannel(Channel channel) {
+	public NettyServerChannel(Channel channel) {
 		this.channel = channel;
 	}
 

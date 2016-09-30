@@ -129,9 +129,11 @@ public class NettyClient extends AbstractClient {
         NettyChannel channel = null;
 
         try {
+
             channel = channelPool.selectChannel();
 
             ChannelFuture future = channel.write0(request);
+
             afterWrite(request, channel);
 
             if (request.getMessageType() == Constants.MESSAGE_TYPE_SERVICE

@@ -1,8 +1,6 @@
 package com.dianping.pigeon.remoting.netty.codec;
 
-import com.dianping.pigeon.compress.Compress;
-import com.dianping.pigeon.compress.GZipCompress;
-import com.dianping.pigeon.compress.SnappyCompress;
+import com.dianping.pigeon.compress.*;
 import com.dianping.pigeon.remoting.common.config.CodecConfig;
 import com.dianping.pigeon.remoting.common.domain.generic.CompressType;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -21,22 +19,19 @@ import java.util.List;
  */
 public class CompressHandler extends SimpleChannelHandler {
 
-    private static Compress gZipCompress = new GZipCompress();
+    private static Compress gZipCompress = CompressFactory.getGZipCompress();
 
-    private static Compress snappyCompress = new SnappyCompress();
+    private static Compress snappyCompress = CompressFactory.getSnappyCompress();
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        if (e.getMessage() == null || !(e.getMessage() instanceof List)) {
+        if (e.getMessage() == null || !(e.getMessage() instanceof CodecEvent)) {
             return;
         }
 
-        List<CodecEvent> codecEvents = (List<CodecEvent>) e.getMessage();
+        CodecEvent codecEvent = (CodecEvent) e.getMessage();
 
-        for (CodecEvent codecEvent : codecEvents) {
-            if(!codecEvent.isValid()){
-                continue;
-            }
+        if (codecEvent.isValid()) {
 
             if (codecEvent.isUnified()) {
                 ChannelBuffer buffer = doUnCompress(e.getChannel(), codecEvent);
@@ -44,7 +39,7 @@ public class CompressHandler extends SimpleChannelHandler {
             }
         }
 
-        Channels.fireMessageReceived(ctx, codecEvents, e.getRemoteAddress());
+        Channels.fireMessageReceived(ctx, codecEvent, e.getRemoteAddress());
     }
 
     @Override

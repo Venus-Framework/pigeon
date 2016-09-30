@@ -10,8 +10,6 @@ import com.dianping.pigeon.remoting.provider.util.ProviderUtils;
 import com.dianping.pigeon.log.Logger;
 import org.jboss.netty.channel.*;
 
-import java.util.List;
-
 /**
  * @author qi.yin
  *         2016/06/21  下午3:38.
@@ -45,29 +43,26 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler {
     @SuppressWarnings("unchecked")
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent message) {
-        List<CodecEvent> codecEvents = (List<CodecEvent>) (message.getMessage());
+        CodecEvent codecEvent = (CodecEvent) (message.getMessage());
 
-        for (CodecEvent codecEvent : codecEvents) {
+        if (!codecEvent.isValid() || codecEvent.getInvocation() == null) {
+            return;
+        }
 
-            if (!codecEvent.isValid() || codecEvent.getInvocation() == null) {
-                continue;
+        InvocationRequest request = (InvocationRequest) codecEvent.getInvocation();
+
+        ProviderContext invocationContext = new DefaultProviderContext(request, new NettyServerChannel(ctx.getChannel()));
+        try {
+            this.server.processRequest(request, invocationContext);
+
+        } catch (Throwable e) {
+            String msg = "process request failed:" + request;
+            // 心跳消息只返回正常的, 异常不返回
+            if (request.getCallType() == Constants.CALLTYPE_REPLY
+                    && request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
+                ctx.getChannel().write(ProviderUtils.createFailResponse(request, e));
             }
-
-            InvocationRequest request = (InvocationRequest) codecEvent.getInvocation();
-
-            ProviderContext invocationContext = new DefaultProviderContext(request, new NettyChannel(ctx.getChannel()));
-            try {
-                this.server.processRequest(request, invocationContext);
-
-            } catch (Throwable e) {
-                String msg = "process request failed:" + request;
-                // 心跳消息只返回正常的, 异常不返回
-                if (request.getCallType() == Constants.CALLTYPE_REPLY
-                        && request.getMessageType() != Constants.MESSAGE_TYPE_HEART) {
-                    ctx.getChannel().write(ProviderUtils.createFailResponse(request, e));
-                }
-                log.error(msg, e);
-            }
+            log.error(msg, e);
         }
     }
 

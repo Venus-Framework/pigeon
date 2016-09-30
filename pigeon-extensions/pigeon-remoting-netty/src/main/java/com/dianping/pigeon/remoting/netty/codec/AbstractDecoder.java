@@ -32,16 +32,13 @@ public abstract class AbstractDecoder extends OneToOneDecoder {
     public Object decode(ChannelHandlerContext ctx, Channel channel, Object msg)
             throws Exception {
 
-        if (msg == null || !(msg instanceof List)) {
+        if (msg == null || !(msg instanceof CodecEvent)) {
             return null;
         }
 
-        List<CodecEvent> codecEvents = (List<CodecEvent>) msg;
+        CodecEvent codecEvent = (CodecEvent) msg;
 
-        for (CodecEvent codecEvent : codecEvents) {
-            if (!codecEvent.isValid()) {
-                continue;
-            }
+        if (codecEvent.isValid()) {
 
             Object message = null;
 
@@ -55,7 +52,7 @@ public abstract class AbstractDecoder extends OneToOneDecoder {
 
         }
 
-        return codecEvents;
+        return codecEvent;
     }
 
     protected Object doDecode(ChannelHandlerContext ctx, Channel channel, CodecEvent codecEvent)

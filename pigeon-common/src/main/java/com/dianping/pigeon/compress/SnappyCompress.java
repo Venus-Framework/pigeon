@@ -9,6 +9,7 @@ import java.io.IOException;
  *         2016/06/05  下午6:02.
  */
 public class SnappyCompress implements Compress {
+
     @Override
     public byte[] compress(byte[] buf) throws IOException {
         if (buf == null) {

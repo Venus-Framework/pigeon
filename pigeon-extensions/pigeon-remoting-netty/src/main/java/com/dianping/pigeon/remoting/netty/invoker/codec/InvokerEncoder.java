@@ -26,13 +26,11 @@ public class InvokerEncoder extends AbstractEncoder {
 
     @Override
     public void doFailResponse(ChannelHandlerContext ctx, Channel channel, InvocationResponse response) {
-        List<CodecEvent> codecEvents = new ArrayList<CodecEvent>();
         CodecEvent codecEvent = new CodecEvent();
 
         codecEvent.setInvocation(response);
-        codecEvents.add(codecEvent);
 
-        Channels.fireMessageReceived(ctx, codecEvents);
+        Channels.fireMessageReceived(ctx, codecEvent);
     }
 
     @Override

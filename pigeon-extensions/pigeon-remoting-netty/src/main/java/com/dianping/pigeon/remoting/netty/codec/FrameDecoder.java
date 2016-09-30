@@ -18,44 +18,31 @@ public class FrameDecoder extends org.jboss.netty.handler.codec.frame.FrameDecod
     protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer)
             throws Exception {
 
-        List<Object> messages = null;
+        Object message = null;
 
-        while (buffer.readable()) {
-
-            Object message = null;
-
-            if (buffer.readableBytes() <= 2) {
-                break;
-            }
-
-            byte[] headMsgs = new byte[2];
-
-            buffer.getBytes(buffer.readerIndex(), headMsgs);
-
-            if ((0x39 == headMsgs[0] && 0x3A == headMsgs[1])) {
-                //old protocal
-                message = doDecode(buffer);
-
-            } else if ((byte) 0xAB == headMsgs[0] && (byte) 0xBA == headMsgs[1]) {
-                //new protocal
-                message = _doDecode(buffer);
-
-            } else {
-                throw new IllegalArgumentException("Decode invalid message head:" +
-                        headMsgs[0] + " " + headMsgs[1] + ", " + "message:" + buffer);
-            }
-
-            if (message == null) {
-                break;
-            } else {
-                if (messages == null) {
-                    messages = new ArrayList<Object>();
-                }
-                messages.add(message);
-            }
+        if (buffer.readableBytes() <= 2) {
+            return message;
         }
 
-        return messages;
+        byte[] headMsgs = new byte[2];
+
+        buffer.getBytes(buffer.readerIndex(), headMsgs);
+
+        if ((0x39 == headMsgs[0] && 0x3A == headMsgs[1])) {
+            //old protocal
+            message = doDecode(buffer);
+
+        } else if ((byte) 0xAB == headMsgs[0] && (byte) 0xBA == headMsgs[1]) {
+            //new protocal
+            message = _doDecode(buffer);
+
+        } else {
+            throw new IllegalArgumentException("Decode invalid message head:" +
+                    headMsgs[0] + " " + headMsgs[1] + ", " + "message:" + buffer);
+        }
+
+        return message;
+
     }
 
     protected Object doDecode(ChannelBuffer buffer)

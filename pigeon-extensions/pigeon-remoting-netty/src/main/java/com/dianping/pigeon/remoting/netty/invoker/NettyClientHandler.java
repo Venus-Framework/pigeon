@@ -29,13 +29,10 @@ public class NettyClientHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
-        List<CodecEvent> codecEvents = (List<CodecEvent>) e.getMessage();
+        CodecEvent codecEvent = (CodecEvent) e.getMessage();
 
-        for (final CodecEvent codecEvent : codecEvents) {
-
-            if (codecEvent.isValid() && codecEvent.getInvocation() != null) {
-                client.processResponse((InvocationResponse) codecEvent.getInvocation());
-            }
+        if (codecEvent.isValid() && codecEvent.getInvocation() != null) {
+            client.processResponse((InvocationResponse) codecEvent.getInvocation());
         }
     }
 
