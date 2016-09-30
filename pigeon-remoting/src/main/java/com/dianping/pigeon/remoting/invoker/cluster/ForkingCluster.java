@@ -17,13 +17,13 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.concurrent.FutureFactory;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.DefaultInvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
-import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils.FutureResponse;
 import com.dianping.pigeon.threadpool.NamedThreadFactory;
@@ -98,7 +98,7 @@ public class ForkingCluster implements Cluster {
 				&& Constants.CALL_FUTURE.equalsIgnoreCase(invokerConfig.getCallType())) {
 			FutureFactory.setFuture(((FutureResponse) ret).getServiceFuture());
 		} else if (ret == null) {
-			throw new RequestTimeoutException("timeout while waiting forking response:" + request);
+			throw InvocationUtils.newTimeoutException("timeout while waiting forking response:" + request);
 		}
 		return (InvocationResponse) ret;
 	}

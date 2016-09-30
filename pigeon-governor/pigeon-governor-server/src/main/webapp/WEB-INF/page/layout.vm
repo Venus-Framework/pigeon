@@ -1,9 +1,0 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		#parse("common/header.vm")
-	</head>
-	<body class="no-skin">
-		#parse("common/body.vm")
-	</body>
-</html>

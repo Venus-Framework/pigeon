@@ -20,7 +20,6 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import com.dianping.dpsf.async.ServiceCallback;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -221,7 +220,7 @@ public class AnnotationBean implements DisposableBean, BeanFactoryPostProcessor,
 				throw new IllegalStateException("The @Reference undefined callback " + callbackClassName
 						+ ", is not a ServiceCallback interface.");
 			}
-			if (!ServiceCallback.class.isAssignableFrom(clazz)) {
+			if (!InvocationCallback.class.isAssignableFrom(clazz)) {
 				throw new IllegalStateException("The @Reference undefined callback " + callbackClassName
 						+ ", is not a ServiceCallback interface.");
 			}

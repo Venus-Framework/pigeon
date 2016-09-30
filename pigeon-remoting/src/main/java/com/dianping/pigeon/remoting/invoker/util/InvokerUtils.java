@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import com.dianping.dpsf.exception.DPSFException;
-import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
@@ -16,20 +14,18 @@ import com.dianping.pigeon.remoting.common.exception.ApplicationException;
 import com.dianping.pigeon.remoting.common.exception.NetworkException;
 import com.dianping.pigeon.remoting.common.exception.RpcException;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.concurrent.Callback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.domain.RemoteInvocationBean;
 import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
-import com.dianping.pigeon.remoting.invoker.process.InvokerExceptionTranslator;
 import com.dianping.pigeon.remoting.invoker.service.ServiceInvocationRepository;
 
 public class InvokerUtils {
 
 	private static ServiceInvocationRepository invocationRepository = ServiceInvocationRepository.getInstance();
-
-	private static InvokerExceptionTranslator invokerExceptionTranslator = new InvokerExceptionTranslator();
 
 	private static final Logger logger = LoggerLoader.getLogger(InvokerUtils.class);
 
@@ -64,7 +60,7 @@ public class InvokerUtils {
 			if (invokerConfig.getSerialize() == SerializerFactory.SERIALIZE_THRIFT) {
 				request = new GenericRequest(invokerContext);
 			} else {
-				request = new DefaultRequest(invokerContext);
+				request = InvocationUtils.newRequest(invokerContext);
 			}
 			invokerContext.setRequest(request);
 		}
@@ -109,8 +105,6 @@ public class InvokerUtils {
 		Object responseReturn = response.getReturn();
 		if (responseReturn == null) {
 			return new ApplicationException(response.getCause());
-		} else if (responseReturn instanceof DPSFException) {
-			return new ApplicationException(invokerExceptionTranslator.translate((DPSFException) responseReturn));
 		} else if (responseReturn instanceof RpcException) {
 			return new ApplicationException((RpcException) responseReturn);
 		} else if (responseReturn instanceof Exception) {
@@ -134,8 +128,6 @@ public class InvokerUtils {
 		Object responseReturn = response.getReturn();
 		if (responseReturn == null) {
 			return new RemoteInvocationException(response.getCause());
-		} else if (responseReturn instanceof DPSFException) {
-			e = invokerExceptionTranslator.translate((DPSFException) responseReturn);
 		} else if (responseReturn instanceof Throwable) {
 			e = (Throwable) responseReturn;
 		} else if (responseReturn instanceof Map) {

@@ -7,17 +7,16 @@ package com.dianping.pigeon.remoting.provider.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
-import com.dianping.pigeon.remoting.common.domain.generic.GenericResponse;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedRequest;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedResponse;
 import com.dianping.pigeon.remoting.common.exception.BadRequestException;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.provider.domain.ProviderContext;
 import com.dianping.pigeon.remoting.provider.process.ProviderExceptionTranslator;
 import com.dianping.pigeon.util.LangUtils;
@@ -93,7 +92,7 @@ public final class ProviderUtils {
     public static InvocationResponse createFailResponse(InvocationRequest request, Throwable e) {
         InvocationResponse response = null;
         if (request.getMessageType() == Constants.MESSAGE_TYPE_HEART) {
-            response = new DefaultResponse(request.getSerialize(), request.getSequence(), Constants.MESSAGE_TYPE_HEART,
+            response = InvocationUtils.newResponse(request.getSerialize(), request.getSequence(), Constants.MESSAGE_TYPE_HEART,
                     exceptionTranslator.translate(e));
         } else {
             response = createThrowableResponse(request, request.getSerialize(), e);
@@ -200,7 +199,7 @@ public final class ProviderUtils {
     }
 
     public static InvocationResponse createHeartResponse0(InvocationRequest request) {
-        InvocationResponse response = new DefaultResponse(Constants.MESSAGE_TYPE_HEART, request.getSerialize());
+        InvocationResponse response = InvocationUtils.newResponse(Constants.MESSAGE_TYPE_HEART, request.getSerialize());
         response.setSequence(request.getSequence());
         response.setReturn(Constants.VERSION_150);
 
@@ -226,7 +225,7 @@ public final class ProviderUtils {
     }
 
     public static InvocationResponse createHealthCheckResponse(InvocationRequest request) {
-        InvocationResponse response = new DefaultResponse(Constants.MESSAGE_TYPE_HEALTHCHECK, request.getSerialize());
+        InvocationResponse response = InvocationUtils.newResponse(Constants.MESSAGE_TYPE_HEALTHCHECK, request.getSerialize());
         response.setSequence(request.getSequence());
         Map<String, Object> info = new HashMap<String, Object>();
         info.put("version", VersionUtils.VERSION);

@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.dianping.pigeon.log.Logger;
 
-import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
@@ -16,6 +15,7 @@ import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
+import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
@@ -65,7 +65,7 @@ public class FailoverCluster implements Cluster {
 				return response;
 			} catch (Throwable e) {
 				lastError = e;
-				if (e instanceof NetTimeoutException) {
+				if (e instanceof RequestTimeoutException) {
 					if (!timeoutRetry) {
 						throw e;
 					}

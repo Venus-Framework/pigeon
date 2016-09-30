@@ -3,10 +3,9 @@ package com.dianping.pigeon.remoting.common.codec.fst;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.dianping.dpsf.protocol.DefaultRequest;
-import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.remoting.common.codec.AbstractSerializer;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 
 import de.ruedigermoeller.serialization.FSTConfiguration;
 import de.ruedigermoeller.serialization.FSTObjectInput;
@@ -17,7 +16,7 @@ public class FstSerializer extends AbstractSerializer {
 	static FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
 
 	public FstSerializer() {
-		conf.registerClass(DefaultRequest.class, DefaultResponse.class);
+		conf.registerClass(InvocationUtils.getRequestClass(), InvocationUtils.getResponseClass());
 		// conf.registerSerializer(BigInteger.class, new
 		// FSTBigIntegerSerializer(), true);
 		// conf.registerSerializer(BigDecimal.class, new

@@ -25,7 +25,6 @@ import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
-import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.process.DegradationManager;
 import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
 import com.dianping.pigeon.util.ContextUtils;
@@ -85,7 +84,7 @@ public class ServiceCallbackWrapper implements Callback {
 					&& request.getCreateMillisTime() + request.getTimeout() < currentTime) {
 				StringBuilder msg = new StringBuilder();
 				msg.append("request callback timeout:").append(request);
-				Exception e = new RequestTimeoutException(msg.toString());
+				Exception e = InvocationUtils.newTimeoutException(msg.toString());
 				e.setStackTrace(new StackTraceElement[] {});
 				DegradationManager.INSTANCE.addFailedRequest(invocationContext, e);
 				ExceptionManager.INSTANCE.logRpcException(addr, invocationContext.getInvokerConfig().getUrl(),

@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.dianping.pigeon.log.Logger;
 import org.springframework.util.CollectionUtils;
 
-import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -115,7 +114,7 @@ public enum DegradationManager {
 	}
 
 	public void addFailedRequest(InvokerContext context, Throwable t) {
-		if (t instanceof ServiceUnavailableException || t instanceof NetTimeoutException
+		if (t instanceof ServiceUnavailableException
 				|| t instanceof RequestTimeoutException || t instanceof RemoteInvocationException
 				|| t instanceof RejectedException) {
 			addRequest(context, t, false);

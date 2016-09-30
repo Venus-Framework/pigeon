@@ -1,6 +1,5 @@
 package com.dianping.pigeon.remoting.invoker.cluster;
 
-import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
@@ -13,6 +12,7 @@ import com.dianping.pigeon.remoting.invoker.ClientManager;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.exception.RemoteInvocationException;
+import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableException;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
 
@@ -41,7 +41,7 @@ public class FailfastCluster implements Cluster {
             }
         } else {
             int retry = invokerConfig.getRetries(invocationContext.getMethodName());
-            NetTimeoutException lastError = null;
+            RequestTimeoutException lastError = null;
             int maxInvokeTimes = retry + 1;
             int invokeTimes = 0;
             for (int index = 0; index < maxInvokeTimes; index++) {
@@ -76,7 +76,7 @@ public class FailfastCluster implements Cluster {
                                 + " times, last failed error: " + lastError.getMessage(), lastError);
                     }
                     return response;
-                } catch (NetTimeoutException e) {
+                } catch (RequestTimeoutException e) {
                     lastError = e;
                 }
             }
