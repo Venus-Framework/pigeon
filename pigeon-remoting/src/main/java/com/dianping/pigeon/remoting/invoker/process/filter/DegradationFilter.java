@@ -22,6 +22,7 @@ import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.common.util.GroovyUtils;
 import com.dianping.pigeon.remoting.invoker.concurrent.FutureFactory;
 import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
+import com.dianping.pigeon.remoting.invoker.concurrent.MockCallbackFuture;
 import com.dianping.pigeon.remoting.invoker.concurrent.ServiceFutureImpl;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.config.InvokerMethodConfig;
@@ -34,11 +35,12 @@ import com.dianping.pigeon.remoting.invoker.exception.ServiceUnavailableExceptio
 import com.dianping.pigeon.remoting.invoker.process.DegradationManager;
 import com.dianping.pigeon.remoting.invoker.process.DegradationManager.DegradeActionConfig;
 import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
+import com.dianping.pigeon.remoting.invoker.proxy.GroovyScriptInvocationProxy;
 import com.dianping.pigeon.remoting.invoker.proxy.MockProxyWrapper;
+import com.dianping.pigeon.remoting.invoker.proxy.MockInvocationUtils;
 import com.dianping.pigeon.remoting.invoker.route.quality.RequestQualityManager;
 import com.dianping.pigeon.remoting.invoker.util.InvokerHelper;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
-import com.google.common.collect.Maps;
 import groovy.lang.Script;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
@@ -60,7 +62,8 @@ public class DegradationFilter extends InvocationInvokeFilter {
 	private static final InvocationResponse NO_RETURN_RESPONSE = InvokerUtils.createNoReturnResponse();
 	private static volatile Map<String, DegradeAction> degradeMethodActions = new ConcurrentHashMap<String, DegradeAction>();
 	private static final JacksonSerializer jacksonSerializer = new JacksonSerializer();
-	private final static Map<String, MockProxyWrapper> mocks = Maps.newConcurrentMap();
+	// service#method --> groovyMockProxy
+	private final static ConcurrentHashMap<String, Object> groovyMocks = new ConcurrentHashMap<>();
 
 	static {
 		String degradeMethodsConfig = configManager.getStringValue(KEY_DEGRADE_METHODS);
@@ -123,6 +126,7 @@ public class DegradationFilter extends InvocationInvokeFilter {
 								degradeAction.setUseMockClass(degradeActionConfig.getUseMockClass());
 								degradeAction.setUseGroovyScript(degradeActionConfig.getUseGroovyScript());
 								degradeAction.setThrowException(degradeActionConfig.getThrowException());
+								degradeAction.setEnable(degradeActionConfig.getEnable());
 								String content = degradeActionConfig.getContent();
 								Object returnObj = null;
 
@@ -168,154 +172,57 @@ public class DegradationFilter extends InvocationInvokeFilter {
 		} else {
 			degradeMethodActions.clear();
 		}
-	}
 
-	protected InvocationResponse makeDefaultResponse(InvokerContext context, Object defaultResult) {
-		InvokerConfig<?> invokerConfig = context.getInvokerConfig();
-		String callType = invokerConfig.getCallType();
-		InvocationResponse response = null;
-		int timeout = invokerConfig.getTimeout();
-		Map<String, InvokerMethodConfig> methods = invokerConfig.getMethods();
-		if (!CollectionUtils.isEmpty(methods)) {
-			InvokerMethodConfig methodConfig = methods.get(context.getMethodName());
-			if (methodConfig != null && methodConfig.getTimeout() > 0) {
-				timeout = methodConfig.getTimeout();
-			}
-		}
-		Integer timeoutThreadLocal = InvokerHelper.getTimeout();
-		if (timeoutThreadLocal != null) {
-			timeout = timeoutThreadLocal;
-		}
-		MonitorTransaction transaction = MonitorLoader.getMonitor().getCurrentCallTransaction();
-		if (transaction != null) {
-			transaction.addData("CurrentTimeout", timeout);
-		}
-		if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
-			response = InvokerUtils.createDefaultResponse(defaultResult);
-		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
-			InvocationCallback callback = invokerConfig.getCallback();
-			InvocationCallback tlCallback = InvokerHelper.getCallback();
-			if (tlCallback != null) {
-				callback = tlCallback;
-				InvokerHelper.clearCallback();
-			}
-			callback.onSuccess(defaultResult);
-			response = NO_RETURN_RESPONSE;
-		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
-			ServiceFutureImpl future = new ServiceFutureImpl(context, timeout);
-			FutureFactory.setFuture(future);
-			response = InvokerUtils.createFutureResponse(future);
-			future.callback(InvokerUtils.createDefaultResponse(defaultResult));
-			future.run();
-		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callType)) {
-			response = NO_RETURN_RESPONSE;
-		}
-		((DefaultInvokerContext) context).setResponse(response);
-		return response;
+		groovyMocks.clear();
 	}
 
 	@Override
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext context) throws Throwable {
 		context.getTimeline().add(new TimePoint(TimePhase.D));
+		InvocationResponse response = null;
 		if (DegradationManager.INSTANCE.needDegrade(context)) {
-			return mockResponse(context);
-		} else {
-			boolean failed = false;
-			InvocationResponse response;
-			try {
-				response = handler.handle(context);
-				Object responseReturn = response.getReturn();
-				if (responseReturn != null) {
-					int messageType = response.getMessageType();
-					if (messageType == Constants.MESSAGE_TYPE_EXCEPTION) {
-						RpcException rpcException = InvokerUtils.toRpcException(response);
-						if (rpcException instanceof RemoteInvocationException || rpcException instanceof RejectedException) {
-							failed = true;
-							DegradationManager.INSTANCE.addFailedRequest(context, rpcException);
-						}
-					}
-				}
-
-				return response;
-
-			} catch (ServiceUnavailableException | RemoteInvocationException | RequestTimeoutException | RejectedException e) {
-				failed = true;
-
-				if (DegradationManager.INSTANCE.needFailureDegrade()) {
-					return mockResponse(context);
-				} else {
-					DegradationManager.INSTANCE.addFailedRequest(context, e);
-					throw e;
-				}
-			} finally {
-				RequestQualityManager.INSTANCE.addClientRequest(context, failed);
-			}
+			response = degradeCall(context);
 		}
-	}
-
-	private InvocationResponse mockResponse(InvokerContext context) throws Throwable {
-		String key = DegradationManager.INSTANCE.getRequestUrl(context);
-		Object defaultResult = InvokerHelper.getDefaultResult();
-		DegradeAction action = degradeMethodActions.get(key);
-
-		if (defaultResult == null && action != null) {
-			try {
-				defaultResult = action.getReturnObj();
-
-				if (action.isUseMockClass()) {
-
-					if (context.getInvokerConfig().getMock() != null) {
-						defaultResult = getMockResult(context);
-					} else {
-						logger.warn("no mock obj defined in invoker config, return null instead!");
-					}
-
-				} else if (action.isUseGroovyScript()) {
-
-					defaultResult = action.getGroovyScript().run();
-
-				} else if (action.isThrowException()) {
-
-					return throwException(key, context, action);
-				}
-
-				return makeDefaultResponse(context, defaultResult);
-
-			} finally {
-				DegradationManager.INSTANCE.addDegradedRequest(context);
-			}
-		} else if(defaultResult == null) {
-			logger.warn("no degrade method action found, return null instead!");
+		if (response != null) {//返回三种调用模式的降级结果
+			return response;
 		}
 
+		boolean failed = false;
 		try {
-			return makeDefaultResponse(context, defaultResult);
+			response = handler.handle(context);
+			Object responseReturn = response.getReturn();
+			if (responseReturn != null) {
+				int messageType = response.getMessageType();
+				if (messageType == Constants.MESSAGE_TYPE_EXCEPTION) {
+					RpcException rpcException = InvokerUtils.toRpcException(response);
+					if (rpcException instanceof RemoteInvocationException || rpcException instanceof RejectedException) {
+						failed = true;
+						DegradationManager.INSTANCE.addFailedRequest(context, rpcException);
+					}
+				}
+			}
+
+			return response;
+
+		} catch (ServiceUnavailableException | RemoteInvocationException | RequestTimeoutException | RejectedException e) {
+			failed = true;
+			if (DegradationManager.INSTANCE.needFailureDegrade(context)) {
+				response = degradeCall(context);
+			}
+			if (response != null) {//返回同步调用模式的失败降级结果
+				return response;
+			}
+			DegradationManager.INSTANCE.addFailedRequest(context, e);
+			throw e;
 		} finally {
-			DegradationManager.INSTANCE.addDegradedRequest(context);
+			RequestQualityManager.INSTANCE.addClientRequest(context, failed);
 		}
 	}
 
-	private Object getMockResult(InvokerContext context) throws Throwable {
-		InvokerConfig invokerConfig = context.getInvokerConfig();
-		String mockService = invokerConfig.getUrl();
-		MockProxyWrapper mockProxyWrapper = mocks.get(mockService);
-
-		if (mockProxyWrapper == null) {
-			mockProxyWrapper = new MockProxyWrapper(invokerConfig.getMock());
-		}
-
-		return mockProxyWrapper.invoke(context.getMethodName(),
-				context.getParameterTypes(), context.getArguments());
-	}
-
-	protected InvocationResponse throwException(String key, InvokerContext context, DegradeAction action)
-			throws Exception {
-		Exception exception;
-		if (action.getReturnObj() == null) {
-			exception = new ServiceDegradedException("Degraded method:" + key);
-		} else {
-			exception = (Exception) action.getReturnObj();
-		}
+	public static InvocationResponse degradeCall(InvokerContext context) throws Throwable {
+		Object defaultResult = InvokerHelper.getDefaultResult();
+		String key = DegradationManager.INSTANCE.getRequestUrl(context);
+		DegradeAction action = degradeMethodActions.get(key);
 
 		InvokerConfig<?> invokerConfig = context.getInvokerConfig();
 		String callType = invokerConfig.getCallType();
@@ -332,42 +239,203 @@ public class DegradationFilter extends InvocationInvokeFilter {
 		if (timeoutThreadLocal != null) {
 			timeout = timeoutThreadLocal;
 		}
+
+		if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
+			if (defaultResult != null) {
+				addCurrentTimeData(timeout);
+				response = InvokerUtils.createDefaultResponse(defaultResult);
+			}else if(action != null) {
+				if (action.isUseMockClass()) {
+					Object mockObj = context.getInvokerConfig().getMock();
+					if (mockObj != null) {
+						addCurrentTimeData(timeout);
+						defaultResult = new MockProxyWrapper(mockObj).invoke(context.getMethodName(),
+								context.getParameterTypes(), context.getArguments());
+						response = InvokerUtils.createDefaultResponse(defaultResult);
+					}
+				} else if (action.isUseGroovyScript()) {
+					addCurrentTimeData(timeout);
+					defaultResult = new MockProxyWrapper(getGroovyMockProxy(key, context, action))
+							.invoke(context.getMethodName(), context.getParameterTypes(), context.getArguments());
+					response = InvokerUtils.createDefaultResponse(defaultResult);
+				} else if (action.isThrowException()) {
+					addCurrentTimeData(timeout);
+					Exception exception;
+					if (action.getReturnObj() == null) {
+						exception = new ServiceDegradedException("Degraded method:" + key);
+					} else {
+						exception = (Exception) action.getReturnObj();
+					}
+					throw exception;
+				} else if(action.getReturnObj() != null) {
+					addCurrentTimeData(timeout);
+					defaultResult = action.getReturnObj();
+					response = InvokerUtils.createDefaultResponse(defaultResult);
+				}
+			}
+		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
+			try {
+				if (defaultResult != null) {
+					addCurrentTimeData(timeout);
+                    response = callBackOnSuccess(context, defaultResult);
+                }else if(action != null) {
+                    if (action.isUseMockClass()) {
+                        Object mockObj = context.getInvokerConfig().getMock();
+                        if (mockObj != null) {
+							addCurrentTimeData(timeout);
+                            defaultResult = new MockProxyWrapper(mockObj).invoke(context.getMethodName(),
+                                    context.getParameterTypes(), context.getArguments());
+                            response = callBackOnSuccess(context, defaultResult);
+                        }
+                    } else if (action.isUseGroovyScript()) {
+						addCurrentTimeData(timeout);
+                        defaultResult = new MockProxyWrapper(getGroovyMockProxy(key, context, action))
+                                .invoke(context.getMethodName(), context.getParameterTypes(), context.getArguments());
+                        response = callBackOnSuccess(context, defaultResult);
+                    } else if (action.isThrowException()) {
+						addCurrentTimeData(timeout);
+                        Exception exception;
+                        if (action.getReturnObj() == null) {
+                            exception = new ServiceDegradedException("Degraded method:" + key);
+                        } else {
+                            exception = (Exception) action.getReturnObj();
+                        }
+
+                        throw exception;
+
+                    } else if(action.getReturnObj() != null) {
+						addCurrentTimeData(timeout);
+                        defaultResult = action.getReturnObj();
+                        response = callBackOnSuccess(context, defaultResult);
+                    }
+                }
+			} catch (Exception e) {
+				response = callBackOnfailure(context, e);
+			}
+		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
+			if (defaultResult != null) {
+				addCurrentTimeData(timeout);
+				ServiceFutureImpl future = new ServiceFutureImpl(context, timeout);
+				FutureFactory.setFuture(future);
+				response = InvokerUtils.createFutureResponse(future);
+				future.callback(InvokerUtils.createDefaultResponse(defaultResult));
+				future.run();
+			}else if(action != null) {
+				if (action.isUseMockClass()) {
+					Object mockObj = context.getInvokerConfig().getMock();
+					if (mockObj != null) {
+						addCurrentTimeData(timeout);
+						MockProxyWrapper mockProxyWrapper = new MockProxyWrapper(mockObj);
+						MockCallbackFuture future = new MockCallbackFuture(mockProxyWrapper,context, timeout);
+						FutureFactory.setFuture(future);
+						response = InvokerUtils.createFutureResponse(future);
+						future.callback(response);
+						future.run();
+					}
+				} else if (action.isUseGroovyScript()) {
+					addCurrentTimeData(timeout);
+					MockProxyWrapper mockProxyWrapper = new MockProxyWrapper(getGroovyMockProxy(key, context, action));
+					MockCallbackFuture future = new MockCallbackFuture(mockProxyWrapper,context, timeout);
+					FutureFactory.setFuture(future);
+					response = InvokerUtils.createFutureResponse(future);
+					future.callback(response);
+					future.run();
+				} else if (action.isThrowException()) {
+					addCurrentTimeData(timeout);
+					Exception exception;
+					if (action.getReturnObj() == null) {
+						exception = new ServiceDegradedException("Degraded method:" + key);
+					} else {
+						exception = (Exception) action.getReturnObj();
+					}
+					ServiceFutureImpl future = new ServiceFutureImpl(context, timeout);
+					FutureFactory.setFuture(future);
+					response = InvokerUtils.createFutureResponse(future);
+					future.callback(InvokerUtils.createThrowableResponse(exception));
+					future.run();
+				} else if(action.getReturnObj() != null) {
+					addCurrentTimeData(timeout);
+					defaultResult = action.getReturnObj();
+					ServiceFutureImpl future = new ServiceFutureImpl(context, timeout);
+					FutureFactory.setFuture(future);
+					response = InvokerUtils.createFutureResponse(future);
+					future.callback(InvokerUtils.createDefaultResponse(defaultResult));
+					future.run();
+				}
+			}
+		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callType)) {
+			addCurrentTimeData(timeout);
+			response = NO_RETURN_RESPONSE;
+		} else {
+			throw new RuntimeException("no such call type: " + callType);
+		}
+
+		if (response != null) {
+			((DefaultInvokerContext) context).setResponse(response);
+		}
+
+		return response;
+	}
+
+	private static void addCurrentTimeData(long timeout) {
 		MonitorTransaction transaction = MonitorLoader.getMonitor().getCurrentCallTransaction();
 		if (transaction != null) {
 			transaction.addData("CurrentTimeout", timeout);
 		}
-		if (Constants.CALL_SYNC.equalsIgnoreCase(callType)) {
-			throw exception;
-		} else if (Constants.CALL_CALLBACK.equalsIgnoreCase(callType)) {
-			InvocationCallback callback = invokerConfig.getCallback();
-			InvocationCallback tlCallback = InvokerHelper.getCallback();
-			if (tlCallback != null) {
-				callback = tlCallback;
-				InvokerHelper.clearCallback();
-			}
-			callback.onFailure(exception);
-			ExceptionManager.INSTANCE.logRpcException(null, invokerConfig.getUrl(), context.getMethodName(),
-					"callback degraded", exception, null, response, transaction);
-			response = NO_RETURN_RESPONSE;
-		} else if (Constants.CALL_FUTURE.equalsIgnoreCase(callType)) {
-			ServiceFutureImpl future = new ServiceFutureImpl(context, timeout);
-			FutureFactory.setFuture(future);
-			response = InvokerUtils.createFutureResponse(future);
-			future.callback(InvokerUtils.createThrowableResponse(exception));
-			future.run();
-		} else if (Constants.CALL_ONEWAY.equalsIgnoreCase(callType)) {
-			response = NO_RETURN_RESPONSE;
+	}
+
+	private static InvocationResponse callBackOnSuccess(InvokerContext context, Object defaultResult) {
+		InvocationCallback callback = context.getInvokerConfig().getCallback();
+		InvocationCallback tlCallback = InvokerHelper.getCallback();
+		if (tlCallback != null) {
+			callback = tlCallback;
+			InvokerHelper.clearCallback();
 		}
-		((DefaultInvokerContext) context).setResponse(response);
+		callback.onSuccess(defaultResult);
+		return NO_RETURN_RESPONSE;
+	}
+
+	private static InvocationResponse callBackOnfailure(InvokerContext context, Exception exception) {
+		InvocationCallback callback = context.getInvokerConfig().getCallback();
+		InvocationCallback tlCallback = InvokerHelper.getCallback();
+		if (tlCallback != null) {
+			callback = tlCallback;
+			InvokerHelper.clearCallback();
+		}
+		callback.onFailure(exception);
+		InvocationResponse response = NO_RETURN_RESPONSE;
+		ExceptionManager.INSTANCE.logRpcException(null, context.getInvokerConfig().getUrl(), context.getMethodName(),
+				"callback degraded", exception, null, response, MonitorLoader.getMonitor().getCurrentCallTransaction());
 		return response;
 	}
 
-	private static class DegradeAction implements Serializable {
+
+	private static Object getGroovyMockProxy(String key, InvokerContext context, DegradeAction action) throws Throwable {
+		Object interfaceProxy = groovyMocks.get(key);
+
+		if (interfaceProxy == null) {
+			interfaceProxy = MockInvocationUtils.getProxy(context.getInvokerConfig(),
+					new GroovyScriptInvocationProxy(action.getGroovyScript()));
+			Object oldInterfaceProxy = groovyMocks.putIfAbsent(key, interfaceProxy);
+			if (oldInterfaceProxy != null) {
+                interfaceProxy = oldInterfaceProxy;
+            }
+		}
+
+		return interfaceProxy;
+	}
+
+	public static Map<String, DegradeAction> getDegradeMethodActions() {
+		return degradeMethodActions;
+	}
+
+	public static class DegradeAction implements Serializable {
 		private boolean throwException = false;
 		private Object returnObj;
 		private boolean useMockClass = false;
 		private boolean useGroovyScript = false;
 		private Script groovyScript;
+		private boolean enable = true;
 
 		public Script getGroovyScript() {
 			return groovyScript;
@@ -409,5 +477,12 @@ public class DegradationFilter extends InvocationInvokeFilter {
 			this.returnObj = returnObj;
 		}
 
+		public void setEnable(boolean enable) {
+			this.enable = enable;
+		}
+
+		public boolean getEnable() {
+			return enable;
+		}
 	}
 }

@@ -17,6 +17,8 @@ import com.dianping.pigeon.util.ThriftUtils;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +39,26 @@ public class ThriftSerializer extends AbstractSerializer {
 
     private ConcurrentMap<Class<?>, AbstractThriftSerializer> serializers =
             new ConcurrentHashMap<Class<?>, AbstractThriftSerializer>();
+
+    public ThriftSerializer() {
+        validate();
+    }
+
+    private void validate() {
+        try {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            GenericRequest request = new GenericRequest();
+            request.setServiceName("test");
+            request.setMethodName("test");
+            request.setMessageType(Constants.MESSAGE_TYPE_HEART);
+            request.setTimeout(0);
+            serializeRequest(os, request);
+            InputStream is = new ByteArrayInputStream(os.toByteArray());
+            deserializeRequest(is);
+        } catch (RuntimeException e) {
+            throw e;
+        }
+    }
 
     @Override
     public Object deserializeRequest(InputStream is) throws SerializationException {
