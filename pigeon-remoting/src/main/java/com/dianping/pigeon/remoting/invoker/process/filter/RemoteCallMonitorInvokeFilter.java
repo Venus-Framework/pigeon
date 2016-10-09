@@ -56,7 +56,6 @@ public class RemoteCallMonitorInvokeFilter extends InvocationInvokeFilter {
                     transaction.addData("Serialize", invokerConfig.getSerialize());
 
                     transaction.logEvent("PigeonCall.QPS", "S" + Calendar.getInstance().get(Calendar.SECOND), "");
-                    transaction.readMonitorContext();
                 }
             } catch (Throwable e) {
                 monitor.logMonitorError(e);

@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.dianping.pigeon.monitor.MonitorLoader;
+import com.dianping.pigeon.monitor.MonitorTransaction;
 import org.apache.commons.lang.StringUtils;
 
 import com.dianping.pigeon.config.ConfigManagerLoader;
@@ -51,12 +53,24 @@ public class ContextPrepareInvokeFilter extends InvocationInvokeFilter {
 	public InvocationResponse invoke(ServiceInvocationHandler handler, InvokerContext invocationContext)
 			throws Throwable {
 		invocationContext.getTimeline().add(new TimePoint(TimePhase.C));
+
+		readMonitorContext(invocationContext);
+
 		initRequest(invocationContext);
 		transferContextValueToRequest(invocationContext, invocationContext.getRequest());
 		try {
 			return handler.handle(invocationContext);
 		} finally {
 			ContextUtils.clearRequestContext();
+		}
+	}
+
+	private void readMonitorContext(InvokerContext invocationContext){
+		MonitorTransaction transaction = MonitorLoader.getMonitor().getCurrentCallTransaction();
+		if (transaction != null) {
+			Client client=invocationContext.getClient();
+			String targetApp = RegistryManager.getInstance().getReferencedAppFromCache(client.getAddress());
+			transaction.readMonitorContext(targetApp);
 		}
 	}
 
