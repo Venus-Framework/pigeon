@@ -66,6 +66,7 @@ public class NettyClient extends AbstractClient {
                        int highWaterMark,
                        int lowWaterMark,
                        int initialSize,
+                       int normalSize,
                        int maxActive,
                        int maxWait,
                        int timeBetweenCheckerMillis,
@@ -92,6 +93,7 @@ public class NettyClient extends AbstractClient {
 
         poolProperties = new PoolProperties(
                 initialSize,
+                normalSize,
                 maxActive,
                 maxWait, timeBetweenCheckerMillis);
     }

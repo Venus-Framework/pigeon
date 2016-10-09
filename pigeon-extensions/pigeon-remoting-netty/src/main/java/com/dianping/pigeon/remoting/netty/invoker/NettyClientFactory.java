@@ -45,6 +45,7 @@ public class NettyClientFactory implements ClientFactory {
                 Constants.WRITE_BUFFER_HIGH_WATER,
                 Constants.WRITE_BUFFER_LOW_WATER,
                 Constants.getChannelPoolInitialSize(),
+                Constants.getChannelPoolNormalSize(),
                 Constants.getChannelPoolMaxActive(),
                 Constants.getChannelPoolMaxWait(),
                 Constants.getChannelPoolTimeBetweenCheckerMillis(),

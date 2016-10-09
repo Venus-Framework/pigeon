@@ -72,6 +72,16 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
             properties.setInitialSize(properties.getMaxActive());
         }
 
+        if (properties.getNormalSize() > properties.getMaxActive()) {
+            logger.warn("[init] normalSize is larger than maxActive, setting normalSize to" + properties.getMaxActive());
+            properties.setNormalSize(properties.getMaxActive());
+        }
+
+        if (properties.getNormalSize() < properties.getInitialSize()) {
+            logger.warn("[init] normalSize is smaller than initialSize, setting normalSize to" + properties.getInitialSize());
+            properties.setNormalSize(properties.getInitialSize());
+        }
+
         try {
 
             for (int i = 0; i < properties.getInitialSize(); i++) {

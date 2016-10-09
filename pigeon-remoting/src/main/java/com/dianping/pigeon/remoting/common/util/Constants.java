@@ -119,6 +119,7 @@ public final class Constants {
     public static final String KEY_INVOKER_NETTY_BOSSCOUNT = "pigeon.invoker.netty.bosscount";
     public static final String KEY_INVOKER_NETTY_WORKERCOUNT = "pigeon.invoker.netty.workercount";
     public static final String KEY_CHANNEL_POOL_INITIAL_SIZE = "pigeon.channel.pool.initial.size";
+    public static final String KEY_CHANNEL_POOL_NORMAL_SIZE = "pigeon.channel.pool.normal.size";
     public static final String KEY_CHANNEL_POOL_MAX_ACTIVE = "pigeon.channel.pool.max.active";
     public static final String KEY_CHANNEL_POOL_MAX_WAIT = "pigeon.channel.pool.max.wait";
     public static final String KEY_CHANNEL_POOL_TIME_BETWEEN_CHECKER_MILLIS = "pigeon.channel.pool.timeBetweenCheckerMillis";
@@ -152,7 +153,7 @@ public final class Constants {
     public static final int DEFAULT_INVOKER_NETTY_BOSSCOUNT = 1;
     public static final int DEFAULT_INVOKER_NETTY_WORKERCOUNT = Runtime.getRuntime().availableProcessors() * 2;
     public static final int DEFAULT_CHANNEL_POOL_INITIAL_SIZE = 1;
-
+    public static final int DEFAULT_CHANNEL_POOL_NORMAL_SIZE = 1;
     public static final int DEFAULT_CHANNEL_POOL_MAX_ACTIVE = 5;
     public static final int DEFAULT_CHANNEL_POOL_MAX_WAIT = 2000;
     public static final int DEFAULT_CHANNEL_POOL_TIME_BETWEEN_CHECKER_MILLIS = 2000;
@@ -238,6 +239,11 @@ public final class Constants {
     public static final int getChannelPoolInitialSize() {
         return ConfigManagerLoader.getConfigManager().getIntValue(
                 KEY_CHANNEL_POOL_INITIAL_SIZE, DEFAULT_CHANNEL_POOL_INITIAL_SIZE);
+    }
+
+    public static final int getChannelPoolNormalSize() {
+        return ConfigManagerLoader.getConfigManager().getIntValue(
+                KEY_CHANNEL_POOL_NORMAL_SIZE, DEFAULT_CHANNEL_POOL_NORMAL_SIZE);
     }
 
     public static final int getChannelPoolMaxActive() {
