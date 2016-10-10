@@ -150,7 +150,7 @@ public class DefaultNettyChannel implements NettyChannel {
     }
 
     public String toString() {
-        return "PooledChannel[ remoteAddress= " + remoteAddress.toString() + "]";
+        return "NettyChannel[active = " + isActive() + "localAddress=" + localAddress.toString() + "remoteAddress= " + remoteAddress.toString() + "]";
     }
 
 }

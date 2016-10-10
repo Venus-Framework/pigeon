@@ -191,7 +191,7 @@ public class NettyClient extends AbstractClient {
 
     @Override
     public boolean isActive() {
-        return channelPool.isActive();
+        return super.isActive() && channelPool.isActive();
     }
 
     @Override
@@ -245,7 +245,7 @@ public class NettyClient extends AbstractClient {
 
     @Override
     public String toString() {
-        return this.getAddress() + ", active:" + this.isActive();
+        return "NettyClient[" + this.getAddress() + ", active:" + this.isActive() + " poolActive:" + channelPool.isActive() + "]";
     }
 
     public class MessageWriteListener implements ChannelFutureListener {

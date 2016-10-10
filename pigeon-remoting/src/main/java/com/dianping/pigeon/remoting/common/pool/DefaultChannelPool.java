@@ -45,8 +45,8 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
 
     private final static Object PRESENT = new Object();
 
-    private final ConcurrentMap<C, Object> reconnectChannels = new
-            ConcurrentHashMap<C, Object>();
+    private static final ConcurrentMap<Channel, Object> reconnectChannels = new
+            ConcurrentHashMap<Channel, Object>();
 
     public DefaultChannelPool(ChannelFactory channelFactory)
             throws ChannelPoolException {
@@ -137,8 +137,8 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
 
         do {
             //create
-            if (size.get() < properties.getMaxActive()) {
-                if (size.incrementAndGet() > properties.getMaxActive()) {
+            if (size.get() < properties.getNormalSize()) {
+                if (size.incrementAndGet() > properties.getNormalSize()) {
                     size.decrementAndGet();
                 } else {
                     return createChannel();
@@ -187,7 +187,7 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
         return channel;
     }
 
-    public void reconnectChannel(C channel) {
+    private void reconnectChannel(Channel channel) {
         if (reconnectChannels.putIfAbsent(channel, PRESENT) == null) {
             reconnectExecutor.submit(new ReconnectChannelTask(channel, DefaultChannelPool.this));
         }
@@ -237,18 +237,18 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
 
     class ReconnectChannelTask implements Runnable {
 
-        private WeakReference<C> channelRef;
+        private WeakReference<Channel> channelRef;
         private WeakReference<ChannelPool> poolRef;
 
-        public ReconnectChannelTask(C channel, ChannelPool pool) {
-            this.channelRef = new WeakReference<C>(channel);
+        public ReconnectChannelTask(Channel channel, ChannelPool pool) {
+            this.channelRef = new WeakReference<Channel>(channel);
             this.poolRef = new WeakReference<ChannelPool>(pool);
         }
 
         @Override
         public void run() {
             ChannelPool channelPool = poolRef.get();
-            C channel = channelRef.get();
+            Channel channel = channelRef.get();
 
             if (channelPool != null && !channelPool.isClosed()) {
 
@@ -262,7 +262,7 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
                 }
             }
 
-            DefaultChannelPool.this.reconnectChannels.remove(channel);
+            reconnectChannels.remove(channel);
         }
     }
 
@@ -280,10 +280,10 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
 
             if (channelPool != null && !channelPool.isClosed()) {
 
-                List<C> channels = channelPool.getChannels();
+                List<Channel> channels = channelPool.getChannels();
 
                 for (int index = 0; index < channels.size(); index++) {
-                    C channel = channels.get(index);
+                    Channel channel = channels.get(index);
 
                     if (!channel.isActive()) {
                         reconnectChannel(channel);
