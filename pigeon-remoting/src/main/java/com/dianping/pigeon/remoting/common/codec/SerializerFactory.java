@@ -59,7 +59,11 @@ public final class SerializerFactory {
     }
 
     static {
-        init();
+        try {
+            init();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
     }
 
     public static void init() {
