@@ -9,6 +9,7 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.util.Random;
 
@@ -23,6 +24,16 @@ public class GroovyTest {
             return new GroovyShell(Thread.currentThread().getContextClassLoader());
         }
     };
+
+    @Test
+    public void testStatic() {
+        StaticEx.pti(1);
+        try {
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Test
     public void testRan() {
