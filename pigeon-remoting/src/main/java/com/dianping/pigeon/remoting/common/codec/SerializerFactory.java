@@ -70,8 +70,14 @@ public final class SerializerFactory {
                     registerSerializer(HESSIAN, SERIALIZE_HESSIAN, new HessianSerializer());
                     registerSerializer(HESSIAN1, SERIALIZE_HESSIAN1, new Hessian1Serializer());
                     registerSerializer(PROTO, SERIALIZE_PROTO, new ProtostuffSerializer());
-                    registerSerializer(FST, SERIALIZE_FST, new FstSerializer());
                     registerSerializer(THRIFT, SERIALIZE_THRIFT, new ThriftSerializer());
+
+                    try {
+                        registerSerializer(FST, SERIALIZE_FST, new FstSerializer());
+                    } catch (Throwable t) {
+                        logger.warn("failed to initialize fst serializer:" + t.getMessage());
+                    }
+
                     boolean supportJackson = true;
                     try {
                         ClassUtils.getClass("com.fasterxml.jackson.databind.ObjectMapper");

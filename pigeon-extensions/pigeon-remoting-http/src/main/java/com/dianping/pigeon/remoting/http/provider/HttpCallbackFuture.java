@@ -6,6 +6,7 @@ import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.concurrent.CallFuture;
 import com.dianping.pigeon.remoting.invoker.concurrent.Callback;
@@ -48,7 +49,7 @@ public class HttpCallbackFuture implements Callback, CallFuture {
                     StringBuilder sb = new StringBuilder();
                     sb.append("request timeout, current time:").append(System.currentTimeMillis())
                             .append("\r\nrequest:").append(request);
-                    RequestTimeoutException e = new RequestTimeoutException("invoke timeout");
+                    RequestTimeoutException e = InvocationUtils.newTimeoutException("invoke timeout");
                     invocationContext.getChannel().write(ProviderUtils.createFailResponse(request, e));
                     logger.error(sb.toString(), e);
                 } else {

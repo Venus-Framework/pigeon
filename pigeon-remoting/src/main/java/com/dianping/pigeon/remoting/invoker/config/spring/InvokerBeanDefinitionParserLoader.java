@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 
-import com.dianping.dpsf.spring.ProxyBeanFactory;
 import com.dianping.pigeon.config.spring.BeanDefinitionParserLoader;
 
 /**
@@ -21,7 +20,7 @@ public class InvokerBeanDefinitionParserLoader implements BeanDefinitionParserLo
 	@Override
 	public Map<String, BeanDefinitionParser> loadBeanDefinitionParsers() {
 		Map<String, BeanDefinitionParser> parsers = new HashMap<String, BeanDefinitionParser>();
-		parsers.put("reference", new ReferenceBeanDefinitionParser(ProxyBeanFactory.class, false));
+		parsers.put("reference", new ReferenceBeanDefinitionParser(ReferenceBean.class, false));
 		return parsers;
 	}
 

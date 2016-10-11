@@ -25,7 +25,6 @@ public class HttpInvokerClientFactory implements ClientFactory {
                 responseProcessor,
                 Constants.getInvokerHeartbeatEnable(),
                 Constants.getInvokerHeartbeatTimeout(),
-                Constants.getDefaultInvokerChannelDeadthreshold(),
                 Constants.getDefaultInvokerClientDeadthreshold(),
                 Constants.getInvokerHeartbeatInterval());
     }

@@ -1,5 +1,12 @@
 package com.dianping.pigeon.remoting.invoker.concurrent;
 
+import java.io.Serializable;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import com.dianping.avatar.tracker.TrackerContext;
 import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -10,18 +17,11 @@ import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.domain.generic.UnifiedResponse;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
-import com.dianping.pigeon.remoting.invoker.exception.RequestTimeoutException;
 import com.dianping.pigeon.remoting.invoker.process.ExceptionManager;
 import com.dianping.pigeon.remoting.invoker.route.statistics.ServiceStatisticsHolder;
 import com.dianping.pigeon.util.ContextUtils;
-
-import java.io.Serializable;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by chenchongze on 16/9/9.
@@ -101,7 +101,7 @@ public class CallbackFuture implements Callback, CallFuture {
 
         if (!isDone()) {
             ServiceStatisticsHolder.flowOut(request, client.getAddress());
-            throw new RequestTimeoutException("request timeout, current time:"
+            throw InvocationUtils.newTimeoutException("request timeout, current time:"
                     + System.currentTimeMillis() + "\r\nrequest:" + request);
         }
 

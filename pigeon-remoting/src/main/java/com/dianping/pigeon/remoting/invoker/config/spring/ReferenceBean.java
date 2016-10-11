@@ -7,12 +7,7 @@ package com.dianping.pigeon.remoting.invoker.config.spring;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import com.dianping.pigeon.log.Logger;
-import com.dianping.pigeon.log.LoggerLoader;
-import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -20,7 +15,10 @@ import org.springframework.beans.factory.FactoryBean;
 
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
+import com.dianping.pigeon.log.Logger;
+import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.ServiceFactory;
+import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.concurrent.InvocationCallback;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;

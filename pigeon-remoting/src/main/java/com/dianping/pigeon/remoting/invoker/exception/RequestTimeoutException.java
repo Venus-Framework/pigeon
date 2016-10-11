@@ -1,8 +1,8 @@
 package com.dianping.pigeon.remoting.invoker.exception;
 
-import com.dianping.dpsf.exception.NetTimeoutException;
+import com.dianping.pigeon.remoting.common.exception.RpcException;
 
-public class RequestTimeoutException extends NetTimeoutException {
+public class RequestTimeoutException extends RpcException {
 
 	/**
 	 * 

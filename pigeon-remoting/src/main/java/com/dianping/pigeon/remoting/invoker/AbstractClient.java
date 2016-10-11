@@ -30,8 +30,6 @@ public abstract class AbstractClient implements Client {
 
     private int heartbeatTimeout;
 
-    private int channelThreshold;
-
     private int clientThreshold;
 
     private int heartbeatInterval;
@@ -48,13 +46,11 @@ public abstract class AbstractClient implements Client {
     public AbstractClient(ResponseProcessor responseProcessor,
                           boolean heartbeated,
                           int heartbeatTimeout,
-                          int channelThreshold,
                           int clientThreshold,
                           int heartbeatInterval) {
         this.responseProcessor = responseProcessor;
         this.heartbeated = heartbeated;
         this.heartbeatTimeout = heartbeatTimeout;
-        this.channelThreshold = channelThreshold;
         this.clientThreshold = clientThreshold;
         this.heartbeatInterval = heartbeatInterval;
     }
@@ -128,7 +124,7 @@ public abstract class AbstractClient implements Client {
         stopHeartbeat();
         if (heartbeated && Constants.PROTOCOL_DEFAULT.equals(getProtocol())) {
             heatbeatTimer = scheduled.scheduleWithFixedDelay(
-                    new HeartbeatTask(AbstractClient.this, heartbeatTimeout, channelThreshold, clientThreshold),
+                    new HeartbeatTask(AbstractClient.this, heartbeatTimeout, clientThreshold),
                     heartbeatInterval, heartbeatInterval, TimeUnit.MILLISECONDS);
         }
     }

@@ -1,10 +1,11 @@
 package com.dianping.pigeon.remoting.invoker.client;
 
-import com.dianping.dpsf.protocol.DefaultRequest;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.Logger;
 import com.dianping.pigeon.log.LoggerLoader;
+import com.dianping.pigeon.monitor.Monitor;
+import com.dianping.pigeon.monitor.MonitorLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.registry.util.HeartBeatSupport;
 import com.dianping.pigeon.remoting.common.codec.SerializerFactory;
@@ -13,15 +14,12 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.channel.Channel;
 import com.dianping.pigeon.remoting.common.domain.generic.GenericRequest;
 import com.dianping.pigeon.remoting.common.util.Constants;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.Client;
 import com.dianping.pigeon.remoting.invoker.concurrent.CallbackFuture;
 import com.dianping.pigeon.remoting.invoker.util.InvokerUtils;
-import com.dianping.pigeon.util.NetUtils;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -36,25 +34,20 @@ public class HeartbeatTask implements Runnable {
 
     private static ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
+    private static final Monitor monitor = MonitorLoader.getMonitor();
+
     private Client client;
 
     private int timeout;
 
-    private int channelThreshold;
 
     private int clientThreshold;
 
-
     private HeartbeatStats heartbeatStats = new HeartbeatStats();
 
-    private ConcurrentMap<Channel, HeartbeatStats> heartbeatStatses =
-            new ConcurrentHashMap<Channel, HeartbeatStats>();
-
-
-    public HeartbeatTask(Client client, int timeout, int channelThreshold, int clientThreshold) {
+    public HeartbeatTask(Client client, int timeout, int clientThreshold) {
         this.client = client;
         this.timeout = timeout;
-        this.channelThreshold = channelThreshold;
         this.clientThreshold = clientThreshold;
     }
 
@@ -76,13 +69,12 @@ public class HeartbeatTask implements Runnable {
                 Channel channel = channels.get(index);
                 if (channel != null) {
                     try {
-                        if (channel.isActive()) {
+                        if (channel.isAvaliable()) {
                             boolean isSuccess = sendHeartBeat(client, channel);
 
                             if (isSuccess) {
                                 allFailed = false;
                             }
-                            notifyChannelStateChanged(channel, isSuccess);
                         }
 
                     } catch (Exception e) {
@@ -95,31 +87,29 @@ public class HeartbeatTask implements Runnable {
         return allFailed;
     }
 
-
-    private void notifyChannelStateChanged(Channel channel, boolean isSuccess) {
-        HeartbeatStats heartBeatStat = getOrCreateStats(channel);
-        if (isSuccess) {
-            heartBeatStat.resetFailedCount();
-        } else {
-            heartBeatStat.incFailedCount();
-        }
-
-        if (heartBeatStat.getFailedCount() > channelThreshold) {
-            heartBeatStat.resetFailedCount();
-        }
-    }
-
     private void notifyClientStateChanged(boolean allFailed) {
         if (allFailed) {
             heartbeatStats.incFailedCount();
         } else {
-            heartbeatStats.resetFailedCount();
+            heartbeatStats.incSuccessCount();
         }
 
-        if (heartbeatStats.getFailedCount() > clientThreshold) {
-            client.setActive(false);
-        } else {
-            client.setActive(true);
+        if (heartbeatStats.getFailedCount() >= clientThreshold) {
+
+            if (client.isActive()) {
+                client.setActive(false);
+
+                monitor.logEvent("PigeonCall.heartbeat", "Activate", client.getAddress());
+                heartbeatStats.resetStats();
+            }
+        } else if (heartbeatStats.getSuccessCount() >= clientThreshold) {
+
+            if (client.isActive()) {
+                client.setActive(true);
+
+                monitor.logEvent("PigeonCall.heartbeat", "Deactivate", client.getAddress());
+                heartbeatStats.resetStats();
+            }
         }
     }
 
@@ -141,7 +131,7 @@ public class HeartbeatTask implements Runnable {
             if (response != null && !(response.getReturn() instanceof Exception)) {
                 isSuccess = true;
             } else {
-                logger.info("[heartbeat] send heartbeat to server[" + address + "] failed");
+                logger.info("[heartbeat] send heartbeat to server[" + address + "] failed.");
                 isSuccess = false;
             }
         } catch (Throwable e) {
@@ -185,7 +175,7 @@ public class HeartbeatTask implements Runnable {
     }
 
     private InvocationRequest createHeartRequest0(String address) {
-        InvocationRequest request = new DefaultRequest(Constants.HEART_TASK_SERVICE + address, Constants.HEART_TASK_METHOD,
+        InvocationRequest request = InvocationUtils.newRequest(Constants.HEART_TASK_SERVICE + address, Constants.HEART_TASK_METHOD,
                 null, SerializerFactory.SERIALIZE_HESSIAN, Constants.MESSAGE_TYPE_HEART, timeout, null);
         request.setSequence(generateHeartSeq());
         request.setCreateMillisTime(System.currentTimeMillis());
@@ -214,40 +204,53 @@ public class HeartbeatTask implements Runnable {
         return heartBeatSeq.getAndIncrement();
     }
 
-    private HeartbeatStats getOrCreateStats(Channel channel) {
-        HeartbeatStats heartbeatStats = heartbeatStatses.get(channel);
-
-        if (heartbeatStats == null) {
-            heartbeatStats = new HeartbeatStats();
-            heartbeatStatses.putIfAbsent(channel, heartbeatStats);
-        }
-
-        return heartbeatStats;
-    }
-
 
     class HeartbeatStats {
 
-        private AtomicInteger failedCount;
+        private AtomicLong failedCount;
+
+        private AtomicLong successCount;
 
         public HeartbeatStats() {
-            this(0);
+            this(0L, 0L);
         }
 
-        public HeartbeatStats(int failedCount) {
-            this.failedCount = new AtomicInteger(failedCount);
+        public HeartbeatStats(long failedCount, long successCount) {
+            this.failedCount = new AtomicLong(failedCount);
+            this.successCount = new AtomicLong(successCount);
         }
 
-        public int getFailedCount() {
+        public long getFailedCount() {
             return failedCount.get();
         }
 
         public void incFailedCount() {
+            resetSuccessCount();
             failedCount.incrementAndGet();
         }
 
         public void resetFailedCount() {
-            failedCount.set(0);
+            failedCount.set(0L);
         }
+
+        public long getSuccessCount() {
+            return successCount.get();
+        }
+
+        public void incSuccessCount() {
+            resetFailedCount();
+            successCount.incrementAndGet();
+        }
+
+        public void resetSuccessCount() {
+            successCount.set(0L);
+        }
+
+        public void resetStats() {
+            resetSuccessCount();
+            resetFailedCount();
+        }
+
+
     }
 }

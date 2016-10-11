@@ -12,7 +12,7 @@ public interface ChannelPool<C extends Channel> {
 
     int getSize();
 
-    boolean isActive();
+    boolean isAvaliable();
 
     C selectChannel() throws ChannelPoolException;
 

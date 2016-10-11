@@ -6,11 +6,10 @@ package com.dianping.pigeon.remoting.common.codec;
 
 import java.lang.reflect.Proxy;
 
-import com.dianping.dpsf.protocol.DefaultRequest;
-import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
 import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.process.InvokerProcessHandlerFactory;
@@ -34,11 +33,11 @@ public abstract class AbstractSerializer implements Serializer {
 
 	@Override
 	public InvocationResponse newResponse() throws SerializationException {
-		return new DefaultResponse();
+		return InvocationUtils.newResponse();
 	}
 
 	@Override
 	public InvocationRequest newRequest(InvokerContext invokerContext) throws SerializationException {
-		return new DefaultRequest(invokerContext);
+		return InvocationUtils.newRequest(invokerContext);
 	}
 }

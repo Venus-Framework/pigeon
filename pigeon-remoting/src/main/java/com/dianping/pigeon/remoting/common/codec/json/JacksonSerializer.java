@@ -14,12 +14,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.dianping.pigeon.log.Logger;
-
-import com.dianping.dpsf.protocol.DefaultRequest;
-import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.remoting.common.codec.AbstractSerializer;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonParser;
@@ -40,8 +38,8 @@ public class JacksonSerializer extends AbstractSerializer {
 
 		// initialize
 		JacksonSerializer serializer = new JacksonSerializer();
-		String content = serializer.serializeObject(new DefaultRequest());
-		serializer.deserializeObject(DefaultRequest.class, content);
+		String content = serializer.serializeObject(InvocationUtils.newRequest());
+		serializer.deserializeObject(InvocationUtils.getRequestClass(), content);
 	}
 
 	public JacksonSerializer() {
@@ -53,7 +51,7 @@ public class JacksonSerializer extends AbstractSerializer {
 
 	@Override
 	public Object deserializeRequest(InputStream is) throws SerializationException {
-		return doDeserialize(is, DefaultRequest.class);
+		return doDeserialize(is, InvocationUtils.getRequestClass());
 	}
 
 	public Object doDeserialize(InputStream is, Class<?> clazz) throws SerializationException {
@@ -142,7 +140,7 @@ public class JacksonSerializer extends AbstractSerializer {
 
 	@Override
 	public Object deserializeResponse(InputStream is) throws SerializationException {
-		return doDeserialize(is, DefaultResponse.class);
+		return doDeserialize(is, InvocationUtils.getResponseClass());
 	}
 
 	@Override

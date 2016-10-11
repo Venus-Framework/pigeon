@@ -73,13 +73,11 @@ public class NettyClient extends AbstractClient {
                        ResponseProcessor responseProcessor,
                        boolean heartbeated,
                        int heartbeatTimeout,
-                       int channelThreshold,
                        int clientThreshold,
                        int heartbeatInterval) {
         super(responseProcessor,
                 heartbeated,
                 heartbeatTimeout,
-                channelThreshold,
                 clientThreshold,
                 heartbeatInterval);
 
@@ -191,7 +189,7 @@ public class NettyClient extends AbstractClient {
 
     @Override
     public boolean isActive() {
-        return super.isActive() && channelPool.isActive();
+        return super.isActive() && channelPool.isAvaliable();
     }
 
     @Override
@@ -245,7 +243,7 @@ public class NettyClient extends AbstractClient {
 
     @Override
     public String toString() {
-        return "NettyClient[" + this.getAddress() + ", active:" + this.isActive() + " poolActive:" + channelPool.isActive() + "]";
+        return "NettyClient[" + this.getAddress() + ", active:" + isActive() + ", super.active:" + super.isActive() + " pool.Avaliable:" + channelPool.isAvaliable() + "]";
     }
 
     public class MessageWriteListener implements ChannelFutureListener {

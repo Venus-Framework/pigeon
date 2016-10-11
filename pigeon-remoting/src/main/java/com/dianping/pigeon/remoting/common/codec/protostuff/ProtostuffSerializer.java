@@ -1,10 +1,5 @@
 package com.dianping.pigeon.remoting.common.codec.protostuff;
 
-import io.protostuff.LinkedBuffer;
-import io.protostuff.ProtostuffIOUtil;
-import io.protostuff.Schema;
-import io.protostuff.runtime.RuntimeSchema;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,10 +7,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
-import com.dianping.dpsf.protocol.DefaultRequest;
-import com.dianping.dpsf.protocol.DefaultResponse;
 import com.dianping.pigeon.remoting.common.codec.AbstractSerializer;
 import com.dianping.pigeon.remoting.common.exception.SerializationException;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
+
+import io.protostuff.LinkedBuffer;
+import io.protostuff.ProtostuffIOUtil;
+import io.protostuff.Schema;
+import io.protostuff.runtime.RuntimeSchema;
 
 public class ProtostuffSerializer extends AbstractSerializer {
 
@@ -23,13 +22,6 @@ public class ProtostuffSerializer extends AbstractSerializer {
 	private static Objenesis objenesis = new ObjenesisStd(true);
 
 	public ProtostuffSerializer() {
-		Schema<DefaultRequest> requestSchema = RuntimeSchema.createFrom(DefaultRequest.class);
-		RuntimeSchema.register(DefaultRequest.class, requestSchema);
-		cachedSchema.put(DefaultRequest.class, requestSchema);
-
-		Schema<DefaultResponse> responseSchema = RuntimeSchema.createFrom(DefaultResponse.class);
-		RuntimeSchema.register(DefaultResponse.class, responseSchema);
-		cachedSchema.put(DefaultResponse.class, responseSchema);
 	}
 
 	private static <T> Schema<T> getSchema(Class<T> cls) {
@@ -56,7 +48,7 @@ public class ProtostuffSerializer extends AbstractSerializer {
 
 	@Override
 	public Object deserializeRequest(InputStream is) throws SerializationException {
-		return deserializeObject(is, DefaultRequest.class);
+		return deserializeObject(is, InvocationUtils.getRequestClass());
 	}
 
 	@Override
@@ -74,7 +66,7 @@ public class ProtostuffSerializer extends AbstractSerializer {
 
 	@Override
 	public Object deserializeResponse(InputStream is) throws SerializationException {
-		return deserializeObject(is, DefaultResponse.class);
+		return deserializeObject(is, InvocationUtils.getResponseClass());
 	}
 
 	@Override

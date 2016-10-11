@@ -6,7 +6,6 @@ package com.dianping.pigeon.remoting.invoker.process.filter;
 
 import com.dianping.pigeon.log.Logger;
 
-import com.dianping.dpsf.async.ServiceFutureFactory;
 import com.dianping.pigeon.log.LoggerLoader;
 import com.dianping.pigeon.registry.RegistryManager;
 import com.dianping.pigeon.remoting.common.domain.InvocationContext.TimePhase;
@@ -16,6 +15,7 @@ import com.dianping.pigeon.remoting.common.domain.InvocationResponse;
 import com.dianping.pigeon.remoting.common.process.ServiceInvocationHandler;
 import com.dianping.pigeon.remoting.common.util.Constants;
 import com.dianping.pigeon.remoting.invoker.Client;
+import com.dianping.pigeon.remoting.invoker.concurrent.FutureFactory;
 import com.dianping.pigeon.remoting.invoker.config.InvokerConfig;
 import com.dianping.pigeon.remoting.invoker.domain.InvokerContext;
 import com.dianping.pigeon.remoting.invoker.process.statistics.InvokerStatisticsChecker;
@@ -51,7 +51,7 @@ public class GatewayInvokeFilter extends InvocationInvokeFilter {
 				return handler.handle(invocationContext);
 			} catch (Throwable e) {
 				if (Constants.CALL_FUTURE.equalsIgnoreCase(invokerConfig.getCallType())) {
-					ServiceFutureFactory.remove();
+					FutureFactory.remove();
 				}
 				throw e;
 			}

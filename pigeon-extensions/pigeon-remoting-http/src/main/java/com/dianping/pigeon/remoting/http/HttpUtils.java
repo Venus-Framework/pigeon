@@ -4,7 +4,8 @@
  */
 package com.dianping.pigeon.remoting.http;
 
-import com.dianping.dpsf.protocol.DefaultRequest;
+import com.dianping.pigeon.remoting.common.domain.InvocationRequest;
+import com.dianping.pigeon.remoting.common.util.InvocationUtils;
 import com.dianping.pigeon.remoting.http.adapter.HttpAdapterRequest;
 
 public class HttpUtils {
@@ -33,8 +34,8 @@ public class HttpUtils {
 		return serviceUrl;
 	}
 
-	public static DefaultRequest createDefaultRequest(HttpAdapterRequest httpAdapterRequest) {
-		return new DefaultRequest(httpAdapterRequest.getUrl(), httpAdapterRequest.getMethod(),
+	public static InvocationRequest createDefaultRequest(HttpAdapterRequest httpAdapterRequest) {
+		return InvocationUtils.newRequest(httpAdapterRequest.getUrl(), httpAdapterRequest.getMethod(),
 				httpAdapterRequest.getParameters(), httpAdapterRequest.getSerialize(),
 				httpAdapterRequest.getMessageType(), httpAdapterRequest.getTimeout(), httpAdapterRequest.getCallType(),
 				httpAdapterRequest.getSeq());

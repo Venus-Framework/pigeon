@@ -22,7 +22,7 @@ public interface MonitorTransaction {
 
 	public void addData(String name, Object data);
 
-	public void readMonitorContext();
+	public void readMonitorContext(String serverDomain);
 
 	public void writeMonitorContext();
 

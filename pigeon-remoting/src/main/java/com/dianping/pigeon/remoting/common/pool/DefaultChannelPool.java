@@ -89,7 +89,7 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
             }
 
         } catch (ChannelPoolException e) {
-            logger.error("[init] unable to create initial connections of pool.", e);
+            logger.warn("[init] unable to create initial connections of pool.", e);
         }
 
         initCheckScheduler();
@@ -107,7 +107,7 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
     }
 
     @Override
-    public boolean isActive() {
+    public boolean isAvaliable() {
         if (isClosed()) {
             return false;
         }
@@ -116,7 +116,7 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
 
             C channel = pooledChannels.get(index);
 
-            if (channel != null && channel.isActive()) {
+            if (channel != null && channel.isAvaliable()) {
                 return true;
             }
         }
@@ -151,7 +151,7 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
                 C pooledChannel = pooledChannels.get(selected);
 
                 if (pooledChannel != null) {
-                    if (!pooledChannel.isActive()) {
+                    if (!pooledChannel.isAvaliable()) {
                         reconnectChannel(pooledChannel);
                     } else {
                         return pooledChannel;
@@ -171,7 +171,7 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
         return channel;
     }
 
-    protected C createChannel() throws ChannelPoolException {
+    protected C createChannel() {
         C channel = null;
 
         try {
@@ -181,6 +181,8 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
                 synchronized (pooledChannels) {
                     pooledChannels.add(channel);
                 }
+            } else {
+                size.decrementAndGet();
             }
         }
 
@@ -212,7 +214,7 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
 
                 C pooledChannel = pooledChannels.get(index);
 
-                if (pooledChannel != null && pooledChannel.isActive()) {
+                if (pooledChannel != null && pooledChannel.isAvaliable()) {
                     pooledChannel.disConnect();
                 }
             }
@@ -252,11 +254,11 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
 
             if (channelPool != null && !channelPool.isClosed()) {
 
-                if (channel != null && !channel.isActive()) {
+                if (channel != null && !channel.isAvaliable()) {
                     try {
                         channel.connect();
                     } catch (NetworkException e) {
-                        logger.error("[run] pooledChannel connnet failed.", e);
+                        logger.warn("[run] pooledChannel connnet failed.", e);
                     }
 
                 }
@@ -285,7 +287,7 @@ public class DefaultChannelPool<C extends Channel> implements ChannelPool<C> {
                 for (int index = 0; index < channels.size(); index++) {
                     Channel channel = channels.get(index);
 
-                    if (!channel.isActive()) {
+                    if (!channel.isAvaliable()) {
                         reconnectChannel(channel);
                     }
                 }

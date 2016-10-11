@@ -52,7 +52,6 @@ public class NettyClientFactory implements ClientFactory {
                 responseProcessor,
                 Constants.getInvokerHeartbeatEnable(),
                 Constants.getInvokerHeartbeatTimeout(),
-                Constants.getDefaultInvokerChannelDeadthreshold(),
                 Constants.getDefaultInvokerClientDeadthreshold(),
                 Constants.getInvokerHeartbeatInterval()
         );

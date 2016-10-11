@@ -46,8 +46,8 @@ public class DefaultNettyChannel implements NettyChannel {
     public void connect() throws NetworkException {
         connectLock.lock();
         try {
-            if (isActive()) {
-                logger.warn("[connect] is connected to remote " + remoteAddress + ".");
+            if (isAvaliable()) {
+                logger.info("[connect] is connected to remote " + remoteAddress + ".");
                 return;
             }
 
@@ -61,17 +61,17 @@ public class DefaultNettyChannel implements NettyChannel {
                         this.channel = future.getChannel();
                         localAddress = (InetSocketAddress) this.channel.getLocalAddress();
                     } else {
-                        logger.error("[connect] connected to remote " + remoteAddress + " failed.");
+                        logger.info("[connect] connected to remote " + remoteAddress + " failed.");
                         throw new NetworkException("connected to remote " + remoteAddress + " failed.");
                     }
 
                 } else {
-                    logger.error("[connect] timeout connecting to remote " + remoteAddress + ".");
+                    logger.info("[connect] timeout connecting to remote " + remoteAddress + ".");
                     throw new NetworkException("timeout connecting to remote " + remoteAddress + ".");
                 }
 
             } catch (Throwable e) {
-                logger.error("[connect] error connecting to remote " + remoteAddress + ".", e);
+                logger.info("[connect] error connecting to remote " + remoteAddress + ".", e);
 
                 throw new NetworkException("error connecting to remote " + remoteAddress + ".", e);
             } finally {
@@ -101,7 +101,7 @@ public class DefaultNettyChannel implements NettyChannel {
 
     @Override
     public ChannelFuture write0(Object message) throws NetworkException {
-        if (!isActive()) {
+        if (!isAvaliable()) {
             throw new NetworkException("[write0] channel is null or channel is close.");
         }
 
@@ -122,7 +122,7 @@ public class DefaultNettyChannel implements NettyChannel {
     }
 
     @Override
-    public boolean isActive() {
+    public boolean isAvaliable() {
         return channel != null && channel.isConnected();
     }
 
@@ -150,7 +150,7 @@ public class DefaultNettyChannel implements NettyChannel {
     }
 
     public String toString() {
-        return "NettyChannel[active = " + isActive() + "localAddress=" + localAddress.toString() + "remoteAddress= " + remoteAddress.toString() + "]";
+        return "NettyChannel[avaliable = " + isAvaliable() + "localAddress=" + localAddress.toString() + "remoteAddress= " + remoteAddress.toString() + "]";
     }
 
 }

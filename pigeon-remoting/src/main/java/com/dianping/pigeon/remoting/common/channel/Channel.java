@@ -18,7 +18,7 @@ public interface Channel {
 
     boolean isWritable();
 
-    boolean isActive();
+    boolean isAvaliable();
 
     InetSocketAddress getLocalAddress();
 

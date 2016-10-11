@@ -1,5 +1,6 @@
 package com.dianping.pigeon.remoting.invoker.proxy;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -21,6 +22,10 @@ public class MockProxyWrapper {
     public Object invoke(String methodName, Class<?>[] parameterTypes, Object[] arguments)
             throws Throwable {
         Method method = proxy.getClass().getMethod(methodName, parameterTypes);
-        return method.invoke(proxy, arguments);
+        try {
+            return method.invoke(proxy, arguments);
+        }  catch (InvocationTargetException e) {
+            throw e.getTargetException();
+        }
     }
 }

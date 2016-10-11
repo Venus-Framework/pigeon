@@ -14,9 +14,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dianping.pigeon.log.Logger;
+import com.dianping.pigeon.remoting.invoker.process.filter.DegradationFilter;
 import org.springframework.util.CollectionUtils;
 
-import com.dianping.dpsf.exception.NetTimeoutException;
 import com.dianping.pigeon.config.ConfigManager;
 import com.dianping.pigeon.config.ConfigManagerLoader;
 import com.dianping.pigeon.log.LoggerLoader;
@@ -79,29 +79,31 @@ public enum DegradationManager {
 	}
 
 	public boolean needDegrade(InvokerContext context) {
-		if (configManager.getBooleanValue(KEY_DEGRADE_FORCE, false)) {
-			return true;
-		}
+		if(degradationIsEnable(context)) {
+			if (configManager.getBooleanValue(KEY_DEGRADE_FORCE, false)) {
+				return true;
+			}
 
-		if (configManager.getBooleanValue(KEY_DEGRADE_FAILURE, false)) {
-			return false;
-		}
+			if (configManager.getBooleanValue(KEY_DEGRADE_FAILURE, false)) {
+				return false;
+			}
 
-		if (configManager.getBooleanValue(KEY_DEGRADE_AUTO, false)) {
-			if (!CollectionUtils.isEmpty(requestCountMap)) {
-				String requestUrl = getRequestUrl(context);
-				Count count = requestCountMap.get(requestUrl);
-				if (count != null) {
-					if (count.getTotalValue() >= configManager.getIntValue(KEY_DEGRADE_THRESHOLD_TOTAL, 100)) {
-						if ((count.getTotalValue() - count.getDegradedValue()) > configManager.getIntValue(
-								KEY_DEGRADE_THRESHOLD_INVOKE, 2)
-								&& count.getFailedPercent() < configManager.getFloatValue(KEY_DEGRADE_RECOVER_PERCENT,
-										1)) {
-							return random(count.getDegradedPercent()
-									- configManager.getIntValue(KEY_DEGRADE_RECOVER_INTERVAL, 10));
-						} else if (count.getFailedPercent() >= configManager.getFloatValue(KEY_DEGRADE_RECOVER_PERCENT,
-								1)) {
-							return random(configManager.getFloatValue(KEY_DEGRADE_PERCENT_MAX, 99.90f));
+			if (configManager.getBooleanValue(KEY_DEGRADE_AUTO, false)) {
+				if (!CollectionUtils.isEmpty(requestCountMap)) {
+					String requestUrl = getRequestUrl(context);
+					Count count = requestCountMap.get(requestUrl);
+					if (count != null) {
+						if (count.getTotalValue() >= configManager.getIntValue(KEY_DEGRADE_THRESHOLD_TOTAL, 100)) {
+							if ((count.getTotalValue() - count.getDegradedValue()) > configManager.getIntValue(
+									KEY_DEGRADE_THRESHOLD_INVOKE, 2)
+									&& count.getFailedPercent() < configManager.getFloatValue(KEY_DEGRADE_RECOVER_PERCENT,
+									1)) {
+								return random(count.getDegradedPercent()
+										- configManager.getIntValue(KEY_DEGRADE_RECOVER_INTERVAL, 10));
+							} else if (count.getFailedPercent() >= configManager.getFloatValue(KEY_DEGRADE_RECOVER_PERCENT,
+									1)) {
+								return random(configManager.getFloatValue(KEY_DEGRADE_PERCENT_MAX, 99.90f));
+							}
 						}
 					}
 				}
@@ -110,12 +112,21 @@ public enum DegradationManager {
 		return false;
 	}
 
+	public boolean needFailureDegrade(InvokerContext context) {
+		return degradationIsEnable(context) && configManager.getBooleanValue(KEY_DEGRADE_FAILURE, false);
+	}
+
+	private boolean degradationIsEnable(InvokerContext context) {
+		DegradationFilter.DegradeAction action = DegradationFilter.getDegradeMethodActions().get(getRequestUrl(context));
+		return action != null && action.getEnable();
+	}
+
 	private boolean random(float percent) {
 		return random.nextInt(10000) < percent * 100;
 	}
 
 	public void addFailedRequest(InvokerContext context, Throwable t) {
-		if (t instanceof ServiceUnavailableException || t instanceof NetTimeoutException
+		if (t instanceof ServiceUnavailableException
 				|| t instanceof RequestTimeoutException || t instanceof RemoteInvocationException
 				|| t instanceof RejectedException) {
 			addRequest(context, t, false);
@@ -158,10 +169,6 @@ public enum DegradationManager {
 		}
 	}
 
-	public boolean needFailureDegrade() {
-		return configManager.getBooleanValue(KEY_DEGRADE_FAILURE, false);
-	}
-
 	public static class DegradeActionConfig implements Serializable {
 
 		private static final long serialVersionUID = 1L;
@@ -174,6 +181,15 @@ public enum DegradationManager {
 		private boolean throwException = false;
 		private boolean useMockClass = false;
 		private boolean useGroovyScript = false;
+		private boolean enable = true;
+
+		public boolean getEnable() {
+			return enable;
+		}
+
+		public void setEnable(boolean enable) {
+			this.enable = enable;
+		}
 
 		public boolean getUseGroovyScript() {
 			return useGroovyScript;
