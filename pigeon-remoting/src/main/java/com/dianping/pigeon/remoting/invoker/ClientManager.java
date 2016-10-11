@@ -41,10 +41,6 @@ public class ClientManager {
 
 	private DefaultClusterListener clusterListener;
 
-//	private HeartBeatListener heartBeatTask;
-//
-//	private ReconnectListener reconnectTask;
-
 	private ProviderAvailableListener providerAvailableListener;
 
 	private RouteManager routerManager = DefaultRouteManager.INSTANCE;
@@ -52,12 +48,6 @@ public class ClientManager {
 	private ConfigManager configManager = ConfigManagerLoader.getConfigManager();
 
 	private ServiceProviderChangeListener providerChangeListener = new InnerServiceProviderChangeListener();
-
-//	private static ExecutorService heartBeatThreadPool = Executors.newFixedThreadPool(1, new DefaultThreadFactory(
-//			"Pigeon-Client-HeartBeat-ThreadPool"));
-//
-//	private static ExecutorService reconnectThreadPool = Executors.newFixedThreadPool(1, new DefaultThreadFactory(
-//			"Pigeon-Client-Reconnect-ThreadPool"));
 
 	private static ExecutorService providerAvailableThreadPool = Executors.newFixedThreadPool(1,
 			new DefaultThreadFactory("Pigeon-Client-ProviderAvailable-ThreadPool"));
@@ -90,16 +80,10 @@ public class ClientManager {
 	}
 
 	private ClientManager() {
-//		this.heartBeatTask = new HeartBeatListener();
-//		this.reconnectTask = new ReconnectListener();
 		this.providerAvailableListener = new ProviderAvailableListener();
 		this.clusterListener = new DefaultClusterListener(//heartBeatTask, reconnectTask,
 				providerAvailableListener);
 		this.clusterListenerManager.addListener(this.clusterListener);
-//		this.clusterListenerManager.addListener(this.heartBeatTask);
-//		this.clusterListenerManager.addListener(this.reconnectTask);
-//		heartBeatThreadPool.execute(this.heartBeatTask);
-//		reconnectThreadPool.execute(this.reconnectTask);
 		providerAvailableThreadPool.execute(this.providerAvailableListener);
 		RegistryEventListener.addListener(providerChangeListener);
 		RegistryEventListener.addListener(registryConnectionListener);
@@ -289,17 +273,6 @@ public class ClientManager {
 	public DefaultClusterListener getClusterListener() {
 		return clusterListener;
 	}
-
-//	/**
-//	 * @return the heartTask
-//	 */
-//	public HeartBeatListener getHeartTask() {
-//		return heartBeatTask;
-//	}
-//
-//	public ReconnectListener getReconnectTask() {
-//		return reconnectTask;
-//	}
 
 	class InnerServiceProviderChangeListener implements ServiceProviderChangeListener {
 		@Override

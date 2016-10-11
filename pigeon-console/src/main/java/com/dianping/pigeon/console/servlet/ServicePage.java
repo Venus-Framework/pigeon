@@ -30,9 +30,7 @@ public class ServicePage {
 
 	private List<String> invokers;
 
-	private Map<String, List<ClientInfo>> heartbeats;
-
-	private Map<String, ClientInfo> reconnects;
+	private Map<String, List<ClientInfo>> clients;
 
 	private String group;
 
@@ -162,20 +160,12 @@ public class ServicePage {
 		this.group = group;
 	}
 
-	public Map<String, List<ClientInfo>> getHeartbeats() {
-		return heartbeats;
+	public Map<String, List<ClientInfo>> getClients() {
+		return clients;
 	}
 
-	public void setHeartbeats(Map<String, List<ClientInfo>> heartbeats) {
-		this.heartbeats = heartbeats;
-	}
-
-	public Map<String, ClientInfo> getReconnects() {
-		return reconnects;
-	}
-
-	public void setReconnects(Map<String, ClientInfo> reconnects) {
-		this.reconnects = reconnects;
+	public void setClients(Map<String, List<ClientInfo>> clients) {
+		this.clients = clients;
 	}
 
 	public List<String> getInvokers() {
